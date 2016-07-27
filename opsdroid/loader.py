@@ -3,10 +3,11 @@
 import logging
 import sys
 import os
+import subprocess
+import shutil
 import yaml
 import importlib
-import git
-from opsdroid.const import DEFAULT_GIT_URL
+from opsdroid.const import DEFAULT_GIT_URL, MODULES_DIRECTORY, DEFAULT_MODULE_BRANCH
 
 class Loader:
     def __init__(self, opsdroid):
@@ -28,7 +29,7 @@ class Loader:
 
     def load_config(self, config):
         """ Load all module types based on config """
-        logging.debug("Loading config")
+        logging.debug("Loading modules from config")
 
         if 'databases' in config.keys():
             # TODO: Implement database modules
@@ -52,16 +53,38 @@ class Loader:
         """ Load modules """
         logging.debug("Loading " + modules_type + " modules")
         loaded_modules = []
+
+        if not os.path.isdir(MODULES_DIRECTORY):
+            os.makedirs(MODULES_DIRECTORY)
+
         for module_name in modules.keys():
+
+            module_path = self._build_module_path(modules_type, module_name)
+            install_path = MODULES_DIRECTORY + "/" + modules_type + "/" + module_name
+
+            if "branch" not in modules[module_name]:
+                modules[module_name]["branch"] = DEFAULT_MODULE_BRANCH
+
+            # Remove module for reinstall if no-cache set
+            if "no-cache" in modules[module_name] \
+                        and modules[module_name]["no-cache"] == True \
+                        and os.path.isdir(install_path):
+                logging.debug("'no-cache' set, removing module " + module_path)
+                shutil.rmtree(install_path)
+
+            # Install module
+            self._install_module(module_name, modules_type, modules[module_name], install_path)
+
+            # Import module
             try:
-                module_path = self._build_module_path(modules_type, module_name)
                 logging.debug("Module path: " + module_path)
-                self._install_module(module_name, modules_type, modules[module_name])
                 module = importlib.import_module(module_path + "." + module_name)
                 logging.debug("Loading " + modules_type + ": " + module_name)
                 loaded_modules.append(module)
-            except ImportError:
+            except ImportError as e:
                 logging.error("Failed to load " + modules_type + " " + module_name)
+                logging.error(e)
+
         return loaded_modules
 
     def _setup_modules(self, modules):
@@ -69,10 +92,10 @@ class Loader:
         for module in modules:
             module.setup(self.opsdroid)
 
-    def _install_module(self, module_name, module_type, module_config):
+    def _install_module(self, module_name, module_type, module_config, install_path):
         """ Install a module """
         logging.debug("Installing " + module_name)
-        install_path = "modules/" + module_type + "/" + module_name
+
         if os.path.isdir(install_path):
             # TODO Allow for updating or reinstalling of modules
             logging.debug("Module " + module_name + " already installed, skipping")
@@ -81,16 +104,22 @@ class Loader:
                 git_url = module_config["repo"]
             else:
                 git_url = DEFAULT_GIT_URL + module_type + "-" + module_name + ".git"
-            try:
-                if any(x in git_url for x in ["http", "https", "ssh"]):
-                    # TODO Test if url or ssh path exists
-                    # TODO Handle github authentication
-                    git.Repo.clone_from(git_url, install_path)
-                else:
-                    if os.path.isdir(git_url):
-                        git.Repo.clone_from(git_url, install_path)
-            except git.exc.GitCommandError as e:
-                print(e)
+
+            if any(x in git_url for x in ["http", "https", "ssh"]):
+                # TODO Test if url or ssh path exists
+                # TODO Handle github authentication
+                self._git_clone(git_url, install_path, module_config["branch"])
+            else:
+                if os.path.isdir(git_url):
+                    self._git_clone(git_url, install_path, module_config["branch"])
+            logging.debug("Installed " + module_name + " to " + install_path)
 
     def _build_module_path(self, mod_type, mod_name):
-        return "modules." + mod_type + "." + mod_name
+        """ Generate the module path from name and type """
+        return MODULES_DIRECTORY + "." + mod_type + "." + mod_name
+
+    def _git_clone(self, git_url, install_path, branch):
+        """ Clone a git repo to a location and wait for finish """
+        p = subprocess.Popen(["git", "clone", "-b", branch, git_url, install_path], shell=False,
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p.wait()

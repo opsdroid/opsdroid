@@ -12,6 +12,9 @@ from opsdroid.const import LOG_FILENAME
 
 def main():
     """ The main function """
+    logging.basicConfig(filename=LOG_FILENAME,level=logging.INFO)
+    logging.info("="*40)
+    logging.info("Stated application")
     opsdroid = OpsDroid()
     loader = Loader(opsdroid)
     opsdroid.config = loader.load_config_file("./configuration.yaml")
@@ -21,8 +24,5 @@ def main():
     return opsdroid
 
 if __name__ == "__main__":
-    logging.basicConfig(filename=LOG_FILENAME,level=logging.INFO)
-    logging.info("="*40)
-    logging.info("Stated application")
     opsdroid = main()
     opsdroid.exit()
