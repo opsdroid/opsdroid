@@ -1,3 +1,5 @@
+""" Starts OpsDroid """
+
 import sys
 import json
 import logging
@@ -5,8 +7,8 @@ import logging
 from opsdroid.loader import Loader
 from opsdroid.core import OpsDroid
 from opsdroid.helper import *
+from opsdroid.const import LOG_FILENAME
 
-LOG_FILENAME = 'output.log'
 
 def main():
     """ The main function """

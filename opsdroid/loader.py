@@ -1,3 +1,5 @@
+""" Class for loading in modules to OpsDroid """
+
 import logging
 import sys
 import os
@@ -67,6 +69,7 @@ class Loader:
         logging.debug("Installing " + module_name)
         install_path = "modules/" + module_type + "/" + module_name
         if os.path.isdir(install_path):
+            # TODO Allow for updating or reinstalling of modules
             logging.debug("Module " + module_name + " already installed, skipping")
         else:
             if module_config != None and "repo" in module_config:
@@ -75,7 +78,8 @@ class Loader:
                 git_url = DEFAULT_GIT_URL + module_type + "-" + module_name + ".git"
             try:
                 if any(x in git_url for x in ["http", "https", "ssh"]):
-                    # TODO test if url or ssh path exists
+                    # TODO Test if url or ssh path exists
+                    # TODO Handle github authentication
                     git.Repo.clone_from(git_url, install_path)
                 else:
                     if os.path.isdir(git_url):

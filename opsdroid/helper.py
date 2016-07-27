@@ -1,3 +1,5 @@
+""" Helper functions to use within OpsDroid """
+
 import logging
 
 def set_logging_level(logging_level):

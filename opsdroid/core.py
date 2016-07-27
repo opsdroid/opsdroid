@@ -1,3 +1,5 @@
+""" Core components of OpsDroid """
+
 import logging
 import sys
 import re
@@ -9,6 +11,7 @@ class OpsDroid():
 
     def __init__(self):
         """ opsdroid initialiser """
+        # TODO Check instances and only allow one to be created
         self.__class__.instances.append(weakref.proxy(self))
         self.sys_status = 0
         self.connectors = []
