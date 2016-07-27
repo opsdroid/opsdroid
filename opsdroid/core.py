@@ -35,9 +35,9 @@ class OpsDroid():
         if len(connectors) == 0:
             self.critical("All connectors failed to load", 1)
         for connector_module in connectors:
-            for name, cls in connector_module.__dict__.items():
+            for name, cls in connector_module["module"].__dict__.items():
                 if isinstance(cls, type) and "Connector" in name:
-                    connector = cls()
+                    connector = cls(connector_module["config"])
                     self.connectors.append(connector)
                     connector.connect(self)
 

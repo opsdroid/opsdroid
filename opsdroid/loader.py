@@ -80,7 +80,7 @@ class Loader:
                 logging.debug("Module path: " + module_path)
                 module = importlib.import_module(module_path + "." + module_name)
                 logging.debug("Loading " + modules_type + ": " + module_name)
-                loaded_modules.append(module)
+                loaded_modules.append({"module": module, "config": modules[module_name]})
             except ImportError as e:
                 logging.error("Failed to load " + modules_type + " " + module_name)
                 logging.error(e)
@@ -90,7 +90,7 @@ class Loader:
     def _setup_modules(self, modules):
         """ Call the setup function on the passed in modules """
         for module in modules:
-            module.setup(self.opsdroid)
+            module["module"].setup(self.opsdroid)
 
     def _install_module(self, module_name, module_type, module_config, install_path):
         """ Install a module """
