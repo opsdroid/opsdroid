@@ -27,6 +27,7 @@ class OpsDroid():
         """ Exit due to unrecoverable error """
         self.sys_status = code
         logging.critical(error)
+        print("Error: " + error)
         self.exit()
 
     def start_connectors(self, connectors):

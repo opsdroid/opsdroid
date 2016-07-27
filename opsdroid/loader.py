@@ -15,11 +15,16 @@ class Loader:
 
     def load_config_file(self, config_path):
         """ Load a yaml config file from path """
-        with open(config_path, 'r') as stream:
-            try:
+        if not os.path.isfile(config_path):
+            self.opsdroid.critical("Config file " + config_path + " not found", 1)
+
+        try:
+            with open(config_path, 'r') as stream:
                 return(yaml.load(stream))
-            except yaml.YAMLError as exc:
-                self.opsdroid.critical(exc, 1)
+        except yaml.YAMLError as e:
+            self.opsdroid.critical(e, 1)
+        except FileNotFoundError as e:
+            self.opsdroid.critical(e, 1)
 
     def load_config(self, config):
         """ Load all module types based on config """

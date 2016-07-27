@@ -15,7 +15,8 @@ def main():
     opsdroid = OpsDroid()
     loader = Loader(opsdroid)
     opsdroid.config = loader.load_config_file("./configuration.yaml")
-    set_logging_level(opsdroid.config['logging'])
+    if "logging" in opsdroid.config:
+        set_logging_level(opsdroid.config['logging'])
     loader.load_config(opsdroid.config)
     return opsdroid
 
