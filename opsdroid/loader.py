@@ -4,6 +4,7 @@ import logging
 import sys
 import os
 import subprocess
+import pip
 import shutil
 import yaml
 import importlib
@@ -112,6 +113,13 @@ class Loader:
             else:
                 if os.path.isdir(git_url):
                     self._git_clone(git_url, install_path, module_config["branch"])
+                else:
+                    logging.debug("Could not find local git repo " + git_url)
+
+            # Install module dependancies
+            if os.path.isfile(install_path + "/requirements.txt"):
+                pip.main(["install", "-r", install_path + "/requirements.txt"])
+
             logging.debug("Installed " + module_name + " to " + install_path)
 
     def _build_module_path(self, mod_type, mod_name):
