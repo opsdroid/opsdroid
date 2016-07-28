@@ -13,7 +13,7 @@ class OpsDroid():
         """ opsdroid initialiser """
         # TODO Check instances and only allow one to be created
         self.__class__.instances.append(weakref.proxy(self))
-        self.name = 'opsdroid'
+        self.bot_name = 'opsdroid'
         self.sys_status = 0
         self.connectors = []
         self.skills = []
@@ -38,6 +38,7 @@ class OpsDroid():
         for connector_module in connectors:
             for name, cls in connector_module["module"].__dict__.items():
                 if isinstance(cls, type) and "Connector" in name:
+                    connector_module["config"]["bot-name"] = self.bot_name
                     connector = cls(connector_module["config"])
                     self.connectors.append(connector)
                     connector.connect(self)
