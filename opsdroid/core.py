@@ -53,7 +53,9 @@ class OpsDroid():
             logging.debug("Parsing input: " + message.text)
             for skill in self.skills:
                 if "regex" in skill:
-                    if self._match(skill["regex"], message.text):
+                    match = self._match(skill["regex"], message.text)
+                    if match:
+                        message.regex = match
                         skill["skill"](self, message)
 
     def _match(self, regex, message):
