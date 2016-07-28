@@ -11,6 +11,7 @@ class Message:
         self.user = user
         self.room = room
         self.connector = connector
+        self.regex = None
 
     def respond(self, text):
         """ Respond to this message using the connector it was created by """
