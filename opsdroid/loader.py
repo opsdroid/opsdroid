@@ -116,11 +116,14 @@ class Loader:
                 else:
                     logging.debug("Could not find local git repo " + git_url)
 
+            if os.path.isdir(install_path):
+                logging.debug("Installed " + module_name + " to " + install_path)
+            else:
+                logging.debug("Install of " + module_name + " failed ")
+
             # Install module dependancies
             if os.path.isfile(install_path + "/requirements.txt"):
                 pip.main(["install", "-r", install_path + "/requirements.txt"])
-
-            logging.debug("Installed " + module_name + " to " + install_path)
 
     def _build_module_path(self, mod_type, mod_name):
         """ Generate the module path from name and type """

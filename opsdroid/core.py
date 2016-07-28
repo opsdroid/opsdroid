@@ -13,6 +13,7 @@ class OpsDroid():
         """ opsdroid initialiser """
         # TODO Check instances and only allow one to be created
         self.__class__.instances.append(weakref.proxy(self))
+        self.name = 'opsdroid'
         self.sys_status = 0
         self.connectors = []
         self.skills = []
@@ -47,11 +48,11 @@ class OpsDroid():
 
     def parse(self, message):
         """ Parse a string against all skills """
-        if message.message.strip() != "":
-            logging.debug("Parsing input: " + message.message)
+        if message.text.strip() != "":
+            logging.debug("Parsing input: " + message.text)
             for skill in self.skills:
                 if "regex" in skill:
-                    if self._match(skill["regex"], message.message):
+                    if self._match(skill["regex"], message.text):
                         skill["skill"](self, message)
 
     def _match(self, regex, message):
