@@ -60,6 +60,9 @@ class Loader:
 
         for module_name in modules.keys():
 
+            if modules[module_name] == None:
+                modules[module_name] = {}
+
             module_path = self._build_module_path(modules_type, module_name)
             install_path = MODULES_DIRECTORY + "/" + modules_type + "/" + module_name
 
