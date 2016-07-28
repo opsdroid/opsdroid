@@ -4,6 +4,7 @@ import logging
 import sys
 import re
 import weakref
+from opsdroid.memory import Memory
 
 class OpsDroid():
     """ Root object for opsdroid """
@@ -17,6 +18,7 @@ class OpsDroid():
         self.sys_status = 0
         self.connectors = []
         self.skills = []
+        self.memory = Memory()
         logging.info("Created main opsdroid object")
 
     def exit(self):
