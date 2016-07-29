@@ -1,1 +1,1 @@
-""" Init file for opsdroid """
+"""Init file for opsdroid."""

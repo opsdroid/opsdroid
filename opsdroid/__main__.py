@@ -1,18 +1,16 @@
-""" Starts opsdroid """
+"""Starts opsdroid."""
 
-import sys
-import json
 import logging
 
 from opsdroid.loader import Loader
 from opsdroid.core import OpsDroid
-from opsdroid.helper import *
+from opsdroid.helper import set_logging_level
 from opsdroid.const import LOG_FILENAME
 
 
 def main():
-    """ The main function """
-    logging.basicConfig(filename=LOG_FILENAME,level=logging.INFO)
+    """The main function."""
+    logging.basicConfig(filename=LOG_FILENAME, level=logging.INFO)
     logging.info("="*40)
     logging.info("Stated application")
     opsdroid = OpsDroid()
