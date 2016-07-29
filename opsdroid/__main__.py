@@ -1,4 +1,4 @@
-""" Starts OpsDroid """
+""" Starts opsdroid """
 
 import sys
 import json
@@ -21,8 +21,7 @@ def main():
     if "logging" in opsdroid.config:
         set_logging_level(opsdroid.config['logging'])
     loader.load_config(opsdroid.config)
-    return opsdroid
+    opsdroid.exit()
 
 if __name__ == "__main__":
-    opsdroid = main()
-    opsdroid.exit()
+    main()
