@@ -31,6 +31,9 @@ class TestHelper(unittest.TestCase):
         helper.set_logging_level('critical')
         self.assertEqual(50, logging.getLogger().getEffectiveLevel())
 
+        helper.set_logging_level('an unkown level')
+        self.assertEqual(20, logging.getLogger().getEffectiveLevel())
+
     def test_match(self):
         match = helper.match(r".*", "test")
         self.assertEqual(match.group(0), "test")

@@ -28,4 +28,5 @@ skills:
 
 ## Development
 
-`docker run --rm -ti -v $(pwd):/usr/src/app opsdroid/opsdroid:dev`
+Run tests
+`docker run --rm -ti -v $(pwd):/usr/src/app opsdroid/opsdroid:dev tox`
