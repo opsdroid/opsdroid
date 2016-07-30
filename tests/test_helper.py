@@ -44,4 +44,4 @@ class TestHelper(unittest.TestCase):
     def test_git_clone(self):
         helper.git_clone("https://github.com/rmccue/test-repository.git",
                          "/tmp/test", "master")
-        self.assertEqual(len(sys.modules['subprocess'].mock_calls), 2)
+        self.assertNotEqual(len(sys.modules['subprocess'].mock_calls), 0)
