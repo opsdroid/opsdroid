@@ -1,4 +1,7 @@
 # Ops Droid
+
+[![Build Status](https://travis-ci.org/opsdroid/opsdroid.svg?branch=master)](https://travis-ci.org/opsdroid/opsdroid) [![Coverage Status](https://coveralls.io/repos/github/opsdroid/opsdroid/badge.svg?branch=master)](https://coveralls.io/github/opsdroid/opsdroid?branch=master)
+
 An open source python chat-ops bot
 
 ## Building
