@@ -14,14 +14,24 @@ class OpsDroid():
 
     def __init__(self):
         """Start opsdroid."""
-        # TODO Check instances and only allow one to be created
-        self.__class__.instances.append(weakref.proxy(self))
         self.bot_name = 'opsdroid'
         self.sys_status = 0
         self.connectors = []
         self.skills = []
         self.memory = Memory()
         logging.info("Created main opsdroid object")
+
+    def __enter__(self):
+        """Add self to existing instances."""
+        if len(self.__class__.instances) == 0:
+            self.__class__.instances.append(weakref.proxy(self))
+        else:
+            self.critical("opsdroid has already been started", 1)
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """Remove self from existing instances."""
+        self.__class__.instances = []
 
     def exit(self):
         """Exit application."""

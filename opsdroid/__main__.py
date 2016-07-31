@@ -13,13 +13,13 @@ def main():
     logging.basicConfig(filename=LOG_FILENAME, level=logging.INFO)
     logging.info("="*40)
     logging.info("Stated application")
-    opsdroid = OpsDroid()
-    loader = Loader(opsdroid)
-    opsdroid.config = loader.load_config_file("./configuration.yaml")
-    if "logging" in opsdroid.config:
-        set_logging_level(opsdroid.config['logging'])
-    loader.load_config(opsdroid.config)
-    opsdroid.exit()
+    with OpsDroid() as opsdroid:
+        loader = Loader(opsdroid)
+        opsdroid.config = loader.load_config_file("./configuration.yaml")
+        if "logging" in opsdroid.config:
+            set_logging_level(opsdroid.config['logging'])
+        loader.load_config(opsdroid.config)
+        opsdroid.exit()
 
 if __name__ == "__main__":
     main()
