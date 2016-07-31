@@ -22,6 +22,7 @@ def import_module(config):
         logging.error("Failed to load " + config["type"] +
                       " " + config["name"])
         logging.error(error)
+        return None
 
 
 def check_cache(config):
@@ -125,9 +126,11 @@ class Loader:
             self._install_module(config)
 
             # Import module
-            loaded_modules.append({
-                "module": import_module(config),
-                "config": config})
+            module = import_module(config)
+            if module is not None:
+                loaded_modules.append({
+                    "module": module,
+                    "config": config})
 
         return loaded_modules
 

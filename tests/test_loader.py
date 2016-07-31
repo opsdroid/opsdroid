@@ -3,6 +3,7 @@ import yaml
 import sys
 import os
 import shutil
+from types import ModuleType
 import unittest
 import unittest.mock as mock
 
@@ -69,3 +70,21 @@ class TestLoader(unittest.TestCase):
         ld.check_cache(config)
         self.assertTrue(os.path.isdir(config["install_path"]))
         shutil.rmtree(config["install_path"])
+
+    def test_import_module(self):
+        config = {}
+        config["path"] = "os"
+        config["name"] = "path"
+        config["type"] = "system"
+
+        module = ld.import_module(config)
+        self.assertIsInstance(module, ModuleType)
+
+    def test_import_module_failure(self):
+        config = {}
+        config["path"] = "nonexistant"
+        config["name"] = "module"
+        config["type"] = "broken"
+
+        module = ld.import_module(config)
+        self.assertEqual(module, None)
