@@ -71,7 +71,7 @@ class Loader:
         except yaml.YAMLError as error:
             self.opsdroid.critical(error, 1)
         except FileNotFoundError as error:
-            self.opsdroid.critical(error, 1)
+            self.opsdroid.critical(str(error), 1)
 
     def load_config(self, config):
         """Load all module types based on config."""

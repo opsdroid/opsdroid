@@ -88,3 +88,28 @@ class TestLoader(unittest.TestCase):
 
         module = ld.import_module(config)
         self.assertEqual(module, None)
+
+    def test_load_config(self):
+        opsdroid, loader = self.setup()
+        loader._load_modules = mock.MagicMock()
+        loader._setup_modules = mock.MagicMock()
+        config = {}
+        config['databases'] = mock.MagicMock()
+        config['skills'] = mock.MagicMock()
+        config['connectors'] = mock.MagicMock()
+
+        loader.load_config(config)
+        self.assertEqual(len(loader._load_modules.mock_calls), 3)
+        self.assertEqual(len(loader._setup_modules.mock_calls), 1)
+        self.assertEqual(len(opsdroid.mock_calls), 1)
+
+    def test_load_empty_config(self):
+        opsdroid, loader = self.setup()
+        loader._load_modules = mock.MagicMock()
+        loader._setup_modules = mock.MagicMock()
+        config = {}
+
+        loader.load_config(config)
+        self.assertEqual(len(loader._load_modules.mock_calls), 0)
+        self.assertEqual(len(loader._setup_modules.mock_calls), 0)
+        self.assertEqual(len(opsdroid.mock_calls), 2)
