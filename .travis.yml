@@ -15,3 +15,11 @@ install: pip install -U tox coveralls
 language: python
 script: tox
 after_success: coveralls
+deploy:
+  provider: pypi
+  user: $PYPI_USER
+  password: $PYPI_PASSWORD
+  on:
+    tags: true
+    repo: opsdroid/opsdroid
+    condition: "$TOXENV = py35"

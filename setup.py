@@ -6,7 +6,8 @@ from opsdroid.const import __version__
 PACKAGE_NAME = 'opsdroid'
 HERE = os.path.abspath(os.path.dirname(__file__))
 
-PACKAGES = find_packages(exclude=['tests', 'tests.*', 'modules', 'modules.*'])
+PACKAGES = find_packages(exclude=['tests', 'tests.*', 'modules',
+                                  'modules.*', 'docs', 'docs.*'])
 
 REQUIRES = [
     'pyyaml>=3.11,<4',
