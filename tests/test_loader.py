@@ -1,6 +1,8 @@
 
 import yaml
 import sys
+import os
+import shutil
 import unittest
 import unittest.mock as mock
 
@@ -45,4 +47,25 @@ class TestLoader(unittest.TestCase):
         self.assertNotEqual(len(sys.modules['subprocess'].mock_calls), 0)
 
     def test_build_module_path(self):
-        self.assertIn("test.test", ld.build_module_path("test", "test"))
+        config = {}
+        config["type"] = "test"
+        config["name"] = "test"
+        self.assertIn("test.test", ld.build_module_path("import", config))
+        self.assertIn("test/test", ld.build_module_path("install", config))
+
+    def test_check_cache_removes(self):
+        config = {}
+        config["no-cache"] = True
+        config['install_path'] = "/tmp/test/module"
+        os.makedirs(config['install_path'])
+        ld.check_cache(config)
+        self.assertFalse(os.path.isdir(config["install_path"]))
+
+    def test_check_cache_leaves(self):
+        config = {}
+        config["no-cache"] = False
+        config['install_path'] = "/tmp/test/module"
+        os.makedirs(config['install_path'])
+        ld.check_cache(config)
+        self.assertTrue(os.path.isdir(config["install_path"]))
+        shutil.rmtree(config["install_path"])

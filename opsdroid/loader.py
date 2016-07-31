@@ -24,9 +24,21 @@ def import_module(config):
         logging.error(error)
 
 
-def build_module_path(mod_type, mod_name):
+def check_cache(config):
+    """Remove module if 'no-cache' set in config."""
+    if "no-cache" in config \
+            and config["no-cache"] \
+            and os.path.isdir(config["install_path"]):
+        logging.debug("'no-cache' set, removing " + config["install_path"])
+        shutil.rmtree(config["install_path"])
+
+
+def build_module_path(path_type, config):
     """Generate the module path from name and type."""
-    return MODULES_DIRECTORY + "." + mod_type + "." + mod_name
+    if path_type == "import":
+        return MODULES_DIRECTORY + "." + config["type"] + "." + config["name"]
+    elif path_type == "install":
+        return MODULES_DIRECTORY + "/" + config["type"] + "/" + config["name"]
 
 
 def git_clone(git_url, install_path, branch):
@@ -86,10 +98,11 @@ class Loader:
                 "No connectors in configuration, at least 1 required", 1)
 
     def _load_modules(self, modules_type, modules):
-        """Load modules."""
+        """Install and load modules."""
         logging.debug("Loading " + modules_type + " modules")
         loaded_modules = []
 
+        # Create modules directory if doesn't exist
         if not os.path.isdir(MODULES_DIRECTORY):
             os.makedirs(MODULES_DIRECTORY)
 
@@ -97,28 +110,19 @@ class Loader:
 
             # Set up module config
             config = modules[module_name]
-            if config is None:
-                config = {}
+            config = {} if config is None else config
             config["name"] = module_name
             config["type"] = modules_type
-            config["path"] = build_module_path(config["type"], config["name"])
-            config["install_path"] = MODULES_DIRECTORY + "/" + \
-                config["type"] + "/" + config["name"]
-
+            config["path"] = build_module_path("import", config)
+            config["install_path"] = build_module_path("install", config)
             if "branch" not in config:
                 config["branch"] = DEFAULT_MODULE_BRANCH
 
             # Remove module for reinstall if no-cache set
-            if "no-cache" in config \
-                    and config["no-cache"] \
-                    and os.path.isdir(config["install_path"]):
-                logging.debug("'no-cache' set, removing " + config["path"])
-                shutil.rmtree(config["install_path"])
+            check_cache(config)
 
             # Install module
-            self._install_module(
-                config["name"], config["type"],
-                config, config["install_path"])
+            self._install_module(config)
 
             # Import module
             loaded_modules.append({
@@ -132,38 +136,40 @@ class Loader:
         for module in modules:
             module["module"].setup(self.opsdroid)
 
-    def _install_module(self, name, mod_type, config, install_path):
+    def _install_module(self, config):
         # pylint: disable=R0201
         """Install a module."""
-        logging.debug("Installing " + name)
+        logging.debug("Installing " + config["name"])
 
-        if os.path.isdir(install_path):
+        if os.path.isdir(config["install_path"]):
             # TODO Allow for updating or reinstalling of modules
-            logging.debug("Module " + name +
+            logging.debug("Module " + config["name"] +
                           " already installed, skipping")
         else:
             if config is not None and "repo" in config:
                 git_url = config["repo"]
             else:
-                git_url = DEFAULT_GIT_URL + mod_type + \
-                            "-" + name + ".git"
+                git_url = DEFAULT_GIT_URL + config["type"] + \
+                            "-" + config["name"] + ".git"
 
-            if any(x in git_url for x in ["http", "https", "ssh"]):
+            if any(prefix in git_url for prefix in ["http", "https", "ssh"]):
                 # TODO Test if url or ssh path exists
                 # TODO Handle github authentication
-                git_clone(git_url, install_path, config["branch"])
+                git_clone(git_url, config["install_path"], config["branch"])
             else:
                 if os.path.isdir(git_url):
-                    git_clone(git_url, install_path, config["branch"])
+                    git_clone(git_url, config["install_path"],
+                              config["branch"])
                 else:
                     logging.debug("Could not find local git repo " + git_url)
 
-            if os.path.isdir(install_path):
-                logging.debug("Installed " + name +
-                              " to " + install_path)
+            if os.path.isdir(config["install_path"]):
+                logging.debug("Installed " + config["name"] +
+                              " to " + config["install_path"])
             else:
-                logging.debug("Install of " + name + " failed ")
+                logging.debug("Install of " + config["name"] + " failed ")
 
             # Install module dependancies
-            if os.path.isfile(install_path + "/requirements.txt"):
-                pip.main(["install", "-r", install_path + "/requirements.txt"])
+            if os.path.isfile(config["install_path"] + "/requirements.txt"):
+                pip.main(["install", "-r", config["install_path"] +
+                          "/requirements.txt"])
