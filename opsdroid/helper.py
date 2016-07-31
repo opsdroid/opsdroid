@@ -2,9 +2,6 @@
 
 import logging
 import re
-import subprocess
-
-from opsdroid.const import MODULES_DIRECTORY
 
 
 def set_logging_level(logging_level):
@@ -28,20 +25,6 @@ def set_logging_level(logging_level):
                         "' unknown, defaulting to 'info'")
 
 
-def build_module_path(mod_type, mod_name):
-    """Generate the module path from name and type."""
-    return MODULES_DIRECTORY + "." + mod_type + "." + mod_name
-
-
 def match(regex, message):
     """Regex match a string."""
     return re.match(regex, message, re.M | re.I)
-
-
-def git_clone(git_url, install_path, branch):
-    """Clone a git repo to a location and wait for finish."""
-    process = subprocess.Popen(["git", "clone", "-b", branch,
-                                git_url, install_path], shell=False,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
-    process.wait()

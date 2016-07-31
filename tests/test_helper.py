@@ -1,19 +1,12 @@
 
 import unittest
 import logging
-import sys
-import unittest.mock as mock
 
-sys.modules['subprocess'] = mock.MagicMock()
-
-from opsdroid import helper  # noqa: E402
+from opsdroid import helper
 
 
 class TestHelper(unittest.TestCase):
     """Test the opsdroid helper classes."""
-
-    def test_build_module_path(self):
-        self.assertIn("test.test", helper.build_module_path("test", "test"))
 
     def test_set_logging_level(self):
         helper.set_logging_level('debug')
@@ -40,8 +33,3 @@ class TestHelper(unittest.TestCase):
 
         match = helper.match(r"hello (.*)", "hello world")
         self.assertEqual(match.group(1), "world")
-
-    def test_git_clone(self):
-        helper.git_clone("https://github.com/rmccue/test-repository.git",
-                         "/tmp/test", "master")
-        self.assertNotEqual(len(sys.modules['subprocess'].mock_calls), 0)

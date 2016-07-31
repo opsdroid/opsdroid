@@ -3,12 +3,39 @@
 import logging
 import os
 import shutil
+import subprocess
 import importlib
 import pip
 import yaml
-from opsdroid.helper import build_module_path, git_clone
 from opsdroid.const import (
     DEFAULT_GIT_URL, MODULES_DIRECTORY, DEFAULT_MODULE_BRANCH)
+
+
+def import_module(config):
+    """Import module namespace as variable and return it."""
+    try:
+        module = importlib.import_module(
+            config["path"] + "." + config["name"])
+        logging.debug("Loading " + config["type"] + ": " + config["name"])
+        return module
+    except ImportError as error:
+        logging.error("Failed to load " + config["type"] +
+                      " " + config["name"])
+        logging.error(error)
+
+
+def build_module_path(mod_type, mod_name):
+    """Generate the module path from name and type."""
+    return MODULES_DIRECTORY + "." + mod_type + "." + mod_name
+
+
+def git_clone(git_url, install_path, branch):
+    """Clone a git repo to a location and wait for finish."""
+    process = subprocess.Popen(["git", "clone", "-b", branch,
+                                git_url, install_path], shell=False,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+    process.wait()
 
 
 class Loader:
@@ -68,41 +95,35 @@ class Loader:
 
         for module_name in modules.keys():
 
-            if modules[module_name] is None:
-                modules[module_name] = {}
+            # Set up module config
+            config = modules[module_name]
+            if config is None:
+                config = {}
+            config["name"] = module_name
+            config["type"] = modules_type
+            config["path"] = build_module_path(config["type"], config["name"])
+            config["install_path"] = MODULES_DIRECTORY + "/" + \
+                config["type"] + "/" + config["name"]
 
-            module_path = build_module_path(modules_type, module_name)
-            install_path = MODULES_DIRECTORY + "/" + \
-                modules_type + "/" + module_name
-
-            if "branch" not in modules[module_name]:
-                modules[module_name]["branch"] = DEFAULT_MODULE_BRANCH
+            if "branch" not in config:
+                config["branch"] = DEFAULT_MODULE_BRANCH
 
             # Remove module for reinstall if no-cache set
-            if "no-cache" in modules[module_name] \
-                    and modules[module_name]["no-cache"] \
-                    and os.path.isdir(install_path):
-                logging.debug("'no-cache' set, removing module " + module_path)
-                shutil.rmtree(install_path)
+            if "no-cache" in config \
+                    and config["no-cache"] \
+                    and os.path.isdir(config["install_path"]):
+                logging.debug("'no-cache' set, removing " + config["path"])
+                shutil.rmtree(config["install_path"])
 
             # Install module
             self._install_module(
-                module_name, modules_type,
-                modules[module_name], install_path)
+                config["name"], config["type"],
+                config, config["install_path"])
 
             # Import module
-            try:
-                logging.debug("Module path: " + module_path)
-                module = importlib.import_module(
-                    module_path + "." + module_name)
-                logging.debug("Loading " + modules_type + ": " + module_name)
-                loaded_modules.append({
-                    "module": module,
-                    "config": modules[module_name]})
-            except ImportError as error:
-                logging.error("Failed to load " + modules_type +
-                              " " + module_name)
-                logging.error(error)
+            loaded_modules.append({
+                "module": import_module(config),
+                "config": config})
 
         return loaded_modules
 
