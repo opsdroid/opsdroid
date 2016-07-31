@@ -16,6 +16,7 @@ class TestMemory(unittest.TestCase):
         data = "Hello world!"
         memory.put("test", data)
         self.assertEqual(data, memory.get("test"))
+        self.assertIsNone(memory.get("nonexistant"))
 
     def test_sync(self):
         memory = self.setup()
