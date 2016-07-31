@@ -22,3 +22,4 @@ deploy:
   on:
     tags: true
     repo: opsdroid/opsdroid
+    condition: "$TOXENV = py35"
