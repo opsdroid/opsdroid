@@ -10,6 +10,7 @@ class Memory:
         """Create memory dictionary."""
         self.memory = {}
         self.databases = []
+        self.sync()
 
     def get(self, key):
         """Get data object for a given key."""
