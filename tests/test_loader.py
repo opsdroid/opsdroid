@@ -101,7 +101,7 @@ class TestLoader(unittest.TestCase):
         loader.load_config(config)
         self.assertEqual(len(loader._load_modules.mock_calls), 3)
         self.assertEqual(len(loader._setup_modules.mock_calls), 1)
-        self.assertEqual(len(opsdroid.mock_calls), 1)
+        self.assertNotEqual(len(opsdroid.mock_calls), 0)
 
     def test_load_empty_config(self):
         opsdroid, loader = self.setup()

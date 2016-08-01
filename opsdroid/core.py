@@ -58,6 +58,18 @@ class OpsDroid():
                     self.connectors.append(connector)
                     connector.connect(self)
 
+    def start_databases(self, databases):
+        """Start the databases."""
+        if len(databases) == 0:
+            logging.warning("All databases failed to load")
+        for database_module in databases:
+            for name, cls in database_module["module"].__dict__.items():
+                if isinstance(cls, type) and "Database" in name:
+                    logging.debug("Adding database: " + name)
+                    database = cls(database_module["config"])
+                    self.memory.databases.append(database)
+                    database.connect()
+
     def load_regex_skill(self, regex, skill):
         """Load skills."""
         self.skills.append({"regex": regex, "skill": skill})
