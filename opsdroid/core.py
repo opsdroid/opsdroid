@@ -61,7 +61,7 @@ class OpsDroid():
     def start_databases(self, databases):
         """Start the databases."""
         if len(databases) == 0:
-            logging.warn("All databases failed to load")
+            logging.warning("All databases failed to load")
         for database_module in databases:
             for name, cls in database_module["module"].__dict__.items():
                 if isinstance(cls, type) and "Database" in name:

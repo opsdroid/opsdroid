@@ -14,7 +14,7 @@ class Memory:
     def get(self, key):
         """Get data object for a given key."""
         logging.debug("Getting " + key + " from memory")
-        database_result = self.get_from_database(key)
+        database_result = self._get_from_database(key)
         if database_result is not None:
             self.memory[key] = database_result
         if key in self.memory:
@@ -26,9 +26,9 @@ class Memory:
         """Put a data object to a given key."""
         logging.debug("Putting " + key + " to memory")
         self.memory[key] = data
-        put_to_database(key, self.memory[key])
+        self._put_to_database(key, self.memory[key])
 
-    def get_from_database(self, key):
+    def _get_from_database(self, key):
         """Get updates from databases for a given key."""
         if not self.databases:
             logging.warning("No databases configured, data will not persist")
@@ -40,7 +40,7 @@ class Memory:
             # TODO: Handle multiple databases
             return results[0]
 
-    def put_to_database(self, key, data):
+    def _put_to_database(self, key, data):
         """Put updates into databases for a given key."""
         if not self.databases:
             logging.warning("No databases configured, data will not persist")

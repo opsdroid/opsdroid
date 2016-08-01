@@ -20,11 +20,12 @@ class TestMemory(unittest.TestCase):
 
     def test_sync(self):
         memory = self.setup()
-        memory.sync = mock.MagicMock()
+        memory._get_from_database = mock.MagicMock()
+        memory._put_to_database = mock.MagicMock()
         data = "Hello world!"
 
         memory.put("test", data)
-        self.assertEqual(len(memory.sync.mock_calls), 1)
+        self.assertEqual(len(memory._put_to_database.mock_calls), 1)
 
         memory.get("test")
-        self.assertEqual(len(memory.sync.mock_calls), 2)
+        self.assertEqual(len(memory._get_from_database.mock_calls), 1)
