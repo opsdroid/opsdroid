@@ -2,6 +2,7 @@
 import sys
 import unittest
 import unittest.mock as mock
+import importlib
 
 sys.modules['sys'].exit = mock.MagicMock()
 
@@ -46,3 +47,27 @@ class TestCore(unittest.TestCase):
             message = Message("Hello world", "user", "default", mock_connector)
             opsdroid.parse(message)
             self.assertEqual(len(skill.mock_calls), 1)
+
+    def test_start_databases(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.start_databases([])
+            module = {}
+            module["config"] = {}
+            module["module"] = importlib.import_module(
+                "tests.mockmodules.databases.database")
+            opsdroid.start_databases([module])
+            self.assertEqual(len(opsdroid.memory.databases), 1)
+            self.assertEqual(
+                len(opsdroid.memory.databases[0].connect.mock_calls), 1)
+
+    def test_start_connectors(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.start_connectors([])
+            module = {}
+            module["config"] = {}
+            module["module"] = importlib.import_module(
+                "tests.mockmodules.connectors.connector")
+            opsdroid.start_connectors([module])
+            self.assertEqual(len(opsdroid.connectors), 1)
+            self.assertEqual(
+                len(opsdroid.connectors[0].connect.mock_calls), 1)

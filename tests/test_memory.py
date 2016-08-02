@@ -18,6 +18,10 @@ class TestMemory(unittest.TestCase):
         self.assertEqual(data, memory.get("test"))
         self.assertIsNone(memory.get("nonexistant"))
 
+    def test_empty_memory(self):
+        memory = self.setup()
+        self.assertEqual(None, memory.get("test"))
+
     def test_database_callouts(self):
         memory = self.setup()
         memory.databases = [mock.MagicMock()]
