@@ -71,3 +71,10 @@ class TestCore(unittest.TestCase):
             self.assertEqual(len(opsdroid.connectors), 1)
             self.assertEqual(
                 len(opsdroid.connectors[0].connect.mock_calls), 1)
+
+    def test_multiple_opsdroids(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.__class__.critical = mock.MagicMock()
+            with OpsDroid() as opsdroid2:
+                opsdroid2.exit()
+            self.assertEqual(len(opsdroid.__class__.critical.mock_calls), 1)
