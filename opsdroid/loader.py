@@ -78,8 +78,8 @@ class Loader:
         logging.debug("Loading modules from config")
 
         if 'databases' in config.keys():
-            # TODO: Implement database modules
-            self._load_modules('database', config['databases'])
+            self.opsdroid.start_databases(
+                self._load_modules('database', config['databases']))
         else:
             logging.warning("No databases in configuration")
 
