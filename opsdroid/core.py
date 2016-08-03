@@ -3,6 +3,7 @@
 import logging
 import sys
 import weakref
+from multiprocessing import Process
 from opsdroid.helper import match
 from opsdroid.memory import Memory
 
@@ -50,13 +51,18 @@ class OpsDroid():
         """Start the connectors."""
         if len(connectors) == 0:
             self.critical("All connectors failed to load", 1)
+        jobs = []
         for connector_module in connectors:
             for name, cls in connector_module["module"].__dict__.items():
                 if isinstance(cls, type) and "Connector" in name:
                     connector_module["config"]["bot-name"] = self.bot_name
                     connector = cls(connector_module["config"])
                     self.connectors.append(connector)
-                    connector.connect(self)
+                    job = Process(target=connector.connect, args=(self,))
+                    job.start()
+                    jobs.append(job)
+        for job in jobs:
+            job.join()
 
     def start_databases(self, databases):
         """Start the databases."""
