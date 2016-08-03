@@ -18,6 +18,7 @@ class OpsDroid():
         self.bot_name = 'opsdroid'
         self.sys_status = 0
         self.connectors = []
+        self.connector_jobs = []
         self.skills = []
         self.memory = Memory()
         logging.info("Created main opsdroid object")
@@ -51,7 +52,6 @@ class OpsDroid():
         """Start the connectors."""
         if len(connectors) == 0:
             self.critical("All connectors failed to load", 1)
-        jobs = []
         for connector_module in connectors:
             for name, cls in connector_module["module"].__dict__.items():
                 if isinstance(cls, type) and "Connector" in name:
@@ -60,8 +60,8 @@ class OpsDroid():
                     self.connectors.append(connector)
                     job = Process(target=connector.connect, args=(self,))
                     job.start()
-                    jobs.append(job)
-        for job in jobs:
+                    self.connector_jobs.append(job)
+        for job in self.connector_jobs:
             job.join()
 
     def start_databases(self, databases):
