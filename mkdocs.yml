@@ -1,3 +1,12 @@
 site_name: opsdroid
 repo_url: https://github.com/opsdroid/opsdroid
 theme: readthedocs
+
+pages:
+  - Home: 'index.md'
+  - Getting Started: 'getting-started.md'
+  - Extending opsdroid:
+    - Adding skills: 'extending/skills.md'
+    - Adding connectors: 'extending/connectors.md'
+    - Adding databases: 'extending/databases.md'
+  - Contributing: 'contributing.md'
