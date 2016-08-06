@@ -5,7 +5,6 @@ import os
 import shutil
 import subprocess
 import importlib
-import pip
 import yaml
 from opsdroid.const import (
     DEFAULT_GIT_URL, MODULES_DIRECTORY, DEFAULT_MODULE_BRANCH)
@@ -51,6 +50,19 @@ def git_clone(git_url, install_path, branch):
     process.wait()
 
 
+def pip_install_deps(requirements_path):
+    """Pip install a requirements.txt file and wait for finish."""
+    process = subprocess.Popen(["pip", "install", "-r", requirements_path],
+                               shell=False,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+    for output in process.communicate():
+        if output != "":
+            for line in output.splitlines():
+                logging.debug(str(line).strip())
+    process.wait()
+
+
 class Loader:
     """Class to load in config and modules."""
 
@@ -78,8 +90,8 @@ class Loader:
         logging.debug("Loading modules from config")
 
         if 'databases' in config.keys():
-            # TODO: Implement database modules
-            self._load_modules('database', config['databases'])
+            self.opsdroid.start_databases(
+                self._load_modules('database', config['databases']))
         else:
             logging.warning("No databases in configuration")
 
@@ -174,5 +186,4 @@ class Loader:
 
             # Install module dependancies
             if os.path.isfile(config["install_path"] + "/requirements.txt"):
-                pip.main(["install", "-r", config["install_path"] +
-                          "/requirements.txt"])
+                pip_install_deps(config["install_path"] + "/requirements.txt")

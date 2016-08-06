@@ -3,6 +3,7 @@
 import logging
 import sys
 import weakref
+from multiprocessing import Process
 from opsdroid.helper import match
 from opsdroid.memory import Memory
 
@@ -17,6 +18,7 @@ class OpsDroid():
         self.bot_name = 'opsdroid'
         self.sys_status = 0
         self.connectors = []
+        self.connector_jobs = []
         self.skills = []
         self.memory = Memory()
         logging.info("Created main opsdroid object")
@@ -56,7 +58,23 @@ class OpsDroid():
                     connector_module["config"]["bot-name"] = self.bot_name
                     connector = cls(connector_module["config"])
                     self.connectors.append(connector)
-                    connector.connect(self)
+                    job = Process(target=connector.connect, args=(self,))
+                    job.start()
+                    self.connector_jobs.append(job)
+        for job in self.connector_jobs:
+            job.join()
+
+    def start_databases(self, databases):
+        """Start the databases."""
+        if len(databases) == 0:
+            logging.warning("All databases failed to load")
+        for database_module in databases:
+            for name, cls in database_module["module"].__dict__.items():
+                if isinstance(cls, type) and "Database" in name:
+                    logging.debug("Adding database: " + name)
+                    database = cls(database_module["config"])
+                    self.memory.databases.append(database)
+                    database.connect()
 
     def load_regex_skill(self, regex, skill):
         """Load skills."""

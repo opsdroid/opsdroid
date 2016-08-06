@@ -20,6 +20,9 @@ class TestLoader(unittest.TestCase):
         loader = ld.Loader(opsdroid)
         return opsdroid, loader
 
+    def reset_subprocess_mocks(self):
+        sys.modules['subprocess'].mock_calls = []
+
     def test_load_config_file(self):
         opsdroid, loader = self.setup()
         config = loader.load_config_file("tests/configs/minimal.yaml")
@@ -43,8 +46,14 @@ class TestLoader(unittest.TestCase):
         self.assertEqual(len(example_modules[0]["module"].mock_calls), 1)
 
     def test_git_clone(self):
+        self.reset_subprocess_mocks()
         ld.git_clone("https://github.com/rmccue/test-repository.git",
                      "/tmp/test", "master")
+        self.assertNotEqual(len(sys.modules['subprocess'].mock_calls), 0)
+
+    def test_pip_install_deps(self):
+        self.reset_subprocess_mocks()
+        ld.pip_install_deps("/path/to/some/file.txt")
         self.assertNotEqual(len(sys.modules['subprocess'].mock_calls), 0)
 
     def test_build_module_path(self):
@@ -101,7 +110,7 @@ class TestLoader(unittest.TestCase):
         loader.load_config(config)
         self.assertEqual(len(loader._load_modules.mock_calls), 3)
         self.assertEqual(len(loader._setup_modules.mock_calls), 1)
-        self.assertEqual(len(opsdroid.mock_calls), 1)
+        self.assertNotEqual(len(opsdroid.mock_calls), 0)
 
     def test_load_empty_config(self):
         opsdroid, loader = self.setup()
