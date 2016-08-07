@@ -16,15 +16,17 @@ docker pull opsdroid/opsdroid:latest
 
 ## Configuration
 
-For configuration you simply need to create a single YAML file named `configuration.yaml`. When you run opsdroid it will look for the file in the following places:
+For configuration you simply need to create a single YAML file named `configuration.yaml`. When you run opsdroid it will look for the file in the following places in order:
 
  * `./configuration.yaml`
  * `~/.opsdroid/configuration.yaml`
  * `/etc/opsdroid/configuration.yaml`
 
-In this file you must specify the connector, skill and database* modules you wish to use and any options they may require.
+The opsdroid project itself is very simple and requires modules to give it functionality. In your configuration file you must specify the connector, skill and database* modules you wish to use and any options they may require.
 
-A simple barebones configuration would look like:
+**Connectors** are modules for connecting opsdroid to your specific chat service. **Skills** are modules which define what actions opsdroid should perform based on different chat messages. **Database** modules connect opsdroid to your chosen database and allows skills to store information between messages.
+
+For example a simple barebones configuration would look like:
 
 ```yaml
 connectors:
@@ -38,7 +40,9 @@ This tells opsdroid to use the [shell connector](https://github.com/opsdroid/con
 
 In opsdroid all modules are git repositories which will be cloned locally the first time they are used. By default if you do not specify a repository opsdroid will look at `https://github.com/opsdroid/<moduletype>-<modulename>.git` for the repository. Therefore in the above configuration the `connector-shell` and `skill-hello` repositories were pulled from the opsdroid organisation on GitHub.
 
-You are of course encouraged to write your own modules and make them available on GitHub or any other repository host which is accessible by your opsdroid installation. In which case your config would like similar to the following:
+You are of course encouraged to write your own modules and make them available on GitHub or any other repository host which is accessible by your opsdroid installation.
+
+A more advanced config would like similar to the following:
 
 ```yaml
 connectors:
@@ -73,7 +77,7 @@ opsdroid
 If you are using the opsdroid docker image then ensure you add your configuration as a volume and run the container.
 
 ```
-docker run --rm -v /path/to/configuration.yaml:/etc/configuration.yaml opsdroid/opsdroid:latest
+docker run --rm -v /path/to/configuration.yaml:/etc/configuration.yaml:ro opsdroid/opsdroid:latest
 ```
 
 -------
