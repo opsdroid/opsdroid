@@ -71,11 +71,19 @@ class Loader:
         self.opsdroid = opsdroid
         logging.debug("Loaded loader")
 
-    def load_config_file(self, config_path):
+    def load_config_file(self, config_paths):
         """Load a yaml config file from path."""
-        if not os.path.isfile(config_path):
-            self.opsdroid.critical("Config file " + config_path +
-                                   " not found", 1)
+        config_path = ""
+        for possible_path in config_paths:
+            if not os.path.isfile(possible_path):
+                logging.warning("Config file " + possible_path +
+                                " not found", 1)
+            else:
+                config_path = possible_path
+                break
+
+        if not config_path:
+            self.opsdroid.critical("No configuration files found", 1)
 
         try:
             with open(config_path, 'r') as stream:

@@ -25,17 +25,17 @@ class TestLoader(unittest.TestCase):
 
     def test_load_config_file(self):
         opsdroid, loader = self.setup()
-        config = loader.load_config_file("tests/configs/minimal.yaml")
+        config = loader.load_config_file(["tests/configs/minimal.yaml"])
         self.assertIsNotNone(config)
 
     def test_load_non_existant_config_file(self):
         opsdroid, loader = self.setup()
-        loader.load_config_file("file_which_does_not_exist")
+        loader.load_config_file(["file_which_does_not_exist"])
         self.assertEqual(len(opsdroid.mock_calls), 2)
 
     def test_load_broken_config_file(self):
         opsdroid, loader = self.setup()
-        loader.load_config_file("tests/configs/broken.yaml")
+        loader.load_config_file(["tests/configs/broken.yaml"])
         self.assertRaises(yaml.YAMLError)
 
     def test_setup_modules(self):
