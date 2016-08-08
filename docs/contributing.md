@@ -1,28 +1,57 @@
 # Contributing to the project
 
-## Building
+Contributing to the opsdroid ecosystem is strongly encouraged. You can do this by creating modules to be used by opsdroid or by contributing to the project itself.
 
-`docker build -t opsdroid/opsdroid:dev .`
+## Workflow
 
-`docker run --rm opsdroid/opsdroid:dev`
+All contributors to the project, including [jacobtomlinson](https://github.com/jacobtomlinson), contribute using the following process:
 
-## Configuration
+ * Fork the main project to your own account
+ * Work on your changes on a feature branch
+ * Create a pull request back to the main project
+ * Tests and test coverage will be checked automatically
+ * A project maintainer will review and merge the pull request
 
-Configuration is done in a yaml file called `configuration.yaml`.
+## Developing
 
-Example:
+```shell
+# clone the repo
+git clone https://github.com/opsdroid/opsdroid.git
+cd opsdroid
 
+# install project dependancies
+pip install -r requirements.txt
+
+# run opsdroid
+python -m opsdroid
 ```
-logging: "debug"
 
-connectors:
-  shell:
+Running the tests
 
-skills:
-  hello:
+```shell
+# install test runner
+pip install -U tox
+
+# run tests
+tox
 ```
 
-## Development
 
-Run tests
-`docker run --rm -ti -v $(pwd):/usr/src/app opsdroid/opsdroid:dev tox`
+## Developing in containers
+
+Developing in containers can be a great way to ensure that opsdroid will run in a clean python environment and that all dependancies are captured.
+
+```shell
+# build the container
+docker build -t opsdroid/opsdroid:myfeature .
+
+# run opsdroid
+docker run --rm -ti -v $(pwd):/usr/src/app opsdroid/opsdroid:myfeature
+```
+
+Running the tests
+
+```shell
+# run tests
+docker run --rm -ti -v $(pwd):/usr/src/app opsdroid/opsdroid:myfeature tox
+```
