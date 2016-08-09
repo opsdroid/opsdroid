@@ -85,3 +85,19 @@ def remember(opsdroid, message):
 In the above example we have defined two skill functions. The first takes whatever the user says after the work "remember" and stores it in the database.
 
 The second retrieves and prints out that text when the user says "remind me".
+
+## Setup
+
+If your skill requires any setup to be done when opsdroid is started you can create a method simple called `setup` which takes a pointer to opsdroid as it's only argument.
+
+```python
+def setup(opsdroid):
+  # do some setup stuff here
+```
+
+## Example modules
+
+See the following official modules for examples:
+
+ * [hello](https://github.com/opsdroid/skill-hello) - A simple hello world skill.
+ * [seen](https://github.com/opsdroid/skill-seen) - Makes use of opsdroid memory.

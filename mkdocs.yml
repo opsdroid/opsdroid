@@ -5,6 +5,7 @@ theme: readthedocs
 pages:
   - Home: 'index.md'
   - Getting Started: 'getting-started.md'
+  - Configuration Reference: 'configuration-reference.md'
   - Extending opsdroid:
     - Adding skills: 'extending/skills.md'
     - Adding connectors: 'extending/connectors.md'
