@@ -157,7 +157,10 @@ class Loader:
     def _setup_modules(self, modules):
         """Call the setup function on the passed in modules."""
         for module in modules:
-            module["module"].setup(self.opsdroid)
+            try:
+                module["module"].setup(self.opsdroid)
+            except AttributeError:
+                pass
 
     def _install_module(self, config):
         # pylint: disable=R0201
