@@ -52,17 +52,25 @@ class OpsDroid():
         """Start the connectors."""
         if len(connectors) == 0:
             self.critical("All connectors failed to load", 1)
-        for connector_module in connectors:
-            for name, cls in connector_module["module"].__dict__.items():
+        elif len(connectors) == 1:
+            for name, cls in connectors[0]["module"].__dict__.items():
                 if isinstance(cls, type) and "Connector" in name:
-                    connector_module["config"]["bot-name"] = self.bot_name
-                    connector = cls(connector_module["config"])
+                    connectors[0]["config"]["bot-name"] = self.bot_name
+                    connector = cls(connectors[0]["config"])
                     self.connectors.append(connector)
-                    job = Process(target=connector.connect, args=(self,))
-                    job.start()
-                    self.connector_jobs.append(job)
-        for job in self.connector_jobs:
-            job.join()
+                    connector.connect(self)
+        else:
+            for connector_module in connectors:
+                for name, cls in connector_module["module"].__dict__.items():
+                    if isinstance(cls, type) and "Connector" in name:
+                        connector_module["config"]["bot-name"] = self.bot_name
+                        connector = cls(connector_module["config"])
+                        self.connectors.append(connector)
+                        job = Process(target=connector.connect, args=(self,))
+                        job.start()
+                        self.connector_jobs.append(job)
+            for job in self.connector_jobs:
+                job.join()
 
     def start_databases(self, databases):
         """Start the databases."""

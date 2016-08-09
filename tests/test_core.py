@@ -69,7 +69,10 @@ class TestCore(unittest.TestCase):
                 "tests.mockmodules.connectors.connector")
             opsdroid.start_connectors([module])
             self.assertEqual(len(opsdroid.connectors), 1)
-            self.assertEqual(len(opsdroid.connector_jobs), 1)
+
+            opsdroid.start_connectors([module, module])
+            self.assertEqual(len(opsdroid.connectors), 3)
+            self.assertEqual(len(opsdroid.connector_jobs), 2)
 
     def test_multiple_opsdroids(self):
         with OpsDroid() as opsdroid:
