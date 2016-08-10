@@ -42,6 +42,7 @@ class TestLoader(unittest.TestCase):
         opsdroid, loader = self.setup()
         example_modules = []
         example_modules.append({"module": mock.MagicMock()})
+        example_modules.append({"module": {"name": "test"}})
         loader._setup_modules(example_modules)
         self.assertEqual(len(example_modules[0]["module"].mock_calls), 1)
 
