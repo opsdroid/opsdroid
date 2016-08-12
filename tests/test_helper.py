@@ -33,3 +33,11 @@ class TestHelper(unittest.TestCase):
 
         match = helper.match(r"hello (.*)", "hello world")
         self.assertEqual(match.group(1), "world")
+
+    def test_sensitive_match(self):
+        """Matches should be case sensitive"""
+        match = helper.match(r"hello", "hello")
+        self.assertTrue(match)
+
+        match = helper.match(r"hello", "HELLO")
+        self.assertFalse(match)
