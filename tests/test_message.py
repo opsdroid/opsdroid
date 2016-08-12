@@ -20,3 +20,11 @@ class TestMessage(unittest.TestCase):
 
         self.assertEqual(len(mock_connector.mock_calls), 1)
         self.assertEqual(message.text, "Goodbye world")
+
+    def test_response_effects(self):
+        """Responding to a message shouldn't change the message."""
+        mock_connector = mock.MagicMock()
+        message_text = "Hello world"
+        message = Message(message_text, "user", "default", mock_connector)
+        message.respond("Goodbye world")
+        self.assertEqual(message_text, message.text)
