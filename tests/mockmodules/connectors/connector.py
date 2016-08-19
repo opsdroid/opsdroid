@@ -2,8 +2,10 @@
 
 import unittest.mock as mock
 
+from opsdroid.connector import Connector
 
-class ConnectorTest:
+
+class ConnectorTest(Connector):
     """The mocked connector class."""
 
     def __init__(self, config):

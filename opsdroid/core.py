@@ -6,6 +6,8 @@ import weakref
 from multiprocessing import Process
 from opsdroid.helper import match
 from opsdroid.memory import Memory
+from opsdroid.connector import Connector
+from opsdroid.database import Database
 
 
 class OpsDroid():
@@ -54,7 +56,9 @@ class OpsDroid():
             self.critical("All connectors failed to load", 1)
         elif len(connectors) == 1:
             for name, cls in connectors[0]["module"].__dict__.items():
-                if isinstance(cls, type) and "Connector" in name:
+                if isinstance(cls, type) and \
+                   isinstance(cls({}), Connector):
+                    logging.debug("Adding connector: " + name)
                     connectors[0]["config"]["bot-name"] = self.bot_name
                     connector = cls(connectors[0]["config"])
                     self.connectors.append(connector)
@@ -62,7 +66,8 @@ class OpsDroid():
         else:
             for connector_module in connectors:
                 for name, cls in connector_module["module"].__dict__.items():
-                    if isinstance(cls, type) and "Connector" in name:
+                    if isinstance(cls, type) and \
+                       isinstance(cls({}), Connector):
                         connector_module["config"]["bot-name"] = self.bot_name
                         connector = cls(connector_module["config"])
                         self.connectors.append(connector)
@@ -78,11 +83,12 @@ class OpsDroid():
             logging.warning("All databases failed to load")
         for database_module in databases:
             for name, cls in database_module["module"].__dict__.items():
-                if isinstance(cls, type) and "Database" in name:
+                if isinstance(cls, type) and \
+                   isinstance(cls({}), Database):
                     logging.debug("Adding database: " + name)
                     database = cls(database_module["config"])
                     self.memory.databases.append(database)
-                    database.connect()
+                    database.connect(self)
 
     def load_regex_skill(self, regex, skill):
         """Load skills."""
