@@ -1,0 +1,36 @@
+#                      _           _     _
+#   ___  _ __  ___  __| |_ __ ___ (_) __| |
+#  / _ \| '_ \/ __|/ _` | '__/ _ \| |/ _` |
+# | (_) | |_) \__ \ (_| | | | (_) | | (_| |
+#  \___/| .__/|___/\__,_|_|  \___/|_|\__,_|
+#       |_|
+#                   __ _
+#   ___ ___  _ __  / _(_) __ _
+#  / __/ _ \| '_ \| |_| |/ _` |
+# | (_| (_) | | | |  _| | (_| |
+#  \___\___/|_| |_|_| |_|\__, |
+#                        |___/
+#
+# A default config file to use with opsdroid
+
+# Connector modules
+connectors:
+  shell:
+
+# Database modules (optional)
+# databases:
+
+# Skill modules
+skills:
+
+  # Hello world (https://github.com/opsdroid/skill-hello)
+  hello:
+
+  # Last seen (https://github.com/opsdroid/skill-seen)
+  seen:
+
+  # Dance (https://github.com/opsdroid/skill-dance)
+  dance:
+
+  # Loud noises (https://github.com/opsdroid/skill-loudnoises)
+  loudnoises:
