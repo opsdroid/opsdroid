@@ -57,7 +57,8 @@ class OpsDroid():
         elif len(connectors) == 1:
             for name, cls in connectors[0]["module"].__dict__.items():
                 if isinstance(cls, type) and \
-                   isinstance(cls({}), Connector):
+                   issubclass(cls, Connector) and\
+                   cls is not Connector:
                     logging.debug("Adding connector: " + name)
                     connectors[0]["config"]["bot-name"] = self.bot_name
                     connector = cls(connectors[0]["config"])
@@ -67,7 +68,8 @@ class OpsDroid():
             for connector_module in connectors:
                 for name, cls in connector_module["module"].__dict__.items():
                     if isinstance(cls, type) and \
-                       isinstance(cls({}), Connector):
+                       issubclass(cls, Connector) and\
+                       cls is not Connector:
                         connector_module["config"]["bot-name"] = self.bot_name
                         connector = cls(connector_module["config"])
                         self.connectors.append(connector)
@@ -84,7 +86,8 @@ class OpsDroid():
         for database_module in databases:
             for name, cls in database_module["module"].__dict__.items():
                 if isinstance(cls, type) and \
-                   isinstance(cls({}), Database):
+                   issubclass(cls, Database) and \
+                   cls is not Database:
                     logging.debug("Adding database: " + name)
                     database = cls(database_module["config"])
                     self.memory.databases.append(database)
