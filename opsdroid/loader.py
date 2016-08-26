@@ -10,59 +10,6 @@ from opsdroid.const import (
     DEFAULT_GIT_URL, MODULES_DIRECTORY, DEFAULT_MODULE_BRANCH)
 
 
-def import_module(config):
-    """Import module namespace as variable and return it."""
-    try:
-        module = importlib.import_module(
-            config["path"] + "." + config["name"])
-        logging.debug("Loading " + config["type"] + ": " + config["name"])
-        return module
-    except ImportError as error:
-        logging.error("Failed to load " + config["type"] +
-                      " " + config["name"])
-        logging.error(error)
-        return None
-
-
-def check_cache(config):
-    """Remove module if 'no-cache' set in config."""
-    if "no-cache" in config \
-            and config["no-cache"] \
-            and os.path.isdir(config["install_path"]):
-        logging.debug("'no-cache' set, removing " + config["install_path"])
-        shutil.rmtree(config["install_path"])
-
-
-def build_module_path(path_type, config):
-    """Generate the module path from name and type."""
-    if path_type == "import":
-        return MODULES_DIRECTORY + "." + config["type"] + "." + config["name"]
-    elif path_type == "install":
-        return MODULES_DIRECTORY + "/" + config["type"] + "/" + config["name"]
-
-
-def git_clone(git_url, install_path, branch):
-    """Clone a git repo to a location and wait for finish."""
-    process = subprocess.Popen(["git", "clone", "-b", branch,
-                                git_url, install_path], shell=False,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
-    process.wait()
-
-
-def pip_install_deps(requirements_path):
-    """Pip install a requirements.txt file and wait for finish."""
-    process = subprocess.Popen(["pip", "install", "-r", requirements_path],
-                               shell=False,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
-    for output in process.communicate():
-        if output != "":
-            for line in output.splitlines():
-                logging.debug(str(line).strip())
-    process.wait()
-
-
 class Loader:
     """Class to load in config and modules."""
 
@@ -71,11 +18,74 @@ class Loader:
         self.opsdroid = opsdroid
         logging.debug("Loaded loader")
 
-    def load_config_file(self, config_path):
+    @staticmethod
+    def import_module(config):
+        """Import module namespace as variable and return it."""
+        try:
+            module = importlib.import_module(
+                config["path"] + "." + config["name"])
+            logging.debug("Loading " + config["type"] + ": " + config["name"])
+            return module
+        except ImportError as error:
+            logging.error("Failed to load " + config["type"] +
+                          " " + config["name"])
+            logging.error(error)
+            return None
+
+    @staticmethod
+    def check_cache(config):
+        """Remove module if 'no-cache' set in config."""
+        if "no-cache" in config \
+                and config["no-cache"] \
+                and os.path.isdir(config["install_path"]):
+            logging.debug("'no-cache' set, removing " + config["install_path"])
+            shutil.rmtree(config["install_path"])
+
+    @staticmethod
+    def build_module_path(path_type, config):
+        """Generate the module path from name and type."""
+        if path_type == "import":
+            return MODULES_DIRECTORY + "." + config["type"] + \
+                        "." + config["name"]
+        elif path_type == "install":
+            return MODULES_DIRECTORY + "/" + config["type"] + \
+                        "/" + config["name"]
+
+    @staticmethod
+    def git_clone(git_url, install_path, branch):
+        """Clone a git repo to a location and wait for finish."""
+        process = subprocess.Popen(["git", "clone", "-b", branch,
+                                    git_url, install_path], shell=False,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        process.wait()
+
+    @staticmethod
+    def pip_install_deps(requirements_path):
+        """Pip install a requirements.txt file and wait for finish."""
+        process = subprocess.Popen(["pip", "install", "-r", requirements_path],
+                                   shell=False,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        for output in process.communicate():
+            if output != "":
+                for line in output.splitlines():
+                    logging.debug(str(line).strip())
+        process.wait()
+
+    def load_config_file(self, config_paths):
         """Load a yaml config file from path."""
-        if not os.path.isfile(config_path):
-            self.opsdroid.critical("Config file " + config_path +
-                                   " not found", 1)
+        config_path = ""
+        for possible_path in config_paths:
+            if not os.path.isfile(possible_path):
+                logging.warning("Config file " + possible_path +
+                                " not found", 1)
+            else:
+                config_path = possible_path
+                break
+
+        if not config_path:
+            self.opsdroid.critical("No configuration files found", 1)
 
         try:
             with open(config_path, 'r') as stream:
@@ -126,19 +136,19 @@ class Loader:
             config = {} if config is None else config
             config["name"] = module_name
             config["type"] = modules_type
-            config["path"] = build_module_path("import", config)
-            config["install_path"] = build_module_path("install", config)
+            config["path"] = self.build_module_path("import", config)
+            config["install_path"] = self.build_module_path("install", config)
             if "branch" not in config:
                 config["branch"] = DEFAULT_MODULE_BRANCH
 
             # Remove module for reinstall if no-cache set
-            check_cache(config)
+            self.check_cache(config)
 
             # Install module
             self._install_module(config)
 
             # Import module
-            module = import_module(config)
+            module = self.import_module(config)
             if module is not None:
                 loaded_modules.append({
                     "module": module,
@@ -149,7 +159,10 @@ class Loader:
     def _setup_modules(self, modules):
         """Call the setup function on the passed in modules."""
         for module in modules:
-            module["module"].setup(self.opsdroid)
+            try:
+                module["module"].setup(self.opsdroid)
+            except AttributeError:
+                pass
 
     def _install_module(self, config):
         # pylint: disable=R0201
@@ -170,11 +183,12 @@ class Loader:
             if any(prefix in git_url for prefix in ["http", "https", "ssh"]):
                 # TODO Test if url or ssh path exists
                 # TODO Handle github authentication
-                git_clone(git_url, config["install_path"], config["branch"])
+                self.git_clone(git_url, config["install_path"],
+                               config["branch"])
             else:
                 if os.path.isdir(git_url):
-                    git_clone(git_url, config["install_path"],
-                              config["branch"])
+                    self.git_clone(git_url, config["install_path"],
+                                   config["branch"])
                 else:
                     logging.debug("Could not find local git repo " + git_url)
 
@@ -186,4 +200,5 @@ class Loader:
 
             # Install module dependancies
             if os.path.isfile(config["install_path"] + "/requirements.txt"):
-                pip_install_deps(config["install_path"] + "/requirements.txt")
+                self.pip_install_deps(config["install_path"] +
+                                      "/requirements.txt")

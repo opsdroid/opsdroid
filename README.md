@@ -1,6 +1,6 @@
-# Ops Droid
+![opsdroid](https://github.com/opsdroid/style-guidelines/raw/master/logos/logo-wide-light.png)
 
-[![Build Status](https://travis-ci.org/opsdroid/opsdroid.svg?branch=master)](https://travis-ci.org/opsdroid/opsdroid) [![Coverage Status](https://coveralls.io/repos/github/opsdroid/opsdroid/badge.svg?branch=master)](https://coveralls.io/github/opsdroid/opsdroid?branch=master) [![Docker Image](https://img.shields.io/badge/docker-ready-blue.svg)](https://hub.docker.com/r/opsdroid/opsdroid/) [![Documentation Status](https://readthedocs.org/projects/opsdroid/badge/?version=latest)](http://opsdroid.readthedocs.io/en/latest/?badge=latest)
+[![Build Status](https://travis-ci.org/opsdroid/opsdroid.svg?branch=master)](https://travis-ci.org/opsdroid/opsdroid) [![Coverage Status](https://coveralls.io/repos/github/opsdroid/opsdroid/badge.svg?branch=master)](https://coveralls.io/github/opsdroid/opsdroid?branch=master) [![Docker Image](https://img.shields.io/badge/docker-ready-blue.svg)](https://hub.docker.com/r/opsdroid/opsdroid/) [![Docker Layers](https://images.microbadger.com/badges/image/opsdroid/opsdroid.svg)](https://microbadger.com/#/images/opsdroid/opsdroid) [![Documentation Status](https://readthedocs.org/projects/opsdroid/badge/?version=latest)](http://opsdroid.readthedocs.io/en/latest/?badge=latest)
 
 
 An open source python chat-ops bot

@@ -1,5 +1,7 @@
 """Class to encapsulate a message."""
 
+from copy import copy
+
 
 class Message:
     # pylint: disable=too-few-public-methods
@@ -15,5 +17,6 @@ class Message:
 
     def respond(self, text):
         """Respond to this message using the connector it was created by."""
-        self.text = text
-        self.connector.respond(self)
+        response = copy(self)
+        response.text = text
+        self.connector.respond(response)

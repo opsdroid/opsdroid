@@ -55,10 +55,9 @@ class TestCore(unittest.TestCase):
             module["config"] = {}
             module["module"] = importlib.import_module(
                 "tests.mockmodules.databases.database")
-            opsdroid.start_databases([module])
-            self.assertEqual(len(opsdroid.memory.databases), 1)
-            self.assertEqual(
-                len(opsdroid.memory.databases[0].connect.mock_calls), 1)
+            with self.assertRaises(NotImplementedError):
+                opsdroid.start_databases([module])
+                self.assertEqual(1, len(opsdroid.memory.databases))
 
     def test_start_connectors(self):
         with OpsDroid() as opsdroid:
@@ -67,9 +66,13 @@ class TestCore(unittest.TestCase):
             module["config"] = {}
             module["module"] = importlib.import_module(
                 "tests.mockmodules.connectors.connector")
-            opsdroid.start_connectors([module])
-            self.assertEqual(len(opsdroid.connectors), 1)
-            self.assertEqual(len(opsdroid.connector_jobs), 1)
+
+            with self.assertRaises(NotImplementedError):
+                opsdroid.start_connectors([module])
+                self.assertEqual(1, len(opsdroid.connectors))
+
+            opsdroid.start_connectors([module, module])
+            self.assertEqual(3, len(opsdroid.connectors))
 
     def test_multiple_opsdroids(self):
         with OpsDroid() as opsdroid:

@@ -27,4 +27,4 @@ def set_logging_level(logging_level):
 
 def match(regex, message):
     """Regex match a string."""
-    return re.match(regex, message, re.M | re.I)
+    return re.match(regex, message)
