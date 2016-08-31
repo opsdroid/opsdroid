@@ -64,6 +64,8 @@ class OpsDroid():
                     connector = cls(connectors[0]["config"])
                     self.connectors.append(connector)
                     connector.connect(self)
+                else:
+                    logging.debug(name + " is not an instance of Connector")
         else:
             for connector_module in connectors:
                 for name, cls in connector_module["module"].__dict__.items():
