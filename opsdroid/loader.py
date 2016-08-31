@@ -24,7 +24,7 @@ class Loader:
         try:
             module = importlib.import_module(
                 config["path"] + "." + config["name"])
-            logging.debug("Loading " + config["type"] + ": " + config["name"])
+            logging.debug("Loaded " + config["type"] + ": " + config["name"])
             return module
         except ImportError as error:
             logging.error("Failed to load " + config["type"] +
