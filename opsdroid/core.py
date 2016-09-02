@@ -52,32 +52,26 @@ class OpsDroid():
 
     def start_connectors(self, connectors):
         """Start the connectors."""
-        if len(connectors) == 0:
-            self.critical("All connectors failed to load", 1)
-        elif len(connectors) == 1:
-            for name, cls in connectors[0]["module"].__dict__.items():
+        for connector_module in connectors:
+            for _, cls in connector_module["module"].__dict__.items():
                 if isinstance(cls, type) and \
                    issubclass(cls, Connector) and\
                    cls is not Connector:
-                    logging.debug("Adding connector: " + name)
-                    connectors[0]["config"]["bot-name"] = self.bot_name
-                    connector = cls(connectors[0]["config"])
+                    connector_module["config"]["bot-name"] = self.bot_name
+                    connector = cls(connector_module["config"])
                     self.connectors.append(connector)
-                    connector.connect(self)
-        else:
-            for connector_module in connectors:
-                for name, cls in connector_module["module"].__dict__.items():
-                    if isinstance(cls, type) and \
-                       issubclass(cls, Connector) and\
-                       cls is not Connector:
-                        connector_module["config"]["bot-name"] = self.bot_name
-                        connector = cls(connector_module["config"])
-                        self.connectors.append(connector)
-                        job = Process(target=connector.connect, args=(self,))
-                        job.start()
-                        self.connector_jobs.append(job)
+
+        if len(self.connectors) == 1:
+            self.connectors[0].connect(self)
+        elif len(connectors) > 1:
+            for connector in self.connectors:
+                job = Process(target=connector.connect, args=(self,))
+                job.start()
+                self.connector_jobs.append(job)
             for job in self.connector_jobs:
                 job.join()
+        else:
+            self.critical("All connectors failed to load", 1)
 
     def start_databases(self, databases):
         """Start the databases."""
