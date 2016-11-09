@@ -100,25 +100,24 @@ class Loader:
         logging.debug("Loading modules from config")
 
         if 'databases' in config.keys():
-            self.opsdroid.start_databases(
-                self._load_modules('database', config['databases']))
+            databases = self._load_modules('database', config['databases'])
         else:
+            databases = None
             logging.warning("No databases in configuration")
 
         if 'skills' in config.keys():
-            self._setup_modules(
-                self._load_modules('skill', config['skills'])
-            )
+            skills = self._load_modules('skill', config['skills'])
         else:
             self.opsdroid.critical(
                 "No skills in configuration, at least 1 required", 1)
 
         if 'connectors' in config.keys():
-            self.opsdroid.start_connectors(
-                self._load_modules('connector', config['connectors']))
+            connectors = self._load_modules('connector', config['connectors'])
         else:
             self.opsdroid.critical(
                 "No connectors in configuration, at least 1 required", 1)
+
+        return connectors, databases, skills
 
     def _load_modules(self, modules_type, modules):
         """Install and load modules."""
@@ -155,14 +154,6 @@ class Loader:
                     "config": config})
 
         return loaded_modules
-
-    def _setup_modules(self, modules):
-        """Call the setup function on the passed in modules."""
-        for module in modules:
-            try:
-                module["module"].setup(self.opsdroid)
-            except AttributeError:
-                pass
 
     def _install_module(self, config):
         # pylint: disable=R0201

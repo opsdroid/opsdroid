@@ -4,10 +4,12 @@ import logging
 import sys
 import weakref
 from multiprocessing import Process
+
 from opsdroid.helper import match
 from opsdroid.memory import Memory
 from opsdroid.connector import Connector
 from opsdroid.database import Database
+from opsdroid.loader import Loader
 
 
 class OpsDroid():
@@ -49,6 +51,31 @@ class OpsDroid():
         logging.critical(error)
         print("Error: " + error)
         self.exit()
+
+    def load(self):
+        """Load configuration."""
+        self.loader = Loader(self)
+        self.config = self.loader.load_config_file([
+            "./configuration.yaml",
+            "~/.opsdroid/configuration.yaml",
+            "/etc/opsdroid/configuration.yaml"
+            ])
+
+    def start_loop(self):
+        """Start the event loop."""
+        connectors, databases, skills = self.loader.load_config(self.config)
+        if databases is not None:
+            self.start_databases(databases)
+        self.setup_skills(skills)
+        self.start_connectors(connectors)
+
+    def setup_skills(self, skills):
+        """Call the setup function on the passed in skills."""
+        for skill in skills:
+            try:
+                skill["module"].setup(self)
+            except AttributeError:
+                pass
 
     def start_connectors(self, connectors):
         """Start the connectors."""

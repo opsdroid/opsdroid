@@ -5,7 +5,6 @@ import os
 import logging
 import argparse
 
-from opsdroid.loader import Loader
 from opsdroid.core import OpsDroid
 from opsdroid.helper import set_logging_level
 from opsdroid.const import LOG_FILENAME
@@ -36,15 +35,10 @@ def main():
         sys.exit(0)
 
     with OpsDroid() as opsdroid:
-        loader = Loader(opsdroid)
-        opsdroid.config = loader.load_config_file([
-            "./configuration.yaml",
-            "~/.opsdroid/configuration.yaml",
-            "/etc/opsdroid/configuration.yaml"
-            ])
+        opsdroid.load()
         if "logging" in opsdroid.config:
             set_logging_level(opsdroid.config['logging'])
-        loader.load_config(opsdroid.config)
+        opsdroid.start_loop()
         opsdroid.exit()
 
 if __name__ == "__main__":
