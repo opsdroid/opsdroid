@@ -99,10 +99,11 @@ class Loader:
         """Load all module types based on config."""
         logging.debug("Loading modules from config")
 
+        connectors, databases, skills = None, None, None
+
         if 'databases' in config.keys():
             databases = self._load_modules('database', config['databases'])
         else:
-            databases = None
             logging.warning("No databases in configuration")
 
         if 'skills' in config.keys():

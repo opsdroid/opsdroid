@@ -80,3 +80,11 @@ class TestCore(unittest.TestCase):
             with OpsDroid() as opsdroid2:
                 opsdroid2.exit()
             self.assertEqual(len(opsdroid.__class__.critical.mock_calls), 1)
+
+    def test_setup_modules(self):
+        with OpsDroid() as opsdroid:
+            example_modules = []
+            example_modules.append({"module": mock.MagicMock()})
+            example_modules.append({"module": {"name": "test"}})
+            opsdroid.setup_skills(example_modules)
+            self.assertEqual(len(example_modules[0]["module"].mock_calls), 1)

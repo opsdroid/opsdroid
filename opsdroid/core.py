@@ -15,6 +15,9 @@ from opsdroid.loader import Loader
 class OpsDroid():
     """Root object for opsdroid."""
 
+    # pylint: disable=too-many-instance-attributes
+    # All are reasonable in this case.
+
     instances = []
 
     def __init__(self):
@@ -25,6 +28,8 @@ class OpsDroid():
         self.connector_jobs = []
         self.skills = []
         self.memory = Memory()
+        self.loader = {}
+        self.config = {}
         logging.info("Created main opsdroid object")
 
     def __enter__(self):
