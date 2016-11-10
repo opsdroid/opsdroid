@@ -3,6 +3,7 @@
 import logging
 import sys
 import weakref
+import asyncio
 from multiprocessing import Process
 
 from opsdroid.helper import match
@@ -25,7 +26,8 @@ class OpsDroid():
         self.bot_name = 'opsdroid'
         self.sys_status = 0
         self.connectors = []
-        self.connector_jobs = []
+        self.connector_tasks = []
+        self.eventloop = None
         self.skills = []
         self.memory = Memory()
         self.loader = {}
@@ -48,6 +50,7 @@ class OpsDroid():
         """Exit application."""
         logging.info("Exiting application with return code " +
                      str(self.sys_status))
+        self.eventloop.stop()
         sys.exit(self.sys_status)
 
     def critical(self, error, code):
@@ -72,7 +75,14 @@ class OpsDroid():
         if databases is not None:
             self.start_databases(databases)
         self.setup_skills(skills)
-        self.start_connectors(connectors)
+        self.eventloop = asyncio.get_event_loop()
+        self.start_connector_tasks(connectors)
+        try:
+            self.eventloop.run_forever()
+        except (KeyboardInterrupt, EOFError):
+            print('') # Prints a character return to prepare for return to shell
+            logging.info("Keyboard interrupt, exiting.")
+            self.exit()
 
     def setup_skills(self, skills):
         """Call the setup function on the passed in skills."""
@@ -82,7 +92,7 @@ class OpsDroid():
             except AttributeError:
                 pass
 
-    def start_connectors(self, connectors):
+    def start_connector_tasks(self, connectors):
         """Start the connectors."""
         for connector_module in connectors:
             for _, cls in connector_module["module"].__dict__.items():
@@ -93,15 +103,10 @@ class OpsDroid():
                     connector = cls(connector_module["config"])
                     self.connectors.append(connector)
 
-        if len(self.connectors) == 1:
-            self.connectors[0].connect(self)
-        elif len(connectors) > 1:
+        if len(connectors) > 0:
             for connector in self.connectors:
-                job = Process(target=connector.connect, args=(self,))
-                job.start()
-                self.connector_jobs.append(job)
-            for job in self.connector_jobs:
-                job.join()
+                task = self.eventloop.create_task(connector.connect(self))
+                self.connector_tasks.append(task)
         else:
             self.critical("All connectors failed to load", 1)
 
@@ -123,7 +128,7 @@ class OpsDroid():
         """Load skills."""
         self.skills.append({"regex": regex, "skill": skill})
 
-    def parse(self, message):
+    async def parse(self, message):
         """Parse a string against all skills."""
         if message.text.strip() != "":
             logging.debug("Parsing input: " + message.text)
@@ -132,4 +137,4 @@ class OpsDroid():
                     regex = match(skill["regex"], message.text)
                     if regex:
                         message.regex = regex
-                        skill["skill"](self, message)
+                        await skill["skill"](self, message)
