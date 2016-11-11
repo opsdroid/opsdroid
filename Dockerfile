@@ -1,4 +1,4 @@
-FROM python:3-alpine
+FROM python:3.5-alpine
 MAINTAINER Jacob Tomlinson <jacob@tom.linson.uk>
 
 RUN mkdir -p /usr/src/app

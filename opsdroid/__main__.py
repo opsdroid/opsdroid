@@ -18,6 +18,13 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
+def check_dependencies():
+    """Check for system dependencies required by opsdroid."""
+    if sys.version_info[0] < 3 or sys.version_info[1] < 5:
+        logging.critical("Whoops! opsdroid requires python 3.5 or above.")
+        sys.exit(1)
+
+
 def main():
     """The main function."""
     logging.basicConfig(filename=LOG_FILENAME, level=logging.INFO)
@@ -33,6 +40,8 @@ def main():
         with open(path, 'r') as conf:
             print(conf.read())
         sys.exit(0)
+
+    check_dependencies()
 
     with OpsDroid() as opsdroid:
         opsdroid.load()
