@@ -1,15 +1,12 @@
 
 import yaml
-import sys
 import os
 import shutil
 from types import ModuleType
 import unittest
 import unittest.mock as mock
 
-sys.modules['subprocess'] = mock.MagicMock()
-
-from opsdroid import loader as ld  # noqa: E402
+from opsdroid import loader as ld
 
 
 class TestLoader(unittest.TestCase):
@@ -19,9 +16,6 @@ class TestLoader(unittest.TestCase):
         opsdroid = mock.MagicMock()
         loader = ld.Loader(opsdroid)
         return opsdroid, loader
-
-    def reset_subprocess_mocks(self):
-        sys.modules['subprocess'].mock_calls = []
 
     def test_load_config_file(self):
         opsdroid, loader = self.setup()
@@ -38,24 +32,18 @@ class TestLoader(unittest.TestCase):
         loader.load_config_file(["tests/configs/broken.yaml"])
         self.assertRaises(yaml.YAMLError)
 
-    def test_setup_modules(self):
+    @mock.patch('subprocess.Popen')
+    def test_git_clone(self, mock_subproc_popen):
         opsdroid, loader = self.setup()
-        example_modules = []
-        example_modules.append({"module": mock.MagicMock()})
-        example_modules.append({"module": {"name": "test"}})
-        loader._setup_modules(example_modules)
-        self.assertEqual(len(example_modules[0]["module"].mock_calls), 1)
+        loader.git_clone("https://github.com/rmccue/test-repository.git",
+                         "/tmp/test", "master")
+        self.assertTrue(mock_subproc_popen.called)
 
-    def test_git_clone(self):
-        self.reset_subprocess_mocks()
-        ld.Loader.git_clone("https://github.com/rmccue/test-repository.git",
-                            "/tmp/test", "master")
-        self.assertNotEqual(len(sys.modules['subprocess'].mock_calls), 0)
-
-    def test_pip_install_deps(self):
-        self.reset_subprocess_mocks()
-        ld.Loader.pip_install_deps("/path/to/some/file.txt")
-        self.assertNotEqual(len(sys.modules['subprocess'].mock_calls), 0)
+    @mock.patch('subprocess.Popen')
+    def test_pip_install_deps(self, mock_subproc_popen):
+        opsdroid, loader = self.setup()
+        loader.pip_install_deps("/path/to/some/file.txt")
+        self.assertTrue(mock_subproc_popen.called)
 
     def test_build_module_path(self):
         config = {}
@@ -112,16 +100,12 @@ class TestLoader(unittest.TestCase):
 
         loader.load_config(config)
         self.assertEqual(len(loader._load_modules.mock_calls), 3)
-        self.assertEqual(len(loader._setup_modules.mock_calls), 1)
-        self.assertNotEqual(len(opsdroid.mock_calls), 0)
 
     def test_load_empty_config(self):
         opsdroid, loader = self.setup()
         loader._load_modules = mock.MagicMock()
-        loader._setup_modules = mock.MagicMock()
         config = {}
 
         loader.load_config(config)
         self.assertEqual(len(loader._load_modules.mock_calls), 0)
-        self.assertEqual(len(loader._setup_modules.mock_calls), 0)
         self.assertEqual(len(opsdroid.mock_calls), 2)

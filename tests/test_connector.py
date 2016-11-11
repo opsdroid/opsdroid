@@ -1,11 +1,15 @@
 
 import unittest
+import asyncio
 
 from opsdroid.connector import Connector
 
 
 class TestConnectorBaseClass(unittest.TestCase):
     """Test the opsdroid connector base class."""
+
+    def setUp(self):
+        self.loop = asyncio.new_event_loop()
 
     def test_init(self):
         config = {"example_item": "test"}
@@ -16,9 +20,14 @@ class TestConnectorBaseClass(unittest.TestCase):
     def test_connect(self):
         connector = Connector({})
         with self.assertRaises(NotImplementedError):
-            connector.connect({})
+            self.loop.run_until_complete(connector.connect({}))
+
+    def test_listen(self):
+        connector = Connector({})
+        with self.assertRaises(NotImplementedError):
+            self.loop.run_until_complete(connector.listen({}))
 
     def test_respond(self):
         connector = Connector({})
         with self.assertRaises(NotImplementedError):
-            connector.respond({})
+            self.loop.run_until_complete(connector.respond({}))
