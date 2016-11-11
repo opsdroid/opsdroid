@@ -4,7 +4,6 @@ import logging
 import sys
 import weakref
 import asyncio
-from multiprocessing import Process
 
 from opsdroid.helper import match
 from opsdroid.memory import Memory
@@ -27,7 +26,7 @@ class OpsDroid():
         self.sys_status = 0
         self.connectors = []
         self.connector_tasks = []
-        self.eventloop = None
+        self.eventloop = asyncio.get_event_loop()
         self.skills = []
         self.memory = Memory()
         self.loader = {}
@@ -50,7 +49,8 @@ class OpsDroid():
         """Exit application."""
         logging.info("Exiting application with return code " +
                      str(self.sys_status))
-        self.eventloop.stop()
+        if self.eventloop.is_running():
+            self.eventloop.stop()
         sys.exit(self.sys_status)
 
     def critical(self, error, code):
@@ -75,12 +75,11 @@ class OpsDroid():
         if databases is not None:
             self.start_databases(databases)
         self.setup_skills(skills)
-        self.eventloop = asyncio.get_event_loop()
         self.start_connector_tasks(connectors)
         try:
             self.eventloop.run_forever()
         except (KeyboardInterrupt, EOFError):
-            print('') # Prints a character return to prepare for return to shell
+            print('')  # Prints a character return for return to shell
             logging.info("Keyboard interrupt, exiting.")
             self.exit()
 
@@ -105,7 +104,9 @@ class OpsDroid():
 
         if len(connectors) > 0:
             for connector in self.connectors:
-                task = self.eventloop.create_task(connector.connect(self))
+                self.eventloop.run_until_complete(connector.connect(self))
+            for connector in self.connectors:
+                task = self.eventloop.create_task(connector.listen(self))
                 self.connector_tasks.append(task)
         else:
             self.critical("All connectors failed to load", 1)
