@@ -15,8 +15,8 @@ class Message:
         self.connector = connector
         self.regex = None
 
-    def respond(self, text):
+    async def respond(self, text):
         """Respond to this message using the connector it was created by."""
         response = copy(self)
         response.text = text
-        self.connector.respond(response)
+        await self.connector.respond(response)

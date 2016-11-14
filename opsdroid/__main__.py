@@ -5,7 +5,6 @@ import os
 import logging
 import argparse
 
-from opsdroid.loader import Loader
 from opsdroid.core import OpsDroid
 from opsdroid.helper import set_logging_level
 from opsdroid.const import LOG_FILENAME
@@ -17,6 +16,13 @@ def parse_args(args):
     parser.add_argument('--gen-config', action="store_true",
                         help='prints out an example configuration file')
     return parser.parse_args(args)
+
+
+def check_dependencies():
+    """Check for system dependencies required by opsdroid."""
+    if sys.version_info[0] < 3 or sys.version_info[1] < 5:
+        logging.critical("Whoops! opsdroid requires python 3.5 or above.")
+        sys.exit(1)
 
 
 def main():
@@ -35,17 +41,15 @@ def main():
             print(conf.read())
         sys.exit(0)
 
+    check_dependencies()
+
     with OpsDroid() as opsdroid:
-        loader = Loader(opsdroid)
-        opsdroid.config = loader.load_config_file([
-            "./configuration.yaml",
-            "~/.opsdroid/configuration.yaml",
-            "/etc/opsdroid/configuration.yaml"
-            ])
+        opsdroid.load()
         if "logging" in opsdroid.config:
             set_logging_level(opsdroid.config['logging'])
-        loader.load_config(opsdroid.config)
+        opsdroid.start_loop()
         opsdroid.exit()
+
 
 if __name__ == "__main__":
     main()
