@@ -29,7 +29,7 @@ class OpsDroid():
         self.eventloop = asyncio.get_event_loop()
         self.skills = []
         self.memory = Memory()
-        self.loader = {}
+        self.loader = Loader(self)
         self.config = {}
         logging.info("Created main opsdroid object")
 
@@ -62,7 +62,6 @@ class OpsDroid():
 
     def load(self):
         """Load configuration."""
-        self.loader = Loader(self)
         self.config = self.loader.load_config_file([
             "./configuration.yaml",
             "~/.opsdroid/configuration.yaml",
@@ -138,4 +137,4 @@ class OpsDroid():
                     regex = match(skill["regex"], message.text)
                     if regex:
                         message.regex = regex
-                        await skill["skill"](self, message)
+                        return await skill["skill"](self, message)
