@@ -12,8 +12,8 @@ Within this file should be functions which are decorated with an opsdroid skill 
 from opsdroid.skills import match_regex
 
 @match_regex('hi')
-def hello(opsdroid, message):
-    message.respond('Hey')
+async def hello(opsdroid, message):
+    await message.respond('Hey')
 ```
 
 In this example we are importing the `match_regex` decorator from the opsdroid skills library. We are then using it to decorate a simple hello world function.
@@ -21,6 +21,8 @@ In this example we are importing the `match_regex` decorator from the opsdroid s
 The decorator takes a regular expression to match against the message received from the connector. In this case we are checking to see if the message from the user is "hi".
 
 If the message matches the regular expression then the decorated function is called. As arguments opsdroid will pass a pointer to itself along with a Message object containing information about the message from the user.
+
+To ensure the bot is responsive the concurrency controls introduced in Python 3.5 are used. This means that all functions which will be executed should be defined as an `async` function, and calls to functions which may require IO (like a connector or database) should be awaited with the `await` keyword. For more information see [asyncio](https://docs.python.org/3/library/asyncio.html) and [event loops](https://docs.python.org/3/library/asyncio-eventloop.html).
 
 ## Message object
 
@@ -70,16 +72,15 @@ Stores the object provided for a specific key.
 from opsdroid.skills import match_regex
 
 @match_regex(r'remember (.*)')
-def remember(opsdroid, message):
+async def remember(opsdroid, message):
     remember = message.regex.group(1)
-    opsdroid.memory.put("remember", remember)
-    message.respond("OK I'll remember that")
+    await opsdroid.memory.put("remember", remember)
+    await message.respond("OK I'll remember that")
 
 @match_regex(r'remind me')
-def remember(opsdroid, message):
-    message.respond(
-      opsdroid.memory.get("remember")
-    )
+async def remember(opsdroid, message):
+    information = await opsdroid.memory.get("remember")
+    await message.respond(information)
 ```
 
 In the above example we have defined two skill functions. The first takes whatever the user says after the work "remember" and stores it in the database.

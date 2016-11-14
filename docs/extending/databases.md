@@ -24,19 +24,19 @@ from opsdroid.database import Database
 
 class MyDatabase(Database):
 
-  def connect(self, opsdroid):
+  async def connect(self, opsdroid):
     # Create connection object for database
-    self.connection = databaselibrary.connect()
+    self.connection = await databaselibrary.connect()
 
-  def put(self, key, value):
+  dasync ef put(self, key, value):
     # Insert the object into the database
-    response = self.connection.insert(key, value)
+    response = await self.connection.insert(key, value)
 
     # Return a bool for whether the insert was successful
     return response.success
 
-  def get(self, key):
+  async def get(self, key):
     # Get the object from the database and return it
-    return self.connection.find(key)
+    return await self.connection.find(key)
 
 ```
