@@ -50,5 +50,6 @@ def main():
         opsdroid.start_loop()
         opsdroid.exit()
 
+
 if __name__ == "__main__":
     main()
