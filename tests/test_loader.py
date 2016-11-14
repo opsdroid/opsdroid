@@ -114,6 +114,31 @@ class TestLoader(unittest.TestCase):
         self.assertEqual(len(loader._load_modules.mock_calls), 0)
         self.assertEqual(len(opsdroid.mock_calls), 2)
 
+    def test_load_modules(self):
+        opsdroid, loader = self.setup()
+
+        modules_type = "test"
+        modules = {"testmodule": None}
+        mockedmodule = mock.Mock(return_value={"name": "testmodule"})
+
+        with mock.patch.object(loader, '_install_module') as mockinstall, \
+                mock.patch.object(loader, 'import_module',
+                                  mockedmodule) as mockimport:
+            loader._load_modules(modules_type, modules)
+            mockinstall.assert_called_with({
+                'branch': 'master',
+                'path': 'modules.test.testmodule',
+                'name': 'testmodule',
+                'type': modules_type,
+                'install_path': 'modules/test/testmodule'})
+            mockimport.assert_called_with({
+                'path': 'modules.test.testmodule',
+                'name': 'testmodule',
+                'type': modules_type,
+                'branch': 'master',
+                'install_path':
+                'modules/test/testmodule'})
+
     def test_install_existing_module(self):
         opsdroid, loader = self.setup()
         config = {"name": "testmodule",
