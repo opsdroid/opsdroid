@@ -1,5 +1,4 @@
 
-import yaml
 import os
 import shutil
 from types import ModuleType
@@ -25,25 +24,26 @@ class TestLoader(unittest.TestCase):
 
     def test_load_non_existant_config_file(self):
         opsdroid, loader = self.setup()
+        loader.opsdroid.critical = mock.Mock()
         loader.load_config_file(["file_which_does_not_exist"])
-        self.assertEqual(len(opsdroid.mock_calls), 2)
+        self.assertTrue(loader.opsdroid.critical.called)
 
     def test_load_broken_config_file(self):
         opsdroid, loader = self.setup()
+        loader.opsdroid.critical = mock.Mock()
         loader.load_config_file(["tests/configs/broken.yaml"])
-        self.assertRaises(yaml.YAMLError)
+        self.assertTrue(loader.opsdroid.critical.called)
 
-    @mock.patch('subprocess.Popen')
-    def test_git_clone(self, mock_subproc_popen):
-        opsdroid, loader = self.setup()
-        loader.git_clone("https://github.com/rmccue/test-repository.git",
-                         "/tmp/test", "master")
-        self.assertTrue(mock_subproc_popen.called)
+    def test_git_clone(self):
+        with mock.patch.object(subprocess, 'Popen') as mock_subproc_popen:
+            opsdroid, loader = self.setup()
+            loader.git_clone("https://github.com/rmccue/test-repository.git",
+                             "/tmp/test", "master")
+            self.assertTrue(mock_subproc_popen.called)
 
     def test_pip_install_deps(self):
-        mockedprocess = mock.Mock(
-                return_value=mock.MagicMock(side_effect=['Test\nTest'])
-                )
+        mockedcommunication = mock.MagicMock(side_effect=['Test\nTest'])
+        mockedprocess = mock.Mock(return_value=mockedcommunication)
         with mock.patch.object(subprocess, 'Popen', mockedprocess):
             opsdroid, loader = self.setup()
             loader.pip_install_deps("/path/to/some/file.txt")
