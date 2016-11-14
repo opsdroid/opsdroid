@@ -28,7 +28,7 @@ class MyDatabase(Database):
     # Create connection object for database
     self.connection = await databaselibrary.connect()
 
-  dasync ef put(self, key, value):
+  async def put(self, key, value):
     # Insert the object into the database
     response = await self.connection.insert(key, value)
 
