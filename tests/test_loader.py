@@ -5,6 +5,7 @@ import shutil
 from types import ModuleType
 import unittest
 import unittest.mock as mock
+import subprocess
 
 from opsdroid import loader as ld
 
@@ -39,11 +40,14 @@ class TestLoader(unittest.TestCase):
                          "/tmp/test", "master")
         self.assertTrue(mock_subproc_popen.called)
 
-    @mock.patch('subprocess.Popen')
-    def test_pip_install_deps(self, mock_subproc_popen):
-        opsdroid, loader = self.setup()
-        loader.pip_install_deps("/path/to/some/file.txt")
-        self.assertTrue(mock_subproc_popen.called)
+    def test_pip_install_deps(self):
+        mockedprocess = mock.Mock(
+                return_value=mock.MagicMock(side_effect=['Test\nTest'])
+                )
+        with mock.patch.object(subprocess, 'Popen', mockedprocess):
+            opsdroid, loader = self.setup()
+            loader.pip_install_deps("/path/to/some/file.txt")
+            self.assertTrue(mockedprocess.called)
 
     def test_build_module_path(self):
         config = {}

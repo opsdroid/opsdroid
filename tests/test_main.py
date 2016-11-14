@@ -1,7 +1,5 @@
 
-import sys
 import unittest
-import unittest.mock as mock
 
 import opsdroid.__main__ as opsdroid
 
