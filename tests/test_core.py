@@ -1,13 +1,10 @@
 
-import sys
 import unittest
 import unittest.mock as mock
 import importlib
 
-sys.modules['sys'].exit = mock.MagicMock()
-
-from opsdroid.core import OpsDroid  # noqa: E402
-from opsdroid.message import Message  # noqa: E402
+from opsdroid.core import OpsDroid
+from opsdroid.message import Message
 
 
 class TestCore(unittest.TestCase):
@@ -18,16 +15,36 @@ class TestCore(unittest.TestCase):
             self.assertIsInstance(opsdroid, OpsDroid)
 
     def test_exit(self):
-        with OpsDroid() as opsdroid:
-            sys.modules['sys'].exit.mock_calls = []
+        with OpsDroid() as opsdroid, self.assertRaises(SystemExit):
+            opsdroid.eventloop = mock.Mock()
+            opsdroid.eventloop.is_running.return_value = True
             opsdroid.exit()
-            self.assertEqual(len(sys.modules['sys'].exit.mock_calls), 1)
+            self.assertTrue(opsdroid.eventloop.stop.called)
 
     def test_critical(self):
-        with OpsDroid() as opsdroid:
-            sys.modules['sys'].exit.mock_calls = []
+        with OpsDroid() as opsdroid, self.assertRaises(SystemExit):
             opsdroid.critical("An error", 1)
-            self.assertEqual(len(sys.modules['sys'].exit.mock_calls), 1)
+
+    def test_load_config(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.load()
+
+    def test_start_loop(self):
+        with OpsDroid() as opsdroid:
+            mockconfig = {}, {}, {}
+            opsdroid.loader = mock.Mock()
+            opsdroid.loader.load_config = mock.Mock(return_value=mockconfig)
+            opsdroid.start_databases = mock.Mock()
+            opsdroid.setup_skills = mock.Mock()
+            opsdroid.start_connector_tasks = mock.Mock()
+            opsdroid.eventloop.run_forever = mock.Mock()
+            
+            opsdroid.start_loop()
+
+            self.assertTrue(opsdroid.start_databases.called)
+            self.assertTrue(opsdroid.setup_skills.called)
+            self.assertTrue(opsdroid.start_connector_tasks.called)
+            self.assertTrue(opsdroid.eventloop.run_forever.called)
 
     def test_load_regex_skill(self):
         with OpsDroid() as opsdroid:
@@ -78,7 +95,7 @@ class TestCore(unittest.TestCase):
     def test_multiple_opsdroids(self):
         with OpsDroid() as opsdroid:
             opsdroid.__class__.critical = mock.MagicMock()
-            with OpsDroid() as opsdroid2:
+            with OpsDroid() as opsdroid2, self.assertRaises(SystemExit):
                 opsdroid2.exit()
             self.assertEqual(len(opsdroid.__class__.critical.mock_calls), 1)
 
