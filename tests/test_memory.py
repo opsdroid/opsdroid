@@ -1,34 +1,36 @@
 
-import unittest
-import unittest.mock as mock
+import asynctest
+import asynctest.mock as mock
 
 from opsdroid.memory import Memory
 
 
-class TestMemory(unittest.TestCase):
+class TestMemory(asynctest.TestCase):
     """Test the opsdroid memory class."""
 
     def setup(self):
         return Memory()
 
-    def test_memory(self):
+    async def test_memory(self):
         memory = self.setup()
         data = "Hello world!"
-        memory.put("test", data)
-        self.assertEqual(data, memory.get("test"))
-        self.assertIsNone(memory.get("nonexistant"))
+        await memory.put("test", data)
+        self.assertEqual(data, await memory.get("test"))
+        self.assertIsNone(await memory.get("nonexistant"))
 
-    def test_empty_memory(self):
+    async def test_empty_memory(self):
         memory = self.setup()
-        self.assertEqual(None, memory.get("test"))
+        self.assertEqual(None, await memory.get("test"))
 
-    def test_database_callouts(self):
+    async def test_database_callouts(self):
         memory = self.setup()
-        memory.databases = [mock.MagicMock()]
+        memory.databases = [mock.CoroutineMock()]
         data = "Hello world!"
 
-        memory.put("test", data)
-        self.assertEqual(len(memory.databases[0].mock_calls), 1)
+        await memory.put("test", data)
+        self.assertTrue(memory.databases[0].put.called)
 
-        memory.get("test")
-        self.assertEqual(len(memory.databases[0].mock_calls), 2)
+        memory.databases[0].reset_mock()
+
+        await memory.get("test")
+        self.assertTrue(memory.databases[0].get.called)

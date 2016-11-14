@@ -113,6 +113,7 @@ class OpsDroid():
     def start_databases(self, databases):
         """Start the databases."""
         if len(databases) == 0:
+            logging.debug(databases)
             logging.warning("All databases failed to load")
         for database_module in databases:
             for name, cls in database_module["module"].__dict__.items():
@@ -122,7 +123,7 @@ class OpsDroid():
                     logging.debug("Adding database: " + name)
                     database = cls(database_module["config"])
                     self.memory.databases.append(database)
-                    database.connect(self)
+                    self.eventloop.run_until_complete(database.connect(self))
 
     def load_regex_skill(self, regex, skill):
         """Load skills."""
@@ -137,4 +138,4 @@ class OpsDroid():
                     regex = match(skill["regex"], message.text)
                     if regex:
                         message.regex = regex
-                        return await skill["skill"](self, message)
+                        await skill["skill"](self, message)

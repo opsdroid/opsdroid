@@ -1,5 +1,6 @@
 
 import unittest
+import asynctest
 
 from opsdroid.database import Database
 
@@ -13,17 +14,21 @@ class TestDatabaseBaseClass(unittest.TestCase):
         self.assertEqual("", database.name)
         self.assertEqual("test", database.config["example_item"])
 
-    def test_connect(self):
-        database = Database({})
-        with self.assertRaises(NotImplementedError):
-            database.connect({})
 
-    def test_get(self):
-        database = Database({})
-        with self.assertRaises(NotImplementedError):
-            database.get("test")
+class TestDatabaseBaseClassAsync(asynctest.TestCase):
+    """Test the opsdroid database base class."""
 
-    def test_put(self):
+    async def test_connect(self):
         database = Database({})
         with self.assertRaises(NotImplementedError):
-            database.put("test", {})
+            await database.connect({})
+
+    async def test_get(self):
+        database = Database({})
+        with self.assertRaises(NotImplementedError):
+            await database.get("test")
+
+    async def test_put(self):
+        database = Database({})
+        with self.assertRaises(NotImplementedError):
+            await database.put("test", {})

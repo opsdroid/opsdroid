@@ -153,6 +153,9 @@ class Loader:
                 loaded_modules.append({
                     "module": module,
                     "config": config})
+            else:
+                logging.error(
+                    "Module " + config["name"] + " failed to import")
 
         return loaded_modules
 
@@ -190,7 +193,7 @@ class Loader:
             else:
                 logging.debug("Install of " + config["name"] + " failed")
 
-            # Install module dependancies
-            if os.path.isfile(config["install_path"] + "/requirements.txt"):
-                self.pip_install_deps(config["install_path"] +
-                                      "/requirements.txt")
+        # Install module dependancies
+        if os.path.isfile(config["install_path"] + "/requirements.txt"):
+            self.pip_install_deps(config["install_path"] +
+                                  "/requirements.txt")

@@ -26,7 +26,7 @@ class Database():
         self.client = None
         self.database = None
 
-    def connect(self, opsdroid):
+    async def connect(self, opsdroid):
         """Connect to chat service and store the connection object.
 
         This method should connect to the given database using a native
@@ -40,7 +40,7 @@ class Database():
         """
         raise NotImplementedError
 
-    def put(self, key, data):
+    async def put(self, key, data):
         """Store the data object in a database against the key.
 
         The data object will need to be serialised in a sensible way which
@@ -57,7 +57,7 @@ class Database():
         """
         raise NotImplementedError
 
-    def get(self, key):
+    async def get(self, key):
         """Return a data object for a given key.
 
         Args:
