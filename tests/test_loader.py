@@ -42,12 +42,12 @@ class TestLoader(unittest.TestCase):
             self.assertTrue(mock_subproc_popen.called)
 
     def test_pip_install_deps(self):
-        mockedcommunication = mock.MagicMock(side_effect=['Test\nTest'])
-        mockedprocess = mock.Mock(return_value=mockedcommunication)
-        with mock.patch.object(subprocess, 'Popen', mockedprocess):
+        with mock.patch.object(subprocess, 'Popen') as mocked_popen:
+            mockedcomm = mock.MagicMock(side_effect=['Test\nTest'])
+            mocked_popen.return_value.communicate.return_value = mockedcomm
             opsdroid, loader = self.setup()
             loader.pip_install_deps("/path/to/some/file.txt")
-            self.assertTrue(mockedprocess.called)
+            self.assertTrue(mocked_popen.called)
 
     def test_build_module_path(self):
         config = {}
