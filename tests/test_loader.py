@@ -113,3 +113,71 @@ class TestLoader(unittest.TestCase):
         loader.load_config(config)
         self.assertEqual(len(loader._load_modules.mock_calls), 0)
         self.assertEqual(len(opsdroid.mock_calls), 2)
+
+    def test_install_existing_module(self):
+        opsdroid, loader = self.setup()
+        config = {"name": "testmodule",
+                  "install_path": "/tmp/test_existing_module"}
+        os.mkdir(config["install_path"])
+        with mock.patch('logging.debug') as logmock:
+            loader._install_module(config)
+            logmock.assert_called_with(
+                    'Module ' + config["name"] +
+                    ' already installed, skipping')
+
+    def test_install_missing_local_module(self):
+        opsdroid, loader = self.setup()
+        config = {"name": "testmodule",
+                  "install_path": "/tmp/test_missing_local_module",
+                  "repo": "/tmp/testrepo",
+                  "branch": "master"}
+        with mock.patch('logging.debug') as logmock:
+            loader._install_module(config)
+            logmock.assert_any_call(
+                    "Could not find local git repo " + config["repo"])
+            logmock.assert_any_call(
+                    "Install of " + config["name"] + " failed")
+
+    def test_install_specific_remote_module(self):
+        opsdroid, loader = self.setup()
+        config = {"name": "testmodule",
+                  "install_path": "/tmp/test_specific_remote_module",
+                  "repo": "https://github.com/rmccue/test-repository.git",
+                  "branch": "master"}
+        with mock.patch('logging.debug'), \
+                mock.patch.object(loader, 'git_clone') as mockclone:
+            loader._install_module(config)
+            mockclone.assert_called_with(config["repo"],
+                                         config["install_path"],
+                                         config["branch"])
+
+    def test_install_specific_local_module(self):
+        opsdroid, loader = self.setup()
+        config = {"name": "testmodule",
+                  "install_path": "/tmp/testrepo",
+                  "repo": "https://github.com/rmccue/test-repository.git",
+                  "branch": "master"}
+        loader._install_module(config)  # Clone remote repo for testing with
+        config["repo"] = config["install_path"]
+        config["install_path"] = "/tmp/test_specific_local_module"
+        with mock.patch('logging.debug'), \
+                mock.patch.object(loader, 'git_clone') as mockclone:
+            loader._install_module(config)
+            mockclone.assert_called_with(config["repo"],
+                                         config["install_path"],
+                                         config["branch"])
+
+    def test_install_default_remote_module(self):
+        opsdroid, loader = self.setup()
+        config = {"name": "slack",
+                  "type": "connector",
+                  "install_path": "/tmp/test_default_remote_module",
+                  "branch": "master"}
+        with mock.patch('logging.debug') as logmock, \
+                mock.patch.object(loader, 'pip_install_deps') as mockdeps:
+            loader._install_module(config)
+            logmock.assert_called_with(
+                    'Installed ' + config["name"] +
+                    ' to ' + config["install_path"])
+            mockdeps.assert_called_with(
+                    config["install_path"] + "/requirements.txt")

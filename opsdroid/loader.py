@@ -188,7 +188,7 @@ class Loader:
                 logging.debug("Installed " + config["name"] +
                               " to " + config["install_path"])
             else:
-                logging.debug("Install of " + config["name"] + " failed ")
+                logging.debug("Install of " + config["name"] + " failed")
 
             # Install module dependancies
             if os.path.isfile(config["install_path"] + "/requirements.txt"):
