@@ -131,6 +131,10 @@ class OpsDroid():
 
     async def parse(self, message):
         """Parse a string against all skills."""
+        # pylint: disable=broad-except
+        # We want to catch all exceptions coming from a skill module and not
+        # halt the application. If a skill throws an exception it just doesn't
+        # give a response to the user, so an error response should be given.
         if message.text.strip() != "":
             logging.debug("Parsing input: " + message.text)
             for skill in self.skills:
@@ -138,4 +142,14 @@ class OpsDroid():
                     regex = match(skill["regex"], message.text)
                     if regex:
                         message.regex = regex
-                        await skill["skill"](self, message)
+                        try:
+                            await skill["skill"](self, message)
+                        except Exception:
+                            await message.respond(
+                                "Whoops there has been an error")
+                            await message.respond(
+                                "Check the log for details")
+                            logging.exception("Exception when parsing '" +
+                                              message.text +
+                                              "' against skill '" +
+                                              skill["regex"] + "'")
