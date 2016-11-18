@@ -45,6 +45,18 @@ class OpsDroid():
         """Remove self from existing instances."""
         self.__class__.instances = []
 
+    @property
+    def default_connector(self):
+        """Return the default connector."""
+        default_connector = None
+        for connector in self.connectors:
+            if connector.config["default"]:
+                default_connector = connector
+                break
+        if default_connector is None:
+            default_connector = self.connectors[0]
+        return default_connector
+
     def exit(self):
         """Exit application."""
         logging.info("Exiting application with return code " +
@@ -131,6 +143,10 @@ class OpsDroid():
 
     async def parse(self, message):
         """Parse a string against all skills."""
+        # pylint: disable=broad-except
+        # We want to catch all exceptions coming from a skill module and not
+        # halt the application. If a skill throws an exception it just doesn't
+        # give a response to the user, so an error response should be given.
         if message.text.strip() != "":
             logging.debug("Parsing input: " + message.text)
             for skill in self.skills:
@@ -138,4 +154,14 @@ class OpsDroid():
                     regex = match(skill["regex"], message.text)
                     if regex:
                         message.regex = regex
-                        await skill["skill"](self, message)
+                        try:
+                            await skill["skill"](self, message)
+                        except Exception:
+                            await message.respond(
+                                "Whoops there has been an error")
+                            await message.respond(
+                                "Check the log for details")
+                            logging.exception("Exception when parsing '" +
+                                              message.text +
+                                              "' against skill '" +
+                                              skill["regex"] + "'")
