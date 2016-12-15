@@ -5,11 +5,12 @@ import sys
 import weakref
 import asyncio
 
-from opsdroid.helper import match
 from opsdroid.memory import Memory
 from opsdroid.connector import Connector
 from opsdroid.database import Database
 from opsdroid.loader import Loader
+from opsdroid.parsers.regex import parse_regex
+from opsdroid.parsers.apiai import parse_apiai
 
 
 class OpsDroid():
@@ -125,31 +126,12 @@ class OpsDroid():
                     self.memory.databases.append(database)
                     self.eventloop.run_until_complete(database.connect(self))
 
-    def load_regex_skill(self, regex, skill):
-        """Load skills."""
-        self.skills.append({"regex": regex, "skill": skill})
-
     async def parse(self, message):
         """Parse a string against all skills."""
-        # pylint: disable=broad-except
-        # We want to catch all exceptions coming from a skill module and not
-        # halt the application. If a skill throws an exception it just doesn't
-        # give a response to the user, so an error response should be given.
         if message.text.strip() != "":
             logging.debug("Parsing input: " + message.text)
-            for skill in self.skills:
-                if "regex" in skill:
-                    regex = match(skill["regex"], message.text)
-                    if regex:
-                        message.regex = regex
-                        try:
-                            await skill["skill"](self, message)
-                        except Exception:
-                            await message.respond(
-                                "Whoops there has been an error")
-                            await message.respond(
-                                "Check the log for details")
-                            logging.exception("Exception when parsing '" +
-                                              message.text +
-                                              "' against skill '" +
-                                              skill["regex"] + "'")
+
+            await parse_regex(self, message)
+
+            if self.config['parsers']['apiai']:
+                await parse_apiai(self, message)
