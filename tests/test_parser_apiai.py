@@ -24,7 +24,14 @@ class TestParserApiai(asynctest.TestCase):
 
             with amock.patch.object(apiai, 'call_apiai') as mocked_call_apiai:
                 mocked_call_apiai.return_value = {
-                        "result": {"action": "myaction"}
+                        "result": {
+                            "action": "myaction",
+                            "score": 0.7
+                        },
+                        "status": {
+                            "code": 200,
+                            "errorType": "success"
+                        }
                     }
                 await apiai.parse_apiai(opsdroid, message)
 

@@ -25,17 +25,6 @@ async def call_apiai(message, config):
         result = await resp.json()
         logging.debug("api.ai response - " + json.dumps(result))
 
-        if result["status"]["code"] >= 300:
-            logging.error("api.ai error - " +
-                          str(result["status"]["code"]) + " " +
-                          result["status"]["errorType"])
-            return False
-
-        if "min-score" in config and \
-                result["result"]["score"] < config["min-score"]:
-            logging.debug("api.ai score lower than min-score")
-            return False
-
         return result
 
 
@@ -49,6 +38,18 @@ async def parse_apiai(opsdroid, message):
     if 'access-token' in config:
 
         result = await call_apiai(message, config)
+
+        if result["status"]["code"] >= 300:
+            logging.error("api.ai error - " +
+                          str(result["status"]["code"]) + " " +
+                          result["status"]["errorType"])
+            return
+
+        if "min-score" in config and \
+                result["result"]["score"] < config["min-score"]:
+            logging.debug("api.ai score lower than min-score")
+            return
+
         if result:
             for skill in opsdroid.skills:
 
