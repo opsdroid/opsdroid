@@ -38,7 +38,7 @@ async def parse_apiai(opsdroid, message):
                     return
 
                 if "min-score" in config and \
-                    result["score"] < config["min-score"]:
+                        result["score"] < config["min-score"]:
                     logging.debug("api.ai score lower than min-score")
                     return
 

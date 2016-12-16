@@ -133,5 +133,5 @@ class OpsDroid():
 
             await parse_regex(self, message)
 
-            if self.config['parsers']['apiai']:
+            if "parsers" in self.config and "apiai" in self.config["parsers"]:
                 await parse_apiai(self, message)
