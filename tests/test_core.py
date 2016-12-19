@@ -104,6 +104,21 @@ class TestCore(unittest.TestCase):
             opsdroid.setup_skills(example_modules)
             self.assertEqual(len(example_modules[0]["module"].mock_calls), 1)
 
+    def test_default_connector(self):
+        with OpsDroid() as opsdroid:
+            mock_connector = Connector({})
+            opsdroid.connectors.append(mock_connector)
+            self.assertEqual(opsdroid.default_connector, mock_connector)
+
+            mock_default_connector = Connector({"default": True})
+            opsdroid.connectors.append(mock_default_connector)
+            self.assertEqual(opsdroid.default_connector,
+                             mock_default_connector)
+
+    def test_default_room(self):
+        mock_connector = Connector({})
+        self.assertEqual(None, mock_connector.default_room)
+
 
 class TestCoreAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid core class."""

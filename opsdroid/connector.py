@@ -24,6 +24,7 @@ class Connector():
         """
         self.name = ""
         self.config = config
+        self.default_room = None
 
     async def connect(self, opsdroid):
         """Connect to chat service.

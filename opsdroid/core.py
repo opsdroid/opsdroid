@@ -46,6 +46,18 @@ class OpsDroid():
         """Remove self from existing instances."""
         self.__class__.instances = []
 
+    @property
+    def default_connector(self):
+        """Return the default connector."""
+        default_connector = None
+        for connector in self.connectors:
+            if "default" in connector.config and connector.config["default"]:
+                default_connector = connector
+                break
+        if default_connector is None:
+            default_connector = self.connectors[0]
+        return default_connector
+
     def exit(self):
         """Exit application."""
         logging.info("Exiting application with return code " +
