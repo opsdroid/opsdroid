@@ -1,6 +1,6 @@
 # Creating a connector
 
-Connectors are a class which extends the base opsdroid Connector. The class has three mandatory methods, `connect`, `listen` and `respond`.
+Connectors are a class which extends the base opsdroid Connector. The class has three mandatory methods, `connect`, `listen` and `respond`. There are also some default values you can override with the `__init__` function, just be sure you are setting everything that the default init sets.
 
 #### connect
 *connect* is a method which connects to a specific chat service
@@ -25,6 +25,12 @@ from opsdroid.message import Message
 
 
 class MyConnector(Connector):
+
+  def __init__(self, config):
+    # Init the config for the connector
+    self.name = "MyConnector" # The name of your connector
+    self.config = config # The config dictionary to be accessed later
+    self.default_room = "MyDefaultRoom" # The default room for messages to go
 
   async def connect(self, opsdroid):
     # Create connection object with chat library

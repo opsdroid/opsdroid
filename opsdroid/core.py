@@ -51,7 +51,7 @@ class OpsDroid():
         """Return the default connector."""
         default_connector = None
         for connector in self.connectors:
-            if connector.config["default"]:
+            if "default" in connector.config and connector.config["default"]:
                 default_connector = connector
                 break
         if default_connector is None:
