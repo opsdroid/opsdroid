@@ -1,7 +1,6 @@
 """Helper functions to use within OpsDroid."""
 
 import logging
-import re
 
 
 def set_logging_level(logging_level):
@@ -23,8 +22,3 @@ def set_logging_level(logging_level):
         logger.setLevel(logging.INFO)
         logging.warning("Log level '" + logging_level +
                         "' unknown, defaulting to 'info'")
-
-
-def match(regex, message):
-    """Regex match a string."""
-    return re.match(regex, message)

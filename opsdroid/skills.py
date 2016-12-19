@@ -8,6 +8,26 @@ def match_regex(regex):
     def matcher(func):
         """Add decorated function to skills list for regex matching."""
         for opsdroid in OpsDroid.instances:
-            opsdroid.load_regex_skill(regex, func)
+            opsdroid.skills.append({"regex": regex, "skill": func})
+        return func
+    return matcher
+
+
+def match_apiai_action(action):
+    """Return apiai action match decorator."""
+    def matcher(func):
+        """Add decorated function to skills list for apiai matching."""
+        for opsdroid in OpsDroid.instances:
+            opsdroid.skills.append({"apiai_action": action, "skill": func})
+        return func
+    return matcher
+
+
+def match_apiai_intent(intent):
+    """Return apiai intent match decorator."""
+    def matcher(func):
+        """Add decorated function to skills list for apiai matching."""
+        for opsdroid in OpsDroid.instances:
+            opsdroid.skills.append({"apiai_intent": intent, "skill": func})
         return func
     return matcher

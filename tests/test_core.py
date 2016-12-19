@@ -8,6 +8,7 @@ import importlib
 from opsdroid.core import OpsDroid
 from opsdroid.message import Message
 from opsdroid.connector import Connector
+from opsdroid.skills import match_regex
 
 
 class TestCore(unittest.TestCase):
@@ -55,7 +56,8 @@ class TestCore(unittest.TestCase):
         with OpsDroid() as opsdroid:
             regex = r".*"
             skill = mock.MagicMock()
-            opsdroid.load_regex_skill(regex, skill)
+            decorator = match_regex(regex)
+            decorator(skill)
             self.assertEqual(len(opsdroid.skills), 1)
             self.assertEqual(opsdroid.skills[0]["regex"], regex)
             self.assertIsInstance(opsdroid.skills[0]["skill"], mock.MagicMock)
@@ -111,7 +113,8 @@ class TestCoreAsync(asynctest.TestCase):
             regex = r".*"
             skill = amock.CoroutineMock()
             mock_connector = Connector({})
-            opsdroid.load_regex_skill(regex, skill)
+            decorator = match_regex(regex)
+            decorator(skill)
             message = Message("Hello world", "user", "default", mock_connector)
             await opsdroid.parse(message)
             self.assertTrue(skill.called)
