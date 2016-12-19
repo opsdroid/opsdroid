@@ -28,3 +28,9 @@ class TestSkillDecorators(unittest.TestCase):
             self.assertEqual(len(opsdroid.skills), 1)
             self.assertEqual(opsdroid.skills[0]["apiai_action"], action)
             self.assertIsInstance(opsdroid.skills[0]["skill"], mock.MagicMock)
+            intent = "myIntent"
+            decorator = skills.match_apiai_intent(intent)
+            decorator(mockedskill)
+            self.assertEqual(len(opsdroid.skills), 2)
+            self.assertEqual(opsdroid.skills[1]["apiai_intent"], intent)
+            self.assertIsInstance(opsdroid.skills[1]["skill"], mock.MagicMock)
