@@ -57,7 +57,7 @@ from opsdroid.skills import match_apiai_action
 
 @match_apiai_action('smalltalk.greetings')
 async def dumpResponse(opsdroid, message):
-    print json.dumps(message.apiai)
+    print(json.dumps(message.apiai))
 ```
 
 This example skill will print the following on the message "whats up?".
