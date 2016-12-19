@@ -23,8 +23,8 @@ class TestSkillDecorators(unittest.TestCase):
         with OpsDroid() as opsdroid:
             action = "myaction"
             mockedskill = mock.MagicMock()
-            decorator = skills.match_apiai(action)
+            decorator = skills.match_apiai_action(action)
             decorator(mockedskill)
             self.assertEqual(len(opsdroid.skills), 1)
-            self.assertEqual(opsdroid.skills[0]["apiai"], action)
+            self.assertEqual(opsdroid.skills[0]["apiai_action"], action)
             self.assertIsInstance(opsdroid.skills[0]["skill"], mock.MagicMock)

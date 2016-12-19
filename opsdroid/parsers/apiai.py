@@ -53,9 +53,13 @@ async def parse_apiai(opsdroid, message):
         if result:
             for skill in opsdroid.skills:
 
-                if "apiai" in skill:
-                    if "action" in result["result"] and \
-                            skill["apiai"] in result["result"]["action"]:
+                if "apiai_action" in skill or "apiai_intent" in skill:
+                    if ("action" in result["result"] and
+                            skill["apiai_action"] in
+                            result["result"]["action"]) \
+                            or ("intentName" in result["result"] and
+                                skill["apiai_intent"] in
+                                result["result"]["intentName"]):
                         message.apiai = result
                         try:
                             await skill["skill"](opsdroid, message)
@@ -67,4 +71,4 @@ async def parse_apiai(opsdroid, message):
                             logging.exception("Exception when parsing '" +
                                               message.text +
                                               "' against skill '" +
-                                              skill["apiai"] + "'")
+                                              result["result"]["action"] + "'")
