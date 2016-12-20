@@ -31,3 +31,13 @@ def match_apiai_intent(intent):
             opsdroid.skills.append({"apiai_intent": intent, "skill": func})
         return func
     return matcher
+
+
+def match_crontab(crontab):
+    """Return crontab match decorator."""
+    def matcher(func):
+        """Add decorated function to skills list for crontab matching."""
+        for opsdroid in OpsDroid.instances:
+            opsdroid.skills.append({"crontab": crontab, "skill": func})
+        return func
+    return matcher

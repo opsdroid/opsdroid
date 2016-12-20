@@ -11,6 +11,7 @@ from opsdroid.database import Database
 from opsdroid.loader import Loader
 from opsdroid.parsers.regex import parse_regex
 from opsdroid.parsers.apiai import parse_apiai
+from opsdroid.parsers.crontab import parse_crontab
 
 
 class OpsDroid():
@@ -88,6 +89,7 @@ class OpsDroid():
             self.start_databases(databases)
         self.setup_skills(skills)
         self.start_connector_tasks(connectors)
+        self.eventloop.create_task(parse_crontab(self))
         try:
             self.eventloop.run_forever()
         except (KeyboardInterrupt, EOFError):
