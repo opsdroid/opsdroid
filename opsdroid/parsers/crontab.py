@@ -9,7 +9,7 @@ import pycron
 
 def run_forever(opsdroid):
     """Check if the opsdroid event loop is running."""
-    return opsdroid.loop.is_running()
+    return opsdroid.eventloop.is_running()
 
 
 async def parse_crontab(opsdroid):
