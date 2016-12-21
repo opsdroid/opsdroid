@@ -34,3 +34,13 @@ class TestSkillDecorators(unittest.TestCase):
             self.assertEqual(len(opsdroid.skills), 2)
             self.assertEqual(opsdroid.skills[1]["apiai_intent"], intent)
             self.assertIsInstance(opsdroid.skills[1]["skill"], mock.MagicMock)
+
+    def test_match_crontab(self):
+        with OpsDroid() as opsdroid:
+            crontab = "* * * * *"
+            mockedskill = mock.MagicMock()
+            decorator = skills.match_crontab(crontab)
+            decorator(mockedskill)
+            self.assertEqual(len(opsdroid.skills), 1)
+            self.assertEqual(opsdroid.skills[0]["crontab"], crontab)
+            self.assertIsInstance(opsdroid.skills[0]["skill"], mock.MagicMock)
