@@ -8,7 +8,7 @@ The crontab parser is a bit different to other parsers. This parser doesn't take
 from opsdroid.skills import match_crontab
 
 @match_crontab('* * * * *')
-async def mycrontabskill(opsdroid):
+async def mycrontabskill(opsdroid, message):
 
     # Get the default connector
     connector = opsdroid.default_connector
@@ -23,4 +23,4 @@ async def mycrontabskill(opsdroid):
     await message.respond('Hey')
 ```
 
-The above skill would be called every minute. As the skill is being triggered by something other than a message you need to create an empty message to respond to. You will also need to know which connector, and possibly which room, to send the message back to. For this you can use the `opsdroid.default_connector` and `opsdroid.default_connector.default_room` properties to get some sensible defaults.
+The above skill would be called every minute. As the skill is being triggered by something other than a message the `message` argument being passed in will be set to `None`, this means you need to create an empty message to respond to. You will also need to know which connector, and possibly which room, to send the message back to. For this you can use the `opsdroid.default_connector` and `opsdroid.default_connector.default_room` properties to get some sensible defaults.
