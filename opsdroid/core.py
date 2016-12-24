@@ -64,7 +64,7 @@ class OpsDroid():
         logging.info("Exiting application with return code " +
                      str(self.sys_status))
         if self.eventloop.is_running():
-            self.eventloop.stop()
+            self.eventloop.close()
         sys.exit(self.sys_status)
 
     def critical(self, error, code):
@@ -95,6 +95,7 @@ class OpsDroid():
         except (KeyboardInterrupt, EOFError):
             print('')  # Prints a character return for return to shell
             logging.info("Keyboard interrupt, exiting.")
+        finally:
             self.exit()
 
     def setup_skills(self, skills):
@@ -142,10 +143,14 @@ class OpsDroid():
 
     async def parse(self, message):
         """Parse a string against all skills."""
+        tasks = []
         if message.text.strip() != "":
             logging.debug("Parsing input: " + message.text)
 
-            await parse_regex(self, message)
+            tasks.append(
+                self.eventloop.create_task(parse_regex(self, message)))
 
             if "parsers" in self.config and "apiai" in self.config["parsers"]:
-                await parse_apiai(self, message)
+                tasks.append(
+                    self.eventloop.create_task(parse_apiai(self, message)))
+        return tasks

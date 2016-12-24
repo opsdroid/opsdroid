@@ -45,7 +45,8 @@ class TestCore(unittest.TestCase):
             opsdroid.start_connector_tasks = mock.Mock()
             opsdroid.eventloop.run_forever = mock.Mock()
 
-            opsdroid.start_loop()
+            with self.assertRaises(SystemExit):
+                opsdroid.start_loop()
 
             self.assertTrue(opsdroid.start_databases.called)
             self.assertTrue(opsdroid.setup_skills.called)
@@ -131,5 +132,7 @@ class TestCoreAsync(asynctest.TestCase):
             decorator = match_regex(regex)
             decorator(skill)
             message = Message("Hello world", "user", "default", mock_connector)
-            await opsdroid.parse(message)
+            tasks = await opsdroid.parse(message)
+            for task in tasks:
+                await task
             self.assertTrue(skill.called)
