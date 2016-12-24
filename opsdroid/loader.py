@@ -24,13 +24,26 @@ class Loader:
         try:
             module = importlib.import_module(
                 config["path"] + "." + config["name"])
-            logging.debug("Loading " + config["type"] + ": " + config["name"])
+            logging.debug("Loaded " + config["type"] + ": " + config["path"])
             return module
         except ImportError as error:
-            logging.error("Failed to load " + config["type"] +
-                          " " + config["name"])
-            logging.error(error)
-            return None
+            logging.debug("Failed to load " + config["type"] +
+                          " " + config["path"] + "." + config["name"])
+            logging.debug(error)
+
+        try:
+            module = importlib.import_module(
+                config["path"])
+            logging.debug("Loaded " + config["type"] + ": " + config["path"])
+            return module
+        except ImportError as error:
+            logging.debug("Failed to load " + config["type"] +
+                          " " + config["path"])
+            logging.debug(error)
+
+        logging.error("Failed to load " + config["type"] +
+                      " " + config["path"])
+        return None
 
     @staticmethod
     def check_cache(config):
