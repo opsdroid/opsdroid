@@ -76,7 +76,7 @@ class TestLoader(unittest.TestCase):
 
     def test_import_module(self):
         config = {}
-        config["path"] = "os"
+        config["module_path"] = "os"
         config["name"] = "path"
         config["type"] = "system"
 
@@ -85,7 +85,7 @@ class TestLoader(unittest.TestCase):
 
     def test_import_module_failure(self):
         config = {}
-        config["path"] = "nonexistant"
+        config["module_path"] = "nonexistant"
         config["name"] = "module"
         config["type"] = "broken"
 
@@ -126,12 +126,12 @@ class TestLoader(unittest.TestCase):
             loader._load_modules(modules_type, modules)
             mockinstall.assert_called_with({
                 'branch': 'master',
-                'path': 'modules.test.testmodule',
+                'module_path': 'modules.test.testmodule',
                 'name': 'testmodule',
                 'type': modules_type,
                 'install_path': 'modules/test/testmodule'})
             mockimport.assert_called_with({
-                'path': 'modules.test.testmodule',
+                'module_path': 'modules.test.testmodule',
                 'name': 'testmodule',
                 'type': modules_type,
                 'branch': 'master',
