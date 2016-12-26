@@ -14,6 +14,7 @@ class TestConnectorBaseClass(unittest.TestCase):
     def test_init(self):
         config = {"example_item": "test"}
         connector = Connector(config)
+        self.assertEqual(None, connector.default_room)
         self.assertEqual("", connector.name)
         self.assertEqual("test", connector.config["example_item"])
 

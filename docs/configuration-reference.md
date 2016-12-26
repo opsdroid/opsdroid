@@ -69,6 +69,21 @@ skills:
   seen:
 ```
 
+### `module-path`
+
+Set the path for opsdroid to use when installing skills. Defaults to the current working directory.
+
+```yaml
+module-path: "/etc/opsdroid/modules"
+
+connectors:
+  shell:
+
+skills:
+  hello:
+  seen:
+```
+
 ### `skills`
 
 Skill modules which add functionality to opsdroid.
@@ -99,6 +114,24 @@ connectors:
     token: "mysecretslacktoken"
   mynewconnector:
     repo: https://github.com/username/myconnector.git
+```
+
+### `path`
+
+A local path to install the module from.
+
+```yaml
+skills:
+  myawesomeskill:
+    path: /home/me/src/opsdroid-skills/myawesomeskill
+```
+
+Or you can specify a single file.
+
+```yaml
+skills:
+  myawesomeskill:
+    path: /home/me/src/opsdroid-skills/myawesomeskill/myskill.py
 ```
 
 ### `no-cache`

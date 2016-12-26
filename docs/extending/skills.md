@@ -18,7 +18,9 @@ async def hello(opsdroid, message):
 
 In this example we are importing the `match_regex` decorator from the opsdroid skills library. We are then using it to decorate a simple hello world function.
 
-The decorator takes a regular expression to match against the message received from the connector. In this case we are checking to see if the message from the user is "hi".
+This decorator takes a regular expression to match against the message received from the connector. In this case we are checking to see if the message from the user is "hi".
+
+For more information about the different decorators available in opsdroid see the [parsers documentation](parsers/overview).
 
 If the message matches the regular expression then the decorated function is called. As arguments opsdroid will pass a pointer to itself along with a Message object containing information about the message from the user.
 
@@ -27,6 +29,8 @@ To ensure the bot is responsive the concurrency controls introduced in Python 3.
 ## Message object
 
 The message object passed to the skill function is an instance of the opsdroid Message class which has the following properties and methods.
+
+Also depending on the parser it may have parser specific properties too. See the [parsers documentation](parsers/overview) for more details.
 
 ### `text`
 
@@ -39,10 +43,6 @@ A _string_ containing the username of the user who wrote the message.
 ### `room`
 
 A _string_ containing the name of the room or chat channel the message was sent in.
-
-### `regex`
-
-A _[re match object](https://docs.python.org/2/library/re.html#re.MatchObject)_ for the regular expression the message was matched against.
 
 ### `connector`
 

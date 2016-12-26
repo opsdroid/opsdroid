@@ -5,11 +5,13 @@ import sys
 import weakref
 import asyncio
 
-from opsdroid.helper import match
 from opsdroid.memory import Memory
 from opsdroid.connector import Connector
 from opsdroid.database import Database
 from opsdroid.loader import Loader
+from opsdroid.parsers.regex import parse_regex
+from opsdroid.parsers.apiai import parse_apiai
+from opsdroid.parsers.crontab import parse_crontab
 
 
 class OpsDroid():
@@ -45,12 +47,24 @@ class OpsDroid():
         """Remove self from existing instances."""
         self.__class__.instances = []
 
+    @property
+    def default_connector(self):
+        """Return the default connector."""
+        default_connector = None
+        for connector in self.connectors:
+            if "default" in connector.config and connector.config["default"]:
+                default_connector = connector
+                break
+        if default_connector is None:
+            default_connector = self.connectors[0]
+        return default_connector
+
     def exit(self):
         """Exit application."""
         logging.info("Exiting application with return code " +
                      str(self.sys_status))
         if self.eventloop.is_running():
-            self.eventloop.stop()
+            self.eventloop.close()
         sys.exit(self.sys_status)
 
     def critical(self, error, code):
@@ -75,11 +89,13 @@ class OpsDroid():
             self.start_databases(databases)
         self.setup_skills(skills)
         self.start_connector_tasks(connectors)
+        self.eventloop.create_task(parse_crontab(self))
         try:
             self.eventloop.run_forever()
         except (KeyboardInterrupt, EOFError):
             print('')  # Prints a character return for return to shell
             logging.info("Keyboard interrupt, exiting.")
+        finally:
             self.exit()
 
     def setup_skills(self, skills):
@@ -125,17 +141,16 @@ class OpsDroid():
                     self.memory.databases.append(database)
                     self.eventloop.run_until_complete(database.connect(self))
 
-    def load_regex_skill(self, regex, skill):
-        """Load skills."""
-        self.skills.append({"regex": regex, "skill": skill})
-
     async def parse(self, message):
         """Parse a string against all skills."""
+        tasks = []
         if message.text.strip() != "":
             logging.debug("Parsing input: " + message.text)
-            for skill in self.skills:
-                if "regex" in skill:
-                    regex = match(skill["regex"], message.text)
-                    if regex:
-                        message.regex = regex
-                        await skill["skill"](self, message)
+
+            tasks.append(
+                self.eventloop.create_task(parse_regex(self, message)))
+
+            if "parsers" in self.config and "apiai" in self.config["parsers"]:
+                tasks.append(
+                    self.eventloop.create_task(parse_apiai(self, message)))
+        return tasks

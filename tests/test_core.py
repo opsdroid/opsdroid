@@ -8,6 +8,7 @@ import importlib
 from opsdroid.core import OpsDroid
 from opsdroid.message import Message
 from opsdroid.connector import Connector
+from opsdroid.skills import match_regex
 
 
 class TestCore(unittest.TestCase):
@@ -44,7 +45,8 @@ class TestCore(unittest.TestCase):
             opsdroid.start_connector_tasks = mock.Mock()
             opsdroid.eventloop.run_forever = mock.Mock()
 
-            opsdroid.start_loop()
+            with self.assertRaises(SystemExit):
+                opsdroid.start_loop()
 
             self.assertTrue(opsdroid.start_databases.called)
             self.assertTrue(opsdroid.setup_skills.called)
@@ -55,7 +57,8 @@ class TestCore(unittest.TestCase):
         with OpsDroid() as opsdroid:
             regex = r".*"
             skill = mock.MagicMock()
-            opsdroid.load_regex_skill(regex, skill)
+            decorator = match_regex(regex)
+            decorator(skill)
             self.assertEqual(len(opsdroid.skills), 1)
             self.assertEqual(opsdroid.skills[0]["regex"], regex)
             self.assertIsInstance(opsdroid.skills[0]["skill"], mock.MagicMock)
@@ -102,6 +105,21 @@ class TestCore(unittest.TestCase):
             opsdroid.setup_skills(example_modules)
             self.assertEqual(len(example_modules[0]["module"].mock_calls), 1)
 
+    def test_default_connector(self):
+        with OpsDroid() as opsdroid:
+            mock_connector = Connector({})
+            opsdroid.connectors.append(mock_connector)
+            self.assertEqual(opsdroid.default_connector, mock_connector)
+
+            mock_default_connector = Connector({"default": True})
+            opsdroid.connectors.append(mock_default_connector)
+            self.assertEqual(opsdroid.default_connector,
+                             mock_default_connector)
+
+    def test_default_room(self):
+        mock_connector = Connector({})
+        self.assertEqual(None, mock_connector.default_room)
+
 
 class TestCoreAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid core class."""
@@ -111,7 +129,10 @@ class TestCoreAsync(asynctest.TestCase):
             regex = r".*"
             skill = amock.CoroutineMock()
             mock_connector = Connector({})
-            opsdroid.load_regex_skill(regex, skill)
+            decorator = match_regex(regex)
+            decorator(skill)
             message = Message("Hello world", "user", "default", mock_connector)
-            await opsdroid.parse(message)
+            tasks = await opsdroid.parse(message)
+            for task in tasks:
+                await task
             self.assertTrue(skill.called)

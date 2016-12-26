@@ -52,18 +52,30 @@ class TestLoader(unittest.TestCase):
         config = {}
         config["type"] = "test"
         config["name"] = "test"
+        loader = mock.Mock()
+        loader.modules_directory = ""
         self.assertIn("test.test",
-                      ld.Loader.build_module_path("import", config))
+                      ld.Loader.build_module_path(loader, "import", config))
         self.assertIn("test/test",
-                      ld.Loader.build_module_path("install", config))
+                      ld.Loader.build_module_path(loader, "install", config))
 
-    def test_check_cache_removes(self):
+    def test_check_cache_removes_dir(self):
         config = {}
         config["no-cache"] = True
         config['install_path'] = "/tmp/test/module"
         os.makedirs(config['install_path'])
         ld.Loader.check_cache(config)
         self.assertFalse(os.path.isdir(config["install_path"]))
+
+    def test_check_cache_removes_file(self):
+        config = {}
+        config["no-cache"] = True
+        config['install_path'] = "/tmp/test/module/test"
+        directory, _ = os.path.split(config['install_path'])
+        os.makedirs(directory)
+        open(config['install_path'] + ".py", 'w')
+        ld.Loader.check_cache(config)
+        self.assertFalse(os.path.isfile(config["install_path"] + ".py"))
 
     def test_check_cache_leaves(self):
         config = {}
@@ -76,8 +88,17 @@ class TestLoader(unittest.TestCase):
 
     def test_import_module(self):
         config = {}
-        config["path"] = "os"
+        config["module_path"] = "os"
         config["name"] = "path"
+        config["type"] = "system"
+
+        module = ld.Loader.import_module(config)
+        self.assertIsInstance(module, ModuleType)
+
+    def test_import_module_new(self):
+        config = {}
+        config["module_path"] = "os"
+        config["name"] = ""
         config["type"] = "system"
 
         module = ld.Loader.import_module(config)
@@ -85,7 +106,7 @@ class TestLoader(unittest.TestCase):
 
     def test_import_module_failure(self):
         config = {}
-        config["path"] = "nonexistant"
+        config["module_path"] = "nonexistant"
         config["name"] = "module"
         config["type"] = "broken"
 
@@ -100,6 +121,7 @@ class TestLoader(unittest.TestCase):
         config['databases'] = mock.MagicMock()
         config['skills'] = mock.MagicMock()
         config['connectors'] = mock.MagicMock()
+        config['module-path'] = "/tmp/opsdroid"
 
         loader.load_config(config)
         self.assertEqual(len(loader._load_modules.mock_calls), 3)
@@ -126,12 +148,12 @@ class TestLoader(unittest.TestCase):
             loader._load_modules(modules_type, modules)
             mockinstall.assert_called_with({
                 'branch': 'master',
-                'path': 'modules.test.testmodule',
+                'module_path': 'modules.test.testmodule',
                 'name': 'testmodule',
                 'type': modules_type,
                 'install_path': 'modules/test/testmodule'})
             mockimport.assert_called_with({
-                'path': 'modules.test.testmodule',
+                'module_path': 'modules.test.testmodule',
                 'name': 'testmodule',
                 'type': modules_type,
                 'branch': 'master',
@@ -175,7 +197,7 @@ class TestLoader(unittest.TestCase):
                                          config["install_path"],
                                          config["branch"])
 
-    def test_install_specific_local_module(self):
+    def test_install_specific_local_git_module(self):
         opsdroid, loader = self.setup()
         config = {"name": "testmodule",
                   "install_path": "/tmp/testrepo",
@@ -191,6 +213,21 @@ class TestLoader(unittest.TestCase):
                                          config["install_path"],
                                          config["branch"])
 
+    def test_install_specific_local_path_module(self):
+        opsdroid, loader = self.setup()
+        config = {"name": "testmodule",
+                  "install_path": "/tmp/testrepo",
+                  "repo": "https://github.com/rmccue/test-repository.git",
+                  "branch": "master"}
+        loader._install_module(config)  # Clone remote repo for testing with
+        config["path"] = config["install_path"]
+        config["install_path"] = "/tmp/test_specific_local_module"
+        with mock.patch('logging.debug'), \
+                mock.patch.object(loader, '_install_local_module') \
+                as mockclone:
+            loader._install_module(config)
+            mockclone.assert_called_with(config)
+
     def test_install_default_remote_module(self):
         opsdroid, loader = self.setup()
         config = {"name": "slack",
@@ -205,3 +242,37 @@ class TestLoader(unittest.TestCase):
                     ' to ' + config["install_path"])
             mockdeps.assert_called_with(
                     config["install_path"] + "/requirements.txt")
+
+    def test_install_local_module_dir(self):
+        opsdroid, loader = self.setup()
+        config = {"name": "slack",
+                  "type": "connector",
+                  "install_path": "/tmp/long/test/path/test",
+                  "path": "/tmp/install/from/here"}
+        os.makedirs(config["path"], exist_ok=True)
+        loader._install_local_module(config)
+        self.assertTrue(os.path.isdir(config["install_path"]))
+
+    def test_install_local_module_file(self):
+        opsdroid, loader = self.setup()
+        config = {"name": "slack",
+                  "type": "connector",
+                  "install_path": "/tmp/test/test",
+                  "path": "/tmp/install/from/here.py"}
+        directory, _ = os.path.split(config["path"])
+        os.makedirs(directory, exist_ok=True)
+        open(config["path"], 'w')
+        loader._install_local_module(config)
+        self.assertTrue(os.path.isfile(
+                            config["install_path"] + "/__init__.py"))
+
+    def test_install_local_module_failure(self):
+        opsdroid, loader = self.setup()
+        config = {"name": "slack",
+                  "type": "connector",
+                  "install_path": "/tmp/test/test",
+                  "path": "/tmp/does/not/exist"}
+        with mock.patch('logging.error') as logmock:
+            loader._install_local_module(config)
+            logmock.assert_called_with(
+                    "Failed to install from " + config["path"])
