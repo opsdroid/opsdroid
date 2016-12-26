@@ -247,7 +247,7 @@ class TestLoader(unittest.TestCase):
         opsdroid, loader = self.setup()
         config = {"name": "slack",
                   "type": "connector",
-                  "install_path": "/tmp/test/test",
+                  "install_path": "/tmp/long/test/path/test",
                   "path": "/tmp/install/from/here"}
         os.makedirs(config["path"], exist_ok=True)
         loader._install_local_module(config)
