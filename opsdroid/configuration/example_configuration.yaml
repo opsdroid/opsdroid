@@ -13,6 +13,12 @@
 #
 # A default config file to use with opsdroid
 
+# Set the logging level
+# logging: info
+
+# Set the location for opsdroid to install modules
+# module-path: "."
+
 # Connector modules
 connectors:
   shell:
