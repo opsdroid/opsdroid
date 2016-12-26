@@ -59,13 +59,23 @@ class TestLoader(unittest.TestCase):
         self.assertIn("test/test",
                       ld.Loader.build_module_path(loader, "install", config))
 
-    def test_check_cache_removes(self):
+    def test_check_cache_removes_dir(self):
         config = {}
         config["no-cache"] = True
         config['install_path'] = "/tmp/test/module"
         os.makedirs(config['install_path'])
         ld.Loader.check_cache(config)
         self.assertFalse(os.path.isdir(config["install_path"]))
+
+    def test_check_cache_removes_file(self):
+        config = {}
+        config["no-cache"] = True
+        config['install_path'] = "/tmp/test/module/test"
+        directory, _ = os.path.split(config['install_path'])
+        os.makedirs(directory)
+        open(config['install_path'] + ".py", 'w')
+        ld.Loader.check_cache(config)
+        self.assertFalse(os.path.isfile(config["install_path"] + ".py"))
 
     def test_check_cache_leaves(self):
         config = {}
@@ -80,6 +90,15 @@ class TestLoader(unittest.TestCase):
         config = {}
         config["module_path"] = "os"
         config["name"] = "path"
+        config["type"] = "system"
+
+        module = ld.Loader.import_module(config)
+        self.assertIsInstance(module, ModuleType)
+
+    def test_import_module_new(self):
+        config = {}
+        config["module_path"] = "os"
+        config["name"] = ""
         config["type"] = "system"
 
         module = ld.Loader.import_module(config)

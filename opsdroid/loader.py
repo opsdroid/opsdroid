@@ -58,7 +58,7 @@ class Loader:
             if os.path.isdir(config["install_path"]):
                 shutil.rmtree(config["install_path"])
             if os.path.isfile(config["install_path"] + ".py"):
-                shutil.rmtree(config["install_path"] + ".py")
+                os.remove(config["install_path"] + ".py")
 
     def build_module_path(self, path_type, config):
         """Generate the module path from name and type."""
