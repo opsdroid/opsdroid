@@ -52,10 +52,12 @@ class TestLoader(unittest.TestCase):
         config = {}
         config["type"] = "test"
         config["name"] = "test"
+        loader = mock.Mock()
+        loader.modules_directory = ""
         self.assertIn("test.test",
-                      ld.Loader.build_module_path("import", config))
+                      ld.Loader.build_module_path(loader, "import", config))
         self.assertIn("test/test",
-                      ld.Loader.build_module_path("install", config))
+                      ld.Loader.build_module_path(loader, "install", config))
 
     def test_check_cache_removes(self):
         config = {}

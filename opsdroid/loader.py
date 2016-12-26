@@ -2,6 +2,7 @@
 
 import logging
 import os
+import sys
 import shutil
 import subprocess
 import importlib
@@ -16,6 +17,7 @@ class Loader:
     def __init__(self, opsdroid):
         """Setup object with opsdroid instance."""
         self.opsdroid = opsdroid
+        self.modules_directory = MODULES_DIRECTORY
         logging.debug("Loaded loader")
 
     @staticmethod
@@ -58,14 +60,13 @@ class Loader:
             if os.path.isfile(config["install_path"] + ".py"):
                 shutil.rmtree(config["install_path"] + ".py")
 
-    @staticmethod
-    def build_module_path(path_type, config):
+    def build_module_path(self, path_type, config):
         """Generate the module path from name and type."""
         if path_type == "import":
             return MODULES_DIRECTORY + "." + config["type"] + \
                         "." + config["name"]
         elif path_type == "install":
-            return MODULES_DIRECTORY + "/" + config["type"] + \
+            return self.modules_directory + "/" + config["type"] + \
                         "/" + config["name"]
 
     @staticmethod
@@ -116,6 +117,13 @@ class Loader:
         """Load all module types based on config."""
         logging.debug("Loading modules from config")
 
+        if "module-path" in config:
+            sys.path.append(config["module-path"])
+            if not os.path.isdir(config["module-path"]):
+                os.makedirs(config["module-path"], exist_ok=True)
+            self.modules_directory = os.path.join(config["module-path"],
+                                                  self.modules_directory)
+
         connectors, databases, skills = None, None, None
 
         if 'databases' in config.keys():
@@ -143,8 +151,8 @@ class Loader:
         loaded_modules = []
 
         # Create modules directory if doesn't exist
-        if not os.path.isdir(MODULES_DIRECTORY):
-            os.makedirs(MODULES_DIRECTORY)
+        if not os.path.isdir(self.modules_directory):
+            os.makedirs(self.modules_directory)
 
         for module_name in modules.keys():
 
