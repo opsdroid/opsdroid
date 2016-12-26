@@ -242,3 +242,37 @@ class TestLoader(unittest.TestCase):
                     ' to ' + config["install_path"])
             mockdeps.assert_called_with(
                     config["install_path"] + "/requirements.txt")
+
+    def test_install_local_module_dir(self):
+        opsdroid, loader = self.setup()
+        config = {"name": "slack",
+                  "type": "connector",
+                  "install_path": "/tmp/test/test",
+                  "path": "/tmp/install/from/here"}
+        os.makedirs(config["path"], exist_ok=True)
+        loader._install_local_module(config)
+        self.assertTrue(os.path.isdir(config["install_path"]))
+
+    def test_install_local_module_file(self):
+        opsdroid, loader = self.setup()
+        config = {"name": "slack",
+                  "type": "connector",
+                  "install_path": "/tmp/test/test",
+                  "path": "/tmp/install/from/here.py"}
+        directory, _ = os.path.split(config["path"])
+        os.makedirs(directory, exist_ok=True)
+        open(config["path"], 'w')
+        loader._install_local_module(config)
+        self.assertTrue(os.path.isfile(
+                            config["install_path"] + "/__init__.py"))
+
+    def test_install_local_module_failure(self):
+        opsdroid, loader = self.setup()
+        config = {"name": "slack",
+                  "type": "connector",
+                  "install_path": "/tmp/test/test",
+                  "path": "/tmp/does/not/exist"}
+        with mock.patch('logging.error') as logmock:
+            loader._install_local_module(config)
+            logmock.assert_called_with(
+                    "Failed to install from " + config["path"])
