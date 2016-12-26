@@ -121,6 +121,7 @@ class TestLoader(unittest.TestCase):
         config['databases'] = mock.MagicMock()
         config['skills'] = mock.MagicMock()
         config['connectors'] = mock.MagicMock()
+        config['module-path'] = "/tmp/opsdroid"
 
         loader.load_config(config)
         self.assertEqual(len(loader._load_modules.mock_calls), 3)
@@ -196,7 +197,7 @@ class TestLoader(unittest.TestCase):
                                          config["install_path"],
                                          config["branch"])
 
-    def test_install_specific_local_module(self):
+    def test_install_specific_local_git_module(self):
         opsdroid, loader = self.setup()
         config = {"name": "testmodule",
                   "install_path": "/tmp/testrepo",
@@ -211,6 +212,21 @@ class TestLoader(unittest.TestCase):
             mockclone.assert_called_with(config["repo"],
                                          config["install_path"],
                                          config["branch"])
+
+    def test_install_specific_local_path_module(self):
+        opsdroid, loader = self.setup()
+        config = {"name": "testmodule",
+                  "install_path": "/tmp/testrepo",
+                  "repo": "https://github.com/rmccue/test-repository.git",
+                  "branch": "master"}
+        loader._install_module(config)  # Clone remote repo for testing with
+        config["path"] = config["install_path"]
+        config["install_path"] = "/tmp/test_specific_local_module"
+        with mock.patch('logging.debug'), \
+                mock.patch.object(loader, '_install_local_module') \
+                as mockclone:
+            loader._install_module(config)
+            mockclone.assert_called_with(config)
 
     def test_install_default_remote_module(self):
         opsdroid, loader = self.setup()
