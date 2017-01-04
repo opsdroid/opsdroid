@@ -154,12 +154,12 @@ class Loader:
         if not os.path.isdir(self.modules_directory):
             os.makedirs(self.modules_directory)
 
-        for module_name in modules.keys():
+        for module in modules:
 
             # Set up module config
-            config = modules[module_name]
+            config = module
             config = {} if config is None else config
-            config["name"] = module_name
+            config["name"] = module["name"]
             config["type"] = modules_type
             config["module_path"] = self.build_module_path("import", config)
             config["install_path"] = self.build_module_path("install", config)
