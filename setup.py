@@ -11,6 +11,8 @@ PACKAGES = find_packages(exclude=['tests', 'tests.*', 'modules',
 
 REQUIRES = [
     'pyyaml>=3.11,<4',
+    'aiohttp>=1.2.0,<2',
+    'pycron>=0.40',
 ]
 
 setup(
