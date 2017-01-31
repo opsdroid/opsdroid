@@ -18,6 +18,7 @@ class Loader:
         """Setup object with opsdroid instance."""
         self.opsdroid = opsdroid
         self.modules_directory = MODULES_DIRECTORY
+        self.current_import_config = None
         logging.debug("Loaded loader")
 
     @staticmethod
@@ -173,6 +174,7 @@ class Loader:
             self._install_module(config)
 
             # Import module
+            self.current_import_config = config
             module = self.import_module(config)
             if module is not None:
                 loaded_modules.append({

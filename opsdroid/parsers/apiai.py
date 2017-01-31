@@ -61,7 +61,8 @@ async def parse_apiai(opsdroid, message, config):
                                 result["result"]["intentName"]):
                         message.apiai = result
                         try:
-                            await skill["skill"](opsdroid, message)
+                            await skill["skill"](opsdroid, skill["config"],
+                                                 message)
                         except Exception:
                             await message.respond(
                                 "Whoops there has been an error")

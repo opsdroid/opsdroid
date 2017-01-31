@@ -16,7 +16,7 @@ async def parse_regex(opsdroid, message):
             if regex:
                 message.regex = regex
                 try:
-                    await skill["skill"](opsdroid, message)
+                    await skill["skill"](opsdroid, skill["config"], message)
                 except Exception:
                     await message.respond(
                         "Whoops there has been an error")

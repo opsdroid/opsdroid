@@ -151,11 +151,16 @@ class OpsDroid():
                 self.eventloop.create_task(parse_regex(self, message)))
 
             if "parsers" in self.config:
+                logging.debug("Processing parsers")
                 parsers = self.config["parsers"]
 
                 apiai = [p for p in parsers if p["name"] == "apiai"]
-                if len(apiai) == 1 and apiai[0]["enabled"] is not False:
+                logging.debug("Checking apiai")
+                if len(apiai) == 1 and \
+                        ("enabled" not in apiai[0] or
+                         apiai[0]["enabled"] is not False):
                     logging.debug("Parsing with apiai")
                     tasks.append(
-                        self.eventloop.create_task(parse_apiai(self, message, apiai[0])))
+                        self.eventloop.create_task(
+                            parse_apiai(self, message, apiai[0])))
         return tasks
