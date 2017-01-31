@@ -5,10 +5,10 @@ The crontab parser is a bit different to other parsers. This parser doesn't take
 ## Example
 
 ```python
-from opsdroid.skills import match_crontab
+from opsdroid.matchers import match_crontab
 
 @match_crontab('* * * * *')
-async def mycrontabskill(opsdroid, message):
+async def mycrontabskill(opsdroid, config, message):
 
     # Get the default connector
     connector = opsdroid.default_connector

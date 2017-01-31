@@ -12,7 +12,7 @@ Within this file should be functions which are decorated with an opsdroid skill 
 from opsdroid.skills import match_regex
 
 @match_regex('hi')
-async def hello(opsdroid, message):
+async def hello(opsdroid, config, message):
     await message.respond('Hey')
 ```
 
@@ -72,13 +72,13 @@ Stores the object provided for a specific key.
 from opsdroid.skills import match_regex
 
 @match_regex(r'remember (.*)')
-async def remember(opsdroid, message):
+async def remember(opsdroid, config, message):
     remember = message.regex.group(1)
     await opsdroid.memory.put("remember", remember)
     await message.respond("OK I'll remember that")
 
 @match_regex(r'remind me')
-async def remember(opsdroid, message):
+async def remember(opsdroid, config, message):
     information = await opsdroid.memory.get("remember")
     await message.respond(information)
 ```
