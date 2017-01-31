@@ -4,6 +4,7 @@ import logging
 import sys
 import weakref
 import asyncio
+import os.path
 
 from opsdroid.memory import Memory
 from opsdroid.connector import Connector
@@ -78,7 +79,8 @@ class OpsDroid():
         """Load configuration."""
         self.config = self.loader.load_config_file([
             "./configuration.yaml",
-            "~/.opsdroid/configuration.yaml",
+            os.path.join(os.path.expanduser("~"),
+                         ".opsdroid/configuration.yaml"),
             "/etc/opsdroid/configuration.yaml"
             ])
 
@@ -150,7 +152,17 @@ class OpsDroid():
             tasks.append(
                 self.eventloop.create_task(parse_regex(self, message)))
 
-            if "parsers" in self.config and "apiai" in self.config["parsers"]:
-                tasks.append(
-                    self.eventloop.create_task(parse_apiai(self, message)))
+            if "parsers" in self.config:
+                logging.debug("Processing parsers")
+                parsers = self.config["parsers"]
+
+                apiai = [p for p in parsers if p["name"] == "apiai"]
+                logging.debug("Checking apiai")
+                if len(apiai) == 1 and \
+                        ("enabled" not in apiai[0] or
+                         apiai[0]["enabled"] is not False):
+                    logging.debug("Parsing with apiai")
+                    tasks.append(
+                        self.eventloop.create_task(
+                            parse_apiai(self, message, apiai[0])))
         return tasks

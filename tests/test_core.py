@@ -8,7 +8,7 @@ import importlib
 from opsdroid.core import OpsDroid
 from opsdroid.message import Message
 from opsdroid.connector import Connector
-from opsdroid.skills import match_regex
+from opsdroid.matchers import match_regex, match_apiai_action
 
 
 class TestCore(unittest.TestCase):
@@ -124,7 +124,7 @@ class TestCore(unittest.TestCase):
 class TestCoreAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid core class."""
 
-    async def test_parse(self):
+    async def test_parse_regex(self):
         with OpsDroid() as opsdroid:
             regex = r".*"
             skill = amock.CoroutineMock()
@@ -136,3 +136,18 @@ class TestCoreAsync(asynctest.TestCase):
             for task in tasks:
                 await task
             self.assertTrue(skill.called)
+
+    async def test_parse_apiai(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.config["parsers"] = [{"name": "apiai"}]
+            apiai_action = ""
+            skill = amock.CoroutineMock()
+            mock_connector = Connector({})
+            decorator = match_apiai_action(apiai_action)
+            decorator(skill)
+            message = Message("Hello world", "user", "default", mock_connector)
+            with amock.patch('opsdroid.parsers.apiai.parse_apiai'):
+                tasks = await opsdroid.parse(message)
+                self.assertEqual(len(tasks), 2)  # apiai and regex
+                for task in tasks:
+                    await task

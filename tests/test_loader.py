@@ -76,6 +76,7 @@ class TestLoader(unittest.TestCase):
         open(config['install_path'] + ".py", 'w')
         ld.Loader.check_cache(config)
         self.assertFalse(os.path.isfile(config["install_path"] + ".py"))
+        shutil.rmtree(directory)
 
     def test_check_cache_leaves(self):
         config = {}
@@ -139,7 +140,7 @@ class TestLoader(unittest.TestCase):
         opsdroid, loader = self.setup()
 
         modules_type = "test"
-        modules = {"testmodule": None}
+        modules = [{"name": "testmodule"}]
         mockedmodule = mock.Mock(return_value={"name": "testmodule"})
 
         with mock.patch.object(loader, '_install_module') as mockinstall, \
@@ -170,6 +171,7 @@ class TestLoader(unittest.TestCase):
             logmock.assert_called_with(
                     'Module ' + config["name"] +
                     ' already installed, skipping')
+        shutil.rmtree(config["install_path"])
 
     def test_install_missing_local_module(self):
         opsdroid, loader = self.setup()
@@ -199,12 +201,13 @@ class TestLoader(unittest.TestCase):
 
     def test_install_specific_local_git_module(self):
         opsdroid, loader = self.setup()
+        repo_path = "/tmp/testrepo"
         config = {"name": "testmodule",
-                  "install_path": "/tmp/testrepo",
+                  "install_path": repo_path,
                   "repo": "https://github.com/rmccue/test-repository.git",
                   "branch": "master"}
         loader._install_module(config)  # Clone remote repo for testing with
-        config["repo"] = config["install_path"]
+        config["repo"] = config["install_path"] + "/.git"
         config["install_path"] = "/tmp/test_specific_local_module"
         with mock.patch('logging.debug'), \
                 mock.patch.object(loader, 'git_clone') as mockclone:
@@ -212,11 +215,13 @@ class TestLoader(unittest.TestCase):
             mockclone.assert_called_with(config["repo"],
                                          config["install_path"],
                                          config["branch"])
+        shutil.rmtree(repo_path)
 
     def test_install_specific_local_path_module(self):
         opsdroid, loader = self.setup()
+        repo_path = "/tmp/testrepo"
         config = {"name": "testmodule",
-                  "install_path": "/tmp/testrepo",
+                  "install_path": repo_path,
                   "repo": "https://github.com/rmccue/test-repository.git",
                   "branch": "master"}
         loader._install_module(config)  # Clone remote repo for testing with
@@ -227,6 +232,7 @@ class TestLoader(unittest.TestCase):
                 as mockclone:
             loader._install_module(config)
             mockclone.assert_called_with(config)
+        shutil.rmtree(repo_path)
 
     def test_install_default_remote_module(self):
         opsdroid, loader = self.setup()
@@ -243,21 +249,25 @@ class TestLoader(unittest.TestCase):
             mockdeps.assert_called_with(
                     config["install_path"] + "/requirements.txt")
 
+        shutil.rmtree(config["install_path"])
+
     def test_install_local_module_dir(self):
         opsdroid, loader = self.setup()
+        base_path = "/tmp/long"
         config = {"name": "slack",
                   "type": "connector",
-                  "install_path": "/tmp/long/test/path/test",
+                  "install_path": base_path + "/test/path/test",
                   "path": "/tmp/install/from/here"}
         os.makedirs(config["path"], exist_ok=True)
         loader._install_local_module(config)
         self.assertTrue(os.path.isdir(config["install_path"]))
+        shutil.rmtree(base_path)
 
     def test_install_local_module_file(self):
         opsdroid, loader = self.setup()
         config = {"name": "slack",
                   "type": "connector",
-                  "install_path": "/tmp/test/test",
+                  "install_path": "/tmp/test_local_module_file",
                   "path": "/tmp/install/from/here.py"}
         directory, _ = os.path.split(config["path"])
         os.makedirs(directory, exist_ok=True)
@@ -265,12 +275,13 @@ class TestLoader(unittest.TestCase):
         loader._install_local_module(config)
         self.assertTrue(os.path.isfile(
                             config["install_path"] + "/__init__.py"))
+        shutil.rmtree(config["install_path"])
 
     def test_install_local_module_failure(self):
         opsdroid, loader = self.setup()
         config = {"name": "slack",
                   "type": "connector",
-                  "install_path": "/tmp/test/test",
+                  "install_path": "/tmp/test_local_module_failure",
                   "path": "/tmp/does/not/exist"}
         with mock.patch('logging.error') as logmock:
             loader._install_local_module(config)

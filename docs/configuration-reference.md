@@ -23,11 +23,11 @@ _Config options of the connectors themselves differ between connectors, see the 
 ```yaml
 connectors:
 
-  slack:
+  - name: slack
     token: "mysecretslacktoken"
 
   # conceptual connector
-  twitter:
+  - name: twitter
     oauth_key: "myoauthkey"
     secret_key: "myoauthsecret"
 ```
@@ -44,7 +44,7 @@ _Config options of the databases themselves differ between databases, see the da
 
 ```yaml
 databases:
-  mongo:
+  - name: mongo
     host: "mymongohost.mycompany.com"
     port: "27017"
     database: "opsdroid"
@@ -62,11 +62,11 @@ All python logging levels are available in opsdroid. `logging` can be set to `de
 logging: debug
 
 connectors:
-  shell:
+  - name: shell
 
 skills:
-  hello:
-  seen:
+  - name: hello
+  - name: seen
 ```
 
 ### `module-path`
@@ -77,11 +77,11 @@ Set the path for opsdroid to use when installing skills. Defaults to the current
 module-path: "/etc/opsdroid/modules"
 
 connectors:
-  shell:
+  - name: shell
 
 skills:
-  hello:
-  seen:
+  - name: hello
+  - name: seen
 ```
 
 ### `skills`
@@ -92,8 +92,8 @@ _Config options of the skills themselves differ between skills, see the skill do
 
 ```yaml
 skills:
-  hello:
-  seen:
+  - name: hello
+  - name: seen
 ```
 
 See [module options](#module-options) for installing custom skills.
@@ -110,9 +110,9 @@ A git url to install the module from.
 
 ```yaml
 connectors:
-  slack:
+  - name: slack
     token: "mysecretslacktoken"
-  mynewconnector:
+  - name: mynewconnector
     repo: https://github.com/username/myconnector.git
 ```
 
@@ -122,7 +122,7 @@ A local path to install the module from.
 
 ```yaml
 skills:
-  myawesomeskill:
+  - name: myawesomeskill
     path: /home/me/src/opsdroid-skills/myawesomeskill
 ```
 
@@ -130,7 +130,7 @@ Or you can specify a single file.
 
 ```yaml
 skills:
-  myawesomeskill:
+  - name: myawesomeskill
     path: /home/me/src/opsdroid-skills/myawesomeskill/myskill.py
 ```
 
@@ -140,7 +140,7 @@ Set this to do a fresh git clone of the module whenever you start opsdroid.
 
 ```yaml
 databases:
-  mongodb:
+  - name: mongodb
     repo: https://github.com/username/mymongofork.git
     no-cache: true
 ```

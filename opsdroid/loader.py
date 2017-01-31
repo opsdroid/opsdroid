@@ -18,6 +18,7 @@ class Loader:
         """Setup object with opsdroid instance."""
         self.opsdroid = opsdroid
         self.modules_directory = MODULES_DIRECTORY
+        self.current_import_config = None
         logging.debug("Loaded loader")
 
     @staticmethod
@@ -96,8 +97,8 @@ class Loader:
         config_path = ""
         for possible_path in config_paths:
             if not os.path.isfile(possible_path):
-                logging.warning("Config file " + possible_path +
-                                " not found", 1)
+                logging.debug("Config file " + possible_path +
+                              " not found")
             else:
                 config_path = possible_path
                 break
@@ -107,6 +108,7 @@ class Loader:
 
         try:
             with open(config_path, 'r') as stream:
+                logging.info("Loaded config from %s", config_path)
                 return yaml.load(stream)
         except yaml.YAMLError as error:
             self.opsdroid.critical(error, 1)
@@ -154,12 +156,12 @@ class Loader:
         if not os.path.isdir(self.modules_directory):
             os.makedirs(self.modules_directory)
 
-        for module_name in modules.keys():
+        for module in modules:
 
             # Set up module config
-            config = modules[module_name]
+            config = module
             config = {} if config is None else config
-            config["name"] = module_name
+            config["name"] = module["name"]
             config["type"] = modules_type
             config["module_path"] = self.build_module_path("import", config)
             config["install_path"] = self.build_module_path("install", config)
@@ -173,6 +175,7 @@ class Loader:
             self._install_module(config)
 
             # Import module
+            self.current_import_config = config
             module = self.import_module(config)
             if module is not None:
                 loaded_modules.append({

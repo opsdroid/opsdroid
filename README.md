@@ -1,6 +1,6 @@
 ![opsdroid](https://github.com/opsdroid/style-guidelines/raw/master/logos/logo-wide-light.png)
 
-[![Build Status](https://travis-ci.org/opsdroid/opsdroid.svg?branch=master)](https://travis-ci.org/opsdroid/opsdroid) [![Coverage Status](https://coveralls.io/repos/github/opsdroid/opsdroid/badge.svg?branch=master)](https://coveralls.io/github/opsdroid/opsdroid?branch=master) [![Docker Image](https://img.shields.io/badge/docker-ready-blue.svg)](https://hub.docker.com/r/opsdroid/opsdroid/) [![Docker Layers](https://images.microbadger.com/badges/image/opsdroid/opsdroid.svg)](https://microbadger.com/#/images/opsdroid/opsdroid) [![Documentation Status](https://readthedocs.org/projects/opsdroid/badge/?version=latest)](http://opsdroid.readthedocs.io/en/latest/?badge=latest)
+[![Build Status](https://travis-ci.org/opsdroid/opsdroid.svg?branch=release)](https://travis-ci.org/opsdroid/opsdroid) [![Coverage Status](https://coveralls.io/repos/github/opsdroid/opsdroid/badge.svg?branch=release)](https://coveralls.io/github/opsdroid/opsdroid?branch=release) [![Docker Image](https://img.shields.io/badge/docker-ready-blue.svg)](https://hub.docker.com/r/opsdroid/opsdroid/) [![Docker Layers](https://images.microbadger.com/badges/image/opsdroid/opsdroid.svg)](https://microbadger.com/#/images/opsdroid/opsdroid) [![Documentation Status](https://img.shields.io/badge/docs-latest-red.svg?style=flat)](http://opsdroid.readthedocs.io/en/latest/?badge=latest)
 
 
 An open source python chat-ops bot
@@ -17,14 +17,14 @@ Configuration is done in a yaml file called `configuration.yaml`.
 
 Example:
 
-```
+```yaml
 logging: "debug"
 
 connectors:
-  shell:
+  - name: shell
 
 skills:
-  hello:
+  - name: hello
 ```
 
 ## Development

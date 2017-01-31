@@ -19,6 +19,6 @@ async def parse_crontab(opsdroid):
         for skill in opsdroid.skills:
             if "crontab" in skill and pycron.is_now(skill["crontab"]):
                 try:
-                    await skill["skill"](opsdroid, None)
+                    await skill["skill"](opsdroid, skill["config"], None)
                 except Exception:
                     logging.exception("Exception when executing cron skill.")
