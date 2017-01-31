@@ -4,6 +4,7 @@ import logging
 import sys
 import weakref
 import asyncio
+import os.path
 
 from opsdroid.memory import Memory
 from opsdroid.connector import Connector
@@ -78,7 +79,8 @@ class OpsDroid():
         """Load configuration."""
         self.config = self.loader.load_config_file([
             "./configuration.yaml",
-            "~/.opsdroid/configuration.yaml",
+            os.path.join(os.path.expanduser("~"),
+                         ".opsdroid/configuration.yaml"),
             "/etc/opsdroid/configuration.yaml"
             ])
 
