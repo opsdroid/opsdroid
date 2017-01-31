@@ -3,7 +3,7 @@ import asynctest
 import asynctest.mock as amock
 
 from opsdroid.core import OpsDroid
-from opsdroid.skills import match_crontab
+from opsdroid.matchers import match_crontab
 from opsdroid.parsers.crontab import parse_crontab
 
 

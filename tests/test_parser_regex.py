@@ -3,7 +3,7 @@ import asynctest
 import asynctest.mock as amock
 
 from opsdroid.core import OpsDroid
-from opsdroid.skills import match_regex
+from opsdroid.matchers import match_regex
 from opsdroid.message import Message
 from opsdroid.parsers.regex import parse_regex
 

@@ -5,10 +5,10 @@
 ## Example 1
 
 ```python
-from opsdroid.skills import match_apiai_action
+from opsdroid.matchers import match_apiai_action
 
 @match_apiai_action('mydomain.myaction')
-async def mySkill(opsdroid, message):
+async def mySkill(opsdroid, config, message):
     await message.respond('An appropriate response!')
 ```
 
@@ -17,10 +17,10 @@ The above skill would be called on any intent which has an action of `'mydomain.
 ## Example 2
 
 ```python
-from opsdroid.skills import match_apiai_intent
+from opsdroid.matchers import match_apiai_intent
 
 @match_apiai_intent('myIntent')
-async def mySkill(opsdroid, message):
+async def mySkill(opsdroid, config, message):
     await message.respond('An appropriate response!')
 ```
 
@@ -53,10 +53,10 @@ An http response object which has been returned by the api.ai API. This allows y
 ```python
 import json
 
-from opsdroid.skills import match_apiai_action
+from opsdroid.matchers import match_apiai_action
 
 @match_apiai_action('smalltalk.greetings')
-async def dumpResponse(opsdroid, message):
+async def dumpResponse(opsdroid, config, message):
     print(json.dumps(message.apiai))
 ```
 

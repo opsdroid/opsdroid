@@ -17,14 +17,14 @@ Configuration is done in a yaml file called `configuration.yaml`.
 
 Example:
 
-```
+```yaml
 logging: "debug"
 
 connectors:
-  shell:
+  - name: shell
 
 skills:
-  hello:
+  - name: hello
 ```
 
 ## Development
