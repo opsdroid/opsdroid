@@ -28,13 +28,12 @@ async def call_apiai(message, config):
         return result
 
 
-async def parse_apiai(opsdroid, message):
+async def parse_apiai(opsdroid, message, config):
     """Parse a message against all apiai skills."""
     # pylint: disable=broad-except
     # We want to catch all exceptions coming from a skill module and not
     # halt the application. If a skill throws an exception it just doesn't
     # give a response to the user, so an error response should be given.
-    config = opsdroid.config['parsers']['apiai']
     if 'access-token' in config:
 
         result = await call_apiai(message, config)
@@ -62,7 +61,8 @@ async def parse_apiai(opsdroid, message):
                                 result["result"]["intentName"]):
                         message.apiai = result
                         try:
-                            await skill["skill"](opsdroid, message)
+                            await skill["skill"](opsdroid, skill["config"],
+                                                 message)
                         except Exception:
                             await message.respond(
                                 "Whoops there has been an error")

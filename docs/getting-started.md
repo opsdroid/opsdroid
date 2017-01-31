@@ -30,10 +30,10 @@ For example a simple barebones configuration would look like:
 
 ```yaml
 connectors:
-  shell:
+  - name: shell
 
 skills:
-  hello:
+  - name: hello
 ```
 
 This tells opsdroid to use the [shell connector](https://github.com/opsdroid/connector-shell) and [hello skill](https://github.com/opsdroid/skill-hello) from the official module library.
@@ -46,19 +46,19 @@ A more advanced config would like similar to the following:
 
 ```yaml
 connectors:
-  slack:
+  - name: slack
     token: "mysecretslacktoken"
 
 databases:
-  mongo:
+  - name: mongo
     host: "mymongohost.mycompany.com"
     port: "27017"
     database: "opsdroid"
 
 skills:
-  hello:
-  seen:
-  myawesomeskill:
+  - name: hello
+  - name: seen
+  - name: myawesomeskill
     repo: "https://github.com/username/myawesomeskill.git"
 ```
 

@@ -1,42 +1,54 @@
-#                      _           _     _
-#   ___  _ __  ___  __| |_ __ ___ (_) __| |
-#  / _ \| '_ \/ __|/ _` | '__/ _ \| |/ _` |
-# | (_) | |_) \__ \ (_| | | | (_) | | (_| |
-#  \___/| .__/|___/\__,_|_|  \___/|_|\__,_|
-#       |_|
-#                   __ _
-#   ___ ___  _ __  / _(_) __ _
-#  / __/ _ \| '_ \| |_| |/ _` |
-# | (_| (_) | | | |  _| | (_| |
-#  \___\___/|_| |_|_| |_|\__, |
-#                        |___/
-#
-# A default config file to use with opsdroid
+##                      _           _     _
+##   ___  _ __  ___  __| |_ __ ___ (_) __| |
+##  / _ \| '_ \/ __|/ _` | '__/ _ \| |/ _` |
+## | (_) | |_) \__ \ (_| | | | (_) | | (_| |
+##  \___/| .__/|___/\__,_|_|  \___/|_|\__,_|
+##       |_|
+##                   __ _
+##   ___ ___  _ __  / _(_) __ _
+##  / __/ _ \| '_ \| |_| |/ _` |
+## | (_| (_) | | | |  _| | (_| |
+##  \___\___/|_| |_|_| |_|\__, |
+##                        |___/
+##
+## A default config file to use with opsdroid
 
-# Set the logging level
+## Set the logging level
 # logging: info
 
-# Set the location for opsdroid to install modules
+## Set the location for opsdroid to install modules
 # module-path: "."
 
-# Connector modules
-connectors:
-  shell:
+## Parsers
+# parsers:
+#   - name: regex
+#     enabled: true
+#
+#   - name: crontab
+#     enabled: true
+#
+#   - name: apiai
+#     access-token: "youraccesstoken"
+#     min-score: 0.6
 
-# Database modules (optional)
+## Connector modules
+connectors:
+  - name: shell
+
+## Database modules (optional)
 # databases:
 
-# Skill modules
+## Skill modules
 skills:
 
-  # Hello world (https://github.com/opsdroid/skill-hello)
-  hello:
+  ## Hello world (https://github.com/opsdroid/skill-hello)
+  - name: hello
 
-  # Last seen (https://github.com/opsdroid/skill-seen)
-  seen:
+  ## Last seen (https://github.com/opsdroid/skill-seen)
+  - name: seen
 
-  # Dance (https://github.com/opsdroid/skill-dance)
-  dance:
+  ## Dance (https://github.com/opsdroid/skill-dance)
+  - name: dance
 
-  # Loud noises (https://github.com/opsdroid/skill-loudnoises)
-  loudnoises:
+  ## Loud noises (https://github.com/opsdroid/skill-loudnoises)
+  - name: loudnoises
