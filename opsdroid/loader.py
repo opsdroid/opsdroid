@@ -98,7 +98,7 @@ class Loader:
         for possible_path in config_paths:
             if not os.path.isfile(possible_path):
                 logging.debug("Config file " + possible_path +
-                                " not found")
+                              " not found")
             else:
                 config_path = possible_path
                 break
