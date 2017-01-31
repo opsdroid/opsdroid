@@ -97,8 +97,8 @@ class Loader:
         config_path = ""
         for possible_path in config_paths:
             if not os.path.isfile(possible_path):
-                logging.warning("Config file " + possible_path +
-                                " not found", 1)
+                logging.debug("Config file " + possible_path +
+                                " not found")
             else:
                 config_path = possible_path
                 break
@@ -108,6 +108,7 @@ class Loader:
 
         try:
             with open(config_path, 'r') as stream:
+                logging.info("Loaded config from {}".format(config_path))
                 return yaml.load(stream)
         except yaml.YAMLError as error:
             self.opsdroid.critical(error, 1)
