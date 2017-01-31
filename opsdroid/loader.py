@@ -108,7 +108,7 @@ class Loader:
 
         try:
             with open(config_path, 'r') as stream:
-                logging.info("Loaded config from {}".format(config_path))
+                logging.info("Loaded config from %s", config_path)
                 return yaml.load(stream)
         except yaml.YAMLError as error:
             self.opsdroid.critical(error, 1)
