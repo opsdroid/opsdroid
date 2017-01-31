@@ -8,7 +8,9 @@ def match_regex(regex):
     def matcher(func):
         """Add decorated function to skills list for regex matching."""
         for opsdroid in OpsDroid.instances:
-            opsdroid.skills.append({"regex": regex, "skill": func})
+            opsdroid.skills.append({"regex": regex, "skill": func,
+                                    "config":
+                                    opsdroid.loader.current_import_config})
         return func
     return matcher
 
@@ -18,7 +20,9 @@ def match_apiai_action(action):
     def matcher(func):
         """Add decorated function to skills list for apiai matching."""
         for opsdroid in OpsDroid.instances:
-            opsdroid.skills.append({"apiai_action": action, "skill": func})
+            opsdroid.skills.append({"apiai_action": action, "skill": func,
+                                    "config":
+                                    opsdroid.loader.current_import_config})
         return func
     return matcher
 
@@ -28,7 +32,9 @@ def match_apiai_intent(intent):
     def matcher(func):
         """Add decorated function to skills list for apiai matching."""
         for opsdroid in OpsDroid.instances:
-            opsdroid.skills.append({"apiai_intent": intent, "skill": func})
+            opsdroid.skills.append({"apiai_intent": intent, "skill": func,
+                                    "config":
+                                    opsdroid.loader.current_import_config})
         return func
     return matcher
 
@@ -38,6 +44,8 @@ def match_crontab(crontab):
     def matcher(func):
         """Add decorated function to skills list for crontab matching."""
         for opsdroid in OpsDroid.instances:
-            opsdroid.skills.append({"crontab": crontab, "skill": func})
+            opsdroid.skills.append({"crontab": crontab, "skill": func,
+                                    "config":
+                                    opsdroid.loader.current_import_config})
         return func
     return matcher

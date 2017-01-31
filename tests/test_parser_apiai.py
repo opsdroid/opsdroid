@@ -17,7 +17,7 @@ class TestParserApiai(asynctest.TestCase):
     async def test_call_apiai(self):
         mock_connector = Connector({})
         message = Message("Hello world", "user", "default", mock_connector)
-        config = {'access-token': 'test'}
+        config = {'name': 'apiai', 'access-token': 'test'}
         result = amock.Mock()
         result.json = amock.CoroutineMock()
         result.json.return_value = {
@@ -38,9 +38,9 @@ class TestParserApiai(asynctest.TestCase):
 
     async def test_parse_apiai(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config['parsers'] = {
-                    'apiai': {'access-token': "test"}
-                }
+            opsdroid.config['parsers'] = [
+                    {'name': 'apiai', 'access-token': "test"}
+                ]
             mock_skill = amock.CoroutineMock()
             match_apiai_action('myaction')(mock_skill)
 
@@ -58,15 +58,16 @@ class TestParserApiai(asynctest.TestCase):
                             "errorType": "success"
                         }
                     }
-                await apiai.parse_apiai(opsdroid, message)
+                await apiai.parse_apiai(opsdroid, message,
+                                        opsdroid.config['parsers'][0])
 
             self.assertTrue(mock_skill.called)
 
     async def test_parse_apiai_raises(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config['parsers'] = {
-                    'apiai': {'access-token': "test"}
-                }
+            opsdroid.config['parsers'] = [
+                    {'name': 'apiai', 'access-token': "test"}
+                ]
             mock_skill = amock.CoroutineMock()
             mock_skill.side_effect = Exception()
             match_apiai_action('myaction')(mock_skill)
@@ -85,15 +86,16 @@ class TestParserApiai(asynctest.TestCase):
                             "errorType": "success"
                         }
                     }
-                await apiai.parse_apiai(opsdroid, message)
+                await apiai.parse_apiai(opsdroid, message,
+                                        opsdroid.config['parsers'][0])
 
             self.assertTrue(mock_skill.called)
 
     async def test_parse_apiai_failure(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config['parsers'] = {
-                    'apiai': {'access-token': "test"}
-                }
+            opsdroid.config['parsers'] = [
+                    {'name': 'apiai', 'access-token': "test"}
+                ]
             mock_skill = amock.CoroutineMock()
             match_apiai_action('myaction')(mock_skill)
 
@@ -111,15 +113,16 @@ class TestParserApiai(asynctest.TestCase):
                             "errorType": "not found"
                         }
                     }
-                await apiai.parse_apiai(opsdroid, message)
+                await apiai.parse_apiai(opsdroid, message,
+                                        opsdroid.config['parsers'][0])
 
             self.assertFalse(mock_skill.called)
 
     async def test_parse_apiai_low_score(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config['parsers'] = {
-                    'apiai': {'access-token': "test", "min-score": 0.8}
-                }
+            opsdroid.config['parsers'] = [
+                    {'name': 'apiai', 'access-token': "test", "min-score": 0.8}
+                ]
             mock_skill = amock.CoroutineMock()
             match_apiai_action('myaction')(mock_skill)
 
@@ -137,6 +140,7 @@ class TestParserApiai(asynctest.TestCase):
                             "errorType": "success"
                         }
                     }
-                await apiai.parse_apiai(opsdroid, message)
+                await apiai.parse_apiai(opsdroid, message,
+                                        opsdroid.config['parsers'][0])
 
             self.assertFalse(mock_skill.called)
