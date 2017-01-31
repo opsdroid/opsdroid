@@ -8,7 +8,7 @@ import importlib
 from opsdroid.core import OpsDroid
 from opsdroid.message import Message
 from opsdroid.connector import Connector
-from opsdroid.skills import match_regex, match_apiai_action
+from opsdroid.matchers import match_regex, match_apiai_action
 
 
 class TestCore(unittest.TestCase):

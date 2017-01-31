@@ -5,7 +5,7 @@ import asynctest.mock as amock
 from aiohttp import helpers
 
 from opsdroid.core import OpsDroid
-from opsdroid.skills import match_apiai_action
+from opsdroid.matchers import match_apiai_action
 from opsdroid.message import Message
 from opsdroid.parsers import apiai
 from opsdroid.connector import Connector
