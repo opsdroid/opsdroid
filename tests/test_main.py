@@ -1,12 +1,21 @@
 
 import unittest
 import logging
+import os
+import shutil
 
 import opsdroid.__main__ as opsdroid
 
 
 class TestMain(unittest.TestCase):
     """Test the main opsdroid module."""
+
+    def setUp(self):
+        self._tmp_dir = "/tmp/opsdroid_tests"
+        os.makedirs(self._tmp_dir)
+
+    def tearDown(self):
+        shutil.rmtree(self._tmp_dir)
 
     def test_parse_args(self):
         args = opsdroid.parse_args(["--gen-config"])
@@ -25,6 +34,52 @@ class TestMain(unittest.TestCase):
                          opsdroid.get_logging_level('critical'))
         self.assertEqual(logging.INFO,
                          opsdroid.get_logging_level(''))
+
+    def test_configure_no_logging(self):
+        config = {"logging": {
+                    "path": False,
+                    "console": False,
+        }}
+        opsdroid.configure_logging(config)
+        rootlogger = logging.getLogger()
+        self.assertEqual(len(rootlogger.handlers), 1)
+        self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
+        self.assertEqual(rootlogger.handlers[0].level, logging.CRITICAL)
+
+    def test_configure_file_logging(self):
+        config = {"logging": {
+            "path": self._tmp_dir + "/output.log",
+            "console": False,
+        }}
+        opsdroid.configure_logging(config)
+        rootlogger = logging.getLogger()
+        self.assertEqual(len(rootlogger.handlers), 2)
+        self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
+        self.assertEqual(rootlogger.handlers[0].level, logging.CRITICAL)
+        self.assertEqual(logging.FileHandler, type(rootlogger.handlers[1]))
+        self.assertEqual(rootlogger.handlers[1].level, logging.INFO)
+
+    def test_configure_console_logging(self):
+        config = {"logging": {
+            "path": False,
+            "level": "error",
+            "console": True,
+        }}
+        opsdroid.configure_logging(config)
+        rootlogger = logging.getLogger()
+        self.assertEqual(len(rootlogger.handlers), 1)
+        self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
+        self.assertEqual(rootlogger.handlers[0].level, logging.ERROR)
+
+    def test_configure_default_logging(self):
+        config = {}
+        opsdroid.configure_logging(config)
+        rootlogger = logging.getLogger()
+        self.assertEqual(len(rootlogger.handlers), 2)
+        self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
+        self.assertEqual(rootlogger.handlers[0].level, logging.INFO)
+        self.assertEqual(logging.FileHandler, type(rootlogger.handlers[1]))
+        self.assertEqual(rootlogger.handlers[1].level, logging.INFO)
 
     # def test_gen_config(self):
     #     with mock.patch.object(sys, 'argv', ["--gen-config"]):

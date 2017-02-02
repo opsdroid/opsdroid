@@ -27,7 +27,7 @@ def configure_logging(config):
         log_level = get_logging_level(
             config["logging"]["level"])
     except KeyError:
-        log_level = logging.DEBUG
+        log_level = logging.INFO
 
     rootlogger.setLevel(log_level)
     formatter = logging.Formatter('%(levelname)s %(name)s: %(message)s')
@@ -45,6 +45,7 @@ def configure_logging(config):
 
     if logfile_path:
         file_handler = logging.FileHandler(logfile_path)
+        file_handler.setLevel(log_level)
         file_handler.setFormatter(formatter)
         rootlogger.addHandler(file_handler)
 
