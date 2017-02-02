@@ -1,5 +1,6 @@
 
 import unittest
+import logging
 
 import opsdroid.__main__ as opsdroid
 
@@ -10,6 +11,20 @@ class TestMain(unittest.TestCase):
     def test_parse_args(self):
         args = opsdroid.parse_args(["--gen-config"])
         self.assertEqual(True, args.gen_config)
+
+    def test_set_logging_level(self):
+        self.assertEqual(logging.DEBUG,
+                         opsdroid.get_logging_level('debug'))
+        self.assertEqual(logging.INFO,
+                         opsdroid.get_logging_level('info'))
+        self.assertEqual(logging.WARNING,
+                         opsdroid.get_logging_level('warning'))
+        self.assertEqual(logging.ERROR,
+                         opsdroid.get_logging_level('error'))
+        self.assertEqual(logging.CRITICAL,
+                         opsdroid.get_logging_level('critical'))
+        self.assertEqual(logging.INFO,
+                         opsdroid.get_logging_level(''))
 
     # def test_gen_config(self):
     #     with mock.patch.object(sys, 'argv', ["--gen-config"]):

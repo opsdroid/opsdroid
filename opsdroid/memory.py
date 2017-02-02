@@ -3,6 +3,9 @@
 import logging
 
 
+_LOGGER = logging.getLogger(__name__)
+
+
 class Memory:
     """An object to store and persist data outside of opsdroid."""
 
@@ -13,7 +16,7 @@ class Memory:
 
     async def get(self, key):
         """Get data object for a given key."""
-        logging.debug("Getting " + key + " from memory")
+        _LOGGER.debug("Getting " + key + " from memory")
         database_result = await self._get_from_database(key)
         if database_result is not None:
             self.memory[key] = database_result
@@ -24,14 +27,14 @@ class Memory:
 
     async def put(self, key, data):
         """Put a data object to a given key."""
-        logging.debug("Putting " + key + " to memory")
+        _LOGGER.debug("Putting " + key + " to memory")
         self.memory[key] = data
         await self._put_to_database(key, self.memory[key])
 
     async def _get_from_database(self, key):
         """Get updates from databases for a given key."""
         if not self.databases:
-            logging.warning("No databases configured, data will not persist")
+            _LOGGER.warning("No databases configured, data will not persist")
             return None
         else:
             results = []
@@ -43,7 +46,7 @@ class Memory:
     async def _put_to_database(self, key, data):
         """Put updates into databases for a given key."""
         if not self.databases:
-            logging.warning("No databases configured, data will not persist")
+            _LOGGER.warning("No databases configured, data will not persist")
         else:
             for database in self.databases:
                 await database.put(key, data)
