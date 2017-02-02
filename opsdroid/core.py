@@ -118,7 +118,6 @@ class OpsDroid():
                 if isinstance(cls, type) and \
                    issubclass(cls, Connector) and\
                    cls is not Connector:
-                    connector_module["config"]["bot-name"] = self.bot_name
                     connector = cls(connector_module["config"])
                     self.connectors.append(connector)
 
