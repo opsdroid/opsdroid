@@ -80,6 +80,10 @@ class Loader:
                                     git_url, install_path], shell=False,
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
+        for output in process.communicate():
+            if output != "":
+                for line in output.splitlines():
+                    _LOGGER.debug(str(line).strip())
         process.wait()
 
     @staticmethod
@@ -229,10 +233,12 @@ class Loader:
         if any(prefix in git_url for prefix in ["http", "https", "ssh"]):
             # TODO Test if url or ssh path exists
             # TODO Handle github authentication
+            _LOGGER.debug("Cloning from remote repository")
             self.git_clone(git_url, config["install_path"],
                            config["branch"])
         else:
             if os.path.isdir(git_url):
+                _LOGGER.debug("Cloning from local repository")
                 self.git_clone(git_url, config["install_path"],
                                config["branch"])
             else:
