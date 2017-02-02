@@ -7,6 +7,9 @@ from datetime import datetime
 import pycron
 
 
+_LOGGER = logging.getLogger(__name__)
+
+
 async def parse_crontab(opsdroid):
     """Parse all crontab skills against the current time."""
     # pylint: disable=broad-except
@@ -15,10 +18,10 @@ async def parse_crontab(opsdroid):
     # give a response to the user, so an error response should be given.
     while opsdroid.eventloop.is_running():
         await asyncio.sleep(60 - datetime.now().time().second)
-        logging.debug("Running crontab skills")
+        _LOGGER.debug("Running crontab skills")
         for skill in opsdroid.skills:
             if "crontab" in skill and pycron.is_now(skill["crontab"]):
                 try:
                     await skill["skill"](opsdroid, skill["config"], None)
                 except Exception:
-                    logging.exception("Exception when executing cron skill.")
+                    _LOGGER.exception("Exception when executing cron skill.")

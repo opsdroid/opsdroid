@@ -15,6 +15,9 @@ from opsdroid.parsers.apiai import parse_apiai
 from opsdroid.parsers.crontab import parse_crontab
 
 
+_LOGGER = logging.getLogger(__name__)
+
+
 class OpsDroid():
     """Root object for opsdroid."""
 
@@ -34,7 +37,7 @@ class OpsDroid():
         self.memory = Memory()
         self.loader = Loader(self)
         self.config = {}
-        logging.info("Created main opsdroid object")
+        _LOGGER.info("Created main opsdroid object")
 
     def __enter__(self):
         """Add self to existing instances."""
@@ -62,7 +65,7 @@ class OpsDroid():
 
     def exit(self):
         """Exit application."""
-        logging.info("Exiting application with return code " +
+        _LOGGER.info("Exiting application with return code " +
                      str(self.sys_status))
         if self.eventloop.is_running():
             self.eventloop.close()
@@ -71,7 +74,7 @@ class OpsDroid():
     def critical(self, error, code):
         """Exit due to unrecoverable error."""
         self.sys_status = code
-        logging.critical(error)
+        _LOGGER.critical(error)
         print("Error: " + error)
         self.exit()
 
@@ -96,7 +99,7 @@ class OpsDroid():
             self.eventloop.run_forever()
         except (KeyboardInterrupt, EOFError):
             print('')  # Prints a character return for return to shell
-            logging.info("Keyboard interrupt, exiting.")
+            _LOGGER.info("Keyboard interrupt, exiting.")
         finally:
             self.exit()
 
@@ -131,14 +134,14 @@ class OpsDroid():
     def start_databases(self, databases):
         """Start the databases."""
         if len(databases) == 0:
-            logging.debug(databases)
-            logging.warning("All databases failed to load")
+            _LOGGER.debug(databases)
+            _LOGGER.warning("All databases failed to load")
         for database_module in databases:
             for name, cls in database_module["module"].__dict__.items():
                 if isinstance(cls, type) and \
                    issubclass(cls, Database) and \
                    cls is not Database:
-                    logging.debug("Adding database: " + name)
+                    _LOGGER.debug("Adding database: " + name)
                     database = cls(database_module["config"])
                     self.memory.databases.append(database)
                     self.eventloop.run_until_complete(database.connect(self))
@@ -147,21 +150,21 @@ class OpsDroid():
         """Parse a string against all skills."""
         tasks = []
         if message.text.strip() != "":
-            logging.debug("Parsing input: " + message.text)
+            _LOGGER.debug("Parsing input: " + message.text)
 
             tasks.append(
                 self.eventloop.create_task(parse_regex(self, message)))
 
             if "parsers" in self.config:
-                logging.debug("Processing parsers")
+                _LOGGER.debug("Processing parsers")
                 parsers = self.config["parsers"]
 
                 apiai = [p for p in parsers if p["name"] == "apiai"]
-                logging.debug("Checking apiai")
+                _LOGGER.debug("Checking apiai")
                 if len(apiai) == 1 and \
                         ("enabled" not in apiai[0] or
                          apiai[0]["enabled"] is not False):
-                    logging.debug("Parsing with apiai")
+                    _LOGGER.debug("Parsing with apiai")
                     tasks.append(
                         self.eventloop.create_task(
                             parse_apiai(self, message, apiai[0])))
