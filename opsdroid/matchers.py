@@ -1,6 +1,12 @@
 """Decorator functions to use when creating skill modules."""
 
+import logging
+
 from opsdroid.core import OpsDroid
+from opsdroid.web import Web
+
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def match_regex(regex):
@@ -47,5 +53,31 @@ def match_crontab(crontab):
             opsdroid.skills.append({"crontab": crontab, "skill": func,
                                     "config":
                                     opsdroid.loader.current_import_config})
+        return func
+    return matcher
+
+
+def match_webhook(webhook):
+    """Return webhook match decorator."""
+    def matcher(func):
+        """Add decorated function to skills list for webhook matching."""
+        for opsdroid in OpsDroid.instances:
+            config = opsdroid.loader.current_import_config
+            opsdroid.skills.append({"webhook": webhook, "skill": func,
+                                    "config": config})
+
+            async def wrapper(req, opsdroid=opsdroid, config=config):
+                """Wrap up the aiohttp handler."""
+                _LOGGER.info("Running skill %s via webhook", webhook)
+                opsdroid.stats["webhooks_called"] = \
+                    opsdroid.stats["webhooks_called"] + 1
+                await func(opsdroid, config, req)
+                return Web.build_response(200, {"called_skill": webhook})
+
+            opsdroid.web_server.web_app.router.add_post(
+                "/skill/{}/{}".format(config["name"], webhook), wrapper)
+            opsdroid.web_server.web_app.router.add_post(
+                "/skill/{}/{}/".format(config["name"], webhook), wrapper)
+
         return func
     return matcher
