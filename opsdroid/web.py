@@ -55,7 +55,7 @@ class Web:
                     port=self.get_port, print=_LOGGER.info)
 
     @staticmethod
-    def build_response(status, result, task=None):
+    def build_response(status, result):
         """Build a json response object."""
         return web.Response(text=json.dumps({
             "timestamp": datetime.now().isoformat(),
