@@ -37,6 +37,11 @@ class OpsDroid():
         self.memory = Memory()
         self.loader = Loader(self)
         self.config = {}
+        self.stats = {
+            "messages_parsed": 0,
+            "webhooks_called": 0
+        }
+        self.web_server = None
         _LOGGER.info("Created main opsdroid object")
 
     def __enter__(self):
@@ -95,6 +100,7 @@ class OpsDroid():
         self.setup_skills(skills)
         self.start_connector_tasks(connectors)
         self.eventloop.create_task(parse_crontab(self))
+        self.web_server.start()
         try:
             self.eventloop.run_forever()
         except (KeyboardInterrupt, EOFError):
@@ -147,6 +153,7 @@ class OpsDroid():
 
     async def parse(self, message):
         """Parse a string against all skills."""
+        self.stats["messages_parsed"] = self.stats["messages_parsed"] + 1
         tasks = []
         if message.text.strip() != "":
             _LOGGER.debug("Parsing input: " + message.text)

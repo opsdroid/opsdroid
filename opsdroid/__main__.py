@@ -7,6 +7,7 @@ import argparse
 
 from opsdroid.core import OpsDroid
 from opsdroid.const import LOG_FILENAME
+from opsdroid.web import Web
 
 
 _LOGGER = logging.getLogger("opsdroid")
@@ -99,6 +100,7 @@ def main():
     with OpsDroid() as opsdroid:
         opsdroid.load()
         configure_logging(opsdroid.config)
+        opsdroid.web_server = Web(opsdroid)
         opsdroid.start_loop()
         opsdroid.exit()
 

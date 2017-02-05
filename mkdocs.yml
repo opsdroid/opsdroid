@@ -6,6 +6,7 @@ pages:
   - Home: 'index.md'
   - Getting Started: 'getting-started.md'
   - Configuration Reference: 'configuration-reference.md'
+  - REST API: 'rest-api.md'
   - Extending opsdroid:
     - Adding skills: 'extending/skills.md'
     - Adding connectors: 'extending/connectors.md'
@@ -14,4 +15,6 @@ pages:
     - Overview: 'parsers/overview.md'
     - Regular Expressions: 'parsers/regex.md'
     - API.AI: 'parsers/api.ai.md'
+    - Crontab: 'parsers/crontab.md'
+    - Webhook: 'parsers/webhook.md'
   - Contributing: 'contributing.md'

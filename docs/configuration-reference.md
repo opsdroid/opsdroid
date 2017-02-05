@@ -105,6 +105,18 @@ skills:
 
 See [module options](#module-options) for installing custom skills.
 
+### `web`
+
+Configure the REST API in opsdroid.
+
+By default opsdroid will start a web server on port `8080` accessible only to localhost. For more information see the [REST API docs](rest-api).
+
+```yaml
+web:
+  host: '127.0.0.1'  # set to '0.0.0.0' to allow all traffic
+  port: 8080
+```
+
 ## Module options
 
 All modules are installed from git repositories. By default if no additional options are specified opsdroid will look for the repository at `https://github.com/opsdroid/<moduletype>-<modulename>.git`.

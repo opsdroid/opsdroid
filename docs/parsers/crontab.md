@@ -6,6 +6,7 @@ The crontab parser is a bit different to other parsers. This parser doesn't take
 
 ```python
 from opsdroid.matchers import match_crontab
+from opsdroid.message import Message
 
 @match_crontab('* * * * *')
 async def mycrontabskill(opsdroid, config, message):

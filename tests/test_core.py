@@ -38,6 +38,7 @@ class TestCore(unittest.TestCase):
     def test_start_loop(self):
         with OpsDroid() as opsdroid:
             mockconfig = {}, {}, {}
+            opsdroid.web_server = mock.Mock()
             opsdroid.loader = mock.Mock()
             opsdroid.loader.load_config = mock.Mock(return_value=mockconfig)
             opsdroid.start_databases = mock.Mock()
