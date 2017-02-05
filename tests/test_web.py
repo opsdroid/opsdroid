@@ -1,5 +1,6 @@
 
 import asynctest
+import asynctest.mock as amock
 
 from opsdroid.core import OpsDroid
 from opsdroid import web
@@ -61,3 +62,11 @@ class TestWeb(asynctest.TestCase):
             app = web.Web(opsdroid)
             self.assertEqual(
                 type(app.web_stats_handler(None)), aiohttp.web.Response)
+
+    async def test_web_start(self):
+        """Check the stats handler."""
+        with OpsDroid() as opsdroid:
+            with amock.patch('aiohttp.web.run_app') as webmock:
+                app = web.Web(opsdroid)
+                app.start()
+                self.assertTrue(webmock.called)
