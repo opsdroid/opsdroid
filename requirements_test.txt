@@ -6,7 +6,7 @@ pytest>=2.9.2
 pytest-cov>=2.2.1
 pytest-timeout>=1.0.0
 pytest-catchlog>=1.2.2
-asynctest
+asynctest==0.10.0
 pydocstyle>=1.0.0
 requests_mock>=1.0
 mypy-lang>=0.4
