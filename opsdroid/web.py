@@ -70,17 +70,21 @@ class Web:
 
     def web_stats_handler(self, request):
         """Handle stats request."""
+        stats = self.opsdroid.stats
+        try:
+            stats["average_response_time"] = \
+                stats["total_response_time"] / stats["total_responses"]
+        except ZeroDivisionError:
+            stats["average_response_time"] = 0
+
         return self.build_response(200, {
             "version": __version__,
             "messages": {
-                "total_parsed": self.opsdroid.stats["messages_parsed"],
-                "webhooks_called": self.opsdroid.stats["webhooks_called"],
-                "total_response_time":
-                    self.opsdroid.stats["total_response_time"],
-                "total_responses": self.opsdroid.stats["total_responses"],
-                "average_response_time":
-                    (self.opsdroid.stats["total_response_time"] /
-                     self.opsdroid.stats["total_responses"])
+                "total_parsed": stats["messages_parsed"],
+                "webhooks_called": stats["webhooks_called"],
+                "total_response_time": stats["total_response_time"],
+                "total_responses": stats["total_responses"],
+                "average_response_time": stats["average_response_time"]
             },
             "modules": {
                 "skills": len(self.opsdroid.skills),
