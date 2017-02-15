@@ -33,5 +33,5 @@ class Message:
                 opsdroid.stats["total_responses"] + 1
             opsdroid.stats["total_response_time"] = \
                 opsdroid.stats["total_response_time"] + \
-                (now - self.created).microseconds
+                (now - self.created).total_seconds()
             self.responded_to = True
