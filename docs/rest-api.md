@@ -34,7 +34,10 @@ This method returns runtime statistics which could be useful in monitoring.
     "version": "0.6.0",
     "messages": {
       "total_parsed": 164,
-      "webhooks_called": 28
+      "webhooks_called": 28,
+      "total_response_time": 0,
+      "total_responses": 108,
+      "average_response_time": 0.62794
     },
     "modules": {
       "skills": 13,
