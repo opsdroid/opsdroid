@@ -74,7 +74,13 @@ class Web:
             "version": __version__,
             "messages": {
                 "total_parsed": self.opsdroid.stats["messages_parsed"],
-                "webhooks_called": self.opsdroid.stats["webhooks_called"]
+                "webhooks_called": self.opsdroid.stats["webhooks_called"],
+                "total_response_time":
+                    self.opsdroid.stats["total_response_time"],
+                "total_responses": self.opsdroid.stats["total_responses"],
+                "average_response_time":
+                    (self.opsdroid.stats["total_response_time"] /
+                     self.opsdroid.stats["total_responses"])
             },
             "modules": {
                 "skills": len(self.opsdroid.skills),

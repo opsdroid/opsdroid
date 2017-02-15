@@ -39,7 +39,9 @@ class OpsDroid():
         self.config = {}
         self.stats = {
             "messages_parsed": 0,
-            "webhooks_called": 0
+            "webhooks_called": 0,
+            "total_response_time": 0,
+            "total_responses": 0,
         }
         self.web_server = None
         _LOGGER.info("Created main opsdroid object")
