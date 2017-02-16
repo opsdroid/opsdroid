@@ -12,11 +12,7 @@ A test url you can use to check whether the API is running.
 
 ```json
 {
-  "timestamp": "2017-02-05T10:12:51.622981",
-  "status": 200,
-  "result": {
-    "message": "Welcome to the opsdroid API"
-  }
+  "message": "Welcome to the opsdroid API"
 }
 ```
 
@@ -28,22 +24,18 @@ This method returns runtime statistics which could be useful in monitoring.
 
 ```json
 {
-  "timestamp": "2017-02-05T10:14:37.494541",
-  "status": 200,
-  "result": {
-    "version": "0.6.0",
-    "messages": {
-      "total_parsed": 164,
-      "webhooks_called": 28,
-      "total_response_time": 0,
-      "total_responses": 108,
-      "average_response_time": 0.62794
-    },
-    "modules": {
-      "skills": 13,
-      "connectors": 1,
-      "databases": 0
-    }
+  "version": "0.6.0",
+  "messages": {
+    "total_parsed": 164,
+    "webhooks_called": 28,
+    "total_response_time": 0,
+    "total_responses": 108,
+    "average_response_time": 0.62794
+  },
+  "modules": {
+    "skills": 13,
+    "connectors": 1,
+    "databases": 0
   }
 }
 ```
@@ -58,10 +50,6 @@ The response includes information on whether a skill was successfully triggered 
 
 ```json
 {
-  "timestamp": "2017-02-04T16:25:01.956323",
-  "status": 200,
-  "result": {
-    "called_skill": "examplewebhookskill"
-  }
+  "called_skill": "examplewebhookskill"
 }
 ```
