@@ -57,11 +57,7 @@ class Web:
     @staticmethod
     def build_response(status, result):
         """Build a json response object."""
-        return web.Response(text=json.dumps({
-            "timestamp": datetime.now().isoformat(),
-            "status": status,
-            "result": result
-        }))
+        return web.Response(text=json.dumps(result), status=status)
 
     def web_index_handler(self, request):
         """Handle root web request."""
