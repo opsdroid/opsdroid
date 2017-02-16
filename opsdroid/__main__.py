@@ -6,8 +6,66 @@ import logging
 import argparse
 
 from opsdroid.core import OpsDroid
-from opsdroid.helper import set_logging_level
 from opsdroid.const import LOG_FILENAME
+from opsdroid.web import Web
+
+
+_LOGGER = logging.getLogger("opsdroid")
+
+
+def configure_logging(config):
+    """Configure the root logger based on user config."""
+    rootlogger = logging.getLogger()
+    while rootlogger.handlers:
+        rootlogger.handlers.pop()
+
+    try:
+        logfile_path = config["logging"]["path"]
+    except KeyError:
+        logfile_path = LOG_FILENAME
+
+    try:
+        log_level = get_logging_level(
+            config["logging"]["level"])
+    except KeyError:
+        log_level = logging.INFO
+
+    rootlogger.setLevel(log_level)
+    formatter = logging.Formatter('%(levelname)s %(name)s: %(message)s')
+
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(log_level)
+    console_handler.setFormatter(formatter)
+    rootlogger.addHandler(console_handler)
+
+    try:
+        if not config["logging"]["console"]:
+            console_handler.setLevel(logging.CRITICAL)
+    except KeyError:
+        pass
+
+    if logfile_path:
+        file_handler = logging.FileHandler(logfile_path)
+        file_handler.setLevel(log_level)
+        file_handler.setFormatter(formatter)
+        rootlogger.addHandler(file_handler)
+
+    _LOGGER.info("="*40)
+    _LOGGER.info("Stated application")
+
+
+def get_logging_level(logging_level):
+    """Get the logger level based on the user configuration."""
+    if logging_level == 'critical':
+        return logging.CRITICAL
+    elif logging_level == 'error':
+        return logging.ERROR
+    elif logging_level == 'warning':
+        return logging.WARNING
+    elif logging_level == 'debug':
+        return logging.DEBUG
+    else:
+        return logging.INFO
 
 
 def parse_args(args):
@@ -27,10 +85,6 @@ def check_dependencies():
 
 def main():
     """The main function."""
-    logging.basicConfig(filename=LOG_FILENAME, level=logging.INFO)
-    logging.info("="*40)
-    logging.info("Stated application")
-
     args = parse_args(sys.argv[1:])
 
     if args.gen_config:
@@ -45,8 +99,8 @@ def main():
 
     with OpsDroid() as opsdroid:
         opsdroid.load()
-        if "logging" in opsdroid.config:
-            set_logging_level(opsdroid.config['logging'])
+        configure_logging(opsdroid.config)
+        opsdroid.web_server = Web(opsdroid)
         opsdroid.start_loop()
         opsdroid.exit()
 

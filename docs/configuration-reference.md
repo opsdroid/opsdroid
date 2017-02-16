@@ -54,12 +54,19 @@ See [module options](#module-options) for installing custom databases.
 
 ### `logging`
 
-Set the logging level of opsdroid.
+Configure logging in opsdroid.
 
-All python logging levels are available in opsdroid. `logging` can be set to `debug`, `info`, `warning`, `error` and `critical`.
+Setting `path` will configure where opsdroid writes the log file to. This location must be writeable by the user running opsdroid. Setting this to `false` will disable log file output.
+
+All python logging levels are available in opsdroid. `level` can be set to `debug`, `info`, `warning`, `error` and `critical`.
+
+You may not want opsdroid to log to the console, for example if you are using the shell connector. However if running in a container you may want exactly that. Setting `console` to `true` or `false` will enable or disable console logging.
 
 ```yaml
-logging: debug
+logging:
+  path: output.log
+  level: info
+  console: true
 
 connectors:
   - name: shell
@@ -97,6 +104,18 @@ skills:
 ```
 
 See [module options](#module-options) for installing custom skills.
+
+### `web`
+
+Configure the REST API in opsdroid.
+
+By default opsdroid will start a web server on port `8080` accessible only to localhost. For more information see the [REST API docs](rest-api).
+
+```yaml
+web:
+  host: '127.0.0.1'  # set to '0.0.0.0' to allow all traffic
+  port: 8080
+```
 
 ## Module options
 

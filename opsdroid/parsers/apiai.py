@@ -6,6 +6,9 @@ import json
 import aiohttp
 
 
+_LOGGER = logging.getLogger(__name__)
+
+
 async def call_apiai(message, config):
     """Call the api.ai api and return the response."""
     async with aiohttp.ClientSession() as session:
@@ -23,7 +26,7 @@ async def call_apiai(message, config):
                                   data=json.dumps(payload),
                                   headers=headers)
         result = await resp.json()
-        logging.debug("api.ai response - " + json.dumps(result))
+        _LOGGER.debug("api.ai response - " + json.dumps(result))
 
         return result
 
@@ -39,14 +42,14 @@ async def parse_apiai(opsdroid, message, config):
         result = await call_apiai(message, config)
 
         if result["status"]["code"] >= 300:
-            logging.error("api.ai error - " +
+            _LOGGER.error("api.ai error - " +
                           str(result["status"]["code"]) + " " +
                           result["status"]["errorType"])
             return
 
         if "min-score" in config and \
                 result["result"]["score"] < config["min-score"]:
-            logging.debug("api.ai score lower than min-score")
+            _LOGGER.debug("api.ai score lower than min-score")
             return
 
         if result:
@@ -68,7 +71,7 @@ async def parse_apiai(opsdroid, message, config):
                                 "Whoops there has been an error")
                             await message.respond(
                                 "Check the log for details")
-                            logging.exception("Exception when parsing '" +
+                            _LOGGER.exception("Exception when parsing '" +
                                               message.text +
                                               "' against skill '" +
                                               result["result"]["action"] + "'")

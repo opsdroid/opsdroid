@@ -4,6 +4,9 @@ import logging
 import re
 
 
+_LOGGER = logging.getLogger(__name__)
+
+
 async def parse_regex(opsdroid, message):
     """Parse a message against all regex skills."""
     # pylint: disable=broad-except
@@ -22,7 +25,7 @@ async def parse_regex(opsdroid, message):
                         "Whoops there has been an error")
                     await message.respond(
                         "Check the log for details")
-                    logging.exception("Exception when parsing '" +
+                    _LOGGER.exception("Exception when parsing '" +
                                       message.text +
                                       "' against skill '" +
                                       skill["regex"] + "'")
