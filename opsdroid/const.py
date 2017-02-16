@@ -1,6 +1,6 @@
 """Constants used by OpsDroid."""
 
-__version__ = "0.6.0"
+__version__ = "0.7.1"
 
 LOG_FILENAME = 'output.log'
 DEFAULT_GIT_URL = "https://github.com/opsdroid/"
