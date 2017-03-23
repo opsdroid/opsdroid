@@ -14,7 +14,10 @@
 ## A default config file to use with opsdroid
 
 ## Set the logging level
-# logging: info
+# logging:
+#   level: info
+#   path: opsdroid.log
+#   console: true
 
 ## Set the location for opsdroid to install modules
 # module-path: "."
