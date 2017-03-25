@@ -40,7 +40,8 @@ class TestCore(unittest.TestCase):
             mockconfig = {}, {}, {}
             opsdroid.web_server = mock.Mock()
             opsdroid.loader = mock.Mock()
-            opsdroid.loader.load_modules_from_config = mock.Mock(return_value=mockconfig)
+            opsdroid.loader.load_modules_from_config = \
+                mock.Mock(return_value=mockconfig)
             opsdroid.start_databases = mock.Mock()
             opsdroid.setup_skills = mock.Mock()
             opsdroid.start_connector_tasks = mock.Mock()
