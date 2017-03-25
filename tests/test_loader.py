@@ -131,7 +131,7 @@ class TestLoader(unittest.TestCase):
         config['connectors'] = mock.MagicMock()
         config['module-path'] = self._tmp_dir + "/opsdroid"
 
-        loader.load_config(config)
+        loader.load_modules_from_config(config)
         self.assertEqual(len(loader._load_modules.mock_calls), 3)
 
     def test_load_empty_config(self):
@@ -139,7 +139,7 @@ class TestLoader(unittest.TestCase):
         loader._load_modules = mock.MagicMock()
         config = {}
 
-        loader.load_config(config)
+        loader.load_modules_from_config(config)
         self.assertEqual(len(loader._load_modules.mock_calls), 0)
         self.assertEqual(len(opsdroid.mock_calls), 2)
 
