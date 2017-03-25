@@ -96,7 +96,8 @@ class OpsDroid():
 
     def start_loop(self):
         """Start the event loop."""
-        connectors, databases, skills = self.loader.load_config(self.config)
+        connectors, databases, skills = \
+            self.loader.load_modules_from_config(self.config)
         if databases is not None:
             self.start_databases(databases)
         self.setup_skills(skills)

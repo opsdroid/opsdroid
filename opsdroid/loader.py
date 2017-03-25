@@ -122,7 +122,7 @@ class Loader:
         except FileNotFoundError as error:
             self.opsdroid.critical(str(error), 1)
 
-    def load_config(self, config):
+    def load_modules_from_config(self, config):
         """Load all module types based on config."""
         _LOGGER.debug("Loading modules from config")
 
