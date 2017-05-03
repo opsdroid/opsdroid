@@ -45,14 +45,14 @@ def match_apiai_intent(intent):
     return matcher
 
 
-def match_crontab(crontab):
+def match_crontab(crontab, timezone="UTC"):
     """Return crontab match decorator."""
     def matcher(func):
         """Add decorated function to skills list for crontab matching."""
         opsdroid = get_opsdroid()
+        config = opsdroid.loader.current_import_config
         opsdroid.skills.append({"crontab": crontab, "skill": func,
-                                "config":
-                                opsdroid.loader.current_import_config})
+                                "config": config, "timezone": timezone})
         return func
     return matcher
 

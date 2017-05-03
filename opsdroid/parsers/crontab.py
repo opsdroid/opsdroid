@@ -1,8 +1,8 @@
 """A helper function for parsing and executing crontab skills."""
 
-import logging
+import arrow
 import asyncio
-from datetime import datetime
+import logging
 
 import pycron
 
@@ -17,11 +17,17 @@ async def parse_crontab(opsdroid):
     # halt the application. If a skill throws an exception it just doesn't
     # give a response to the user, so an error response should be given.
     while opsdroid.eventloop.is_running():
-        await asyncio.sleep(60 - datetime.now().time().second)
+        await asyncio.sleep(60 - arrow.now().time().second)
         _LOGGER.debug("Running crontab skills")
         for skill in opsdroid.skills:
-            if "crontab" in skill and pycron.is_now(skill["crontab"]):
-                try:
-                    await skill["skill"](opsdroid, skill["config"], None)
-                except Exception:
-                    _LOGGER.exception("Exception when executing cron skill.")
+            if "crontab" in skill:
+                if skill["timezone"] is not None:
+                    timezone = skill["timezone"]
+                else:
+                    timezone = opsdroid.config.get("timezone", "UTC")
+                if pycron.is_now(skill["crontab"], arrow.now(tz=timezone)):
+                    try:
+                        await skill["skill"](opsdroid, skill["config"], None)
+                    except Exception:
+                        _LOGGER.exception(
+                            "Exception when executing cron skill.")
