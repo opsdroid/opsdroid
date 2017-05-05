@@ -45,7 +45,7 @@ def match_apiai_intent(intent):
     return matcher
 
 
-def match_crontab(crontab, timezone="UTC"):
+def match_crontab(crontab, timezone=None):
     """Return crontab match decorator."""
     def matcher(func):
         """Add decorated function to skills list for crontab matching."""

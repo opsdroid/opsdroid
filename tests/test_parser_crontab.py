@@ -30,6 +30,18 @@ class TestParserCrontab(asynctest.TestCase):
                 await parse_crontab(opsdroid)
                 self.assertTrue(mock_skill.called)
 
+    async def test_parse_crontab_timezone(self):
+        with OpsDroid() as opsdroid:
+            self.not_first_run_flag = True
+            opsdroid.eventloop.is_running = self.true_once
+            with amock.patch('asyncio.sleep'):
+                mock_skill = amock.CoroutineMock()
+                match_crontab("* * * * *",
+                    timezone="Europe/London")(mock_skill)
+
+                await parse_crontab(opsdroid)
+                self.assertTrue(mock_skill.called)
+
     async def test_parse_crontab_raises(self):
         with OpsDroid() as opsdroid:
             self.not_first_run_flag = True
