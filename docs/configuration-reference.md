@@ -105,6 +105,16 @@ skills:
 
 See [module options](#module-options) for installing custom skills.
 
+### `timezone`
+
+Configure the timezone.
+
+This timezone will be used in crontab skills if the timezone has not been set as a kwarg in the crontab decorator. All [timezone names](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) from the [tz database](https://www.iana.org/time-zones) are valid here.
+
+```yaml
+timezone: 'Europe/London'
+```
+
 ### `web`
 
 Configure the REST API in opsdroid.
