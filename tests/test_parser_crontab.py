@@ -37,7 +37,7 @@ class TestParserCrontab(asynctest.TestCase):
             with amock.patch('asyncio.sleep'):
                 mock_skill = amock.CoroutineMock()
                 match_crontab("* * * * *",
-                    timezone="Europe/London")(mock_skill)
+                              timezone="Europe/London")(mock_skill)
 
                 await parse_crontab(opsdroid)
                 self.assertTrue(mock_skill.called)
