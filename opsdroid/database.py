@@ -9,7 +9,7 @@ class Database():
     """
 
     def __init__(self, config):
-        """Setup the database.
+        """Create the database.
 
         Set some basic properties from the database config such as the name
         of this database. It could also be a good place to setup properties

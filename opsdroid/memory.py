@@ -22,8 +22,8 @@ class Memory:
             self.memory[key] = database_result
         if key in self.memory:
             return self.memory[key]
-        else:
-            return None
+
+        return None
 
     async def put(self, key, data):
         """Put a data object to a given key."""
@@ -36,12 +36,12 @@ class Memory:
         if not self.databases:
             _LOGGER.warning("No databases configured, data will not persist")
             return None
-        else:
-            results = []
-            for database in self.databases:
-                results.append(await database.get(key))
-            # TODO: Handle multiple databases
-            return results[0]
+
+        results = []
+        for database in self.databases:
+            results.append(await database.get(key))
+        # TODO: Handle multiple databases
+        return results[0]
 
     async def _put_to_database(self, key, data):
         """Put updates into databases for a given key."""

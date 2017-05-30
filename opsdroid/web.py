@@ -15,7 +15,7 @@ class Web:
     """Web server for opsdroid."""
 
     def __init__(self, opsdroid):
-        """Setup web object."""
+        """Create web object."""
         self.opsdroid = opsdroid
         try:
             self.config = self.opsdroid.config["web"]
