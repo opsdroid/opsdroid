@@ -4,31 +4,94 @@
 [![Docker Image](https://img.shields.io/badge/docker-ready-blue.svg)](https://hub.docker.com/r/opsdroid/opsdroid/) [![Docker Layers](https://images.microbadger.com/badges/image/opsdroid/opsdroid.svg)](https://microbadger.com/#/images/opsdroid/opsdroid) [![Documentation Status](https://img.shields.io/badge/docs-latest-red.svg?style=flat)](http://opsdroid.readthedocs.io/en/latest/?badge=latest)
 
 
-An open source python chat-ops bot
+An open source python chat-ops bot framework.
 
-## Building
+## Quick start
 
-`docker build -t opsdroid/opsdroid:dev .`
-
-`docker run --rm opsdroid/opsdroid:dev`
+```
+pip3 install opsdroid
+mkdir ~/.opsdroid
+opsdroid --gen-config > ~/.opsdroid/configuration.yaml
+opsdroid
+```
 
 ## Configuration
 
-Configuration is done in a yaml file called `configuration.yaml`.
+Configuration is done in a yaml file called `configuration.yaml`. See the [full reference](http://opsdroid.readthedocs.io/en/latest/configuration-reference/).
 
 Example:
 
 ```yaml
-logging: "debug"
+##                      _           _     _
+##   ___  _ __  ___  __| |_ __ ___ (_) __| |
+##  / _ \| '_ \/ __|/ _` | '__/ _ \| |/ _` |
+## | (_) | |_) \__ \ (_| | | | (_) | | (_| |
+##  \___/| .__/|___/\__,_|_|  \___/|_|\__,_|
+##       |_|
+##                   __ _
+##   ___ ___  _ __  / _(_) __ _
+##  / __/ _ \| '_ \| |_| |/ _` |
+## | (_| (_) | | | |  _| | (_| |
+##  \___\___/|_| |_|_| |_|\__, |
+##                        |___/
+##
+## A default config file to use with opsdroid
 
+## Set the logging level
+# logging:
+#   level: info
+#   path: opsdroid.log
+#   console: true
+
+## Set the location for opsdroid to install modules
+# module-path: "."
+
+## Parsers
+# parsers:
+#   - name: regex
+#     enabled: true
+#
+#   - name: crontab
+#     enabled: true
+#
+#   - name: apiai
+#     access-token: "youraccesstoken"
+#     min-score: 0.6
+
+## Connector modules
 connectors:
   - name: shell
 
+## Database modules (optional)
+# databases:
+
+## Skill modules
 skills:
+
+  ## Hello world (https://github.com/opsdroid/skill-hello)
   - name: hello
+
+  ## Last seen (https://github.com/opsdroid/skill-seen)
+  - name: seen
+
+  ## Dance (https://github.com/opsdroid/skill-dance)
+  - name: dance
+
+  ## Loud noises (https://github.com/opsdroid/skill-loudnoises)
+  - name: loudnoises
+
 ```
 
-## Development
+## Contributing
 
-Run tests
-`docker run --rm -ti -v $(pwd):/usr/src/app opsdroid/opsdroid:dev tox`
+Contributing to the opsdroid ecosystem is strongly encouraged. You can do this by creating modules to be used by opsdroid or by contributing to the project itself.
+
+All contributors to the project, including [jacobtomlinson](https://github.com/jacobtomlinson), contribute using the following process:
+
+ * Fork the main project to your own account
+ * Work on your changes on a feature branch
+ * Create a pull request back to the main project
+ * Tests and test coverage will be checked automatically
+ * A project maintainer will review and merge the pull request
+
+For more information see the [contribution documentation](http://opsdroid.readthedocs.io/en/latest/contributing/).
