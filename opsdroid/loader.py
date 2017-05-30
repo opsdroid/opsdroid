@@ -18,7 +18,7 @@ class Loader:
     """Class to load in config and modules."""
 
     def __init__(self, opsdroid):
-        """Setup object with opsdroid instance."""
+        """Create object with opsdroid instance."""
         self.opsdroid = opsdroid
         self.modules_directory = MODULES_DIRECTORY
         self.current_import_config = None

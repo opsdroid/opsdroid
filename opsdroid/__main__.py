@@ -64,8 +64,8 @@ def get_logging_level(logging_level):
         return logging.WARNING
     elif logging_level == 'debug':
         return logging.DEBUG
-    else:
-        return logging.INFO
+
+    return logging.INFO
 
 
 def parse_args(args):
@@ -84,7 +84,7 @@ def check_dependencies():
 
 
 def main():
-    """The main function."""
+    """Enter the application here."""
     args = parse_args(sys.argv[1:])
 
     if args.gen_config:

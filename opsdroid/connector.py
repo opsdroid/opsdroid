@@ -11,7 +11,7 @@ class Connector():
     """
 
     def __init__(self, config):
-        """Setup the connector.
+        """Create the connector.
 
         Set some basic properties from the connector config such as the name
         of this connector and the name the bot should appear with in chat

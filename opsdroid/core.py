@@ -48,7 +48,7 @@ class OpsDroid():
 
     def __enter__(self):
         """Add self to existing instances."""
-        if len(self.__class__.instances) == 0:
+        if not self.__class__.instances:
             self.__class__.instances.append(weakref.proxy(self))
         else:
             self.critical("opsdroid has already been started", 1)
@@ -130,7 +130,7 @@ class OpsDroid():
                     connector = cls(connector_module["config"])
                     self.connectors.append(connector)
 
-        if len(connectors) > 0:
+        if connectors:
             for connector in self.connectors:
                 self.eventloop.run_until_complete(connector.connect(self))
             for connector in self.connectors:
@@ -141,7 +141,7 @@ class OpsDroid():
 
     def start_databases(self, databases):
         """Start the databases."""
-        if len(databases) == 0:
+        if not databases:
             _LOGGER.debug(databases)
             _LOGGER.warning("All databases failed to load")
         for database_module in databases:
