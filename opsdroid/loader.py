@@ -133,7 +133,7 @@ class Loader:
 
         if not os.path.isdir(module_path):
             os.makedirs(module_path, exist_ok=True)
-            
+
         self.modules_directory = os.path.join(module_path, MODULES_DIRECTORY)
 
         # Create modules directory if doesn't exist
@@ -165,7 +165,6 @@ class Loader:
         """Install and load modules."""
         _LOGGER.debug("Loading " + modules_type + " modules")
         loaded_modules = []
-
 
         for module in modules:
 
