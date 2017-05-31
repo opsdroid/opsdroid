@@ -123,10 +123,8 @@ class Loader:
         except FileNotFoundError as error:
             self.opsdroid.critical(str(error), 1)
 
-    def load_modules_from_config(self, config):
-        """Load all module types based on config."""
-        _LOGGER.debug("Loading modules from config")
-
+    def setup_modules_directory(self, config):
+        """Create and configure the modules directory."""
         module_path = os.path.expanduser(
             config.get("module-path", DEFAULT_MODULES_PATH))
         sys.path.append(module_path)
@@ -139,6 +137,12 @@ class Loader:
         # Create modules directory if doesn't exist
         if not os.path.isdir(self.modules_directory):
             os.makedirs(self.modules_directory)
+
+    def load_modules_from_config(self, config):
+        """Load all module types based on config."""
+        _LOGGER.debug("Loading modules from config")
+
+        self.setup_modules_directory(config)
 
         connectors, databases, skills = None, None, None
 
