@@ -8,7 +8,8 @@ import subprocess
 import importlib
 import yaml
 from opsdroid.const import (
-    DEFAULT_GIT_URL, MODULES_DIRECTORY, DEFAULT_MODULE_BRANCH)
+    DEFAULT_GIT_URL, MODULES_DIRECTORY, DEFAULT_MODULES_PATH,
+    DEFAULT_MODULE_BRANCH)
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -20,7 +21,7 @@ class Loader:
     def __init__(self, opsdroid):
         """Create object with opsdroid instance."""
         self.opsdroid = opsdroid
-        self.modules_directory = MODULES_DIRECTORY
+        self.modules_directory = None
         self.current_import_config = None
         _LOGGER.debug("Loaded loader")
 
@@ -122,16 +123,26 @@ class Loader:
         except FileNotFoundError as error:
             self.opsdroid.critical(str(error), 1)
 
+    def setup_modules_directory(self, config):
+        """Create and configure the modules directory."""
+        module_path = os.path.expanduser(
+            config.get("module-path", DEFAULT_MODULES_PATH))
+        sys.path.append(module_path)
+
+        if not os.path.isdir(module_path):
+            os.makedirs(module_path, exist_ok=True)
+
+        self.modules_directory = os.path.join(module_path, MODULES_DIRECTORY)
+
+        # Create modules directory if doesn't exist
+        if not os.path.isdir(self.modules_directory):
+            os.makedirs(self.modules_directory)
+
     def load_modules_from_config(self, config):
         """Load all module types based on config."""
         _LOGGER.debug("Loading modules from config")
 
-        if "module-path" in config:
-            sys.path.append(config["module-path"])
-            if not os.path.isdir(config["module-path"]):
-                os.makedirs(config["module-path"], exist_ok=True)
-            self.modules_directory = os.path.join(config["module-path"],
-                                                  self.modules_directory)
+        self.setup_modules_directory(config)
 
         connectors, databases, skills = None, None, None
 
@@ -158,10 +169,6 @@ class Loader:
         """Install and load modules."""
         _LOGGER.debug("Loading " + modules_type + " modules")
         loaded_modules = []
-
-        # Create modules directory if doesn't exist
-        if not os.path.isdir(self.modules_directory):
-            os.makedirs(self.modules_directory)
 
         for module in modules:
 

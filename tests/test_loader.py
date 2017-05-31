@@ -153,20 +153,10 @@ class TestLoader(unittest.TestCase):
         with mock.patch.object(loader, '_install_module') as mockinstall, \
                 mock.patch.object(loader, 'import_module',
                                   mockedmodule) as mockimport:
+            loader.setup_modules_directory({})
             loader._load_modules(modules_type, modules)
-            mockinstall.assert_called_with({
-                'branch': 'master',
-                'module_path': 'modules.test.testmodule',
-                'name': 'testmodule',
-                'type': modules_type,
-                'install_path': 'modules/test/testmodule'})
-            mockimport.assert_called_with({
-                'module_path': 'modules.test.testmodule',
-                'name': 'testmodule',
-                'type': modules_type,
-                'branch': 'master',
-                'install_path':
-                'modules/test/testmodule'})
+            assert mockinstall.call_count
+            assert mockimport.call_count
 
     def test_install_existing_module(self):
         opsdroid, loader = self.setup()
