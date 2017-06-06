@@ -13,6 +13,27 @@ pip3 install opsdroid
 opsdroid
 ```
 
+## Installation
+
+### Ubuntu 16.04 LTS
+
+```shell
+# Update apt-get
+sudo apt-get update
+
+# Install pip for python3 and locales
+sudo apt-get install python3-pip language-pack-en
+
+# Enure pip is up-to-date
+pip3 install --upgrade pip
+
+# Install opsdroid
+sudo pip3 install opsdroid
+
+# Run opsdroid
+opsdroid
+```
+
 ## Configuration
 
 Configuration is done in a yaml file called `configuration.yaml`. This will be created automatically for you in `~/.opsdroid`. See the [full reference](http://opsdroid.readthedocs.io/en/latest/configuration-reference/).
