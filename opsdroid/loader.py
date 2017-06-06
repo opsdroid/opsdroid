@@ -92,7 +92,8 @@ class Loader:
     def pip_install_deps(requirements_path):
         """Pip install a requirements.txt file and wait for finish."""
         process = subprocess.Popen(["pip", "install",
-                                    "--target={}".format(DEFAULT_MODULE_DEPS_PATH),
+                                    "--target={}".format(
+                                        DEFAULT_MODULE_DEPS_PATH),
                                     "--ignore-installed",
                                     "-r", requirements_path],
                                    shell=False,
