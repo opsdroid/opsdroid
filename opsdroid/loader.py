@@ -9,7 +9,8 @@ import importlib
 import yaml
 from opsdroid.const import (
     DEFAULT_GIT_URL, MODULES_DIRECTORY, DEFAULT_MODULES_PATH,
-    DEFAULT_MODULE_BRANCH, DEFAULT_CONFIG_PATH, EXAMPLE_CONFIG_FILE)
+    DEFAULT_MODULE_BRANCH, DEFAULT_CONFIG_PATH, EXAMPLE_CONFIG_FILE,
+    DEFAULT_MODULE_DEPS_PATH)
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -90,7 +91,11 @@ class Loader:
     @staticmethod
     def pip_install_deps(requirements_path):
         """Pip install a requirements.txt file and wait for finish."""
-        process = subprocess.Popen(["pip", "install", "-r", requirements_path],
+        process = subprocess.Popen(["pip", "install",
+                                    "--target={}".format(
+                                        DEFAULT_MODULE_DEPS_PATH),
+                                    "--ignore-installed",
+                                    "-r", requirements_path],
                                    shell=False,
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
@@ -180,6 +185,10 @@ class Loader:
         """Install and load modules."""
         _LOGGER.debug("Loading " + modules_type + " modules")
         loaded_modules = []
+
+        if not os.path.isdir(DEFAULT_MODULE_DEPS_PATH):
+            os.makedirs(DEFAULT_MODULE_DEPS_PATH)
+        sys.path.append(DEFAULT_MODULE_DEPS_PATH)
 
         for module in modules:
 
