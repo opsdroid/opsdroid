@@ -4,7 +4,6 @@ import logging
 import sys
 import weakref
 import asyncio
-import os.path
 
 from opsdroid.memory import Memory
 from opsdroid.connector import Connector
@@ -13,6 +12,7 @@ from opsdroid.loader import Loader
 from opsdroid.parsers.regex import parse_regex
 from opsdroid.parsers.apiai import parse_apiai
 from opsdroid.parsers.crontab import parse_crontab
+from opsdroid.const import DEFAULT_CONFIG_PATH
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -89,8 +89,7 @@ class OpsDroid():
         """Load configuration."""
         self.config = self.loader.load_config_file([
             "./configuration.yaml",
-            os.path.join(os.path.expanduser("~"),
-                         ".opsdroid/configuration.yaml"),
+            DEFAULT_CONFIG_PATH,
             "/etc/opsdroid/configuration.yaml"
             ])
 

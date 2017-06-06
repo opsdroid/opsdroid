@@ -10,16 +10,14 @@ An open source python chat-ops bot framework.
 
 ```
 pip3 install opsdroid
-mkdir ~/.opsdroid
-opsdroid --gen-config > ~/.opsdroid/configuration.yaml
 opsdroid
 ```
 
 ## Configuration
 
-Configuration is done in a yaml file called `configuration.yaml`. See the [full reference](http://opsdroid.readthedocs.io/en/latest/configuration-reference/).
+Configuration is done in a yaml file called `configuration.yaml`. This will be created automatically for you in `~/.opsdroid`. See the [full reference](http://opsdroid.readthedocs.io/en/latest/configuration-reference/).
 
-Example:
+Example config:
 
 ```yaml
 ##                      _           _     _
