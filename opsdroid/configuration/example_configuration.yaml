@@ -37,6 +37,7 @@
 ## Connector modules
 connectors:
   - name: shell
+  - name: websocket
 
 ## Database modules (optional)
 # databases:

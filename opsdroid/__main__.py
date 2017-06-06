@@ -6,7 +6,7 @@ import logging
 import argparse
 
 from opsdroid.core import OpsDroid
-from opsdroid.const import LOG_FILENAME
+from opsdroid.const import LOG_FILENAME, EXAMPLE_CONFIG_FILE
 from opsdroid.web import Web
 
 
@@ -88,10 +88,7 @@ def main():
     args = parse_args(sys.argv[1:])
 
     if args.gen_config:
-        path = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "configuration/example_configuration.yaml")
-        with open(path, 'r') as conf:
+        with open(EXAMPLE_CONFIG_FILE, 'r') as conf:
             print(conf.read())
         sys.exit(0)
 

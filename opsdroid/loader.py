@@ -9,7 +9,7 @@ import importlib
 import yaml
 from opsdroid.const import (
     DEFAULT_GIT_URL, MODULES_DIRECTORY, DEFAULT_MODULES_PATH,
-    DEFAULT_MODULE_BRANCH)
+    DEFAULT_MODULE_BRANCH, DEFAULT_CONFIG_PATH, EXAMPLE_CONFIG_FILE)
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -100,6 +100,16 @@ class Loader:
                     _LOGGER.debug(str(line).strip())
         process.wait()
 
+    @staticmethod
+    def create_default_config():
+        """Create a default config file based on the included example."""
+        _LOGGER.info("Creating %s.", DEFAULT_CONFIG_PATH)
+        config_dir, _ = os.path.split(DEFAULT_CONFIG_PATH)
+        if not os.path.isdir(config_dir):
+            os.makedirs(config_dir)
+        shutil.copyfile(EXAMPLE_CONFIG_FILE, DEFAULT_CONFIG_PATH)
+        return DEFAULT_CONFIG_PATH
+
     def load_config_file(self, config_paths):
         """Load a yaml config file from path."""
         config_path = ""
@@ -112,7 +122,8 @@ class Loader:
                 break
 
         if not config_path:
-            self.opsdroid.critical("No configuration files found", 1)
+            _LOGGER.info("No configuration files found.")
+            config_path = self.create_default_config()
 
         try:
             with open(config_path, 'r') as stream:
