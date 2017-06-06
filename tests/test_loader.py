@@ -29,6 +29,15 @@ class TestLoader(unittest.TestCase):
         config = loader.load_config_file(["tests/configs/minimal.yaml"])
         self.assertIsNotNone(config)
 
+    def test_create_default_config(self):
+        test_config_path = "/tmp/test_config_path/configuration.yaml"
+        opsdroid, loader = self.setup()
+
+        self.assertEqual(loader.create_default_config(test_config_path),
+                         test_config_path)
+        self.assertTrue(os.path.isfile(test_config_path))
+        shutil.rmtree(os.path.split(test_config_path)[0])
+
     def test_load_non_existant_config_file(self):
         opsdroid, loader = self.setup()
         loader.create_default_config = mock.Mock(

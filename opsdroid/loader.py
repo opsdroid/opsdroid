@@ -101,14 +101,14 @@ class Loader:
         process.wait()
 
     @staticmethod
-    def create_default_config():
+    def create_default_config(config_path):
         """Create a default config file based on the included example."""
-        _LOGGER.info("Creating %s.", DEFAULT_CONFIG_PATH)
-        config_dir, _ = os.path.split(DEFAULT_CONFIG_PATH)
+        _LOGGER.info("Creating %s.", config_path)
+        config_dir, _ = os.path.split(config_path)
         if not os.path.isdir(config_dir):
             os.makedirs(config_dir)
-        shutil.copyfile(EXAMPLE_CONFIG_FILE, DEFAULT_CONFIG_PATH)
-        return DEFAULT_CONFIG_PATH
+        shutil.copyfile(EXAMPLE_CONFIG_FILE, config_path)
+        return config_path
 
     def load_config_file(self, config_paths):
         """Load a yaml config file from path."""
@@ -123,7 +123,7 @@ class Loader:
 
         if not config_path:
             _LOGGER.info("No configuration files found.")
-            config_path = self.create_default_config()
+            config_path = self.create_default_config(DEFAULT_CONFIG_PATH)
 
         try:
             with open(config_path, 'r') as stream:
