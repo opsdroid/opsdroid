@@ -1,7 +1,7 @@
 """Constants used by OpsDroid."""
 import os
 
-__version__ = "0.8.0"
+__version__ = "0.8.1"
 
 LOG_FILENAME = 'output.log'
 DEFAULT_GIT_URL = "https://github.com/opsdroid/"
