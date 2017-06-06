@@ -1,7 +1,6 @@
 """Starts opsdroid."""
 
 import sys
-import os
 import logging
 import argparse
 

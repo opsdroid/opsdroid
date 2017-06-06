@@ -31,9 +31,10 @@ class TestLoader(unittest.TestCase):
 
     def test_load_non_existant_config_file(self):
         opsdroid, loader = self.setup()
-        loader.opsdroid.critical = mock.Mock()
+        loader.create_default_config = mock.Mock(
+            return_value="tests/configs/minimal.yaml")
         loader.load_config_file(["file_which_does_not_exist"])
-        self.assertTrue(loader.opsdroid.critical.called)
+        self.assertTrue(loader.create_default_config.called)
 
     def test_load_broken_config_file(self):
         opsdroid, loader = self.setup()

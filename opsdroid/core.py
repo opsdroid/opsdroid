@@ -4,7 +4,6 @@ import logging
 import sys
 import weakref
 import asyncio
-import os.path
 
 from opsdroid.memory import Memory
 from opsdroid.connector import Connector
