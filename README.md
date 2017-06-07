@@ -3,8 +3,23 @@
 [![Build Status](https://travis-ci.org/opsdroid/opsdroid.svg?branch=release)](https://travis-ci.org/opsdroid/opsdroid) [![Coverage Status](https://coveralls.io/repos/github/opsdroid/opsdroid/badge.svg?branch=release)](https://coveralls.io/github/opsdroid/opsdroid?branch=release) [![Updates](https://pyup.io/repos/github/opsdroid/opsdroid/shield.svg)](https://pyup.io/repos/github/opsdroid/opsdroid/) [![Dependency Status](https://dependencyci.com/github/opsdroid/opsdroid/badge)](https://dependencyci.com/github/opsdroid/opsdroid)
 [![Docker Image](https://img.shields.io/badge/docker-ready-blue.svg)](https://hub.docker.com/r/opsdroid/opsdroid/) [![Docker Layers](https://images.microbadger.com/badges/image/opsdroid/opsdroid.svg)](https://microbadger.com/#/images/opsdroid/opsdroid) [![Documentation Status](https://img.shields.io/badge/docs-latest-red.svg?style=flat)](http://opsdroid.readthedocs.io/en/latest/?badge=latest)
 
+An open source chat-ops bot framework written in python. It is designed to be extendable, scalable and simple.
 
-An open source python chat-ops bot framework.
+## ChatOps
+_"ChatOps is an operational paradigm where work that is already happening in the background today is brought into a common chatroom. By doing this, you are unifying the communication about what work should get done with actual history of the work being done."_ - [StackStorm](https://docs.stackstorm.com/chatops/chatops.html)
+
+In the new frontier of DevOps it is becoming more and more popular to interact with your automation tools via an instant messenger. opsdroid is a framework to make creating and extending your ChatOps workflows powerful but simple.
+
+## Why use opsdroid?
+
+ * It's open source
+ * Simple to modify and extend
+ * Add you own skills in under 10 lines of python
+ * Easy to install
+ * Designed with Docker in mind for simple deployment
+ * Configurable with a single YAML file
+ * Can connect to multiple chat services simultaneously
+ * No coding necessary if using the official modules
 
 ## Quick start
 
@@ -15,9 +30,19 @@ opsdroid
 
 ## Installation
 
+### Docker
+
+```bash
+# Pull the container image
+docker pull opsdroid/opsdroid:latest
+
+# Run the container
+docker run --rm -v /path/to/configuration.yaml:/etc/configuration.yaml:ro opsdroid/opsdroid:latest
+```
+
 ### Ubuntu 16.04 LTS
 
-```shell
+```bash
 # Update apt-get
 sudo apt-get update
 
@@ -36,9 +61,17 @@ opsdroid
 
 ## Configuration
 
-Configuration is done in a yaml file called `configuration.yaml`. This will be created automatically for you in `~/.opsdroid`. See the [full reference](http://opsdroid.readthedocs.io/en/latest/configuration-reference/).
+Configuration is done in a yaml file called `configuration.yaml`. When you run opsdroid it will look for the file in the following places in order:
 
-Example config:
+ * `./configuration.yaml`
+ * `~/.opsdroid/configuration.yaml`
+ * `/etc/opsdroid/configuration.yaml`
+
+If none are found then `~/.opsdroid/configuration.yaml` will be created for you.
+
+See the [full reference](http://opsdroid.readthedocs.io/en/latest/configuration-reference/).
+
+### Example config
 
 ```yaml
 ##                      _           _     _
@@ -101,6 +134,50 @@ skills:
 
 ```
 
+The opsdroid project itself is very simple and requires modules to give it functionality. In your configuration file you must specify the connector, skill and database* modules you wish to use and any options they may require.
+
+**Connectors** are modules for connecting opsdroid to your specific chat service. **Skills** are modules which define what actions opsdroid should perform based on different chat messages. **Database** modules connect opsdroid to your chosen database and allows skills to store information between messages.
+
+For example a simple barebones configuration would look like:
+
+```yaml
+connectors:
+  - name: shell
+
+skills:
+  - name: hello
+```
+
+This tells opsdroid to use the [shell connector](https://github.com/opsdroid/connector-shell) and [hello skill](https://github.com/opsdroid/skill-hello) from the official module library.
+
+In opsdroid all modules are git repositories which will be cloned locally the first time they are used. By default if you do not specify a repository opsdroid will look at `https://github.com/opsdroid/<moduletype>-<modulename>.git` for the repository. Therefore in the above configuration the `connector-shell` and `skill-hello` repositories were pulled from the opsdroid organisation on GitHub.
+
+You are of course encouraged to write your own modules and make them available on GitHub or any other repository host which is accessible by your opsdroid installation.
+
+A more advanced config would like similar to the following:
+
+```yaml
+connectors:
+  - name: slack
+    token: "mysecretslacktoken"
+
+databases:
+  - name: mongo
+    host: "mymongohost.mycompany.com"
+    port: "27017"
+    database: "opsdroid"
+
+skills:
+  - name: hello
+  - name: seen
+  - name: myawesomeskill
+    repo: "https://github.com/username/myawesomeskill.git"
+```
+
+In this configuration we are using the [slack connector](https://github.com/opsdroid/connector-slack) with a slack [auth token](https://api.slack.com/tokens) supplied, a [mongo database](https://github.com/opsdroid/database-mongo) connection for persisting data, `hello` and `seen` skills from the official repos and finally a custom skill hosted on GitHub.
+
+Configuration options such as the `token` in the slack connector or the `host`, `port` and `database` options in the mongo database are specific to those modules. Ensure you check each module's required configuration items before you use them.
+
 ## Contributing
 
 Contributing to the opsdroid ecosystem is strongly encouraged. You can do this by creating modules to be used by opsdroid or by contributing to the project itself.
@@ -114,3 +191,7 @@ All contributors to the project, including [jacobtomlinson](https://github.com/j
  * A project maintainer will review and merge the pull request
 
 For more information see the [contribution documentation](http://opsdroid.readthedocs.io/en/latest/contributing/).
+
+-------
+
+_\* databases are optional, however bot memory will not persist between different connectors or system reboots without one_

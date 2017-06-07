@@ -3,8 +3,7 @@ repo_url: https://github.com/opsdroid/opsdroid
 theme: readthedocs
 
 pages:
-  - Home: 'index.md'
-  - Getting Started: 'getting-started.md'
+  - Home: '../README.md'
   - Configuration Reference: 'configuration-reference.md'
   - REST API: 'rest-api.md'
   - Extending opsdroid:
