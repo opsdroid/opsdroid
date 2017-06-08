@@ -1,4 +1,5 @@
 
+import asyncio
 import unittest
 import unittest.mock as mock
 import asynctest
@@ -37,6 +38,7 @@ class TestCore(unittest.TestCase):
 
     def test_restart(self):
         with OpsDroid() as opsdroid:
+            opsdroid.eventloop.create_task(asyncio.sleep(1))
             self.assertFalse(opsdroid.should_restart)
             opsdroid.restart()
             self.assertTrue(opsdroid.should_restart)
