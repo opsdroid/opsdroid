@@ -115,6 +115,11 @@ class Loader:
         shutil.copyfile(EXAMPLE_CONFIG_FILE, config_path)
         return config_path
 
+    @staticmethod
+    def _reload_modules(modules):
+        for module in modules:
+            importlib.reload(module["module"])
+
     def load_config_file(self, config_paths):
         """Load a yaml config file from path."""
         config_path = ""
@@ -169,6 +174,8 @@ class Loader:
 
         if 'skills' in config.keys():
             skills = self._load_modules('skill', config['skills'])
+            self.opsdroid.skills = []
+            self._reload_modules(skills)
         else:
             self.opsdroid.critical(
                 "No skills in configuration, at least 1 required", 1)

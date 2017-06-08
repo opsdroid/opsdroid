@@ -47,7 +47,7 @@ class TestCore(unittest.TestCase):
             opsdroid.start_connector_tasks = mock.Mock()
             opsdroid.eventloop.run_forever = mock.Mock()
 
-            with self.assertRaises(SystemExit):
+            with self.assertRaises(RuntimeError):
                 opsdroid.start_loop()
 
             self.assertTrue(opsdroid.start_databases.called)
