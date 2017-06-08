@@ -1,5 +1,6 @@
 """Core components of OpsDroid."""
 
+import copy
 import logging
 import sys
 import weakref
@@ -44,10 +45,13 @@ class OpsDroid():
             "total_responses": 0,
         }
         self.web_server = None
+        self.should_restart = False
+        self.stored_path = []
         _LOGGER.info("Created main opsdroid object")
 
     def __enter__(self):
         """Add self to existing instances."""
+        self.stored_path = copy.copy(sys.path)
         if not self.__class__.instances:
             self.__class__.instances.append(weakref.proxy(self))
         else:
@@ -56,7 +60,9 @@ class OpsDroid():
 
     def __exit__(self, exc_type, exc_value, traceback):
         """Remove self from existing instances."""
+        sys.path = self.stored_path
         self.__class__.instances = []
+        asyncio.set_event_loop(asyncio.new_event_loop())
 
     @property
     def default_connector(self):
@@ -74,8 +80,6 @@ class OpsDroid():
         """Exit application."""
         _LOGGER.info("Exiting application with return code " +
                      str(self.sys_status))
-        if self.eventloop.is_running():
-            self.eventloop.close()
         sys.exit(self.sys_status)
 
     def critical(self, error, code):
@@ -84,6 +88,18 @@ class OpsDroid():
         _LOGGER.critical(error)
         print("Error: " + error)
         self.exit()
+
+    def restart(self):
+        """Restart opsdroid."""
+        self.should_restart = True
+        self.stop()
+
+    def stop(self):
+        """Stop the event loop."""
+        pending = asyncio.Task.all_tasks()
+        for task in pending:
+            task.cancel()
+        self.eventloop.stop()
 
     def load(self):
         """Load configuration."""
@@ -97,6 +113,7 @@ class OpsDroid():
         """Start the event loop."""
         connectors, databases, skills = \
             self.loader.load_modules_from_config(self.config)
+        _LOGGER.debug("Loaded %i skills", len(skills))
         if databases is not None:
             self.start_databases(databases)
         self.setup_skills(skills)
@@ -104,12 +121,17 @@ class OpsDroid():
         self.eventloop.create_task(parse_crontab(self))
         self.web_server.start()
         try:
-            self.eventloop.run_forever()
+            pending = asyncio.Task.all_tasks()
+            self.eventloop.run_until_complete(asyncio.gather(*pending))
         except (KeyboardInterrupt, EOFError):
             print('')  # Prints a character return for return to shell
+            self.stop()
             _LOGGER.info("Keyboard interrupt, exiting.")
+        except RuntimeError as error:
+            if str(error) != 'Event loop is closed':
+                raise error
         finally:
-            self.exit()
+            self.eventloop.close()
 
     def setup_skills(self, skills):
         """Call the setup function on the passed in skills."""

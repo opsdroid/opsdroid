@@ -93,12 +93,15 @@ def main():
 
     check_dependencies()
 
-    with OpsDroid() as opsdroid:
-        opsdroid.load()
-        configure_logging(opsdroid.config)
-        opsdroid.web_server = Web(opsdroid)
-        opsdroid.start_loop()
-        opsdroid.exit()
+    restart = True
+
+    while restart:
+        with OpsDroid() as opsdroid:
+            opsdroid.load()
+            configure_logging(opsdroid.config)
+            opsdroid.web_server = Web(opsdroid)
+            opsdroid.start_loop()
+            restart = opsdroid.should_restart
 
 
 if __name__ == "__main__":

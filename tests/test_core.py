@@ -1,4 +1,5 @@
 
+import asyncio
 import unittest
 import unittest.mock as mock
 import asynctest
@@ -29,6 +30,19 @@ class TestCore(unittest.TestCase):
         with OpsDroid() as opsdroid, self.assertRaises(SystemExit):
             opsdroid.critical("An error", 1)
 
+    def test_stop(self):
+        with OpsDroid() as opsdroid:
+            self.assertFalse(opsdroid.eventloop.is_closed())
+            opsdroid.stop()
+            self.assertFalse(opsdroid.eventloop.is_running())
+
+    def test_restart(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.eventloop.create_task(asyncio.sleep(1))
+            self.assertFalse(opsdroid.should_restart)
+            opsdroid.restart()
+            self.assertTrue(opsdroid.should_restart)
+
     def test_load_config(self):
         with OpsDroid() as opsdroid:
             opsdroid.loader = mock.Mock()
@@ -47,7 +61,7 @@ class TestCore(unittest.TestCase):
             opsdroid.start_connector_tasks = mock.Mock()
             opsdroid.eventloop.run_forever = mock.Mock()
 
-            with self.assertRaises(SystemExit):
+            with self.assertRaises(RuntimeError):
                 opsdroid.start_loop()
 
             self.assertTrue(opsdroid.start_databases.called)
