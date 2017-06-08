@@ -304,3 +304,10 @@ class TestLoader(unittest.TestCase):
             loader._install_local_module(config)
             logmock.assert_called_with(
                     "Failed to install from " + config["path"])
+
+    def test_reload_modules(self):
+        opsdroid, loader = self.setup()
+        with mock.patch('importlib.reload') as reload_mock:
+            mock_module = {"module": "fake_import"}
+            loader._reload_modules([mock_module])
+            self.assertTrue(reload_mock.called_with("fake_import"))

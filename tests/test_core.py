@@ -29,6 +29,18 @@ class TestCore(unittest.TestCase):
         with OpsDroid() as opsdroid, self.assertRaises(SystemExit):
             opsdroid.critical("An error", 1)
 
+    def test_stop(self):
+        with OpsDroid() as opsdroid:
+            self.assertFalse(opsdroid.eventloop.is_closed())
+            opsdroid.stop()
+            self.assertFalse(opsdroid.eventloop.is_running())
+
+    def test_restart(self):
+        with OpsDroid() as opsdroid:
+            self.assertFalse(opsdroid.should_restart)
+            opsdroid.restart()
+            self.assertTrue(opsdroid.should_restart)
+
     def test_load_config(self):
         with OpsDroid() as opsdroid:
             opsdroid.loader = mock.Mock()
