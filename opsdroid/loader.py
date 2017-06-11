@@ -282,6 +282,7 @@ class Loader:
     def _install_local_module(config):
         """Install a module from a local path."""
         installed = False
+        config["path"] = os.path.expanduser(config["path"])
 
         installdir, _ = os.path.split(config["install_path"])
         if not os.path.isdir(installdir):
