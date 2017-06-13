@@ -64,7 +64,7 @@ You may not want opsdroid to log to the console, for example if you are using th
 
 ```yaml
 logging:
-  path: output.log
+  path: ~/.opsdroid/output.log
   level: info
   console: true
 

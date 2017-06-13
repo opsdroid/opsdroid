@@ -1,11 +1,12 @@
 """Starts opsdroid."""
 
+import os
 import sys
 import logging
 import argparse
 
 from opsdroid.core import OpsDroid
-from opsdroid.const import LOG_FILENAME, EXAMPLE_CONFIG_FILE
+from opsdroid.const import DEFAULT_LOG_FILENAME, EXAMPLE_CONFIG_FILE
 from opsdroid.web import Web
 
 
@@ -19,9 +20,12 @@ def configure_logging(config):
         rootlogger.handlers.pop()
 
     try:
-        logfile_path = config["logging"]["path"]
+        if config["logging"]["path"]:
+            logfile_path = os.path.expanduser(config["logging"]["path"])
+        else:
+            logfile_path = config["logging"]["path"]
     except KeyError:
-        logfile_path = LOG_FILENAME
+        logfile_path = DEFAULT_LOG_FILENAME
 
     try:
         log_level = get_logging_level(
