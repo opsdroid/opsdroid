@@ -2,6 +2,7 @@
 
 import json
 import logging
+import ssl
 
 from aiohttp import web
 
@@ -33,7 +34,10 @@ class Web:
         try:
             port = self.config["port"]
         except KeyError:
-            port = 8080
+            if self.get_ssl_context is not None:
+                port = 8443
+            else:
+                port = 8080
         return port
 
     @property
@@ -45,13 +49,28 @@ class Web:
             host = '127.0.0.1'
         return host
 
+    @property
+    def get_ssl_context(self):
+        """Return the ssl context or None."""
+        try:
+            ssl_config = self.config["ssl"]
+            sslcontext = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+            sslcontext.load_cert_chain(ssl_config["cert"], ssl_config["key"])
+            return sslcontext
+        except FileNotFoundError:
+            _LOGGER.error("Cannot find ssl cert or key.")
+            return None
+        except KeyError:
+            return None
+
     def start(self):
         """Start web servers."""
         _LOGGER.debug(
             "Starting web server with host %s and port %s",
             self.get_host, self.get_port)
         web.run_app(self.web_app, host=self.get_host,
-                    port=self.get_port, print=_LOGGER.info)
+                    port=self.get_port, print=_LOGGER.info,
+                    ssl_context=self.get_ssl_context)
 
     @staticmethod
     def build_response(status, result):

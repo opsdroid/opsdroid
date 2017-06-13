@@ -1,4 +1,6 @@
 
+import ssl
+
 import asynctest
 import asynctest.mock as amock
 
@@ -37,6 +39,27 @@ class TestWeb(asynctest.TestCase):
             opsdroid.config["web"] = {"host": "0.0.0.0"}
             app = web.Web(opsdroid)
             self.assertEqual(app.get_host, "0.0.0.0")
+
+    async def test_web_get_ssl(self):
+        """Check the host getter."""
+        with OpsDroid() as opsdroid:
+            opsdroid.config["web"] = {}
+            app = web.Web(opsdroid)
+            self.assertEqual(app.get_ssl_context, None)
+
+            opsdroid.config["web"] = {"ssl":
+                                      {"cert": "tests/ssl/cert.pem",
+                                       "key": "tests/ssl/key.pem"}}
+            app = web.Web(opsdroid)
+            self.assertEqual(type(app.get_ssl_context),
+                             type(ssl.SSLContext(ssl.PROTOCOL_SSLv23)))
+            self.assertEqual(app.get_port, 8443)
+
+            opsdroid.config["web"] = {"ssl":
+                                      {"cert": "/path/to/nonexistant/cert",
+                                       "key": "/path/to/nonexistant/key"}}
+            app = web.Web(opsdroid)
+            self.assertEqual(app.get_ssl_context, None)
 
     async def test_web_build_response(self):
         """Check the response builder."""
