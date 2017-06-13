@@ -57,6 +57,9 @@ class Web:
             sslcontext = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
             sslcontext.load_cert_chain(ssl_config["cert"], ssl_config["key"])
             return sslcontext
+        except FileNotFoundError:
+            _LOGGER.error("Cannot find ssl cert or key.")
+            return None
         except KeyError:
             return None
 
