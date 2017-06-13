@@ -20,7 +20,10 @@ def configure_logging(config):
         rootlogger.handlers.pop()
 
     try:
-        logfile_path = os.path.expanduser(config["logging"]["path"])
+        if config["logging"]["path"]:
+            logfile_path = os.path.expanduser(config["logging"]["path"])
+        else:
+            logfile_path = config["logging"]["path"]
     except KeyError:
         logfile_path = DEFAULT_LOG_FILENAME
 
