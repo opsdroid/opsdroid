@@ -119,12 +119,15 @@ timezone: 'Europe/London'
 
 Configure the REST API in opsdroid.
 
-By default opsdroid will start a web server on port `8080` accessible only to localhost. For more information see the [REST API docs](rest-api).
+By default opsdroid will start a web server accessible only to localhost on port `8080` (or `8443` if ssl details are provided). For more information see the [REST API docs](rest-api).
 
 ```yaml
 web:
   host: '127.0.0.1'  # set to '0.0.0.0' to allow all traffic
   port: 8080
+  ssl:
+    cert: /path/to/cert.pem
+    key: /path/to/key.pem
 ```
 
 ## Module options
