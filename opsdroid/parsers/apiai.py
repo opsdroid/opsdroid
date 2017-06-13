@@ -38,8 +38,11 @@ async def parse_apiai(opsdroid, message, config):
     # halt the application. If a skill throws an exception it just doesn't
     # give a response to the user, so an error response should be given.
     if 'access-token' in config:
-
-        result = await call_apiai(message, config)
+        try:
+            result = await call_apiai(message, config)
+        except aiohttp.ClientOSError:
+            _LOGGER.error("No response from api.ai, check your network.")
+            return
 
         if result["status"]["code"] >= 300:
             _LOGGER.error("api.ai error - " +
