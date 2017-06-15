@@ -47,7 +47,7 @@ docker run --rm -v /path/to/configuration.yaml:/etc/configuration.yaml:ro opsdro
 sudo apt-get update
 
 # Install pip for python3 and locales
-sudo apt-get install python3-pip language-pack-en
+sudo apt-get install python3-pip language-pack-en git
 
 # Enure pip is up-to-date
 pip3 install --upgrade pip
