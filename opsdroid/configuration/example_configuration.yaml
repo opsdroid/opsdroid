@@ -22,6 +22,14 @@
 ## Set the location for opsdroid to install modules
 # module-path: "."
 
+## Configure the web server
+# web:
+#   host: '127.0.0.1'
+#   port: 8080
+#   ssl:
+#     cert: /path/to/cert.pem
+#     key: /path/to/key.pem
+
 ## Parsers
 # parsers:
 #   - name: regex
