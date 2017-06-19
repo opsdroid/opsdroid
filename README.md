@@ -30,6 +30,8 @@ opsdroid
 
 ## Installation
 
+Check out the [Getting Started](https://www.youtube.com/watch?v=7wyIi_cpodE&list=PLViQCHlMbEq5nZL6VNrUxu--Of1uCpflq) video series on YouTube.
+
 ### Docker
 
 ```bash
