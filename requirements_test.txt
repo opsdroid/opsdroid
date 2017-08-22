@@ -2,7 +2,7 @@ flake8==3.3.0
 pylint==1.7.2
 astroid==1.5.2
 coveralls==1.1
-pytest==3.1.1
+pytest==3.2.1
 pytest-cov==2.5.1
 pytest-timeout==1.2.0
 pytest-catchlog==1.2.2
