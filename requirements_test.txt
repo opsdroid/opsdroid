@@ -1,6 +1,6 @@
 flake8==3.3.0
 pylint==1.7.1
-astroid==1.5.2
+astroid==1.5.3
 coveralls==1.1
 pytest==3.1.1
 pytest-cov==2.5.1
