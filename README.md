@@ -14,7 +14,7 @@ In the new frontier of DevOps it is becoming more and more popular to interact w
 
  * It's open source
  * Simple to modify and extend
- * Add you own skills in under 10 lines of python
+ * Add your own skills in under 10 lines of python
  * Easy to install
  * Designed with Docker in mind for simple deployment
  * Configurable with a single YAML file
