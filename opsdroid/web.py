@@ -54,7 +54,7 @@ class Web:
         """Return the ssl context or None."""
         try:
             ssl_config = self.config["ssl"]
-            sslcontext = ssl.SSLContext(ssl.PROTOCOL_TLS)
+            sslcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
             sslcontext.load_cert_chain(ssl_config["cert"], ssl_config["key"])
             return sslcontext
         except FileNotFoundError:
