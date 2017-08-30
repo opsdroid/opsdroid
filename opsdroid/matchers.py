@@ -9,12 +9,14 @@ from opsdroid.web import Web
 _LOGGER = logging.getLogger(__name__)
 
 
-def match_regex(regex):
+def match_regex(regex, case_sensitive=True):
     """Return regex match decorator."""
     def matcher(func):
         """Add decorated function to skills list for regex matching."""
         opsdroid = get_opsdroid()
-        opsdroid.skills.append({"regex": regex, "skill": func,
+        opsdroid.skills.append({"regex": {"expression": regex,
+                                          "case_sensitive": case_sensitive},
+                                "skill": func,
                                 "config":
                                 opsdroid.loader.current_import_config})
         return func

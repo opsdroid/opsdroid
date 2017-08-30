@@ -7,12 +7,12 @@ This is the simplest parser available in opsdroid. It matches the message from t
 ```python
 from opsdroid.matchers import match_regex
 
-@match_regex('hi')
+@match_regex('hi', case_sensitive=False)
 async def hello(opsdroid, config, message):
     await message.respond('Hey')
 ```
 
-The above skill would be called on any message which matches the regex `'hi'`.
+The above skill would be called on any message which matches the regex `'hi'`, `'Hi'` or `'HI`. The `case_sensitive` kwarg is optional and defaults to `True`. 
 
 ## Message object additional parameters
 

@@ -76,7 +76,7 @@ class TestCore(unittest.TestCase):
             decorator = match_regex(regex)
             decorator(skill)
             self.assertEqual(len(opsdroid.skills), 1)
-            self.assertEqual(opsdroid.skills[0]["regex"], regex)
+            self.assertEqual(opsdroid.skills[0]["regex"]["expression"], regex)
             self.assertIsInstance(opsdroid.skills[0]["skill"], mock.MagicMock)
 
     def test_start_databases(self):
@@ -142,12 +142,25 @@ class TestCoreAsync(asynctest.TestCase):
 
     async def test_parse_regex(self):
         with OpsDroid() as opsdroid:
-            regex = r".*"
+            regex = r"Hello .*"
             skill = amock.CoroutineMock()
             mock_connector = Connector({})
             decorator = match_regex(regex)
             decorator(skill)
             message = Message("Hello world", "user", "default", mock_connector)
+            tasks = await opsdroid.parse(message)
+            for task in tasks:
+                await task
+            self.assertTrue(skill.called)
+
+    async def test_parse_regex_insensitive(self):
+        with OpsDroid() as opsdroid:
+            regex = r"Hello .*"
+            skill = amock.CoroutineMock()
+            mock_connector = Connector({})
+            decorator = match_regex(regex, case_sensitive=False)
+            decorator(skill)
+            message = Message("HELLO world", "user", "default", mock_connector)
             tasks = await opsdroid.parse(message)
             for task in tasks:
                 await task

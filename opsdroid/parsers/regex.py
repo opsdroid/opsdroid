@@ -15,7 +15,12 @@ async def parse_regex(opsdroid, message):
     # give a response to the user, so an error response should be given.
     for skill in opsdroid.skills:
         if "regex" in skill:
-            regex = re.match(skill["regex"], message.text)
+            if skill["regex"]["case_sensitive"]:
+                regex = re.match(skill["regex"]["expression"],
+                                 message.text)
+            else:
+                regex = re.match(skill["regex"]["expression"],
+                                 message.text, re.IGNORECASE)
             if regex:
                 message.regex = regex
                 try:
@@ -28,4 +33,4 @@ async def parse_regex(opsdroid, message):
                     _LOGGER.exception("Exception when parsing '" +
                                       message.text +
                                       "' against skill '" +
-                                      skill["regex"] + "'")
+                                      skill["regex"]["expression"] + "'")
