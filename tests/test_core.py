@@ -76,7 +76,7 @@ class TestCore(unittest.TestCase):
             decorator = match_regex(regex)
             decorator(skill)
             self.assertEqual(len(opsdroid.skills), 1)
-            self.assertEqual(opsdroid.skills[0]["regex"], regex)
+            self.assertEqual(opsdroid.skills[0]["regex"]["expression"], regex)
             self.assertIsInstance(opsdroid.skills[0]["skill"], mock.MagicMock)
 
     def test_start_databases(self):
