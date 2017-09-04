@@ -184,6 +184,8 @@ Configuration options such as the `token` in the slack connector or the `host`, 
 
 ## Contributing
 
+[Stickers for contributors!](https://medium.com/opsdroid/stickers-for-contributors-a0a1f9c30ec1)
+
 Contributing to the opsdroid ecosystem is strongly encouraged. You can do this by creating modules to be used by opsdroid or by contributing to the project itself.
 
 All contributors to the project, including [jacobtomlinson](https://github.com/jacobtomlinson), contribute using the following process:
