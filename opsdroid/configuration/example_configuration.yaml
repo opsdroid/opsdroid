@@ -49,6 +49,10 @@ connectors:
 
 ## Database modules (optional)
 # databases:
+#   mongo:
+#     host:       "my host"     # (Optional) default "localhost"
+#     port:       "12345"       # (Optional) default "27017"
+#     database:   "mydatabase"  # (Optional) default "opsdroid"
 
 ## Skill modules
 skills:
@@ -64,3 +68,57 @@ skills:
 
   ## Loud noises (https://github.com/opsdroid/skill-loudnoises)
   - name: loudnoises
+
+  ## Grafana (https://github.com/opsdroid/skill-grafana)
+  - name: grafana
+    room: "#monitoring"  # (Optional) room to send alert to
+
+  ## Travis (https://github.com/opsdroid/skill-travis)
+  - name: travis
+    room: "#monitoring"     # (Optional) room to send alert to
+    travis_endpoint: "org"  # (Optional) endpoint for travis, change to "com" if using enterprise Travis CI
+
+  ## Devtools (https://github.com/opsdroid/skill-devtools)
+  - name: devtools
+
+  ## Food (https://github.com/opsdroid/skill-food)
+  - name: food
+    api-key: "myapikeyfromfood2fork"  # Required
+
+  ## Magpi (https://github.com/opsdroid/skill-magpi)
+  - name: magpi
+    room: "#raspberrypi"    # (Optional) room to send notifications to
+
+  ## Google it (https://github.com/opsdroid/skill-google-it/)
+  - name: google-it
+    # Optional
+    engine-url: https://www.google.co.uk/    # url of the search enfine you want to use
+    query-arg: search?q=    # The uri for the search (default is for google)
+
+  ## API.AI (https://github.com/opsdroid/skill-apiai)
+  - name: apiai
+  include:
+    - smalltalk
+  exclude:
+    - smalltalk.agent
+
+  ## Devtools (https://github.com/opsdroid/skill-vault)
+  - name: vault
+    # Required
+    vault-url: https://vault.example.com:8443
+    vault-token: aabbccddee1122334455
+    # Optional
+    announce-on-seal: false  # Announce the vault status in the default room on seal
+    announce-sealed: true  # Announce the vault is sealed hourly
+    announce-unsealed: false  # Announce the vault is unsealed hourly
+
+
+  ## ISS (https://github.com/opsdroid/skill-iss)
+  - name: iss
+    # Required
+    api-key: "mygooglemapsapikey"
+    # Optional
+    zoom: "5"
+    map-size: "1024x768"
+    map-type: "hybrid"    # hybrid, satellite or roadmap
+    
