@@ -47,6 +47,46 @@ connectors:
   - name: shell
   - name: websocket
 
+  # Uncomment the connector(s) that you wish opsdroid to work on
+#  ## Slack (https://github.com/opsdroid/connector-slack)
+#  - name: slack
+#    # Required
+#    api-token: "zyxw-abdcefghi-12345"
+#    # optional
+#    bot-name: "mybot"       # default "opsdroid"
+#    default-room: "#random" # default "#general"
+#    icon-imoji: ":smile:"   # default ":robot_face:"
+#
+#  ## Facebook (https://github.com/opsdroid/connector-facebook)
+#  - name: facebook
+#    # Required
+#    verify-token: aabbccddee
+#    page-access-token: aabbccddee112233445566
+#    # Optional
+#    bot-name: "mybot" # default "opsdroid"
+#
+#  ## Twitter (https://github.com/opsdroid/connector-twitter)
+#  - name: twitter
+#    # Required
+#    consumer_key: "zyxw-abdcefghi-12345"
+#    consumer_secret: "zyxw-abdcefghi-12345-zyxw-abdcefghi-12345"
+#    oauth_token: ""zyxw-abdcefghi-12345-zyxw-abdcefghi-12345"
+#    oauth_token_secret: "zyxw-abdcefghi-12345-zyxw-abdcefghi-12345"
+#    # Optional
+#    enable_dms: true    # Should the bot respond to Direct Messages
+#    enable_tweets: true # Should the bot respond to tweets
+#
+#  ## Telegram (https://github.com/opsdroid/connector-telegram)
+#  - name: telegram
+#    # Required
+#    token: "123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ-ZYXWVUT"  # Telegram bot token
+#    # Optional
+#    update_interval: 0.5  # Interval between checking for messages
+#    default_user: user1   # Default user to send messages to (overrides default room in connector)
+#    whitelisted_users:    # List of users who can speak to the bot, if not set anyone can speak
+#      - user1
+#      - user2
+
 ## Database modules (optional)
 # databases:
 #   mongo:
@@ -141,3 +181,8 @@ skills:
 #    zoom: "5"
 #    map-size: "1024x768"
 #    map-type: "hybrid"    # hybrid, satellite or roadmap
+#
+# ## HomeAssistant (https://github.com/opsdroid/skill-homeassistant)
+#  - name: homeassistant
+#    room: "#homeassistant"
+
