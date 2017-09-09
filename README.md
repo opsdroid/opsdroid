@@ -41,7 +41,7 @@ Check out the [Getting Started](https://www.youtube.com/watch?v=7wyIi_cpodE&list
 docker pull opsdroid/opsdroid:latest
 
 # Run the container
-docker run --rm -v /path/to/configuration.yaml:/etc/configuration.yaml:ro opsdroid/opsdroid:latest
+docker run --rm -v /path/to/configuration.yaml:/etc/opsdroid/configuration.yaml:ro opsdroid/opsdroid:latest
 ```
 
 ### Ubuntu 16.04 LTS
