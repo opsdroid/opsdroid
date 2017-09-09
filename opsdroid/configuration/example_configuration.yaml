@@ -47,12 +47,56 @@ connectors:
   - name: shell
   - name: websocket
 
+  # Uncomment the connector(s) that you wish opsdroid to work on
+#  ## Slack (https://github.com/opsdroid/connector-slack)
+#  - name: slack
+#    # Required
+#    api-token: "zyxw-abdcefghi-12345"
+#    # optional
+#    bot-name: "mybot"       # default "opsdroid"
+#    default-room: "#random" # default "#general"
+#    icon-imoji: ":smile:"   # default ":robot_face:"
+#
+#  ## Facebook (https://github.com/opsdroid/connector-facebook)
+#  - name: facebook
+#    # Required
+#    verify-token: aabbccddee
+#    page-access-token: aabbccddee112233445566
+#    # Optional
+#    bot-name: "mybot" # default "opsdroid"
+#
+#  ## Twitter (https://github.com/opsdroid/connector-twitter)
+#  - name: twitter
+#    # Required
+#    consumer_key: "zyxw-abdcefghi-12345"
+#    consumer_secret: "zyxw-abdcefghi-12345-zyxw-abdcefghi-12345"
+#    oauth_token: ""zyxw-abdcefghi-12345-zyxw-abdcefghi-12345"
+#    oauth_token_secret: "zyxw-abdcefghi-12345-zyxw-abdcefghi-12345"
+#    # Optional
+#    enable_dms: true    # Should the bot respond to Direct Messages
+#    enable_tweets: true # Should the bot respond to tweets
+#
+#  ## Telegram (https://github.com/opsdroid/connector-telegram)
+#  - name: telegram
+#    # Required
+#    token: "123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ-ZYXWVUT"  # Telegram bot token
+#    # Optional
+#    update_interval: 0.5  # Interval between checking for messages
+#    default_user: user1   # Default user to send messages to (overrides default room in connector)
+#    whitelisted_users:    # List of users who can speak to the bot, if not set anyone can speak
+#      - user1
+#      - user2
+
+
 ## Database modules (optional)
 # databases:
 #   mongo:
 #     host:       "my host"     # (Optional) default "localhost"
 #     port:       "12345"       # (Optional) default "27017"
 #     database:   "mydatabase"  # (Optional) default "opsdroid"
+#     # Add this if you want to do a fresh git clone of the mongodb module when you start opsdroid
+#     repo: https://github.com/username/mymongofork.git
+#     no-cache: true
 
 ## Skill modules
 skills:
@@ -69,57 +113,80 @@ skills:
   ## Loud noises (https://github.com/opsdroid/skill-loudnoises)
   - name: loudnoises
 
-  ## Grafana (https://github.com/opsdroid/skill-grafana)
-  - name: grafana
-    room: "#monitoring"  # (Optional) room to send alert to
-
-  ## Travis (https://github.com/opsdroid/skill-travis)
-  - name: travis
-    room: "#monitoring"     # (Optional) room to send alert to
-    travis_endpoint: "org"  # (Optional) endpoint for travis, change to "com" if using enterprise Travis CI
-
-  ## Devtools (https://github.com/opsdroid/skill-devtools)
-  - name: devtools
-
-  ## Food (https://github.com/opsdroid/skill-food)
-  - name: food
-    api-key: "myapikeyfromfood2fork"  # Required
-
-  ## Magpi (https://github.com/opsdroid/skill-magpi)
-  - name: magpi
-    room: "#raspberrypi"    # (Optional) room to send notifications to
-
-  ## Google it (https://github.com/opsdroid/skill-google-it/)
-  - name: google-it
-    # Optional
-    engine-url: https://www.google.co.uk/    # url of the search enfine you want to use
-    query-arg: search?q=    # The uri for the search (default is for google)
-
-  ## API.AI (https://github.com/opsdroid/skill-apiai)
-  - name: apiai
-  include:
-    - smalltalk
-  exclude:
-    - smalltalk.agent
-
-  ## Devtools (https://github.com/opsdroid/skill-vault)
-  - name: vault
-    # Required
-    vault-url: https://vault.example.com:8443
-    vault-token: aabbccddee1122334455
-    # Optional
-    announce-on-seal: false  # Announce the vault status in the default room on seal
-    announce-sealed: true  # Announce the vault is sealed hourly
-    announce-unsealed: false  # Announce the vault is unsealed hourly
-
-
-  ## ISS (https://github.com/opsdroid/skill-iss)
-  - name: iss
-    # Required
-    api-key: "mygooglemapsapikey"
-    # Optional
-    zoom: "5"
-    map-size: "1024x768"
-    map-type: "hybrid"    # hybrid, satellite or roadmap
-
+   # Configurations for other skills uncomment desired skill to activate it.
+#
+#  ## Grafana (https://github.com/opsdroid/skill-grafana)
+#  - name: grafana
+#    room: "#monitoring"  # (Optional) room to send alert to
+#
+#  ## Travis (https://github.com/opsdroid/skill-travis)
+#  - name: travis
+#    room: "#monitoring"     # (Optional) room to send alert to
+#    travis_endpoint: "org"  # (Optional) endpoint for travis, change to "com" if using enterprise Travis CI
+#
+#  ## Devtools (https://github.com/opsdroid/skill-devtools)
+#  - name: devtools
+#
+#  ## Food (https://github.com/opsdroid/skill-food)
+#  - name: food
+#    api-key: "myapikeyfromfood2fork"  # Required
+#
+#  ## Magpi (https://github.com/opsdroid/skill-magpi)
+#  - name: magpi
+#    room: "#raspberrypi"    # (Optional) room to send notifications to
+#
+#  ## Google it (https://github.com/opsdroid/skill-google-it/)
+#  - name: google-it
+#    # Use Google search engine (Default)
+#    engine-url: https://www.google.co.uk/
+#    query-arg: search?q=
+#    # Other search engines that can be used (keep only one active at a time)
+#    # Use Bing search engine
+#    engine-url: https://www.bing.com/
+#    query-arg: search?=
+#    # Use DuckDuckGo search engine
+#    engine-url: https://duckduckgo.com/
+#    query-arg: ?q=
+#    # Use Yahoo search engine
+#    engine-url: http://search.yahoo.com/
+#    query-arg: search?p=
+#    # Use Aol search engine
+#    engine-url: https://search.aol.co.uk/aol/
+#    query-arg: search?query=
+#    # Use Ask search engine
+#    engine-url: https://uk.ask.com/
+#    query-arg: web?q=
+#    # Use Wolframalpha search engine
+#    engine-url: https://www.wolframalpha.com/input/
+#    query-arg: ?i=
+#
+#  ## API.AI (https://github.com/opsdroid/skill-apiai)
+#  - name: apiai
+#    include:
+#      - smalltalk
+#    exclude:
+#      - smalltalk.agent
+#
+#  ## Vault (https://github.com/opsdroid/skill-vault)
+#  - name: vault
+#    # Required
+#    vault-url: https://vault.example.com:8443
+#    vault-token: aabbccddee1122334455
+#    # Optional
+#    announce-on-seal: false   # Announce the vault status in the default room on seal
+#    announce-sealed: true     # Announce the vault is sealed hourly
+#    announce-unsealed: false  # Announce the vault is unsealed hourly
+#
+#  ## ISS (https://github.com/opsdroid/skill-iss)
+#  - name: iss
+#    # Required
+#    api-key: "mygooglemapsapikey"
+#    # Optional
+#    zoom: "5"
+#    map-size: "1024x768"
+#    map-type: "hybrid"    # hybrid, satellite or roadmap
+#
+# ## HomeAssistant (https://github.com/opsdroid/skill-homeassistant)
+#  - name: homeassistant
+#    room: "#homeassistant"
 
