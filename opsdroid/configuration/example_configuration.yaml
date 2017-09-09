@@ -87,16 +87,12 @@ connectors:
 #      - user1
 #      - user2
 
-
 ## Database modules (optional)
 # databases:
 #   mongo:
 #     host:       "my host"     # (Optional) default "localhost"
 #     port:       "12345"       # (Optional) default "27017"
 #     database:   "mydatabase"  # (Optional) default "opsdroid"
-#     # Add this if you want to do a fresh git clone of the mongodb module when you start opsdroid
-#     repo: https://github.com/username/mymongofork.git
-#     no-cache: true
 
 ## Skill modules
 skills:
