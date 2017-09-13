@@ -144,7 +144,7 @@ class Loader:
             value = loader.construct_scalar(node)
             [env_var] = env_var_pattern.match(value).groups()
             return os.environ[env_var]
-        
+
         yaml.add_constructor('!envvar', envvar_constructor)
 
         try:
