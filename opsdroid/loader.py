@@ -6,6 +6,7 @@ import sys
 import shutil
 import subprocess
 import importlib
+import re
 import yaml
 from opsdroid.const import (
     DEFAULT_GIT_URL, MODULES_DIRECTORY, DEFAULT_MODULES_PATH,
@@ -134,6 +135,17 @@ class Loader:
         if not config_path:
             _LOGGER.info("No configuration files found.")
             config_path = self.create_default_config(DEFAULT_CONFIG_PATH)
+
+        env_var_pattern = re.compile(r'^\$([A-Z_]*)$')
+        yaml.add_implicit_resolver("!envvar", env_var_pattern)
+
+        def envvar_constructor(loader, node):
+            """Yaml parser for env vars."""
+            value = loader.construct_scalar(node)
+            [env_var] = env_var_pattern.match(value).groups()
+            return os.environ[env_var]
+
+        yaml.add_constructor('!envvar', envvar_constructor)
 
         try:
             with open(config_path, 'r') as stream:

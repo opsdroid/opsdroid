@@ -176,3 +176,15 @@ databases:
     repo: https://github.com/username/mymongofork.git
     no-cache: true
 ```
+
+## Environment variables
+
+You can use environment variables in your config. You need to specify the variable in the place of a value.
+
+```yaml
+skills:
+  - name: myawesomeskill
+    somekey: $ENVIRONMENT_VARIABLE
+```
+
+_Note: Your environment variable names must consist of uppercase characters and underscores only. The value must also be just the environment variable, you cannot currently mix env vars inside strings._
