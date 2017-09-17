@@ -29,6 +29,13 @@ class TestLoader(unittest.TestCase):
         config = loader.load_config_file(["tests/configs/minimal.yaml"])
         self.assertIsNotNone(config)
 
+    def test_load_config_file_with_env_vars(self):
+        opsdroid, loader = self.setup()
+        os.environ["ENVVAR"] = 'test'
+        config = loader.load_config_file(
+            ["tests/configs/minimal_with_envs.yaml"])
+        self.assertEqual(config["test"], os.environ["ENVVAR"])
+
     def test_create_default_config(self):
         test_config_path = "/tmp/test_config_path/configuration.yaml"
         opsdroid, loader = self.setup()
