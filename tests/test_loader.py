@@ -315,6 +315,7 @@ class TestLoader(unittest.TestCase):
     def test_reload_modules(self):
         opsdroid, loader = self.setup()
         with mock.patch('importlib.reload') as reload_mock:
-            mock_module = {"module": "fake_import"}
+            mock_module = {"module": "fake_import",
+                           "config": {}}
             loader._reload_modules([mock_module])
             self.assertTrue(reload_mock.called_with("fake_import"))
