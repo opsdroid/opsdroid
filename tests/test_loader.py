@@ -32,7 +32,8 @@ class TestLoader(unittest.TestCase):
     def test_load_config_file_with_include(self):
         opsdroid, loader = self.setup()
         config = loader.load_config_file(["tests/configs/minimal_with_include.yaml"])
-        self.assertTrue({'name': 'hello'} in config['skills'] and  {'name': 'seen'} in config['skills'])
+        self.assertTrue('hello' in [skills['name'] for skills in config['skills']])
+        self.assertTrue('seen' in [skills['name'] for skills in config['skills']])
 
     def test_load_config_file_with_env_vars(self):
         opsdroid, loader = self.setup()
