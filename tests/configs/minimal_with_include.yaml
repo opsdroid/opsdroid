@@ -1,4 +1,1 @@
-connectors:
-  shell:
-
-skills: !include minimal.yaml
+connectors: !include minimal.yaml
