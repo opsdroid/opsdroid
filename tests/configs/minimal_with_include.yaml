@@ -1,1 +1,1 @@
-connectors: !include minimal.yaml
+!include minimal.yaml

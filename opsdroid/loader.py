@@ -146,7 +146,7 @@ class Loader:
             return os.environ[env_var]
 
         def include_constructor(loader, node):
-            """Add a yaml file to be loaded inside another"""
+            """Add a yaml file to be loaded inside another."""
             main_yaml_path = os.path.split(stream.name)[0]
             included_yaml = os.path.join(main_yaml_path,
                                          loader.construct_scalar(node))
