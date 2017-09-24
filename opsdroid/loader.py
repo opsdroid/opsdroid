@@ -155,7 +155,7 @@ class Loader:
                 return yaml.load(included)
 
         yaml.add_constructor('!envvar', envvar_constructor)
-        #yaml.add_constructor('!include', include_constructor)
+        yaml.add_constructor('!include', include_constructor)
 
         try:
             with open(config_path, 'r') as stream:
