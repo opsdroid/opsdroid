@@ -33,8 +33,7 @@ class TestLoader(unittest.TestCase):
         opsdroid, loader = self.setup()
         config = loader.load_config_file(["tests/configs/minimal_with_include.yaml"])
         config2 = loader.load_config_file(["tests/configs/minimal.yaml"])
-        self.assertEqual(config["connectors"], config2["connectors"])
-        self.assertEqual(config["skills"], config2["skills"])
+        self.assertDictEqual(config, config2)
 
 
 
