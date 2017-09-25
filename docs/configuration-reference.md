@@ -199,4 +199,4 @@ skills: !include skills.yaml
 
 ```
 
-_Note: The file.yaml that you wish to include in the config must be located in the /.opsdroid folder_
+_Note: The file.yaml that you wish to include in the config must be in the same directory as your configuration.yaml (e.g ~/.opsdroid)_
