@@ -188,3 +188,15 @@ skills:
 ```
 
 _Note: Your environment variable names must consist of uppercase characters and underscores only. The value must also be just the environment variable, you cannot currently mix env vars inside strings._
+
+## Include additional yaml files
+
+You can split the config into smaller modules by using the value `!include file.yaml` to import the contents of a yaml file into the main config. 
+
+
+```yaml
+skills: !include skills.yaml
+
+```
+
+_Note: The file.yaml that you wish to include in the config must be in the same directory as your configuration.yaml (e.g ~/.opsdroid)_

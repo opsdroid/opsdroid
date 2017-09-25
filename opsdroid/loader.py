@@ -145,7 +145,17 @@ class Loader:
             [env_var] = env_var_pattern.match(value).groups()
             return os.environ[env_var]
 
+        def include_constructor(loader, node):
+            """Add a yaml file to be loaded inside another."""
+            main_yaml_path = os.path.split(stream.name)[0]
+            included_yaml = os.path.join(main_yaml_path,
+                                         loader.construct_scalar(node))
+
+            with open(included_yaml, 'r') as included:
+                return yaml.load(included)
+
         yaml.add_constructor('!envvar', envvar_constructor)
+        yaml.add_constructor('!include', include_constructor)
 
         try:
             with open(config_path, 'r') as stream:
