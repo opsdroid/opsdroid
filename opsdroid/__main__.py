@@ -55,6 +55,14 @@ def configure_logging(config):
 
     _LOGGER.info("="*40)
     _LOGGER.info("Stated application")
+    _LOGGER.info("=" * 40)
+    _LOGGER.info("You can customise your opsdroid by adding "
+                 "skills in the configuration.yaml")
+    _LOGGER.info("Read more at: http://opsdroid.readthedocs.io/#configuration")
+    _LOGGER.info("Whatch the Get Started Videos at: http://bit.ly/2fnC0Fh")
+    _LOGGER.info("Install Opsdroid Desktop at: "
+                 "https://github.com/opsdroid/opsdroid-desktop/releases")
+    _LOGGER.info("=" * 40)
 
 
 def get_logging_level(logging_level):
