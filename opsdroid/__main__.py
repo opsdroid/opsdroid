@@ -48,6 +48,9 @@ def configure_logging(config):
         pass
 
     if logfile_path:
+        logdir = os.path.dirname(os.path.realpath(logfile_path))
+        if not os.path.isdir(logdir):
+            os.makedirs(logdir)
         file_handler = logging.FileHandler(logfile_path)
         file_handler.setLevel(log_level)
         file_handler.setFormatter(formatter)
