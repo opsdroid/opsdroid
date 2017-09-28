@@ -59,7 +59,6 @@ def configure_logging(config):
     _LOGGER.info("="*40)
     _LOGGER.info("Stated application")
 
-
 def get_logging_level(logging_level):
     """Get the logger level based on the user configuration."""
     if logging_level == 'critical':
