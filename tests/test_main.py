@@ -58,6 +58,14 @@ class TestMain(unittest.TestCase):
         self.assertEqual(rootlogger.handlers[0].level, logging.CRITICAL)
         self.assertEqual(logging.FileHandler, type(rootlogger.handlers[1]))
         self.assertEqual(rootlogger.handlers[1].level, logging.INFO)
+        
+    def test_configure_file_logging_directory_not_exists(self):
+        config = {"logging": {
+            "path": '/tmp/mynonexistingdirectory' + "/output.log",
+            "console": False,
+        }}
+        opsdroid.configure_logging(config)
+        self.assertEqual(os.path.isfile(config['logging']['path']), True) 
 
     def test_configure_console_logging(self):
         config = {"logging": {
