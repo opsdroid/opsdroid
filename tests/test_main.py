@@ -65,7 +65,7 @@ class TestMain(unittest.TestCase):
             "console": False,
         }}
         opsdroid.configure_logging(config)
-        self.assertEqual(os.path.isfile(config['logging']['path']), True) 
+        self.assertEqual(os.path.isfile(config['logging']['path']), True)
 
     def test_configure_console_logging(self):
         config = {"logging": {
