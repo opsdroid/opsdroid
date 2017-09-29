@@ -3,6 +3,7 @@ import unittest
 import logging
 import os
 import shutil
+import mock
 
 import opsdroid.__main__ as opsdroid
 
@@ -80,6 +81,12 @@ class TestMain(unittest.TestCase):
         self.assertEqual(rootlogger.handlers[0].level, logging.INFO)
         self.assertEqual(logging.FileHandler, type(rootlogger.handlers[1]))
         self.assertEqual(rootlogger.handlers[1].level, logging.INFO)
+
+    def test_welcome_message(self):
+        config = {"welcome-message": True}
+        with mock.patch('opsdroid.__main__._LOGGER.info') as logmock:
+            opsdroid.welcome_message(config)
+            self.assertTrue(logmock.called)
 
     # def test_gen_config(self):
     #     with mock.patch.object(sys, 'argv', ["--gen-config"]):
