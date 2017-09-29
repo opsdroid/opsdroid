@@ -3,7 +3,8 @@ import unittest
 import logging
 import os
 import shutil
-import mock
+import unittest.mock as mock
+
 
 import opsdroid.__main__ as opsdroid
 
