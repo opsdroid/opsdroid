@@ -97,6 +97,11 @@ class TestMain(unittest.TestCase):
             opsdroid.welcome_message(config)
             self.assertTrue(logmock.called)
 
+    def test_welcome_exception(self):
+        config = {}
+        response = opsdroid.welcome_message(config)
+        self.assertIsNone(response)
+
     # def test_gen_config(self):
     #     with mock.patch.object(sys, 'argv', ["--gen-config"]):
     #         with self.assertRaises(SystemExit) as sysexit:
