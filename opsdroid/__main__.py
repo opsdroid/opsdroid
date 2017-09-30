@@ -90,7 +90,7 @@ def check_dependencies():
 
 def welcome_message(config):
     """Add welcome message if set to true in configuration."""
-    if config['welcome-message']:
+    if 'welcome-message' in config:
         _LOGGER.info("=" * 40)
         _LOGGER.info("You can customise your opsdroid by modifying "
                      "your configuration.yaml")
