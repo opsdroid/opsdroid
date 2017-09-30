@@ -105,6 +105,7 @@ def welcome_message(config):
     except KeyError as e:
         pass
 
+
 def main():
     """Enter the application here."""
     args = parse_args(sys.argv[1:])
