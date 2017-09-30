@@ -90,18 +90,20 @@ def check_dependencies():
 
 def welcome_message(config):
     """Add welcome message if set to true in configuration."""
-    if config['welcome-message']:
-        _LOGGER.info("=" * 40)
-        _LOGGER.info("You can customise your opsdroid by modifying "
-                     "your configuration.yaml")
-        _LOGGER.info("Read more at: "
-                     "http://opsdroid.readthedocs.io/#configuration")
-        _LOGGER.info("Whatch the Get Started Videos at: "
-                     "http://bit.ly/2fnC0Fh")
-        _LOGGER.info("Install Opsdroid Desktop at: "
-                     "https://github.com/opsdroid/opsdroid-desktop/releases")
-        _LOGGER.info("=" * 40)
-
+    try:
+        if config['welcome-message']:
+            _LOGGER.info("=" * 40)
+            _LOGGER.info("You can customise your opsdroid by modifying "
+                         "your configuration.yaml")
+            _LOGGER.info("Read more at: "
+                         "http://opsdroid.readthedocs.io/#configuration")
+            _LOGGER.info("Whatch the Get Started Videos at: "
+                         "http://bit.ly/2fnC0Fh")
+            _LOGGER.info("Install Opsdroid Desktop at: "
+                         "https://github.com/opsdroid/opsdroid-desktop/releases")
+            _LOGGER.info("=" * 40)
+    except KeyError as e:
+        pass
 
 def main():
     """Enter the application here."""
