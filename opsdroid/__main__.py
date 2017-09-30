@@ -102,7 +102,7 @@ def welcome_message(config):
             _LOGGER.info("Install Opsdroid Desktop at: "
                          "https://github.com/opsdroid/opsdroid-desktop/releases")
             _LOGGER.info("=" * 40)
-    except KeyError as e:
+    except KeyError:
         pass
 
 
