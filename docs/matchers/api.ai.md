@@ -32,7 +32,7 @@ You can find a quick getting started with api.ai guide [here](https://docs.api.a
 
 ## Configuring opsdroid
 
-In order to enable api.ai skills you must specify an `access-key` for your bot (referred to as an agent in api.ai) in the parsers section of the opsdroid configuration file. You can find this `access-key` in your agent settings. Currently you may only register one agent per opsdroid instance to avoid making multiple API calls for every message.
+In order to enable api.ai skills you must specify an `access-key` for your bot (referred to as an agent in api.ai) in the matchers section of the opsdroid configuration file. You can find this `access-key` in your agent settings. Currently you may only register one agent per opsdroid instance to avoid making multiple API calls for every message.
 
 You can also set a `min-score` option to tell opsdroid to ignore any matches which score less than a given number between 0 and 1. The default for this is 0 which will match all messages.
 

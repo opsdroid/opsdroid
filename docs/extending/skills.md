@@ -2,25 +2,25 @@
 
 Like all opsdroid modules skills are installed as a git repository. However skills are designed to be simpler than other modules to ensure that it is easy to get started.
 
-To create a skill you need to create a single python file in your repository with the same name as the skill repository. For example the skill `hello` has a single file called `hello.py`.
+To create a skill you need to create a single python file in your repository with the `__init__.py` name (preferred), or the same name as the skill repository. For example the skill `hello` has a single file called `__init__.py` (could be `hello.py` as well).
 
 Within this file should be functions which are decorated with an opsdroid skill function to let opsdroid know when to trigger the skill. Let's get started with an example.
 
 ## Hello world
 
 ```python
-from opsdroid.skills import match_regex
+from opsdroid.matchers import match_regex
 
 @match_regex('hi')
 async def hello(opsdroid, config, message):
     await message.respond('Hey')
 ```
 
-In this example we are importing the `match_regex` decorator from the opsdroid skills library. We are then using it to decorate a simple hello world function.
+In this example we are importing the `match_regex` decorator from the opsdroid matchers library. We are then using it to decorate a simple hello world function.
 
 This decorator takes a regular expression to match against the message received from the connector. In this case we are checking to see if the message from the user is "hi".
 
-For more information about the different decorators available in opsdroid see the [parsers documentation](parsers/overview).
+For more information about the different decorators available in opsdroid see the [matchers documentation](parsers/overview).
 
 If the message matches the regular expression then the decorated function is called. As arguments opsdroid will pass a pointer to itself along with a Message object containing information about the message from the user.
 
@@ -30,7 +30,7 @@ To ensure the bot is responsive the concurrency controls introduced in Python 3.
 
 The message object passed to the skill function is an instance of the opsdroid Message class which has the following properties and methods.
 
-Also depending on the parser it may have parser specific properties too. See the [parsers documentation](parsers/overview) for more details.
+Also depending on the parser it may have parser specific properties too. See the [matchers documentation](parsers/overview) for more details.
 
 ### `text`
 
@@ -69,7 +69,7 @@ Stores the object provided for a specific key.
 ### Example
 
 ```python
-from opsdroid.skills import match_regex
+from opsdroid.matchers import match_regex
 
 @match_regex(r'remember (.*)')
 async def remember(opsdroid, config, message):
