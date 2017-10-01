@@ -38,7 +38,7 @@ You can also set a `min-score` option to tell opsdroid to ignore any matches whi
 
 ```yaml
 
-matchers:
+parsers:
   - name: apiai
     access-token: "exampleaccesstoken123"
     min-score: 0.6
