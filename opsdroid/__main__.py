@@ -97,7 +97,7 @@ def welcome_message(config):
                          "your configuration.yaml")
             _LOGGER.info("Read more at: "
                          "http://opsdroid.readthedocs.io/#configuration")
-            _LOGGER.info("Whatch the Get Started Videos at: "
+            _LOGGER.info("Watch the Get Started Videos at: "
                          "http://bit.ly/2fnC0Fh")
             _LOGGER.info("Install Opsdroid Desktop at: \n" +
                          "https://github.com/opsdroid/opsdroid-desktop/" +
