@@ -132,11 +132,13 @@ web:
 
 ## Module options
 
+### Install Location
+
 All modules are installed from git repositories. By default if no additional options are specified opsdroid will look for the repository at `https://github.com/opsdroid/<moduletype>-<modulename>.git`.
 
-However if you wish to install a module from a different location you can specify the some more options.
+However if you wish to install a module from a different location you can specify one of the following options.
 
-### Git Repository
+#### Git Repository
 
 A git url to install the module from.
 
@@ -148,7 +150,7 @@ connectors:
     repo: https://github.com/username/myconnector.git
 ```
 
-### Local Directory
+#### Local Directory
 
 A local path to install the module from.
 
