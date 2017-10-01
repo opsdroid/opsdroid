@@ -1,6 +1,6 @@
 # Regular Expression Parser
 
-This is the simplest parser available in opsdroid. It matches the message from the user against a regular expression. If the regex matches the function is called.
+This is the simplest matcher available in opsdroid. It matches the message from the user against a regular expression. If the regex matches the function is called.
 
 ## Example
 

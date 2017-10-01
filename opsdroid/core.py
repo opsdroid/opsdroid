@@ -2,6 +2,7 @@
 
 import copy
 import logging
+import signal
 import sys
 import weakref
 import asyncio
@@ -34,6 +35,8 @@ class OpsDroid():
         self.connectors = []
         self.connector_tasks = []
         self.eventloop = asyncio.get_event_loop()
+        for sig in (signal.SIGINT, signal.SIGTERM):
+            self.eventloop.add_signal_handler(sig, self.stop)
         self.skills = []
         self.memory = Memory()
         self.loader = Loader(self)
@@ -100,6 +103,8 @@ class OpsDroid():
         for task in pending:
             task.cancel()
         self.eventloop.stop()
+        print('')  # Prints a character return for return to shell
+        _LOGGER.info("Keyboard interrupt, exiting.")
 
     def load(self):
         """Load configuration."""
@@ -123,10 +128,6 @@ class OpsDroid():
         try:
             pending = asyncio.Task.all_tasks()
             self.eventloop.run_until_complete(asyncio.gather(*pending))
-        except (KeyboardInterrupt, EOFError):
-            print('')  # Prints a character return for return to shell
-            self.stop()
-            _LOGGER.info("Keyboard interrupt, exiting.")
         except RuntimeError as error:
             if str(error) != 'Event loop is closed':
                 raise error
