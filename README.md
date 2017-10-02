@@ -99,6 +99,14 @@ See the [full reference](http://opsdroid.readthedocs.io/en/latest/configuration-
 #   path: opsdroid.log
 #   console: true
 
+## Configure the web server
+# web:
+#   host: '127.0.0.1'
+#   port: 8080
+#   ssl:
+#     cert: /path/to/cert.pem
+#     key: /path/to/key.pem
+
 ## Set the location for opsdroid to install modules
 # module-path: "."
 
