@@ -22,6 +22,9 @@
 ## Set the location for opsdroid to install modules
 # module-path: "."
 
+## Show welcome message
+welcome-message: true
+
 ## Configure the web server
 # web:
 #   host: '127.0.0.1'

@@ -3,6 +3,8 @@ import unittest
 import logging
 import os
 import shutil
+import unittest.mock as mock
+
 
 import opsdroid.__main__ as opsdroid
 
@@ -59,6 +61,14 @@ class TestMain(unittest.TestCase):
         self.assertEqual(logging.FileHandler, type(rootlogger.handlers[1]))
         self.assertEqual(rootlogger.handlers[1].level, logging.INFO)
 
+    def test_configure_file_logging_directory_not_exists(self):
+        config = {"logging": {
+            "path": '/tmp/mynonexistingdirectory' + "/output.log",
+            "console": False,
+        }}
+        opsdroid.configure_logging(config)
+        self.assertEqual(os.path.isfile(config['logging']['path']), True)
+
     def test_configure_console_logging(self):
         config = {"logging": {
             "path": False,
@@ -80,6 +90,17 @@ class TestMain(unittest.TestCase):
         self.assertEqual(rootlogger.handlers[0].level, logging.INFO)
         self.assertEqual(logging.FileHandler, type(rootlogger.handlers[1]))
         self.assertEqual(rootlogger.handlers[1].level, logging.INFO)
+
+    def test_welcome_message(self):
+        config = {"welcome-message": True}
+        with mock.patch('opsdroid.__main__._LOGGER.info') as logmock:
+            opsdroid.welcome_message(config)
+            self.assertTrue(logmock.called)
+
+    def test_welcome_exception(self):
+        config = {}
+        response = opsdroid.welcome_message(config)
+        self.assertIsNone(response)
 
     # def test_gen_config(self):
     #     with mock.patch.object(sys, 'argv', ["--gen-config"]):

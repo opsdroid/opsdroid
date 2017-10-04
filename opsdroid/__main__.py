@@ -48,11 +48,13 @@ def configure_logging(config):
         pass
 
     if logfile_path:
+        logdir = os.path.dirname(os.path.realpath(logfile_path))
+        if not os.path.isdir(logdir):
+            os.makedirs(logdir)
         file_handler = logging.FileHandler(logfile_path)
         file_handler.setLevel(log_level)
         file_handler.setFormatter(formatter)
         rootlogger.addHandler(file_handler)
-
     _LOGGER.info("="*40)
     _LOGGER.info("Stated application")
 
@@ -86,6 +88,25 @@ def check_dependencies():
         sys.exit(1)
 
 
+def welcome_message(config):
+    """Add welcome message if set to true in configuration."""
+    try:
+        if config['welcome-message']:
+            _LOGGER.info("=" * 40)
+            _LOGGER.info("You can customise your opsdroid by modifying "
+                         "your configuration.yaml")
+            _LOGGER.info("Read more at: "
+                         "http://opsdroid.readthedocs.io/#configuration")
+            _LOGGER.info("Watch the Get Started Videos at: "
+                         "http://bit.ly/2fnC0Fh")
+            _LOGGER.info("Install Opsdroid Desktop at: \n" +
+                         "https://github.com/opsdroid/opsdroid-desktop/" +
+                         "releases")
+            _LOGGER.info("=" * 40)
+    except KeyError:
+        pass
+
+
 def main():
     """Enter the application here."""
     args = parse_args(sys.argv[1:])
@@ -103,6 +124,7 @@ def main():
         with OpsDroid() as opsdroid:
             opsdroid.load()
             configure_logging(opsdroid.config)
+            welcome_message(opsdroid.config)
             opsdroid.web_server = Web(opsdroid)
             opsdroid.start_loop()
             restart = opsdroid.should_restart

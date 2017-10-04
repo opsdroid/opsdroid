@@ -14,7 +14,7 @@ The opsdroid project itself is very simple and requires modules to give it funct
 
 ## Reference
 
-### `connectors`
+### Connector Modules
 
 Connector modules which are installed and connect opsdroid to a specific chat service.
 
@@ -34,7 +34,7 @@ connectors:
 
 See [module options](#module-options) for installing custom connectors.
 
-### `databases`
+### Database Modules
 
 Database modules which connect opsdroid to a persistent data storage service.
 
@@ -52,7 +52,7 @@ databases:
 
 See [module options](#module-options) for installing custom databases.
 
-### `logging`
+### Logging
 
 Configure logging in opsdroid.
 
@@ -76,7 +76,7 @@ skills:
   - name: seen
 ```
 
-### `module-path`
+### Installation Path
 
 Set the path for opsdroid to use when installing skills. Defaults to the current working directory.
 
@@ -91,7 +91,7 @@ skills:
   - name: seen
 ```
 
-### `skills`
+### Skills
 
 Skill modules which add functionality to opsdroid.
 
@@ -105,7 +105,7 @@ skills:
 
 See [module options](#module-options) for installing custom skills.
 
-### `timezone`
+### Time Zone
 
 Configure the timezone.
 
@@ -115,7 +115,7 @@ This timezone will be used in crontab skills if the timezone has not been set as
 timezone: 'Europe/London'
 ```
 
-### `web`
+### Web Server
 
 Configure the REST API in opsdroid.
 
@@ -132,11 +132,13 @@ web:
 
 ## Module options
 
+### Install Location
+
 All modules are installed from git repositories. By default if no additional options are specified opsdroid will look for the repository at `https://github.com/opsdroid/<moduletype>-<modulename>.git`.
 
-However if you wish to install a module from a different location you can specify the some more options.
+However if you wish to install a module from a different location you can specify one of the following options.
 
-### `repo`
+#### Git Repository
 
 A git url to install the module from.
 
@@ -148,7 +150,7 @@ connectors:
     repo: https://github.com/username/myconnector.git
 ```
 
-### `path`
+#### Local Directory
 
 A local path to install the module from.
 
@@ -166,9 +168,9 @@ skills:
     path: /home/me/src/opsdroid-skills/myawesomeskill/myskill.py
 ```
 
-### `no-cache`
+### Disable Caching
 
-Set this to do a fresh git clone of the module whenever you start opsdroid.
+Set `no-cache` to true to do a fresh git clone of the module whenever you start opsdroid.
 
 ```yaml
 databases:
@@ -188,3 +190,15 @@ skills:
 ```
 
 _Note: Your environment variable names must consist of uppercase characters and underscores only. The value must also be just the environment variable, you cannot currently mix env vars inside strings._
+
+## Include additional yaml files
+
+You can split the config into smaller modules by using the value `!include file.yaml` to import the contents of a yaml file into the main config. 
+
+
+```yaml
+skills: !include skills.yaml
+
+```
+
+_Note: The file.yaml that you wish to include in the config must be in the same directory as your configuration.yaml (e.g ~/.opsdroid)_
