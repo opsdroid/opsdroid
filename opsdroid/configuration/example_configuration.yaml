@@ -89,7 +89,7 @@ connectors:
 
 ## Database modules (optional)
 # databases:
-#   mongo:
+#   - name: mongo
 #     host:       "my host"     # (Optional) default "localhost"
 #     port:       "12345"       # (Optional) default "27017"
 #     database:   "mydatabase"  # (Optional) default "opsdroid"
