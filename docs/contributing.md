@@ -25,8 +25,9 @@ pip install -r requirements.txt
 # run opsdroid
 python -m opsdroid
 
-# or run opsdroid under the debugger
-python -m pdb opsdroid/__main__.py
+# or to run opsdroid under the debugger
+python setup.py develop
+python -m pdb $(which opsdroid)
 ```
 
 Running the tests
