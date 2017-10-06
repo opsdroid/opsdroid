@@ -13,6 +13,7 @@ from opsdroid.database import Database
 from opsdroid.loader import Loader
 from opsdroid.parsers.regex import parse_regex
 from opsdroid.parsers.apiai import parse_apiai
+from opsdroid.parsers.luisai import parse_luisai
 from opsdroid.parsers.crontab import parse_crontab
 from opsdroid.const import DEFAULT_CONFIG_PATH
 
@@ -109,7 +110,7 @@ class OpsDroid():
     def load(self):
         """Load configuration."""
         self.config = self.loader.load_config_file([
-            "./configuration.yaml",
+            "configuration.yaml",
             DEFAULT_CONFIG_PATH,
             "/etc/opsdroid/configuration.yaml"
             ])
@@ -199,4 +200,14 @@ class OpsDroid():
                     tasks.append(
                         self.eventloop.create_task(
                             parse_apiai(self, message, apiai[0])))
+
+                luisai = [p for p in parsers if p["name"] == "luisai"]
+                _LOGGER.debug("Checking luisai")
+                if len(luisai) == 1 and \
+                        ("enabled" not in luisai[0] or
+                         luisai[0]["enabled"] is not False):
+                    _LOGGER.debug("Parsing with luisai")
+                    tasks.append(
+                        self.eventloop.create_task(
+                            parse_luisai(self, message, luisai[0])))
         return tasks
