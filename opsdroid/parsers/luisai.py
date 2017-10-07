@@ -8,25 +8,24 @@ import aiohttp
 
 _LOGGER = logging.getLogger(__name__)
 
+
 async def call_luisai(message, config):
     """Call the luis.ai api and return the response."""
     async with aiohttp.ClientSession() as session:
-        payload = {
-            "subscription-key": config['appkey'],
-            "q": message.text,
-            "timezoneOffset": 0,
-            "verbose": config['verbose']
-        }
         headers = {
             "Content-Type": "application/json"
         }
-        resp = await session.get('https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/{}?subscription-key={}&timezoneOffset={}&verbose={}&q={}'
-                                .format(config['appid'],config['appkey'],0,config['verbose'],message.text),
-                                headers=headers)
+        url = 'https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/'
+        resp = await session.get(url + config['appid'] +
+                                 '?subscription-key=' + config['appkey'] +
+                                 '&timezoneOffset=0' +
+                                 '&verbose=' + str(config['verbose']) +
+                                 '&q=' + message.text, headers=headers)
         result = await resp.json()
         _LOGGER.debug("luis.ai response - " + json.dumps(result))
 
         return result
+
 
 async def parse_luisai(opsdroid, message, config):
     """Parse a message against all luisai skills."""
@@ -43,35 +42,36 @@ async def parse_luisai(opsdroid, message, config):
 
         if result:
 
-            # if there is an error (eg. 404 error), luis.ai responds with a status code
+            # if there is an error (eg. 404 error)
+            # luis.ai responds with a status code
             try:
                 if result["statusCode"] >= 300:
                     _LOGGER.error("luis.ai error - " +
                                   str(result["statusCode"]) + " " +
                                   result["message"])
                     return
-            except:
-                pass
+            except KeyError:
+                if "min-score" in config and \
+                        result["topScoringIntent"]["score"] \
+                        < config["min-score"]:
+                    _LOGGER.debug("luis.ai score lower than min-score")
+                    return
 
-            if "min-score" in config and \
-                    result["topScoringIntent"]["score"] < config["min-score"]:
-                _LOGGER.debug("luis.ai score lower than min-score")
-                return
+                for skill in opsdroid.skills:
 
-            for skill in opsdroid.skills:
-
-                if "luisai_intent" in skill:
-                    if (skill["luisai_intent"] in [i["intent"] for i in result["intents"]]):
-                        message.luisai = result
-                        try:
-                            await skill["skill"](opsdroid, skill["config"],
-                                                 message)
-                        except Exception:
-                            await message.respond(
-                                "Whoops there has been an error")
-                            await message.respond(
-                                "Check the log for details")
-                            _LOGGER.exception("Exception when parsing '" +
-                                              message.text +
-                                              "' against skill '" +
-                                              result["query"] + "'")
+                    if "luisai_intent" in skill:
+                        intents = [i["intent"] for i in result["intents"]]
+                        if skill["luisai_intent"] in intents:
+                            message.luisai = result
+                            try:
+                                await skill["skill"](opsdroid, skill["config"],
+                                                     message)
+                            except Exception:
+                                await message.respond(
+                                    "Whoops there has been an error")
+                                await message.respond(
+                                    "Check the log for details")
+                                _LOGGER.exception("Exception when parsing '" +
+                                                  message.text +
+                                                  "' against skill '" +
+                                                  result["query"] + "'")

@@ -46,6 +46,7 @@ def match_apiai_intent(intent):
         return func
     return matcher
 
+
 def match_luisai_intent(intent):
     """Return luisai intent match decorator."""
     def matcher(func):
@@ -56,6 +57,7 @@ def match_luisai_intent(intent):
                                 opsdroid.loader.current_import_config})
         return func
     return matcher
+
 
 def match_crontab(crontab, timezone=None):
     """Return crontab match decorator."""
