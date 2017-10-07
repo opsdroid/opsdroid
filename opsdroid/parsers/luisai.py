@@ -49,7 +49,6 @@ async def parse_luisai(opsdroid, message, config):
                     _LOGGER.error("luis.ai error - " +
                                   str(result["statusCode"]) + " " +
                                   result["message"])
-                    return
             except KeyError:
                 pass
 
