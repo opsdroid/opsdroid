@@ -51,27 +51,32 @@ async def parse_luisai(opsdroid, message, config):
                                   result["message"])
                     return
             except KeyError:
-                if "min-score" in config and \
-                        result["topScoringIntent"]["score"] \
-                        < config["min-score"]:
-                    _LOGGER.debug("luis.ai score lower than min-score")
-                    return
+                pass
 
-                for skill in opsdroid.skills:
+            if "min-score" in config and \
+                    result["topScoringIntent"]["score"] \
+                    < config["min-score"]:
+                _LOGGER.debug("luis.ai score lower than min-score")
+                return
 
-                    if "luisai_intent" in skill:
+            for skill in opsdroid.skills:
+                if "luisai_intent" in skill:
+                    try:
                         intents = [i["intent"] for i in result["intents"]]
-                        if skill["luisai_intent"] in intents:
-                            message.luisai = result
-                            try:
-                                await skill["skill"](opsdroid, skill["config"],
-                                                     message)
-                            except Exception:
-                                await message.respond(
-                                    "Whoops there has been an error")
-                                await message.respond(
-                                    "Check the log for details")
-                                _LOGGER.exception("Exception when parsing '" +
-                                                  message.text +
-                                                  "' against skill '" +
-                                                  result["query"] + "'")
+                    except KeyError:
+                        continue
+
+                    if skill["luisai_intent"] in intents:
+                        message.luisai = result
+                        try:
+                            await skill["skill"](opsdroid, skill["config"],
+                                                 message)
+                        except Exception:
+                            await message.respond(
+                                "Whoops there has been an error")
+                            await message.respond(
+                                "Check the log for details")
+                            _LOGGER.exception("Exception when parsing '" +
+                                              message.text +
+                                              "' against skill '" +
+                                              result["query"] + "'")
