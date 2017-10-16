@@ -14,6 +14,7 @@ from opsdroid.loader import Loader
 from opsdroid.parsers.regex import parse_regex
 from opsdroid.parsers.apiai import parse_apiai
 from opsdroid.parsers.luisai import parse_luisai
+from opsdroid.parsers.witai import parse_witai
 from opsdroid.parsers.crontab import parse_crontab
 from opsdroid.const import DEFAULT_CONFIG_PATH
 
@@ -210,4 +211,15 @@ class OpsDroid():
                     tasks.append(
                         self.eventloop.create_task(
                             parse_luisai(self, message, luisai[0])))
+
+                witai = [p for p in parsers if p["name"] == "witai"]
+                _LOGGER.debug("Checking wit.ai")
+                if len(witai) == 1 and \
+                        ("enabled" not in witai[0] or
+                         witai[0]["enabled"] is not False):
+                    _LOGGER.debug("Parsing with witai")
+                    tasks.append(
+                        self.eventloop.create_task(
+                            parse_witai(self, message, witai[0])))
+
         return tasks

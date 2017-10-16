@@ -59,6 +59,18 @@ def match_luisai_intent(intent):
     return matcher
 
 
+def match_witai(intent):
+    """Return witai intent match decorator."""
+    def matcher(func):
+        """Add decorated function to skills list for witai matching."""
+        opsdroid = get_opsdroid()
+        opsdroid.skills.append({"witai_intent": intent, "skill": func,
+                                "config":
+                                opsdroid.loader.current_import_config})
+        return func
+    return matcher
+
+
 def match_crontab(crontab, timezone=None):
     """Return crontab match decorator."""
     def matcher(func):
