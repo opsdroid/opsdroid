@@ -14,6 +14,7 @@ pages:
     - Overview: 'matchers/overview.md'
     - Regular Expressions: 'matchers/regex.md'
     - API.AI: 'matchers/api.ai.md'
+    - LUIS.AI: 'matchers/luis.ai.md'
     - Crontab: 'matchers/crontab.md'
     - Webhook: 'matchers/webhook.md'
   - Contributing: 'contributing.md'
