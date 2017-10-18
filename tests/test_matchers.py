@@ -48,6 +48,16 @@ class TestMatchers(asynctest.TestCase):
             self.assertEqual(opsdroid.skills[0]["luisai_intent"], intent)
             self.assertIsInstance(opsdroid.skills[0]["skill"], mock.MagicMock)
 
+    async def test_match_witai(self):
+        with OpsDroid() as opsdroid:
+            intent = "myIntent"
+            mockedskill = mock.MagicMock()
+            decorator = matchers.match_witai(intent)
+            decorator(mockedskill)
+            self.assertEqual(len(opsdroid.skills), 1)
+            self.assertEqual(opsdroid.skills[0]["witai_intent"], intent)
+            self.assertIsInstance(opsdroid.skills[0]["skill"], mock.MagicMock)
+
     async def test_match_crontab(self):
         with OpsDroid() as opsdroid:
             crontab = "* * * * *"
