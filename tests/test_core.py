@@ -178,7 +178,7 @@ class TestCoreAsync(asynctest.TestCase):
             message = Message("Hello world", "user", "default", mock_connector)
             with amock.patch('opsdroid.parsers.apiai.parse_apiai'):
                 tasks = await opsdroid.parse(message)
-                self.assertEqual(len(tasks), 2)  # apiai and regex
+                self.assertEqual(len(tasks), 3)  # apiai, regex and always
                 for task in tasks:
                     await task
 
@@ -193,7 +193,7 @@ class TestCoreAsync(asynctest.TestCase):
             message = Message("Hello world", "user", "default", mock_connector)
             with amock.patch('opsdroid.parsers.luisai.parse_luisai'):
                 tasks = await opsdroid.parse(message)
-                self.assertEqual(len(tasks), 2)  # luisai and regex
+                self.assertEqual(len(tasks), 3)  # luisai, regex and always
                 for task in tasks:
                     await task
 
@@ -208,6 +208,6 @@ class TestCoreAsync(asynctest.TestCase):
             message = Message("Hello world", "user", "default", mock_connector)
             with amock.patch('opsdroid.parsers.witai.parse_witai'):
                 tasks = await opsdroid.parse(message)
-                self.assertEqual(len(tasks), 2)  # witai and regex
+                self.assertEqual(len(tasks), 3)  # witai, regex and always
                 for task in tasks:
                     await task

@@ -107,3 +107,19 @@ def match_webhook(webhook):
 
         return func
     return matcher
+
+
+def match_always(func=None):
+    """Return always match decorator."""
+    def matcher(func):
+        """Add decorated function to skills list for always matching."""
+        opsdroid = get_opsdroid()
+        config = opsdroid.loader.current_import_config
+        opsdroid.skills.append({"always": True, "skill": func,
+                                "config": config})
+        return func
+
+    # Allow for decorator with or without parenthesis as there are no args.
+    if callable(func):
+        return matcher(func)
+    return matcher
