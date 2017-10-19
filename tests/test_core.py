@@ -178,7 +178,7 @@ class TestCoreAsync(asynctest.TestCase):
             message = Message("Hello world", "user", "default", mock_connector)
             with amock.patch('opsdroid.parsers.apiai.parse_apiai'):
                 tasks = await opsdroid.parse(message)
-                self.assertEqual(len(tasks), 2)  # apiai, regex and always
+                self.assertEqual(len(tasks), 3)  # apiai, regex and always
                 for task in tasks:
                     await task
 

@@ -123,4 +123,3 @@ def match_always(func=None):
     if callable(func):
         return matcher(func)
     return matcher
-    
