@@ -122,5 +122,5 @@ def match_always(func=None):
     # Allow for decorator with or without parenthesis as there are no args.
     if callable(func):
         return matcher(func)
-    else:
-        return matcher
+    return matcher
+    
