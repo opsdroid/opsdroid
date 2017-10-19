@@ -11,6 +11,7 @@ from opsdroid.memory import Memory
 from opsdroid.connector import Connector
 from opsdroid.database import Database
 from opsdroid.loader import Loader
+from opsdroid.parsers.always import parse_always
 from opsdroid.parsers.regex import parse_regex
 from opsdroid.parsers.apiai import parse_apiai
 from opsdroid.parsers.luisai import parse_luisai
@@ -187,6 +188,8 @@ class OpsDroid():
 
             tasks.append(
                 self.eventloop.create_task(parse_regex(self, message)))
+            tasks.append(
+                self.eventloop.create_task(parse_always(self, message)))
 
             if "parsers" in self.config:
                 _LOGGER.debug("Processing parsers")
