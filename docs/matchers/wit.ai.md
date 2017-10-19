@@ -1,4 +1,4 @@
-# wit.ai Parser
+# wit.ai Matcher
 
 [wit.ai](https://wit.ai) is an NLP API for matching strings to [intents](https://wit.ai/docs/recipes#categorize-the-user-intent). Intents are created on the wit.ai website.
 

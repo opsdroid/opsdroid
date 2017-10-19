@@ -1,4 +1,4 @@
-# Parsers
+# Matchers
 
 When writing skills for opsdroid there are multiple matchers you can use for matching messages to your functions.
 
