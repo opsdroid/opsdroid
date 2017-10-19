@@ -102,6 +102,9 @@ class OpsDroid():
 
     def stop(self):
         """Stop the event loop."""
+        for connector in self.connectors:
+            self.eventloop.create_task(connector.disconnect(self))
+
         pending = asyncio.Task.all_tasks()
         for task in pending:
             task.cancel()
