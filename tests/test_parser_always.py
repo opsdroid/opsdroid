@@ -5,7 +5,7 @@ import asynctest.mock as amock
 from opsdroid.core import OpsDroid
 from opsdroid.matchers import match_always
 from opsdroid.message import Message
-from opsdroid.parsers.regex import parse_always
+from opsdroid.parsers.always import parse_always
 
 
 class TestParserAlways(asynctest.TestCase):

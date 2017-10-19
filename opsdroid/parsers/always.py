@@ -1,7 +1,6 @@
 """A helper function for parsing and executing always skills."""
 
 import logging
-import re
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -23,4 +22,4 @@ async def parse_always(opsdroid, message):
                 await message.respond(
                     "Check the log for details")
                 _LOGGER.exception("Exception when parsing '" +
-                                    message.text + "'")
+                                  message.text + "'")
