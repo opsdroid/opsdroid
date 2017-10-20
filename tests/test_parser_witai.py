@@ -1,7 +1,7 @@
 import asynctest
 import asynctest.mock as amock
 
-from aiohttp import helpers
+from aiohttp import helpers, ClientOSError
 
 from opsdroid.core import OpsDroid
 from opsdroid.matchers import match_witai
@@ -196,3 +196,23 @@ class TestParserWitai(asynctest.TestCase):
                                         opsdroid.config['parsers'][0])
 
             self.assertFalse(mock_skill.called)
+
+    async def test_parse_witai_raise_ClientOSError(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.config['parsers'] = [
+                {'name': 'witai', 'access-token': 'test', 'min-score': 0.3}
+            ]
+            mock_skill = amock.CoroutineMock()
+            match_witai('get_weather')(mock_skill)
+
+            mock_connector = amock.CoroutineMock()
+            message = Message("how's the weather outside", "user",
+                              "default", mock_connector)
+
+            with amock.patch.object(witai, 'call_witai') as mocked_call:
+                mocked_call.side_effect = ClientOSError()
+                await witai.parse_witai(opsdroid, message,
+                                        opsdroid.config['parsers'][0])
+
+            self.assertFalse(mock_skill.called)
+            self.assertTrue(mocked_call.called)

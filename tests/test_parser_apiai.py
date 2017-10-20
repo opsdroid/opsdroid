@@ -2,7 +2,7 @@
 import asynctest
 import asynctest.mock as amock
 
-from aiohttp import helpers
+from aiohttp import helpers, ClientOSError
 
 from opsdroid.core import OpsDroid
 from opsdroid.matchers import match_apiai_action
@@ -144,3 +144,22 @@ class TestParserApiai(asynctest.TestCase):
                                         opsdroid.config['parsers'][0])
 
             self.assertFalse(mock_skill.called)
+
+    async def test_parse_apiai_raise_ClientOSError(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.config['parsers'] = [
+                    {'name': 'apiai', 'access-token': "test", "min-score": 0.8}
+                ]
+            mock_skill = amock.CoroutineMock()
+            match_apiai_action('myaction')(mock_skill)
+
+            mock_connector = amock.CoroutineMock()
+            message = Message("Hello world", "user", "default", mock_connector)
+
+            with amock.patch.object(apiai, 'call_apiai') as mocked_call:
+                mocked_call.side_effect = ClientOSError()
+                await apiai.parse_apiai(opsdroid, message,
+                                        opsdroid.config['parsers'][0])
+
+            self.assertFalse(mock_skill.called)
+            self.assertTrue(mocked_call.called)
