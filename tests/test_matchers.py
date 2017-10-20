@@ -41,11 +41,12 @@ class TestMatchers(asynctest.TestCase):
     async def test_match_lex(self):
         with OpsDroid() as opsdroid:
             intent = "myIntent"
+            mockedskill = mock.MagicMock()
             decorator = matchers.match_lex_intent(intent)
             decorator(mockedskill)
-            self.assertEqual(len(opsdroid.skills), 2)
-            self.assertEqual(opsdroid.skills[1]["lex_intent"], intent)
-            self.assertIsInstance(opsdroid.skills[1]["skill"], mock.MagicMock)
+            self.assertEqual(len(opsdroid.skills), 1)
+            self.assertEqual(opsdroid.skills[0]["lex_intent"], intent)
+            self.assertIsInstance(opsdroid.skills[0]["skill"], mock.MagicMock)
 
     async def test_match_crontab(self):
         with OpsDroid() as opsdroid:

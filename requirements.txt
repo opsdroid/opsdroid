@@ -1,4 +1,5 @@
 arrow==0.10.0
 aiohttp==2.2.5
+aiobotocore==0.4.5
 pycron==0.40
 pyyaml==3.12

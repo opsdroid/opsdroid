@@ -19,34 +19,33 @@ class TestParserLex(asynctest.TestCase):
         message = Message("Hello world", "user", "default", mock_connector)
         config = {
             'name': 'lex',
+            'region': 'test',
             'access_id': 'test',
-            'access_secret': 'test'
+            'access_secret': 'test',
+            'lex_bot': 'test',
+            'lex_alias': 'test',
+            'lex_user': 'test'
         }
+        await lex.call_lex(message, config)
         result = amock.Mock()
-        result.json = amock.CoroutineMock()
-        result.json.return_value = {
-                "result": {
-                    "action": "myaction",
-                    "score": 0.7
-                },
-                "status": {
-                    "code": 200,
-                    "errorType": "success"
-                }
-            }
         with amock.patch('aiohttp.ClientSession.post') as patched_request:
             patched_request.return_value = helpers.create_future(self.loop)
             patched_request.return_value.set_result(result)
             await lex.call_lex(message, config)
             self.assertTrue(patched_request.called)
 
+
     async def test_parse_lex(self):
         with OpsDroid() as opsdroid:
             opsdroid.config['parsers'] = [
                     {
                         'name': 'lex',
+                        'region': 'test',
                         'access_id': 'test',
-                        'access_secret': 'test'
+                        'access_secret': 'test',
+                        'lex_bot': 'test',
+                        'lex_alias': 'test',
+                        'lex_user': 'test'
                     }
                 ]
             mock_skill = amock.CoroutineMock()
@@ -55,8 +54,8 @@ class TestParserLex(asynctest.TestCase):
             mock_connector = amock.CoroutineMock()
             message = Message("Hello world", "user", "default", mock_connector)
 
-            with amock.patch.object(lex, 'call_lex') as mocked_call_apiai:
-                mocked_call_apiai.return_value = {
+            with amock.patch.object(lex, 'call_lex') as mocked_call_lex:
+                mocked_call_lex.return_value = {
                         "result": {
                             "intent": "myintent",
                             "score": 0.7
@@ -66,8 +65,8 @@ class TestParserLex(asynctest.TestCase):
                             "errorType": "success"
                         }
                     }
-                await apiai.parse_lex(opsdroid, message,
-                                        opsdroid.config['parsers'][0])
+                await lex.parse_lex(opsdroid, message,
+                                    opsdroid.config['parsers'][0])
 
             self.assertTrue(mock_skill.called)
 
@@ -76,8 +75,12 @@ class TestParserLex(asynctest.TestCase):
             opsdroid.config['parsers'] = [
                     {
                         'name': 'lex',
+                        'region': 'test',
                         'access_id': 'test',
-                        'access_secret': 'test'
+                        'access_secret': 'test',
+                        'lex_bot': 'test',
+                        'lex_alias': 'test',
+                        'lex_user': 'test'
                     }
                 ]
             mock_skill = amock.CoroutineMock()
@@ -98,8 +101,8 @@ class TestParserLex(asynctest.TestCase):
                             "errorType": "success"
                         }
                     }
-                await apiai.parse_lex(opsdroid, message,
-                                        opsdroid.config['parsers'][0])
+                await lex.parse_lex(opsdroid, message,
+                                    opsdroid.config['parsers'][0])
 
             self.assertTrue(mock_skill.called)
 
@@ -108,8 +111,12 @@ class TestParserLex(asynctest.TestCase):
             opsdroid.config['parsers'] = [
                     {
                         'name': 'lex',
+                        'region': 'test',
                         'access_id': 'test',
-                        'access_secret': 'test'
+                        'access_secret': 'test',
+                        'lex_bot': 'test',
+                        'lex_alias': 'test',
+                        'lex_user': 'test'
                     }
                 ]
             mock_skill = amock.CoroutineMock()
@@ -118,7 +125,7 @@ class TestParserLex(asynctest.TestCase):
             mock_connector = amock.CoroutineMock()
             message = Message("Hello world", "user", "default", mock_connector)
 
-            with amock.patch.object(apiai, 'call_lex') as mocked_call_lex:
+            with amock.patch.object(lex, 'call_lex') as mocked_call_lex:
                 mocked_call_lex.return_value = {
                         "result": {
                             "intent": "myintent",
@@ -129,8 +136,8 @@ class TestParserLex(asynctest.TestCase):
                             "errorType": "not found"
                         }
                     }
-                await apiai.parse_lex(opsdroid, message,
-                                        opsdroid.config['parsers'][0])
+                await lex.parse_lex(opsdroid, message,
+                                    opsdroid.config['parsers'][0])
 
             self.assertFalse(mock_skill.called)
 
@@ -139,9 +146,13 @@ class TestParserLex(asynctest.TestCase):
             opsdroid.config['parsers'] = [
                     {
                         'name': 'lex',
+                        'region': 'test',
                         'access_id': 'test',
                         'access_secret': 'test',
-                        "min-score": 0.8
+                        'lex_bot': 'test',
+                        'lex_alias': 'test',
+                        'lex_user': 'test',
+                        'min-score': 0.8
                     }
                 ]
             mock_skill = amock.CoroutineMock()
@@ -150,7 +161,7 @@ class TestParserLex(asynctest.TestCase):
             mock_connector = amock.CoroutineMock()
             message = Message("Hello world", "user", "default", mock_connector)
 
-            with amock.patch.object(apiai, 'call_lex') as mocked_call_lex:
+            with amock.patch.object(lex, 'call_lex') as mocked_call_lex:
                 mocked_call_lex.return_value = {
                         "result": {
                             "intent": "myintent",
@@ -161,7 +172,7 @@ class TestParserLex(asynctest.TestCase):
                             "errorType": "success"
                         }
                     }
-                await apiai.parse_lex(opsdroid, message,
-                                        opsdroid.config['parsers'][0])
+                await lex.parse_lex(opsdroid, message,
+                                    opsdroid.config['parsers'][0])
 
             self.assertFalse(mock_skill.called)

@@ -52,8 +52,13 @@ def match_lex_intent(intent):
     def matcher(func):
         """Add decorated function to skills list for lex matching."""
         opsdroid = get_opsdroid()
-        opsdroid.skills.append({"lex_intent": value, "skill": func,
-                                "config": opsdroid.loader.current_import_config})
+        opsdroid.skills.append(
+            {
+                "lex_intent": intent,
+                "skill": func,
+                "config": opsdroid.loader.current_import_config
+            }
+        )
         return func
     return matcher
 
