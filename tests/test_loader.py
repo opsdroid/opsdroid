@@ -29,6 +29,11 @@ class TestLoader(unittest.TestCase):
         config = loader.load_config_file(["tests/configs/minimal.yaml"])
         self.assertIsNotNone(config)
 
+    def test_load_config_file_2(self):
+        opsdroid, loader = self.setup()
+        config = loader.load_config_file(["tests/configs/minimal_2.yaml"])
+        self.assertIsNotNone(config)
+
     def test_load_config_file_with_include(self):
         opsdroid, loader = self.setup()
         config = loader.load_config_file(
@@ -175,6 +180,18 @@ class TestLoader(unittest.TestCase):
         loader.load_modules_from_config(config)
         self.assertEqual(len(loader._load_modules.mock_calls), 0)
         self.assertEqual(len(opsdroid.mock_calls), 2)
+
+    def test_load_minimal_config_file(self):
+        opsdroid, loader = self.setup()
+        config = loader.load_config_file(["tests/configs/minimal.yaml"])
+        loader.load_modules_from_config(config)
+        self.assertIsNotNone(config)
+
+    def test_load_minimal_config_file_2(self):
+        opsdroid, loader = self.setup()
+        config = loader.load_config_file(["tests/configs/minimal_2.yaml"])
+        loader.load_modules_from_config(config)
+        self.assertIsNotNone(config)
 
     def test_load_modules(self):
         opsdroid, loader = self.setup()
