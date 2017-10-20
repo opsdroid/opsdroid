@@ -33,11 +33,10 @@ async def parse_lex(opsdroid, message, config):
     if 'access_id' and 'access_secret' in config:
         try:
             result = await call_lex(message, config)
-        except:
-            _LOGGER.error("Boto error. WTF.")
+        except aiobotocore.ClientError:
+            _LOGGER.error("Boto client error")
             return
         _LOGGER.debug(result)
-        return
 
         if result["status"]["code"] >= 300:
             _LOGGER.error("lex error - " +
@@ -50,22 +49,21 @@ async def parse_lex(opsdroid, message, config):
                 if "lex_intent" in skill:
                     if ("intentName" in result and skill["lex_intent"] in
                             result["intentName"]):
-                                message.lex = result
-                                try:
-                                    await skill["skill"](
-                                        opsdroid,
-                                        skill["config"],
-                                        message
-                                    )
-                                except Exception:
-                                    await message.respond(
-                                        "Whoops there has been an error")
-                                    await message.respond(
-                                        "Check the log for details")
-                                    _LOGGER.exception("Exception when parsing"
-                                                      + " '" + message.text +
-                                                      "' against skill '" +
-                                                      result["lex_intent"] +
-                                                      "'")
+                            message.lex = result
+                            try:
+                                await skill["skill"](
+                                    opsdroid,
+                                    skill["config"],
+                                    message
+                                )
+                            except Exception:
+                                await message.respond(
+                                    "Whoops there has been an error")
+                                await message.respond(
+                                    "Check the log for details")
+                                _LOGGER.exception("Exception when parsing '" +
+                                                  message.text +
+                                                  "' against skill '" +
+                                                  result["lex_intent"] + "'")
     else:
         _LOGGER.error("Missing access_id and/or access_secret")
