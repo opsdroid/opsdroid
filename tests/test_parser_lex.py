@@ -26,9 +26,21 @@ class TestParserLex(asynctest.TestCase):
             'lex_alias': 'test',
             'lex_user': 'test'
         }
-        await lex.call_lex(message, config)
         result = amock.Mock()
-        with amock.patch('aiohttp.ClientSession.post') as patched_request:
+        result.json = amock.CoroutineMock()
+        result.json.return_value = {
+            'msg_id': '0fI07qSgCwM79NEjs',
+            '_text': "how's the weather outside",
+            'entities': {
+                'intent': [
+                    {
+                        'confidence': 0.99897986426571,
+                        'value': 'get_weather'
+                    }
+                ]
+            }
+        }
+        with amock.patch('aiohttp.ClientSession.get') as patched_request:
             patched_request.return_value = helpers.create_future(self.loop)
             patched_request.return_value.set_result(result)
             await lex.call_lex(message, config)

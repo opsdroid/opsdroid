@@ -9,7 +9,8 @@ import importlib
 from opsdroid.core import OpsDroid
 from opsdroid.message import Message
 from opsdroid.connector import Connector
-from opsdroid.matchers import match_regex, match_apiai_action
+from opsdroid.matchers import (match_regex, match_apiai_action,
+                               match_luisai_intent, match_witai)
 
 
 class TestCore(unittest.TestCase):
@@ -177,6 +178,36 @@ class TestCoreAsync(asynctest.TestCase):
             message = Message("Hello world", "user", "default", mock_connector)
             with amock.patch('opsdroid.parsers.apiai.parse_apiai'):
                 tasks = await opsdroid.parse(message)
-                self.assertEqual(len(tasks), 2)  # apiai and regex
+                self.assertEqual(len(tasks), 3)  # apiai, regex and always
+                for task in tasks:
+                    await task
+
+    async def test_parse_luisai(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.config["parsers"] = [{"name": "luisai"}]
+            luisai_intent = ""
+            skill = amock.CoroutineMock()
+            mock_connector = Connector({})
+            decorator = match_luisai_intent(luisai_intent)
+            decorator(skill)
+            message = Message("Hello world", "user", "default", mock_connector)
+            with amock.patch('opsdroid.parsers.luisai.parse_luisai'):
+                tasks = await opsdroid.parse(message)
+                self.assertEqual(len(tasks), 3)  # luisai, regex and always
+                for task in tasks:
+                    await task
+
+    async def test_parse_witai(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.config["parsers"] = [{"name": "witai"}]
+            witai_intent = ""
+            skill = amock.CoroutineMock()
+            mock_connector = Connector({})
+            decorator = match_witai(witai_intent)
+            decorator(skill)
+            message = Message("Hello world", "user", "default", mock_connector)
+            with amock.patch('opsdroid.parsers.witai.parse_witai'):
+                tasks = await opsdroid.parse(message)
+                self.assertEqual(len(tasks), 3)  # witai, regex and always
                 for task in tasks:
                     await task

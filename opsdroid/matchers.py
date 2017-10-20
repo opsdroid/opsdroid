@@ -63,6 +63,30 @@ def match_lex_intent(intent):
     return matcher
 
 
+def match_luisai_intent(intent):
+    """Return luisai intent match decorator."""
+    def matcher(func):
+        """Add decorated function to skills list for luisai matching."""
+        opsdroid = get_opsdroid()
+        opsdroid.skills.append({"luisai_intent": intent, "skill": func,
+                                "config":
+                                opsdroid.loader.current_import_config})
+        return func
+    return matcher
+
+
+def match_witai(intent):
+    """Return witai intent match decorator."""
+    def matcher(func):
+        """Add decorated function to skills list for witai matching."""
+        opsdroid = get_opsdroid()
+        opsdroid.skills.append({"witai_intent": intent, "skill": func,
+                                "config":
+                                opsdroid.loader.current_import_config})
+        return func
+    return matcher
+
+
 def match_crontab(crontab, timezone=None):
     """Return crontab match decorator."""
     def matcher(func):
@@ -98,4 +122,20 @@ def match_webhook(webhook):
             "/skill/{}/{}/".format(config["name"], webhook), wrapper)
 
         return func
+    return matcher
+
+
+def match_always(func=None):
+    """Return always match decorator."""
+    def matcher(func):
+        """Add decorated function to skills list for always matching."""
+        opsdroid = get_opsdroid()
+        config = opsdroid.loader.current_import_config
+        opsdroid.skills.append({"always": True, "skill": func,
+                                "config": config})
+        return func
+
+    # Allow for decorator with or without parenthesis as there are no args.
+    if callable(func):
+        return matcher(func)
     return matcher

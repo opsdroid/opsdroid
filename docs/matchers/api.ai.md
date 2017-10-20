@@ -1,4 +1,4 @@
-# api.ai Parser
+# api.ai Matcher
 
 [api.ai](https://api.ai) is an NLP API for matching strings to [intents](https://docs.api.ai/docs/concept-intents) or [actions](https://docs.api.ai/docs/concept-actions). Intents are created on the api.ai website.
 

@@ -11,9 +11,12 @@ from opsdroid.memory import Memory
 from opsdroid.connector import Connector
 from opsdroid.database import Database
 from opsdroid.loader import Loader
+from opsdroid.parsers.always import parse_always
 from opsdroid.parsers.regex import parse_regex
 from opsdroid.parsers.apiai import parse_apiai
 from opsdroid.parsers.lex import parse_lex
+from opsdroid.parsers.luisai import parse_luisai
+from opsdroid.parsers.witai import parse_witai
 from opsdroid.parsers.crontab import parse_crontab
 from opsdroid.const import DEFAULT_CONFIG_PATH
 
@@ -110,7 +113,7 @@ class OpsDroid():
     def load(self):
         """Load configuration."""
         self.config = self.loader.load_config_file([
-            "./configuration.yaml",
+            "configuration.yaml",
             DEFAULT_CONFIG_PATH,
             "/etc/opsdroid/configuration.yaml"
             ])
@@ -186,6 +189,8 @@ class OpsDroid():
 
             tasks.append(
                 self.eventloop.create_task(parse_regex(self, message)))
+            tasks.append(
+                self.eventloop.create_task(parse_always(self, message)))
 
             if "parsers" in self.config:
                 _LOGGER.debug("Processing parsers")
@@ -210,4 +215,25 @@ class OpsDroid():
                     tasks.append(
                         self.eventloop.create_task(
                             parse_lex(self, message, lex[0])))
+
+                luisai = [p for p in parsers if p["name"] == "luisai"]
+                _LOGGER.debug("Checking luisai")
+                if len(luisai) == 1 and \
+                        ("enabled" not in luisai[0] or
+                         luisai[0]["enabled"] is not False):
+                    _LOGGER.debug("Parsing with luisai")
+                    tasks.append(
+                        self.eventloop.create_task(
+                            parse_luisai(self, message, luisai[0])))
+
+                witai = [p for p in parsers if p["name"] == "witai"]
+                _LOGGER.debug("Checking wit.ai")
+                if len(witai) == 1 and \
+                        ("enabled" not in witai[0] or
+                         witai[0]["enabled"] is not False):
+                    _LOGGER.debug("Parsing with witai")
+                    tasks.append(
+                        self.eventloop.create_task(
+                            parse_witai(self, message, witai[0])))
+
         return tasks
