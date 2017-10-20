@@ -22,7 +22,7 @@ async def call_lex(message, config):
             userId=config['lex_user'],
             inputText=message
         )
-        return response.json()
+        return response
 
 
 async def parse_lex(opsdroid, message, config):
@@ -41,7 +41,7 @@ async def parse_lex(opsdroid, message, config):
         return
 
         if result["status"]["code"] >= 300:
-            _LOGGER.error("api.ai error - " +
+            _LOGGER.error("lex error - " +
                           str(result["status"]["code"]) + " " +
                           result["status"]["errorType"])
             return
