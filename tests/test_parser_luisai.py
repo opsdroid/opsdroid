@@ -2,7 +2,7 @@
 import asynctest
 import asynctest.mock as amock
 
-from aiohttp import helpers
+from aiohttp import helpers, ClientOSError
 
 from opsdroid.core import OpsDroid
 from opsdroid.matchers import match_luisai_intent
@@ -178,3 +178,28 @@ class TestParserLuisai(asynctest.TestCase):
                                           opsdroid.config['parsers'][0])
 
             self.assertFalse(mock_skill.called)
+
+    async def test_parse_luisai_raise_ClientOSError(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.config['parsers'] = [
+                    {'name': 'luisai',
+                     'appid': 'test',
+                     'appkey': 'test',
+                     'verbose': True,
+                     'min-score': 0.95}
+                ]
+            mock_skill = amock.CoroutineMock()
+            match_luisai_intent('Calendar.Add')(mock_skill)
+
+            mock_connector = amock.CoroutineMock()
+            message = Message("schedule meeting", "user", "default",
+                              mock_connector)
+
+            with amock.patch.object(luisai, 'call_luisai') as \
+                    mocked_call:
+                mocked_call.side_effect = ClientOSError()
+                await luisai.parse_luisai(opsdroid, message,
+                                          opsdroid.config['parsers'][0])
+
+            self.assertFalse(mock_skill.called)
+            self.assertTrue(mocked_call.called)
