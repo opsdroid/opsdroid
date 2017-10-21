@@ -50,7 +50,8 @@ class TestCore(unittest.TestCase):
             opsdroid.load()
             self.assertTrue(opsdroid.loader.load_config_file.called)
 
-    def test_start_loop(self):
+    @asynctest.patch('opsdroid.core.parse_crontab')
+    def test_start_loop(self, mocked_parse_crontab):
         with OpsDroid() as opsdroid:
             mockconfig = {}, {}, {}
             opsdroid.web_server = mock.Mock()
@@ -60,15 +61,10 @@ class TestCore(unittest.TestCase):
             opsdroid.start_databases = mock.Mock()
             opsdroid.setup_skills = mock.Mock()
             opsdroid.start_connector_tasks = mock.Mock()
-            opsdroid.eventloop.run_forever = mock.Mock()
-
-            with self.assertRaises(RuntimeError):
-                opsdroid.start_loop()
-
+            opsdroid.start_loop()
             self.assertTrue(opsdroid.start_databases.called)
             self.assertTrue(opsdroid.setup_skills.called)
             self.assertTrue(opsdroid.start_connector_tasks.called)
-            self.assertTrue(opsdroid.eventloop.run_forever.called)
 
     def test_load_regex_skill(self):
         with OpsDroid() as opsdroid:
