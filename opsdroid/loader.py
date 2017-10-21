@@ -6,7 +6,6 @@ import sys
 import shutil
 import subprocess
 import importlib
-from importlib import util
 import re
 import yaml
 from opsdroid.const import (
@@ -29,34 +28,29 @@ class Loader:
         _LOGGER.debug("Loaded loader")
 
     @staticmethod
-    def import_module_from_spec(module_spec):
-        """Import from a given module spec and return imported module."""
-        module = importlib.util.module_from_spec(module_spec)
-        module_spec.loader.exec_module(module)
-        return module
-
-    @staticmethod
     def import_module(config):
         """Import module namespace as variable and return it."""
-        # Check if the module can be imported and proceed with import
-
-        # Proceed only if config.name is specified
-        # and parent module can be imported
-        if config["name"] and util.find_spec(config["module_path"]):
-            module_spec = util.find_spec(config["module_path"] +
-                                         "." + config["name"])
-            if module_spec:
-                module = Loader.import_module_from_spec(module_spec)
-                _LOGGER.debug("Loaded " + config["type"] +
-                              ": " + config["module_path"])
-                return module
-
-        module_spec = util.find_spec(config["module_path"])
-        if module_spec:
-            module = Loader.import_module_from_spec(module_spec)
-            _LOGGER.debug("Loaded " + config["type"] +
-                          ": " + config["module_path"])
+        try:
+            module = importlib.import_module(
+                config["module_path"] + "." + config["name"])
+            _LOGGER.debug("Loaded " + config["type"] + ": " +
+                          config["module_path"])
             return module
+        except ImportError as error:
+            _LOGGER.debug("Failed to load " + config["type"] +
+                          " " + config["module_path"] + "." + config["name"])
+            _LOGGER.debug(error)
+
+        try:
+            module = importlib.import_module(
+                config["module_path"])
+            _LOGGER.debug("Loaded " + config["type"] + ": " +
+                          config["module_path"])
+            return module
+        except ImportError as error:
+            _LOGGER.debug("Failed to load " + config["type"] +
+                          " " + config["module_path"])
+            _LOGGER.debug(error)
 
         _LOGGER.error("Failed to load " + config["type"] +
                       " " + config["module_path"])
