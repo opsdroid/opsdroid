@@ -16,6 +16,13 @@ from opsdroid.matchers import (match_regex, match_apiai_action,
 class TestCore(unittest.TestCase):
     """Test the opsdroid core class."""
 
+    def setUp(self):
+        self.previous_loop = asyncio.get_event_loop()
+
+    def tearDown(self):
+        self.previous_loop.close()
+        asyncio.set_event_loop(asyncio.new_event_loop())
+
     def test_core(self):
         with OpsDroid() as opsdroid:
             self.assertIsInstance(opsdroid, OpsDroid)
