@@ -15,6 +15,7 @@ pages:
     - Regular Expressions: 'matchers/regex.md'
     - API.AI: 'matchers/api.ai.md'
     - LUIS.AI: 'matchers/luis.ai.md'
+    - wit.ai: 'matchers/wit.ai.md'
     - Crontab: 'matchers/crontab.md'
     - Webhook: 'matchers/webhook.md'
     - Always: 'matchers/always.md'
