@@ -4,9 +4,9 @@ When writing skills for opsdroid there are multiple matchers you can use for mat
 
  * [Regular Expression](matchers/regex)
     * `opsdroid.skills.match_regex`
- * [API.AI](matchers/api.ai)
-    * `opsdroid.skills.match_apiai_action`
-    * `opsdroid.skills.match_apiai_intent`
+ * [Dialogflow (Api.ai)](matchers/dialogflow)
+    * `opsdroid.skills.match_dialogflow_action`
+    * `opsdroid.skills.match_dialogflow_intent`
  * [Crontab](matchers/crontab)
     * `opsdroid.skills.match_crontab`
  * [Webhook](matchers/webhook)

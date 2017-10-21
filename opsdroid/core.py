@@ -13,7 +13,7 @@ from opsdroid.database import Database
 from opsdroid.loader import Loader
 from opsdroid.parsers.always import parse_always
 from opsdroid.parsers.regex import parse_regex
-from opsdroid.parsers.apiai import parse_apiai
+from opsdroid.parsers.dialogflow import parse_dialogflow
 from opsdroid.parsers.luisai import parse_luisai
 from opsdroid.parsers.witai import parse_witai
 from opsdroid.parsers.crontab import parse_crontab
@@ -195,15 +195,15 @@ class OpsDroid():
                 _LOGGER.debug("Processing parsers")
                 parsers = self.config["parsers"]
 
-                apiai = [p for p in parsers if p["name"] == "apiai"]
-                _LOGGER.debug("Checking apiai")
-                if len(apiai) == 1 and \
-                        ("enabled" not in apiai[0] or
-                         apiai[0]["enabled"] is not False):
-                    _LOGGER.debug("Parsing with apiai")
+                dialogflow = [p for p in parsers if p["name"] == "dialogflow"]
+                _LOGGER.debug("Checking dialogflow")
+                if len(dialogflow) == 1 and \
+                        ("enabled" not in dialogflow[0] or
+                         dialogflow[0]["enabled"] is not False):
+                    _LOGGER.debug("Parsing with Dialogflow")
                     tasks.append(
                         self.eventloop.create_task(
-                            parse_apiai(self, message, apiai[0])))
+                            parse_dialogflow(self, message, dialogflow[0])))
 
                 luisai = [p for p in parsers if p["name"] == "luisai"]
                 _LOGGER.debug("Checking luisai")
