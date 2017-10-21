@@ -68,10 +68,15 @@ class TestCore(unittest.TestCase):
             opsdroid.start_databases = mock.Mock()
             opsdroid.setup_skills = mock.Mock()
             opsdroid.start_connector_tasks = mock.Mock()
-            opsdroid.start_loop()
+            opsdroid.eventloop.run_forever = mock.Mock()
+
+            with self.assertRaises(RuntimeError):
+                opsdroid.start_loop()
+
             self.assertTrue(opsdroid.start_databases.called)
             self.assertTrue(opsdroid.setup_skills.called)
             self.assertTrue(opsdroid.start_connector_tasks.called)
+            self.assertTrue(opsdroid.eventloop.run_forever.called)
 
     def test_load_regex_skill(self):
         with OpsDroid() as opsdroid:
