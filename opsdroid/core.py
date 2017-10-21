@@ -14,6 +14,7 @@ from opsdroid.loader import Loader
 from opsdroid.parsers.always import parse_always
 from opsdroid.parsers.regex import parse_regex
 from opsdroid.parsers.apiai import parse_apiai
+from opsdroid.parsers.lex import parse_lex
 from opsdroid.parsers.luisai import parse_luisai
 from opsdroid.parsers.witai import parse_witai
 from opsdroid.parsers.crontab import parse_crontab
@@ -204,6 +205,16 @@ class OpsDroid():
                     tasks.append(
                         self.eventloop.create_task(
                             parse_apiai(self, message, apiai[0])))
+
+                lex = [p for p in parsers if p["name"] == "lex"]
+                _LOGGER.debug("Checking lex")
+                if len(lex) == 1 and \
+                        ("enabled" not in lex[0] or
+                         lex[0]["enabled"] is not False):
+                    _LOGGER.debug("Parsing with lex")
+                    tasks.append(
+                        self.eventloop.create_task(
+                            parse_lex(self, message, lex[0])))
 
                 luisai = [p for p in parsers if p["name"] == "luisai"]
                 _LOGGER.debug("Checking luisai")

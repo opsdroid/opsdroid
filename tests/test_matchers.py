@@ -38,6 +38,16 @@ class TestMatchers(asynctest.TestCase):
             self.assertEqual(opsdroid.skills[1]["apiai_intent"], intent)
             self.assertIsInstance(opsdroid.skills[1]["skill"], mock.MagicMock)
 
+    async def test_match_lex(self):
+        with OpsDroid() as opsdroid:
+            intent = "myIntent"
+            mockedskill = mock.MagicMock()
+            decorator = matchers.match_lex_intent(intent)
+            decorator(mockedskill)
+            self.assertEqual(len(opsdroid.skills), 1)
+            self.assertEqual(opsdroid.skills[0]["lex_intent"], intent)
+            self.assertIsInstance(opsdroid.skills[0]["skill"], mock.MagicMock)
+
     async def test_match_luisai(self):
         with OpsDroid() as opsdroid:
             intent = "myIntent"

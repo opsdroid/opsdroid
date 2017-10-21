@@ -47,6 +47,22 @@ def match_apiai_intent(intent):
     return matcher
 
 
+def match_lex_intent(intent):
+    """Return lex intent decorator."""
+    def matcher(func):
+        """Add decorated function to skills list for lex matching."""
+        opsdroid = get_opsdroid()
+        opsdroid.skills.append(
+            {
+                "lex_intent": intent,
+                "skill": func,
+                "config": opsdroid.loader.current_import_config
+            }
+        )
+        return func
+    return matcher
+
+
 def match_luisai_intent(intent):
     """Return luisai intent match decorator."""
     def matcher(func):
