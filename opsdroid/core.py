@@ -39,7 +39,7 @@ class OpsDroid():
         self.connector_tasks = []
         self.eventloop = asyncio.get_event_loop()
         for sig in (signal.SIGINT, signal.SIGTERM):
-            self.eventloop.add_signal_handler(sig, self.stop)
+            self.eventloop.add_signal_handler(sig, self.call_stop)
         self.skills = []
         self.memory = Memory()
         self.loader = Loader(self)
@@ -100,11 +100,23 @@ class OpsDroid():
         self.should_restart = True
         self.stop()
 
-    def stop(self):
-        """Stop the event loop."""
-        for connector in self.connectors:
-            self.eventloop.create_task(connector.disconnect(self))
+    def call_stop(self):
+        """
+        This method is used as the signal handler to call disconnect and stop.
+        """
+        future = asyncio.ensure_future(self.disconnect())
+        future.add_done_callback(self.stop)
+        return future
 
+    async def disconnect(self):
+        """
+        Disconnect all the connectors.
+        """
+        for connector in self.connectors:
+            await connector.disconnect(self)
+
+    def stop(self, future):
+        """Stop the event loop."""
         pending = asyncio.Task.all_tasks()
         for task in pending:
             task.cancel()
