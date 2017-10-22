@@ -7,8 +7,8 @@ import shutil
 import subprocess
 import importlib
 import re
-import yaml
 from collections import Mapping
+import yaml
 from opsdroid.const import (
     DEFAULT_GIT_URL, MODULES_DIRECTORY, DEFAULT_MODULES_PATH,
     DEFAULT_MODULE_BRANCH, DEFAULT_CONFIG_PATH, EXAMPLE_CONFIG_FILE,
