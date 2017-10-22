@@ -9,7 +9,7 @@ import importlib
 from opsdroid.core import OpsDroid
 from opsdroid.message import Message
 from opsdroid.connector import Connector
-from opsdroid.matchers import (match_regex, match_apiai_action,
+from opsdroid.matchers import (match_regex, match_dialogflow_action,
                                match_luisai_intent, match_witai)
 
 
@@ -175,18 +175,18 @@ class TestCoreAsync(asynctest.TestCase):
                 await task
             self.assertTrue(skill.called)
 
-    async def test_parse_apiai(self):
+    async def test_parse_dialogflow(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config["parsers"] = [{"name": "apiai"}]
-            apiai_action = ""
+            opsdroid.config["parsers"] = [{"name": "dialogflow"}]
+            dialogflow_action = ""
             skill = amock.CoroutineMock()
             mock_connector = Connector({})
-            decorator = match_apiai_action(apiai_action)
+            decorator = match_dialogflow_action(dialogflow_action)
             decorator(skill)
             message = Message("Hello world", "user", "default", mock_connector)
-            with amock.patch('opsdroid.parsers.apiai.parse_apiai'):
+            with amock.patch('opsdroid.parsers.dialogflow.parse_dialogflow'):
                 tasks = await opsdroid.parse(message)
-                self.assertEqual(len(tasks), 3)  # apiai, regex and always
+                self.assertEqual(len(tasks), 3)  # dialogflow, regex and always
                 for task in tasks:
                     await task
 

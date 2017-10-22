@@ -24,23 +24,53 @@ def match_regex(regex, case_sensitive=True):
 
 
 def match_apiai_action(action):
-    """Return apiai action match decorator."""
+    """Return Dialogflow action match decorator."""
     def matcher(func):
-        """Add decorated function to skills list for apiai matching."""
+        """Add decorated function to skills list for Dialogflow matching."""
         opsdroid = get_opsdroid()
-        opsdroid.skills.append({"apiai_action": action, "skill": func,
+        opsdroid.skills.append({"dialogflow_action": action, "skill": func,
+                                "config":
+                                opsdroid.loader.current_import_config})
+        return func
+    _LOGGER.warning("Api.ai is now called Dialogflow, this matcher "
+                    "will stop working in the future. "
+                    "Use match_dialogflow_action instead.")
+    return matcher
+
+
+def match_apiai_intent(intent):
+    """Return Dialogflow intent match decorator."""
+    def matcher(func):
+        """Add decorated function to skills list for Dialogflow matching."""
+        opsdroid = get_opsdroid()
+        opsdroid.skills.append({"dialogflow_intent": intent, "skill": func,
+                                "config":
+                                opsdroid.loader.current_import_config})
+        return func
+    _LOGGER.warning("Api.ai is now called Dialogflow, this matcher "
+                    "will stop working in the future. "
+                    "Use match_dialogflow_intent instead.")
+    return matcher
+
+
+def match_dialogflow_action(action):
+    """Return Dialogflowi action match decorator."""
+    def matcher(func):
+        """Add decorated function to skills list for Dialogflow matching."""
+        opsdroid = get_opsdroid()
+        opsdroid.skills.append({"dialogflow_action": action, "skill": func,
                                 "config":
                                 opsdroid.loader.current_import_config})
         return func
     return matcher
 
 
-def match_apiai_intent(intent):
-    """Return apiai intent match decorator."""
+def match_dialogflow_intent(intent):
+    """Return Dialogflow intent match decorator."""
     def matcher(func):
-        """Add decorated function to skills list for apiai matching."""
+        """Add decorated function to skills list for Dialogflow matching."""
         opsdroid = get_opsdroid()
-        opsdroid.skills.append({"apiai_intent": intent, "skill": func,
+        opsdroid.skills.append({"dialogflow_intent": intent, "skill": func,
                                 "config":
                                 opsdroid.loader.current_import_config})
         return func
