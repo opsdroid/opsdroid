@@ -115,7 +115,7 @@ class OpsDroid():
         for connector in self.connectors:
             await connector.disconnect(self)
 
-    def stop(self, future):
+    def stop(self, future=None):
         """Stop the event loop."""
         pending = asyncio.Task.all_tasks()
         for task in pending:
