@@ -184,14 +184,26 @@ class TestLoader(unittest.TestCase):
     def test_load_minimal_config_file(self):
         opsdroid, loader = self.setup()
         config = loader.load_config_file(["tests/configs/minimal.yaml"])
-        loader.load_modules_from_config(config)
+        loader._install_module = mock.MagicMock()
+        loader.import_module = mock.MagicMock()
+        loader._reload_modules = mock.MagicMock()
+        connectors, databases, skills = loader.load_modules_from_config(config)
+        self.assertIsNotNone(connectors)
+        self.assertIsNone(databases)
+        self.assertIsNotNone(skills)
         self.assertIsNotNone(config)
 
     def test_load_minimal_config_file_2(self):
         opsdroid, loader = self.setup()
+        loader._install_module = mock.MagicMock()
+        loader.import_module = mock.MagicMock()
+        loader._reload_modules = mock.MagicMock()
         config = loader.load_config_file(["tests/configs/minimal_2.yaml"])
-        loader.load_modules_from_config(config)
+        connectors, databases, skills = loader.load_modules_from_config(config)
         self.assertIsNotNone(config)
+        self.assertIsNotNone(connectors)
+        self.assertIsNone(databases)
+        self.assertIsNotNone(skills)
 
     def test_load_modules(self):
         opsdroid, loader = self.setup()
