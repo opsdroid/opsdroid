@@ -101,17 +101,13 @@ class OpsDroid():
         self.stop()
 
     def call_stop(self):
-        """
-        This method is used as the signal handler to call disconnect and stop.
-        """
+        """Signal handler to call disconnect and stop."""
         future = asyncio.ensure_future(self.disconnect())
         future.add_done_callback(self.stop)
         return future
 
     async def disconnect(self):
-        """
-        Disconnect all the connectors.
-        """
+        """Disconnect all the connectors."""
         for connector in self.connectors:
             await connector.disconnect(self)
 
