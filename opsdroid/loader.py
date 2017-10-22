@@ -8,6 +8,7 @@ import subprocess
 import importlib
 import re
 import yaml
+from collections import Mapping
 from opsdroid.const import (
     DEFAULT_GIT_URL, MODULES_DIRECTORY, DEFAULT_MODULES_PATH,
     DEFAULT_MODULE_BRANCH, DEFAULT_CONFIG_PATH, EXAMPLE_CONFIG_FILE,
@@ -225,7 +226,15 @@ class Loader:
             # Set up module config
             config = module
             config = {} if config is None else config
-            config["name"] = module["name"]
+
+            # We might load from a configuration file an item that is just
+            # a string, rather than a mapping object
+            if not isinstance(config, Mapping):
+                config = {}
+                config["name"] = module
+            else:
+                config["name"] = module['name']
+
             config["type"] = modules_type
             config["module_path"] = self.build_module_path("import", config)
             config["install_path"] = self.build_module_path("install", config)
