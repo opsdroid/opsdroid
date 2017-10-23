@@ -7,6 +7,7 @@ import shutil
 import subprocess
 import importlib
 import re
+from collections import Mapping
 import yaml
 from opsdroid.const import (
     DEFAULT_GIT_URL, MODULES_DIRECTORY, DEFAULT_MODULES_PATH,
@@ -189,12 +190,12 @@ class Loader:
 
         connectors, databases, skills = None, None, None
 
-        if 'databases' in config.keys():
+        if 'databases' in config.keys() and config['databases']:
             databases = self._load_modules('database', config['databases'])
         else:
             _LOGGER.warning("No databases in configuration")
 
-        if 'skills' in config.keys():
+        if 'skills' in config.keys() and config['skills']:
             skills = self._load_modules('skill', config['skills'])
             self.opsdroid.skills = []
             self._reload_modules(skills)
@@ -203,7 +204,7 @@ class Loader:
             self.opsdroid.critical(
                 "No skills in configuration, at least 1 required", 1)
 
-        if 'connectors' in config.keys():
+        if 'connectors' in config.keys() and config['connectors']:
             connectors = self._load_modules('connector', config['connectors'])
         else:
             self.opsdroid.critical(
@@ -225,7 +226,15 @@ class Loader:
             # Set up module config
             config = module
             config = {} if config is None else config
-            config["name"] = module["name"]
+
+            # We might load from a configuration file an item that is just
+            # a string, rather than a mapping object
+            if not isinstance(config, Mapping):
+                config = {}
+                config["name"] = module
+            else:
+                config["name"] = module['name']
+
             config["type"] = modules_type
             config["module_path"] = self.build_module_path("import", config)
             config["install_path"] = self.build_module_path("install", config)
