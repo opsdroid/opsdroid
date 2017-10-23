@@ -1,4 +1,4 @@
-
+https://github.com/Cadair/opsdroid
 import unittest
 import asyncio
 
@@ -36,8 +36,8 @@ class TestConnectorBaseClass(unittest.TestCase):
             self.loop.run_until_complete(connector.respond({}))
 
 
-class TestConnectorDisconnect(asynctest.TestCase):
-    """Test the opsdroid database base class."""
+class TestConnectorAsync(asynctest.TestCase):
+    """Test the async methods of the opsdroid connector base class."""
 
     async def test_disconnect(self):
         connector = Connector({})
