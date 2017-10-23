@@ -1,4 +1,3 @@
-https://github.com/Cadair/opsdroid
 import unittest
 import asyncio
 
