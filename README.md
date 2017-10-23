@@ -118,7 +118,7 @@ See the [full reference](http://opsdroid.readthedocs.io/en/latest/configuration-
 #   - name: crontab
 #     enabled: true
 #
-#   - name: apiai
+#   - name: dialogflow
 #     access-token: "youraccesstoken"
 #     min-score: 0.6
 

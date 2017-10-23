@@ -1,4 +1,4 @@
-# luis.ai Parser
+# luis.ai Matcher
 
 [luis.ai](https://www.luis.ai) is an NLP API for matching strings to [intents](https://docs.microsoft.com/en-us/azure/cognitive-services/LUIS/Home). Intents are created on the luis.ai website.
 

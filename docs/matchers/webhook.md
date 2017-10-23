@@ -1,4 +1,4 @@
-# Webhook Parser
+# Webhook Matcher
 
 Similar to the crontab matcher this matcher doesn't take a message as an input, it takes a webhook instead. It allows you to trigger the skill by calling a specific URL endpoint.
 
