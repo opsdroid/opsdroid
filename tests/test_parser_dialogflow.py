@@ -73,7 +73,8 @@ class TestParserDialogflow(asynctest.TestCase):
             mock_skill.side_effect = Exception()
             match_dialogflow_action('myaction')(mock_skill)
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.MagicMock()
+            mock_connector.respond = amock.CoroutineMock()
             message = Message("Hello world", "user", "default", mock_connector)
 
             with amock.patch.object(dialogflow, 'call_dialogflow') as \

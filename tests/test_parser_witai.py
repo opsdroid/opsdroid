@@ -75,7 +75,8 @@ class TestParserWitai(asynctest.TestCase):
             mock_skill.side_effect = Exception()
             match_witai('get_weather')(mock_skill)
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.MagicMock()
+            mock_connector.respond = amock.CoroutineMock()
             message = Message("how's the weather outside", "user",
                               "default", mock_connector)
 

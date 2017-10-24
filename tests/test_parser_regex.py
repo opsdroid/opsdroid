@@ -30,7 +30,8 @@ class TestParserRegex(asynctest.TestCase):
             match_regex(r"(.*)")(mock_skill)
             self.assertEqual(len(opsdroid.skills), 1)
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.MagicMock()
+            mock_connector.respond = amock.CoroutineMock()
             message = Message("Hello world", "user",
                               "default", mock_connector)
 

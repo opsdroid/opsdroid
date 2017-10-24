@@ -24,7 +24,9 @@ class TestMemory(asynctest.TestCase):
 
     async def test_database_callouts(self):
         memory = self.setup()
-        memory.databases = [mock.CoroutineMock()]
+        memory.databases = [mock.MagicMock()]
+        memory.databases[0].get = mock.CoroutineMock()
+        memory.databases[0].put = mock.CoroutineMock()
         data = "Hello world!"
 
         await memory.put("test", data)
