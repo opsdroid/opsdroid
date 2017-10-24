@@ -92,7 +92,8 @@ class TestParserLuisai(asynctest.TestCase):
             mock_skill.side_effect = Exception()
             match_luisai_intent('Calendar.Add')(mock_skill)
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.MagicMock()
+            mock_connector.respond = amock.CoroutineMock()
             message = Message("schedule meeting", "user", "default",
                               mock_connector)
 
