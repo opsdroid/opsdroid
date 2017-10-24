@@ -44,6 +44,15 @@ class TestCore(unittest.TestCase):
             opsdroid.stop()
             self.assertFalse(opsdroid.eventloop.is_running())
 
+    def test_call_stop(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.stop = mock.Mock()
+            opsdroid.disconnect = amock.CoroutineMock()
+
+            opsdroid.call_stop()
+
+            self.assertTrue(opsdroid.disconnect.called)
+
     def test_restart(self):
         with OpsDroid() as opsdroid:
             opsdroid.eventloop.create_task(asyncio.sleep(1))
@@ -148,6 +157,16 @@ class TestCore(unittest.TestCase):
 
 class TestCoreAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid core class."""
+
+    async def test_disconnect(self):
+        with OpsDroid() as opsdroid:
+            connector = Connector({})
+            opsdroid.connectors.append(connector)
+            connector.disconnect = amock.CoroutineMock()
+
+            await opsdroid.disconnect()
+
+            self.assertTrue(connector.disconnect.called)
 
     async def test_parse_regex(self):
         with OpsDroid() as opsdroid:

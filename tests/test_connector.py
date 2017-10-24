@@ -1,6 +1,7 @@
-
 import unittest
 import asyncio
+
+import asynctest
 
 from opsdroid.connector import Connector
 
@@ -32,3 +33,12 @@ class TestConnectorBaseClass(unittest.TestCase):
         connector = Connector({})
         with self.assertRaises(NotImplementedError):
             self.loop.run_until_complete(connector.respond({}))
+
+
+class TestConnectorAsync(asynctest.TestCase):
+    """Test the async methods of the opsdroid connector base class."""
+
+    async def test_disconnect(self):
+        connector = Connector({})
+        res = await connector.disconnect(None)
+        assert res is None

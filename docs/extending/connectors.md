@@ -11,6 +11,10 @@ Connectors are a class which extends the base opsdroid Connector. The class has 
 #### respond
 *respond* will take a Message object and return the contents to the chat service.
 
+
+#### disconnect
+*disconnect* there is also an optional disconnect method that will be called upon shutdown of opsdroid. This can be used to perform any disconnect operations for the connector.
+
 ```python
 
 import time
@@ -56,5 +60,9 @@ class MyConnector(Connector):
     # Send message.text back to the chat service
     await self.connection.send(raw_message.text, raw_message.user,
                                raw_message.room)
+
+  async def disconnect(self, opsdroid):
+    # Disconnect from the chat service
+    await self.connection.disconnect()
 
 ```
