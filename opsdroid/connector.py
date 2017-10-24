@@ -82,3 +82,4 @@ class Connector():
             opsdroid (OpsDroid): An instance of the opsdroid core.
 
         """
+        pass
