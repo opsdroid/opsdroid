@@ -16,11 +16,11 @@ async def parse_regex(opsdroid, message):
     for skill in opsdroid.skills:
         if "regex" in skill:
             if skill["regex"]["case_sensitive"]:
-                regex = re.match(skill["regex"]["expression"],
-                                 message.text)
+                regex = re.search(skill["regex"]["expression"],
+                                  message.text)
             else:
-                regex = re.match(skill["regex"]["expression"],
-                                 message.text, re.IGNORECASE)
+                regex = re.search(skill["regex"]["expression"],
+                                  message.text, re.IGNORECASE)
             if regex:
                 message.regex = regex
                 try:
