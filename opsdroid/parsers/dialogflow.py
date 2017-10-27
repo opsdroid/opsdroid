@@ -26,7 +26,7 @@ async def call_dialogflow(message, config):
                                   data=json.dumps(payload),
                                   headers=headers)
         result = await resp.json()
-        _LOGGER.debug("Dialogflow response - " + json.dumps(result))
+        _LOGGER.info("Dialogflow response - %s", json.dumps(result))
 
         return result
 
@@ -45,8 +45,8 @@ async def parse_dialogflow(opsdroid, message, config):
             return
 
         if result["status"]["code"] >= 300:
-            _LOGGER.error("Dialogflow error - " +
-                          str(result["status"]["code"]) + " " +
+            _LOGGER.error("Dialogflow error - %s  - %s",
+                          str(result["status"]["code"]),
                           result["status"]["errorType"])
             return
 
@@ -70,12 +70,13 @@ async def parse_dialogflow(opsdroid, message, config):
                         try:
                             await skill["skill"](opsdroid, skill["config"],
                                                  message)
+
                         except Exception:
                             await message.respond(
                                 "Whoops there has been an error")
                             await message.respond(
                                 "Check the log for details")
-                            _LOGGER.exception("Exception when parsing '" +
-                                              message.text +
-                                              "' against skill '" +
-                                              result["result"]["action"] + "'")
+                            _LOGGER.exception("Exception when parsing '%s' "
+                                              "against skill '%s'.",
+                                              message.text,
+                                              result["result"]["action"])

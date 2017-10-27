@@ -21,8 +21,7 @@ async def call_witai(message, config):
         resp = await session.get("https://api.wit.ai/message?v={}&q={}".format(
             payload['v'], payload['q']), headers=headers)
         result = await resp.json()
-        _LOGGER.debug("wit.ai response - " + json.dumps(result))
-        _LOGGER.info(result)
+        _LOGGER.info("wit.ai response - %s", json.dumps(result))
         return result
 
 
@@ -40,8 +39,8 @@ async def parse_witai(opsdroid, message, config):
             return
 
         if 'code' in result:
-            _LOGGER.error("wit.ai error - " + str(result['code'])
-                          + " " + str(result['error']))
+            _LOGGER.error("wit.ai error - %s %s", str(result['code']),
+                          str(result['error']))
             return
         elif result['entities'] == {}:
             _LOGGER.error("wit.ai error - No intent found. Did you "
@@ -53,7 +52,7 @@ async def parse_witai(opsdroid, message, config):
         except KeyError:
             confidence = 0.0
         if "min-score" in config and confidence < config['min-score']:
-            _LOGGER.debug("wit.ai score lower than min-score")
+            _LOGGER.info("wit.ai score lower than min-score")
             return
 
         if result:
@@ -73,7 +72,6 @@ async def parse_witai(opsdroid, message, config):
                                 "Whoops there has been an error")
                             await message.respond(
                                 "Check the log for details")
-                            _LOGGER.exception("Exception when parsing '" +
-                                              message.text +
-                                              "' against skill '" +
-                                              parsed_skill + "'")
+                            _LOGGER.exception("Exception when parsing %s "
+                                              "against skill %s'",
+                                              message.text, parsed_skill)

@@ -30,7 +30,7 @@ async def parse_regex(opsdroid, message):
                         "Whoops there has been an error")
                     await message.respond(
                         "Check the log for details")
-                    _LOGGER.exception("Exception when parsing '" +
-                                      message.text +
-                                      "' against skill '" +
-                                      skill["regex"]["expression"] + "'")
+                    _LOGGER.exception("Exception when parsing '%s' "
+                                      "against skill '%s'.",
+                                      message.text,
+                                      skill["regex"]["expression"])
