@@ -48,19 +48,19 @@ class Loader:
                                                    "." + config["name"])
             if module_spec:
                 module = Loader.import_module_from_spec(module_spec)
-                _LOGGER.debug("Loaded " + config["type"] +
-                              ": " + config["module_path"])
+                _LOGGER.debug("Loaded %s: %s", config["type"],
+                              config["module_path"])
                 return module
 
         module_spec = importlib.util.find_spec(config["module_path"])
         if module_spec:
             module = Loader.import_module_from_spec(module_spec)
-            _LOGGER.debug("Loaded " + config["type"] +
-                          ": " + config["module_path"])
+            _LOGGER.debug("Loaded %s: %s", config["type"],
+                          config["module_path"])
             return module
 
         _LOGGER.error("Failed to load %s: %s", config["type"],
-                     config["module_path"])
+                      config["module_path"])
 
         return None
 
@@ -132,7 +132,7 @@ class Loader:
             if isinstance(module["module"], ModuleType):
                 module_name = module["module"].__name__
                 if sys.modules.get(module_name):
-                    _LOGGER.debug("Reloading module" + module_name)
+                    _LOGGER.debug("Reloading module %s", module_name)
                     importlib.reload(sys.modules[module_name])
 
     def load_config_file(self, config_paths):
