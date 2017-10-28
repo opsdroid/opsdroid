@@ -13,7 +13,7 @@ from opsdroid.database import Database
 from opsdroid.loader import Loader
 from opsdroid.parsers.always import parse_always
 from opsdroid.parsers.regex import parse_regex
-from opsdroid.parsers.apiai import parse_apiai
+from opsdroid.parsers.dialogflow import parse_dialogflow
 from opsdroid.parsers.luisai import parse_luisai
 from opsdroid.parsers.witai import parse_witai
 from opsdroid.parsers.crontab import parse_crontab
@@ -39,7 +39,7 @@ class OpsDroid():
         self.connector_tasks = []
         self.eventloop = asyncio.get_event_loop()
         for sig in (signal.SIGINT, signal.SIGTERM):
-            self.eventloop.add_signal_handler(sig, self.stop)
+            self.eventloop.add_signal_handler(sig, self.call_stop)
         self.skills = []
         self.memory = Memory()
         self.loader = Loader(self)
@@ -53,7 +53,6 @@ class OpsDroid():
         self.web_server = None
         self.should_restart = False
         self.stored_path = []
-        _LOGGER.info("Created main opsdroid object")
 
     def __enter__(self):
         """Add self to existing instances."""
@@ -92,7 +91,7 @@ class OpsDroid():
         """Exit due to unrecoverable error."""
         self.sys_status = code
         _LOGGER.critical(error)
-        print("Error: " + error)
+        print("Error:", error)
         self.exit()
 
     def restart(self):
@@ -100,7 +99,18 @@ class OpsDroid():
         self.should_restart = True
         self.stop()
 
-    def stop(self):
+    def call_stop(self):
+        """Signal handler to call disconnect and stop."""
+        future = asyncio.ensure_future(self.disconnect())
+        future.add_done_callback(self.stop)
+        return future
+
+    async def disconnect(self):
+        """Disconnect all the connectors."""
+        for connector in self.connectors:
+            await connector.disconnect(self)
+
+    def stop(self, future=None):
         """Stop the event loop."""
         pending = asyncio.Task.all_tasks()
         for task in pending:
@@ -174,7 +184,7 @@ class OpsDroid():
                 if isinstance(cls, type) and \
                    issubclass(cls, Database) and \
                    cls is not Database:
-                    _LOGGER.debug("Adding database: " + name)
+                    _LOGGER.debug("Adding database: %s", name)
                     database = cls(database_module["config"])
                     self.memory.databases.append(database)
                     self.eventloop.run_until_complete(database.connect(self))
@@ -184,7 +194,7 @@ class OpsDroid():
         self.stats["messages_parsed"] = self.stats["messages_parsed"] + 1
         tasks = []
         if message.text.strip() != "":
-            _LOGGER.debug("Parsing input: " + message.text)
+            _LOGGER.debug("Parsing input: %s", message.text)
 
             tasks.append(
                 self.eventloop.create_task(parse_regex(self, message)))
@@ -192,35 +202,35 @@ class OpsDroid():
                 self.eventloop.create_task(parse_always(self, message)))
 
             if "parsers" in self.config:
-                _LOGGER.debug("Processing parsers")
+                _LOGGER.debug("Processing parsers...")
                 parsers = self.config["parsers"]
 
-                apiai = [p for p in parsers if p["name"] == "apiai"]
-                _LOGGER.debug("Checking apiai")
-                if len(apiai) == 1 and \
-                        ("enabled" not in apiai[0] or
-                         apiai[0]["enabled"] is not False):
-                    _LOGGER.debug("Parsing with apiai")
+                dialogflow = [p for p in parsers if p["name"] == "dialogflow"]
+                _LOGGER.debug("Checking dialogflow...")
+                if len(dialogflow) == 1 and \
+                        ("enabled" not in dialogflow[0] or
+                         dialogflow[0]["enabled"] is not False):
+                    _LOGGER.debug("Parsing with Dialogflow.")
                     tasks.append(
                         self.eventloop.create_task(
-                            parse_apiai(self, message, apiai[0])))
+                            parse_dialogflow(self, message, dialogflow[0])))
 
                 luisai = [p for p in parsers if p["name"] == "luisai"]
-                _LOGGER.debug("Checking luisai")
+                _LOGGER.debug("Checking luisai...")
                 if len(luisai) == 1 and \
                         ("enabled" not in luisai[0] or
                          luisai[0]["enabled"] is not False):
-                    _LOGGER.debug("Parsing with luisai")
+                    _LOGGER.debug("Parsing with luisai.")
                     tasks.append(
                         self.eventloop.create_task(
                             parse_luisai(self, message, luisai[0])))
 
                 witai = [p for p in parsers if p["name"] == "witai"]
-                _LOGGER.debug("Checking wit.ai")
+                _LOGGER.debug("Checking wit.ai...")
                 if len(witai) == 1 and \
                         ("enabled" not in witai[0] or
                          witai[0]["enabled"] is not False):
-                    _LOGGER.debug("Parsing with witai")
+                    _LOGGER.debug("Parsing with witai.")
                     tasks.append(
                         self.eventloop.create_task(
                             parse_witai(self, message, witai[0])))

@@ -29,6 +29,11 @@ class TestLoader(unittest.TestCase):
         config = loader.load_config_file(["tests/configs/minimal.yaml"])
         self.assertIsNotNone(config)
 
+    def test_load_config_file_2(self):
+        opsdroid, loader = self.setup()
+        config = loader.load_config_file(["tests/configs/minimal_2.yaml"])
+        self.assertIsNotNone(config)
+
     def test_load_config_file_with_include(self):
         opsdroid, loader = self.setup()
         config = loader.load_config_file(
@@ -176,6 +181,30 @@ class TestLoader(unittest.TestCase):
         self.assertEqual(len(loader._load_modules.mock_calls), 0)
         self.assertEqual(len(opsdroid.mock_calls), 2)
 
+    def test_load_minimal_config_file(self):
+        opsdroid, loader = self.setup()
+        config = loader.load_config_file(["tests/configs/minimal.yaml"])
+        loader._install_module = mock.MagicMock()
+        loader.import_module = mock.MagicMock()
+        loader._reload_modules = mock.MagicMock()
+        connectors, databases, skills = loader.load_modules_from_config(config)
+        self.assertIsNotNone(connectors)
+        self.assertIsNone(databases)
+        self.assertIsNotNone(skills)
+        self.assertIsNotNone(config)
+
+    def test_load_minimal_config_file_2(self):
+        opsdroid, loader = self.setup()
+        loader._install_module = mock.MagicMock()
+        loader.import_module = mock.MagicMock()
+        loader._reload_modules = mock.MagicMock()
+        config = loader.load_config_file(["tests/configs/minimal_2.yaml"])
+        connectors, databases, skills = loader.load_modules_from_config(config)
+        self.assertIsNotNone(config)
+        self.assertIsNotNone(connectors)
+        self.assertIsNone(databases)
+        self.assertIsNotNone(skills)
+
     def test_load_modules(self):
         opsdroid, loader = self.setup()
 
@@ -198,9 +227,8 @@ class TestLoader(unittest.TestCase):
         os.mkdir(config["install_path"])
         with mock.patch('opsdroid.loader._LOGGER.debug') as logmock:
             loader._install_module(config)
-            logmock.assert_called_with(
-                    'Module ' + config["name"] +
-                    ' already installed, skipping')
+            self.assertTrue(logmock.called)
+
         shutil.rmtree(config["install_path"])
 
     def test_install_missing_local_module(self):
@@ -209,12 +237,12 @@ class TestLoader(unittest.TestCase):
                   "install_path": self._tmp_dir + "/test_missing_local_module",
                   "repo": self._tmp_dir + "/testrepo",
                   "branch": "master"}
-        with mock.patch('opsdroid.loader._LOGGER.debug') as logmock:
+        with mock.patch('opsdroid.loader._LOGGER.error') as logmock:
             loader._install_module(config)
             logmock.assert_any_call(
-                    "Could not find local git repo " + config["repo"])
+                    "Could not find local git repo %s", config["repo"])
             logmock.assert_any_call(
-                    "Install of " + config["name"] + " failed")
+                    "Install of %s failed.", config["name"])
 
     def test_install_specific_remote_module(self):
         opsdroid, loader = self.setup()
@@ -275,9 +303,7 @@ class TestLoader(unittest.TestCase):
         with mock.patch('opsdroid.loader._LOGGER.debug') as logmock, \
                 mock.patch.object(loader, 'pip_install_deps') as mockdeps:
             loader._install_module(config)
-            logmock.assert_called_with(
-                    'Installed ' + config["name"] +
-                    ' to ' + config["install_path"])
+            self.assertTrue(logmock.called)
             mockdeps.assert_called_with(
                     config["install_path"] + "/requirements.txt")
 
@@ -317,8 +343,7 @@ class TestLoader(unittest.TestCase):
                   "path": self._tmp_dir + "/does/not/exist"}
         with mock.patch('opsdroid.loader._LOGGER.error') as logmock:
             loader._install_local_module(config)
-            logmock.assert_called_with(
-                    "Failed to install from " + config["path"])
+            self.assertTrue(logmock.called)
 
     def test_reload_modules(self):
         opsdroid, loader = self.setup()

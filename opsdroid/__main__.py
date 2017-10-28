@@ -104,7 +104,8 @@ def welcome_message(config):
                          "releases")
             _LOGGER.info("=" * 40)
     except KeyError:
-        pass
+        _LOGGER.warning("'welcome-message: true/false' is missing in "
+                        "configuration.yaml")
 
 
 def main():

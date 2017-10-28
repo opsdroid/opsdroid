@@ -71,3 +71,15 @@ class Connector():
 
         """
         raise NotImplementedError
+
+    async def disconnect(self, opsdroid):
+        """Disconnect from the chat service.
+
+        This method is called when opsdroid is exiting, it can be used to close
+        connections or do other cleanup.
+
+        Args:
+            opsdroid (OpsDroid): An instance of the opsdroid core.
+
+        """
+        pass

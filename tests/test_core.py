@@ -9,12 +9,19 @@ import importlib
 from opsdroid.core import OpsDroid
 from opsdroid.message import Message
 from opsdroid.connector import Connector
-from opsdroid.matchers import (match_regex, match_apiai_action,
+from opsdroid.matchers import (match_regex, match_dialogflow_action,
                                match_luisai_intent, match_witai)
 
 
 class TestCore(unittest.TestCase):
     """Test the opsdroid core class."""
+
+    def setUp(self):
+        self.previous_loop = asyncio.get_event_loop()
+
+    def tearDown(self):
+        self.previous_loop.close()
+        asyncio.set_event_loop(asyncio.new_event_loop())
 
     def test_core(self):
         with OpsDroid() as opsdroid:
@@ -37,6 +44,15 @@ class TestCore(unittest.TestCase):
             opsdroid.stop()
             self.assertFalse(opsdroid.eventloop.is_running())
 
+    def test_call_stop(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.stop = mock.Mock()
+            opsdroid.disconnect = amock.CoroutineMock()
+
+            opsdroid.call_stop()
+
+            self.assertTrue(opsdroid.disconnect.called)
+
     def test_restart(self):
         with OpsDroid() as opsdroid:
             opsdroid.eventloop.create_task(asyncio.sleep(1))
@@ -50,7 +66,8 @@ class TestCore(unittest.TestCase):
             opsdroid.load()
             self.assertTrue(opsdroid.loader.load_config_file.called)
 
-    def test_start_loop(self):
+    @asynctest.patch('opsdroid.core.parse_crontab')
+    def test_start_loop(self, mocked_parse_crontab):
         with OpsDroid() as opsdroid:
             mockconfig = {}, {}, {}
             opsdroid.web_server = mock.Mock()
@@ -141,6 +158,16 @@ class TestCore(unittest.TestCase):
 class TestCoreAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid core class."""
 
+    async def test_disconnect(self):
+        with OpsDroid() as opsdroid:
+            connector = Connector({})
+            opsdroid.connectors.append(connector)
+            connector.disconnect = amock.CoroutineMock()
+
+            await opsdroid.disconnect()
+
+            self.assertTrue(connector.disconnect.called)
+
     async def test_parse_regex(self):
         with OpsDroid() as opsdroid:
             regex = r"Hello .*"
@@ -167,18 +194,18 @@ class TestCoreAsync(asynctest.TestCase):
                 await task
             self.assertTrue(skill.called)
 
-    async def test_parse_apiai(self):
+    async def test_parse_dialogflow(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config["parsers"] = [{"name": "apiai"}]
-            apiai_action = ""
+            opsdroid.config["parsers"] = [{"name": "dialogflow"}]
+            dialogflow_action = ""
             skill = amock.CoroutineMock()
             mock_connector = Connector({})
-            decorator = match_apiai_action(apiai_action)
+            decorator = match_dialogflow_action(dialogflow_action)
             decorator(skill)
             message = Message("Hello world", "user", "default", mock_connector)
-            with amock.patch('opsdroid.parsers.apiai.parse_apiai'):
+            with amock.patch('opsdroid.parsers.dialogflow.parse_dialogflow'):
                 tasks = await opsdroid.parse(message)
-                self.assertEqual(len(tasks), 3)  # apiai, regex and always
+                self.assertEqual(len(tasks), 3)  # dialogflow, regex and always
                 for task in tasks:
                     await task
 
