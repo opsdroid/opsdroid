@@ -26,8 +26,6 @@ async def parse_crontab(opsdroid):
                 else:
                     timezone = opsdroid.config.get("timezone", "UTC")
                 if pycron.is_now(skill["crontab"], arrow.now(tz=timezone)):
-                    try:
-                        await skill["skill"](opsdroid, skill["config"], None)
-                    except Exception:
-                        _LOGGER.exception(
-                            "Exception when executing cron skill.")
+                    await opsdroid.run_skill(skill["skill"],
+                                             skill["config"], 
+                                             message)

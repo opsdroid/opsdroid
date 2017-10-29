@@ -33,10 +33,6 @@ async def call_dialogflow(message, config):
 
 async def parse_dialogflow(opsdroid, message, config):
     """Parse a message against all Dialogflow skills."""
-    # pylint: disable=broad-except
-    # We want to catch all exceptions coming from a skill module and not
-    # halt the application. If a skill throws an exception it just doesn't
-    # give a response to the user, so an error response should be given.
     if 'access-token' in config:
         try:
             result = await call_dialogflow(message, config)
@@ -67,16 +63,6 @@ async def parse_dialogflow(opsdroid, message, config):
                                 skill["dialogflow_intent"] in
                                 result["result"]["intentName"]):
                         message.dialogflow = result
-                        try:
-                            await skill["skill"](opsdroid, skill["config"],
+                        await opsdroid.run_skill(skill["skill"],
+                                                 skill["config"], 
                                                  message)
-
-                        except Exception:
-                            await message.respond(
-                                "Whoops there has been an error")
-                            await message.respond(
-                                "Check the log for details")
-                            _LOGGER.exception("Exception when parsing '%s' "
-                                              "against skill '%s'.",
-                                              message.text,
-                                              result["result"]["action"])

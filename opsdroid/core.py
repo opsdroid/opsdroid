@@ -189,6 +189,24 @@ class OpsDroid():
                     self.memory.databases.append(database)
                     self.eventloop.run_until_complete(database.connect(self))
 
+    async def run_skill(self, skill, config, message):
+        """Execute a skill."""
+        # pylint: disable=broad-except
+        # We want to catch all exceptions coming from a skill module and not
+        # halt the application. If a skill throws an exception it just doesn't
+        # give a response to the user, so an error response should be given.
+        try:
+            await skill(self, config, message)
+        except Exception:
+            await message.respond(
+                "Whoops there has been an error")
+            await message.respond(
+                "Check the log for details")
+            _LOGGER.exception("Exception when parsing '%s' "
+                                "against skill '%s'.",
+                                message.text,
+                                config["name"])
+
     async def parse(self, message):
         """Parse a string against all skills."""
         self.stats["messages_parsed"] = self.stats["messages_parsed"] + 1
