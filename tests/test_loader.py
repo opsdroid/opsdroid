@@ -345,7 +345,20 @@ class TestLoader(unittest.TestCase):
             loader._install_local_module(config)
             self.assertTrue(logmock.called)
 
-    def test_reload_modules(self):
+    def test_reload_module(self):
+        config = {}
+        config["module_path"] = "os.path"
+        config["name"] = "path"
+        config["type"] = "system"
+        from os import path
+        opsdriod, loader = self.setup()
+        with mock.patch('importlib.reload') as reload_mock:
+            mock_module = {"module": path,
+                           "config": config}
+            loader._reload_modules([mock_module])
+        self.assertTrue(reload_mock.called)
+
+    def test_reload_module_fake_import(self):
         opsdroid, loader = self.setup()
         with mock.patch('importlib.reload') as reload_mock:
             mock_module = {"module": "fake_import",

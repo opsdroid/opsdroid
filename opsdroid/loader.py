@@ -6,6 +6,7 @@ import sys
 import shutil
 import subprocess
 import importlib
+from types import ModuleType
 import re
 from collections import Mapping
 import yaml
@@ -29,30 +30,37 @@ class Loader:
         _LOGGER.debug("Loaded loader")
 
     @staticmethod
+    def import_module_from_spec(module_spec):
+        """Import from a given module spec and return imported module."""
+        module = importlib.util.module_from_spec(module_spec)
+        module_spec.loader.exec_module(module)
+        return module
+
+    @staticmethod
     def import_module(config):
         """Import module namespace as variable and return it."""
-        try:
-            module = importlib.import_module(
-                config["module_path"] + "." + config["name"])
+        # Check if the module can be imported and proceed with import
+
+        # Proceed only if config.name is specified
+        # and parent module can be imported
+        if config["name"] and importlib.util.find_spec(config["module_path"]):
+            module_spec = importlib.util.find_spec(config["module_path"] +
+                                                   "." + config["name"])
+            if module_spec:
+                module = Loader.import_module_from_spec(module_spec)
+                _LOGGER.debug("Loaded %s: %s", config["type"],
+                              config["module_path"])
+                return module
+
+        module_spec = importlib.util.find_spec(config["module_path"])
+        if module_spec:
+            module = Loader.import_module_from_spec(module_spec)
             _LOGGER.debug("Loaded %s: %s", config["type"],
                           config["module_path"])
             return module
 
-        except ImportError as error:
-            _LOGGER.debug("Failed to load %s.%s.  ERROR: %s",
-                          config["module_path"], config["name"], error)
-
-        try:
-            module = importlib.import_module(
-                config["module_path"])
-            _LOGGER.debug("Loaded %s: %s", config["type"],
-                          config["module_path"])
-            return module
-
-        except ImportError as error:
-            _LOGGER.error("Failed to load %s: %s", config["type"],
-                          config["module_path"])
-            _LOGGER.debug(error)
+        _LOGGER.error("Failed to load %s: %s", config["type"],
+                      config["module_path"])
 
         return None
 
@@ -118,9 +126,14 @@ class Loader:
         return config_path
 
     def _reload_modules(self, modules):
+        """Reload modules in namespace. Queries sys.modules."""
         for module in modules:
             self.current_import_config = module["config"]
-            importlib.reload(module["module"])
+            if isinstance(module["module"], ModuleType):
+                module_name = module["module"].__name__
+                if sys.modules.get(module_name):
+                    _LOGGER.debug("Reloading module %s", module_name)
+                    importlib.reload(sys.modules[module_name])
 
     def load_config_file(self, config_paths):
         """Load a yaml config file from path."""
