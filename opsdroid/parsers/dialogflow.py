@@ -67,6 +67,9 @@ async def parse_dialogflow(opsdroid, message, config):
                                 skill["dialogflow_intent"] in
                                 result["result"]["intentName"]):
                         message.dialogflow = result
+                        # Support backward compatibility for deprecated name
+                        # Remove when apiai name support is dropped
+                        message.apiai = message.dialogflow
                         try:
                             await skill["skill"](opsdroid, skill["config"],
                                                  message)
