@@ -11,10 +11,10 @@ matrix:
 cache:
   directories:
     - $HOME/.cache/pip
-install: pip install -U tox coveralls
+install: pip install -U tox coveralls codecov
 language: python
 script: tox
-after_success: coveralls
+after_success: coveralls && codecov
 deploy:
   provider: pypi
   user: $PYPI_USER
