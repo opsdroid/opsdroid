@@ -65,6 +65,7 @@ async def parse_dialogflow(opsdroid, message, config):
                                 skill["dialogflow_intent"] in
                                 result["result"]["intentName"]):
                         message.dialogflow = result
+                        message.apiai = message.dialogflow
                         _LOGGER.debug("Matched against skill %s",
                             skill["config"]["name"])
                         matched_skills.append({
