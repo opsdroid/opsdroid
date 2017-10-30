@@ -37,4 +37,4 @@ async def parse_regex(opsdroid, message):
                     "config": skill["config"],
                     "message": message
                 })
-            return matched_skills
+    return matched_skills

@@ -65,4 +65,4 @@ async def parse_witai(opsdroid, message, config):
                             "config": skill["config"],
                             "message": message
                         })
-            return matched_skills
+    return matched_skills

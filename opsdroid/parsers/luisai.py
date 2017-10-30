@@ -69,4 +69,4 @@ async def parse_luisai(opsdroid, message, config):
                             "config": skill["config"],
                             "message": message
                         })
-            return matched_skills
+    return matched_skills

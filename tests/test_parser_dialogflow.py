@@ -42,6 +42,9 @@ class TestParserDialogflow(asynctest.TestCase):
                     {'name': 'dialogflow', 'access-token': "test"}
                 ]
             mock_skill = amock.CoroutineMock()
+            opsdroid.loader.current_import_config = {
+                "name": "mocked-skill"
+            }
             match_dialogflow_action('myaction')(mock_skill)
 
             mock_connector = amock.CoroutineMock()
@@ -59,10 +62,9 @@ class TestParserDialogflow(asynctest.TestCase):
                             "errorType": "success"
                         }
                     }
-                await dialogflow.parse_dialogflow(
+                skills = await dialogflow.parse_dialogflow(
                     opsdroid, message, opsdroid.config['parsers'][0])
-
-            self.assertTrue(mock_skill.called)
+                self.assertEqual(mock_skill, skills[0]["skill"])
 
     async def test_parse_dialogflow_raises(self):
         with OpsDroid() as opsdroid:
@@ -71,6 +73,9 @@ class TestParserDialogflow(asynctest.TestCase):
                 ]
             mock_skill = amock.CoroutineMock()
             mock_skill.side_effect = Exception()
+            opsdroid.loader.current_import_config = {
+                "name": "mocked-skill"
+            }
             match_dialogflow_action('myaction')(mock_skill)
 
             mock_connector = amock.MagicMock()
@@ -89,10 +94,13 @@ class TestParserDialogflow(asynctest.TestCase):
                             "errorType": "success"
                         }
                     }
-                await dialogflow.parse_dialogflow(
+                skills = await dialogflow.parse_dialogflow(
                     opsdroid, message, opsdroid.config['parsers'][0])
+                self.assertEqual(mock_skill, skills[0]["skill"])
 
-            self.assertTrue(mock_skill.called)
+            await opsdroid.run_skill(
+                skills[0]["skill"], skills[0]["config"], message)
+            self.assertTrue(skills[0]["skill"].called)
 
     async def test_parse_dialogflow_failure(self):
         with OpsDroid() as opsdroid:
@@ -117,10 +125,9 @@ class TestParserDialogflow(asynctest.TestCase):
                             "errorType": "not found"
                         }
                     }
-                await dialogflow.parse_dialogflow(
+                skills = await dialogflow.parse_dialogflow(
                     opsdroid, message, opsdroid.config['parsers'][0])
-
-            self.assertFalse(mock_skill.called)
+                self.assertFalse(skills)
 
     async def test_parse_dialogflow_low_score(self):
         with OpsDroid() as opsdroid:

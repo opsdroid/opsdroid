@@ -215,9 +215,8 @@ class OpsDroid():
             _LOGGER.debug("Processing parsers...")
             parsers = self.config["parsers"]
 
-
             dialogflow = [p for p in parsers if p["name"] == "dialogflow"
-                            or p["name"] == "apiai"]
+                          or p["name"] == "apiai"]
 
             # Show deprecation message but  parse message
             # Once it stops working remove this bit
@@ -264,7 +263,6 @@ class OpsDroid():
                 self.eventloop.create_task(parse_always(self, message)))
 
             ranked_skills = await self.get_ranked_skills(message)
-            _LOGGER.debug(ranked_skills)
             if ranked_skills:
                 tasks.append(
                     self.eventloop.create_task(

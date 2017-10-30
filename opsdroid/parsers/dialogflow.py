@@ -67,11 +67,11 @@ async def parse_dialogflow(opsdroid, message, config):
                         message.dialogflow = result
                         message.apiai = message.dialogflow
                         _LOGGER.debug("Matched against skill %s",
-                            skill["config"]["name"])
+                                      skill["config"]["name"])
                         matched_skills.append({
                             "score": result["result"]["score"],
                             "skill": skill["skill"],
                             "config": skill["config"],
                             "message": message
                         })
-            return matched_skills
+    return matched_skills
