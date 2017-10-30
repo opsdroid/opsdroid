@@ -11,10 +11,9 @@ _LOGGER = logging.getLogger(__name__)
 
 async def calculate_score(regex):
     """Calculate the score of a regex."""
-    # TODO: Implement a score function.
-    # The score should asymptotically approach the max score
-    # based on the length and complexity of the expression.
-    return REGEX_MAX_SCORE
+    # The score asymptotically approaches the max score
+    # based on the length of the expression.
+    return (1 - (1 / ((len(regex) + 1) ** 2))) * REGEX_MAX_SCORE
 
 
 async def parse_regex(opsdroid, message):
