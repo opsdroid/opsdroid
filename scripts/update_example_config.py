@@ -9,7 +9,7 @@ def normalize(string):
         return '\n'.join([re.sub('^(#)?  ', '\g<1>', line) for line in lines[1:]])
     return string.strip()
 
-g = Github('31d6488cd46ef59f1e3dc36a090787adc5aa557a')
+g = Github()
 repos = []
 repos = [repo for repo in g.get_user("opsdroid").get_repos() if repo.name.startswith('skill-')]
 
