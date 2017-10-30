@@ -13,3 +13,4 @@ DEFAULT_CONFIG_PATH = os.path.join(DEFAULT_ROOT_PATH, "configuration.yaml")
 DEFAULT_MODULE_BRANCH = "master"
 EXAMPLE_CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                    "configuration/example_configuration.yaml")
+REGEX_MAX_SCORE = 0.6

@@ -12,10 +12,6 @@ _LOGGER = logging.getLogger(__name__)
 
 async def parse_crontab(opsdroid):
     """Parse all crontab skills against the current time."""
-    # pylint: disable=broad-except
-    # We want to catch all exceptions coming from a skill module and not
-    # halt the application. If a skill throws an exception it just doesn't
-    # give a response to the user, so an error response should be given.
     while opsdroid.eventloop.is_running():
         await asyncio.sleep(60 - arrow.now().time().second)
         _LOGGER.debug("Running crontab skills")
@@ -27,5 +23,5 @@ async def parse_crontab(opsdroid):
                     timezone = opsdroid.config.get("timezone", "UTC")
                 if pycron.is_now(skill["crontab"], arrow.now(tz=timezone)):
                     await opsdroid.run_skill(skill["skill"],
-                                             skill["config"], 
-                                             message)
+                                             skill["config"],
+                                             None)

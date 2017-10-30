@@ -27,21 +27,22 @@ async def call_witai(message, config):
 
 async def parse_witai(opsdroid, message, config):
     """Parse a message against all witai skills."""
+    matched_skills = []
     if 'access-token' in config:
         try:
             result = await call_witai(message, config)
         except aiohttp.ClientOSError:
             _LOGGER.error("No response from wit.ai, check your network.")
-            return
+            return matched_skills
 
         if 'code' in result:
             _LOGGER.error("wit.ai error - %s %s", str(result['code']),
                           str(result['error']))
-            return
+            return matched_skills
         elif result['entities'] == {}:
             _LOGGER.error("wit.ai error - No intent found. Did you "
                           "forget to create one?")
-            return
+            return matched_skills
 
         try:
             confidence = result['entities']['intent'][0]['confidence']
@@ -49,7 +50,7 @@ async def parse_witai(opsdroid, message, config):
             confidence = 0.0
         if "min-score" in config and confidence < config['min-score']:
             _LOGGER.info("wit.ai score lower than min-score")
-            return
+            return matched_skills
 
         if result:
             for skill in opsdroid.skills:
@@ -58,6 +59,10 @@ async def parse_witai(opsdroid, message, config):
                             [i['value'] for i in
                              result['entities']['intent']]):
                         message.witai = result
-                        await opsdroid.run_skill(skill["skill"],
-                                                 skill["config"], 
-                                                 message)
+                        matched_skills.append({
+                            "score": confidence,
+                            "skill": skill["skill"],
+                            "config": skill["config"],
+                            "message": message
+                        })
+            return matched_skills

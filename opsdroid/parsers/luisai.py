@@ -29,12 +29,13 @@ async def call_luisai(message, config):
 
 async def parse_luisai(opsdroid, message, config):
     """Parse a message against all luisai skills."""
+    matched_skills = []
     if 'appid' in config and 'appkey' in config:
         try:
             result = await call_luisai(message, config)
         except aiohttp.ClientOSError:
             _LOGGER.error("No response from luis.ai, check your network.")
-            return
+            return matched_skills
 
         if result:
 
@@ -51,7 +52,7 @@ async def parse_luisai(opsdroid, message, config):
                     result["topScoringIntent"]["score"] \
                     < config["min-score"]:
                 _LOGGER.debug("luis.ai score lower than min-score")
-                return
+                return matched_skills
 
             for skill in opsdroid.skills:
                 if "luisai_intent" in skill:
@@ -62,6 +63,10 @@ async def parse_luisai(opsdroid, message, config):
 
                     if skill["luisai_intent"] in intents:
                         message.luisai = result
-                        await opsdroid.run_skill(skill["skill"],
-                                                 skill["config"], 
-                                                 message)
+                        matched_skills.append({
+                            "score": result["topScoringIntent"]["score"],
+                            "skill": skill["skill"],
+                            "config": skill["config"],
+                            "message": message
+                        })
+            return matched_skills
