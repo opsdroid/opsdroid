@@ -206,6 +206,14 @@ class TestCoreAsync(asynctest.TestCase):
             with amock.patch('opsdroid.parsers.dialogflow.parse_dialogflow'):
                 tasks = await opsdroid.parse(message)
                 self.assertEqual(len(tasks), 3)  # dialogflow, regex and always
+
+                # Once apiai parser stops working, remove this test!
+                with amock.patch('opsdroid.core._LOGGER.warning') as logmock:
+                    opsdroid.config["parsers"] = [{"name": "apiai"}]
+                    tasks = await opsdroid.parse(message)
+                    self.assertTrue(logmock.called)
+
+                # But leave this bit
                 for task in tasks:
                     await task
 

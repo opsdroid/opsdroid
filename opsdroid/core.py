@@ -215,7 +215,19 @@ class OpsDroid():
             _LOGGER.debug("Processing parsers...")
             parsers = self.config["parsers"]
 
-            dialogflow = [p for p in parsers if p["name"] == "dialogflow"]
+
+            dialogflow = [p for p in parsers if p["name"] == "dialogflow"
+                            or p["name"] == "apiai"]
+
+            # Show deprecation message but  parse message
+            # Once it stops working remove this bit
+            apiai = [p for p in parsers if p["name"] == "apiai"]
+            if apiai:
+                _LOGGER.warning("Api.ai is now called Dialogflow. This "
+                                "parser will stop working in the future "
+                                "please swap: 'name: apiai' for "
+                                "'name: dialogflow' in configuration.yaml")
+
             if len(dialogflow) == 1 and \
                     ("enabled" not in dialogflow[0] or
                      dialogflow[0]["enabled"] is not False):
