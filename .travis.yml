@@ -19,6 +19,8 @@ before_script:
 script:
   - tox
   - docker ps | grep -q opsdroid
+after_script:
+  - docker logs opsdroid
 after_success: coveralls
 deploy:
   provider: pypi
