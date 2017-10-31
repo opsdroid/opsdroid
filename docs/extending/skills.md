@@ -2,7 +2,7 @@
 
 Like all opsdroid modules skills are installed as a git repository. However skills are designed to be simpler than other modules to ensure that it is easy to get started.
 
-To create a skill you need to create a single python file in your repository with the `__init__.py` name (preferred), or the same name as the skill repository. For example the skill `hello` has a single file called `__init__.py` (could be `hello.py` as well).
+To create a skill you need to create a single python file in your repository with the `__init__.py` name. For example the skill `hello` has a single file called `__init__.py`.
 
 Within this file should be functions which are decorated with an opsdroid skill function to let opsdroid know when to trigger the skill. Let's get started with an example.
 
