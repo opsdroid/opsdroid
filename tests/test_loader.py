@@ -37,8 +37,8 @@ class TestLoader(unittest.TestCase):
     def test_load_config_file_with_include(self):
         opsdroid, loader = self.setup()
         config = loader.load_config_file(
-            "tests/configs/minimal_with_include.yaml")
-        config2 = loader.load_config_file("tests/configs/minimal.yaml")
+                                ["tests/configs/minimal_with_include.yaml"])
+        config2 = loader.load_config_file(["tests/configs/minimal.yaml"])
         self.assertIsNotNone(config)
         self.assertEqual(config, config2)
 
