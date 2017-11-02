@@ -13,6 +13,8 @@ matrix:
 cache:
   directories:
     - $HOME/.cache/pip
+services:
+  - docker
 install: pip install -U tox coveralls codecov
 language: python
 script: tox
