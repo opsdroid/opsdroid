@@ -3,16 +3,22 @@
 import logging
 import re
 
+from opsdroid.const import REGEX_MAX_SCORE
+
 
 _LOGGER = logging.getLogger(__name__)
 
 
+async def calculate_score(regex):
+    """Calculate the score of a regex."""
+    # The score asymptotically approaches the max score
+    # based on the length of the expression.
+    return (1 - (1 / ((len(regex) + 1) ** 2))) * REGEX_MAX_SCORE
+
+
 async def parse_regex(opsdroid, message):
     """Parse a message against all regex skills."""
-    # pylint: disable=broad-except
-    # We want to catch all exceptions coming from a skill module and not
-    # halt the application. If a skill throws an exception it just doesn't
-    # give a response to the user, so an error response should be given.
+    matched_skills = []
     for skill in opsdroid.skills:
         if "regex" in skill:
             if skill["regex"]["case_sensitive"]:
@@ -23,14 +29,11 @@ async def parse_regex(opsdroid, message):
                                   message.text, re.IGNORECASE)
             if regex:
                 message.regex = regex
-                try:
-                    await skill["skill"](opsdroid, skill["config"], message)
-                except Exception:
-                    await message.respond(
-                        "Whoops there has been an error")
-                    await message.respond(
-                        "Check the log for details")
-                    _LOGGER.exception("Exception when parsing '%s' "
-                                      "against skill '%s'.",
-                                      message.text,
-                                      skill["regex"]["expression"])
+                matched_skills.append({
+                    "score": await calculate_score(
+                        skill["regex"]["expression"]),
+                    "skill": skill["skill"],
+                    "config": skill["config"],
+                    "message": message
+                })
+    return matched_skills

@@ -29,16 +29,13 @@ async def call_luisai(message, config):
 
 async def parse_luisai(opsdroid, message, config):
     """Parse a message against all luisai skills."""
-    # pylint: disable=broad-except
-    # We want to catch all exceptions coming from a skill module and not
-    # halt the application. If a skill throws an exception it just doesn't
-    # give a response to the user, so an error response should be given.
+    matched_skills = []
     if 'appid' in config and 'appkey' in config:
         try:
             result = await call_luisai(message, config)
         except aiohttp.ClientOSError:
             _LOGGER.error("No response from luis.ai, check your network.")
-            return
+            return matched_skills
 
         if result:
 
@@ -55,7 +52,7 @@ async def parse_luisai(opsdroid, message, config):
                     result["topScoringIntent"]["score"] \
                     < config["min-score"]:
                 _LOGGER.debug("luis.ai score lower than min-score")
-                return
+                return matched_skills
 
             for skill in opsdroid.skills:
                 if "luisai_intent" in skill:
@@ -66,14 +63,10 @@ async def parse_luisai(opsdroid, message, config):
 
                     if skill["luisai_intent"] in intents:
                         message.luisai = result
-                        try:
-                            await skill["skill"](opsdroid, skill["config"],
-                                                 message)
-                        except Exception:
-                            await message.respond(
-                                "Whoops there has been an error")
-                            await message.respond(
-                                "Check the log for details")
-                            _LOGGER.exception("Exception when parsing '%s' "
-                                              "against skill '%s'.",
-                                              message.text, result["query"])
+                        matched_skills.append({
+                            "score": result["topScoringIntent"]["score"],
+                            "skill": skill["skill"],
+                            "config": skill["config"],
+                            "message": message
+                        })
+    return matched_skills

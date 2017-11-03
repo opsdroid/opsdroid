@@ -49,6 +49,9 @@ class TestParserCrontab(asynctest.TestCase):
             with amock.patch('asyncio.sleep'):
                 mock_skill = amock.CoroutineMock()
                 mock_skill.side_effect = Exception()
+                opsdroid.loader.current_import_config = {
+                    "name": "mocked-skill"
+                }
                 match_crontab("* * * * *")(mock_skill)
                 self.assertEqual(len(opsdroid.skills), 1)
 
