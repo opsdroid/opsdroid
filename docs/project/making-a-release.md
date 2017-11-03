@@ -41,6 +41,9 @@ The release description to be posted on GitHub should be a bulleted list of chan
 It is possible to partially automatically generate this using `make`:
 
 ```shell
+# Pull the tags from opsdroid/opsdroid so that only commits since the last tag are listed
+git pull upstream master --tags
+# List the commits
 make release-notes
 ```
 
