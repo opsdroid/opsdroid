@@ -56,7 +56,7 @@ def configure_logging(config):
         file_handler.setFormatter(formatter)
         rootlogger.addHandler(file_handler)
     _LOGGER.info("="*40)
-    _LOGGER.info("Stated application")
+    _LOGGER.info("Started application")
 
 
 def get_logging_level(logging_level):
