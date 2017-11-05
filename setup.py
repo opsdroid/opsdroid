@@ -9,12 +9,13 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 PACKAGES = find_packages(exclude=['tests', 'tests.*', 'modules',
                                   'modules.*', 'docs', 'docs.*'])
 
-REQUIRES = [
-    'arrow==0.10.0',
-    'aiohttp==2.1.0',
-    'pycron==0.40',
-    'pyyaml==3.12'
-]
+
+# For now we simply define the install_requires based on the contents
+# of requirements.txt. In the future, install_requires may become much
+# looser than the (automatically) resolved requirements.txt.
+with open(os.path.join(HERE, 'requirements.txt'), 'r') as fh:
+    REQUIRES = [line.strip() for line in fh]
+
 
 setup(
     name=PACKAGE_NAME,
