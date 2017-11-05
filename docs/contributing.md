@@ -19,8 +19,8 @@ All contributors to the project, including [jacobtomlinson](https://github.com/j
 git clone https://github.com/opsdroid/opsdroid.git
 cd opsdroid
 
-# install project dependancies
-pip install -r requirements.txt
+# install the project in "editable" mode
+pip install -e .
 
 # run opsdroid
 python -m opsdroid
@@ -39,7 +39,7 @@ tox
 
 ## Developing in containers
 
-Developing in containers can be a great way to ensure that opsdroid will run in a clean python environment and that all dependancies are captured.
+Developing in containers can be a great way to ensure that opsdroid will run in a clean python environment and that all dependencies are captured.
 
 ```shell
 # build the container

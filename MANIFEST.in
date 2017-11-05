@@ -1,5 +1,6 @@
 include README.md
 include LICENSE
+include requirements.txt
 graft opsdroid
 include opsdroid/configuration/example_configuration.yaml
 recursive-exclude * *.py[co]
