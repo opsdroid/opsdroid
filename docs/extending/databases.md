@@ -18,7 +18,7 @@ The class has three mandatory methods, `connect`, `put` and `get`.
 # for your database and import it here
 import databaselibrary
 
-# Import opsdroid dependancies
+# Import opsdroid dependencies
 from opsdroid.database import Database
 
 
