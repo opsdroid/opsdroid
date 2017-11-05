@@ -23,7 +23,7 @@ import time
 # for your chat service and import it here
 import chatlibrary
 
-# Import opsdroid dependancies
+# Import opsdroid dependencies
 from opsdroid.connector import Connector
 from opsdroid.message import Message
 

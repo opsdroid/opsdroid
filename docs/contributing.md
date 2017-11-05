@@ -39,7 +39,7 @@ tox
 
 ## Developing in containers
 
-Developing in containers can be a great way to ensure that opsdroid will run in a clean python environment and that all dependancies are captured.
+Developing in containers can be a great way to ensure that opsdroid will run in a clean python environment and that all dependencies are captured.
 
 ```shell
 # build the container
