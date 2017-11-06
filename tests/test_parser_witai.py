@@ -61,10 +61,9 @@ class TestParserWitai(asynctest.TestCase):
                             }
                         ]
                     }}
-                await witai.parse_witai(opsdroid, message,
-                                        opsdroid.config['parsers'][0])
-
-            self.assertTrue(mock_skill.called)
+                skills = await witai.parse_witai(
+                    opsdroid, message, opsdroid.config['parsers'][0])
+                self.assertEqual(mock_skill, skills[0]["skill"])
 
     async def test_parse_witai_raises(self):
         with OpsDroid() as opsdroid:
@@ -73,6 +72,9 @@ class TestParserWitai(asynctest.TestCase):
             ]
             mock_skill = amock.CoroutineMock()
             mock_skill.side_effect = Exception()
+            opsdroid.loader.current_import_config = {
+                "name": "mocked-skill"
+            }
             match_witai('get_weather')(mock_skill)
 
             mock_connector = amock.MagicMock()
@@ -92,10 +94,13 @@ class TestParserWitai(asynctest.TestCase):
                             }
                         ]
                     }}
-                await witai.parse_witai(opsdroid, message,
-                                        opsdroid.config['parsers'][0])
+                skills = await witai.parse_witai(
+                    opsdroid, message, opsdroid.config['parsers'][0])
+                self.assertEqual(mock_skill, skills[0]["skill"])
 
-            self.assertTrue(mock_skill.called)
+            await opsdroid.run_skill(
+                skills[0]["skill"], skills[0]["config"], message)
+            self.assertTrue(skills[0]["skill"].called)
 
     async def test_parse_witai_failure(self):
         with OpsDroid() as opsdroid:
@@ -114,10 +119,9 @@ class TestParserWitai(asynctest.TestCase):
                     "code": "auth",
                     "error": "missing or wrong auth token"
                     }
-                await witai.parse_witai(opsdroid, message,
-                                        opsdroid.config['parsers'][0])
-
-            self.assertFalse(mock_skill.called)
+                skills = await witai.parse_witai(
+                    opsdroid, message, opsdroid.config['parsers'][0])
+                self.assertFalse(skills)
 
     async def test_parse_witai_low_score(self):
         with OpsDroid() as opsdroid:

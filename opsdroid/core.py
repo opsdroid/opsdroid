@@ -189,6 +189,69 @@ class OpsDroid():
                     self.memory.databases.append(database)
                     self.eventloop.run_until_complete(database.connect(self))
 
+    async def run_skill(self, skill, config, message):
+        """Execute a skill."""
+        # pylint: disable=broad-except
+        # We want to catch all exceptions coming from a skill module and not
+        # halt the application. If a skill throws an exception it just doesn't
+        # give a response to the user, so an error response should be given.
+        try:
+            await skill(self, config, message)
+        except Exception:
+            if message:
+                await message.respond(
+                    "Whoops there has been an error")
+                await message.respond(
+                    "Check the log for details")
+            _LOGGER.exception("Exception when running skill '%s' ",
+                              config["name"])
+
+    async def get_ranked_skills(self, message):
+        """Take a message and return a ranked list of matching skills."""
+        skills = []
+        skills = skills + await parse_regex(self, message)
+
+        if "parsers" in self.config:
+            _LOGGER.debug("Processing parsers...")
+            parsers = self.config["parsers"]
+
+            dialogflow = [p for p in parsers if p["name"] == "dialogflow"
+                          or p["name"] == "apiai"]
+
+            # Show deprecation message but  parse message
+            # Once it stops working remove this bit
+            apiai = [p for p in parsers if p["name"] == "apiai"]
+            if apiai:
+                _LOGGER.warning("Api.ai is now called Dialogflow. This "
+                                "parser will stop working in the future "
+                                "please swap: 'name: apiai' for "
+                                "'name: dialogflow' in configuration.yaml")
+
+            if len(dialogflow) == 1 and \
+                    ("enabled" not in dialogflow[0] or
+                     dialogflow[0]["enabled"] is not False):
+                _LOGGER.debug("Checking dialogflow...")
+                skills = skills + \
+                    await parse_dialogflow(self, message, dialogflow[0])
+
+            luisai = [p for p in parsers if p["name"] == "luisai"]
+            if len(luisai) == 1 and \
+                    ("enabled" not in luisai[0] or
+                     luisai[0]["enabled"] is not False):
+                _LOGGER.debug("Checking luisai...")
+                skills = skills + \
+                    await parse_luisai(self, message, luisai[0])
+
+            witai = [p for p in parsers if p["name"] == "witai"]
+            if len(witai) == 1 and \
+                    ("enabled" not in witai[0] or
+                     witai[0]["enabled"] is not False):
+                _LOGGER.debug("Checking wit.ai...")
+                skills = skills + \
+                    await parse_witai(self, message, witai[0])
+
+        return sorted(skills, key=lambda k: k["score"], reverse=True)
+
     async def parse(self, message):
         """Parse a string against all skills."""
         self.stats["messages_parsed"] = self.stats["messages_parsed"] + 1
@@ -197,53 +260,14 @@ class OpsDroid():
             _LOGGER.debug("Parsing input: %s", message.text)
 
             tasks.append(
-                self.eventloop.create_task(parse_regex(self, message)))
-            tasks.append(
                 self.eventloop.create_task(parse_always(self, message)))
 
-            if "parsers" in self.config:
-                _LOGGER.debug("Processing parsers...")
-                parsers = self.config["parsers"]
-
-                dialogflow = [p for p in parsers if p["name"] == "dialogflow"
-                              or p["name"] == "apiai"]
-
-                # Show deprecation message but  parse message
-                # Once it stops working remove this bit
-                apiai = [p for p in parsers if p["name"] == "apiai"]
-                if apiai:
-                    _LOGGER.warning("Api.ai is now called Dialogflow. This "
-                                    "parser will stop working in the future "
-                                    "please swap: 'name: apiai' for "
-                                    "'name: dialogflow' in configuration.yaml")
-
-                _LOGGER.debug("Checking dialogflow...")
-                if len(dialogflow) == 1 and \
-                        ("enabled" not in dialogflow[0] or
-                         dialogflow[0]["enabled"] is not False):
-                    _LOGGER.debug("Parsing with Dialogflow.")
-                    tasks.append(
-                        self.eventloop.create_task(
-                            parse_dialogflow(self, message, dialogflow[0])))
-
-                luisai = [p for p in parsers if p["name"] == "luisai"]
-                _LOGGER.debug("Checking luisai...")
-                if len(luisai) == 1 and \
-                        ("enabled" not in luisai[0] or
-                         luisai[0]["enabled"] is not False):
-                    _LOGGER.debug("Parsing with luisai.")
-                    tasks.append(
-                        self.eventloop.create_task(
-                            parse_luisai(self, message, luisai[0])))
-
-                witai = [p for p in parsers if p["name"] == "witai"]
-                _LOGGER.debug("Checking wit.ai...")
-                if len(witai) == 1 and \
-                        ("enabled" not in witai[0] or
-                         witai[0]["enabled"] is not False):
-                    _LOGGER.debug("Parsing with witai.")
-                    tasks.append(
-                        self.eventloop.create_task(
-                            parse_witai(self, message, witai[0])))
+            ranked_skills = await self.get_ranked_skills(message)
+            if ranked_skills:
+                tasks.append(
+                    self.eventloop.create_task(
+                        self.run_skill(ranked_skills[0]["skill"],
+                                       ranked_skills[0]["config"],
+                                       message)))
 
         return tasks
