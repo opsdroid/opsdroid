@@ -16,6 +16,7 @@ from opsdroid.parsers.regex import parse_regex
 from opsdroid.parsers.dialogflow import parse_dialogflow
 from opsdroid.parsers.luisai import parse_luisai
 from opsdroid.parsers.witai import parse_witai
+from opsdroid.parsers.rasanlu import parse_rasanlu, train_rasanlu
 from opsdroid.parsers.crontab import parse_crontab
 from opsdroid.const import DEFAULT_CONFIG_PATH
 
@@ -135,6 +136,7 @@ class OpsDroid():
         if databases is not None:
             self.start_databases(databases)
         self.setup_skills(skills)
+        self.train_parsers(skills)
         self.start_connector_tasks(connectors)
         self.eventloop.create_task(parse_crontab(self))
         self.web_server.start()
@@ -154,6 +156,17 @@ class OpsDroid():
                 skill["module"].setup(self)
             except AttributeError:
                 pass
+
+    def train_parsers(self, skills):
+        """Train the parsers."""
+        parsers = self.config["parsers"]
+        rasanlu = [p for p in parsers if p["name"] == "rasanlu"]
+        if len(rasanlu) == 1 and \
+                ("enabled" not in rasanlu[0] or
+                 rasanlu[0]["enabled"] is not False):
+            self.eventloop.create_task(train_rasanlu(rasanlu[0], skills))
+        pending = asyncio.Task.all_tasks()
+        self.eventloop.run_until_complete(asyncio.gather(*pending))
 
     def start_connector_tasks(self, connectors):
         """Start the connectors."""
@@ -249,6 +262,14 @@ class OpsDroid():
                 _LOGGER.debug("Checking wit.ai...")
                 skills = skills + \
                     await parse_witai(self, message, witai[0])
+
+            rasanlu = [p for p in parsers if p["name"] == "rasanlu"]
+            if len(rasanlu) == 1 and \
+                    ("enabled" not in rasanlu[0] or
+                     rasanlu[0]["enabled"] is not False):
+                _LOGGER.debug("Checking Rasa NLU...")
+                skills = skills + \
+                    await parse_rasanlu(self, message, rasanlu[0])
 
         return sorted(skills, key=lambda k: k["score"], reverse=True)
 
