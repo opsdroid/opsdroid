@@ -17,7 +17,10 @@ class TestParserRasaNLU(asynctest.TestCase):
         mock_connector = Connector({})
         message = Message("how's the weather outside", "user",
                           "default", mock_connector)
-        config = {'name': 'rasanlu', 'access-token': 'test', 'min-score': 0.3}
+        config = {'name': 'rasanlu',
+                  'access-token': 'test',
+                  'min-score': 0.3,
+                  'token': '12345'}
         result = amock.Mock()
         result.status = 200
         result.json = amock.CoroutineMock()
@@ -52,6 +55,22 @@ class TestParserRasaNLU(asynctest.TestCase):
             patched_request.return_value.set_result(result)
             await rasanlu.call_rasanlu(message.text, config)
             self.assertTrue(patched_request.called)
+
+    async def test_call_rasanlu_bad_response(self):
+        mock_connector = Connector({})
+        message = Message("how's the weather outside", "user",
+                          "default", mock_connector)
+        config = {'name': 'rasanlu', 'access-token': 'test', 'min-score': 0.3}
+        result = amock.Mock()
+        result.status = 403
+        result.text = amock.CoroutineMock()
+        result.text.return_value = "unauthorized"
+        with amock.patch('aiohttp.ClientSession.post') as patched_request:
+            patched_request.return_value = helpers.create_future(self.loop)
+            patched_request.return_value.set_result(result)
+            response = await rasanlu.call_rasanlu(message.text, config)
+            self.assertTrue(patched_request.called)
+            self.assertEqual(response, result.text.return_value)
 
     async def test_parse_rasanlu(self):
         with OpsDroid() as opsdroid:

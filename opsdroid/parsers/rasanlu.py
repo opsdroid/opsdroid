@@ -26,7 +26,7 @@ async def train_rasanlu(config, skills):
                 _LOGGER.info("Rasa NLU training complete.")
                 config["model"] = result["info"].split(":")[1].strip()
                 _LOGGER.info("Initialising Rasa NLU model. "
-                            "This might also take a while...")
+                             "This might also take a while...")
                 await call_rasanlu("", config)
                 _LOGGER.info("Initialisation complete.")
                 return
@@ -79,10 +79,7 @@ async def parse_rasanlu(opsdroid, message, config):
                       "forget to create one?")
         return matched_skills
 
-    try:
-        confidence = result['intent']['confidence']
-    except KeyError:
-        confidence = 0.0
+    confidence = result['intent']['confidence']
     if "min-score" in config and confidence < config['min-score']:
         _LOGGER.info("Rasa NLU score lower than min-score")
         return matched_skills
