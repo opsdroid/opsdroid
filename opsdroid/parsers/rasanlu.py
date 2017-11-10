@@ -20,17 +20,21 @@ async def train_rasanlu(config, skills):
         url = config.get("url", 'http://localhost:5000') \
             + "/train?project={}".format(config["project"])
         resp = await session.post(url, data=intents)
-        result = await resp.json()
-        if "info" in result and "new model trained" in result["info"]:
-            _LOGGER.info("Rasa NLU training complete.")
-            config["model"] = result["info"].split(":")[1].strip()
-            _LOGGER.info("Initialising Rasa NLU model. "
-                         "This might also take a while...")
-            await call_rasanlu("", config)
-            _LOGGER.info("Initialisation complete.")
+        if resp.status == 200:
+            result = await resp.json()
+            if "info" in result and "new model trained" in result["info"]:
+                _LOGGER.info("Rasa NLU training complete.")
+                config["model"] = result["info"].split(":")[1].strip()
+                _LOGGER.info("Initialising Rasa NLU model. "
+                            "This might also take a while...")
+                await call_rasanlu("", config)
+                _LOGGER.info("Initialisation complete.")
+                return
+            else:
+                _LOGGER.debug(result)
         else:
-            _LOGGER.debug(result)
-            _LOGGER.error("Rasa NLU training failed.")
+            _LOGGER.error("Bad Rasa NLU response - %s", await resp.text())
+        _LOGGER.error("Rasa NLU training failed.")
 
 
 async def call_rasanlu(text, config):
@@ -43,13 +47,16 @@ async def call_rasanlu(text, config):
             "project": config.get("project", "default"),
             "model": config.get("model", "fallback")
         }
-        _LOGGER.debug(data)
         if "token" in config:
             data["token"] = config["token"]
         url = config.get("url", 'http://localhost:5000') + "/parse"
         resp = await session.post(url, data=json.dumps(data), headers=headers)
-        result = await resp.json()
-        _LOGGER.debug("Rasa NLU response - %s", json.dumps(result))
+        if resp.status == 200:
+            result = await resp.json()
+            _LOGGER.debug("Rasa NLU response - %s", json.dumps(result))
+        else:
+            result = await resp.text()
+            _LOGGER.error("Bad Rasa NLU response - %s", result)
 
         return result
 
@@ -63,7 +70,11 @@ async def parse_rasanlu(opsdroid, message, config):
         _LOGGER.error("No response from Rasa NLU, check your network.")
         return matched_skills
 
-    if result['intent'] is None:
+    if result == 'unauthorized':
+        _LOGGER.error("Rasa NLU error - Unauthorised request. Check your 'token'.")
+        return matched_skills
+
+    if 'intent' not in result or result['intent'] is None:
         _LOGGER.error("Rasa NLU error - No intent found. Did you "
                       "forget to create one?")
         return matched_skills

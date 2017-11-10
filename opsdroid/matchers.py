@@ -89,7 +89,7 @@ def match_luisai_intent(intent):
     return matcher
 
 
-def match_rasanlu_intent(intent):
+def match_rasanlu(intent):
     """Return Rasa NLU intent match decorator."""
     def matcher(func):
         """Add decorated function to skills list for Rasa NLU matching."""
