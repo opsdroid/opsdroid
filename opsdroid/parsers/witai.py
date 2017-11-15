@@ -27,25 +27,22 @@ async def call_witai(message, config):
 
 async def parse_witai(opsdroid, message, config):
     """Parse a message against all witai skills."""
-    # pylint: disable=broad-except
-    # We want to catch all exceptions coming from a skill module and not
-    # halt the application. If a skill throws an exception it just doesn't
-    # give a response to the user, so an error response should be given.
+    matched_skills = []
     if 'access-token' in config:
         try:
             result = await call_witai(message, config)
         except aiohttp.ClientOSError:
             _LOGGER.error("No response from wit.ai, check your network.")
-            return
+            return matched_skills
 
         if 'code' in result:
             _LOGGER.error("wit.ai error - %s %s", str(result['code']),
                           str(result['error']))
-            return
+            return matched_skills
         elif result['entities'] == {}:
             _LOGGER.error("wit.ai error - No intent found. Did you "
                           "forget to create one?")
-            return
+            return matched_skills
 
         try:
             confidence = result['entities']['intent'][0]['confidence']
@@ -53,7 +50,7 @@ async def parse_witai(opsdroid, message, config):
             confidence = 0.0
         if "min-score" in config and confidence < config['min-score']:
             _LOGGER.info("wit.ai score lower than min-score")
-            return
+            return matched_skills
 
         if result:
             for skill in opsdroid.skills:
@@ -62,16 +59,10 @@ async def parse_witai(opsdroid, message, config):
                             [i['value'] for i in
                              result['entities']['intent']]):
                         message.witai = result
-                        try:
-                            await skill['skill'](opsdroid, skill['config'],
-                                                 message)
-                        except Exception:
-                            parsed_skill = \
-                                result['entities']['intent'][0]['value']
-                            await message.respond(
-                                "Whoops there has been an error")
-                            await message.respond(
-                                "Check the log for details")
-                            _LOGGER.exception("Exception when parsing %s "
-                                              "against skill %s'",
-                                              message.text, parsed_skill)
+                        matched_skills.append({
+                            "score": confidence,
+                            "skill": skill["skill"],
+                            "config": skill["config"],
+                            "message": message
+                        })
+    return matched_skills

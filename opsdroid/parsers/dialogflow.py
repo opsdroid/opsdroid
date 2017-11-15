@@ -33,29 +33,27 @@ async def call_dialogflow(message, config):
 
 async def parse_dialogflow(opsdroid, message, config):
     """Parse a message against all Dialogflow skills."""
-    # pylint: disable=broad-except
-    # We want to catch all exceptions coming from a skill module and not
-    # halt the application. If a skill throws an exception it just doesn't
-    # give a response to the user, so an error response should be given.
+    matched_skills = []
     if 'access-token' in config:
         try:
             result = await call_dialogflow(message, config)
         except aiohttp.ClientOSError:
             _LOGGER.error("No response from Dialogflow, check your network.")
-            return
+            return matched_skills
 
         if result["status"]["code"] >= 300:
             _LOGGER.error("Dialogflow error - %s  - %s",
                           str(result["status"]["code"]),
                           result["status"]["errorType"])
-            return
+            return matched_skills
 
         if "min-score" in config and \
                 result["result"]["score"] < config["min-score"]:
             _LOGGER.debug("Dialogflow score lower than min-score")
-            return
+            return matched_skills
 
         if result:
+
             for skill in opsdroid.skills:
 
                 if "dialogflow_action" in skill or \
@@ -67,19 +65,13 @@ async def parse_dialogflow(opsdroid, message, config):
                                 skill["dialogflow_intent"] in
                                 result["result"]["intentName"]):
                         message.dialogflow = result
-                        # Support backward compatibility for deprecated name
-                        # Remove when apiai name support is dropped
                         message.apiai = message.dialogflow
-                        try:
-                            await skill["skill"](opsdroid, skill["config"],
-                                                 message)
-
-                        except Exception:
-                            await message.respond(
-                                "Whoops there has been an error")
-                            await message.respond(
-                                "Check the log for details")
-                            _LOGGER.exception("Exception when parsing '%s' "
-                                              "against skill '%s'.",
-                                              message.text,
-                                              result["result"]["action"])
+                        _LOGGER.debug("Matched against skill %s",
+                                      skill["config"]["name"])
+                        matched_skills.append({
+                            "score": result["result"]["score"],
+                            "skill": skill["skill"],
+                            "config": skill["config"],
+                            "message": message
+                        })
+    return matched_skills
