@@ -2,16 +2,16 @@
 
 Like all opsdroid modules skills are installed as a git repository. However skills are designed to be simpler than other modules to ensure that it is easy to get started.
 
-To create a skill you need to create a single python file in your repository with the `__init__.py` name (preferred), or the same name as the skill repository. For example the skill `hello` has a single file called `__init__.py` (could be `hello.py` as well).
+To create a skill you need to create a single python file in your repository with the `__init__.py` name. For example the skill `hello` has a single file called `__init__.py`.
 
-Within this file should be functions which are decorated with an opsdroid skill function to let opsdroid know when to trigger the skill. Let's get started with an example.
+Within this file should be functions which are decorated with an opsdroid matcher function to let opsdroid know when to trigger the skill. Let's get started with an example.
 
 ## Hello world
 
 ```python
 from opsdroid.matchers import match_regex
 
-@match_regex('hi')
+@match_regex(r'hi')
 async def hello(opsdroid, config, message):
     await message.respond('Hey')
 ```
@@ -28,9 +28,9 @@ To ensure the bot is responsive the concurrency controls introduced in Python 3.
 
 ## Message object
 
-The message object passed to the skill function is an instance of the opsdroid Message class which has the following properties and methods.
+The message object passed to the skill function is an instance of the opsdroid `Message` class which has the following properties and methods.
 
-Also depending on the parser it may have parser specific properties too. See the [matchers documentation](parsers/overview) for more details.
+Also depending on the matcher it may have parser specific properties too. See the [matchers documentation](parsers/overview) for more details.
 
 ### `text`
 
@@ -95,6 +95,24 @@ If your skill requires any setup to be done when opsdroid is started you can cre
 def setup(opsdroid):
   # do some setup stuff here
 ```
+
+## Multiple matchers
+
+It is possible to decorate your function with multiple matchers. There are a couple of reasons why you would want to do this.
+
+### Scheduled skills
+
+You can schedule a skill to run periodically using the crontab matcher. This allows you to decorate your function with a crontab expression which will run your function at that interval.
+
+You can use this in conjunction with other chat based matchers which would allow you to call the function on demand as well as on a schedule.
+
+### Creating public skills with good parser support
+
+You may wish to write a skill which you make publicly available. You will not know which parsers the users of your skill will have enabled and therefore it would be best to support them all.
+
+When a message from a chat client is parsed by opsdroid all skills matching that message are given a score ,either by the NLP API or locally by opsdroid. This score is how confident the NLP service and opsdroid are that the message matches the skill and only the highest scoring skill is executed.
+
+This means that if you decorate a skill with both the `regex` and `dialogflow` matchers then users who don't use Dialogflow will get a simple `regex` match. However users with Dialogflow configured will get matches on more flexible messages, but will not see duplicate responses where the regex also matched.
 
 ## Example modules
 

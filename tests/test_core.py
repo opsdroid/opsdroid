@@ -173,8 +173,7 @@ class TestCoreAsync(asynctest.TestCase):
             regex = r"Hello .*"
             skill = amock.CoroutineMock()
             mock_connector = Connector({})
-            decorator = match_regex(regex)
-            decorator(skill)
+            match_regex(regex)(skill)
             message = Message("Hello world", "user", "default", mock_connector)
             tasks = await opsdroid.parse(message)
             for task in tasks:
@@ -186,8 +185,7 @@ class TestCoreAsync(asynctest.TestCase):
             regex = r"Hello .*"
             skill = amock.CoroutineMock()
             mock_connector = Connector({})
-            decorator = match_regex(regex, case_sensitive=False)
-            decorator(skill)
+            match_regex(regex, case_sensitive=False)(skill)
             message = Message("HELLO world", "user", "default", mock_connector)
             tasks = await opsdroid.parse(message)
             for task in tasks:
@@ -200,12 +198,11 @@ class TestCoreAsync(asynctest.TestCase):
             dialogflow_action = ""
             skill = amock.CoroutineMock()
             mock_connector = Connector({})
-            decorator = match_dialogflow_action(dialogflow_action)
-            decorator(skill)
+            match_dialogflow_action(dialogflow_action)(skill)
             message = Message("Hello world", "user", "default", mock_connector)
             with amock.patch('opsdroid.parsers.dialogflow.parse_dialogflow'):
                 tasks = await opsdroid.parse(message)
-                self.assertEqual(len(tasks), 3)  # dialogflow, regex and always
+                self.assertEqual(len(tasks), 1)
 
                 # Once apiai parser stops working, remove this test!
                 with amock.patch('opsdroid.core._LOGGER.warning') as logmock:
@@ -223,12 +220,11 @@ class TestCoreAsync(asynctest.TestCase):
             luisai_intent = ""
             skill = amock.CoroutineMock()
             mock_connector = Connector({})
-            decorator = match_luisai_intent(luisai_intent)
-            decorator(skill)
+            match_luisai_intent(luisai_intent)(skill)
             message = Message("Hello world", "user", "default", mock_connector)
             with amock.patch('opsdroid.parsers.luisai.parse_luisai'):
                 tasks = await opsdroid.parse(message)
-                self.assertEqual(len(tasks), 3)  # luisai, regex and always
+                self.assertEqual(len(tasks), 1)
                 for task in tasks:
                     await task
 
@@ -238,11 +234,10 @@ class TestCoreAsync(asynctest.TestCase):
             witai_intent = ""
             skill = amock.CoroutineMock()
             mock_connector = Connector({})
-            decorator = match_witai(witai_intent)
-            decorator(skill)
+            match_witai(witai_intent)(skill)
             message = Message("Hello world", "user", "default", mock_connector)
             with amock.patch('opsdroid.parsers.witai.parse_witai'):
                 tasks = await opsdroid.parse(message)
-                self.assertEqual(len(tasks), 3)  # witai, regex and always
+                self.assertEqual(len(tasks), 1)
                 for task in tasks:
                     await task

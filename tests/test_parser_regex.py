@@ -19,9 +19,8 @@ class TestParserRegex(asynctest.TestCase):
             mock_connector = amock.CoroutineMock()
             message = Message("Hello world", "user", "default", mock_connector)
 
-            await parse_regex(opsdroid, message)
-
-            self.assertTrue(mock_skill.called)
+            skills = await parse_regex(opsdroid, message)
+            self.assertEqual(mock_skill, skills[0]["skill"])
 
     async def test_parse_regex_raises(self):
         with OpsDroid() as opsdroid:
@@ -35,6 +34,5 @@ class TestParserRegex(asynctest.TestCase):
             message = Message("Hello world", "user",
                               "default", mock_connector)
 
-            await parse_regex(opsdroid, message)
-
-            self.assertTrue(mock_skill.called)
+            skills = await parse_regex(opsdroid, message)
+            self.assertEqual(mock_skill, skills[0]["skill"])

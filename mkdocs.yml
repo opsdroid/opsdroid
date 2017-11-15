@@ -20,3 +20,4 @@ pages:
     - Webhook: 'matchers/webhook.md'
     - Always: 'matchers/always.md'
   - Contributing: 'contributing.md'
+    - Releasing: 'project/making-a-release.md'
