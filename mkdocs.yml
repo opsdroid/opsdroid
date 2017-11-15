@@ -15,6 +15,7 @@ pages:
     - Regular Expressions: 'matchers/regex.md'
     - Dialogflow (Api.ai): 'matchers/dialogflow.md'
     - LUIS.AI: 'matchers/luis.ai.md'
+    - Recast.AI: 'matchers/recast.ai.md'
     - wit.ai: 'matchers/wit.ai.md'
     - Crontab: 'matchers/crontab.md'
     - Webhook: 'matchers/webhook.md'
