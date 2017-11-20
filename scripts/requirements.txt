@@ -1,1 +1,2 @@
 PyGithub==1.35
+pyyaml==3.12
