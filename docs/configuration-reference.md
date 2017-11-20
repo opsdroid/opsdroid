@@ -1,16 +1,74 @@
 # Configuration reference
+**Quick Links:**
+- [Config file](#config-file)
+- [Reference](#reference)
+   - [Connector Modules](#connector-modules)
+   - [Database Modules](#database-modules)
+   - [Logging](#logging)
+   - [Installation Path](#installation-path) 
+   - [Skills](#skills)
+   - [Time Zone](#time-zone)
+   - [Web Server](#web-server)
+- [Module Options](#module-options)
+   - [Install Location](#install-location)
+   - [Git Repository](#git-repository)
+   - [Local Directory](#local-directory)
+   - [Disable Caching](#disable-caching)
+- [Environment Variables](#environment-variables)
+- [Include Additional Yaml Files](#include-additional-yaml-files)
+
 
 ## Config file
 
-For configuration you simply need to create a single YAML file named `configuration.yaml`. When you run opsdroid it will look for the file in the following places in order:
+For configuration, you simply need to create a single YAML file named `configuration.yaml`. When you run opsdroid it will look for the file in the following places in order:
 
  * `./configuration.yaml`
  * `~/.opsdroid/configuration.yaml`
  * `/etc/opsdroid/configuration.yaml`
 
-The opsdroid project itself is very simple and requires modules to give it functionality. In your configuration file you must specify the connector, skill and database* modules you wish to use and any options they may require.
+The opsdroid project itself is very simple and requires modules to give it functionality. In your configuration file, you must specify the connector, skill and database* modules you wish to use and any options they may require.
 
-**Connectors** are modules for connecting opsdroid to your specific chat service. **Skills** are modules which define what actions opsdroid should perform based on different chat messages. **Database** modules connect opsdroid to your chosen database and allows skills to store information between messages.
+**Connectors** are modules for connecting opsdroid to your specific chat service. **Skills** are modules which define what actions opsdroid should perform based on different chat messages. **Database** modules connect opsdroid to your chosen database and allow skills to store information between messages.
+
+For example, a simple barebones configuration would look like:
+
+```yaml
+connectors:
+  - name: shell
+
+skills:
+  - name: hello
+```
+
+This tells opsdroid to use the [shell connector](https://github.com/opsdroid/connector-shell) and [hello skill](https://github.com/opsdroid/skill-hello) from the official module library.
+
+In opsdroid all modules are git repositories which will be cloned locally the first time they are used. By default, if you do not specify a repository opsdroid will look at `https://github.com/opsdroid/<moduletype>-<modulename>.git` for the repository. Therefore in the above configuration, the `connector-shell` and `skill-hello` repositories were pulled from the opsdroid organisation on GitHub.
+
+You are of course encouraged to write your own modules and make them available on GitHub or any other repository host which is accessible by your opsdroid installation.
+
+A more advanced config would like similar to the following:
+
+```yaml
+connectors:
+  - name: slack
+    token: "mysecretslacktoken"
+
+databases:
+  - name: mongo
+    host: "mymongohost.mycompany.com"
+    port: "27017"
+    database: "opsdroid"
+
+skills:
+  - name: hello
+  - name: seen
+  - name: myawesomeskill
+    repo: "https://github.com/username/myawesomeskill.git"
+```
+
+In this configuration we are using the [slack connector](https://github.com/opsdroid/connector-slack) with a slack [auth token](https://api.slack.com/tokens) supplied, a [mongo database](https://github.com/opsdroid/database-mongo) connection for persisting data, `hello` and `seen` skills from the official repos and finally a custom skill hosted on GitHub.
+
+Configuration options such as the `token` in the slack connector or the `host`, `port` and `database` options in the mongo database are specific to those modules. Ensure you check each module's required configuration items before you use them.
 
 ## Reference
 
@@ -60,7 +118,7 @@ Setting `path` will configure where opsdroid writes the log file to. This locati
 
 All python logging levels are available in opsdroid. `level` can be set to `debug`, `info`, `warning`, `error` and `critical`.
 
-You may not want opsdroid to log to the console, for example if you are using the shell connector. However if running in a container you may want exactly that. Setting `console` to `true` or `false` will enable or disable console logging.
+You may not want opsdroid to log to the console, for example, if you are using the shell connector. However, if running in a container you may want exactly that. Setting `console` to `true` or `false` will enable or disable console logging.
 
 ```yaml
 logging:
@@ -119,7 +177,7 @@ timezone: 'Europe/London'
 
 Configure the REST API in opsdroid.
 
-By default opsdroid will start a web server accessible only to localhost on port `8080` (or `8443` if ssl details are provided). For more information see the [REST API docs](rest-api).
+By default, opsdroid will start a web server accessible only to localhost on port `8080` (or `8443` if ssl details are provided). For more information see the [REST API docs](rest-api).
 
 ```yaml
 web:
@@ -134,13 +192,13 @@ web:
 
 ### Install Location
 
-All modules are installed from git repositories. By default if no additional options are specified opsdroid will look for the repository at `https://github.com/opsdroid/<moduletype>-<modulename>.git`.
+All modules are installed from git repositories. By default, if no additional options are specified opsdroid will look for the repository at `https://github.com/opsdroid/<moduletype>-<modulename>.git`.
 
-However if you wish to install a module from a different location you can specify one of the following options.
+However, if you wish to install a module from a different location you can specify one of the following options.
 
 #### Git Repository
 
-A git url to install the module from.
+A git URL to install the module from.
 
 ```yaml
 connectors:
