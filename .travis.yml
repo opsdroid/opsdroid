@@ -3,6 +3,8 @@ matrix:
   fast_finish: true
   include:
     - python: "3.5"
+      env: TOXENV=docker
+    - python: "3.5"
       env: TOXENV=lint
     - python: "3.5"
       env: TOXENV=py35
@@ -11,6 +13,8 @@ matrix:
 cache:
   directories:
     - $HOME/.cache/pip
+services:
+  - docker
 install: pip install -U tox coveralls codecov
 language: python
 script: tox
