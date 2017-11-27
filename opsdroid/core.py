@@ -157,16 +157,16 @@ class OpsDroid():
             except AttributeError:
                 pass
 
-    def _log_connector_exit(self, future, connector=None):
-        """
-        If a connector exits with an error log it.
-        """
+    @staticmethod
+    def _log_connector_exit(future, connector=None):
+        """If a connector exits with an error log it."""
         if not future.cancelled():
             exc = future.exception()
             if exc:
-                _LOGGER.exception("Connector {} exited".format(connector), exc_info=exc)
+                _LOGGER.exception("Connector %s exited", connector,
+                                  exc_info=exc)
             else:
-                _LOGGER.info("Connector {} exited".format(connector))
+                _LOGGER.info("Connector %s exited", connector)
 
     def start_connector_tasks(self, connectors):
         """Start the connectors."""
@@ -183,7 +183,8 @@ class OpsDroid():
                 self.eventloop.run_until_complete(connector.connect(self))
             for connector in self.connectors:
                 task = self.eventloop.create_task(connector.listen(self))
-                task.add_done_callback(partial(self._log_connector_exit, connector=connector))
+                task.add_done_callback(partial(self._log_connector_exit,
+                                               connector=connector))
                 self.connector_tasks.append(task)
         else:
             self.critical("All connectors failed to load", 1)
