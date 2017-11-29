@@ -4,7 +4,7 @@ coveralls==1.2.0
 astroid==1.5.3
 pytest==3.3.0
 pytest-cov==2.5.1
-pytest-timeout==1.2.0
+pytest-timeout==1.2.1
 pytest-catchlog==1.2.2
 pydocstyle==2.1.1
 asynctest==0.11.1
