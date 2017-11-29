@@ -35,9 +35,10 @@ def get_skills(error_strict=False):
             )
         try:
             yaml.load(skill[2])
-        except yaml.scanner.ScannerError:
-            if not error_strict:
-                pass
+        except yaml.scanner.ScannerError as e:
+            if error_strict:
+                raise(e)
+            print("[WARNING] processing {0} raised an exception\n{2}\n{1}\n{2}".format(repo.name, e, '='*40))
 
         skills.append(skill)
     return skills
@@ -96,10 +97,17 @@ def prepare_skill(skills, uncommented_skills, commented_skills):
 
 def update_config(config_path, error_strict=False):
     (before, after, uncommented_skills, commented_skills) = parse_config(config_path)
-    skills = get_skills()
+    skills = get_skills(error_strict)
     skills_text = prepare_skill(skills, uncommented_skills, commented_skills)
     text = before + skills_text + after
-    yaml.load(text)
+
+    try:
+        yaml.load(text)
+    except yaml.scanner.ScannerError as e:
+        if error_strict:
+            raise(e)
+        print("[WARNING] processing resulting config raised an exception\n{1}\n{0}\n{1}".format(e, '='*40))
+
     with open(config_path, 'w') as f:
         f.write(text)
 
