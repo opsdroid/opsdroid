@@ -6,17 +6,23 @@ import yaml
 import re
 import os
 
+
 def normalize(string):
     lines = string.strip().split('\n')
     if 'skills' in lines[0]:
-        return '\n'.join([re.sub('^(#)?  ', '\g<1>', line) for line in lines[1:]])
+        return '\n'.join([
+            re.sub('^(#)?  ', '\g<1>', line)
+            for line in lines[1:]
+        ])
     return string.strip()
+
 
 def render(tpl_path, context):
     path, filename = os.path.split(tpl_path)
     return jinja2.Environment(
         loader=jinja2.FileSystemLoader(path or './')
     ).get_template(filename).render(context)
+
 
 def get_repos():
     return [
@@ -25,9 +31,11 @@ def get_repos():
         if repo.name.startswith('skill-')
     ]
 
+
 def get_readme(repo):
     readme_base64 = repo.get_readme().content
     return base64.b64decode(readme_base64).decode("utf-8")
+
 
 def get_skill(repo, readme):
     config = re.search(
@@ -52,13 +60,18 @@ def get_skill(repo, readme):
         'config': skill_config
     }
 
+
 def check_skill(repo, skill, error_strict):
     try:
         yaml.load(skill['config'])
     except yaml.scanner.ScannerError as e:
         if error_strict:
             raise(e)
-        print("[WARNING] processing {0} raised an exception\n{2}\n{1}\n{2}".format(repo.name, e, '='*40))
+        print(
+            "[WARNING] processing {0} raised an exception\n"
+            "{2}\n{1}\n{2}".format(repo.name, e, '='*40)
+        )
+
 
 def get_skills(g, active_skills, error_strict=False):
     repos = get_repos()
@@ -77,13 +90,18 @@ def get_skills(g, active_skills, error_strict=False):
 
     return skills
 
+
 def check_config(config, error_strict):
     try:
         yaml.load(config)
     except yaml.scanner.ScannerError as e:
         if error_strict:
             raise(e)
-        print("[WARNING] processing resulting config raised an exception\n{1}\n{0}\n{1}".format(e, '='*40))
+        print(
+            "[WARNING] processing resulting config raised an exception"
+            "\n{1}\n{0}\n{1}".format(e, '='*40)
+        )
+
 
 def update_config(g, active_skills, config_path, error_strict=False):
     skills = get_skills(g, active_skills, error_strict)
@@ -93,21 +111,30 @@ def update_config(g, active_skills, config_path, error_strict=False):
     with open(config_path, 'w') as f:
         f.write(text)
 
+
 if __name__ == '__main__':
     parser = ArgumentParser(description='Config creator ')
     parser.add_argument('output', nargs='?', help='Path to config to update')
     parser.add_argument('-t', '--token', nargs='?', help='GitHub Token')
-    parser.add_argument('-a', '--active-skills', nargs='?', help='List of skills to be activated')
-    
+    parser.add_argument('-a', '--active-skills',
+                        nargs='?', help='List of skills to be activated')
+
     parser.set_defaults(error_strict=False)
     group = parser.add_mutually_exclusive_group()
-    group.add_argument('--strict', dest='error_strict', action='store_true', help='Sets fail strategy to strict mode. Fails on any error.')
-    group.add_argument('--warn', dest='error_strict', action='store_false', help='Sets fail strategy to warn mode (default). Any errors are shown as warnings.')
-    
+    group.add_argument(
+        '--strict', dest='error_strict', action='store_true',
+        help='Sets fail strategy to strict mode. Fails on any error.'
+    )
+    group.add_argument(
+        '--warn', dest='error_strict', action='store_false',
+        help='Sets fail strategy to warn mode (default).'
+        ' Any errors are shown as warnings.'
+    )
+
     args = parser.parse_args()
 
     g = Github(args.token)
-    
+
     if args.active_skills:
         active_skills = args.active_skills.split(',')
     else:
@@ -115,7 +142,8 @@ if __name__ == '__main__':
 
     if not args.output:
         base_path = '/'.join(os.path.realpath(__file__).split('/')[:-2])
-        config_path = base_path + '/opsdroid/configuration/example_configuration.yaml'
+        config_path = base_path
+        config_path += '/opsdroid/configuration/example_configuration.yaml'
     else:
         config_path = args.output
 
