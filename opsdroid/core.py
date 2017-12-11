@@ -15,6 +15,7 @@ from opsdroid.parsers.always import parse_always
 from opsdroid.parsers.regex import parse_regex
 from opsdroid.parsers.dialogflow import parse_dialogflow
 from opsdroid.parsers.luisai import parse_luisai
+from opsdroid.parsers.recastai import parse_recastai
 from opsdroid.parsers.witai import parse_witai
 from opsdroid.parsers.crontab import parse_crontab
 from opsdroid.const import DEFAULT_CONFIG_PATH
@@ -241,6 +242,14 @@ class OpsDroid():
                 _LOGGER.debug("Checking luisai...")
                 skills = skills + \
                     await parse_luisai(self, message, luisai[0])
+
+            recastai = [p for p in parsers if p["name"] == "recastai"]
+            if len(recastai) == 1 and \
+                    ("enabled" not in recastai[0] or
+                     recastai[0]["enabled"] is not False):
+                _LOGGER.debug("Checking Recast.AI...")
+                skills = skills + \
+                    await parse_recastai(self, message, recastai[0])
 
             witai = [p for p in parsers if p["name"] == "witai"]
             if len(witai) == 1 and \
