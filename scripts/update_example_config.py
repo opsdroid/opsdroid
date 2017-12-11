@@ -1,4 +1,4 @@
-from github import Github, Repository
+from github import Github
 from argparse import ArgumentParser
 import jinja2
 import base64
