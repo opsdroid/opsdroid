@@ -20,7 +20,7 @@ def get_skills(error_strict=False):
     for repo in repos:
         readme_base64 = repo.get_readme().content
         readme = base64.b64decode(readme_base64).decode("utf-8")
-        config = re.search('#[#\s]+Configuration((.|\n)*)```(yaml)?\n((.|\n)*)\n```', readme, re.MULTILINE)
+        config = re.search('#[#\s]+Configuration((.|\n)*?)```(yaml)?\n((.|\n)*?)\n```', readme, re.MULTILINE)
         if config:
             skill = (
                 repo.name[6:].replace('-', ' ').capitalize(),
