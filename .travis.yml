@@ -15,10 +15,10 @@ cache:
     - $HOME/.cache/pip
 services:
   - docker
-install: pip install -U tox coveralls codecov
+install: pip install -U tox codecov
 language: python
 script: tox
-after_success: coveralls && codecov
+after_success: codecov
 deploy:
   provider: pypi
   user: $PYPI_USER
