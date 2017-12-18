@@ -311,12 +311,14 @@ class Loader:
         if any(prefix in git_url for prefix in ["http", "https", "ssh"]):
             # TODO Test if url or ssh path exists
             # TODO Handle github authentication
-            _LOGGER.info("Cloning from remote repository")
+            _LOGGER.info("Cloning %s from remote repository",
+                         config["name"])
             self.git_clone(git_url, config["install_path"],
                            config["branch"])
         else:
             if os.path.isdir(git_url):
-                _LOGGER.debug("Cloning from local repository")
+                _LOGGER.debug("Cloning %s from local repository",
+                              config["name"])
                 self.git_clone(git_url, config["install_path"],
                                config["branch"])
             else:
