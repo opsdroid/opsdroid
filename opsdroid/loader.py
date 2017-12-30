@@ -79,11 +79,12 @@ class Loader:
     def build_module_path(self, path_type, config):
         """Generate the module path from name and type."""
         if path_type == "import":
-            return MODULES_DIRECTORY + "." + config["type"] + \
+            path = MODULES_DIRECTORY + "." + config["type"] + \
                         "." + config["name"]
         elif path_type == "install":
-            return self.modules_directory + "/" + config["type"] + \
+            path = self.modules_directory + "/" + config["type"] + \
                         "/" + config["name"]
+        return path
 
     @staticmethod
     def git_clone(git_url, install_path, branch):
@@ -345,4 +346,4 @@ class Loader:
             installed = True
 
         if not installed:
-            _LOGGER.error("Failed to install from " + config["path"])
+            _LOGGER.error("Failed to install from %s", config["path"])
