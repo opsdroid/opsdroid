@@ -1,11 +1,10 @@
 flake8==3.5.0
-pylint==1.7.5
+pylint==1.8.1
 coveralls==1.2.0
-astroid==1.5.3
+astroid==1.6.0
 pytest==3.3.1
 pytest-cov==2.5.1
 pytest-timeout==1.2.1
-pytest-catchlog==1.2.2
 pydocstyle==2.1.1
 asynctest==0.11.1
 requests_mock==1.4.0
