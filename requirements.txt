@@ -1,4 +1,4 @@
 arrow==0.12.0
 aiohttp==2.3.7
-pycron==0.40
+pycron==0.80.0
 pyyaml==3.12
