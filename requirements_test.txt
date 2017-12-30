@@ -1,5 +1,5 @@
 flake8==3.5.0
-pylint==1.7.5
+pylint==1.8.1
 coveralls==1.2.0
 astroid==1.5.3
 pytest==3.3.1
