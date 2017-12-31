@@ -66,6 +66,10 @@ Running the tests
 docker run --rm -ti -v $(pwd):/usr/src/app opsdroid/opsdroid:myfeature tox
 ```
 
+## Maintainer scripts
+
+This project contains a directory called [`scripts`](https://github.com/opsdroid/opsdroid/tree/master/scripts) which are simple python scripts for use by maintainers when working on opsdroid. Each directory contains the script itself, a README and other supporting files. See the individual README files for more information.
+
 ## Documentation
 More documentation is always appreciated and it's something that you can contribute to from the GitHub web interface.  This might be a great start point if you are new to Open Source and GitHub!
 
