@@ -84,7 +84,7 @@ class OpsDroid():
 
     def exit(self):
         """Exit application."""
-        _LOGGER.info("Exiting application with return code " +
+        _LOGGER.info("Exiting application with return code %s",
                      str(self.sys_status))
         sys.exit(self.sys_status)
 
@@ -92,7 +92,6 @@ class OpsDroid():
         """Exit due to unrecoverable error."""
         self.sys_status = code
         _LOGGER.critical(error)
-        print("Error:", error)
         self.exit()
 
     def restart(self):
