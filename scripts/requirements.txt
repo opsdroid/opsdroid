@@ -1,0 +1,3 @@
+PyGithub==1.35
+pyyaml==3.12
+Jinja2==2.10
