@@ -115,7 +115,20 @@ class TestCore(unittest.TestCase):
             module = {}
             module["config"] = {}
             module["module"] = importlib.import_module(
-                "tests.mockmodules.connectors.connector")
+                "tests.mockmodules.connectors.connector_mocked")
+
+            try:
+                opsdroid.start_connector_tasks([module])
+            except NotImplementedError:
+                self.fail("Connector raised NotImplementedError.")
+
+    def test_start_connectors_not_implemented(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.start_connector_tasks([])
+            module = {}
+            module["config"] = {}
+            module["module"] = importlib.import_module(
+                "tests.mockmodules.connectors.connector_bare")
 
             with self.assertRaises(NotImplementedError):
                 opsdroid.start_connector_tasks([module])
