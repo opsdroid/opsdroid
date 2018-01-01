@@ -79,11 +79,12 @@ class Loader:
     def build_module_path(self, path_type, config):
         """Generate the module path from name and type."""
         if path_type == "import":
-            return MODULES_DIRECTORY + "." + config["type"] + \
+            path = MODULES_DIRECTORY + "." + config["type"] + \
                         "." + config["name"]
         elif path_type == "install":
-            return self.modules_directory + "/" + config["type"] + \
+            path = self.modules_directory + "/" + config["type"] + \
                         "/" + config["name"]
+        return path
 
     @staticmethod
     def git_clone(git_url, install_path, branch):
@@ -326,12 +327,14 @@ class Loader:
         if any(prefix in git_url for prefix in ["http", "https", "ssh"]):
             # TODO Test if url or ssh path exists
             # TODO Handle github authentication
-            _LOGGER.info("Cloning from remote repository")
+            _LOGGER.info("Cloning %s from remote repository",
+                         config["name"])
             self.git_clone(git_url, config["install_path"],
                            config["branch"])
         else:
             if os.path.isdir(git_url):
-                _LOGGER.debug("Cloning from local repository")
+                _LOGGER.debug("Cloning %s from local repository",
+                              config["name"])
                 self.git_clone(git_url, config["install_path"],
                                config["branch"])
             else:
@@ -358,4 +361,4 @@ class Loader:
             installed = True
 
         if not installed:
-            _LOGGER.error("Failed to install from " + config["path"])
+            _LOGGER.error("Failed to install from %s", config["path"])

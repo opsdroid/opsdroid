@@ -10,7 +10,8 @@ from opsdroid.core import OpsDroid
 from opsdroid.message import Message
 from opsdroid.connector import Connector
 from opsdroid.matchers import (match_regex, match_dialogflow_action,
-                               match_luisai_intent, match_witai)
+                               match_luisai_intent, match_recastai,
+                               match_witai)
 
 
 class TestCore(unittest.TestCase):
@@ -114,7 +115,20 @@ class TestCore(unittest.TestCase):
             module = {}
             module["config"] = {}
             module["module"] = importlib.import_module(
-                "tests.mockmodules.connectors.connector")
+                "tests.mockmodules.connectors.connector_mocked")
+
+            try:
+                opsdroid.start_connector_tasks([module])
+            except NotImplementedError:
+                self.fail("Connector raised NotImplementedError.")
+
+    def test_start_connectors_not_implemented(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.start_connector_tasks([])
+            module = {}
+            module["config"] = {}
+            module["module"] = importlib.import_module(
+                "tests.mockmodules.connectors.connector_bare")
 
             with self.assertRaises(NotImplementedError):
                 opsdroid.start_connector_tasks([module])
@@ -223,6 +237,20 @@ class TestCoreAsync(asynctest.TestCase):
             match_luisai_intent(luisai_intent)(skill)
             message = Message("Hello world", "user", "default", mock_connector)
             with amock.patch('opsdroid.parsers.luisai.parse_luisai'):
+                tasks = await opsdroid.parse(message)
+                self.assertEqual(len(tasks), 1)
+                for task in tasks:
+                    await task
+
+    async def test_parse_recastai(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.config["parsers"] = [{"name": "recastai"}]
+            recastai_intent = ""
+            skill = amock.CoroutineMock()
+            mock_connector = Connector({})
+            match_recastai(recastai_intent)(skill)
+            message = Message("Hello", "user", "default", mock_connector)
+            with amock.patch('opsdroid.parsers.recastai.parse_recastai'):
                 tasks = await opsdroid.parse(message)
                 self.assertEqual(len(tasks), 1)
                 for task in tasks:

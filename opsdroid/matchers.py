@@ -99,6 +99,18 @@ def match_rasanlu(intent):
                                 opsdroid.loader.current_import_config})
         return func
     return matcher
+  
+  
+def match_recastai(intent):
+    """Return recastai intent match decorator."""
+    def matcher(func):
+        """Add decorated function to skills list for recastai matching."""
+        opsdroid = get_opsdroid()
+        opsdroid.skills.append({"recastai_intent": intent, "skill": func,
+                                "config":
+                                    opsdroid.loader.current_import_config})
+        return func
+    return matcher
 
 
 def match_witai(intent):
