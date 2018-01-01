@@ -1,0 +1,2 @@
+PyGithub==1.35
+Jinja2==2.10

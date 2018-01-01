@@ -1,0 +1,114 @@
+##                      _           _     _
+##   ___  _ __  ___  __| |_ __ ___ (_) __| |
+##  / _ \| '_ \/ __|/ _` | '__/ _ \| |/ _` |
+## | (_) | |_) \__ \ (_| | | | (_) | | (_| |
+##  \___/| .__/|___/\__,_|_|  \___/|_|\__,_|
+##       |_|
+##                   __ _
+##   ___ ___  _ __  / _(_) __ _
+##  / __/ _ \| '_ \| |_| |/ _` |
+## | (_| (_) | | | |  _| | (_| |
+##  \___\___/|_| |_|_| |_|\__, |
+##                        |___/
+##
+## A default config file to use with opsdroid
+
+## Set the logging level
+# logging:
+#   level: info
+#   path: opsdroid.log
+#   console: true
+
+## Set the location for opsdroid to install modules
+# module-path: "."
+
+## Show welcome message
+welcome-message: true
+
+## Configure the web server
+# web:
+#   host: '127.0.0.1'
+#   port: 8080
+#   ssl:
+#     cert: /path/to/cert.pem
+#     key: /path/to/key.pem
+
+## Parsers
+# parsers:
+#   - name: regex
+#     enabled: true
+#
+#   - name: crontab
+#     enabled: true
+#
+#   - name: dialogflow
+#     access-token: "youraccesstoken"
+#     min-score: 0.6
+
+## Connector modules
+connectors:
+  - name: shell
+  - name: websocket
+
+  # Uncomment the connector(s) that you wish opsdroid to work on
+#  ## Slack (https://github.com/opsdroid/connector-slack)
+#  - name: slack
+#    # Required
+#    api-token: "zyxw-abdcefghi-12345"
+#    # optional
+#    bot-name: "mybot"       # default "opsdroid"
+#    default-room: "#random" # default "#general"
+#    icon-imoji: ":smile:"   # default ":robot_face:"
+#
+#  ## Facebook (https://github.com/opsdroid/connector-facebook)
+#  - name: facebook
+#    # Required
+#    verify-token: aabbccddee
+#    page-access-token: aabbccddee112233445566
+#    # Optional
+#    bot-name: "mybot" # default "opsdroid"
+#
+#  ## Twitter (https://github.com/opsdroid/connector-twitter)
+#  - name: twitter
+#    # Required
+#    consumer_key: "zyxw-abdcefghi-12345"
+#    consumer_secret: "zyxw-abdcefghi-12345-zyxw-abdcefghi-12345"
+#    oauth_token: ""zyxw-abdcefghi-12345-zyxw-abdcefghi-12345"
+#    oauth_token_secret: "zyxw-abdcefghi-12345-zyxw-abdcefghi-12345"
+#    # Optional
+#    enable_dms: true    # Should the bot respond to Direct Messages
+#    enable_tweets: true # Should the bot respond to tweets
+#
+#  ## Telegram (https://github.com/opsdroid/connector-telegram)
+#  - name: telegram
+#    # Required
+#    token: "123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ-ZYXWVUT"  # Telegram bot token
+#    # Optional
+#    update_interval: 0.5  # Interval between checking for messages
+#    default_user: user1   # Default user to send messages to (overrides default room in connector)
+#    whitelisted_users:    # List of users who can speak to the bot, if not set anyone can speak
+#      - user1
+#      - user2
+
+## Database modules (optional)
+# databases:
+#   - name: mongo
+#     host:       "my host"     # (Optional) default "localhost"
+#     port:       "12345"       # (Optional) default "27017"
+#     database:   "mydatabase"  # (Optional) default "opsdroid"
+
+## Skill modules
+skills:
+{% for skill in uncommented_skills %}
+  ## {{ skill.name }} ({{ skill.url }})
+  {% for line in skill.config.split('\n') -%}
+  {{ line }}
+  {% endfor -%}
+{% endfor %}
+  # Configurations for other skills uncomment desired skill to activate it.
+#{% for skill in commented_skills %}
+#  ## {{ skill.name }} ({{ skill.url }})
+{% for line in skill.config.split('\n') -%}
+#  {{ line }}
+{% endfor -%}
+#{% endfor %}
