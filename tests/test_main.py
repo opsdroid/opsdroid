@@ -20,6 +20,11 @@ class TestMain(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self._tmp_dir)
 
+    def test_init(self):
+        with mock.patch.object(opsdroid, "main", return_value=42):
+            with mock.patch.object(opsdroid, "__name__", "__main__"):
+                self.assertEqual(opsdroid.init(), 42)
+
     def test_parse_args(self):
         args = opsdroid.parse_args(["--gen-config"])
         self.assertEqual(True, args.gen_config)
