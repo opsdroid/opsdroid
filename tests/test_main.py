@@ -8,6 +8,8 @@ import unittest.mock as mock
 
 
 import opsdroid.__main__ as opsdroid
+import opsdroid.web as web
+from opsdroid.core import OpsDroid
 
 
 class TestMain(unittest.TestCase):
@@ -137,3 +139,23 @@ class TestMain(unittest.TestCase):
                 opsdroid.check_dependencies()
             except SystemExit:
                 self.fail("check_dependencies() exited unexpectedly!")
+
+    def test_gen_config(self):
+        with mock.patch.object(sys, 'argv', ["opsdroid", "--gen-config"]):
+            with self.assertRaises(SystemExit):
+                opsdroid.main()
+
+    def test_main(self):
+        with mock.patch.object(sys, 'argv', ["opsdroid"]), \
+                mock.patch.object(opsdroid, 'check_dependencies') as mock_cd, \
+                mock.patch.object(opsdroid, 'configure_logging') as mock_cl, \
+                mock.patch.object(opsdroid, 'welcome_message') as mock_wm, \
+                mock.patch.object(OpsDroid, 'load') as mock_load, \
+                mock.patch.object(web, 'Web'), \
+                mock.patch.object(OpsDroid, 'start_loop') as mock_loop:
+            opsdroid.main()
+            self.assertTrue(mock_cd.called)
+            self.assertTrue(mock_cl.called)
+            self.assertTrue(mock_wm.called)
+            self.assertTrue(mock_load.called)
+            self.assertTrue(mock_loop.called)
