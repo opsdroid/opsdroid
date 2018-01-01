@@ -2,6 +2,7 @@
 import unittest
 import logging
 import os
+import sys
 import shutil
 import unittest.mock as mock
 
@@ -102,15 +103,25 @@ class TestMain(unittest.TestCase):
         response = opsdroid.welcome_message(config)
         self.assertIsNone(response)
 
-    # def test_gen_config(self):
-    #     with mock.patch.object(sys, 'argv', ["--gen-config"]):
-    #         with self.assertRaises(SystemExit) as sysexit:
-    #             opsdroid.main()
-    #         self.assertEqual(sysexit.exception.code, 0)
+    def test_check_version_27(self):
+        with mock.patch.object(sys, 'version_info') as version_info:
+            version_info.major = 2
+            version_info.minor = 7
+            with self.assertRaises(SystemExit) as sysexit:
+                opsdroid.check_dependencies()
 
-    # def test_check_version(self):
-    #     with mock.patch.object(sys, 'version_info', [2, 2, 0]):
-    #         self.assertEqual(sys.version_info[0], 2)
-    #         with self.assertRaises(SystemExit) as sysexit:
-    #             opsdroid.check_dependencies()
-    #         self.assertEqual(sysexit.exception.code, 1)
+    def test_check_version_34(self):
+        with mock.patch.object(sys, 'version_info') as version_info:
+            version_info.major = 3
+            version_info.minor = 4
+            with self.assertRaises(SystemExit) as sysexit:
+                opsdroid.check_dependencies()
+
+    def test_check_version_35(self):
+        with mock.patch.object(sys, 'version_info') as version_info:
+            version_info.major = 3
+            version_info.minor = 5
+            try:
+                opsdroid.check_dependencies()
+            except SystemExit:
+                self.fail("check_dependencies() raised SystemExit unexpectedly!")

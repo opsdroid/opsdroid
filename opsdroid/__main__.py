@@ -83,7 +83,7 @@ def parse_args(args):
 
 def check_dependencies():
     """Check for system dependencies required by opsdroid."""
-    if sys.version_info[0] < 3 or sys.version_info[1] < 5:
+    if sys.version_info.major < 3 or sys.version_info.minor < 5:
         logging.critical("Whoops! opsdroid requires python 3.5 or above.")
         sys.exit(1)
 
