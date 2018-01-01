@@ -20,10 +20,17 @@ class TestMain(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self._tmp_dir)
 
-    def test_init(self):
-        with mock.patch.object(opsdroid, "main", return_value=42):
+    def test_init_runs(self):
+        with mock.patch.object(opsdroid, "main") as mainfunc:
             with mock.patch.object(opsdroid, "__name__", "__main__"):
-                self.assertEqual(opsdroid.init(), 42)
+                opsdroid.init()
+                self.assertTrue(mainfunc.called)
+
+    def test_init_doesnt_run(self):
+        with mock.patch.object(opsdroid, "main") as mainfunc:
+            with mock.patch.object(opsdroid, "__name__", "opsdroid"):
+                opsdroid.init()
+                self.assertFalse(mainfunc.called)
 
     def test_parse_args(self):
         args = opsdroid.parse_args(["--gen-config"])
@@ -112,14 +119,14 @@ class TestMain(unittest.TestCase):
         with mock.patch.object(sys, 'version_info') as version_info:
             version_info.major = 2
             version_info.minor = 7
-            with self.assertRaises(SystemExit) as sysexit:
+            with self.assertRaises(SystemExit):
                 opsdroid.check_dependencies()
 
     def test_check_version_34(self):
         with mock.patch.object(sys, 'version_info') as version_info:
             version_info.major = 3
             version_info.minor = 4
-            with self.assertRaises(SystemExit) as sysexit:
+            with self.assertRaises(SystemExit):
                 opsdroid.check_dependencies()
 
     def test_check_version_35(self):
@@ -129,4 +136,4 @@ class TestMain(unittest.TestCase):
             try:
                 opsdroid.check_dependencies()
             except SystemExit:
-                self.fail("check_dependencies() raised SystemExit unexpectedly!")
+                self.fail("check_dependencies() exited unexpectedly!")

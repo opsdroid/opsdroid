@@ -109,7 +109,7 @@ def welcome_message(config):
 
 
 def main():
-    """Enter the application here."""
+    """Parse the args and then start the application."""
     args = parse_args(sys.argv[1:])
 
     if args.gen_config:
@@ -132,8 +132,9 @@ def main():
 
 
 def init():
-  if __name__ == "__main__":
-    return main()
+    """Enter the application."""
+    if __name__ == "__main__":
+        main()
 
 
 init()
