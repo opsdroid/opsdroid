@@ -83,7 +83,7 @@ def parse_args(args):
 
 def check_dependencies():
     """Check for system dependencies required by opsdroid."""
-    if sys.version_info[0] < 3 or sys.version_info[1] < 5:
+    if sys.version_info.major < 3 or sys.version_info.minor < 5:
         logging.critical("Whoops! opsdroid requires python 3.5 or above.")
         sys.exit(1)
 
@@ -99,8 +99,8 @@ def welcome_message(config):
                          "http://opsdroid.readthedocs.io/#configuration")
             _LOGGER.info("Watch the Get Started Videos at: "
                          "http://bit.ly/2fnC0Fh")
-            _LOGGER.info("Install Opsdroid Desktop at: \n" +
-                         "https://github.com/opsdroid/opsdroid-desktop/" +
+            _LOGGER.info("Install Opsdroid Desktop at: \n"
+                         "https://github.com/opsdroid/opsdroid-desktop/"
                          "releases")
             _LOGGER.info("=" * 40)
     except KeyError:
@@ -109,7 +109,7 @@ def welcome_message(config):
 
 
 def main():
-    """Enter the application here."""
+    """Parse the args and then start the application."""
     args = parse_args(sys.argv[1:])
 
     if args.gen_config:
@@ -131,5 +131,10 @@ def main():
             restart = opsdroid.should_restart
 
 
-if __name__ == "__main__":
-    main()
+def init():
+    """Enter the application."""
+    if __name__ == "__main__":
+        main()
+
+
+init()
