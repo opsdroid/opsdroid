@@ -72,6 +72,15 @@ class Connector():
         """
         raise NotImplementedError
 
+    async def user_typing(self, opsdroid):
+        """Signals that opsdroid is typing.
+
+        Triggers the "user is typing" event if the chat service that
+        opsdroid is connected to accepts it.
+        """
+
+        raise NotImplementedError
+
     async def disconnect(self, opsdroid):
         """Disconnect from the chat service.
 

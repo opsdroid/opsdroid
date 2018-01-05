@@ -1,8 +1,9 @@
 """Class to encapsulate a message."""
 
 from datetime import datetime
-
 from copy import copy
+from time import sleep
+from random import randrange
 
 from opsdroid.helper import get_opsdroid
 
@@ -21,11 +22,30 @@ class Message:
         self.regex = None
         self.responded_to = False
 
+    async def thinking_delay(self, seconds=0):
+        """Makes opsdroid wait x-seconds before responding."""
+        opsdroid = get_opsdroid()
+
+        if 'thinking-delay' in opsdroid.config:
+            seconds = opsdroid.config.get('thinking-delay')
+
+        if isinstance(seconds, list):
+            seconds = randrange(seconds[0], seconds[1])
+        sleep(seconds)
+
+    async def typing_delay(self, text):
+        char_count = len(text)
+        sleep(char_count//6)
+
     async def respond(self, text):
         """Respond to this message using the connector it was created by."""
         opsdroid = get_opsdroid()
         response = copy(self)
         response.text = text
+
+        await self.thinking_delay()
+        await self.typing_delay(response.text)
+
         await self.connector.respond(response)
         if not self.responded_to:
             now = datetime.now()
