@@ -13,13 +13,20 @@ async def train_rasanlu(config, skills):
     """Train a Rasa NLU model based on the loaded skills."""
     # TODO: Check if the model has already been trained and skip if so.
     _LOGGER.info("Training a new Rasa NLU model. This may take a while...")
-    intents = "\n\n".join(
-        [skill["intents"] for skill in skills if skill["intents"] is not None])
+    intents = [skill["intents"] for skill in skills if skill["intents"] is not None]
+    if not len(intents):
+        _LOGGER.warning("No intents found, skipping training.")
+        return
+    intents = "\n\n".join(intents)
     intents = unicodedata.normalize("NFKD", intents).encode('ascii')
     async with aiohttp.ClientSession() as session:
         url = config.get("url", 'http://localhost:5000') \
             + "/train?project={}".format(config["project"])
-        resp = await session.post(url, data=intents)
+        try:
+            resp = await session.post(url, data=intents)
+        except aiohttp.client_exceptions.ClientConnectorError:
+            _LOGGER.error("Unable to connect to Rasa NLU, training failed.")
+            return
         if resp.status == 200:
             result = await resp.json()
             if "info" in result and "new model trained" in result["info"]:
@@ -27,8 +34,11 @@ async def train_rasanlu(config, skills):
                 config["model"] = result["info"].split(":")[1].strip()
                 _LOGGER.info("Initialising Rasa NLU model. "
                              "This might also take a while...")
-                await call_rasanlu("", config)
-                _LOGGER.info("Initialisation complete.")
+                result = await call_rasanlu("", config)
+                if result is None:
+                    _LOGGER.error("Initialisation failed, training failed..")
+                else:
+                    _LOGGER.info("Initialisation complete.")
                 return
             else:
                 _LOGGER.debug(result)
@@ -50,7 +60,11 @@ async def call_rasanlu(text, config):
         if "token" in config:
             data["token"] = config["token"]
         url = config.get("url", 'http://localhost:5000') + "/parse"
-        resp = await session.post(url, data=json.dumps(data), headers=headers)
+        try:
+            resp = await session.post(url, data=json.dumps(data), headers=headers)
+        except aiohttp.client_exceptions.ClientConnectorError:
+            _LOGGer.error("Unable to connect to Rasa NLU")
+            return None
         if resp.status == 200:
             result = await resp.json()
             _LOGGER.debug("Rasa NLU response - %s", json.dumps(result))
