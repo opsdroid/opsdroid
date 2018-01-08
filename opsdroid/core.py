@@ -6,6 +6,7 @@ import signal
 import sys
 import weakref
 import asyncio
+from functools import partial
 
 from opsdroid.memory import Memory
 from opsdroid.connector import Connector
@@ -155,6 +156,17 @@ class OpsDroid():
             except AttributeError:
                 pass
 
+    @staticmethod
+    def _log_connector_exit(future, connector=None):
+        """If a connector exits with an error log it."""
+        if not future.cancelled():
+            exc = future.exception()
+            if exc:
+                _LOGGER.exception("Connector %s exited", connector,
+                                  exc_info=exc)
+            else:
+                _LOGGER.info("Connector %s exited", connector)
+
     def start_connector_tasks(self, connectors):
         """Start the connectors."""
         for connector_module in connectors:
@@ -170,6 +182,8 @@ class OpsDroid():
                 self.eventloop.run_until_complete(connector.connect(self))
             for connector in self.connectors:
                 task = self.eventloop.create_task(connector.listen(self))
+                task.add_done_callback(partial(self._log_connector_exit,
+                                               connector=connector))
                 self.connector_tasks.append(task)
         else:
             self.critical("All connectors failed to load", 1)
