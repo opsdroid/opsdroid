@@ -29,12 +29,12 @@ async def _get_intents_fingerprint(intents):
     return sha256(intents).hexdigest()
 
 
-async def _build_training_url(config, intents):
+async def _build_training_url(config):
     """Build the url for training a Rasa NLU model."""
     return "{}/train?project={}&fixed_model_name={}".format(
         config.get("url", RASA_DEFAULT_URL),
         config.get("project", RASA_DEFAULT_PROJECT),
-        config.get("model"))
+        config["model"])
 
 
 async def _build_status_url(config):
@@ -89,7 +89,7 @@ async def train_rasanlu(config, skills):
     async with aiohttp.ClientSession() as session:
         _LOGGER.info("Now training the model. This may take a while...")
 
-        url = await _build_training_url(config, intents)
+        url = await _build_training_url(config)
 
         try:
             training_start = arrow.now()

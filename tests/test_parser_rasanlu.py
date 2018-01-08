@@ -86,7 +86,7 @@ class TestParserRasaNLU(asynctest.TestCase):
             patched_request.side_effect = \
                 aiohttp.client_exceptions.ClientConnectorError()
             self.assertEqual(None,
-                await rasanlu.call_rasanlu(message.text, config))
+                             await rasanlu.call_rasanlu(message.text, config))
 
     async def test_parse_rasanlu(self):
         with OpsDroid() as opsdroid:
@@ -318,3 +318,157 @@ class TestParserRasaNLU(asynctest.TestCase):
 
             self.assertFalse(mock_skill.called)
             self.assertTrue(mocked_call.called)
+
+    async def test__get_all_intents(self):
+        skills = [
+            {"intents": "Hello"},
+            {"intents": None},
+            {"intents": "World"}
+        ]
+        intents = await rasanlu._get_all_intents(skills)
+        self.assertEqual(type(intents), type(b""))
+        self.assertEqual(intents, b"Hello\n\nWorld")
+
+    async def test__get_all_intents_fails(self):
+        skills = []
+        intents = await rasanlu._get_all_intents(skills)
+        self.assertEqual(intents, None)
+
+    async def test__get_intents_fingerprint(self):
+        fingerprint = await rasanlu._get_intents_fingerprint(b"")
+        self.assertEqual(fingerprint,
+                         'e3b0c44298fc1c149afbf4c8996fb924' +
+                         '27ae41e4649b934ca495991b7852b855')
+
+        fingerprint = await rasanlu._get_intents_fingerprint(b"Hello World")
+        self.assertEqual(fingerprint,
+                         'a591a6d40bf420404a011733cfb7b190' +
+                         'd62c65bf0bcda32b57b277d9ad9f146e')
+
+        fingerprint = await rasanlu._get_intents_fingerprint(b"Hello\n\nWorld")
+        self.assertEqual(fingerprint,
+                         '286346b7b2f097fc1c8d8c0436c5e3b1' +
+                         'b661768a549f7585a3bda9cc7af2b079')
+
+    async def test__build_training_url(self):
+        config = {}
+        with self.assertRaises(KeyError):
+            await rasanlu._build_training_url(config)
+
+        config = {
+            "model": "helloworld"
+        }
+        url = await rasanlu._build_training_url(config)
+        self.assertTrue("helloworld" in url)
+
+        config = {
+            "url": "http://example.com",
+            "project": "myproject",
+            "model": "helloworld"
+        }
+        url = await rasanlu._build_training_url(config)
+        self.assertTrue("http://example.com" in url)
+        self.assertTrue("myproject" in url)
+        self.assertTrue("helloworld" in url)
+
+    async def test__build_status_url(self):
+        config = {
+            "url": "http://example.com"
+        }
+        url = await rasanlu._build_status_url(config)
+        self.assertTrue("http://example.com" in url)
+
+    async def test__init_model(self):
+        with amock.patch.object(rasanlu, 'call_rasanlu') as mocked_call:
+            mocked_call.return_value = {"data": "Some data"}
+            self.assertEqual(await rasanlu._init_model({}), True)
+
+            mocked_call.return_value = None
+            self.assertEqual(await rasanlu._init_model({}), False)
+
+    async def test__get_existing_models(self):
+        result = amock.Mock()
+        result.status = 200
+        result.json = amock.CoroutineMock()
+        result.json.return_value = {
+            "available_projects": {
+                "default": {
+                    "available_models": [
+                        "fallback"
+                    ],
+                    "status": "ready"
+                },
+                "opsdroid": {
+                    "available_models": [
+                        "hello",
+                        "world"
+                    ],
+                    "status": "ready"
+                }
+            }
+        }
+        with amock.patch('aiohttp.ClientSession.get') as patched_request:
+            patched_request.return_value = helpers.create_future(self.loop)
+            patched_request.return_value.set_result(result)
+            models = await rasanlu._get_existing_models({"project": "opsdroid"})
+            self.assertEqual(models, ["hello","world"])
+
+    async def test__get_existing_models_fails(self):
+        result = amock.Mock()
+        result.status = 404
+        result.json = amock.CoroutineMock()
+        result.json.return_value = {}
+        with amock.patch('aiohttp.ClientSession.get') as patched_request:
+            patched_request.return_value = helpers.create_future(self.loop)
+            patched_request.return_value.set_result(result)
+            models = await rasanlu._get_existing_models({})
+            self.assertEqual(models, [])
+
+    async def test_train_rasanlu(self):
+        result = amock.Mock()
+        result.status = 404
+        result.text = amock.CoroutineMock()
+        result.json = amock.CoroutineMock()
+        result.json.return_value = {
+            "info": "new model trained: abc123"
+        }
+
+        with amock.patch('aiohttp.ClientSession.post') as patched_request, \
+             amock.patch.object(rasanlu, '_get_all_intents') as mock_gai, \
+             amock.patch.object(rasanlu, '_init_model') as mock_im, \
+             amock.patch.object(rasanlu, '_build_training_url') as mock_btu, \
+             amock.patch.object(rasanlu,
+                                '_get_existing_models') as mock_gem, \
+             amock.patch.object(rasanlu,
+                                '_get_intents_fingerprint') as mock_gif:
+
+            mock_gai.return_value = None
+            self.assertEqual(await rasanlu.train_rasanlu({}, {}), False)
+
+            mock_gai.return_value = "Hello World"
+            mock_gem.return_value = ["abc123"]
+            mock_gif.return_value = "abc123"
+            self.assertEqual(await rasanlu.train_rasanlu({}, {}), True)
+            self.assertTrue(mock_im.called)
+            self.assertFalse(mock_btu.called)
+
+            mock_gem.return_value = []
+            mock_btu.return_value = "http://example.com"
+            patched_request.side_effect = \
+                aiohttp.client_exceptions.ClientConnectorError()
+            self.assertEqual(await rasanlu.train_rasanlu({}, {}), False)
+
+            patched_request.side_effect = None
+            patched_request.return_value = helpers.create_future(self.loop)
+            patched_request.return_value.set_result(result)
+            self.assertEqual(await rasanlu.train_rasanlu({}, {}), False)
+
+            result.status = 200
+            patched_request.return_value = helpers.create_future(self.loop)
+            patched_request.return_value.set_result(result)
+            self.assertEqual(await rasanlu.train_rasanlu({}, {}), True)
+
+            result.json.return_value = {"info": "error"}
+            patched_request.return_value = helpers.create_future(self.loop)
+            patched_request.return_value.set_result(result)
+            self.assertEqual(await rasanlu.train_rasanlu({}, {}), False)
