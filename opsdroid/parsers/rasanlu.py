@@ -78,21 +78,26 @@ async def train_rasanlu(config, skills):
     intents = await _get_all_intents(skills)
     if intents is None:
         _LOGGER.warning("No intents found, skipping training.")
-        return
+        return False
+
     config["model"] = await _get_intents_fingerprint(intents)
     if config["model"] in await _get_existing_models(config):
         _LOGGER.info("This model already exists, skipping training...")
         await _init_model(config)
-        return
+        return True
+
     async with aiohttp.ClientSession() as session:
         _LOGGER.info("Now training the model. This may take a while...")
+
         url = await _build_training_url(config, intents)
+
         try:
             training_start = arrow.now()
             resp = await session.post(url, data=intents)
         except aiohttp.client_exceptions.ClientConnectorError:
             _LOGGER.error("Unable to connect to Rasa NLU, training failed.")
-            return
+            return False
+
         if resp.status == 200:
             result = await resp.json()
             if "info" in result and "new model trained" in result["info"]:
@@ -100,12 +105,13 @@ async def train_rasanlu(config, skills):
                 _LOGGER.info("Rasa NLU training completed in %s seconds.",
                              int(time_taken))
                 await _init_model(config)
-                return
+                return True
             else:
                 _LOGGER.debug(result)
         else:
             _LOGGER.error("Bad Rasa NLU response - %s", await resp.text())
         _LOGGER.error("Rasa NLU training failed.")
+        return False
 
 
 async def call_rasanlu(text, config):

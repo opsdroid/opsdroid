@@ -1,6 +1,7 @@
 import asynctest
 import asynctest.mock as amock
 
+import aiohttp
 from aiohttp import helpers, ClientOSError
 
 from opsdroid.core import OpsDroid
@@ -71,6 +72,21 @@ class TestParserRasaNLU(asynctest.TestCase):
             response = await rasanlu.call_rasanlu(message.text, config)
             self.assertTrue(patched_request.called)
             self.assertEqual(response, result.text.return_value)
+
+    async def test_call_rasanlu_raises(self):
+        mock_connector = Connector({})
+        message = Message("how's the weather outside", "user",
+                          "default", mock_connector)
+        config = {'name': 'rasanlu', 'access-token': 'test', 'min-score': 0.3}
+        result = amock.Mock()
+        result.status = 403
+        result.text = amock.CoroutineMock()
+        result.text.return_value = "unauthorized"
+        with amock.patch('aiohttp.ClientSession.post') as patched_request:
+            patched_request.side_effect = \
+                aiohttp.client_exceptions.ClientConnectorError()
+            self.assertEqual(None,
+                await rasanlu.call_rasanlu(message.text, config))
 
     async def test_parse_rasanlu(self):
         with OpsDroid() as opsdroid:
