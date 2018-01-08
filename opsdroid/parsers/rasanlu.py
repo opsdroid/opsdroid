@@ -156,7 +156,7 @@ async def parse_rasanlu(opsdroid, message, config):
                       "Check your 'token'.")
         return matched_skills
 
-    if 'intent' not in result or result['intent'] is None:
+    if result['intent'] is None or 'intent' not in result:
         _LOGGER.error("Rasa NLU error - No intent found. Did you "
                       "forget to create one?")
         return matched_skills

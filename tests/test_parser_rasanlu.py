@@ -84,7 +84,8 @@ class TestParserRasaNLU(asynctest.TestCase):
         result.text.return_value = "unauthorized"
         with amock.patch('aiohttp.ClientSession.post') as patched_request:
             patched_request.side_effect = \
-                aiohttp.client_exceptions.ClientConnectorError()
+                aiohttp.client_exceptions.ClientConnectorError(
+                    'key', None)
             self.assertEqual(None,
                              await rasanlu.call_rasanlu(message.text, config))
 
@@ -410,8 +411,9 @@ class TestParserRasaNLU(asynctest.TestCase):
         with amock.patch('aiohttp.ClientSession.get') as patched_request:
             patched_request.return_value = helpers.create_future(self.loop)
             patched_request.return_value.set_result(result)
-            models = await rasanlu._get_existing_models({"project": "opsdroid"})
-            self.assertEqual(models, ["hello","world"])
+            models = await rasanlu._get_existing_models(
+                {"project": "opsdroid"})
+            self.assertEqual(models, ["hello", "world"])
 
     async def test__get_existing_models_fails(self):
         result = amock.Mock()
@@ -434,13 +436,13 @@ class TestParserRasaNLU(asynctest.TestCase):
         }
 
         with amock.patch('aiohttp.ClientSession.post') as patched_request, \
-             amock.patch.object(rasanlu, '_get_all_intents') as mock_gai, \
-             amock.patch.object(rasanlu, '_init_model') as mock_im, \
-             amock.patch.object(rasanlu, '_build_training_url') as mock_btu, \
-             amock.patch.object(rasanlu,
-                                '_get_existing_models') as mock_gem, \
-             amock.patch.object(rasanlu,
-                                '_get_intents_fingerprint') as mock_gif:
+            amock.patch.object(rasanlu, '_get_all_intents') as mock_gai, \
+            amock.patch.object(rasanlu, '_init_model') as mock_im, \
+            amock.patch.object(rasanlu, '_build_training_url') as mock_btu, \
+            amock.patch.object(rasanlu,
+                               '_get_existing_models') as mock_gem, \
+            amock.patch.object(rasanlu,
+                               '_get_intents_fingerprint') as mock_gif:
 
             mock_gai.return_value = None
             self.assertEqual(await rasanlu.train_rasanlu({}, {}), False)
@@ -455,7 +457,8 @@ class TestParserRasaNLU(asynctest.TestCase):
             mock_gem.return_value = []
             mock_btu.return_value = "http://example.com"
             patched_request.side_effect = \
-                aiohttp.client_exceptions.ClientConnectorError()
+                aiohttp.client_exceptions.ClientConnectorError(
+                    'key', None)
             self.assertEqual(await rasanlu.train_rasanlu({}, {}), False)
 
             patched_request.side_effect = None
