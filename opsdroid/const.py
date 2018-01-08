@@ -14,3 +14,6 @@ DEFAULT_MODULE_BRANCH = "master"
 EXAMPLE_CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                    "configuration/example_configuration.yaml")
 REGEX_MAX_SCORE = 0.6
+
+RASA_DEFAULT_URL = "http://localhost:5000"
+RASA_DEFAULT_PROJECT = "opsdroid"

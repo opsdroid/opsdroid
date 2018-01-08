@@ -99,8 +99,8 @@ def match_rasanlu(intent):
                                 opsdroid.loader.current_import_config})
         return func
     return matcher
-  
-  
+
+
 def match_recastai(intent):
     """Return recastai intent match decorator."""
     def matcher(func):

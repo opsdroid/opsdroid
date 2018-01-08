@@ -84,7 +84,8 @@ class TestParserRasaNLU(asynctest.TestCase):
             message = Message("how's the weather outside", "user",
                               "default", mock_connector)
 
-            with amock.patch.object(rasanlu, 'call_rasanlu') as mocked_call_rasanlu:
+            with amock.patch.object(rasanlu, 'call_rasanlu') \
+                    as mocked_call_rasanlu:
                 mocked_call_rasanlu.return_value = {
                     "entities": [
                         {
@@ -132,7 +133,8 @@ class TestParserRasaNLU(asynctest.TestCase):
             message = Message("how's the weather outside", "user",
                               "default", mock_connector)
 
-            with amock.patch.object(rasanlu, 'call_rasanlu') as mocked_call_rasanlu:
+            with amock.patch.object(rasanlu, 'call_rasanlu') \
+                    as mocked_call_rasanlu:
                 mocked_call_rasanlu.return_value = {
                     "entities": [
                         {
@@ -179,7 +181,8 @@ class TestParserRasaNLU(asynctest.TestCase):
             message = Message("how's the weather outside", "user",
                               "default", mock_connector)
 
-            with amock.patch.object(rasanlu, 'call_rasanlu') as mocked_call_rasanlu:
+            with amock.patch.object(rasanlu, 'call_rasanlu') \
+                    as mocked_call_rasanlu:
                 mocked_call_rasanlu.return_value = "unauthorized"
                 skills = await rasanlu.parse_rasanlu(
                     opsdroid, message, opsdroid.config['parsers'][0])
@@ -197,7 +200,8 @@ class TestParserRasaNLU(asynctest.TestCase):
             message = Message("how's the weather outside", "user",
                               "default", mock_connector)
 
-            with amock.patch.object(rasanlu, 'call_rasanlu') as mocked_call_rasanlu:
+            with amock.patch.object(rasanlu, 'call_rasanlu') \
+                    as mocked_call_rasanlu:
                 mocked_call_rasanlu.return_value = {
                     "entities": [
                         {
@@ -241,7 +245,8 @@ class TestParserRasaNLU(asynctest.TestCase):
             message = Message("hi", "user",
                               "default", mock_connector)
 
-            with amock.patch.object(rasanlu, 'call_rasanlu') as mocked_call_rasanlu:
+            with amock.patch.object(rasanlu, 'call_rasanlu') \
+                    as mocked_call_rasanlu:
                 mocked_call_rasanlu.return_value = {
                     "entities": [],
                     "intent": None,
@@ -265,7 +270,8 @@ class TestParserRasaNLU(asynctest.TestCase):
             message = Message("how's the weather outside", "user",
                               "default", mock_connector)
 
-            with amock.patch.object(rasanlu, 'call_rasanlu') as mocked_call_rasanlu:
+            with amock.patch.object(rasanlu, 'call_rasanlu') \
+                    as mocked_call_rasanlu:
                 mocked_call_rasanlu.return_value = {
                     "entities": [],
                     "intent": None,
