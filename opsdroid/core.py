@@ -161,13 +161,17 @@ class OpsDroid():
         """Train the parsers."""
         if "parsers" in self.config:
             parsers = self.config["parsers"]
+            tasks = []
             rasanlu = [p for p in parsers if p["name"] == "rasanlu"]
             if len(rasanlu) == 1 and \
                     ("enabled" not in rasanlu[0] or
                      rasanlu[0]["enabled"] is not False):
-                self.eventloop.create_task(train_rasanlu(rasanlu[0], skills))
-            pending = asyncio.Task.all_tasks()
-            self.eventloop.run_until_complete(asyncio.gather(*pending))
+                tasks.append(
+                    asyncio.ensure_future(
+                        train_rasanlu(rasanlu[0], skills),
+                        loop=self.eventloop))
+            self.eventloop.run_until_complete(
+                asyncio.gather(*tasks, loop=self.eventloop))
 
     def start_connector_tasks(self, connectors):
         """Start the connectors."""

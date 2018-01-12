@@ -168,6 +168,14 @@ class TestCore(unittest.TestCase):
         mock_connector = Connector({})
         self.assertEqual(None, mock_connector.default_room)
 
+    def test_train_rasanlu(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.eventloop = asyncio.new_event_loop()
+            opsdroid.config["parsers"] = [{"name": "rasanlu"}]
+            with amock.patch('opsdroid.parsers.rasanlu.train_rasanlu'):
+                opsdroid.train_parsers({})
+                opsdroid.eventloop.close()
+
 
 class TestCoreAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid core class."""
