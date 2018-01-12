@@ -26,6 +26,11 @@ class Connector():
         self.config = config
         self.default_room = None
 
+    @property
+    def configuration(self):
+        """Class property used to access the connector config."""
+        return self.config
+
     async def connect(self, opsdroid):
         """Connect to chat service.
 
@@ -72,14 +77,17 @@ class Connector():
         """
         raise NotImplementedError
 
-    async def user_typing(self, opsdroid):
+    async def user_typing(self, opsdroid, trigger):
         """Signals that opsdroid is typing.
+
+        Args:
+            opsdroid (OpsDroid): An instance of the opsdroid core.
+            trigger: a bool that allows the event to be triggered on/off
 
         Triggers the "user is typing" event if the chat service that
         opsdroid is connected to accepts it.
         """
-
-        raise NotImplementedError
+        pass
 
     async def disconnect(self, opsdroid):
         """Disconnect from the chat service.

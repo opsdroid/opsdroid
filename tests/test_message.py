@@ -1,5 +1,6 @@
 
 import asynctest
+import asynctest.mock as amock
 
 from opsdroid.message import Message
 from opsdroid.connector import Connector
@@ -26,3 +27,38 @@ class TestMessage(asynctest.TestCase):
         with self.assertRaises(NotImplementedError):
             await message.respond("Goodbye world")
         self.assertEqual(message_text, message.text)
+
+    async def test_thinking_delay(self):
+        mock_connector = Connector({
+            'name': 'shell',
+            'thinking-delay': 3,
+            'type': 'connector',
+             'module_path': 'opsdroid-modules.connector.shell'
+        })
+
+        with amock.patch(
+                'opsdroid.message.Message._thinking_delay') as logmock:
+            with amock.patch('asyncio.sleep') as mocksleep:
+                message = Message("hi", "user", "default", mock_connector)
+                with self.assertRaises(NotImplementedError):
+                    await message.respond("Hello there")
+
+                self.assertTrue(logmock.called)
+                self.assertTrue(mocksleep.called)
+
+    async def test_typing_delay(self):
+        mock_connector = Connector({
+            'name': 'shell',
+            'typing-delay': 3,
+            'type': 'connector',
+             'module_path': 'opsdroid-modules.connector.shell'
+        })
+        with amock.patch(
+                'opsdroid.message.Message._typing_delay') as logmock:
+            with amock.patch('asyncio.sleep') as mocksleep:
+                message = Message("hi", "user", "default", mock_connector)
+                with self.assertRaises(NotImplementedError):
+                    await message.respond("Hello there")
+
+                self.assertTrue(logmock.called)
+                self.assertTrue(mocksleep.called)

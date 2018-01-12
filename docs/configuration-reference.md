@@ -90,6 +90,20 @@ connectors:
     secret_key: "myoauthsecret"
 ```
 
+Some connectors will allow you to specify a thinking and typing delay(in seconds) to simulate a real user. You just need to add the delay option under a connector.
+
+Example:
+
+```yaml
+connectors:
+  - name: slack
+    token: "mysecretslacktoken"
+    typing-delay: <int, float or two element list>
+    thinking-delay: <int or float>
+```
+
+_Note: As expected this will cause a delay on opsdroid time of response so make sure you don't pass a high number._ 
+
 See [module options](#module-options) for installing custom connectors.
 
 ### Database Modules

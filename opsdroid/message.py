@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from copy import copy
-from time import sleep
+import asyncio
 from random import randrange
 
 from opsdroid.helper import get_opsdroid
@@ -22,20 +22,21 @@ class Message:
         self.regex = None
         self.responded_to = False
 
-    async def thinking_delay(self, seconds=0):
-        """Makes opsdroid wait x-seconds before responding."""
-        opsdroid = get_opsdroid()
-
-        if 'thinking-delay' in opsdroid.config:
-            seconds = opsdroid.config.get('thinking-delay')
+    async def _thinking_delay(self, seconds=0):
+        """Make opsdroid wait x-seconds before responding."""
+        seconds = self.connector.configuration.get('thinking-delay', 0)
 
         if isinstance(seconds, list):
             seconds = randrange(seconds[0], seconds[1])
-        sleep(seconds)
 
-    async def typing_delay(self, text):
+        await asyncio.sleep(seconds)
+
+    async def _typing_delay(self, text):
+        """Simulate typing, default is set to 6 characters per second."""
+        seconds = self.connector.configuration.get('typing-delay', 1)
+
         char_count = len(text)
-        sleep(char_count//6)
+        await asyncio.sleep(char_count//seconds)
 
     async def respond(self, text):
         """Respond to this message using the connector it was created by."""
@@ -43,9 +44,9 @@ class Message:
         response = copy(self)
         response.text = text
 
-        await self.thinking_delay()
-        await self.typing_delay(response.text)
-
+        await self._thinking_delay()
+        await self._typing_delay(response.text,)
+        print(self.connector.configuration)
         await self.connector.respond(response)
         if not self.responded_to:
             now = datetime.now()
