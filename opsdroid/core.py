@@ -231,7 +231,7 @@ class OpsDroid():
 
         if "parsers" in self.config:
             _LOGGER.debug("Processing parsers...")
-            parsers = self.config["parsers"]
+            parsers = self.config["parsers"] or []
 
             dialogflow = [p for p in parsers if p["name"] == "dialogflow"
                           or p["name"] == "apiai"]
