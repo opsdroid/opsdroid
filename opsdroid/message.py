@@ -22,7 +22,7 @@ class Message:
         self.regex = None
         self.responded_to = False
 
-    async def _thinking_delay(self, seconds=0):
+    async def _thinking_delay(self):
         """Make opsdroid wait x-seconds before responding."""
         seconds = self.connector.configuration.get('thinking-delay', 0)
 
@@ -32,11 +32,13 @@ class Message:
         await asyncio.sleep(seconds)
 
     async def _typing_delay(self, text):
-        """Simulate typing, default is set to 6 characters per second."""
-        seconds = self.connector.configuration.get('typing-delay', 1)
-
-        char_count = len(text)
-        await asyncio.sleep(char_count//seconds)
+        """Simulate typing, takes an int(characters per second typed)."""
+        try:
+            char_per_sec = self.connector.configuration['typing-delay']
+            char_count = len(text)
+            await asyncio.sleep(char_count//char_per_sec)
+        except KeyError:
+            pass
 
     async def respond(self, text):
         """Respond to this message using the connector it was created by."""
@@ -44,9 +46,11 @@ class Message:
         response = copy(self)
         response.text = text
 
-        await self._thinking_delay()
-        await self._typing_delay(response.text,)
-        print(self.connector.configuration)
+        if 'thinking-delay' in self.connector.configuration or \
+           'typing-delay' in self.connector.configuration:
+            await self._thinking_delay()
+            await self._typing_delay(response.text)
+
         await self.connector.respond(response)
         if not self.responded_to:
             now = datetime.now()
