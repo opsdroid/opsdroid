@@ -9,7 +9,7 @@ from hashlib import sha256
 import aiohttp
 import arrow
 
-from opsdroid.const import RASA_DEFAULT_URL, RASA_DEFAULT_PROJECT
+from opsdroid.const import RASANLU_DEFAULT_URL, RASANLU_DEFAULT_PROJECT
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -31,15 +31,20 @@ async def _get_intents_fingerprint(intents):
 
 async def _build_training_url(config):
     """Build the url for training a Rasa NLU model."""
-    return "{}/train?project={}&fixed_model_name={}".format(
-        config.get("url", RASA_DEFAULT_URL),
-        config.get("project", RASA_DEFAULT_PROJECT),
+    url = "{}/train?project={}&fixed_model_name={}".format(
+        config.get("url", RASANLU_DEFAULT_URL),
+        config.get("project", RASANLU_DEFAULT_PROJECT),
         config["model"])
+
+    if "token" in config:
+        url += "&token={}".format(config["token"])
+
+    return url
 
 
 async def _build_status_url(config):
     """Build the url for getting the status of Rasa NLU."""
-    return "{}/status".format(config.get("url", RASA_DEFAULT_URL))
+    return "{}/status".format(config.get("url", RASANLU_DEFAULT_URL))
 
 
 async def _init_model(config):
@@ -61,7 +66,7 @@ async def _init_model(config):
 
 async def _get_existing_models(config):
     """Get a list of models already trained in the Rasa NLU project."""
-    project = config.get("project", RASA_DEFAULT_PROJECT)
+    project = config.get("project", RASANLU_DEFAULT_PROJECT)
     async with aiohttp.ClientSession() as session:
         resp = await session.get(await _build_status_url(config))
         if resp.status == 200:
@@ -125,7 +130,7 @@ async def call_rasanlu(text, config):
         }
         if "token" in config:
             data["token"] = config["token"]
-        url = config.get("url", RASA_DEFAULT_URL) + "/parse"
+        url = config.get("url", RASANLU_DEFAULT_URL) + "/parse"
         try:
             resp = await session.post(url, data=json.dumps(data),
                                       headers=headers)
