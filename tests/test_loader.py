@@ -132,6 +132,25 @@ class TestLoader(unittest.TestCase):
         self.assertTrue(os.path.isdir(config["install_path"]))
         shutil.rmtree(config["install_path"])
 
+    def test_loading_intents(self):
+        config = {}
+        config["no-cache"] = True
+        config['install_path'] = self._tmp_dir + "/test/module/test/"
+        os.makedirs(config['install_path'])
+        intent_contents = "Hello world"
+        with open(config['install_path'] + "intents.md", 'w') as intents:
+            intents.write(intent_contents)
+        loaded_intents = ld.Loader._load_intents(config)
+        self.assertEqual(intent_contents, loaded_intents)
+        shutil.rmtree(config["install_path"])
+
+    def test_loading_intents_failed(self):
+        config = {}
+        config["no-cache"] = True
+        config['install_path'] = self._tmp_dir + "/test/module/test/"
+        loaded_intents = ld.Loader._load_intents(config)
+        self.assertEqual(None, loaded_intents)
+
     def test_import_module(self):
         config = {}
         config["module_path"] = "os"

@@ -16,6 +16,7 @@ pages:
   - Matchers:
     - Overview: 'matchers/overview.md'
     - Regular Expressions: 'matchers/regex.md'
+    - Rasa NLU (local): 'matchers/rasanlu.md'
     - Dialogflow (Api.ai): 'matchers/dialogflow.md'
     - LUIS.AI: 'matchers/luis.ai.md'
     - Recast.AI: 'matchers/recast.ai.md'
