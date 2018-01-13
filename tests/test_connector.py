@@ -38,6 +38,13 @@ class TestConnectorBaseClass(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             self.loop.run_until_complete(connector.respond({}))
 
+    def test_user_typing(self):
+        opsdroid = 'opsdroid'
+        connector = Connector({})
+        user_typing = self.loop.run_until_complete(
+            connector.user_typing(opsdroid, trigger=True))
+        assert user_typing is None
+
 
 class TestConnectorAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid connector base class."""

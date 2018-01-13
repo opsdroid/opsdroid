@@ -44,6 +44,37 @@ class TestMessage(asynctest.TestCase):
 
             self.assertTrue(logmock.called)
 
+    async def test_thinking_sleep(self):
+        mock_connector_int = Connector({
+            'name': 'shell',
+            'thinking-delay': 3,
+            'type': 'connector',
+            'module_path': 'opsdroid-modules.connector.shell'
+        })
+
+        with amock.patch('asyncio.sleep') as mocksleep_int:
+            message = Message("hi", "user", "default", mock_connector_int)
+            with self.assertRaises(NotImplementedError):
+                await message.respond("Hello there")
+
+            self.assertTrue(mocksleep_int.called)
+
+        # Test thinking-delay with a list
+
+        mock_connector_list = Connector({
+            'name': 'shell',
+            'thinking-delay': [1, 4],
+            'type': 'connector',
+            'module_path': 'opsdroid-modules.connector.shell'
+        })
+
+        with amock.patch('asyncio.sleep') as mocksleep_list:
+            message = Message("hi", "user", "default", mock_connector_list)
+            with self.assertRaises(NotImplementedError):
+                await message.respond("Hello there")
+
+            self.assertTrue(mocksleep_list.called)
+
     async def test_typing_delay(self):
         mock_connector = Connector({
             'name': 'shell',
