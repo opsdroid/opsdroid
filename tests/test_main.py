@@ -4,6 +4,7 @@ import logging
 import os
 import sys
 import shutil
+import tempfile
 import unittest.mock as mock
 
 
@@ -16,8 +17,11 @@ class TestMain(unittest.TestCase):
     """Test the main opsdroid module."""
 
     def setUp(self):
-        self._tmp_dir = "/tmp/opsdroid_tests"
-        os.makedirs(self._tmp_dir)
+        self._tmp_dir = os.path.join(tempfile.gettempdir(), "opsdroid_tests/")
+        try:
+            os.makedirs(self._tmp_dir)
+        except FileExistsError:
+            pass
 
     def tearDown(self):
         shutil.rmtree(self._tmp_dir)
@@ -65,7 +69,7 @@ class TestMain(unittest.TestCase):
 
     def test_configure_file_logging(self):
         config = {"logging": {
-            "path": self._tmp_dir + "/output.log",
+            "path": os.path.join(self._tmp_dir, "/output.log"),
             "console": False,
         }}
         opsdroid.configure_logging(config)
@@ -78,7 +82,7 @@ class TestMain(unittest.TestCase):
 
     def test_configure_file_logging_directory_not_exists(self):
         config = {"logging": {
-            "path": '/tmp/mynonexistingdirectory' + "/output.log",
+            "path": os.path.join(self._tmp_dir, 'mynonexistingdirectory', "output.log"),
             "console": False,
         }}
         opsdroid.configure_logging(config)

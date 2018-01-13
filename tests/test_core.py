@@ -104,7 +104,7 @@ class TestCore(unittest.TestCase):
             module = {}
             module["config"] = {}
             module["module"] = importlib.import_module(
-                "tests.mockmodules.databases.database")
+                "opsdroid.tests.mockmodules.databases.database")
             with self.assertRaises(NotImplementedError):
                 opsdroid.start_databases([module])
                 self.assertEqual(1, len(opsdroid.memory.databases))
@@ -115,7 +115,7 @@ class TestCore(unittest.TestCase):
             module = {}
             module["config"] = {}
             module["module"] = importlib.import_module(
-                "tests.mockmodules.connectors.connector_mocked")
+                "opsdroid.tests.mockmodules.connectors.connector_mocked")
 
             try:
                 opsdroid.start_connector_tasks([module])
