@@ -91,3 +91,17 @@ class TestMessage(asynctest.TestCase):
 
                 self.assertTrue(logmock.called)
                 self.assertTrue(mocksleep.called)
+
+    async def test_typing_sleep(self):
+        mock_connector = Connector({
+            'name': 'shell',
+            'typing-delay': 6,
+            'type': 'connector',
+            'module_path': 'opsdroid-modules.connector.shell'
+        })
+        with amock.patch('asyncio.sleep') as mocksleep:
+            message = Message("hi", "user", "default", mock_connector)
+            with self.assertRaises(NotImplementedError):
+                await message.respond("Hello there")
+
+            self.assertTrue(mocksleep.called)
