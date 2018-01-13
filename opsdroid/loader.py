@@ -117,6 +117,16 @@ class Loader:
         process.wait()
 
     @staticmethod
+    def _load_intents(config):
+        intent_file = config["install_path"] + "/intents.md"
+        if os.path.isfile(intent_file):
+            with open(intent_file, 'r') as intent_file_handle:
+                intents = intent_file_handle.read()
+                return intents
+        else:
+            return None
+
+    @staticmethod
     def create_default_config(config_path):
         """Create a default config file based on the included example."""
         _LOGGER.info("Creating %s.", config_path)
@@ -263,10 +273,15 @@ class Loader:
             # Import module
             self.current_import_config = config
             module = self.import_module(config)
+
+            # Load intents
+            intents = self._load_intents(config)
+
             if module is not None:
                 loaded_modules.append({
                     "module": module,
-                    "config": config})
+                    "config": config,
+                    "intents": intents})
             else:
                 _LOGGER.error(
                     "Module %s failed to import.", config["name"])
