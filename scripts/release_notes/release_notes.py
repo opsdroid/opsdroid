@@ -5,10 +5,10 @@ def git_update_tags():
     """Update git tags from upstream master."""
     print("Updating tags.")
     print("=" * 20)
-    process = subprocess.Popen(["git", "pull", "upstream", "master", "--tags"], 
-                                shell=False,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
+    process = subprocess.Popen(["git", "pull", "upstream", "master", "--tags"],
+                               shell=False,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
     for output in process.communicate():
         if output != "":
             for line in output.splitlines():
@@ -21,10 +21,10 @@ def get_last_tag():
     """Get latest tag form git history."""
     print("Getting latest tag.")
     print("=" * 20)
-    process = subprocess.Popen(["git", "describe", "--tags", "--abbrev=0"], 
-                                shell=False,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
+    process = subprocess.Popen(["git", "describe", "--tags", "--abbrev=0"],
+                               shell=False,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
     for output in process.communicate():
         if output != "":
             for line in output.splitlines():
@@ -40,8 +40,8 @@ def git_log(tag):
     print("=" * 20)
     process = ["git", "log", "{}..HEAD".format(tag), "--oneline"]
     process = subprocess.Popen(process, shell=False,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
 
     changelog = []
     for output in process.communicate():
@@ -69,6 +69,7 @@ def main():
 
     # Format output
     output(changelog)
+
 
 if __name__ == "__main__":
     main()
