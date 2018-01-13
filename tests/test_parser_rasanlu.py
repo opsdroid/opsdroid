@@ -363,6 +363,13 @@ class TestParserRasaNLU(asynctest.TestCase):
         self.assertTrue("helloworld" in url)
 
         config = {
+            "model": "helloworld",
+            "token": "abc123"
+        }
+        url = await rasanlu._build_training_url(config)
+        self.assertTrue("&token=abc123" in url)
+
+        config = {
             "url": "http://example.com",
             "project": "myproject",
             "model": "helloworld"
