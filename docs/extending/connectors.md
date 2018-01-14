@@ -2,11 +2,19 @@
 
 Connectors are a class which extends the base opsdroid Connector. The class has three mandatory methods, `connect`, `listen` and `respond`. There are also some default values you can override with the `__init__` function, just be sure you are setting everything that the default init sets.
 
+#### configuration  (property)
+*configuration* is a class property of Connector. It's used to access the config parameters of a Connector. This can be used to retrieve specific parameters of a connector from `configuration.yaml`.
+
 #### connect
 *connect* is a method which connects to a specific chat service
 
+### Methods
+
 #### listen
 *listen* uses the open connection to the chat service and retrieves messages from it. Each message is formatted into an opsdroid Message object and then parsed. This method should block the thread with an infinite loop but use `await` commands when getting new messages and parsing with opsdroid. This allows the [event loop](https://docs.python.org/3/library/asyncio-eventloop.html) to hand control of the thread to a different function while we are waiting.
+
+#### user_typing
+*user_typing* triggers the event message *user is typing* if the connector allows it. This method uses a parameter `trigger` that takes in a boolean value to trigger the event on/off.
 
 #### respond
 *respond* will take a Message object and return the contents to the chat service.
@@ -66,3 +74,6 @@ class MyConnector(Connector):
     await self.connection.disconnect()
 
 ```
+
+---
+You might also be interested in reading the [configuration reference - Connector Modules](../configuration-reference.md/#connector-modules) in the documentation.
