@@ -4,6 +4,8 @@
 
 Rasa NLU is also trained via the API and so opsdroid can do the training for you if you provide an intents [markdown file](https://rasahq.github.io/rasa_nlu/dataformat.html#markdown-format) along with your skill. This file must contain headers in the format `## intent:<intent name>` followed by a list of example phrases for that intent. Rasa NLU will then use those examples to build a statistical model for matching new and unseen variations on those sentences.
 
+> ⚠️ **Warning** - Rasa NLU requires 4GB of memory, 2GB for training models and 2GB for serving requests. If you do not provide enough it will hang and cause timeouts in opsdroid.
+
 ## [Example 1](#example1)
 
 Skill file (`__init__.py`).
