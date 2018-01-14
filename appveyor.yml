@@ -6,8 +6,6 @@ environment:
     # http://www.appveyor.com/docs/installed-software#python
 
     - PYTHON: "C:\\Python35-x64"
-      TOXENV: "lint"
-    - PYTHON: "C:\\Python35-x64"
       TOXENV: "py35"
     - PYTHON: "C:\\Python36-x64"
       TOXENV: "py36"
