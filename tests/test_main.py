@@ -11,20 +11,21 @@ import unittest.mock as mock
 import opsdroid.__main__ as opsdroid
 import opsdroid.web as web
 from opsdroid.core import OpsDroid
+from opsdroid.helper import del_rw
 
 
 class TestMain(unittest.TestCase):
     """Test the main opsdroid module."""
 
     def setUp(self):
-        self._tmp_dir = os.path.join(tempfile.gettempdir(), "opsdroid_tests/")
+        self._tmp_dir = os.path.join(tempfile.gettempdir(), "opsdroid_tests")
         try:
-            os.makedirs(self._tmp_dir)
+            os.makedirs(self._tmp_dir, mode=0o777)
         except FileExistsError:
             pass
 
     def tearDown(self):
-        shutil.rmtree(self._tmp_dir)
+        shutil.rmtree(self._tmp_dir, onerror=del_rw)
 
     def test_init_runs(self):
         with mock.patch.object(opsdroid, "main") as mainfunc:
@@ -69,7 +70,7 @@ class TestMain(unittest.TestCase):
 
     def test_configure_file_logging(self):
         config = {"logging": {
-            "path": os.path.join(self._tmp_dir, "/output.log"),
+            "path": os.path.join(self._tmp_dir, "output.log"),
             "console": False,
         }}
         opsdroid.configure_logging(config)

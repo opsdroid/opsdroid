@@ -1,6 +1,7 @@
 
 import os
 import shutil
+import stat
 import subprocess
 import tempfile
 import unittest
@@ -8,6 +9,7 @@ import unittest.mock as mock
 from types import ModuleType
 
 from opsdroid import loader as ld
+from opsdroid.helper import del_rw
 
 
 class TestLoader(unittest.TestCase):
@@ -19,14 +21,15 @@ class TestLoader(unittest.TestCase):
         return opsdroid, loader
 
     def setUp(self):
+        os.umask(000)
         self._tmp_dir = os.path.join(tempfile.gettempdir(), "opsdroid_tests")
         try:
-            os.makedirs(self._tmp_dir)
+            os.makedirs(self._tmp_dir, mode=0o777)
         except FileExistsError:
             pass
 
     def tearDown(self):
-        shutil.rmtree(self._tmp_dir)
+        shutil.rmtree(self._tmp_dir, onerror=del_rw)
 
     def test_load_config_file(self):
         opsdroid, loader = self.setup()
@@ -64,7 +67,7 @@ class TestLoader(unittest.TestCase):
         self.assertEqual(loader.create_default_config(test_config_path),
                          test_config_path)
         self.assertTrue(os.path.isfile(test_config_path))
-        shutil.rmtree(os.path.split(test_config_path)[0])
+        shutil.rmtree(os.path.split(test_config_path)[0], onerror=del_rw)
 
     def test_generate_config_if_none_exist(self):
         opsdroid, loader = self.setup()
@@ -116,47 +119,47 @@ class TestLoader(unittest.TestCase):
     def test_check_cache_removes_dir(self):
         config = {}
         config["no-cache"] = True
-        config['install_path'] = os.path.join(self._tmp_dir, os.path.normpath("/test/module"))
-        os.makedirs(config['install_path'])
+        config['install_path'] = os.path.join(self._tmp_dir, os.path.normpath("test/module"))
+        os.makedirs(config['install_path'], mode=0o777)
         ld.Loader.check_cache(config)
         self.assertFalse(os.path.isdir(config["install_path"]))
 
     def test_check_cache_removes_file(self):
         config = {}
         config["no-cache"] = True
-        config['install_path'] = os.path.join(self._tmp_dir, os.path.normpath("/test/module/test"))
+        config['install_path'] = os.path.join(self._tmp_dir, os.path.normpath("test/module/test"))
         directory, _ = os.path.split(config['install_path'])
-        os.makedirs(directory)
+        os.makedirs(directory, mode=0o777)
         open(config['install_path'] + ".py", 'w')
         ld.Loader.check_cache(config)
         self.assertFalse(os.path.isfile(config["install_path"] + ".py"))
-        shutil.rmtree(directory)
+        shutil.rmtree(directory, onerror=del_rw)
 
     def test_check_cache_leaves(self):
         config = {}
         config["no-cache"] = False
-        config['install_path'] = os.path.join(self._tmp_dir, os.path.normpath("/test/module"))
-        os.makedirs(config['install_path'])
+        config['install_path'] = os.path.join(self._tmp_dir, os.path.normpath("test/module"))
+        os.makedirs(config['install_path'], mode=0o777)
         ld.Loader.check_cache(config)
         self.assertTrue(os.path.isdir(config["install_path"]))
-        shutil.rmtree(config["install_path"])
+        shutil.rmtree(config["install_path"], onerror=del_rw)
 
     def test_loading_intents(self):
         config = {}
         config["no-cache"] = True
-        config['install_path'] = os.path.join(self._tmp_dir, os.path.normpath("/test/module/test/"))
-        os.makedirs(config['install_path'])
+        config['install_path'] = os.path.join(self._tmp_dir, os.path.normpath("test/module/test/"))
+        os.makedirs(config['install_path'], mode=0o777)
         intent_contents = "Hello world"
         with open(config['install_path'] + "intents.md", 'w') as intents:
             intents.write(intent_contents)
         loaded_intents = ld.Loader._load_intents(config)
         self.assertEqual(intent_contents, loaded_intents)
-        shutil.rmtree(config["install_path"])
+        shutil.rmtree(config["install_path"], onerror=del_rw)
 
     def test_loading_intents_failed(self):
         config = {}
         config["no-cache"] = True
-        config['install_path'] = os.path.join(self._tmp_dir, os.path.normpath("/test/module/test/"))
+        config['install_path'] = os.path.join(self._tmp_dir, os.path.normpath("test/module/test/"))
         loaded_intents = ld.Loader._load_intents(config)
         self.assertEqual(None, loaded_intents)
 
@@ -274,7 +277,7 @@ class TestLoader(unittest.TestCase):
             loader._install_module(config)
             self.assertTrue(logmock.called)
 
-        shutil.rmtree(config["install_path"])
+        shutil.rmtree(config["install_path"], onerror=del_rw)
 
     def test_install_missing_local_module(self):
         opsdroid, loader = self.setup()
@@ -319,7 +322,7 @@ class TestLoader(unittest.TestCase):
             mockclone.assert_called_with(config["repo"],
                                          config["install_path"],
                                          config["branch"])
-        shutil.rmtree(repo_path)
+        shutil.rmtree(repo_path, onerror=del_rw)
 
     def test_install_specific_local_path_module(self):
         opsdroid, loader = self.setup()
@@ -336,7 +339,7 @@ class TestLoader(unittest.TestCase):
                 as mockclone:
             loader._install_module(config)
             mockclone.assert_called_with(config)
-        shutil.rmtree(repo_path)
+        shutil.rmtree(repo_path, onerror=del_rw)
 
     def test_install_default_remote_module(self):
         opsdroid, loader = self.setup()
@@ -352,33 +355,33 @@ class TestLoader(unittest.TestCase):
             mockdeps.assert_called_with(
                     os.path.join(config["install_path"], "requirements.txt"))
 
-        shutil.rmtree(config["install_path"])
+        shutil.rmtree(config["install_path"], onerror=del_rw)
 
     def test_install_local_module_dir(self):
         opsdroid, loader = self.setup()
-        base_path = os.path.join(self._tmp_dir, "/long")
+        base_path = os.path.join(self._tmp_dir, "long")
         config = {"name": "slack",
                   "type": "connector",
-                  "install_path": os.path.join(base_path, os.path.normpath("/test/path/test")),
-                  "path": os.path.join(self._tmp_dir, os.path.normpath("/install/from/here"))}
-        os.makedirs(config["path"], exist_ok=True)
+                  "install_path": os.path.join(base_path, os.path.normpath("test/path/test")),
+                  "path": os.path.join(self._tmp_dir, os.path.normpath("install/from/here"))}
+        os.makedirs(config["path"], exist_ok=True, mode=0o777)
         loader._install_local_module(config)
         self.assertTrue(os.path.isdir(config["install_path"]))
-        shutil.rmtree(base_path)
+        shutil.rmtree(base_path, onerror=del_rw)
 
     def test_install_local_module_file(self):
         opsdroid, loader = self.setup()
         config = {"name": "slack",
                   "type": "connector",
                   "install_path": os.path.join(self._tmp_dir, "test_local_module_file"),
-                  "path": os.path.join(self._tmp_dir, os.path.normpath("/install/from/here.py"))}
+                  "path": os.path.join(self._tmp_dir, os.path.normpath("install/from/here.py"))}
         directory, _ = os.path.split(config["path"])
-        os.makedirs(directory, exist_ok=True)
+        os.makedirs(directory, exist_ok=True, mode=0o777)
         open(config["path"], 'w')
         loader._install_local_module(config)
         self.assertTrue(os.path.isfile(
                             os.path.join(config["install_path"], "__init__.py")))
-        shutil.rmtree(config["install_path"])
+        shutil.rmtree(config["install_path"], onerror=del_rw)
 
     def test_install_local_module_failure(self):
         opsdroid, loader = self.setup()

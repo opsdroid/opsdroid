@@ -312,9 +312,9 @@ class Loader:
             _LOGGER.error("Install of %s failed.", config["name"])
 
         # Install module dependencies
-        if os.path.isfile(config["install_path"] + "/requirements.txt"):
-            self.pip_install_deps(config["install_path"] +
-                                  "/requirements.txt")
+        if os.path.isfile(os.path.join(config["install_path"], "requirements.txt")):
+            self.pip_install_deps(os.path.join(config["install_path"],
+                                  "requirements.txt"))
 
     def _install_git_module(self, config):
         """Install a module from a git repository."""
