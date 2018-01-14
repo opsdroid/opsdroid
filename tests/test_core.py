@@ -9,7 +9,6 @@ import importlib
 from opsdroid.core import OpsDroid
 from opsdroid.message import Message
 from opsdroid.connector import Connector
-from opsdroid.database import Database
 from opsdroid.matchers import (match_regex, match_dialogflow_action,
                                match_luisai_intent, match_recastai,
                                match_rasanlu, match_witai)
@@ -102,17 +101,10 @@ class TestCore(unittest.TestCase):
     def test_start_databases(self):
         with OpsDroid() as opsdroid:
             opsdroid.start_databases([])
-
-            class DatabaseTest(Database):
-                """The mocked database class."""
-
-                def __init__(self, config):
-                    """Start the class."""
-                    pass
-
             module = {}
             module["config"] = {}
-            module["module"] = DatabaseTest
+            module["module"] = importlib.import_module(
+                "tests.mockmodules.databases.database")
             with self.assertRaises(NotImplementedError):
                 opsdroid.start_databases([module])
                 self.assertEqual(1, len(opsdroid.memory.databases))
@@ -121,19 +113,10 @@ class TestCore(unittest.TestCase):
         with OpsDroid() as opsdroid:
             opsdroid.start_connector_tasks([])
 
-            class ConnectorTest(Connector):
-                """The mocked connector class."""
-
-                def __init__(self, config):
-                    """Start the class."""
-                    self.connect = amock.CoroutineMock()
-                    self.listen = amock.CoroutineMock()
-                    self.respond = amock.CoroutineMock()
-                    self.disconnect = amock.CoroutineMock()
-
             module = {}
             module["config"] = {}
-            module["module"] = ConnectorTest(module["config"])
+            module["module"] = importlib.import_module(
+                "tests.mockmodules.connectors.connector_mocked")
 
             try:
                 opsdroid.start_connector_tasks([module])
@@ -144,16 +127,10 @@ class TestCore(unittest.TestCase):
         with OpsDroid() as opsdroid:
             opsdroid.start_connector_tasks([])
 
-            class ConnectorTest(Connector):
-                """The mocked connector class."""
-
-                def __init__(self, config):
-                    """Start the class."""
-                    pass
-
             module = {}
             module["config"] = {}
-            module["module"] = ConnectorTest
+            module["module"] = importlib.import_module(
+                "tests.mockmodules.connectors.connector_bare")
 
             with self.assertRaises(NotImplementedError):
                 opsdroid.start_connector_tasks([module])

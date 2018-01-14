@@ -83,7 +83,8 @@ class TestMain(unittest.TestCase):
 
     def test_configure_file_logging_directory_not_exists(self):
         config = {"logging": {
-            "path": os.path.join(self._tmp_dir, 'mynonexistingdirectory', "output.log"),
+            "path": os.path.join(
+                self._tmp_dir, 'mynonexistingdirectory', "output.log"),
             "console": False,
         }}
         opsdroid.configure_logging(config)
