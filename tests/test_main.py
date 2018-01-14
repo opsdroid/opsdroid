@@ -69,17 +69,18 @@ class TestMain(unittest.TestCase):
         self.assertEqual(rootlogger.handlers[0].level, logging.CRITICAL)
 
     def test_configure_file_logging(self):
-        config = {"logging": {
-            "path": os.path.join(self._tmp_dir, "output.log"),
-            "console": False,
-        }}
-        opsdroid.configure_logging(config)
-        rootlogger = logging.getLogger()
-        self.assertEqual(len(rootlogger.handlers), 2)
-        self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
-        self.assertEqual(rootlogger.handlers[0].level, logging.CRITICAL)
-        self.assertEqual(logging.FileHandler, type(rootlogger.handlers[1]))
-        self.assertEqual(rootlogger.handlers[1].level, logging.INFO)
+        with tempfile.NamedTemporaryFile('r') as templogfile:
+            config = {"logging": {
+                "path": templogfile.name,
+                "console": False,
+            }}
+            opsdroid.configure_logging(config)
+            rootlogger = logging.getLogger()
+            self.assertEqual(len(rootlogger.handlers), 2)
+            self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
+            self.assertEqual(rootlogger.handlers[0].level, logging.CRITICAL)
+            self.assertEqual(logging.FileHandler, type(rootlogger.handlers[1]))
+            self.assertEqual(rootlogger.handlers[1].level, logging.INFO)
 
     def test_configure_file_logging_directory_not_exists(self):
         config = {"logging": {
