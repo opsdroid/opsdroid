@@ -19,6 +19,10 @@ class TestConnectorBaseClass(unittest.TestCase):
         self.assertEqual("", connector.name)
         self.assertEqual("test", connector.config["example_item"])
 
+    def test_property(self):
+        connector = Connector({"name": "shell"})
+        self.assertEqual("shell", connector.configuration.get("name"))
+
     def test_connect(self):
         connector = Connector({})
         with self.assertRaises(NotImplementedError):
@@ -33,6 +37,13 @@ class TestConnectorBaseClass(unittest.TestCase):
         connector = Connector({})
         with self.assertRaises(NotImplementedError):
             self.loop.run_until_complete(connector.respond({}))
+
+    def test_user_typing(self):
+        opsdroid = 'opsdroid'
+        connector = Connector({})
+        user_typing = self.loop.run_until_complete(
+            connector.user_typing(opsdroid, trigger=True))
+        assert user_typing is None
 
 
 class TestConnectorAsync(asynctest.TestCase):
