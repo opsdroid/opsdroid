@@ -130,7 +130,7 @@ class Loader:
                           str(requirements_path))
 
         if not process:
-            raise FileNotFoundError("Pip and pip3 not found, exiting...")
+            raise OSError("Pip and pip3 not found, exiting...")
 
         for output in process.communicate():
             if output != "":

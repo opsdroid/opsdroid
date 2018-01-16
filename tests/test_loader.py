@@ -108,20 +108,24 @@ class TestLoader(unittest.TestCase):
         opsdroid, loader = self.setup()
         with mock.patch.object(subprocess, 'Popen') as mocked_popen:
             mocked_popen.side_effect = FileNotFoundError()
-            mocked_popen.return_value.communicate.return_value = ['Test\nTest']
+            self.assertRaises(FileNotFoundError, mocked_popen)
             with mock.patch.object(loader, 'pip_install_deps') as pip_install:
+                mocked_popen.return_value.\
+                    communicate.return_value = ['Test\nTest']
                 loader.pip_install_deps("/path/to/some/file.txt")
                 self.assertTrue(pip_install.called)
 
     def test_no_pip_or_pip3_install(self):
         opsdroid, loader = self.setup()
         loader.pip_install_deps("/path/to/some/file.txt")
-        with mock.patch.object(loader, 'pip_install_deps') as pip_install:
-            with mock.patch.object(subprocess, 'Popen') as mocked_popen:
-                pip_install.side_effect = FileNotFoundError()
-                mocked_popen.side_effect = FileNotFoundError()
-        self.assertRaises(FileNotFoundError, mocked_popen)
-        self.assertFalse(pip_install.called)
+
+        with mock.patch.object(subprocess, 'Popen') as mocked_popen:
+            mocked_popen.side_effect = FileNotFoundError()
+            self.assertRaises(FileNotFoundError, mocked_popen)
+
+            with mock.patch.object(subprocess, 'Popen') as mocked_2popen:
+                mocked_2popen.side_effect = OSError()
+                self.assertRaises(OSError, mocked_2popen)
 
     def test_build_module_path(self):
         config = {}
