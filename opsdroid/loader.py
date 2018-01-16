@@ -103,30 +103,27 @@ class Loader:
     @staticmethod
     def pip_install_deps(requirements_path):
         """Pip install a requirements.txt file and wait for finish."""
+        command = ["pip", "install",
+                   "--target={}".format(DEFAULT_MODULE_DEPS_PATH),
+                   "--ignore-installed", "-r", requirements_path]
         try:
-            process = subprocess.Popen(["pip", "install",
-                                        "--target={}".format(
-                                            DEFAULT_MODULE_DEPS_PATH),
-                                        "--ignore-installed",
-                                        "-r", requirements_path],
-                                       shell=False,
-                                       stdout=subprocess.PIPE,
-                                       stderr=subprocess.PIPE)
+            process = subprocess.Popen(command,
+                                        shell=False,
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE)
 
         except FileNotFoundError:
-            process = subprocess.Popen(["pip3", "install",
-                                        "--target={}".format(
-                                            DEFAULT_MODULE_DEPS_PATH),
-                                        "--ignore-installed",
-                                        "-r", requirements_path],
-                                       shell=False,
-                                       stdout=subprocess.PIPE,
-                                       stderr=subprocess.PIPE)
+            command[0] = "pip3"
+            process = subprocess.Popen(command,
+                                        shell=False,
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE)
 
         for output in process.communicate():
             if output != "":
                 for line in output.splitlines():
                     _LOGGER.debug(str(line).strip())
+
         process.wait()
 
     @staticmethod
