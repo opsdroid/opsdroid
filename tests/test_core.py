@@ -112,6 +112,7 @@ class TestCore(unittest.TestCase):
     def test_start_connectors(self):
         with OpsDroid() as opsdroid:
             opsdroid.start_connector_tasks([])
+
             module = {}
             module["config"] = {}
             module["module"] = importlib.import_module(
@@ -125,6 +126,7 @@ class TestCore(unittest.TestCase):
     def test_start_connectors_not_implemented(self):
         with OpsDroid() as opsdroid:
             opsdroid.start_connector_tasks([])
+
             module = {}
             module["config"] = {}
             module["module"] = importlib.import_module(

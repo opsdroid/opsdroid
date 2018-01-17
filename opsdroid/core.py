@@ -2,6 +2,7 @@
 
 import copy
 import logging
+import os
 import signal
 import sys
 import weakref
@@ -40,8 +41,9 @@ class OpsDroid():
         self.connectors = []
         self.connector_tasks = []
         self.eventloop = asyncio.get_event_loop()
-        for sig in (signal.SIGINT, signal.SIGTERM):
-            self.eventloop.add_signal_handler(sig, self.call_stop)
+        if os.name != 'nt':
+            for sig in (signal.SIGINT, signal.SIGTERM):
+                self.eventloop.add_signal_handler(sig, self.call_stop)
         self.skills = []
         self.memory = Memory()
         self.loader = Loader(self)
