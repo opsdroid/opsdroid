@@ -112,7 +112,7 @@ class TestLoader(unittest.TestCase):
         loader.modules_directory = ""
         self.assertIn("test.test",
                       ld.Loader.build_module_path(loader, "import", config))
-        self.assertIn("test/test",
+        self.assertIn("test",
                       ld.Loader.build_module_path(loader, "install", config))
 
     def test_check_cache_removes_dir(self):

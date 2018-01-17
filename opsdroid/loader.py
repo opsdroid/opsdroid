@@ -82,8 +82,9 @@ class Loader:
             path = MODULES_DIRECTORY + "." + config["type"] + \
                         "." + config["name"]
         elif path_type == "install":
-            path = self.modules_directory + "/" + config["type"] + \
-                        "/" + config["name"]
+            path = os.path.join(self.modules_directory, 
+                                config["type"], 
+                                config["name"])
         return path
 
     @staticmethod
@@ -118,7 +119,7 @@ class Loader:
 
     @staticmethod
     def _load_intents(config):
-        intent_file = config["install_path"] + "/intents.md"
+        intent_file = os.path.join(config["install_path"], "intents.md")
         if os.path.isfile(intent_file):
             with open(intent_file, 'r') as intent_file_handle:
                 intents = intent_file_handle.read()
@@ -357,8 +358,9 @@ class Loader:
 
         if os.path.isfile(config["path"]):
             os.makedirs(config["install_path"], exist_ok=True)
-            shutil.copyfile(config["path"], config["install_path"] +
-                            "/__init__.py")
+            shutil.copyfile(config["path"], 
+                            os.path.join(config["install_path"],
+                                         "__init__.py"))
             installed = True
 
         if not installed:
