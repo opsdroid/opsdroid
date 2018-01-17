@@ -8,7 +8,6 @@ from opsdroid.helper import del_rw
 class TestHelper(unittest.TestCase):
     """Test the opsdroid helper classes."""
 
-
     def test_del_rw(self):
         with mock.patch('os.chmod') as mock_chmod,\
                 mock.patch('os.remove') as mock_remove:

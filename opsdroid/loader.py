@@ -82,8 +82,8 @@ class Loader:
             path = MODULES_DIRECTORY + "." + config["type"] + \
                         "." + config["name"]
         elif path_type == "install":
-            path = os.path.join(self.modules_directory, 
-                                config["type"], 
+            path = os.path.join(self.modules_directory,
+                                config["type"],
                                 config["name"])
         return path
 
@@ -360,7 +360,7 @@ class Loader:
 
         if os.path.isfile(config["path"]):
             os.makedirs(config["install_path"], exist_ok=True)
-            shutil.copyfile(config["path"], 
+            shutil.copyfile(config["path"],
                             os.path.join(config["install_path"],
                                          "__init__.py"))
             installed = True

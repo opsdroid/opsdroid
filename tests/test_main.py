@@ -90,7 +90,9 @@ class TestMain(unittest.TestCase):
             mocklogger.handlers = [True]
             logmock.return_value = mocklogger
             config = {"logging": {
-                "path": os.path.join(self._tmp_dir, 'mynonexistingdirectory', "output.log"),
+                "path": os.path.join(self._tmp_dir,
+                                     'mynonexistingdirectory',
+                                     "output.log"),
                 "console": False,
             }}
             opsdroid.configure_logging(config)
