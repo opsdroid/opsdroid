@@ -25,7 +25,10 @@ class TestMain(unittest.TestCase):
             pass
 
     def tearDown(self):
-        shutil.rmtree(self._tmp_dir, onerror=del_rw)
+        try:
+            shutil.rmtree(self._tmp_dir, onerror=del_rw)
+        except PermissionError:
+            pass
 
     def test_init_runs(self):
         with mock.patch.object(opsdroid, "main") as mainfunc:
@@ -69,21 +72,17 @@ class TestMain(unittest.TestCase):
         self.assertEqual(rootlogger.handlers[0].level, logging.CRITICAL)
 
     def test_configure_file_logging(self):
-        with mock.patch('logging.getLogger') as logmock:
-            mocklogger = mock.MagicMock()
-            mocklogger.handlers = [True]
-            logmock.return_value = mocklogger
-            config = {"logging": {
-                "path": os.path.join(self._tmp_dir, "output.log"),
-                "console": False,
-            }}
-            opsdroid.configure_logging(config)
-            rootlogger = logging.getLogger()
-            # self.assertEqual(len(rootlogger.handlers), 2)
-            # self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
-            # self.assertEqual(rootlogger.handlers[0].level, logging.CRITICAL)
-            # self.assertEqual(logging.FileHandler, type(rootlogger.handlers[1]))
-            # self.assertEqual(rootlogger.handlers[1].level, logging.INFO)
+        config = {"logging": {
+            "path": os.path.join(self._tmp_dir, "output.log"),
+            "console": False,
+        }}
+        opsdroid.configure_logging(config)
+        rootlogger = logging.getLogger()
+        self.assertEqual(len(rootlogger.handlers), 2)
+        self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
+        self.assertEqual(rootlogger.handlers[0].level, logging.CRITICAL)
+        self.assertEqual(logging.FileHandler, type(rootlogger.handlers[1]))
+        self.assertEqual(rootlogger.handlers[1].level, logging.INFO)
 
     def test_configure_file_logging_directory_not_exists(self):
         with mock.patch('logging.getLogger') as logmock:
