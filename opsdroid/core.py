@@ -162,7 +162,7 @@ class OpsDroid():
     def train_parsers(self, skills):
         """Train the parsers."""
         if "parsers" in self.config:
-            parsers = self.config["parsers"]
+            parsers = self.config["parsers"] or []
             tasks = []
             rasanlu = [p for p in parsers if p["name"] == "rasanlu"]
             if len(rasanlu) == 1 and \

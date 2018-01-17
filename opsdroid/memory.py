@@ -34,7 +34,6 @@ class Memory:
     async def _get_from_database(self, key):
         """Get updates from databases for a given key."""
         if not self.databases:
-            _LOGGER.warning("No databases configured, data will not persist.")
             return None
 
         results = []
@@ -45,8 +44,6 @@ class Memory:
 
     async def _put_to_database(self, key, data):
         """Put updates into databases for a given key."""
-        if not self.databases:
-            _LOGGER.warning("No databases configured, data will not persist.")
-        else:
+        if self.databases:
             for database in self.databases:
                 await database.put(key, data)
