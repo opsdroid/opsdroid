@@ -119,7 +119,7 @@ class TestLoader(unittest.TestCase):
 
         with mock.patch.object(subprocess, 'Popen') as mocked_popen:
             mocked_popen.side_effect = [
-                FileNotFoundError(), FileNotFoundError(), OSError()]
+                FileNotFoundError(), FileNotFoundError()]
             with self.assertRaises(OSError) as error:
                 loader.pip_install_deps("/path/to/some/file.txt")
                 self.assertEqual(error, "Pip and pip3 not found, exiting...")
