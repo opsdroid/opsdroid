@@ -33,6 +33,8 @@ Intents file (`intents.md`).
 - heya
 ```
 
+> **Note** - Rasa NLU requires an intent to have at least three training examples in the list. There must also be a minimum of two intents in your file for Rasa to train.
+
 The above skill would be called on any intent which has a name of `'greetings'`. 
 
 ## Example 2
