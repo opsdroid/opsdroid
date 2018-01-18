@@ -104,6 +104,26 @@ class TestLoader(unittest.TestCase):
             loader.pip_install_deps(os.path.abspath("/path/to/some/file.txt"))
             self.assertTrue(mocked_popen.called)
 
+    def test_no_pip_install(self):
+        opsdroid, loader = self.setup()
+        with mock.patch.object(loader, 'pip_install_deps') as mock_pip:
+            mock_pip.side_effect = FileNotFoundError()
+            with self.assertRaises(FileNotFoundError):
+                mock_pip.return_value.communicate.return_value = ['Test\nTest']
+                loader.pip_install_deps("/path/to/some/file.txt")
+                self.assertTrue(mock_pip.called)
+
+    def test_no_pip_or_pip3_install(self):
+        opsdroid, loader = self.setup()
+        loader.pip_install_deps("/path/to/some/file.txt")
+
+        with mock.patch.object(subprocess, 'Popen') as mocked_popen:
+            mocked_popen.side_effect = [
+                FileNotFoundError(), FileNotFoundError()]
+            with self.assertRaises(OSError) as error:
+                loader.pip_install_deps("/path/to/some/file.txt")
+                self.assertEqual(error, "Pip and pip3 not found, exiting...")
+
     def test_build_module_path(self):
         config = {}
         config["type"] = "test"
