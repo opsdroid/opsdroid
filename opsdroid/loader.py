@@ -315,7 +315,6 @@ class Loader:
         return loaded_modules
 
     def _install_module(self, config):
-        # pylint: disable=R0201
         """Install a module."""
         _LOGGER.debug("Installing %s...", config["name"])
 
