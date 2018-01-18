@@ -6,7 +6,7 @@ If you need any help to get started with opsdroid or if you just want to chat, m
 
 
 ## Configuration and Yaml files
-The configuration of opsdroid is done in a yaml file called `configuration.yaml`.  When you run opsdroid it will look for the file in the following places in order: 
+The configuration of opsdroid is done in a yaml file called `configuration.yaml`.  When you run opsdroid it will look for the file in the following places in order:
 
 - `./configuration.yaml`
 -  `~/.opsdroid/configuration.yaml`
@@ -16,14 +16,14 @@ _note: if no configuration file is found then opsdroid will use the `example_con
 
 
 
-Using a single yaml file for every configuration of opsdroid makes things easier and effortless when configuring our bot. 
+Using a single yaml file for every configuration of opsdroid makes things easier and effortless when configuring our bot.
 
 Yaml files use a key-value structure and there are a few things you must take into consideration while using yaml:
 
 - indentation is very important
 - use spaces instead of tabs
 - anything after a hash is a comment
-- a value before a colon is a key 
+- a value before a colon is a key
 - a value with a dash is part of a list
 
 ### example
@@ -56,8 +56,8 @@ _note: The keys: [type, module_path, install_path, branch] are added to every sk
 
 
 ## Connectors, skills and Databases
-**Connectors** are modules for connecting opsdroid to your specific chat service. 
-**Skills** are modules which define what actions opsdroid should perform based on different chat messages. 
+**Connectors** are modules for connecting opsdroid to your specific chat service.
+**Skills** are modules which define what actions opsdroid should perform based on different chat messages.
 **Database** modules connect opsdroid to your chosen database and allow skills to store information between messages.
 
 
@@ -107,15 +107,15 @@ Configuration options such as the `token` in the slack connector or the `host`, 
 Matchers are used to match a message, sent by a user, to a connector and a skill. Opsdroid comes ready with 8 different matchers, each one of them has its own settings and specification.
 
 - Basic matcher
-  - [Regular Expressions](matchers/regex.md)
+  - [Regular Expressions](/matchers/regex.md)
 - NPL Matchers
-  - [Dialogflow(previous Api.ai)](matchers/dialogflow.md)
-  - [Wit.ai](matchers/wit.ai.md)
-  - [Lui.ai](matchers/lui.ai.md)
+  - [Dialogflow(previous Api.ai)](/matchers/dialogflow.md)
+  - [Wit.ai](/matchers/wit.ai.md)
+  - [Lui.ai](/matchers/luis.ai.md)
 - Special Matcher
-  - [Always](matchers/always.md)
-  - [Crontab](matchers/crontab.md)
-  - [Webhook](matchers/webhook)
+  - [Always](/matchers/always.md)
+  - [Crontab](/matchers/crontab.md)
+  - [Webhook](/matchers/webhook.md)
 
 Read the [Matchers overview page](matchers/overview) for a quick reference guide on how to use them.
 
@@ -125,18 +125,18 @@ The opsdroid project itself is very simple and requires modules to give it funct
 
 To expand opsdroid functionality you need to make some changes in your configuration file. You must specify the connector, skill and database* modules you wish to use and any options they may require.
 
-The ` example_configuration.yaml`  contains all the official modules to help you shape opsdroid to your liking. Simply uncomment(remove the #) the modules that you wish to use, provide any required options and everything should work just fine. 
+The ` example_configuration.yaml`  contains all the official modules to help you shape opsdroid to your liking. Simply uncomment(remove the #) the modules that you wish to use, provide any required options and everything should work just fine.
 
 _Note: Spacing might be off when uncommenting modules, make sure to check your indentation before running opsdroid. Opsdroid won't start if indentation is off._
 
 
-## Expanding opsdroid functionality 
-Now that you have the basics of how opsdroid works, you can see how skills can empower opsdroid. You can make opsdroid work with pretty much everything, But how do you make a new skill for opsdroid to use? 
+## Expanding opsdroid functionality
+Now that you have the basics of how opsdroid works, you can see how skills can empower opsdroid. You can make opsdroid work with pretty much everything, But how do you make a new skill for opsdroid to use?
 
 You probably noticed the demo on [opsdroid main page](https://opsdroid.github.io) in which opsdroid seems to have a conversation with a user. At the moment opsdroid can only reply to a few commands (hello, goodbye, dancing, etc).
 
 
-The next step in the tutorial will teach you how to make your opsdroid reply to the message "how are you", just like you seen on the main page. 
+The next step in the tutorial will teach you how to make your opsdroid reply to the message "how are you", just like you seen on the main page.
 
 ---
 <p style="text-align: right;">Write your first skill > </p>

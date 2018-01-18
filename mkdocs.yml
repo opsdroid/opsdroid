@@ -6,10 +6,10 @@ pages:
   - 'Home': 'index.md'
   - 'Configuration Reference': 'configuration-reference.md'
   - 'REST API': 'rest-api.md'
-  - 'Tutorial': 
+  - 'Tutorial':
       - 'Introduction': 'tutorials/introduction.md'
       - 'Create a Basic Skill': 'tutorials/basic-skill.md'
-      - 'Create a Weather Skill': 'tutorials/create-weather-reference.md'
+      - 'Create a Weather Skill': 'tutorials/create-weather-skill.md'
   - 'Extending opsdroid':
       - 'Adding skills': 'extending/skills.md'
       - 'Adding connectors': 'extending/connectors.md'
