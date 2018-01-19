@@ -76,16 +76,17 @@ class Loader:
             if os.path.isfile(config["install_path"] + ".py"):
                 os.remove(config["install_path"] + ".py")
 
-    def build_module_path(self, path_type, config):
-        """Generate the module path from name and type."""
-        if path_type == "import":
-            path = MODULES_DIRECTORY + "." + config["type"] + \
-                        "." + config["name"]
-        elif path_type == "install":
-            path = os.path.join(self.modules_directory,
-                                config["type"],
-                                config["name"])
-        return path
+    @staticmethod
+    def build_module_import_path(config):
+        """Generate the module import path from name and type."""
+        return MODULES_DIRECTORY + "." + config["type"] + \
+            "." + config["name"]
+
+    def build_module_install_path(self, config):
+        """Generate the module install path from name and type."""
+        return os.path.join(self.modules_directory,
+                            config["type"],
+                            config["name"])
 
     @staticmethod
     def git_clone(git_url, install_path, branch):
@@ -98,7 +99,7 @@ class Loader:
 
     @staticmethod
     def git_pull(repository_path):
-        """Pull the current branch of git repo forcing fast forward"""
+        """Pull the current branch of git repo forcing fast forward."""
         process = subprocess.Popen(["git", "-C", repository_path,
                                     "pull", "--ff-only"],
                                    shell=False,
@@ -292,16 +293,19 @@ class Loader:
                 config["name"] = module['name']
 
             config["type"] = modules_type
-            config["module_path"] = self.build_module_path("import", config)
-            config["install_path"] = self.build_module_path("install", config)
+            config["module_path"] = self.build_module_import_path(config)
+            config["install_path"] = self.build_module_install_path(config)
             if "branch" not in config:
                 config["branch"] = DEFAULT_MODULE_BRANCH
 
             # Remove module for reinstall if no-cache set
             self.check_cache(config)
 
-            # Install module
-            self._install_module(config)
+            # Install or update module
+            if not self._is_module_installed(config):
+                self._install_module(config)
+            else:
+                self._update_module(config)
 
             # Import module
             self.current_import_config = config
@@ -325,12 +329,6 @@ class Loader:
         """Install a module."""
         _LOGGER.debug("Installing %s...", config["name"])
 
-        if self._is_module_installed(config):
-            # TODO Allow for updating or reinstalling of modules
-            _LOGGER.debug("Module %s already installed, skipping.",
-                          config["name"])
-            return
-
         if self._is_local_module(config):
             self._install_local_module(config)
         else:
@@ -342,11 +340,18 @@ class Loader:
         else:
             _LOGGER.error("Install of %s failed.", config["name"])
 
-        # Install module dependencies
-        if os.path.isfile(os.path.join(
-                config["install_path"], "requirements.txt")):
-            self.pip_install_deps(os.path.join(config["install_path"],
-                                               "requirements.txt"))
+        self._install_module_dependencies(config)
+
+    def _update_module(self, config):
+        """Update a module."""
+        _LOGGER.debug("Updating %s...", config["name"])
+
+        if self._is_local_module(config):
+            _LOGGER.debug("Local modules are not updated, skipping.")
+            return
+
+        self.git_pull(config["install_path"])
+        self._install_module_dependencies(config)
 
     @staticmethod
     def _is_module_installed(config):
@@ -356,6 +361,12 @@ class Loader:
     @staticmethod
     def _is_local_module(config):
         return "path" in config
+
+    def _install_module_dependencies(self, config):
+        if os.path.isfile(os.path.join(
+                config["install_path"], "requirements.txt")):
+            self.pip_install_deps(os.path.join(config["install_path"],
+                                               "requirements.txt"))
 
     def _install_git_module(self, config):
         """Install a module from a git repository."""
