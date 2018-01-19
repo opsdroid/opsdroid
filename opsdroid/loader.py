@@ -325,19 +325,18 @@ class Loader:
         """Install a module."""
         _LOGGER.debug("Installing %s...", config["name"])
 
-        if os.path.isdir(config["install_path"]) or \
-                os.path.isfile(config["install_path"] + ".py"):
+        if self._is_module_installed(config):
             # TODO Allow for updating or reinstalling of modules
             _LOGGER.debug("Module %s already installed, skipping.",
                           config["name"])
             return
 
-        if "path" in config:
+        if self._is_local_module(config):
             self._install_local_module(config)
         else:
             self._install_git_module(config)
 
-        if os.path.isdir(config["install_path"]):
+        if self._is_module_installed(config):
             _LOGGER.debug("Installed %s to %s", config["name"],
                           config["install_path"])
         else:
@@ -348,6 +347,15 @@ class Loader:
                 config["install_path"], "requirements.txt")):
             self.pip_install_deps(os.path.join(config["install_path"],
                                                "requirements.txt"))
+
+    @staticmethod
+    def _is_module_installed(config):
+        return os.path.isdir(config["install_path"]) or \
+            os.path.isfile(config["install_path"] + ".py")
+
+    @staticmethod
+    def _is_local_module(config):
+        return "path" in config
 
     def _install_git_module(self, config):
         """Install a module from a git repository."""
