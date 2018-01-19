@@ -97,6 +97,12 @@ class TestLoader(unittest.TestCase):
                              os.path.join(self._tmp_dir, "/test"), "master")
             self.assertTrue(mock_subproc_popen.called)
 
+    def test_git_pull(self):
+        with mock.patch.object(subprocess, 'Popen') as mock_subproc_popen:
+            opsdroid, loader = self.setup()
+            loader.git_pull(os.path.join(self._tmp_dir, "/test"))
+            self.assertTrue(mock_subproc_popen.called)
+
     def test_pip_install_deps(self):
         with mock.patch.object(subprocess, 'Popen') as mocked_popen:
             mocked_popen.return_value.communicate.return_value = ['Test\nTest']

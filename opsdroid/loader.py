@@ -94,11 +94,17 @@ class Loader:
                                     git_url, install_path], shell=False,
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
-        for output in process.communicate():
-            if output != "":
-                for line in output.splitlines():
-                    _LOGGER.debug(str(line).strip())
-        process.wait()
+        Loader._communicate_process(process)
+
+    @staticmethod
+    def git_pull(repository_path):
+        """Pull the current branch of git repo forcing fast forward"""
+        process = subprocess.Popen(["git", "-C", repository_path,
+                                    "pull", "--ff-only"],
+                                   shell=False,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        Loader._communicate_process(process)
 
     @staticmethod
     def pip_install_deps(requirements_path):
@@ -132,13 +138,14 @@ class Loader:
         if not process:
             raise OSError("Pip and pip3 not found, exiting...")
 
-        for output in process.communicate():
-            if output != "":
-                for line in output.splitlines():
-                    _LOGGER.debug(str(line).strip())
-
-        process.wait()
+        Loader._communicate_process(process)
         return True
+
+    @staticmethod
+    def _communicate_process(process):
+        for output in process.communicate():
+            for line in output.splitlines():
+                _LOGGER.debug(str(line).strip())
 
     @staticmethod
     def _load_intents(config):
