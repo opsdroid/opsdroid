@@ -226,6 +226,8 @@ connectors:
     repo: https://github.com/username/myconnector.git
 ```
 
+_Note: When using a git repository, Opsdroid will try to update it at startup pulling with fast forward strategy._
+
 #### Local Directory
 
 A local path to install the module from.
