@@ -97,6 +97,12 @@ class TestLoader(unittest.TestCase):
                              os.path.join(self._tmp_dir, "/test"), "master")
             self.assertTrue(mock_subproc_popen.called)
 
+    def test_git_pull(self):
+        with mock.patch.object(subprocess, 'Popen') as mock_subproc_popen:
+            opsdroid, loader = self.setup()
+            loader.git_pull(os.path.join(self._tmp_dir, "/test"))
+            self.assertTrue(mock_subproc_popen.called)
+
     def test_pip_install_deps(self):
         with mock.patch.object(subprocess, 'Popen') as mocked_popen:
             mocked_popen.return_value.communicate.return_value = ['Test\nTest']
@@ -131,9 +137,9 @@ class TestLoader(unittest.TestCase):
         loader = mock.Mock()
         loader.modules_directory = ""
         self.assertIn("test.test",
-                      ld.Loader.build_module_path(loader, "import", config))
+                      ld.Loader.build_module_import_path(config))
         self.assertIn("test",
-                      ld.Loader.build_module_path(loader, "install", config))
+                      ld.Loader.build_module_install_path(loader, config))
 
     def test_check_cache_removes_dir(self):
         config = {}
@@ -293,17 +299,29 @@ class TestLoader(unittest.TestCase):
             self.assertTrue(mockimport.called)
             self.assertEqual(loaded_modules, [])
 
-    def test_install_existing_module(self):
+    def test_load_existing_modules(self):
         opsdroid, loader = self.setup()
-        config = {"name": "testmodule",
-                  "install_path": os.path.join(
-                      self._tmp_dir, "test_existing_module")}
-        os.mkdir(config["install_path"])
-        with mock.patch('opsdroid.loader._LOGGER.debug') as logmock:
-            loader._install_module(config)
-            self.assertTrue(logmock.called)
 
-        shutil.rmtree(config["install_path"], onerror=del_rw)
+        modules_type = "test"
+        modules = [{"name": "testmodule"}]
+        install_path = os.path.join(
+            self._tmp_dir, "test_existing_module")
+        mockedmodule = mock.Mock(return_value={"name": "testmodule"})
+        mocked_install_path = mock.Mock(return_value=install_path)
+
+        os.mkdir(install_path)
+        with mock.patch.object(loader, '_update_module') as mockupdate, \
+                mock.patch.object(loader, 'import_module',
+                                  mockedmodule) as mockimport, \
+                mock.patch.object(loader, 'build_module_install_path',
+                                  mocked_install_path) as mockbuildpath:
+            loader.setup_modules_directory({})
+            loader._load_modules(modules_type, modules)
+            self.assertTrue(mockbuildpath.called)
+            self.assertTrue(mockupdate.called)
+            self.assertTrue(mockimport.called)
+
+        shutil.rmtree(install_path, onerror=del_rw)
 
     def test_install_missing_local_module(self):
         opsdroid, loader = self.setup()
@@ -426,6 +444,39 @@ class TestLoader(unittest.TestCase):
         with mock.patch('opsdroid.loader._LOGGER.error') as logmock:
             loader._install_local_module(config)
             self.assertTrue(logmock.called)
+
+    def test_update_existing_local_module(self):
+        opsdroid, loader = self.setup()
+        base_path = os.path.join(self._tmp_dir, "long")
+        config = {"name": "testmodule",
+                  "type": "test",
+                  "install_path": os.path.join(
+                      base_path, os.path.normpath("test/path/test")),
+                  "path": os.path.join(
+                      self._tmp_dir, os.path.normpath("install/from/here"))}
+        os.makedirs(config["install_path"], exist_ok=True, mode=0o777)
+        os.makedirs(config["path"], exist_ok=True, mode=0o777)
+
+        with mock.patch('opsdroid.loader._LOGGER.debug') as logmock:
+            loader._update_module(config)
+            self.assertTrue(logmock.called)
+
+        shutil.rmtree(base_path, onerror=del_rw)
+
+    def test_update_existing_git_module(self):
+        opsdroid, loader = self.setup()
+        config = {"name": "testmodule",
+                  "install_path":
+                  os.path.join(self._tmp_dir, "test_specific_remote_module"),
+                  "repo": "https://github.com/rmccue/test-repository.git",
+                  "branch": "master"}
+        os.mkdir(config["install_path"])
+        with mock.patch('opsdroid.loader._LOGGER.debug'), \
+                mock.patch.object(loader, 'git_pull') as mockpull:
+            loader._update_module(config)
+            mockpull.assert_called_with(config["install_path"])
+
+        shutil.rmtree(config["install_path"], onerror=del_rw)
 
     def test_reload_module(self):
         config = {}
