@@ -1,3 +1,24 @@
+# Skills
+
+Skills are modules which define what actions opsdroid should perform based on different chat messages. They can be referenced in your `configuration.yaml` [Config](configuration-reference/#config-file) file.
+Skills can be specified from opsdroid github repository, your own github, or from local path.
+
+```yaml
+skills:
+  ## From local folder
+  - name: myawesomeskill
+    path: /home/me/src/opsdroid-skills/myawesomeskill
+  ## From local file
+  - name: mysimpleskill
+    path: /home/me/src/opsdroid-skills/mysimpleskill.py
+  ## From custom repository
+  - name: mygithubskill
+    path: https://github.com/me/mygithubskill.git
+  ## Hello world (https://github.com/opsdroid/skill-hello)
+  - name: hello
+```
+You should look into the [Getting Started guide](/tutorials/introduction) to know more about skills and opsdroid configuration file.
+
 # Creating skills
 
 Like all opsdroid modules skills are installed as a git repository. However skills are designed to be simpler than other modules to ensure that it is easy to get started.
