@@ -30,3 +30,5 @@ Please include your version of the configuration file bellow.
 Any other details you wish to include such as screenshots, console messages, etc.
 
 
+<!-- Love opsdroid? Please consider supporting our collective:
+ +👉  https://opencollective.com/opsdroid/donate -->
