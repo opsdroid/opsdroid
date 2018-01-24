@@ -12,7 +12,7 @@ async def call_recastai(message, config):
     """Call the recastai api and return the response."""
     async with aiohttp.ClientSession() as session:
         payload = {
-            "language": "en",
+            "language": config.get('lang', 'en'),
             "text": message.text
         }
         headers = {

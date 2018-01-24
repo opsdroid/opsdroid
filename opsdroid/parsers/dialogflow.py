@@ -14,7 +14,7 @@ async def call_dialogflow(message, config):
     async with aiohttp.ClientSession() as session:
         payload = {
             "v": "20150910",
-            "lang": "en",
+            "lang": config.get("lang", "en"),
             "sessionId": message.connector.name,
             "query": message.text
         }
