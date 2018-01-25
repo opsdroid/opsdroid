@@ -191,6 +191,14 @@ This timezone will be used in crontab skills if the timezone has not been set as
 timezone: 'Europe/London'
 ```
 
+### Language
+Configure the language to use Opsdroid.
+
+To use opsdroid with a different language other than English you can specify it in your configuration.yaml. The language code needs to be in the standardized [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes).
+```yaml
+language: <ISO 639-1 code -  example: 'en'>
+```
+
 ### Web Server
 
 Configure the REST API in opsdroid.

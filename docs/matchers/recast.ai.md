@@ -53,7 +53,6 @@ parsers:
   - name: recastai
     access-token: 85769fjoso084jd
     min-score: 0.8
-    lang: <ISO 639-1 code>  # Optional - defaults to English
 ```
 
 ## Message object additional parameters
