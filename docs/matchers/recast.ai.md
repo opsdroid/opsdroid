@@ -36,7 +36,7 @@ You need to [register](https://recast.ai/signup) on Recast.AI and create a bot i
 
 You can find a quick getting started with the Recast.AI guide [here](https://recast.ai/docs/create-your-bot).
 
-If you want to use Recast.AI in a different language other than English, all you need to do is specify the `lang` parameter in Opsdroid's configuration.
+If you want to use Recast.AI in a different language other than English, all you need to do is specify the `lang` parameter in opsdroid's configuration.
 
 _Note: "If you do not have any expressions in this language, we will use your default bot language for processing." - [Recast.AI Language page](https://recast.ai/docs/language)_
 
