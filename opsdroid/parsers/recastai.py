@@ -10,7 +10,7 @@ from opsdroid.const import DEFAULT_LANGUAGE
 _LOGGER = logging.getLogger(__name__)
 
 
-async def call_recastai(message, config, lang):
+async def call_recastai(message, config, lang=DEFAULT_LANGUAGE):
     """Call the recastai api and return the response."""
     async with aiohttp.ClientSession() as session:
         payload = {

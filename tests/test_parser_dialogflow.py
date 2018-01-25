@@ -33,7 +33,7 @@ class TestParserDialogflow(asynctest.TestCase):
         with amock.patch('aiohttp.ClientSession.post') as patched_request:
             patched_request.return_value = helpers.create_future(self.loop)
             patched_request.return_value.set_result(result)
-            await dialogflow.call_dialogflow(message, config, None)
+            await dialogflow.call_dialogflow(message, config)
             self.assertTrue(patched_request.called)
 
     async def test_parse_dialogflow(self):
