@@ -46,7 +46,7 @@ class TestParserRecastAi(asynctest.TestCase):
         with amock.patch('aiohttp.ClientSession.post') as patched_request:
             patched_request.return_value = helpers.create_future(self.loop)
             patched_request.return_value.set_result(result)
-            await recastai.call_recastai(message, config)
+            await recastai.call_recastai(message, config, None)
             self.assertTrue(patched_request.called)
 
     async def test_parse_recastai(self):

@@ -11,7 +11,7 @@ from opsdroid.const import DEFAULT_LANGUAGE
 _LOGGER = logging.getLogger(__name__)
 
 
-async def call_dialogflow(message, config, lang=DEFAULT_LANGUAGE):
+async def call_dialogflow(message, config, lang):
     """Call the Dialogflow api and return the response."""
     async with aiohttp.ClientSession() as session:
         payload = {
@@ -39,7 +39,8 @@ async def parse_dialogflow(opsdroid, message, config):
     if 'access-token' in config:
         try:
             result = await call_dialogflow(message, config,
-                                           opsdroid.config.get("lang"))
+                                           opsdroid.config.get("lang",
+                                                               DEFAULT_LANGUAGE))
         except aiohttp.ClientOSError:
             _LOGGER.error("No response from Dialogflow, check your network.")
             return matched_skills

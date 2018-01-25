@@ -10,7 +10,7 @@ from opsdroid.const import DEFAULT_LANGUAGE
 _LOGGER = logging.getLogger(__name__)
 
 
-async def call_recastai(message, config, lang=DEFAULT_LANGUAGE):
+async def call_recastai(message, config, lang):
     """Call the recastai api and return the response."""
     async with aiohttp.ClientSession() as session:
         payload = {
@@ -36,7 +36,8 @@ async def parse_recastai(opsdroid, message, config):
     if 'access-token' in config:
         try:
             result = await call_recastai(message, config,
-                                         opsdroid.config.get('lang'))
+                                         opsdroid.config.get('lang',
+                                                             DEFAULT_LANGUAGE))
         except aiohttp.ClientOSError:
             _LOGGER.error("No response from Recast.AI, check your network.")
             return matched_skills
