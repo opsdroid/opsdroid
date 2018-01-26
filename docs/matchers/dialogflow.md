@@ -30,6 +30,11 @@ The above skill would be called on any intent which has a name of `'myIntent'`.
 
 You can find a quick getting started with Dialogflow guide [here](https://dialogflow.com/docs/getting-started/basics).
 
+If you want to use Dialogflow in a different language other than English, all you need to do is specify the `lang` parameter in opsdroid's configuration. Then change/add another language to your Dialogflow agent in the Language tab of the agent settings.
+
+_Useful Links: [Languages Reference](https://dialogflow.com/docs/reference/language), [Multi-language Agents Reference](https://dialogflow.com/docs/multi-language)_
+
+
 ## Configuring opsdroid
 
 In order to enable Dialogflow skills you must specify an `access-key` for your bot (referred to as an agent in Dialogflow) in the matchers section of the opsdroid configuration file. You can find this `access-key` in your agent settings. Currently you may only register one agent per opsdroid instance to avoid making multiple API calls for every message.
