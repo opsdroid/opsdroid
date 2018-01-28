@@ -5,7 +5,7 @@ import json
 
 import aiohttp
 
-from opsdroid.const import DEFAULT_LANGUAGE, DIALOGFLOW_API_ENDPOINT,DIALOGFLOW_API_VERSION
+from opsdroid.const import DEFAULT_LANGUAGE, DIALOGFLOW_API_ENDPOINT, DIALOGFLOW_API_VERSION
 
 
 _LOGGER = logging.getLogger(__name__)
