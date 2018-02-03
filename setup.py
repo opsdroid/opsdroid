@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import os
 from setuptools import setup, find_packages
+from setuptools.command.build_py import build_py
+from setuptools.command.sdist import sdist
 from opsdroid.const import __version__
 
 PACKAGE_NAME = 'opsdroid'
@@ -15,6 +17,22 @@ PACKAGES = find_packages(exclude=['tests', 'tests.*', 'modules',
 # looser than the (automatically) resolved requirements.txt.
 with open(os.path.join(HERE, 'requirements.txt'), 'r') as fh:
     REQUIRES = [line.strip() for line in fh]
+
+
+class BuildPy(build_py):
+    """Custom `build_py` command to always build mo files for wheels."""
+
+    def run(self):
+        self.run_command('compile_catalog')
+        build_py.run(self)  # old style class
+
+
+class Sdist(sdist):
+    """Custom `sdist` command to ensure that mo files are always created."""
+
+    def run(self):
+        self.run_command('compile_catalog')
+        sdist.run(self)   # old style class
 
 
 setup(
@@ -33,6 +51,8 @@ setup(
     install_requires=REQUIRES,
     test_suite='tests',
     keywords=['bot', 'chatops'],
+    setup_requires=['Babel'],
+    cmdclass={'sdist': Sdist, 'build_py': BuildPy},
     entry_points={
         'console_scripts': [
             'opsdroid = opsdroid.__main__:main'

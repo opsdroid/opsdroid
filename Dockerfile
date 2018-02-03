@@ -12,6 +12,8 @@ RUN pip3 install --upgrade pip
 RUN pip3 install --no-cache-dir -r requirements.txt
 RUN pip3 install -U tox
 
+RUN python3 setup.py compile_catalog
+
 EXPOSE 8080
 
 CMD ["python", "-m", "opsdroid"]

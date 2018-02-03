@@ -26,5 +26,8 @@ overgeneral-exceptions=Exception
 
 [MISCELLANEOUS]
 
+[VARIABLES]
+additional-builtins=_
+
 # List of note tags to take in consideration, separated by a comma.
 notes=FIXME,XXX
