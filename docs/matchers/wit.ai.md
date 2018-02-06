@@ -27,13 +27,12 @@ The above skill would be called on any intent which has a name of `'get_weather'
 >
 > opsdroid: It's currently 13.12 degrees, 67% humidity in London and Rain is forecasted for today
 
-
-
-
 ## Creating a wit.ai App
 You need to register on wit.ai and create an App in order to use wit.ai with opsdroid.
 
 You can find a quick getting started with the wit.ai guide [here](https://wit.ai/getting-started).
+
+If you want to use wit.ai in a different language other than English, all you need to do is change the language of your app located in the app settings.
 
 ## Configuring opsdroid
 

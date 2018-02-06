@@ -8,6 +8,7 @@
    - [Installation Path](#installation-path) 
    - [Skills](#skills)
    - [Time Zone](#time-zone)
+   - [Language](#language)
    - [Web Server](#web-server)
 - [Module Options](#module-options)
    - [Install Location](#install-location)
@@ -128,6 +129,16 @@ databases:
 
 See [module options](#module-options) for installing custom databases.
 
+### Welcome-message
+
+Configure welcome message.
+
+If set to true then a welcome message is printed in the log at startup. It defaults to true.
+
+```yaml
+welcome-message: true
+```
+
 ### Logging
 
 Configure logging in opsdroid.
@@ -191,6 +202,17 @@ This timezone will be used in crontab skills if the timezone has not been set as
 timezone: 'Europe/London'
 ```
 
+### Language
+Configure the language to use opsdroid.
+
+To use opsdroid with a different language other than English you can specify it in your configuration.yaml. The language code needs to be in the standardized [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes).
+
+_Note: If no language is specified, opsdroid will default to English._
+
+```yaml
+lang: <ISO 639-1 code -  example: 'en'>
+```
+
 ### Web Server
 
 Configure the REST API in opsdroid.
@@ -226,7 +248,7 @@ connectors:
     repo: https://github.com/username/myconnector.git
 ```
 
-_Note: When using a git repository, Opsdroid will try to update it at startup pulling with fast forward strategy._
+_Note: When using a git repository, opsdroid will try to update it at startup pulling with fast forward strategy._
 
 #### Local Directory
 

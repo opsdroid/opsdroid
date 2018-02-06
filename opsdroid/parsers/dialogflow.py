@@ -5,16 +5,20 @@ import json
 
 import aiohttp
 
+from opsdroid.const import DEFAULT_LANGUAGE,\
+                           DIALOGFLOW_API_VERSION,\
+                           DIALOGFLOW_API_ENDPOINT
+
 
 _LOGGER = logging.getLogger(__name__)
 
 
-async def call_dialogflow(message, config):
+async def call_dialogflow(message, config, lang=DEFAULT_LANGUAGE):
     """Call the Dialogflow api and return the response."""
     async with aiohttp.ClientSession() as session:
         payload = {
-            "v": "20150910",
-            "lang": "en",
+            "v": DIALOGFLOW_API_VERSION,
+            "lang": lang,
             "sessionId": message.connector.name,
             "query": message.text
         }
@@ -22,7 +26,7 @@ async def call_dialogflow(message, config):
             "Authorization": "Bearer " + config['access-token'],
             "Content-Type": "application/json"
         }
-        resp = await session.post("https://api.dialogflow.com/v1/query",
+        resp = await session.post(DIALOGFLOW_API_ENDPOINT,
                                   data=json.dumps(payload),
                                   headers=headers)
         result = await resp.json()
@@ -36,7 +40,9 @@ async def parse_dialogflow(opsdroid, message, config):
     matched_skills = []
     if 'access-token' in config:
         try:
-            result = await call_dialogflow(message, config)
+            result = await call_dialogflow(message, config,
+                                           opsdroid.config.get(
+                                               "lang", DEFAULT_LANGUAGE))
         except aiohttp.ClientOSError:
             _LOGGER.error("No response from Dialogflow, check your network.")
             return matched_skills

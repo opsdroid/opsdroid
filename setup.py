@@ -20,7 +20,7 @@ with open(os.path.join(HERE, 'requirements.txt'), 'r') as fh:
 setup(
     name=PACKAGE_NAME,
     version=__version__,
-    license='GNU GENERAL PUBLIC LICENSE V3',
+    license='Apache License 2.0',
     url='',
     download_url='',
     author='Jacob Tomlinson',

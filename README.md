@@ -1,6 +1,6 @@
-![opsdroid](https://github.com/opsdroid/style-guidelines/raw/master/logos/logo-wide-light.png)
+ ![opsdroid](https://github.com/opsdroid/style-guidelines/raw/master/logos/logo-wide-light.png)[![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Check%20out%20opsdroid,%20an%20awesome%20open%20source%20chatbot%20framework%20written%20in%20Python.&url=https://opsdroid.github.io/&via=opsdroid&hashtags=chatbots,chatops,devops,automation,opensource)
 
-[![Build Status](https://travis-ci.org/opsdroid/opsdroid.svg?branch=release)](https://travis-ci.org/opsdroid/opsdroid) [![Build status](https://ci.appveyor.com/api/projects/status/9qodmi74r234x4cv/branch/master?svg=true)](https://ci.appveyor.com/project/jacobtomlinson/opsdroid/branch/master) [![codecov](https://codecov.io/gh/opsdroid/opsdroid/branch/master/graph/badge.svg)](https://codecov.io/gh/opsdroid/opsdroid) [![Updates](https://pyup.io/repos/github/opsdroid/opsdroid/shield.svg)](https://pyup.io/repos/github/opsdroid/opsdroid/) [![Dependency Status](https://dependencyci.com/github/opsdroid/opsdroid/badge)](https://dependencyci.com/github/opsdroid/opsdroid) [![Docker Image](https://img.shields.io/badge/docker-ready-blue.svg)](https://hub.docker.com/r/opsdroid/opsdroid/) [![Docker Layers](https://images.microbadger.com/badges/image/opsdroid/opsdroid.svg)](https://microbadger.com/#/images/opsdroid/opsdroid) [![Documentation Status](https://readthedocs.org/projects/opsdroid/badge/?version=stable)](http://opsdroid.readthedocs.io/en/stable/?badge=stable) [![Gitter Badge](https://img.shields.io/badge/gitter-join%20chat-4fb896.svg)](https://gitter.im/opsdroid)
+[![Current version of pypi](https://img.shields.io/pypi/v/opsdroid.svg)](https://pypi.python.org/pypi) [![Build Status](https://travis-ci.org/opsdroid/opsdroid.svg?branch=release)](https://travis-ci.org/opsdroid/opsdroid) [![Build status](https://ci.appveyor.com/api/projects/status/9qodmi74r234x4cv/branch/master?svg=true)](https://ci.appveyor.com/project/jacobtomlinson/opsdroid/branch/master) [![codecov](https://codecov.io/gh/opsdroid/opsdroid/branch/master/graph/badge.svg)](https://codecov.io/gh/opsdroid/opsdroid) [![Updates](https://pyup.io/repos/github/opsdroid/opsdroid/shield.svg)](https://pyup.io/repos/github/opsdroid/opsdroid/) [![Dependency Status](https://dependencyci.com/github/opsdroid/opsdroid/badge)](https://dependencyci.com/github/opsdroid/opsdroid) [![Docker Image](https://img.shields.io/badge/docker-ready-blue.svg)](https://hub.docker.com/r/opsdroid/opsdroid/) [![Docker Layers](https://images.microbadger.com/badges/image/opsdroid/opsdroid.svg)](https://microbadger.com/#/images/opsdroid/opsdroid) [![Documentation Status](https://readthedocs.org/projects/opsdroid/badge/?version=stable)](http://opsdroid.readthedocs.io/en/stable/?badge=stable) [![Gitter Badge](https://img.shields.io/badge/gitter-join%20chat-4fb896.svg)](https://gitter.im/opsdroid) [![Backers on Open Collective](https://opencollective.com/opsdroid/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/opsdroid/sponsors/badge.svg)](#sponsors) [![Open Source Helpers](https://www.codetriage.com/opsdroid/opsdroid/badges/users.svg)](https://www.codetriage.com/opsdroid/opsdroid)
 
 An open source chat bot framework written in python. It is designed to be extendable, scalable and simple.
 
@@ -40,7 +40,7 @@ Check out the [Getting Started](https://www.youtube.com/watch?v=7wyIi_cpodE&list
 docker pull opsdroid/opsdroid:latest
 
 # Run the container
-docker run --rm -v /path/to/configuration.yaml:/etc/opsdroid/configuration.yaml:ro opsdroid/opsdroid:latest
+docker run --rm -it -v /path/to/configuration.yaml:/etc/opsdroid/configuration.yaml:ro opsdroid/opsdroid:latest
 ```
 
 ### Ubuntu 16.04 LTS
@@ -84,3 +84,33 @@ Do you need help? Do you want to chat? [Join our Gitter channel](https://gitter.
 -------
 
 _\* databases are optional, however bot memory will not persist between different connectors or system reboots without one_
+
+## Contributors
+
+This project exists thanks to all the people who contribute. [[Contribute](/docs/contributing.md)].
+<a href="graphs/contributors"><img src="https://opencollective.com/opsdroid/contributors.svg?width=890" /></a>
+
+
+## Backers
+
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/opsdroid#backer)]
+
+<a href="https://opencollective.com/opsdroid#backers" target="_blank"><img src="https://opencollective.com/opsdroid/backers.svg?width=890"></a>
+
+
+## Sponsors
+
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/opsdroid#sponsor)]
+
+<a href="https://opencollective.com/opsdroid/sponsor/0/website" target="_blank"><img src="https://opencollective.com/opsdroid/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/opsdroid/sponsor/1/website" target="_blank"><img src="https://opencollective.com/opsdroid/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/opsdroid/sponsor/2/website" target="_blank"><img src="https://opencollective.com/opsdroid/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/opsdroid/sponsor/3/website" target="_blank"><img src="https://opencollective.com/opsdroid/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/opsdroid/sponsor/4/website" target="_blank"><img src="https://opencollective.com/opsdroid/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/opsdroid/sponsor/5/website" target="_blank"><img src="https://opencollective.com/opsdroid/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/opsdroid/sponsor/6/website" target="_blank"><img src="https://opencollective.com/opsdroid/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/opsdroid/sponsor/7/website" target="_blank"><img src="https://opencollective.com/opsdroid/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/opsdroid/sponsor/8/website" target="_blank"><img src="https://opencollective.com/opsdroid/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/opsdroid/sponsor/9/website" target="_blank"><img src="https://opencollective.com/opsdroid/sponsor/9/avatar.svg"></a>
+
+
