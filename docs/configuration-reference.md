@@ -129,6 +129,16 @@ databases:
 
 See [module options](#module-options) for installing custom databases.
 
+### Welcome-message
+
+Configure welcome message.
+
+If set to true then a welcome message is printed in the log at startup. It defaults to true.
+
+```yaml
+welcome-message: true
+```
+
 ### Logging
 
 Configure logging in opsdroid.
