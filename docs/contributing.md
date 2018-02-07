@@ -89,7 +89,7 @@ Things that we need help with:
  - Any issue marked with the [documentation tag](https://github.com/opsdroid/opsdroid/issues?q=is:issue+is:open+label:documentation)
 
 ## Localization
-Opsdroid runs by default in English, but it can be translated to your local language. In order to archieve it, [gettext](https://docs.python.org/3/library/gettext.html) and [babel](http://babel.pocoo.org/en/latest/index.html) are used.
+Opsdroid runs by default in English, but it can be translated to your local language. In order to achieve it, [gettext](https://docs.python.org/3/library/gettext.html) and [babel](http://babel.pocoo.org/en/latest/index.html) are used.
 
 To mark a string as translatable, just call the special `_` function:
 ```python
@@ -107,7 +107,7 @@ Then, update all existing language `po` files from the extracted `pot` file with
 python setup.py update_catalog
 ```
 
-Now, you can translate editing manually or with [Poedit](https://poedit.net/) the `po` files in `locale/<lang>/LC_MESSAGES/opsdroid.po`. That files contain the real translations and are versioned.
+Now, you can translate editing manually or with [Poedit](https://poedit.net/) the `po` files in `locale/<lang>/LC_MESSAGES/opsdroid.po`. Those files contain the real translations and are versioned.
 
 After you made a change in any `po` file, in order to view the changes in opsdroid, you should compile them to `mo` binary files, the format readed by python gettext:
 ```shell
@@ -119,7 +119,7 @@ If your language is not in the `locale` folder, you can initialize it. You will 
 ```shell
 python setup.py init_catalog -l eo
 ```
-And then you can translate it in `locale/eo/LC_MESSAGES/opsdroid.po`, then compile it, etc.
+Then you can translate it in `locale/eo/LC_MESSAGES/opsdroid.po`, then compile it, etc.
 
 ## Creating New Modules
 Opsdroid is an open source chatbot framework. It is designed to be extendable, scalable and simple. It comes with a few official modules that can be found in the [Opsdroid  GitHub account](https://github.com/opsdroid).
