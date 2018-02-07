@@ -33,9 +33,6 @@ cd opsdroid
 # install the project in "editable" mode
 pip install -e .
 
-# compile translations
-python setup.py compile_catalog
-
 # run opsdroid
 python -m opsdroid
 ```
