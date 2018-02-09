@@ -19,9 +19,9 @@ class TestMessage(asynctest.TestCase):
             'messageId': '101'
         }
         message = Message(
-            "Hello world", 
-            "user", 
-            "default", 
+            "Hello world",
+            "user",
+            "default",
             mock_connector,
             raw_message)
 
