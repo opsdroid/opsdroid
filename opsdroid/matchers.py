@@ -5,7 +5,6 @@ import logging
 from opsdroid.helper import get_opsdroid
 from opsdroid.web import Web
 
-
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -16,6 +15,19 @@ def match_regex(regex, case_sensitive=True):
         opsdroid = get_opsdroid()
         opsdroid.skills.append({"regex": {"expression": regex,
                                           "case_sensitive": case_sensitive},
+                                "skill": func,
+                                "config":
+                                opsdroid.loader.current_import_config})
+        return func
+    return matcher
+
+
+def match_parse(format_str):
+    """Return parse match decorator."""
+    def matcher(func):
+        """Add decorated function to skills list for parse matching."""
+        opsdroid = get_opsdroid()
+        opsdroid.skills.append({"parse_format": format_str,
                                 "skill": func,
                                 "config":
                                 opsdroid.loader.current_import_config})

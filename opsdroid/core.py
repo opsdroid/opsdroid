@@ -14,6 +14,7 @@ from opsdroid.database import Database
 from opsdroid.loader import Loader
 from opsdroid.parsers.always import parse_always
 from opsdroid.parsers.regex import parse_regex
+from opsdroid.parsers.parseformat import parse_format
 from opsdroid.parsers.dialogflow import parse_dialogflow
 from opsdroid.parsers.luisai import parse_luisai
 from opsdroid.parsers.recastai import parse_recastai
@@ -228,6 +229,7 @@ class OpsDroid():
         """Take a message and return a ranked list of matching skills."""
         skills = []
         skills = skills + await parse_regex(self, message)
+        skills = skills + await parse_format(self, message)
 
         if "parsers" in self.config:
             _LOGGER.debug(_("Processing parsers..."))

@@ -3,3 +3,4 @@ aiohttp==2.3.10
 pycron==0.80.0
 pyyaml==3.12
 Babel==2.5.3
+parse==1.8.2
