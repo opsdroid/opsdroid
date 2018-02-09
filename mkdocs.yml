@@ -32,6 +32,7 @@ pages:
       - 'Redis': 'databases/redis.md'
   - 'Matchers':
       - 'Regular Expressions': 'matchers/regex.md'
+      - 'Parse Format': 'matchers/parse_format.md'
       - 'Rasa NLU (local)': 'matchers/rasanlu.md'
       - 'Dialogflow (Api.ai)': 'matchers/dialogflow.md'
       - 'LUIS.AI': 'matchers/luis.ai.md'
