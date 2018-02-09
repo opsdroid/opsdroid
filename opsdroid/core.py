@@ -219,10 +219,8 @@ class OpsDroid():
             await skill(self, config, message)
         except Exception:
             if message:
-                await message.respond(
-                    "Whoops there has been an error")
-                await message.respond(
-                    "Check the log for details")
+                await message.respond(_("Whoops there has been an error"))
+                await message.respond(_("Check the log for details"))
             _LOGGER.exception("Exception when running skill '%s' ",
                               config["name"])
 
