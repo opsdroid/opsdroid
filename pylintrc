@@ -26,5 +26,13 @@ overgeneral-exceptions=Exception
 
 [MISCELLANEOUS]
 
+[VARIABLES]
+additional-builtins=_
+
 # List of note tags to take in consideration, separated by a comma.
 notes=FIXME,XXX
+
+[DESIGN]
+# Raise some limits as the defaults are a bit low
+max-args=10
+max-attributes=12

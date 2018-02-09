@@ -6,6 +6,7 @@ import sys
 import shutil
 import tempfile
 import unittest.mock as mock
+import gettext
 
 
 import opsdroid.__main__ as opsdroid
@@ -45,6 +46,16 @@ class TestMain(unittest.TestCase):
     def test_parse_args(self):
         args = opsdroid.parse_args(["--gen-config"])
         self.assertEqual(True, args.gen_config)
+
+    def test_configure_no_lang(self):
+        with mock.patch.object(gettext, "translation") as translation:
+            opsdroid.configure_lang({})
+            self.assertFalse(translation.return_value.install.called)
+
+    def test_configure_lang(self):
+        with mock.patch.object(gettext, "translation") as translation:
+            opsdroid.configure_lang({'lang': 'es'})
+            self.assertTrue(translation.return_value.install.called)
 
     def test_set_logging_level(self):
         self.assertEqual(logging.DEBUG,
