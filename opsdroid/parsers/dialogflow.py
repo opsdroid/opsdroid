@@ -30,7 +30,7 @@ async def call_dialogflow(message, config, lang=DEFAULT_LANGUAGE):
                                   data=json.dumps(payload),
                                   headers=headers)
         result = await resp.json()
-        _LOGGER.info("Dialogflow response - %s", json.dumps(result))
+        _LOGGER.info(_("Dialogflow response - %s" % json.dumps(result)))
 
         return result
 
@@ -44,18 +44,19 @@ async def parse_dialogflow(opsdroid, message, config):
                                            opsdroid.config.get(
                                                "lang", DEFAULT_LANGUAGE))
         except aiohttp.ClientOSError:
-            _LOGGER.error("No response from Dialogflow, check your network.")
+            _LOGGER.error(_("No response from Dialogflow, "
+                            "check your network."))
             return matched_skills
 
         if result["status"]["code"] >= 300:
-            _LOGGER.error("Dialogflow error - %s  - %s",
-                          str(result["status"]["code"]),
-                          result["status"]["errorType"])
+            _LOGGER.error(_("Dialogflow error - %s  - %s" %
+                            (str(result["status"]["code"]),
+                             result["status"]["errorType"])))
             return matched_skills
 
         if "min-score" in config and \
                 result["result"]["score"] < config["min-score"]:
-            _LOGGER.debug("Dialogflow score lower than min-score")
+            _LOGGER.debug(_("Dialogflow score lower than min-score"))
             return matched_skills
 
         if result:
@@ -72,8 +73,8 @@ async def parse_dialogflow(opsdroid, message, config):
                                 result["result"]["intentName"]):
                         message.dialogflow = result
                         message.apiai = message.dialogflow
-                        _LOGGER.debug("Matched against skill %s",
-                                      skill["config"]["name"])
+                        _LOGGER.debug(_("Matched against skill %s" %
+                                        skill["config"]["name"]))
                         matched_skills.append({
                             "score": result["result"]["score"],
                             "skill": skill["skill"],

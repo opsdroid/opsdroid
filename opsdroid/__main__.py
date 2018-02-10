@@ -68,7 +68,7 @@ def configure_logging(config):
         file_handler.setFormatter(formatter)
         rootlogger.addHandler(file_handler)
     _LOGGER.info("="*40)
-    _LOGGER.info("Started application")
+    _LOGGER.info(_("Started application"))
 
 
 def get_logging_level(logging_level):
@@ -96,7 +96,7 @@ def parse_args(args):
 def check_dependencies():
     """Check for system dependencies required by opsdroid."""
     if sys.version_info.major < 3 or sys.version_info.minor < 5:
-        logging.critical("Whoops! opsdroid requires python 3.5 or above.")
+        logging.critical(_("Whoops! opsdroid requires python 3.5 or above."))
         sys.exit(1)
 
 
@@ -105,19 +105,19 @@ def welcome_message(config):
     try:
         if config['welcome-message']:
             _LOGGER.info("=" * 40)
-            _LOGGER.info("You can customise your opsdroid by modifying "
-                         "your configuration.yaml")
-            _LOGGER.info("Read more at: "
-                         "http://opsdroid.readthedocs.io/#configuration")
-            _LOGGER.info("Watch the Get Started Videos at: "
-                         "http://bit.ly/2fnC0Fh")
-            _LOGGER.info("Install Opsdroid Desktop at: \n"
-                         "https://github.com/opsdroid/opsdroid-desktop/"
-                         "releases")
+            _LOGGER.info(_("You can customise your opsdroid by modifying "
+                           "your configuration.yaml"))
+            _LOGGER.info(_("Read more at: "
+                           "http://opsdroid.readthedocs.io/#configuration"))
+            _LOGGER.info(_("Watch the Get Started Videos at: "
+                           "http://bit.ly/2fnC0Fh"))
+            _LOGGER.info(_("Install Opsdroid Desktop at: \n"
+                           "https://github.com/opsdroid/opsdroid-desktop/"
+                           "releases"))
             _LOGGER.info("=" * 40)
     except KeyError:
-        _LOGGER.warning("'welcome-message: true/false' is missing in "
-                        "configuration.yaml")
+        _LOGGER.warning(_("'welcome-message: true/false' is missing in "
+                          "configuration.yaml"))
 
 
 def main():

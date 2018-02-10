@@ -32,9 +32,9 @@ def match_apiai_action(action):
                                 "config":
                                 opsdroid.loader.current_import_config})
         return func
-    _LOGGER.warning("Api.ai is now called Dialogflow, this matcher "
-                    "will stop working in the future. "
-                    "Use match_dialogflow_action instead.")
+    _LOGGER.warning(_("Api.ai is now called Dialogflow, this matcher "
+                      "will stop working in the future. "
+                      "Use match_dialogflow_action instead."))
     return matcher
 
 
@@ -47,9 +47,9 @@ def match_apiai_intent(intent):
                                 "config":
                                 opsdroid.loader.current_import_config})
         return func
-    _LOGGER.warning("Api.ai is now called Dialogflow, this matcher "
-                    "will stop working in the future. "
-                    "Use match_dialogflow_intent instead.")
+    _LOGGER.warning(_("Api.ai is now called Dialogflow, this matcher "
+                      "will stop working in the future. "
+                      "Use match_dialogflow_intent instead."))
     return matcher
 
 

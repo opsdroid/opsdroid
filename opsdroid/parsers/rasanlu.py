@@ -49,17 +49,17 @@ async def _build_status_url(config):
 
 async def _init_model(config):
     """Make a request to force Rasa NLU to load the model into memory."""
-    _LOGGER.info("Initialising Rasa NLU model.")
+    _LOGGER.info(_("Initialising Rasa NLU model."))
 
     initialisation_start = arrow.now()
     result = await call_rasanlu("", config)
 
     if result is None:
-        _LOGGER.error("Initialisation failed, training failed..")
+        _LOGGER.error(_("Initialisation failed, training failed.."))
         return False
 
     time_taken = int((arrow.now() - initialisation_start).total_seconds())
-    _LOGGER.info("Initialisation complete in %s seconds.", time_taken)
+    _LOGGER.info(_("Initialisation complete in %s seconds." % time_taken))
 
     return True
 
@@ -79,20 +79,20 @@ async def _get_existing_models(config):
 
 async def train_rasanlu(config, skills):
     """Train a Rasa NLU model based on the loaded skills."""
-    _LOGGER.info("Starting Rasa NLU training.")
+    _LOGGER.info(_("Starting Rasa NLU training."))
     intents = await _get_all_intents(skills)
     if intents is None:
-        _LOGGER.warning("No intents found, skipping training.")
+        _LOGGER.warning(_("No intents found, skipping training."))
         return False
 
     config["model"] = await _get_intents_fingerprint(intents)
     if config["model"] in await _get_existing_models(config):
-        _LOGGER.info("This model already exists, skipping training...")
+        _LOGGER.info(_("This model already exists, skipping training..."))
         await _init_model(config)
         return True
 
     async with aiohttp.ClientSession() as session:
-        _LOGGER.info("Now training the model. This may take a while...")
+        _LOGGER.info(_("Now training the model. This may take a while..."))
 
         url = await _build_training_url(config)
 
@@ -100,22 +100,22 @@ async def train_rasanlu(config, skills):
             training_start = arrow.now()
             resp = await session.post(url, data=intents)
         except aiohttp.client_exceptions.ClientConnectorError:
-            _LOGGER.error("Unable to connect to Rasa NLU, training failed.")
+            _LOGGER.error(_("Unable to connect to Rasa NLU, training failed."))
             return False
 
         if resp.status == 200:
             result = await resp.json()
             if "info" in result and "new model trained" in result["info"]:
                 time_taken = (arrow.now() - training_start).total_seconds()
-                _LOGGER.info("Rasa NLU training completed in %s seconds.",
-                             int(time_taken))
+                _LOGGER.info(_("Rasa NLU training completed in %s seconds." %
+                               int(time_taken)))
                 await _init_model(config)
                 return True
             else:
                 _LOGGER.debug(result)
         else:
-            _LOGGER.error("Bad Rasa NLU response - %s", await resp.text())
-        _LOGGER.error("Rasa NLU training failed.")
+            _LOGGER.error(_("Bad Rasa NLU response - %s" % await resp.text()))
+        _LOGGER.error(_("Rasa NLU training failed."))
         return False
 
 
@@ -135,14 +135,14 @@ async def call_rasanlu(text, config):
             resp = await session.post(url, data=json.dumps(data),
                                       headers=headers)
         except aiohttp.client_exceptions.ClientConnectorError:
-            _LOGGER.error("Unable to connect to Rasa NLU")
+            _LOGGER.error(_("Unable to connect to Rasa NLU"))
             return None
         if resp.status == 200:
             result = await resp.json()
-            _LOGGER.debug("Rasa NLU response - %s", json.dumps(result))
+            _LOGGER.debug(_("Rasa NLU response - %s" % json.dumps(result)))
         else:
             result = await resp.text()
-            _LOGGER.error("Bad Rasa NLU response - %s", result)
+            _LOGGER.error(_("Bad Rasa NLU response - %s" % result))
 
         return result
 
@@ -153,22 +153,22 @@ async def parse_rasanlu(opsdroid, message, config):
     try:
         result = await call_rasanlu(message.text, config)
     except aiohttp.ClientOSError:
-        _LOGGER.error("No response from Rasa NLU, check your network.")
+        _LOGGER.error(_("No response from Rasa NLU, check your network."))
         return matched_skills
 
     if result == 'unauthorized':
-        _LOGGER.error("Rasa NLU error - Unauthorised request."
-                      "Check your 'token'.")
+        _LOGGER.error(_("Rasa NLU error - Unauthorised request."
+                        "Check your 'token'."))
         return matched_skills
 
     if result is None or 'intent' not in result or result['intent'] is None:
-        _LOGGER.error("Rasa NLU error - No intent found. Did you "
-                      "forget to create one?")
+        _LOGGER.error(_("Rasa NLU error - No intent found. Did you "
+                        "forget to create one?"))
         return matched_skills
 
     confidence = result['intent']['confidence']
     if "min-score" in config and confidence < config['min-score']:
-        _LOGGER.info("Rasa NLU score lower than min-score")
+        _LOGGER.info(_("Rasa NLU score lower than min-score"))
         return matched_skills
 
     if result:

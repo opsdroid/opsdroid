@@ -26,7 +26,7 @@ async def call_recastai(message, config, lang=DEFAULT_LANGUAGE):
                                   data=json.dumps(payload),
                                   headers=headers)
         result = await resp.json()
-        _LOGGER.info("Recastai response - %s", json.dumps(result))
+        _LOGGER.info(_("Recastai response - %s" % json.dumps(result)))
 
         return result
 
@@ -40,21 +40,21 @@ async def parse_recastai(opsdroid, message, config):
                                          opsdroid.config.get('lang',
                                                              DEFAULT_LANGUAGE))
         except aiohttp.ClientOSError:
-            _LOGGER.error("No response from Recast.AI, check your network.")
+            _LOGGER.error(_("No response from Recast.AI, check your network."))
             return matched_skills
 
         if result['results'] is None:
             _LOGGER.error("Recast.AI error - %s", result["message"])
             return matched_skills
         elif not result["results"]["intents"]:
-            _LOGGER.error("Recast.AI error - No intent found "
-                          "for the message %s", str(message.text))
+            _LOGGER.error(_("Recast.AI error - No intent found "
+                            "for the message %s" % str(message.text)))
             return matched_skills
 
         if "min-score" in config and \
                 result["results"]["intents"][0]["confidence"] < \
                 config["min-score"]:
-            _LOGGER.debug("Recast.AI score lower than min-score")
+            _LOGGER.debug(_("Recast.AI score lower than min-score"))
             return matched_skills
 
         if result:
