@@ -58,16 +58,16 @@ class Web:
             sslcontext.load_cert_chain(ssl_config["cert"], ssl_config["key"])
             return sslcontext
         except FileNotFoundError:
-            _LOGGER.error("Cannot find ssl cert or key.")
+            _LOGGER.error(_("Cannot find ssl cert or key."))
             return None
         except KeyError:
             return None
 
     def start(self):
         """Start web servers."""
-        _LOGGER.debug(
-            "Starting web server with host %s and port %s",
-            self.get_host, self.get_port)
+        _LOGGER.debug(_(
+            "Starting web server with host %s and port %s"),
+                      self.get_host, self.get_port)
         web.run_app(self.web_app, host=self.get_host,
                     port=self.get_port, print=_LOGGER.info,
                     ssl_context=self.get_ssl_context)

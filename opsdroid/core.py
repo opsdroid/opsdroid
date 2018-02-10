@@ -87,7 +87,7 @@ class OpsDroid():
 
     def exit(self):
         """Exit application."""
-        _LOGGER.info("Exiting application with return code %s",
+        _LOGGER.info(_("Exiting application with return code %s"),
                      str(self.sys_status))
         sys.exit(self.sys_status)
 
@@ -120,7 +120,7 @@ class OpsDroid():
             task.cancel()
         self.eventloop.stop()
         print('')  # Prints a character return for return to shell
-        _LOGGER.info("Keyboard interrupt, exiting.")
+        _LOGGER.info(_("Keyboard interrupt, exiting."))
 
     def load(self):
         """Load configuration."""
@@ -134,7 +134,7 @@ class OpsDroid():
         """Start the event loop."""
         connectors, databases, skills = \
             self.loader.load_modules_from_config(self.config)
-        _LOGGER.debug("Loaded %i skills", len(skills))
+        _LOGGER.debug(_("Loaded %i skills"), len(skills))
         if databases is not None:
             self.start_databases(databases)
         self.setup_skills(skills)
@@ -198,13 +198,13 @@ class OpsDroid():
         """Start the databases."""
         if not databases:
             _LOGGER.debug(databases)
-            _LOGGER.warning("All databases failed to load")
+            _LOGGER.warning(_("All databases failed to load"))
         for database_module in databases:
             for name, cls in database_module["module"].__dict__.items():
                 if isinstance(cls, type) and \
                    issubclass(cls, Database) and \
                    cls is not Database:
-                    _LOGGER.debug("Adding database: %s", name)
+                    _LOGGER.debug(_("Adding database: %s"), name)
                     database = cls(database_module["config"])
                     self.memory.databases.append(database)
                     self.eventloop.run_until_complete(database.connect(self))
@@ -221,8 +221,8 @@ class OpsDroid():
             if message:
                 await message.respond(_("Whoops there has been an error"))
                 await message.respond(_("Check the log for details"))
-            _LOGGER.exception("Exception when running skill '%s' ",
-                              config["name"])
+            _LOGGER.exception(_("Exception when running skill '%s' "),
+                              str(config["name"]))
 
     async def get_ranked_skills(self, message):
         """Take a message and return a ranked list of matching skills."""
@@ -230,7 +230,7 @@ class OpsDroid():
         skills = skills + await parse_regex(self, message)
 
         if "parsers" in self.config:
-            _LOGGER.debug("Processing parsers...")
+            _LOGGER.debug(_("Processing parsers..."))
             parsers = self.config["parsers"] or []
 
             dialogflow = [p for p in parsers if p["name"] == "dialogflow"
@@ -240,15 +240,15 @@ class OpsDroid():
             # Once it stops working remove this bit
             apiai = [p for p in parsers if p["name"] == "apiai"]
             if apiai:
-                _LOGGER.warning("Api.ai is now called Dialogflow. This "
-                                "parser will stop working in the future "
-                                "please swap: 'name: apiai' for "
-                                "'name: dialogflow' in configuration.yaml")
+                _LOGGER.warning(_("Api.ai is now called Dialogflow. This "
+                                  "parser will stop working in the future "
+                                  "please swap: 'name: apiai' for "
+                                  "'name: dialogflow' in configuration.yaml"))
 
             if len(dialogflow) == 1 and \
                     ("enabled" not in dialogflow[0] or
                      dialogflow[0]["enabled"] is not False):
-                _LOGGER.debug("Checking dialogflow...")
+                _LOGGER.debug(_("Checking dialogflow..."))
                 skills = skills + \
                     await parse_dialogflow(self, message, dialogflow[0])
 
@@ -264,7 +264,7 @@ class OpsDroid():
             if len(recastai) == 1 and \
                     ("enabled" not in recastai[0] or
                      recastai[0]["enabled"] is not False):
-                _LOGGER.debug("Checking Recast.AI...")
+                _LOGGER.debug(_("Checking Recast.AI..."))
                 skills = skills + \
                     await parse_recastai(self, message, recastai[0])
 
@@ -272,7 +272,7 @@ class OpsDroid():
             if len(witai) == 1 and \
                     ("enabled" not in witai[0] or
                      witai[0]["enabled"] is not False):
-                _LOGGER.debug("Checking wit.ai...")
+                _LOGGER.debug(_("Checking wit.ai..."))
                 skills = skills + \
                     await parse_witai(self, message, witai[0])
 
@@ -280,7 +280,7 @@ class OpsDroid():
             if len(rasanlu) == 1 and \
                     ("enabled" not in rasanlu[0] or
                      rasanlu[0]["enabled"] is not False):
-                _LOGGER.debug("Checking Rasa NLU...")
+                _LOGGER.debug(_("Checking Rasa NLU..."))
                 skills = skills + \
                     await parse_rasanlu(self, message, rasanlu[0])
 
@@ -291,7 +291,7 @@ class OpsDroid():
         self.stats["messages_parsed"] = self.stats["messages_parsed"] + 1
         tasks = []
         if message.text.strip() != "":
-            _LOGGER.debug("Parsing input: %s", message.text)
+            _LOGGER.debug(_("Parsing input: %s"), message.text)
 
             tasks.append(
                 self.eventloop.create_task(parse_always(self, message)))

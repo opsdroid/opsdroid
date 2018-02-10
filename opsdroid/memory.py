@@ -16,7 +16,7 @@ class Memory:
 
     async def get(self, key):
         """Get data object for a given key."""
-        _LOGGER.debug("Getting %s from memory.", key)
+        _LOGGER.debug(_("Getting %s from memory."), key)
         database_result = await self._get_from_database(key)
         if database_result is not None:
             self.memory[key] = database_result
@@ -27,7 +27,7 @@ class Memory:
 
     async def put(self, key, data):
         """Put a data object to a given key."""
-        _LOGGER.debug("Putting %s to memory", key)
+        _LOGGER.debug(_("Putting %s to memory"), key)
         self.memory[key] = data
         await self._put_to_database(key, self.memory[key])
 
