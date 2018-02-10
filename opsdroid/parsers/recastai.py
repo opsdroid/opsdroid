@@ -26,7 +26,7 @@ async def call_recastai(message, config, lang=DEFAULT_LANGUAGE):
                                   data=json.dumps(payload),
                                   headers=headers)
         result = await resp.json()
-        _LOGGER.info(_("Recastai response - %s" % json.dumps(result)))
+        _LOGGER.info(_("Recastai response - %s"), json.dumps(result))
 
         return result
 
@@ -44,11 +44,11 @@ async def parse_recastai(opsdroid, message, config):
             return matched_skills
 
         if result['results'] is None:
-            _LOGGER.error("Recast.AI error - %s", result["message"])
+            _LOGGER.error(_("Recast.AI error - %s"), result["message"])
             return matched_skills
         elif not result["results"]["intents"]:
             _LOGGER.error(_("Recast.AI error - No intent found "
-                            "for the message %s" % str(message.text)))
+                            "for the message %s"), str(message.text))
             return matched_skills
 
         if "min-score" in config and \
@@ -63,7 +63,7 @@ async def parse_recastai(opsdroid, message, config):
                     if (skill["recastai_intent"] in
                             result["results"]["intents"][0]["slug"]):
                         message.recastai = result
-                        _LOGGER.debug("Matched against skill %s",
+                        _LOGGER.debug(_("Matched against skill %s"),
                                       skill["config"]["name"])
 
                         matched_skills.append({

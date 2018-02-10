@@ -66,8 +66,8 @@ class Web:
     def start(self):
         """Start web servers."""
         _LOGGER.debug(_(
-            "Starting web server with host %s and port %s" %
-            (self.get_host, self.get_port)))
+            "Starting web server with host %s and port %s"),
+                      self.get_host, self.get_port)
         web.run_app(self.web_app, host=self.get_host,
                     port=self.get_port, print=_LOGGER.info,
                     ssl_context=self.get_ssl_context)

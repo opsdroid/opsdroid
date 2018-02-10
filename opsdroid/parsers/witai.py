@@ -24,7 +24,7 @@ async def call_witai(message, config):
         resp = await session.get(WITAI_API_ENDPOINT + "v={}&q={}".format(
             payload['v'], payload['q']), headers=headers)
         result = await resp.json()
-        _LOGGER.info(_("wit.ai response - %s" % json.dumps(result)))
+        _LOGGER.info(_("wit.ai response - %s"), json.dumps(result))
         return result
 
 
@@ -39,8 +39,8 @@ async def parse_witai(opsdroid, message, config):
             return matched_skills
 
         if 'code' in result:
-            _LOGGER.error(_("wit.ai error - %s %s" % (str(result['code']),
-                                                      str(result['error']))))
+            _LOGGER.error(_("wit.ai error - %s %s"),
+                          str(result['code']), str(result['error']))
             return matched_skills
         elif result['entities'] == {}:
             _LOGGER.error(_("wit.ai error - No intent found. Did you "

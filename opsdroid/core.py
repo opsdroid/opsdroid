@@ -87,8 +87,8 @@ class OpsDroid():
 
     def exit(self):
         """Exit application."""
-        _LOGGER.info(_("Exiting application with return code %s" %
-                       str(self.sys_status)))
+        _LOGGER.info(_("Exiting application with return code %s"),
+                     str(self.sys_status))
         sys.exit(self.sys_status)
 
     def critical(self, error, code):
@@ -134,7 +134,7 @@ class OpsDroid():
         """Start the event loop."""
         connectors, databases, skills = \
             self.loader.load_modules_from_config(self.config)
-        _LOGGER.debug(_("Loaded %i skills" % len(skills)))
+        _LOGGER.debug(_("Loaded %i skills"), len(skills))
         if databases is not None:
             self.start_databases(databases)
         self.setup_skills(skills)
@@ -204,7 +204,7 @@ class OpsDroid():
                 if isinstance(cls, type) and \
                    issubclass(cls, Database) and \
                    cls is not Database:
-                    _LOGGER.debug(_("Adding database: %s" % name))
+                    _LOGGER.debug(_("Adding database: %s"), name)
                     database = cls(database_module["config"])
                     self.memory.databases.append(database)
                     self.eventloop.run_until_complete(database.connect(self))
@@ -221,8 +221,8 @@ class OpsDroid():
             if message:
                 await message.respond(_("Whoops there has been an error"))
                 await message.respond(_("Check the log for details"))
-            _LOGGER.exception(_("Exception when running skill '%s' " %
-                                str(config["name"])))
+            _LOGGER.exception(_("Exception when running skill '%s' "),
+                              str(config["name"]))
 
     async def get_ranked_skills(self, message):
         """Take a message and return a ranked list of matching skills."""
@@ -291,7 +291,7 @@ class OpsDroid():
         self.stats["messages_parsed"] = self.stats["messages_parsed"] + 1
         tasks = []
         if message.text.strip() != "":
-            _LOGGER.debug(_("Parsing input: %s" % message.text))
+            _LOGGER.debug(_("Parsing input: %s"), message.text)
 
             tasks.append(
                 self.eventloop.create_task(parse_always(self, message)))

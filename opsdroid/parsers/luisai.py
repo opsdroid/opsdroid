@@ -23,7 +23,7 @@ async def call_luisai(message, config):
                                  '&verbose=' + str(config['verbose']) +
                                  '&q=' + message.text, headers=headers)
         result = await resp.json()
-        _LOGGER.debug(_("luis.ai response - %s" % json.dumps(result)))
+        _LOGGER.debug(_("luis.ai response - %s"), json.dumps(result))
 
         return result
 
@@ -44,9 +44,9 @@ async def parse_luisai(opsdroid, message, config):
             # luis.ai responds with a status code
             try:
                 if result["statusCode"] >= 300:
-                    _LOGGER.error(_("luis.ai error - %s %s" %
-                                    (str(result["statusCode"]),
-                                     result["message"])))
+                    _LOGGER.error(_("luis.ai error - %s %s"),
+                                  str(result["statusCode"]),
+                                  result["message"])
             except KeyError:
                 pass
 

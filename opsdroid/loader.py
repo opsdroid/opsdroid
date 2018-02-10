@@ -49,19 +49,19 @@ class Loader:
                                                    "." + config["name"])
             if module_spec:
                 module = Loader.import_module_from_spec(module_spec)
-                _LOGGER.debug("Loaded %s: %s", config["type"],
+                _LOGGER.debug(_("Loaded %s: %s"), config["type"],
                               config["module_path"])
                 return module
 
         module_spec = importlib.util.find_spec(config["module_path"])
         if module_spec:
             module = Loader.import_module_from_spec(module_spec)
-            _LOGGER.debug(_("Loaded %s: %s" %
-                            (config["type"], config["module_path"])))
+            _LOGGER.debug(_("Loaded %s: %s"),
+                          config["type"], config["module_path"])
             return module
 
-        _LOGGER.error(_("Failed to load %s: %s" %
-                        (config["type"], config["module_path"])))
+        _LOGGER.error(_("Failed to load %s: %s"),
+                      config["type"], config["module_path"])
 
         return None
 
@@ -70,8 +70,8 @@ class Loader:
         """Remove module if 'no-cache' set in config."""
         if "no-cache" in config \
                 and config["no-cache"]:
-            _LOGGER.debug(_("'no-cache' set, removing %s" %
-                            config["install_path"]))
+            _LOGGER.debug(_("'no-cache' set, removing %s"),
+                          config["install_path"])
             if os.path.isdir(config["install_path"]):
                 shutil.rmtree(config["install_path"])
             if os.path.isfile(config["install_path"] + ".py"):
@@ -134,8 +134,8 @@ class Loader:
                                        stderr=subprocess.PIPE)
         except FileNotFoundError:
             _LOGGER.debug(_("Couldn't find the command 'pip3', "
-                            "install of %s will be skipped." %
-                            str(requirements_path)))
+                            "install of %s will be skipped."),
+                          str(requirements_path))
 
         if not process:
             raise OSError(_("Pip and pip3 not found, exiting..."))
@@ -176,7 +176,7 @@ class Loader:
             if isinstance(module["module"], ModuleType):
                 module_name = module["module"].__name__
                 if sys.modules.get(module_name):
-                    _LOGGER.debug(_("Reloading module %s" % module_name))
+                    _LOGGER.debug(_("Reloading module %s"), module_name)
                     importlib.reload(sys.modules[module_name])
 
     def load_config_file(self, config_paths):
@@ -184,7 +184,7 @@ class Loader:
         config_path = ""
         for possible_path in config_paths:
             if not os.path.isfile(possible_path):
-                _LOGGER.debug(_("Config file %s not found." % possible_path))
+                _LOGGER.debug(_("Config file %s not found."), possible_path)
             else:
                 config_path = possible_path
                 break
@@ -216,7 +216,7 @@ class Loader:
 
         try:
             with open(config_path, 'r') as stream:
-                _LOGGER.info(_("Loaded config from %s." % config_path))
+                _LOGGER.info(_("Loaded config from %s."), config_path)
                 return yaml.load(stream)
         except yaml.YAMLError as error:
             self.opsdroid.critical(error, 1)
@@ -273,7 +273,7 @@ class Loader:
 
     def _load_modules(self, modules_type, modules):
         """Install and load modules."""
-        _LOGGER.debug(_("Loading %s modules..." % modules_type))
+        _LOGGER.debug(_("Loading %s modules..."), modules_type)
         loaded_modules = []
 
         if not os.path.isdir(DEFAULT_MODULE_DEPS_PATH):
@@ -323,13 +323,13 @@ class Loader:
                     "intents": intents})
             else:
                 _LOGGER.error(_(
-                    "Module %s failed to import." % config["name"]))
+                    "Module %s failed to import."), config["name"])
 
         return loaded_modules
 
     def _install_module(self, config):
         """Install a module."""
-        _LOGGER.debug(_("Installing %s..." % config["name"]))
+        _LOGGER.debug(_("Installing %s..."), config["name"])
 
         if self._is_local_module(config):
             self._install_local_module(config)
@@ -337,8 +337,8 @@ class Loader:
             self._install_git_module(config)
 
         if self._is_module_installed(config):
-            _LOGGER.debug(_("Installed %s to %s" %
-                            (config["name"], config["install_path"])))
+            _LOGGER.debug(_("Installed %s to %s"),
+                          config["name"], config["install_path"])
         else:
             _LOGGER.error(_("Install of %s failed."), config["name"])
 
@@ -346,7 +346,7 @@ class Loader:
 
     def _update_module(self, config):
         """Update a module."""
-        _LOGGER.debug(_("Updating %s..." % config["name"]))
+        _LOGGER.debug(_("Updating %s..."), config["name"])
 
         if self._is_local_module(config):
             _LOGGER.debug(_("Local modules are not updated, skipping."))
@@ -381,14 +381,14 @@ class Loader:
         if any(prefix in git_url for prefix in ["http", "https", "ssh"]):
             # TODO Test if url or ssh path exists
             # TODO Handle github authentication
-            _LOGGER.info(_("Cloning %s from remote repository" %
-                           config["name"]))
+            _LOGGER.info(_("Cloning %s from remote repository"),
+                         config["name"])
             self.git_clone(git_url, config["install_path"],
                            config["branch"])
         else:
             if os.path.isdir(git_url):
-                _LOGGER.debug(_("Cloning %s from local repository" %
-                                config["name"]))
+                _LOGGER.debug(_("Cloning %s from local repository"),
+                              config["name"])
                 self.git_clone(git_url, config["install_path"],
                                config["branch"])
             else:

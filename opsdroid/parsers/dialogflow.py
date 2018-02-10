@@ -30,7 +30,7 @@ async def call_dialogflow(message, config, lang=DEFAULT_LANGUAGE):
                                   data=json.dumps(payload),
                                   headers=headers)
         result = await resp.json()
-        _LOGGER.info(_("Dialogflow response - %s" % json.dumps(result)))
+        _LOGGER.info(_("Dialogflow response - %s"), json.dumps(result))
 
         return result
 
@@ -49,9 +49,9 @@ async def parse_dialogflow(opsdroid, message, config):
             return matched_skills
 
         if result["status"]["code"] >= 300:
-            _LOGGER.error(_("Dialogflow error - %s  - %s" %
-                            (str(result["status"]["code"]),
-                             result["status"]["errorType"])))
+            _LOGGER.error(_("Dialogflow error - %s  - %s"),
+                          str(result["status"]["code"]),
+                          result["status"]["errorType"])
             return matched_skills
 
         if "min-score" in config and \
@@ -73,8 +73,8 @@ async def parse_dialogflow(opsdroid, message, config):
                                 result["result"]["intentName"]):
                         message.dialogflow = result
                         message.apiai = message.dialogflow
-                        _LOGGER.debug(_("Matched against skill %s" %
-                                        skill["config"]["name"]))
+                        _LOGGER.debug(_("Matched against skill %s"),
+                                      skill["config"]["name"])
                         matched_skills.append({
                             "score": result["result"]["score"],
                             "skill": skill["skill"],

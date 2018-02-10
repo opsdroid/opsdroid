@@ -59,7 +59,7 @@ async def _init_model(config):
         return False
 
     time_taken = int((arrow.now() - initialisation_start).total_seconds())
-    _LOGGER.info(_("Initialisation complete in %s seconds." % time_taken))
+    _LOGGER.info(_("Initialisation complete in %s seconds."), time_taken)
 
     return True
 
@@ -107,14 +107,14 @@ async def train_rasanlu(config, skills):
             result = await resp.json()
             if "info" in result and "new model trained" in result["info"]:
                 time_taken = (arrow.now() - training_start).total_seconds()
-                _LOGGER.info(_("Rasa NLU training completed in %s seconds." %
-                               int(time_taken)))
+                _LOGGER.info(_("Rasa NLU training completed in %s seconds."),
+                             int(time_taken))
                 await _init_model(config)
                 return True
             else:
                 _LOGGER.debug(result)
         else:
-            _LOGGER.error(_("Bad Rasa NLU response - %s" % await resp.text()))
+            _LOGGER.error(_("Bad Rasa NLU response - %s"), await resp.text())
         _LOGGER.error(_("Rasa NLU training failed."))
         return False
 
@@ -139,10 +139,10 @@ async def call_rasanlu(text, config):
             return None
         if resp.status == 200:
             result = await resp.json()
-            _LOGGER.debug(_("Rasa NLU response - %s" % json.dumps(result)))
+            _LOGGER.debug(_("Rasa NLU response - %s"), json.dumps(result))
         else:
             result = await resp.text()
-            _LOGGER.error(_("Bad Rasa NLU response - %s" % result))
+            _LOGGER.error(_("Bad Rasa NLU response - %s"), result)
 
         return result
 
