@@ -27,3 +27,6 @@ DIALOGFLOW_API_ENDPOINT = "https://api.dialogflow.com/v1/query"
 DIALOGFLOW_API_VERSION = "20150910"
 
 WITAI_DEFAULT_VERSION = "20170307"
+WITAI_API_ENDPOINT = "https://api.wit.ai/message?"
+
+RECASTAI_API_ENDPOINT = "https://api.recast.ai/v2/request"
