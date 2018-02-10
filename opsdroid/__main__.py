@@ -4,13 +4,25 @@ import os
 import sys
 import logging
 import argparse
+import gettext
 
 from opsdroid.core import OpsDroid
-from opsdroid.const import DEFAULT_LOG_FILENAME, EXAMPLE_CONFIG_FILE
+from opsdroid.const import DEFAULT_LOG_FILENAME, EXAMPLE_CONFIG_FILE,\
+    DEFAULT_LANGUAGE, LOCALE_DIR
 from opsdroid.web import Web
 
 
+gettext.install('opsdroid')
 _LOGGER = logging.getLogger("opsdroid")
+
+
+def configure_lang(config):
+    """Configure app language based on user config."""
+    lang_code = config.get("lang", DEFAULT_LANGUAGE)
+    if lang_code != DEFAULT_LANGUAGE:
+        lang = gettext.translation(
+            'opsdroid', LOCALE_DIR, (lang_code,), fallback=True)
+        lang.install()
 
 
 def configure_logging(config):
@@ -124,6 +136,7 @@ def main():
     while restart:
         with OpsDroid() as opsdroid:
             opsdroid.load()
+            configure_lang(opsdroid.config)
             configure_logging(opsdroid.config)
             welcome_message(opsdroid.config)
             opsdroid.web_server = Web(opsdroid)
