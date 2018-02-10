@@ -1,0 +1,27 @@
+# Catalan translations for opsdroid.
+# Copyright (C) 2018 ORGANIZATION
+# This file is distributed under the same license as the opsdroid project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: opsdroid 0.11.2\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2018-01-28 16:05+0100\n"
+"PO-Revision-Date: 2018-01-28 16:05+0100\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: ca\n"
+"Language-Team: ca <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.5.3\n"
+
+#: opsdroid/core.py:222
+msgid "Whoops there has been an error"
+msgstr "Uuups hi ha hagut un error"
+
+#: opsdroid/core.py:223
+msgid "Check the log for details"
+msgstr "Comprova el log per obtenir més detalls"
