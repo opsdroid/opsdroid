@@ -12,6 +12,7 @@ DEFAULT_MODULE_DEPS_PATH = os.path.join(DEFAULT_ROOT_PATH, "site-packages")
 DEFAULT_CONFIG_PATH = os.path.join(DEFAULT_ROOT_PATH, "configuration.yaml")
 DEFAULT_MODULE_BRANCH = "master"
 DEFAULT_LANGUAGE = 'en'
+LOCALE_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'locale')
 EXAMPLE_CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                    "configuration/example_configuration.yaml")
 REGEX_MAX_SCORE = 0.6
@@ -26,3 +27,6 @@ DIALOGFLOW_API_ENDPOINT = "https://api.dialogflow.com/v1/query"
 DIALOGFLOW_API_VERSION = "20150910"
 
 WITAI_DEFAULT_VERSION = "20170307"
+WITAI_API_ENDPOINT = "https://api.wit.ai/message?"
+
+RECASTAI_API_ENDPOINT = "https://api.recast.ai/v2/request"

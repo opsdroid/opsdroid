@@ -15,7 +15,6 @@ pages:
       - 'Adding connectors': 'extending/connectors.md'
       - 'Adding databases': 'extending/databases.md'
   - 'Matchers':
-      - 'Overview': 'matchers/overview.md'
       - 'Regular Expressions': 'matchers/regex.md'
       - 'Rasa NLU (local)': 'matchers/rasanlu.md'
       - 'Dialogflow (Api.ai)': 'matchers/dialogflow.md'

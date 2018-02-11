@@ -12,13 +12,14 @@ class Message:
     # pylint: disable=too-few-public-methods
     """A message object."""
 
-    def __init__(self, text, user, room, connector):
+    def __init__(self, text, user, room, connector, raw_message=None):
         """Create object with minimum properties."""
         self.created = datetime.now()
         self.text = text
         self.user = user
         self.room = room
         self.connector = connector
+        self.raw_message = raw_message
         self.regex = None
         self.responded_to = False
 

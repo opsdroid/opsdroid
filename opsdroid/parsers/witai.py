@@ -6,6 +6,7 @@ import json
 import aiohttp
 
 from opsdroid.const import WITAI_DEFAULT_VERSION
+from opsdroid.const import WITAI_API_ENDPOINT
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -20,10 +21,10 @@ async def call_witai(message, config):
             "v": WITAI_DEFAULT_VERSION,
             "q": message.text
         }
-        resp = await session.get("https://api.wit.ai/message?v={}&q={}".format(
+        resp = await session.get(WITAI_API_ENDPOINT + "v={}&q={}".format(
             payload['v'], payload['q']), headers=headers)
         result = await resp.json()
-        _LOGGER.info("wit.ai response - %s", json.dumps(result))
+        _LOGGER.info(_("wit.ai response - %s"), json.dumps(result))
         return result
 
 
@@ -34,16 +35,16 @@ async def parse_witai(opsdroid, message, config):
         try:
             result = await call_witai(message, config)
         except aiohttp.ClientOSError:
-            _LOGGER.error("No response from wit.ai, check your network.")
+            _LOGGER.error(_("No response from wit.ai, check your network."))
             return matched_skills
 
         if 'code' in result:
-            _LOGGER.error("wit.ai error - %s %s", str(result['code']),
-                          str(result['error']))
+            _LOGGER.error(_("wit.ai error - %s %s"),
+                          str(result['code']), str(result['error']))
             return matched_skills
         elif result['entities'] == {}:
-            _LOGGER.error("wit.ai error - No intent found. Did you "
-                          "forget to create one?")
+            _LOGGER.error(_("wit.ai error - No intent found. Did you "
+                            "forget to create one?"))
             return matched_skills
 
         try:
@@ -51,7 +52,7 @@ async def parse_witai(opsdroid, message, config):
         except KeyError:
             confidence = 0.0
         if "min-score" in config and confidence < config['min-score']:
-            _LOGGER.info("wit.ai score lower than min-score")
+            _LOGGER.info(_("wit.ai score lower than min-score"))
             return matched_skills
 
         if result:
