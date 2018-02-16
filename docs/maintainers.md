@@ -13,14 +13,14 @@ A maintainer should be polite and respectful towards every member of the communi
  
 - **Other important things**
   - Jacob, the creator of opsdroid, is the one to cut releases for now
-  - If in doubt about a PR please mention @jacobtomlinson and ask for a review
-  - New contributors get [stickers](https://medium.com/opsdroid/stickers-for-contributors-a0a1f9c30ec1)! Get them to send their address to @jacobtomlinson if you merge their PR.
+  - If in doubt about a PR please mention @opsdroid/maintainers and ask for a review
+  - New contributors get [stickers](https://medium.com/opsdroid/stickers-for-contributors-a0a1f9c30ec1)! Get them to send their address through DM to [@opsdroid](https://twitter.com/opsdroid) twitter account if you merge their PR.
 
 ## Reviewing and Merging Pull Requests
 As a maintainer one of the tasks that you have to take on will be reviewing pull requests and merge them if it meets the criteria. 
 
 **Criteria for merging a PR**
-  - You didn't write it yourself (this may not be practical yet, we should discuss it)
+  - You didn't write it yourself
   - The [PR template](PULL_REQUEST_TEMPLATE.md) criteria are met (has tests, is documented, etc)
   - The existing tests pass and coverage remains the same
   - It is related to an open issue
@@ -31,5 +31,13 @@ Depending on the pull request, coverage might drop a bit. If that is the case, a
 If a PR is not related to an open issue, then it's a proposal for the project. Jacob, the creator of opsdroid, and the community should give feedback and discuss the Pull Request either in the PR itself, an issue or in the [gitter](https://gitter.im/opsdroid/developers) channel.
 
 When merging a PR into opsdroid main branch you should take a few things into consideration.
+- Use Squash and Merge option when merging a PR into opsdroid's master branch
 - The title of the merge will be included in the release notes of a new opsdroid version, so the title should make sense.
 - Remove unnecessary stuff from the description. If it takes 4 commits to get the tests to pass those lines should be deleted.
+
+
+## Maintainer scripts
+
+This project contains a directory called [`scripts`](https://github.com/opsdroid/opsdroid/tree/master/scripts) which are simple python scripts for use by maintainers when working on opsdroid. Each directory contains the script itself, a README and other supporting files. See the individual README files for more information.
+
+_These scripts may have dependancies so you should run `pip install -r requirements_dev.txt` from the root of the project._
