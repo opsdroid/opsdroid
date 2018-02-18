@@ -168,8 +168,6 @@ class Loader:
         shutil.copyfile(EXAMPLE_CONFIG_FILE, config_path)
         return config_path
 
-
-
     def load_config_file(self, config_paths):
         """Load a yaml config file from path."""
         config_path = ""

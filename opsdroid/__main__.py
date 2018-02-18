@@ -131,9 +131,6 @@ def main():
 
     check_dependencies()
 
-
-
-
     with OpsDroid() as opsdroid:
         opsdroid.load()
         configure_lang(opsdroid.config)

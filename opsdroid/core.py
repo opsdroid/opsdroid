@@ -96,7 +96,6 @@ class OpsDroid():
         _LOGGER.critical(error)
         self.exit()
 
-
     def call_stop(self):
         """Signal handler to call disconnect and stop."""
         future = asyncio.ensure_future(self.disconnect())

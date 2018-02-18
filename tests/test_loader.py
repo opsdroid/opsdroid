@@ -475,4 +475,3 @@ class TestLoader(unittest.TestCase):
             mockpull.assert_called_with(config["install_path"])
 
         shutil.rmtree(config["install_path"], onerror=del_rw)
-

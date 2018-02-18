@@ -54,7 +54,6 @@ class TestCore(unittest.TestCase):
 
             self.assertTrue(opsdroid.disconnect.called)
 
-
     def test_load_config(self):
         with OpsDroid() as opsdroid:
             opsdroid.loader = mock.Mock()
