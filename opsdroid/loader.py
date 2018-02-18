@@ -7,7 +7,6 @@ import shutil
 import subprocess
 import importlib
 import importlib.util
-from types import ModuleType
 import re
 from collections import Mapping
 import yaml
