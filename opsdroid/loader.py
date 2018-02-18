@@ -169,15 +169,7 @@ class Loader:
         shutil.copyfile(EXAMPLE_CONFIG_FILE, config_path)
         return config_path
 
-    def _reload_modules(self, modules):
-        """Reload modules in namespace. Queries sys.modules."""
-        for module in modules:
-            self.current_import_config = module["config"]
-            if isinstance(module["module"], ModuleType):
-                module_name = module["module"].__name__
-                if sys.modules.get(module_name):
-                    _LOGGER.debug(_("Reloading module %s"), module_name)
-                    importlib.reload(sys.modules[module_name])
+
 
     def load_config_file(self, config_paths):
         """Load a yaml config file from path."""
@@ -257,7 +249,6 @@ class Loader:
         if 'skills' in config.keys() and config['skills']:
             skills = self._load_modules('skill', config['skills'])
             self.opsdroid.skills = []
-            self._reload_modules(skills)
 
         else:
             self.opsdroid.critical(_(

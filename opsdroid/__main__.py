@@ -131,17 +131,16 @@ def main():
 
     check_dependencies()
 
-    restart = True
 
-    while restart:
-        with OpsDroid() as opsdroid:
-            opsdroid.load()
-            configure_lang(opsdroid.config)
-            configure_logging(opsdroid.config)
-            welcome_message(opsdroid.config)
-            opsdroid.web_server = Web(opsdroid)
-            opsdroid.start_loop()
-            restart = opsdroid.should_restart
+
+
+    with OpsDroid() as opsdroid:
+        opsdroid.load()
+        configure_lang(opsdroid.config)
+        configure_logging(opsdroid.config)
+        welcome_message(opsdroid.config)
+        opsdroid.web_server = Web(opsdroid)
+        opsdroid.start_loop()
 
 
 def init():
