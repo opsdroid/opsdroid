@@ -121,3 +121,9 @@ class TestMessage(asynctest.TestCase):
                 await message.respond("Hello there")
 
             self.assertTrue(mocksleep.called)
+
+    async def test_react(self):
+        mock_connector = Connector({})
+        message = Message("Hello world", "user", "default", mock_connector)
+        reacted = await message.react("emoji")
+        self.assertFalse(reacted)
