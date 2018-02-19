@@ -123,7 +123,13 @@ class TestMessage(asynctest.TestCase):
             self.assertTrue(mocksleep.called)
 
     async def test_react(self):
-        mock_connector = Connector({})
-        message = Message("Hello world", "user", "default", mock_connector)
-        reacted = await message.react("emoji")
-        self.assertFalse(reacted)
+        mock_connector = Connector({
+            'name': 'shell',
+            'thinking-delay': 2,
+            'type': 'connector',
+        })
+        with amock.patch('asyncio.sleep') as mocksleep:
+            message = Message("Hello world", "user", "default", mock_connector)
+            reacted = await message.react("emoji")
+            self.assertTrue(mocksleep.called)
+            self.assertFalse(reacted)
