@@ -1,8 +1,8 @@
-
+import asyncio
 import asynctest
 import asynctest.mock as amock
 
-from aiohttp import helpers, ClientOSError
+from aiohttp import ClientOSError
 
 from opsdroid.core import OpsDroid
 from opsdroid.matchers import match_recastai
@@ -44,7 +44,7 @@ class TestParserRecastAi(asynctest.TestCase):
         }
 
         with amock.patch('aiohttp.ClientSession.post') as patched_request:
-            patched_request.return_value = helpers.create_future(self.loop)
+            patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
             await recastai.call_recastai(message, config)
             self.assertTrue(patched_request.called)
