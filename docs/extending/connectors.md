@@ -19,6 +19,8 @@ Connectors are a class which extends the base opsdroid Connector. The class has 
 #### respond
 *respond* will take a Message object and return the contents to the chat service.
 
+#### react
+*react* will take a Message object and an emoji name and add this emoji as a Message reaction (if the chat service supports this feature).
 
 #### disconnect
 *disconnect* there is also an optional disconnect method that will be called upon shutdown of opsdroid. This can be used to perform any disconnect operations for the connector.
