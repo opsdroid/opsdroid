@@ -1,6 +1,10 @@
 """A base class for connectors to inherit from."""
 
+import logging
 from opsdroid.message import Message  # NOQA # pylint: disable=unused-import
+
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class Connector():
@@ -76,6 +80,24 @@ class Connector():
 
         """
         raise NotImplementedError
+
+    async def react(self, message, emoji):
+        """React to a message.
+
+        Not all connectors will have capabilities to react messages, so this
+        method don't have to be implemented and by default logs a debug message
+        and returns False.
+
+        Args:
+            message (Message): A message received by the connector.
+            emoji    (string): The emoji name with which opsdroid will react
+
+        Returns:
+            bool: True for message successfully sent. False otherwise.
+
+        """
+        _LOGGER.debug(_("%s connector can't react to messages"), self.name)
+        return False
 
     async def user_typing(self, opsdroid, trigger):
         """Signals that opsdroid is typing.
