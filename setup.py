@@ -8,6 +8,7 @@ from opsdroid.const import __version__
 
 PACKAGE_NAME = 'opsdroid'
 HERE = os.path.abspath(os.path.dirname(__file__))
+README = open(os.path.join(HERE, 'README.md')).read()
 
 PACKAGES = find_packages(exclude=['tests', 'tests.*', 'modules',
                                   'modules.*', 'docs', 'docs.*'])
@@ -48,18 +49,46 @@ setup(
     name=PACKAGE_NAME,
     version=__version__,
     license='Apache License 2.0',
-    url='',
-    download_url='',
+    url='https://opsdroid.github.io/',
+    download_url='https://github.com/opsdroid/opsdroid/releases',
     author='Jacob Tomlinson',
     author_email='jacob@tom.linson.uk',
-    description='An open source chat-ops bot.',
+    description='An open source ChatOps bot framework.',
+    long_description=README,
     packages=PACKAGES,
     include_package_data=True,
     zip_safe=False,
     platforms='any',
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Environment :: Console',
+        'Framework :: AsyncIO',
+        'Intended Audience :: Developers',
+        'Intended Audience :: System Administrators',
+        'Intended Audience :: Information Technology',
+        'License :: OSI Approved :: Apache Software License',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3 :: Only',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Topic :: Communications :: Chat',
+        'Topic :: Scientific/Engineering :: Artificial Intelligence',
+        'Topic :: Software Development :: Libraries :: Python Modules'
+    ],
     install_requires=REQUIRES,
     test_suite='tests',
-    keywords=['bot', 'chatops'],
+    keywords=[
+        'bot',
+        'bot-framework',
+        'opsdroid',
+        'botkit',
+        'python3',
+        'asyncio',
+        'chatops',
+        'devops',
+        'nlu'
+    ],
     setup_requires=['Babel'],
     cmdclass={'sdist': Sdist, 'build_py': BuildPy, 'develop': Develop},
     entry_points={
