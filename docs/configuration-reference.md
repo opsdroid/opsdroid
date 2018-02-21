@@ -15,6 +15,7 @@
    - [Git Repository](#git-repository)
    - [Local Directory](#local-directory)
    - [Disable Caching](#disable-caching)
+   - [Disable dependency install](#disable-dependency-install)
 - [Environment Variables](#environment-variables)
 - [Include Additional Yaml Files](#include-additional-yaml-files)
 
@@ -278,6 +279,19 @@ databases:
     repo: https://github.com/username/mymongofork.git
     no-cache: true
 ```
+
+### Disable dependency install
+
+Set `no-dep` to true to skip the installation of dependencies on every start of opsdroid. 
+
+```yaml
+skills:
+  - name: myawesomeskill
+    no-cache: true
+    no-deps: true
+```
+
+_Note: This might be useful when you are developing a skill and already have the dependencies installed._
 
 ## Environment variables
 

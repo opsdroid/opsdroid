@@ -194,6 +194,16 @@ class TestLoader(unittest.TestCase):
         loaded_intents = ld.Loader._load_intents(config)
         self.assertEqual(None, loaded_intents)
 
+    def test_no_dep(self):
+        opsdroid, loader = self.setup()
+
+        config = {}
+        config['no-dep'] = True
+
+        with mock.patch('opsdroid.loader._LOGGER.debug') as logmock:
+            loader._install_module_dependencies(config)
+            self.assertTrue(logmock.called)
+
     def test_import_module(self):
         config = {}
         config["module_path"] = "os"

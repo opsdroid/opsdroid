@@ -353,10 +353,14 @@ class Loader:
         return "path" in config
 
     def _install_module_dependencies(self, config):
-        if os.path.isfile(os.path.join(
-                config["install_path"], "requirements.txt")):
-            self.pip_install_deps(os.path.join(config["install_path"],
-                                               "requirements.txt"))
+        if config.get('no-dep', False):
+            _LOGGER.debug(_("'no-dep' set in configuration, skipping the "
+                            "install of dependencies."))
+        else:
+            if os.path.isfile(os.path.join(
+                    config["install_path"], "requirements.txt")):
+                self.pip_install_deps(os.path.join(config["install_path"],
+                                                   "requirements.txt"))
 
     def _install_git_module(self, config):
         """Install a module from a git repository."""
