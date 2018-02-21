@@ -1,8 +1,9 @@
 
+import asyncio
 import asynctest
 import asynctest.mock as amock
 
-from aiohttp import helpers, ClientOSError
+from aiohttp import ClientOSError
 
 from opsdroid.core import OpsDroid
 from opsdroid.matchers import match_luisai_intent
@@ -39,7 +40,7 @@ class TestParserLuisai(asynctest.TestCase):
                 "entities": []
             }
         with amock.patch('aiohttp.ClientSession.get') as patched_request:
-            patched_request.return_value = helpers.create_future(self.loop)
+            patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
             await luisai.call_luisai(message, config)
             self.assertTrue(patched_request.called)

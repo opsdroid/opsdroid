@@ -1,8 +1,9 @@
+import asyncio
 import asynctest
 import asynctest.mock as amock
 
 import aiohttp
-from aiohttp import helpers, ClientOSError
+from aiohttp import ClientOSError
 
 from opsdroid.core import OpsDroid
 from opsdroid.matchers import match_rasanlu
@@ -52,7 +53,7 @@ class TestParserRasaNLU(asynctest.TestCase):
             "text": "how's the weather outside"
         }
         with amock.patch('aiohttp.ClientSession.post') as patched_request:
-            patched_request.return_value = helpers.create_future(self.loop)
+            patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
             await rasanlu.call_rasanlu(message.text, config)
             self.assertTrue(patched_request.called)
@@ -67,7 +68,7 @@ class TestParserRasaNLU(asynctest.TestCase):
         result.text = amock.CoroutineMock()
         result.text.return_value = "unauthorized"
         with amock.patch('aiohttp.ClientSession.post') as patched_request:
-            patched_request.return_value = helpers.create_future(self.loop)
+            patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
             response = await rasanlu.call_rasanlu(message.text, config)
             self.assertTrue(patched_request.called)
@@ -416,7 +417,7 @@ class TestParserRasaNLU(asynctest.TestCase):
             }
         }
         with amock.patch('aiohttp.ClientSession.get') as patched_request:
-            patched_request.return_value = helpers.create_future(self.loop)
+            patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
             models = await rasanlu._get_existing_models(
                 {"project": "opsdroid"})
@@ -428,7 +429,7 @@ class TestParserRasaNLU(asynctest.TestCase):
         result.json = amock.CoroutineMock()
         result.json.return_value = {}
         with amock.patch('aiohttp.ClientSession.get') as patched_request:
-            patched_request.return_value = helpers.create_future(self.loop)
+            patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
             models = await rasanlu._get_existing_models({})
             self.assertEqual(models, [])
@@ -469,16 +470,16 @@ class TestParserRasaNLU(asynctest.TestCase):
             self.assertEqual(await rasanlu.train_rasanlu({}, {}), False)
 
             patched_request.side_effect = None
-            patched_request.return_value = helpers.create_future(self.loop)
+            patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
             self.assertEqual(await rasanlu.train_rasanlu({}, {}), False)
 
             result.status = 200
-            patched_request.return_value = helpers.create_future(self.loop)
+            patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
             self.assertEqual(await rasanlu.train_rasanlu({}, {}), True)
 
             result.json.return_value = {"info": "error"}
-            patched_request.return_value = helpers.create_future(self.loop)
+            patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
             self.assertEqual(await rasanlu.train_rasanlu({}, {}), False)
