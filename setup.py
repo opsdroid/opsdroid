@@ -8,7 +8,7 @@ from opsdroid.const import __version__
 
 PACKAGE_NAME = 'opsdroid'
 HERE = os.path.abspath(os.path.dirname(__file__))
-README = open(os.path.join(HERE, 'README.md')).read()
+README = open(os.path.join(HERE, 'README.md'), encoding="utf8").read()
 
 PACKAGES = find_packages(exclude=['tests', 'tests.*', 'modules',
                                   'modules.*', 'docs', 'docs.*'])
