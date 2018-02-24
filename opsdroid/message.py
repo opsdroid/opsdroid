@@ -61,3 +61,9 @@ class Message:
                 opsdroid.stats["total_response_time"] + \
                 (now - self.created).total_seconds()
             self.responded_to = True
+
+    async def react(self, emoji):
+        """React to this message using the connector it was created by."""
+        if 'thinking-delay' in self.connector.configuration:
+            await self._thinking_delay()
+        return await self.connector.react(self, emoji)

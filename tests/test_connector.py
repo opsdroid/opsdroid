@@ -38,6 +38,11 @@ class TestConnectorBaseClass(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             self.loop.run_until_complete(connector.respond({}))
 
+    def test_react(self):
+        connector = Connector({})
+        reacted = self.loop.run_until_complete(connector.react({}, 'emoji'))
+        self.assertFalse(reacted)
+
     def test_user_typing(self):
         opsdroid = 'opsdroid'
         connector = Connector({})
