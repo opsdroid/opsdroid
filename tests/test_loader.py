@@ -232,7 +232,7 @@ class TestLoader(unittest.TestCase):
         config['module-path'] = os.path.join(self._tmp_dir, "opsdroid")
 
         loader.load_modules_from_config(config)
-        self.assertEqual(len(loader._load_modules.mock_calls), 4)
+        self.assertEqual(len(loader._load_modules.mock_calls), 3)
 
     def test_load_empty_config(self):
         opsdroid, loader = self.setup()
@@ -249,7 +249,6 @@ class TestLoader(unittest.TestCase):
             [os.path.abspath("tests/configs/minimal.yaml")])
         loader._install_module = mock.MagicMock()
         loader.import_module = mock.MagicMock()
-        loader._reload_modules = mock.MagicMock()
         connectors, databases, skills = loader.load_modules_from_config(config)
         self.assertIsNotNone(connectors)
         self.assertIsNone(databases)
@@ -260,7 +259,6 @@ class TestLoader(unittest.TestCase):
         opsdroid, loader = self.setup()
         loader._install_module = mock.MagicMock()
         loader.import_module = mock.MagicMock()
-        loader._reload_modules = mock.MagicMock()
         config = loader.load_config_file(
             [os.path.abspath("tests/configs/minimal_2.yaml")])
         connectors, databases, skills = loader.load_modules_from_config(config)
@@ -477,24 +475,3 @@ class TestLoader(unittest.TestCase):
             mockpull.assert_called_with(config["install_path"])
 
         shutil.rmtree(config["install_path"], onerror=del_rw)
-
-    def test_reload_module(self):
-        config = {}
-        config["module_path"] = "os.path"
-        config["name"] = "path"
-        config["type"] = "system"
-        from os import path
-        opsdriod, loader = self.setup()
-        with mock.patch('importlib.reload') as reload_mock:
-            mock_module = {"module": path,
-                           "config": config}
-            loader._reload_modules([mock_module])
-        self.assertTrue(reload_mock.called)
-
-    def test_reload_module_fake_import(self):
-        opsdroid, loader = self.setup()
-        with mock.patch('importlib.reload') as reload_mock:
-            mock_module = {"module": "fake_import",
-                           "config": {}}
-            loader._reload_modules([mock_module])
-            self.assertTrue(reload_mock.called_with("fake_import"))

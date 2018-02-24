@@ -54,13 +54,6 @@ class TestCore(unittest.TestCase):
 
             self.assertTrue(opsdroid.disconnect.called)
 
-    def test_restart(self):
-        with OpsDroid() as opsdroid:
-            opsdroid.eventloop.create_task(asyncio.sleep(1))
-            self.assertFalse(opsdroid.should_restart)
-            opsdroid.restart()
-            self.assertTrue(opsdroid.should_restart)
-
     def test_load_config(self):
         with OpsDroid() as opsdroid:
             opsdroid.loader = mock.Mock()

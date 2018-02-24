@@ -55,7 +55,6 @@ class OpsDroid():
             "total_responses": 0,
         }
         self.web_server = None
-        self.should_restart = False
         self.stored_path = []
 
     def __enter__(self):
@@ -96,11 +95,6 @@ class OpsDroid():
         self.sys_status = code
         _LOGGER.critical(error)
         self.exit()
-
-    def restart(self):
-        """Restart opsdroid."""
-        self.should_restart = True
-        self.stop()
 
     def call_stop(self):
         """Signal handler to call disconnect and stop."""
