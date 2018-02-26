@@ -203,6 +203,12 @@ class TestLoader(unittest.TestCase):
         with mock.patch('opsdroid.loader._LOGGER.debug') as logmock:
             loader._install_module_dependencies(config)
             self.assertTrue(logmock.called)
+            self.assertEqual(loader._install_module_dependencies(config), None)
+
+        with mock.patch.object(loader, '_install_module_dependencies') \
+                as nodep:
+            config['no-dep'] = False
+            self.assertTrue(nodep)
 
     def test_import_module(self):
         config = {}

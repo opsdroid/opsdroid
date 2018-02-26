@@ -356,11 +356,13 @@ class Loader:
         if config.get('no-dep', False):
             _LOGGER.debug(_("'no-dep' set in configuration, skipping the "
                             "install of dependencies."))
+            return None
         else:
             if os.path.isfile(os.path.join(
                     config["install_path"], "requirements.txt")):
                 self.pip_install_deps(os.path.join(config["install_path"],
                                                    "requirements.txt"))
+        return True
 
     def _install_git_module(self, config):
         """Install a module from a git repository."""
