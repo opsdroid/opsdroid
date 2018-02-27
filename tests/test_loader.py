@@ -500,3 +500,17 @@ class TestLoader(unittest.TestCase):
             mockpull.assert_called_with(config["install_path"])
 
         shutil.rmtree(config["install_path"], onerror=del_rw)
+
+    def test_reload_module(self):
+        config = {}
+        config["module_path"] = "os.path"
+        config["name"] = "path"
+        config["type"] = "system"
+        from os import path
+        opsdriod, loader = self.setup()
+
+        with mock.patch('importlib.reload') as reload_mock:
+            mock_module = {"module": path,
+                           "config": config}
+            loader._reload_modules([mock_module])
+        self.assertTrue(reload_mock.called)
