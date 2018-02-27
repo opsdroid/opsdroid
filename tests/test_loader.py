@@ -257,7 +257,7 @@ class TestLoader(unittest.TestCase):
         config['module-path'] = os.path.join(self._tmp_dir, "opsdroid")
 
         loader.load_modules_from_config(config)
-        self.assertEqual(len(loader._load_modules.mock_calls), 3)
+        self.assertEqual(len(loader._load_modules.mock_calls), 4)
 
     def test_load_empty_config(self):
         opsdroid, loader = self.setup()
