@@ -362,6 +362,9 @@ class Loader:
                     config["install_path"], "requirements.txt")):
                 self.pip_install_deps(os.path.join(config["install_path"],
                                                    "requirements.txt"))
+            else:
+                _LOGGER.debug("Couldn't find the file requirements.txt, skipping.")
+                return None
         return True
 
     def _install_git_module(self, config):
