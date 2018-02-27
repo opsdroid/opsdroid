@@ -212,11 +212,12 @@ class TestLoader(unittest.TestCase):
 
     def test_no_req_in_install_module_dependencies(self):
         opsdroid, loader = self.setup()
-        config = {'install_path': ''}
-        with mock.patch.object(opsdroid, 'loader._LOGGER.debug') as logmock:
-            self.assertIsNone(loader._install_module_dependencies(config))
+        config = {}
+        config['install_path'] = ''
 
-
+        with mock.patch('os.path.isfile') as file:
+            file.return_value = False
+            self.assertEqual(loader._install_module_dependencies(config), None)
 
     def test_import_module(self):
         config = {}
