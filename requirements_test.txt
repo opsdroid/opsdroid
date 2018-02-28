@@ -6,6 +6,6 @@ pytest==3.4.1
 pytest-cov==2.5.1
 pytest-timeout==1.2.1
 pydocstyle==2.1.1
-asynctest==0.11.1
+asynctest==0.12.0
 requests_mock==1.4.0
 mypy-lang==0.5.0
