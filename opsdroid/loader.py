@@ -245,7 +245,6 @@ class Loader:
 
         if 'skills' in config.keys() and config['skills']:
             skills = self._load_modules('skill', config['skills'])
-            self.opsdroid.skills = []
 
         else:
             self.opsdroid.critical(_(
