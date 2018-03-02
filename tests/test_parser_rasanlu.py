@@ -134,11 +134,6 @@ class TestParserRasaNLU(asynctest.TestCase):
                     opsdroid, message, opsdroid.config['parsers'][0])
                 self.assertEqual(mock_skill, skills[0]["skill"])
 
-                mocked_call_rasanlu.side_effect = ClientOSError
-                await rasanlu.parse_rasanlu(
-                    opsdroid, message, opsdroid.config['parsers'][0])
-                self.assertRaises(ClientOSError)
-
     async def test_parse_rasanlu_raises(self):
         with OpsDroid() as opsdroid:
             opsdroid.config['parsers'] = [
@@ -427,6 +422,18 @@ class TestParserRasaNLU(asynctest.TestCase):
             models = await rasanlu._get_existing_models(
                 {"project": "opsdroid"})
             self.assertEqual(models, ["hello", "world"])
+
+    async def test__get_existing_models_exception(self):
+        result = amock.Mock()
+        result.status = ClientOSError()
+
+        with amock.patch('aiohttp.ClientSession.get') as patched_request:
+            patched_request.return_value = asyncio.Future()
+            patched_request.return_value.set_result(result)
+            models = await rasanlu._get_existing_models(
+                {"project": "opsdroid"})
+            self.assertRaises(ClientOSError)
+            self.assertEqual(models, [])
 
     async def test__get_existing_models_fails(self):
         result = amock.Mock()
