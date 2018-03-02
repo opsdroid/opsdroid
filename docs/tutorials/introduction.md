@@ -4,7 +4,6 @@ This first part of the tutorial will give a brief introduction to the yaml files
 
 If you need any help to get started with opsdroid or if you just want to chat, make sure to join our [Gitter channel.](https://gitter.im/opsdroid/)
 
-The video tutorial is also available here(https://www.youtube.com/watch?v=7wyIi_cpodE&list=PLViQCHlMbEq5nZL6VNrUxu--Of1uCpflq)
 
 
 ## Configuration and Yaml files
