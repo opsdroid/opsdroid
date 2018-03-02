@@ -134,6 +134,11 @@ class TestParserRasaNLU(asynctest.TestCase):
                     opsdroid, message, opsdroid.config['parsers'][0])
                 self.assertEqual(mock_skill, skills[0]["skill"])
 
+                mocked_call_rasanlu.side_effect = ClientOSError
+                await rasanlu.parse_rasanlu(
+                    opsdroid, message, opsdroid.config['parsers'][0])
+                self.assertRaises(ClientOSError)
+
     async def test_parse_rasanlu_raises(self):
         with OpsDroid() as opsdroid:
             opsdroid.config['parsers'] = [
