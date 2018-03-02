@@ -1,5 +1,8 @@
 # Creating a Basic Skill
 We will create a basic skill that makes opsdroid answer the text "how are you". This skill will be very similar to the [hello skill](docs/extending/skills/#hello-world) found in the documentation.
+The video tutorial for creating your own skill is also available [here](https://www.youtube.com/watch?v=gk7JN4e5l_4&index=3&list=PLViQCHlMbEq5nZL6VNrUxu--Of1uCpflq)
+
+
 
 ## The Skill folder
 Opsdroid skills are located inside a folder with the name `skill-<skillname>`. Inside this folder you should have at least these files:
