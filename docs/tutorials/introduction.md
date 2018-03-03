@@ -114,7 +114,7 @@ async def ping_server(ip):
     pass
 
 ```
-To actually call these asynchronous functions, we use the await keyword:
+To actually call these asynchronous functions, we use the `await` keyword:
 ```
 async def ping_local():  
     return await ping_server('192.168.1.1')
