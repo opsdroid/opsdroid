@@ -107,15 +107,12 @@ In a standard sequential program, all the instructions you send to the interpret
 
 What if you could write a script that, instead of waiting for the second request, simply skip it and start executing the third request, then go back to the second one, and proceed from where it left off? That’s the nature of an asynchronous program. You minimize idle time by switching tasks.
 
-An asynchronous function in Python is typically called a 'coroutine', which is just a function that uses the async keyword, or one that is decorated with @asyncio.coroutine. Either of the functions below would work as a coroutine and are effectively equivalent in type:
+An asynchronous function in Python is typically called a 'coroutine', which is just a function that uses the async keyword. The function below would work as an asynchronous function:
 
 ```
 async def ping_server(ip):  
     pass
 
-@asyncio.coroutine
-def load_file(path):  
-    pass
 ```
 
 ## Matchers available
