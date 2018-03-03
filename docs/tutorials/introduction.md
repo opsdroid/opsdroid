@@ -114,6 +114,12 @@ async def ping_server(ip):
     pass
 
 ```
+To actually call these asynchronous functions, we use the await keyword:
+```
+async def ping_local():  
+    return await ping_server('192.168.1.1')
+```
+The await keyword must be used within another function (typically an asyncio function). Otherwise, it will result in a syntax error.
 
 ## Matchers available
 Matchers are used to match a message, sent by a user, to a connector and a skill. Opsdroid comes ready with 8 different matchers, each one of them has its own settings and specification.
