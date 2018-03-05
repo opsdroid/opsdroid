@@ -424,12 +424,10 @@ class TestParserRasaNLU(asynctest.TestCase):
             self.assertEqual(models, ["hello", "world"])
 
     async def test__get_existing_models_exception(self):
-        result = amock.Mock()
-        result.status = ClientOSError()
 
         with amock.patch('aiohttp.ClientSession.get') as patched_request:
             patched_request.return_value = asyncio.Future()
-            patched_request.return_value.set_result(result)
+            patched_request.side_effect = ClientOSError()
             models = await rasanlu._get_existing_models(
                 {"project": "opsdroid"})
             self.assertRaises(ClientOSError)
