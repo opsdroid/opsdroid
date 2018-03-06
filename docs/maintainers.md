@@ -35,6 +35,11 @@ When merging a PR into opsdroid main branch you should take a few things into co
 - The title of the merge will be included in the release notes of a new opsdroid version, so the title should make sense.
 - Remove unnecessary stuff from the description. If it takes 4 commits to get the tests to pass those lines should be deleted.
 
+## Updating Requirements
+
+Pyup-bot will check for new versions of the modules needed to run opsdroid that can be found on the requirements.txt when a new version is released, pyup-bot will automatically create the PR to update the modules.
+
+Pyup-bot pull requests should be treated like any other pull request when merging them into opsdroid's master branch. As long the tests pass, you can squash and merge the PR into the master branch.
 
 ## Maintainer scripts
 
