@@ -1,5 +1,5 @@
 arrow==0.12.1
-aiohttp==3.0.6
+aiohttp==3.0.7
 pycron==0.80.0
 pyyaml==3.12
 Babel==2.5.3
