@@ -41,7 +41,7 @@ class Message:
         except KeyError:
             pass
 
-    async def respond(self, text, **connector_kwargs):
+    async def respond(self, text, room=None):
         """Respond to this message using the connector it was created by."""
         opsdroid = get_opsdroid()
         response = copy(self)
@@ -52,7 +52,7 @@ class Message:
             await self._thinking_delay()
             await self._typing_delay(response.text)
 
-        await self.connector.respond(response, **connector_kwargs)
+        await self.connector.respond(response, room)
         if not self.responded_to:
             now = datetime.now()
             opsdroid.stats["total_responses"] = \
