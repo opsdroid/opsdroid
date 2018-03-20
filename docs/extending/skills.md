@@ -69,9 +69,10 @@ A _string_ containing the name of the room or chat channel the message was sent 
 
 A pointer to the opsdroid _connector object_ which receieved the message.
 
-### `respond(text)`
+### `respond(text, room=None)`
 
-A method which responds to the message in the same room using the same connector that it was received.
+A method which responds to the received message using the same connector.
+By default the response is sent to the same room, but arguments may be passed to `connector.respond()` using the `room` argument to change this behaviour, if the connector supports this.
 
 ## Persisting data
 
