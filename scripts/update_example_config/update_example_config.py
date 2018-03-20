@@ -105,7 +105,7 @@ def check_config(config, error_strict):
 
 def update_config(g, active_skills, config_path, error_strict=False):
     skills = get_skills(g, active_skills, error_strict)
-    text = render('configuration.j2', skills)
+    text = render('scripts/update_example_config/configuration.j2', skills)
     check_config(text, error_strict)
 
     with open(config_path, 'w+') as f:
@@ -141,11 +141,10 @@ if __name__ == '__main__':
         active_skills = args.active_skills.split(',')
     else:
         active_skills = ['dance', 'hello', 'seen', 'loudnoises']
-
     if not args.output:
-        base_path = '/'.join(os.path.realpath(__file__).split('/')[:-2])
+        base_path = '/'.join(os.path.realpath(__file__).split('/')[:-3])
         config_path = base_path
-        config_path += '/../opsdroid/configuration/example_configuration.yaml'
+        config_path += '/opsdroid/configuration/example_configuration.yaml'
     else:
         config_path = args.output
 

@@ -12,9 +12,9 @@ You can run the command: `pip install -r requirements_dev.txt` in the root of th
 
 # Running the script
 
-You can run the script within the root directory of the project with the command:
+You should run the script within the root directory of the project with the command:
 
-`python scripts/update_example_config/update_example_config.py`
+`python3 scripts/update_example_config/update_example_config.py`
 
 You can also pass a few optional arguments when running the above command in your command line:
 
