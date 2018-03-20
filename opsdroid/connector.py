@@ -65,7 +65,7 @@ class Connector():
         """
         raise NotImplementedError
 
-    async def respond(self, message):
+    async def respond(self, message, room=None):
         """Send a message back to the chat service.
 
         The message object will have a `text` property which should be sent
@@ -74,6 +74,7 @@ class Connector():
 
         Args:
             message (Message): A message received by the connector.
+            room (string): Name of the room to send the message to
 
         Returns:
             bool: True for message successfully sent. False otherwise.
