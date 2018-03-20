@@ -134,7 +134,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     g = Github(args.token)
-    print("Updating the file: 'example_configuration.yaml' this may take a while...")
+    print("Updating the file: 'example_configuration.yaml' "
+          "this may take a while...")
 
     if args.active_skills:
         active_skills = args.active_skills.split(',')
