@@ -1,4 +1,4 @@
-# Portuguese translations for opsdroid.
+# Norwegian translations for opsdroid.
 # Copyright (C) 2018 ORGANIZATION
 # This file is distributed under the same license as the opsdroid project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2018-02-20 13:29+0000\n"
 "PO-Revision-Date: 2018-03-22 08:44+0100\n"
-"Last-Translator: FabioRosado <fabiorosado@outlook.com>\n"
+"Last-Translator: Tor Christian <tctovsli@gmail.com>\n"
 "Language: nb_NO\n"
 "Language-Team: no\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
