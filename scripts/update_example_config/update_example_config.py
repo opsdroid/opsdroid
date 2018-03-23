@@ -49,9 +49,12 @@ def get_readme(repo):
 def get_config_details(readme):
     """Gets all the configuration details located in the readme.md file,
     under the title "Configuration".
+
+    Note: Regex divided by multiline in order to pass lint.
     """
     config = re.search(
-        '#[#\s]+(?:Configuring|Configuration)((.|\n)*?)```(yaml)?\n((.|\n)*?)\n```',
+        '#[#\s]+(?:Configuring|Configuration)((.|\n)*?)'
+        '```(yaml)?\n((.|\n)*?)\n```',
         readme,
         re.MULTILINE
     )
@@ -141,7 +144,7 @@ def triage_modules(g, active_modules, error_strict=False):
     parsers = get_parsers_details()
 
     modules = {'skills': skills, 'connectors': connectors,
-               'databases': databases, 'parsers': parsers }
+               'databases': databases, 'parsers': parsers}
 
     for repo in repos:
         readme = get_readme(repo)
