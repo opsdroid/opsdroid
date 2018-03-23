@@ -21,3 +21,4 @@ You can also pass a few optional arguments when running the above command in you
 - first argument - path and file to be updated by the script. If this is not provided the default is the file located in [configuration/example_configuration.yaml](/opsdroid/configuration/example_configuration.yaml)
 - `-t` or `--token` - Your personal GitHub API token. If not used, GitHub will only accept 60 calls to its API from your IP address, instead of the 5000 calls allowed if authenticated.
 - `-a` or `--active-skills` -  A list of all the skills you wish to mark as active when the file gets updated.
+- `-c` or `--active-connectors` - A list of all the connectors that you wish to mark as active when the file gets updated.

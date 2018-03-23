@@ -87,23 +87,23 @@ def get_config_params(repo, readme):
     }
 
 
-def validate_yaml_format(repo, skill, error_strict):
+def validate_yaml_format(mapping, error_strict):
     """Scans the configuration format and validates yaml formatting."""
     try:
-        yaml.load(skill['config'])
-    except KeyError:
-        yaml.load(skill)
+        yaml.load(mapping['config'])
+    except (KeyError, TypeError):
+        yaml.load(mapping)
     except yaml.scanner.ScannerError as e:
         if error_strict:
             raise(e)
         print(
             "[WARNING] processing {0} raised an exception\n"
-            "{2}\n{1}\n{2}".format(repo.name, e, '='*40)
+            "{1}\n{0}\n{1}".format(e, '='*40)
         )
 
 
 def triage_modules(g, active_modules, error_strict=False):
-    """"""
+    """Allocate modules to their type and active/inactive status."""
     repos = get_repos()
 
     skills = {'commented': [], 'uncommented': []}
@@ -116,7 +116,7 @@ def triage_modules(g, active_modules, error_strict=False):
     for repo in repos:
         readme = get_readme(repo)
         params = get_config_params(repo, readme)
-        validate_yaml_format(repo, params, error_strict)
+        validate_yaml_format(params, error_strict)
 
         if params['repo_type'] == 'skill':
             if params['raw_name'] in active_modules:
@@ -136,23 +136,12 @@ def triage_modules(g, active_modules, error_strict=False):
     return modules
 
 
-def check_config(config, error_strict):
-    try:
-        yaml.load(config)
-    except yaml.scanner.ScannerError as e:
-        if error_strict:
-            raise(e)
-        print(
-            "[WARNING] processing resulting config raised an exception"
-            "\n{1}\n{0}\n{1}".format(e, '='*40)
-        )
-
-
 def update_config(g, active_modules, config_path, error_strict=False):
+    """Update the example_configuration.yaml file with all the modules."""
     _modules = triage_modules(g, active_modules, error_strict)
     modules = render('scripts/update_example_config/configuration.j2',
                      _modules)
-    check_config(modules, error_strict)
+    validate_yaml_format(modules, error_strict)
 
     with open(config_path, 'w') as f:
         f.write(modules)
@@ -194,7 +183,7 @@ if __name__ == '__main__':
         active_modules.append((args.active_skills.split(',')))
     else:
         active_modules = ['dance', 'hello', 'seen', 'loudnoises',
-                          'websocket']
+                          'websocket', 'shell']
     if not args.output:
         base_path = '/'.join(os.path.realpath(__file__).split('/')[:-3])
         config_path = base_path
