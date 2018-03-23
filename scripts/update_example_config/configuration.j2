@@ -35,15 +35,12 @@ welcome-message: true
 
 ## Parsers
 # parsers:
-#   - name: regex
-#     enabled: true
-#
-#   - name: crontab
-#     enabled: true
-#
-#   - name: dialogflow
-#     access-token: "youraccesstoken"
-#     min-score: 0.6
+#{% for parser in parsers %}
+#  ## {{ parser.name }} ({{ parser.url }})
+{% for line in parser.config.split('\n') -%}
+#  {{ line }}
+{% endfor -%}
+#{% endfor %}
 
 ## Connector modules
 connectors:

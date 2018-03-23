@@ -12,7 +12,8 @@ def normalize(string):
     lines = string.strip().split('\n')
     if 'skills' in lines[0] or \
             'connectors' in lines[0] or \
-            'databases' in lines[0]:
+            'databases' in lines[0] or \
+            'parsers' in lines[0]:
         return '\n'.join([
             re.sub('^(#)?  ', '\g<1>', line)
             for line in lines[1:]
@@ -50,7 +51,7 @@ def get_config_details(readme):
     under the title "Configuration".
     """
     config = re.search(
-        '#[#\s]+Configuration((.|\n)*?)```(yaml)?\n((.|\n)*?)\n```',
+        '#[#\s]+(?:Configuring|Configuration)((.|\n)*?)```(yaml)?\n((.|\n)*?)\n```',
         readme,
         re.MULTILINE
     )
@@ -87,6 +88,34 @@ def get_config_params(repo, readme):
     }
 
 
+def get_parsers_details():
+    """Reads parser documentation and gets configuration from it."""
+    base_url = 'http://opsdroid.readthedocs.io/en/stable/matchers/'
+    parsers_path = '/'.join(
+        os.path.realpath(__file__).split('/')[:-3]) + '/docs/matchers/'
+
+    parsers = []
+
+    for file in os.listdir(parsers_path):
+        name = file[:-3]
+        with open(parsers_path + file) as f:
+            readme = f.read()
+            try:
+                config = get_config_details(readme).group(4)
+
+                parsers.append({
+                    'raw_name': name,
+                    'name': name.capitalize(),
+                    'url': base_url + name,
+                    'config': normalize(config)
+                })
+            except AttributeError:
+                # Doesn't contain config options - it's always activated
+                pass
+
+    return parsers
+
+
 def validate_yaml_format(mapping, error_strict):
     """Scans the configuration format and validates yaml formatting."""
     try:
@@ -109,9 +138,10 @@ def triage_modules(g, active_modules, error_strict=False):
     skills = {'commented': [], 'uncommented': []}
     connectors = {'commented': [], 'uncommented': []}
     databases = {'commented': [], 'uncommented': []}
+    parsers = get_parsers_details()
 
     modules = {'skills': skills, 'connectors': connectors,
-               'databases': databases}
+               'databases': databases, 'parsers': parsers }
 
     for repo in repos:
         readme = get_readme(repo)
