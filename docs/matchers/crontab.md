@@ -1,5 +1,17 @@
 # Crontab Matcher
 
+## Configuring opsdroid
+
+In order to enable crontab skills you must set the `enabled` paramater to true in the parsers section of the opsdroid configuration file.
+
+```yaml
+parsers:
+  - name: crontab
+    enabled: true
+```
+
+##
+
 The crontab matcher is a bit different to other matchers. This matcher doesn't take a message as an input, it takes a [cron timing](https://en.wikipedia.org/wiki/Cron) instead. It allows you to schedule skills to be called on an interval instead of being triggered by messages.
 
 ## Example

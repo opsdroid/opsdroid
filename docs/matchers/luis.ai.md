@@ -1,5 +1,21 @@
 # luis.ai Matcher
 
+## Configuring opsdroid
+
+In order to enable luis.ai skills you must specify an `appid` and `appkey` for your bot. You can further configure the bot by enabling `verbose` or setting a `min-score` option to tell opsdroid to ignore any matches which score less than a given number between 0 and 1. The default for this is 0 which will match all messages.
+
+```yaml
+
+parsers:
+   - name: luisai
+     appid: "<application-id>"
+     appkey: "<subscription-key>"
+     verbose: True
+     min-score: 0.6
+```
+
+##
+
 [luis.ai](https://www.luis.ai) is an NLP API for matching strings to [intents](https://docs.microsoft.com/en-us/azure/cognitive-services/LUIS/Home). Intents are created on the luis.ai website.
 
 ## Example 1
@@ -22,20 +38,6 @@ You can find a quick getting started with luis.ai guide [here](https://docs.micr
 If you want to use LUIS in a different language other than English, you will need to create a new app with the language that you wish to support.
 
 _Note: "Each LUIS app has a unique app ID, and endpoint log." [Multi-language LUIS apps Reference](https://docs.microsoft.com/en-us/azure/cognitive-services/LUIS/luis-supported-languages)
-
-## Configuring opsdroid
-
-In order to enable luis.ai skills you must specify an `appid` and `appkey` for your bot. You can further configure the bot by enabling `verbose` or setting a `min-score` option to tell opsdroid to ignore any matches which score less than a given number between 0 and 1. The default for this is 0 which will match all messages.
-
-```yaml
-
-parsers:
-   - name: luisai
-     appid: "<application-id>"
-     appkey: "<subscription-key>"
-     verbose: True
-     min-score: 0.6
-```
 
 ## Message object additional parameters
 
