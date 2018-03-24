@@ -5,7 +5,8 @@
    - [Connector Modules](#connector-modules)
    - [Database Modules](#database-modules)
    - [Logging](#logging)
-   - [Installation Path](#installation-path) 
+   - [Installation Path](#installation-path)
+   - [Parsers](#parsers) 
    - [Skills](#skills)
    - [Time Zone](#time-zone)
    - [Language](#language)
@@ -178,6 +179,29 @@ skills:
   - name: hello
   - name: seen
 ```
+
+### Parsers
+
+When writing skills for opsdroid there are multiple parsers you can use for matching messages to your functions.
+
+_Config options of the parsers themselves differ between parsers, see the parser/matcher documentation for details._
+
+```yaml
+parsers:
+  - name: regex
+    enabled: true
+    
+# NLU parser
+  - name: rasanlu
+    url: http://localhost:5000
+    project: opsdroid
+    token: 85769fjoso084jd
+    min-score: 0.8
+```
+
+Some parsers will allow you to specify a min-score to tell opsdroid to ignore any matches which score less than a given number between 0 and 1. You just need to add the required min-score under a parser in the configuration.yaml file.
+
+See the matchers section for more details.
 
 ### Skills
 
