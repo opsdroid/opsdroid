@@ -1,5 +1,22 @@
 # Recast.AI Matcher
 
+## Configuring opsdroid
+
+In order to enable Recast.AI skills, you must specify an `access-token` for your bot in the parsers section of the opsdroid configuration file. 
+You can find this `access-token` in the settings of your bot under the name: `'Request access token'`. 
+
+You can also set a `min-score` option to tell opsdroid to ignore any matches which score less than a given number between 0 and 1. The default for this is 0 which will match all messages.
+
+```yaml
+
+parsers:
+  - name: recastai
+    access-token: 85769fjoso084jd
+    min-score: 0.8
+```
+
+##
+
 [Recast.AI](https://recast.ai/) is an NLP API for matching strings to [intents](https://recast.ai/docs/intent). Intents are created on the Recast.AI website.
 
 ## [Example 1](#example1)
@@ -39,21 +56,6 @@ You can find a quick getting started with the Recast.AI guide [here](https://rec
 If you want to use Recast.AI in a different language other than English, all you need to do is specify the `lang` parameter in opsdroid's configuration.
 
 _Note: "If you do not have any expressions in this language, we will use your default bot language for processing." - [Recast.AI Language page](https://recast.ai/docs/language)_
-
-## Configuring opsdroid
-
-In order to enable Recast.AI skills, you must specify an `access-token` for your bot in the parsers section of the opsdroid configuration file. 
-You can find this `access-token` in the settings of your bot under the name: `'Request access token'`. 
-
-You can also set a `min-score` option to tell opsdroid to ignore any matches which score less than a given number between 0 and 1. The default for this is 0 which will match all messages.
-
-```yaml
-
-parsers:
-  - name: recastai
-    access-token: 85769fjoso084jd
-    min-score: 0.8
-```
 
 ## Message object additional parameters
 

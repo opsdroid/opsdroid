@@ -1,5 +1,19 @@
 # Regular Expression Matcher
 
+## Configuring opsdroid
+
+In order to enable regex skills you must set the `enabled` parameter to true in the parsers section of the opsdroid configuration file.
+
+If a skill is configured with both the regex and some other NLU matcher then users who don't use NLU will get a simple regex match. However users with some other NLU configured will get matches on more flexible messages, but will not see duplicate responses where the regex also matched.
+
+```yaml
+parsers:
+  - name: regex
+    enabled: true
+```
+
+##
+
 This is the simplest matcher available in opsdroid. It matches the message from the user against a regular expression. If the regex matches the function is called.
 
 _note: The use of position anchors(`^` or `$`) are encouraged when using regex to match a function. This should prevent opsdroid to be triggered with every use of the matched regular expression_

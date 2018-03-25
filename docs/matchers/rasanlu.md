@@ -1,4 +1,26 @@
-# Rasa NLU Matcher
+﻿# Rasa NLU Matcher
+
+## Configuring opsdroid
+
+In order to enable Rasa NLU skills, you can tell opsdroid where to find your Rasa NLU instance in the parsers section of the opsdroid configuration file. You can set the `url` and `project` parameters which default to `http://localhost:5000` and `opsdroid` respectively.
+
+Projects in Rasa NLU are separate areas for training and storing your intent models. This is useful as you can have multiple instances of opesdroid (or even other applications) sharing one instance of Rasa NLU if you configure them with different project names.
+
+Rasa NLU gives you the option to set a password or `token` which must be provided when interacting with the API. You can optionally set this in the parser config too.
+
+You can also set a `min-score` option to tell opsdroid to ignore any matches which score less than a given number between 0 and 1. The default for this is 0 which will match all messages.
+
+```yaml
+
+parsers:
+  - name: rasanlu
+    url: http://localhost:5000
+    project: opsdroid
+    token: 85769fjoso084jd
+    min-score: 0.8
+```
+
+##
 
 [Rasa NLU](https://github.com/RasaHQ/rasa_nlu) is an open source tool for running your own NLP API for matching strings to [intents](https://rasahq.github.io/rasa_nlu/). This is the recommended parser if you have privacy concerns but want the power of a full NLU parsing engine.
 
@@ -61,26 +83,6 @@ Intents file (`intents.md`).
 ```
 
 The above skill would be called on any intent which has a name of `'ask-joke'`.
-
-## Configuring opsdroid
-
-In order to enable Rasa NLU skills, you can tell opsdroid where to find your Rasa NLU instance in the parsers section of the opsdroid configuration file. You can set the `url` and `project` parameters which default to `http://localhost:5000` and `opsdroid` respectively.
-
-Projects in Rasa NLU are separate areas for training and storing your intent models. This is useful as you can have multiple instances of opesdroid (or even other applications) sharing one instance of Rasa NLU if you configure them with different project names.
-
-Rasa NLU gives you the option to set a password or `token` which must be provided when interacting with the API. You can optionally set this in the parser config too.
-
-You can also set a `min-score` option to tell opsdroid to ignore any matches which score less than a given number between 0 and 1. The default for this is 0 which will match all messages.
-
-```yaml
-
-parsers:
-  - name: rasanlu
-    url: http://localhost:5000
-    project: opsdroid
-    token: 85769fjoso084jd
-    min-score: 0.8
-```
 
 ## Message object additional parameters
 
