@@ -18,10 +18,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.5.3\n"
 
-#: opsdroid/core.py:222
+#: opsdroid/core.py:216
 msgid "Whoops there has been an error"
 msgstr "Uuups ha habido un error"
 
-#: opsdroid/core.py:223
+#: opsdroid/core.py:217
 msgid "Check the log for details"
 msgstr "Comprueba el log para más detalles"
