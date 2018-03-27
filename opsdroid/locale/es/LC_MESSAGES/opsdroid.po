@@ -18,6 +18,22 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.5.3\n"
 
+#: opsdroid/__main__.py:71
+msgid "Started application"
+msgstr "Aplicación lanzada"
+
+#: opsdroid/__main__.py:99
+msgid "Whoops! opsdroid requires python 3.5 or above."
+msgstr "Ups! opsdroid requiere python 3.5 o superior"
+
+#: opsdroid/__main__.py:108
+msgid "You can customise your opsdroid by modifying your configuration.yaml"
+msgstr "Puedes customizar tu opsdroid modificando tu configuration.yaml"
+
+#: opsdroid/__main__.py:110
+msgid "Read more at: http://opsdroid.readthedocs.io/#configuration"
+msgstr "Más información: http://opsdroid.readthedocs.io/#configuration"
+
 #: opsdroid/core.py:216
 msgid "Whoops there has been an error"
 msgstr "Uuups ha habido un error"
@@ -25,3 +41,79 @@ msgstr "Uuups ha habido un error"
 #: opsdroid/core.py:217
 msgid "Check the log for details"
 msgstr "Comprueba el log para más detalles"
+
+#: opsdroid/__main__.py:112
+msgid "Watch the Get Started Videos at: http://bit.ly/2fnC0Fh"
+msgstr "Puedes ver los tutoriales para Empezar: http://bit.ly/2fnC0Fh"
+
+#: opsdroid/__main__.py:114
+msgid ""
+"Install Opsdroid Desktop at: \n"
+"https://github.com/opsdroid/opsdroid-desktop/releases"
+msgstr ""
+"Instala Opsdroid Desktop en: \n"
+"https://github.com/opsdroid/opsdroid-desktop/releases"
+
+#: opsdroid/__main__.py:119
+msgid "'welcome-message: true/false' is missing in configuration.yaml"
+msgstr "'welcome-message: true/false' no se encuentra en configuration.yaml"
+
+#: opsdroid/core.py:89
+#, python-format
+msgid "Exiting application with return code %s"
+msgstr "Saliendo de la aplicación con código %s"
+
+#: opsdroid/core.py:117
+msgid "Keyboard interrupt, exiting."
+msgstr "Interrupción de teclado, saliendo."
+
+#: opsdroid/core.py:131
+#, python-format
+msgid "Loaded %i skills"
+msgstr "Cargadas %i 'skills'."
+
+#: opsdroid/core.py:195
+msgid "All databases failed to load"
+msgstr "No se han podido cargar las bases de datos"
+
+#: opsdroid/core.py:201
+#, python-format
+msgid "Adding database: %s"
+msgstr "Añadiendo base de datos: %s"
+
+#: opsdroid/core.py:218
+#, python-format
+msgid "Exception when running skill '%s' "
+msgstr "Excepción ejecutando 'skill' '%s'."
+
+#: opsdroid/core.py:233
+msgid "Processing parsers..."
+msgstr ""
+
+#: opsdroid/core.py:237
+msgid ""
+"Api.ai is now called Dialogflow. This parser will stop working in the future "
+"please swap: 'name: apiai' for 'name: dialogflow' in configuration.yaml"
+msgstr ""
+"Api.ai se llama ahora Dialogflow. Este interprete dejará de funcionar en el futuro. "
+"por favor cambia: 'name: apiai' por 'name: dialogflow' i configuration.yaml"
+
+#: opsdroid/core.py:245
+msgid "Checking dialogflow..."
+msgstr "Comprobando dialogflow..."
+
+#: opsdroid/core.py:261
+msgid "Checking Recast.AI..."
+msgstr "Comprobando Recast.AI..."
+
+#: opsdroid/core.py:269
+msgid "Checking wit.ai..."
+msgstr "Comprobando wit.ai..."
+
+#: opsdroid/core.py:277
+msgid "Checking Rasa NLU..."
+msgstr "Comprobando Rasa NLU..."
+
+#: opsdroid/core.py:253
+msgid "Checking luisai..."
+msgstr "Comprobando luisai..."
