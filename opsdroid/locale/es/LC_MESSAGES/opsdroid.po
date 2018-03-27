@@ -96,7 +96,7 @@ msgid ""
 "please swap: 'name: apiai' for 'name: dialogflow' in configuration.yaml"
 msgstr ""
 "Api.ai se llama ahora Dialogflow. Este interprete dejará de funcionar en el futuro. "
-"por favor cambia: 'name: apiai' por 'name: dialogflow' i configuration.yaml"
+"por favor cambia: 'name: apiai' por 'name: dialogflow' en configuration.yaml"
 
 #: opsdroid/core.py:245
 msgid "Checking dialogflow..."
