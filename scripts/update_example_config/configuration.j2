@@ -59,6 +59,14 @@ connectors:
 
 
 ## Database modules (optional)
+{% if databases.uncommented %}
+databases:
+{% for database in databases.uncommented %}
+  {% for line in database.config.split('\n') -%}
+  {{ line }}
+  {% endfor -%}
+{% endfor %}
+{% else %}
 # databases:
 #{% for database in databases.commented %}
 #  ## {{ database.name }} ({{ database.url }})
@@ -66,6 +74,7 @@ connectors:
 #  {{ line }}
 {% endfor -%}
 #{% endfor %}
+{% endif %}
 
 ## Skill modules
 skills:

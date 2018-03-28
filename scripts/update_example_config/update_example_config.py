@@ -127,7 +127,7 @@ def validate_yaml_format(mapping, error_strict):
         yaml.load(mapping)
     except yaml.scanner.ScannerError as e:
         if error_strict:
-            raise(e)
+            raise e
         print(
             "[WARNING] processing {0} raised an exception\n"
             "{1}\n{0}\n{1}".format(e, '='*40)
@@ -154,7 +154,6 @@ def triage_modules(g, active_modules, error_strict=False):
         if params['repo_type'] == 'skill':
             if params['raw_name'] in active_modules:
                 skills['uncommented'].append(params)
-
             skills['commented'].append(params)
 
         elif params['repo_type'] == 'connector':
@@ -163,7 +162,7 @@ def triage_modules(g, active_modules, error_strict=False):
             connectors['commented'].append(params)
         else:
             if params['raw_name'] == active_modules:
-                databases['commented'].append(params)
+                databases['uncommented'].append(params)
             databases['commented'].append(params)
 
     return modules
@@ -184,10 +183,8 @@ if __name__ == '__main__':
     parser = ArgumentParser(description='Config creator ')
     parser.add_argument('output', nargs='?', help='Path to config to update')
     parser.add_argument('-t', '--token', nargs='?', help='GitHub Token')
-    parser.add_argument('-a', '--active-skills',
-                        nargs='?', help='List of skills to be activated')
-    parser.add_argument('-c', '--active-connectors',
-                        nargs='?', help='List of connectors to be activated')
+    parser.add_argument('-a', '--active-modules',
+                        nargs='?', help='List of modules to be activated')
 
     parser.set_defaults(error_strict=False)
     group = parser.add_mutually_exclusive_group()
@@ -210,9 +207,7 @@ if __name__ == '__main__':
 
     active_modules = []
 
-    if args.active_skills:
-        active_modules.append((args.active_skills.split(',')))
-    elif args.active_connectors:
+    if args.active_modules:
         active_modules.append((args.active_skills.split(',')))
     else:
         active_modules = ['dance', 'hello', 'seen', 'loudnoises',
