@@ -35,78 +35,57 @@ welcome-message: true
 
 ## Parsers
 # parsers:
-#   - name: regex
-#     enabled: true
-#
-#   - name: crontab
-#     enabled: true
-#
-#   - name: dialogflow
-#     access-token: "youraccesstoken"
-#     min-score: 0.6
+#{% for parser in parsers %}
+#  ## {{ parser.name }} ({{ parser.url }})
+{% for line in parser.config.split('\n') -%}
+#  {{ line }}
+{% endfor -%}
+#{% endfor %}
 
 ## Connector modules
 connectors:
-  - name: shell
-  - name: websocket
-
+{% for connector in connectors.uncommented %}
+  {% for line in connector.config.split('\n') -%}
+  {{ line }}
+  {% endfor -%}
+{% endfor %}
   # Uncomment the connector(s) that you wish opsdroid to work on
-#  ## Slack (https://github.com/opsdroid/connector-slack)
-#  - name: slack
-#    # Required
-#    api-token: "zyxw-abdcefghi-12345"
-#    # optional
-#    bot-name: "mybot"       # default "opsdroid"
-#    default-room: "#random" # default "#general"
-#    icon-imoji: ":smile:"   # default ":robot_face:"
-#
-#  ## Facebook (https://github.com/opsdroid/connector-facebook)
-#  - name: facebook
-#    # Required
-#    verify-token: aabbccddee
-#    page-access-token: aabbccddee112233445566
-#    # Optional
-#    bot-name: "mybot" # default "opsdroid"
-#
-#  ## Twitter (https://github.com/opsdroid/connector-twitter)
-#  - name: twitter
-#    # Required
-#    consumer_key: "zyxw-abdcefghi-12345"
-#    consumer_secret: "zyxw-abdcefghi-12345-zyxw-abdcefghi-12345"
-#    oauth_token: ""zyxw-abdcefghi-12345-zyxw-abdcefghi-12345"
-#    oauth_token_secret: "zyxw-abdcefghi-12345-zyxw-abdcefghi-12345"
-#    # Optional
-#    enable_dms: true    # Should the bot respond to Direct Messages
-#    enable_tweets: true # Should the bot respond to tweets
-#
-#  ## Telegram (https://github.com/opsdroid/connector-telegram)
-#  - name: telegram
-#    # Required
-#    token: "123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ-ZYXWVUT"  # Telegram bot token
-#    # Optional
-#    update_interval: 0.5  # Interval between checking for messages
-#    default_user: user1   # Default user to send messages to (overrides default room in connector)
-#    whitelisted_users:    # List of users who can speak to the bot, if not set anyone can speak
-#      - user1
-#      - user2
+#{% for connector in connectors.commented %}
+#  ## {{ connector.name }} ({{ connector.url }})
+{% for line in connector.config.split('\n') -%}
+#  {{ line }}
+{% endfor -%}
+#{% endfor %}
+
 
 ## Database modules (optional)
+{% if databases.uncommented %}
+databases:
+{% for database in databases.uncommented %}
+  {% for line in database.config.split('\n') -%}
+  {{ line }}
+  {% endfor -%}
+{% endfor %}
+{% else %}
 # databases:
-#   - name: mongo
-#     host:       "my host"     # (Optional) default "localhost"
-#     port:       "12345"       # (Optional) default "27017"
-#     database:   "mydatabase"  # (Optional) default "opsdroid"
+#{% for database in databases.commented %}
+#  ## {{ database.name }} ({{ database.url }})
+{% for line in database.config.split('\n') -%}
+#  {{ line }}
+{% endfor -%}
+#{% endfor %}
+{% endif %}
 
 ## Skill modules
 skills:
-{% for skill in uncommented_skills %}
+{% for skill in skills.uncommented %}
   ## {{ skill.name }} ({{ skill.url }})
   {% for line in skill.config.split('\n') -%}
   {{ line }}
   {% endfor -%}
 {% endfor %}
   # Configurations for other skills uncomment desired skill to activate it.
-#{% for skill in commented_skills %}
+#{% for skill in skills.commented %}
 #  ## {{ skill.name }} ({{ skill.url }})
 {% for line in skill.config.split('\n') -%}
 #  {{ line }}
