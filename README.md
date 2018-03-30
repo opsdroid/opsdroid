@@ -1,6 +1,19 @@
  ![opsdroid](https://github.com/opsdroid/style-guidelines/raw/master/logos/logo-wide-light.png)[![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Check%20out%20opsdroid,%20an%20awesome%20open%20source%20chatbot%20framework%20written%20in%20Python.&url=https://opsdroid.github.io/&via=opsdroid&hashtags=chatbots,chatops,devops,automation,opensource)
 
-[![Current version of pypi](https://img.shields.io/pypi/v/opsdroid.svg)](https://pypi.python.org/pypi) [![Build Status](https://travis-ci.org/opsdroid/opsdroid.svg?branch=release)](https://travis-ci.org/opsdroid/opsdroid) [![Build status](https://ci.appveyor.com/api/projects/status/9qodmi74r234x4cv/branch/master?svg=true)](https://ci.appveyor.com/project/jacobtomlinson/opsdroid/branch/master) [![codecov](https://codecov.io/gh/opsdroid/opsdroid/branch/master/graph/badge.svg)](https://codecov.io/gh/opsdroid/opsdroid) [![Updates](https://pyup.io/repos/github/opsdroid/opsdroid/shield.svg)](https://pyup.io/repos/github/opsdroid/opsdroid/) [![Dependency Status](https://dependencyci.com/github/opsdroid/opsdroid/badge)](https://dependencyci.com/github/opsdroid/opsdroid) [![Docker Image](https://img.shields.io/badge/docker-ready-blue.svg)](https://hub.docker.com/r/opsdroid/opsdroid/) [![Docker Layers](https://images.microbadger.com/badges/image/opsdroid/opsdroid.svg)](https://microbadger.com/#/images/opsdroid/opsdroid) [![Documentation Status](https://readthedocs.org/projects/opsdroid/badge/?version=stable)](http://opsdroid.readthedocs.io/en/stable/?badge=stable) [![Gitter Badge](https://img.shields.io/badge/gitter-join%20chat-4fb896.svg)](https://gitter.im/opsdroid) [![Backers on Open Collective](https://opencollective.com/opsdroid/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/opsdroid/sponsors/badge.svg)](#sponsors) [![Open Source Helpers](https://www.codetriage.com/opsdroid/opsdroid/badges/users.svg)](https://www.codetriage.com/opsdroid/opsdroid)
+[![Current version of pypi](https://img.shields.io/pypi/v/opsdroid.svg)](https://pypi.python.org/pypi) 
+[![Build Status](https://img.shields.io/travis/opsdroid/opsdroid/master.svg?logo=travis)](https://travis-ci.org/opsdroid/opsdroid) 
+[![Build status](https://img.shields.io/appveyor/ci/jacobtomlinson/opsdroid/master.svg?logo=appveyor)](https://ci.appveyor.com/project/jacobtomlinson/opsdroid/branch/master) 
+[![codecov](https://img.shields.io/codecov/c/github/opsdroid/opsdroid.svg)](https://codecov.io/gh/opsdroid/opsdroid) 
+[![Updates](https://pyup.io/repos/github/opsdroid/opsdroid/shield.svg)](https://pyup.io/repos/github/opsdroid/opsdroid/) 
+[![Dependency Status](https://tidelift.com/badges/github/opsdroid/opsdroid?style=flat)](https://dependencyci.com/github/opsdroid/opsdroid) 
+[![Docker Build](https://img.shields.io/docker/build/opsdroid/opsdroid.svg)](https://hub.docker.com/r/opsdroid/opsdroid/builds/) 
+[![Docker Image](https://img.shields.io/microbadger/image-size/opsdroid/opsdroid.svg)](https://hub.docker.com/r/opsdroid/opsdroid/) 
+[![Docker Layers](https://img.shields.io/microbadger/layers/opsdroid/opsdroid.svg)](https://microbadger.com/#/images/opsdroid/opsdroid) 
+[![Documentation Status](https://img.shields.io/readthedocs/opsdroid/latest.svg)](http://opsdroid.readthedocs.io/en/stable/?badge=stable) 
+[![Gitter Badge](https://img.shields.io/badge/gitter-join%20chat-4fb896.svg)](https://gitter.im/opsdroid) 
+[![Backers on Open Collective](https://opencollective.com/opsdroid/backers/badge.svg)](#backers) 
+[![Sponsors on Open Collective](https://opencollective.com/opsdroid/sponsors/badge.svg)](#sponsors) 
+[![Open Source Helpers](https://www.codetriage.com/opsdroid/opsdroid/badges/users.svg)](https://www.codetriage.com/opsdroid/opsdroid)
 
 An open source chat bot framework written in python. It is designed to be extendable, scalable and simple.
 
