@@ -9,7 +9,7 @@
 [![Docker Build](https://img.shields.io/docker/build/opsdroid/opsdroid.svg)](https://hub.docker.com/r/opsdroid/opsdroid/builds/) 
 [![Docker Image](https://img.shields.io/microbadger/image-size/opsdroid/opsdroid.svg)](https://hub.docker.com/r/opsdroid/opsdroid/) 
 [![Docker Layers](https://img.shields.io/microbadger/layers/opsdroid/opsdroid.svg)](https://microbadger.com/#/images/opsdroid/opsdroid) 
-[![Documentation Status](https://readthedocs.org/projects/opsdroid/badge/?version=stable)](http://opsdroid.readthedocs.io/en/stable/?badge=stable) 
+[![Documentation Status](https://img.shields.io/readthedocs/opsdroid/latest.svg)](http://opsdroid.readthedocs.io/en/stable/?badge=stable) 
 [![Gitter Badge](https://img.shields.io/badge/gitter-join%20chat-4fb896.svg)](https://gitter.im/opsdroid) 
 [![Backers on Open Collective](https://opencollective.com/opsdroid/backers/badge.svg)](#backers) 
 [![Sponsors on Open Collective](https://opencollective.com/opsdroid/sponsors/badge.svg)](#sponsors) 
