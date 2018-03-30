@@ -5,7 +5,7 @@
 [![Build status](https://img.shields.io/appveyor/ci/jacobtomlinson/opsdroid/master.svg?logo=appveyor)](https://ci.appveyor.com/project/jacobtomlinson/opsdroid/branch/master) 
 [![codecov](https://img.shields.io/codecov/c/github/opsdroid/opsdroid.svg)](https://codecov.io/gh/opsdroid/opsdroid) 
 [![Updates](https://pyup.io/repos/github/opsdroid/opsdroid/shield.svg)](https://pyup.io/repos/github/opsdroid/opsdroid/) 
-[![Dependency Status](https://dependencyci.com/github/opsdroid/opsdroid/badge)](https://dependencyci.com/github/opsdroid/opsdroid) 
+[![Dependency Status](https://tidelift.com/badges/github/opsdroid/opsdroid?style=flat)](https://dependencyci.com/github/opsdroid/opsdroid) 
 [![Docker Build](https://img.shields.io/docker/build/opsdroid/opsdroid.svg)](https://hub.docker.com/r/opsdroid/opsdroid/builds/) 
 [![Docker Image](https://img.shields.io/microbadger/image-size/opsdroid/opsdroid.svg)](https://hub.docker.com/r/opsdroid/opsdroid/) 
 [![Docker Layers](https://img.shields.io/microbadger/layers/opsdroid/opsdroid.svg)](https://microbadger.com/#/images/opsdroid/opsdroid) 
