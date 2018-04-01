@@ -13,7 +13,7 @@ parsers:
      verbose: True
      min-score: 0.6
 ```
-
+If you need any help to get started with opsdroid or if you just want to chat, make sure to join our [Gitter channel.](https://gitter.im/opsdroid/)
 ##
 
 [luis.ai](https://www.luis.ai) is an NLP API for matching strings to [intents](https://docs.microsoft.com/en-us/azure/cognitive-services/LUIS/Home). Intents are created on the luis.ai website.
@@ -94,3 +94,4 @@ This example skill will print the following on the message "schedule meeting"
    ]
 }
 ```
+If you need any help to get started with opsdroid or if you just want to chat, make sure to join our [Gitter channel.](https://gitter.im/opsdroid/)
