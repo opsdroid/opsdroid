@@ -3,6 +3,8 @@
 Occasionally the maintainers of the opsdroid project make a release, and
 distribute it.  This document is the procedure they follow to do that.
 
+If you need any help to get started with opsdroid or if you just want to chat, make sure to join our [Gitter channel.](https://gitter.im/opsdroid/)
+
 ## Background
 
 When releasing, there are a couple of release artifacts which are built and distributed.
@@ -77,3 +79,5 @@ If the version is not a simple `patch` release then the last action is to write 
 _If it is a `patch` release than add a note to the bottom of the last release blog post._
 
 This post should include some preamble about the contents of the release, highlighting anything particularly exciting. It should then include a copy of the release notes.
+
+If you need any help to get started with opsdroid or if you just want to chat, make sure to join our [Gitter channel.](https://gitter.im/opsdroid/)
