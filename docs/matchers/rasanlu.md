@@ -19,7 +19,7 @@ parsers:
     token: 85769fjoso084jd
     min-score: 0.8
 ```
-
+If you need any help to get started with opsdroid or if you just want to chat, make sure to join our [Gitter channel.](https://gitter.im/opsdroid/)
 ##
 
 [Rasa NLU](https://github.com/RasaHQ/rasa_nlu) is an open source tool for running your own NLP API for matching strings to [intents](https://rasahq.github.io/rasa_nlu/). This is the recommended parser if you have privacy concerns but want the power of a full NLU parsing engine.
@@ -117,5 +117,5 @@ The example skill will print the following .
   }
 }
 ```
-
+If you need any help to get started with opsdroid or if you just want to chat, make sure to join our [Gitter channel.](https://gitter.im/opsdroid/)
 
