@@ -2,6 +2,8 @@
 
 Connectors are a class which extends the base opsdroid Connector. The class has three mandatory methods, `connect`, `listen` and `respond`. There are also some default values you can override with the `__init__` function, just be sure you are setting everything that the default init sets.
 
+If you need any help to get started with opsdroid or if you just want to chat, make sure to join our [Gitter channel.](https://gitter.im/opsdroid/)
+
 #### configuration  (property)
 *configuration* is a class property of Connector. It's used to access the config parameters of a Connector. This can be used to retrieve specific parameters of a connector from `configuration.yaml`.
 
@@ -79,3 +81,5 @@ class MyConnector(Connector):
 
 ---
 You might also be interested in reading the [configuration reference - Connector Modules](../configuration-reference.md/#connector-modules) in the documentation.
+
+If you need any help to get started with opsdroid or if you just want to chat, make sure to join our [Gitter channel.](https://gitter.im/opsdroid/)
