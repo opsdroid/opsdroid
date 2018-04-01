@@ -340,3 +340,4 @@ skills: !include skills.yaml
 ```
 
 _Note: The file.yaml that you wish to include in the config must be in the same directory as your configuration.yaml (e.g ~/.opsdroid)_
+If you need any help to get started with opsdroid or if you just want to chat, make sure to join our [Gitter channel.](https://gitter.im/opsdroid/)
