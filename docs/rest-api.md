@@ -53,3 +53,4 @@ The response includes information on whether a skill was successfully triggered 
   "called_skill": "examplewebhookskill"
 }
 ```
+If you need any help to get started with opsdroid or if you just want to chat, make sure to join our [Gitter channel.](https://gitter.im/opsdroid/)
