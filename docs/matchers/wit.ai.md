@@ -14,7 +14,7 @@ parsers:
     access-token: XJF475SKGITJ98KHFO
     min-score: 0.6
 ```
-
+If you need any help to get started with opsdroid or if you just want to chat, make sure to join our [Gitter channel.](https://gitter.im/opsdroid/)
 ##
 
 [wit.ai](https://wit.ai) is an NLP API for matching strings to [intents](https://wit.ai/docs/recipes#categorize-the-user-intent). Intents are created on the wit.ai website.
@@ -121,4 +121,5 @@ The example skill will print the following on the message "What's the weather li
 Since Wit.ai can recognise locations, you can use this values on your skills to return different things. 
 On our weather skill([example 1](#example1)) we changed the city param to get the temperature related to any city passed on the message.
 
+If you need any help to get started with opsdroid or if you just want to chat, make sure to join our [Gitter channel.](https://gitter.im/opsdroid/)
 
