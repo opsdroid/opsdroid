@@ -33,4 +33,4 @@ async def mycrontabskill(opsdroid, config, message):
     # Respond
     await message.respond('Hey')
 ```
-
+If you need any help to get started with opsdroid or if you just want to chat, make sure to join our [Gitter channel.](https://gitter.im/opsdroid/)
