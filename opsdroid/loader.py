@@ -239,7 +239,7 @@ class Loader:
             databases = self._load_modules('database', config['databases'])
         else:
             _LOGGER.warning(_("No databases in configuration."
-                              "This will cause skills which store things in"
+                              "This will cause skills which store things in "
                               "memory to lose data when opsdroid is "
                               "restarted."))
 
