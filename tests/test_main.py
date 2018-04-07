@@ -7,6 +7,8 @@ import shutil
 import tempfile
 import unittest.mock as mock
 import gettext
+import click
+from click.testing import CliRunner
 
 
 import opsdroid.__main__ as opsdroid
@@ -42,10 +44,6 @@ class TestMain(unittest.TestCase):
             with mock.patch.object(opsdroid, "__name__", "opsdroid"):
                 opsdroid.init()
                 self.assertFalse(mainfunc.called)
-
-    def test_parse_args(self):
-        args = opsdroid.parse_args(["--gen-config"])
-        self.assertEqual(True, args.gen_config)
 
     def test_configure_no_lang(self):
         with mock.patch.object(gettext, "translation") as translation:
@@ -178,7 +176,8 @@ class TestMain(unittest.TestCase):
                 mock.patch.object(OpsDroid, 'load') as mock_load, \
                 mock.patch.object(web, 'Web'), \
                 mock.patch.object(OpsDroid, 'start_loop') as mock_loop:
-            opsdroid.main()
+            runner = CliRunner()
+            result = runner.invoke(opsdroid.main, [])
             self.assertTrue(mock_cd.called)
             self.assertTrue(mock_cl.called)
             self.assertTrue(mock_wm.called)
