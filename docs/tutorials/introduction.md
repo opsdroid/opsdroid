@@ -160,4 +160,4 @@ The next step in the tutorial will teach you how to make your opsdroid reply to 
 <p style="text-align: right;">Write your first skill > </p>
 
 ---
-
+If you need any help to get started with opsdroid or if you just want to chat, make sure to join our [Gitter channel.](https://gitter.im/opsdroid/)

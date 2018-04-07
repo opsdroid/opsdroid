@@ -19,3 +19,4 @@ from opsdroid.matchers import match_always
 async def keep_track(opsdroid, config, message):
     # Put message.user into a database along with a timestamp
 ```
+If you need any help to get started with opsdroid or if you just want to chat, make sure to join our [Gitter channel.](https://gitter.im/opsdroid/)

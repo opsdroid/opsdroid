@@ -14,7 +14,7 @@ parsers:
     access-token: 85769fjoso084jd
     min-score: 0.8
 ```
-
+If you need any help to get started with opsdroid or if you just want to chat, make sure to join our [Gitter channel.](https://gitter.im/opsdroid/)
 ##
 
 [Recast.AI](https://recast.ai/) is an NLP API for matching strings to [intents](https://recast.ai/docs/intent). Intents are created on the Recast.AI website.
@@ -117,5 +117,5 @@ The example skill will print the following on the message "how are you?".
       }
 }
 ```
-
+If you need any help to get started with opsdroid or if you just want to chat, make sure to join our [Gitter channel.](https://gitter.im/opsdroid/)
 

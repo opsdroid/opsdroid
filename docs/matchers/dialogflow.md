@@ -13,7 +13,7 @@ parsers:
     access-token: "exampleaccesstoken123"
     min-score: 0.6
 ```
-
+If you need any help to get started with opsdroid or if you just want to chat, make sure to join our [Gitter channel.](https://gitter.im/opsdroid/)
 ##
 
 [Dialogflow](https://dialogflow.com/) is an NLP API for matching strings to [intents](https://dialogflow.com/docs/intents) or [actions](https://dialogflow.com/docs/concept-actions). Intents are created on the Dialogflow website.
@@ -94,3 +94,4 @@ This example skill will print the following on the message "whats up?".
   }
 }
 ```
+If you need any help to get started with opsdroid or if you just want to chat, make sure to join our [Gitter channel.](https://gitter.im/opsdroid/)

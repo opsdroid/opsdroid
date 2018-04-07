@@ -32,3 +32,5 @@ Any other details you wish to include such as screenshots, console messages, etc
 
 <!-- Love opsdroid? Please consider supporting our collective:
  +👉  https://opencollective.com/opsdroid/donate -->
+ 
+ If you need any help to get started with opsdroid or if you just want to chat, make sure to join our [Gitter channel.](https://gitter.im/opsdroid/)

@@ -11,6 +11,7 @@ parsers:
   - name: regex
     enabled: true
 ```
+If you need any help to get started with opsdroid or if you just want to chat, make sure to join our [Gitter channel.](https://gitter.im/opsdroid/)
 
 ##
 
@@ -91,3 +92,4 @@ async def remember(opsdroid, config, message):
     await opsdroid.memory.put("remember", remember)
     await message.respond("OK I'll remember that")
 ```
+If you need any help to get started with opsdroid or if you just want to chat, make sure to join our [Gitter channel.](https://gitter.im/opsdroid/)
