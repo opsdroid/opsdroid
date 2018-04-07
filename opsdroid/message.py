@@ -32,14 +32,14 @@ class Message:
 
         await asyncio.sleep(seconds)
 
-    async def _typing_delay(self, text):
+    async def _typing_delay(self):
         """Simulate typing, takes an int(characters per second typed)."""
-        try:
-            char_per_sec = self.connector.configuration['typing-delay']
-            char_count = len(text)
-            await asyncio.sleep(char_count//char_per_sec)
-        except KeyError:
-            pass
+        seconds = self.connector.configuration.get('typing-delay', 0)
+
+        if isinstance(seconds, list):
+            seconds = randrange(seconds[0], seconds[1])
+
+        await asyncio.sleep(seconds)
 
     async def respond(self, text, room=None):
         """Respond to this message using the connector it was created by."""
@@ -50,7 +50,7 @@ class Message:
         if 'thinking-delay' in self.connector.configuration or \
            'typing-delay' in self.connector.configuration:
             await self._thinking_delay()
-            await self._typing_delay(response.text)
+            await self._typing_delay()
 
         await self.connector.respond(response, room)
         if not self.responded_to:
