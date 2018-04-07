@@ -167,6 +167,13 @@ class TestMain(unittest.TestCase):
             with self.assertRaises(SystemExit):
                 opsdroid.main()
 
+    def test_print_version(self):
+        ctx = mock.MagicMock()
+        ctx.exit = mock.MagicMock()
+        ctx.resilient_parsing = False
+        opsdroid.print_version(ctx, None, True)
+        self.assertTrue(ctx.exit.called)
+
     def test_main(self):
         with mock.patch.object(sys, 'argv', ["opsdroid"]), \
                 mock.patch.object(opsdroid, 'check_dependencies') as mock_cd, \
