@@ -7,7 +7,6 @@ import shutil
 import tempfile
 import unittest.mock as mock
 import gettext
-import click
 from click.testing import CliRunner
 
 
@@ -177,7 +176,7 @@ class TestMain(unittest.TestCase):
                 mock.patch.object(web, 'Web'), \
                 mock.patch.object(OpsDroid, 'start_loop') as mock_loop:
             runner = CliRunner()
-            result = runner.invoke(opsdroid.main, [])
+            runner.invoke(opsdroid.main, [])
             self.assertTrue(mock_cd.called)
             self.assertTrue(mock_cl.called)
             self.assertTrue(mock_wm.called)
