@@ -96,7 +96,7 @@ connectors:
 Some connectors will allow you to specify a delay to simulate a real user, you just need to add the delay option under a connector in the `configuration.yaml` file.
 
 **Thinking Delay:** accepts a _int_, _float_ or a _list_ to delay reply by _x_ seconds.
-**Typing Delay:** accepts a _int_, _float_ or a _list_ to delay reply by _x_ seconds.
+**Typing Delay:** accepts a _int_, _float_ or a _list_ to delay reply by _x_ seconds - this is calculated by the length of opsdroid response text so waiting time will be variable.
 
 
 Example:
