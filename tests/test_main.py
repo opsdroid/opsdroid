@@ -1,17 +1,19 @@
 
 import unittest
+import unittest.mock as mock
 import logging
 import os
 import sys
 import shutil
 import tempfile
-import unittest.mock as mock
 import gettext
-from click.testing import CliRunner
 
+import click
+from click.testing import CliRunner
 
 import opsdroid.__main__ as opsdroid
 import opsdroid.web as web
+from opsdroid.const import __version__
 from opsdroid.core import OpsDroid
 from opsdroid.helper import del_rw
 
@@ -163,16 +165,23 @@ class TestMain(unittest.TestCase):
                 self.fail("check_dependencies() exited unexpectedly!")
 
     def test_gen_config(self):
-        with mock.patch.object(sys, 'argv', ["opsdroid", "--gen-config"]):
-            with self.assertRaises(SystemExit):
-                opsdroid.main()
+        with mock.patch.object(click, 'echo') as click_echo,\
+                mock.patch('opsdroid.core.OpsDroid.load') as opsdroid_load:
+            runner = CliRunner()
+            result = runner.invoke(opsdroid.main, ['--gen-config'])
+            self.assertTrue(click_echo.called)
+            self.assertFalse(opsdroid_load.called)
+            self.assertEqual(result.exit_code, 0)
 
     def test_print_version(self):
-        ctx = mock.MagicMock()
-        ctx.exit = mock.MagicMock()
-        ctx.resilient_parsing = False
-        opsdroid.print_version(ctx, None, True)
-        self.assertTrue(ctx.exit.called)
+        with mock.patch.object(click, 'echo') as click_echo,\
+                mock.patch('opsdroid.core.OpsDroid.load') as opsdroid_load:
+            runner = CliRunner()
+            result = runner.invoke(opsdroid.main, ['--version'])
+            self.assertTrue(click_echo.called)
+            self.assertFalse(opsdroid_load.called)
+            self.assertTrue(__version__ in click_echo.call_args[0][0])
+            self.assertEqual(result.exit_code, 0)
 
     def test_main(self):
         with mock.patch.object(sys, 'argv', ["opsdroid"]), \
