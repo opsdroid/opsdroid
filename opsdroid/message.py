@@ -40,11 +40,7 @@ class Message:
         if isinstance(seconds, list):
             seconds = randrange(seconds[0], seconds[1])
 
-        if seconds < 0:
-            await asyncio.sleep(char_count*seconds)
-
-        if seconds > 0:
-            await asyncio.sleep(seconds/char_count*2)
+        await asyncio.sleep(char_count*seconds)
 
     async def respond(self, text, room=None):
         """Respond to this message using the connector it was created by."""
