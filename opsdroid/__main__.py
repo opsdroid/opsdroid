@@ -98,7 +98,7 @@ def print_version(ctx, param, value):
     if not value or ctx.resilient_parsing:
         return
     click.echo('opsdroid v{version}'.format(version=__version__))
-    ctx.exit()
+    ctx.exit(0)
 
 
 def print_example_config(ctx, param, value):
@@ -107,7 +107,7 @@ def print_example_config(ctx, param, value):
         return
     with open(EXAMPLE_CONFIG_FILE, 'r') as conf:
         print(conf.read())
-    sys.exit(0)
+    ctx.exit(0)
 
 
 def welcome_message(config):
