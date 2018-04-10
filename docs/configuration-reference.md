@@ -96,7 +96,7 @@ connectors:
 Some connectors will allow you to specify a delay to simulate a real user, you just need to add the delay option under a connector in the `configuration.yaml` file.
 
 **Thinking Delay:** accepts a _int_, _float_ or a _list_ to delay reply by _x_ seconds.
-**Typing Delay:** accepts a _int_ or _float_ that represents the number of characters typed per second. This number should be larger or equal to 6 to avoid lagging. 
+**Typing Delay:** accepts a _int_, _float_ or a _list_ to delay reply by _x_ seconds - this is calculated by the length of opsdroid response text so waiting time will be variable.
 
 
 Example:
@@ -106,7 +106,7 @@ connectors:
   - name: slack
     token: "mysecretslacktoken"
     thinking-delay: <int, float or two element list>
-    typing-delay: <int or float>
+    typing-delay: <int, float or two element list>
 ```
 
 _Note: As expected this will cause a delay on opsdroid time of response so make sure you don't pass a high number._ 
