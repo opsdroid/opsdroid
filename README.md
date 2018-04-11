@@ -85,7 +85,7 @@ For information on arguments that you can pass to opsdroid run `opsdroid --help`
 $ opsdroid --help
 Usage: opsdroid [OPTIONS]
 
-  Opsdroid is chat bot framework written in python.
+  Opsdroid is a chat bot framework written in python.
 
   It is designed to be extendable, scalable and simple. See
   https://opsdroid.github.io/ for more information.
