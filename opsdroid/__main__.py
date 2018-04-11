@@ -3,12 +3,13 @@
 import os
 import sys
 import logging
-import argparse
 import gettext
 
+import click
+
 from opsdroid.core import OpsDroid
-from opsdroid.const import DEFAULT_LOG_FILENAME, EXAMPLE_CONFIG_FILE,\
-    DEFAULT_LANGUAGE, LOCALE_DIR
+from opsdroid.const import __version__, DEFAULT_LOG_FILENAME, \
+    EXAMPLE_CONFIG_FILE, DEFAULT_LANGUAGE, LOCALE_DIR
 from opsdroid.web import Web
 
 
@@ -85,19 +86,28 @@ def get_logging_level(logging_level):
     return logging.INFO
 
 
-def parse_args(args):
-    """Parse command line arguments."""
-    parser = argparse.ArgumentParser(description='Run opsdroid.')
-    parser.add_argument('--gen-config', action="store_true",
-                        help='prints out an example configuration file')
-    return parser.parse_args(args)
-
-
 def check_dependencies():
     """Check for system dependencies required by opsdroid."""
     if sys.version_info.major < 3 or sys.version_info.minor < 5:
         logging.critical(_("Whoops! opsdroid requires python 3.5 or above."))
         sys.exit(1)
+
+
+def print_version(ctx, param, value):
+    """Print out the version of opsdroid that is installed."""
+    if not value or ctx.resilient_parsing:
+        return
+    click.echo('opsdroid v{version}'.format(version=__version__))
+    ctx.exit(0)
+
+
+def print_example_config(ctx, param, value):
+    """Print out the example config."""
+    if not value or ctx.resilient_parsing:
+        return
+    with open(EXAMPLE_CONFIG_FILE, 'r') as conf:
+        click.echo(conf.read())
+    ctx.exit(0)
 
 
 def welcome_message(config):
@@ -120,15 +130,19 @@ def welcome_message(config):
                           "configuration.yaml"))
 
 
+@click.command()
+@click.option('--gen-config', is_flag=True, callback=print_example_config,
+              expose_value=False, default=False,
+              help='Print an example config and exit.')
+@click.option('--version', '-v', is_flag=True, callback=print_version,
+              expose_value=False, default=False, is_eager=True,
+              help='Print the version and exit.')
 def main():
-    """Parse the args and then start the application."""
-    args = parse_args(sys.argv[1:])
+    """Opsdroid is a chat bot framework written in Python.
 
-    if args.gen_config:
-        with open(EXAMPLE_CONFIG_FILE, 'r') as conf:
-            print(conf.read())
-        sys.exit(0)
-
+    It is designed to be extendable, scalable and simple.
+    See https://opsdroid.github.io/ for more information.
+    """
     check_dependencies()
 
     with OpsDroid() as opsdroid:
