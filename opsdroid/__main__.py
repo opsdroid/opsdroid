@@ -138,7 +138,7 @@ def welcome_message(config):
               expose_value=False, default=False, is_eager=True,
               help='Print the version and exit.')
 def main():
-    """Opsdroid is chat bot framework written in Python.
+    """Opsdroid is a chat bot framework written in Python.
 
     It is designed to be extendable, scalable and simple.
     See https://opsdroid.github.io/ for more information.
