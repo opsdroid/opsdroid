@@ -19,6 +19,8 @@ skills:
 ```
 You should look into the [Getting Started guide](/tutorials/introduction) to know more about skills and opsdroid configuration file.
 
+If you need any help to get started with opsdroid or if you just want to chat, make sure to join our [Gitter channel.](https://gitter.im/opsdroid/)
+
 # Creating skills
 
 Like all opsdroid modules skills are installed as a git repository. However skills are designed to be simpler than other modules to ensure that it is easy to get started.
@@ -142,3 +144,5 @@ See the following official modules for examples:
 
  * [hello](https://github.com/opsdroid/skill-hello) - A simple hello world skill.
  * [seen](https://github.com/opsdroid/skill-seen) - Makes use of opsdroid memory.
+ 
+ If you need any help to get started with opsdroid or if you just want to chat, make sure to join our [Gitter channel.](https://gitter.im/opsdroid/)
