@@ -1,6 +1,7 @@
 """Starts opsdroid."""
 
 import os
+import subprocess
 import sys
 import logging
 import gettext
@@ -9,7 +10,7 @@ import click
 
 from opsdroid.core import OpsDroid
 from opsdroid.const import __version__, DEFAULT_LOG_FILENAME, \
-    EXAMPLE_CONFIG_FILE, DEFAULT_LANGUAGE, LOCALE_DIR
+    EXAMPLE_CONFIG_FILE, DEFAULT_LANGUAGE, LOCALE_DIR, DEFAULT_CONFIG_PATH
 from opsdroid.web import Web
 
 
@@ -110,6 +111,13 @@ def print_example_config(ctx, param, value):
     ctx.exit(0)
 
 
+def edit_config(ctx, param, value='open'):
+    """Easy way to edit the config file."""
+    subprocess.run([value, DEFAULT_CONFIG_PATH])
+    ctx.exit(0)
+
+
+
 def welcome_message(config):
     """Add welcome message if set to true in configuration."""
     try:
@@ -137,6 +145,10 @@ def welcome_message(config):
 @click.option('--version', '-v', is_flag=True, callback=print_version,
               expose_value=False, default=False, is_eager=True,
               help='Print the version and exit.')
+@click.option('--edit-config', '-c', is_flag=True, callback=edit_config,
+              expose_value=False, default=False,
+              help='Opens configuration.yaml with your favorite editor'
+                   ' and exits.')
 def main():
     """Opsdroid is a chat bot framework written in Python.
 

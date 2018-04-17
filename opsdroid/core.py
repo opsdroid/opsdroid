@@ -20,7 +20,7 @@ from opsdroid.parsers.recastai import parse_recastai
 from opsdroid.parsers.witai import parse_witai
 from opsdroid.parsers.rasanlu import parse_rasanlu, train_rasanlu
 from opsdroid.parsers.crontab import parse_crontab
-from opsdroid.const import DEFAULT_CONFIG_PATH
+from opsdroid.const import DEFAULT_CONFIG_PATH, DEFAULT_ROOT_PATH
 
 
 _LOGGER = logging.getLogger(__name__)

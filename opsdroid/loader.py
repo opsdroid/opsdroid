@@ -13,7 +13,7 @@ import yaml
 from opsdroid.const import (
     DEFAULT_GIT_URL, MODULES_DIRECTORY, DEFAULT_MODULES_PATH,
     DEFAULT_MODULE_BRANCH, DEFAULT_CONFIG_PATH, EXAMPLE_CONFIG_FILE,
-    DEFAULT_MODULE_DEPS_PATH)
+    DEFAULT_MODULE_DEPS_PATH, OLD_CONFIG_PATH)
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -179,6 +179,13 @@ class Loader:
                 break
 
         if not config_path:
+            if os.path.isfile(OLD_CONFIG_PATH):
+                shutil.copyfile(OLD_CONFIG_PATH, DEFAULT_CONFIG_PATH)
+                _LOGGER.info("Configuration file copied from {} to {} "
+                             "run opsdroid --c to edit the config "
+                             "file.".format(OLD_CONFIG_PATH, DEFAULT_CONFIG_PATH))
+                os.remove(OLD_CONFIG_PATH)
+
             _LOGGER.info(_("No configuration files found."))
             config_path = self.create_default_config(DEFAULT_CONFIG_PATH)
 
