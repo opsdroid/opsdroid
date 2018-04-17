@@ -40,3 +40,5 @@ class MyDatabase(Database):
     return await self.connection.find(key)
 
 ```
+
+*If you need help or if you are unsure about something join our* [gitter channel](https://gitter.im/opsdroid/) *and ask away! We are more than happy to help you.*
