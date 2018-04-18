@@ -1,8 +1,9 @@
 """Constants used by OpsDroid."""
 import os
 from appdirs import user_log_dir, user_config_dir
+from opsdroid import __version__
 
-__version__ = "0.11.2"
+
 NAME = 'opsdroid'
 DEFAULT_GIT_URL = "https://github.com/opsdroid/"
 MODULES_DIRECTORY = "opsdroid-modules"

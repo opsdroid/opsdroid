@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 from setuptools.command.build_py import build_py
 from setuptools.command.sdist import sdist
 from setuptools.command.develop import develop
-from opsdroid.const import __version__
+from opsdroid import __version__
 
 PACKAGE_NAME = 'opsdroid'
 HERE = os.path.abspath(os.path.dirname(__file__))
