@@ -2,8 +2,7 @@
 
 This first part of the tutorial will give a brief introduction to the yaml files, explain some basic things about opsdroid configuration, connectors, parsers and what to expect on the first run of opsdroid.
 
-If you need any help to get started with opsdroid or if you just want to chat, make sure to join our [Gitter channel.](https://gitter.im/opsdroid/)
-
+*If you need help or if you are unsure about something join our* [gitter channel](https://gitter.im/opsdroid/) *and ask away! We are more than happy to help you.*
 
 
 ## Configuration and Yaml files

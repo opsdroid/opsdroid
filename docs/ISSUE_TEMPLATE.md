@@ -1,3 +1,4 @@
+<!-- Before you post an issue or if you are unsure about something join our gitter channel https://gitter.im/opsdroid/ and ask away! We are more than happy to help you. -->
 # Description
 Please include a summary of the issue. 
 
