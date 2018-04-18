@@ -216,8 +216,7 @@ class Loader:
 
     def setup_modules_directory(self, config):
         """Create and configure the modules directory."""
-        module_path = os.path.expanduser(
-            config.get("module-path", DEFAULT_MODULES_PATH))
+        module_path = config.get("module-path", DEFAULT_MODULES_PATH)
         sys.path.append(module_path)
 
         if not os.path.isdir(module_path):
@@ -282,13 +281,11 @@ class Loader:
                 config["name"] = module
             else:
                 config["name"] = module['name']
-
             config["type"] = modules_type
             config["module_path"] = self.build_module_import_path(config)
             config["install_path"] = self.build_module_install_path(config)
             if "branch" not in config:
                 config["branch"] = DEFAULT_MODULE_BRANCH
-
             # Remove module for reinstall if no-cache set
             self.check_cache(config)
 

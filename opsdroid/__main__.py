@@ -119,7 +119,6 @@ def edit_config(ctx, param, value):
     ctx.exit(0)
 
 
-
 def welcome_message(config):
     """Add welcome message if set to true in configuration."""
     try:

@@ -26,11 +26,10 @@ def del_rw(action, name, exc):
 
 
 def move_config_to_appdir():
-    """Move configuration.yaml from ~/.opsdroid to
-    system configuration directory."""
+    """Move config from ~/.opsdroid to system configuration directory."""
     if os.path.isfile(PRE_0_12_0_CONFIG_PATH):
         shutil.copyfile(PRE_0_12_0_CONFIG_PATH, DEFAULT_CONFIG_PATH)
-        _LOGGER.info("Configuration file copied from {} to {} "
-                     "run opsdroid --c to edit the config "
-                     "file.".format(PRE_0_12_0_CONFIG_PATH, DEFAULT_CONFIG_PATH))
+        _LOGGER.info(_("Configuration file copied from {} to {} "
+                       "run opsdroid --c to edit the config "
+                       "file."), PRE_0_12_0_CONFIG_PATH, DEFAULT_CONFIG_PATH)
         os.remove(PRE_0_12_0_CONFIG_PATH)
