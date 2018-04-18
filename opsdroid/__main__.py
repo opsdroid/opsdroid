@@ -111,9 +111,11 @@ def print_example_config(ctx, param, value):
     ctx.exit(0)
 
 
-def edit_config(ctx, param, value='open'):
+def edit_config(ctx, param, value):
     """Easy way to edit the config file."""
-    subprocess.run([value, DEFAULT_CONFIG_PATH])
+    if not value or ctx.resilient_parsing:
+        return
+    subprocess.run([os.environ.get('EDITOR', 'vi'), DEFAULT_CONFIG_PATH])
     ctx.exit(0)
 
 
@@ -145,7 +147,7 @@ def welcome_message(config):
 @click.option('--version', '-v', is_flag=True, callback=print_version,
               expose_value=False, default=False, is_eager=True,
               help='Print the version and exit.')
-@click.option('--edit-config', '-c', is_flag=True, callback=edit_config,
+@click.option('--edit-config', '-e', is_flag=True, callback=edit_config,
               expose_value=False, default=False,
               help='Opens configuration.yaml with your favorite editor'
                    ' and exits.')
