@@ -11,7 +11,8 @@ DEFAULT_ROOT_PATH = os.path.expanduser("~/.opsdroid")
 DEFAULT_LOG_FILENAME = os.path.join(
     user_log_dir(NAME, appauthor=False), 'output.log')
 DEFAULT_MODULES_PATH = user_data_dir(NAME, MODULES_DIRECTORY)
-DEFAULT_MODULE_DEPS_PATH = os.path.join(DEFAULT_ROOT_PATH, "site-packages")
+DEFAULT_MODULE_DEPS_PATH = os.path.join(
+    user_data_dir(NAME, MODULES_DIRECTORY), "site-packages")
 DEFAULT_CONFIG_PATH = os.path.join(
     user_config_dir(NAME, appauthor=False), "configuration.yaml")
 PRE_0_12_0_CONFIG_PATH = os.path.join(DEFAULT_ROOT_PATH, "configuration.yaml")
