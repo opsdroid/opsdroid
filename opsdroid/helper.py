@@ -3,9 +3,9 @@
 import os
 import stat
 import shutil
+import logging
 
 from opsdroid.const import PRE_0_12_0_CONFIG_PATH, DEFAULT_CONFIG_PATH
-import logging
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -26,6 +26,8 @@ def del_rw(action, name, exc):
 
 
 def move_config_to_appdir():
+    """Move configuration.yaml from ~/.opsdroid to
+    system configuration directory."""
     if os.path.isfile(PRE_0_12_0_CONFIG_PATH):
         shutil.copyfile(PRE_0_12_0_CONFIG_PATH, DEFAULT_CONFIG_PATH)
         _LOGGER.info("Configuration file copied from {} to {} "
