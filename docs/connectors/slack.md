@@ -21,21 +21,3 @@ connectors:
 ```
 
 ## Usage
-The connector itself won't allow opsdroid do much. It will connect to slack and be active on the `default-room`
-but you will still need some skill to have opsdroid react to an input.
-
-Luckily, opsdroid comes with a few skills out of the box as well. So once you run opsdroid you will see that it joined either the room that you set up on `default-room` parameter in the configuration or it will be in the `#general` room.
-
-_Note: If opsdroid failed to join the room you can always invite him by clicking `info>Members section>invite more people...`_
-
-You can also interact with opsdroid through direct message. To do so, just click on opsdroid's name and type something on the box that says "Message opsdroid".
-
-Example of a private message:
-
-```
-fabiorosado [7:06 PM]
-hi
-
-opsdroid APP [7:06 PM]
-Hi fabiorosado
-```

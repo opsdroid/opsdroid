@@ -34,7 +34,6 @@ class ConnectorSlack(Connector):
         self.known_users = {}
         self.keepalive = None
         self.reconnecting = False
-        self.listening = True
         self._message_id = 0
 
     async def connect(self, opsdroid=None):
@@ -73,44 +72,38 @@ class ConnectorSlack(Connector):
 
     async def listen(self, opsdroid):
         """Listen for and parse new messages."""
-        while self.listening:
-            await self.receive_from_websocket()
-
-    async def receive_from_websocket(self):
-        """Get the next message from the websocket."""
-        try:
-            content = await self.websocket.recv()
-            await self.process_message(json.loads(content))
-        except websockets.exceptions.ConnectionClosed:
-            _LOGGER.info("Slack websocket closed, reconnecting...")
-            await self.reconnect(5)
-
-    async def process_message(self, message):
-        """Process a raw message and pass it to the parser."""
-        if "type" in message and message["type"] == "message" and \
-                "user" in message:
-
-            # Ignore bot messages
-            if "subtype" in message and \
-                    message["subtype"] == "bot_message":
-                return
-
-            # Lookup username
-            _LOGGER.debug("Looking up sender username")
+        while True:
             try:
-                user_info = await self.lookup_username(message["user"])
-            except ValueError:
-                return
+                content = await self.websocket.recv()
+            except websockets.exceptions.ConnectionClosed:
+                _LOGGER.info("Slack websocket closed, reconnecting...")
+                await self.reconnect(5)
+                continue
+            message = json.loads(content)
+            if "type" in message and message["type"] == "message" and \
+                    "user" in message:
 
-            # Replace usernames in the message
-            _LOGGER.debug("Replacing userids in message with usernames")
-            message["text"] = await self.replace_usernames(
-                message["text"])
+                # Ignore bot messages
+                if "subtype" in message and \
+                        message["subtype"] == "bot_message":
+                    continue
 
-            await self.opsdroid.parse(Message(message["text"],
-                                              user_info["name"],
-                                              message["channel"],
-                                              self))
+                # Lookup username
+                _LOGGER.debug("Looking up sender username")
+                try:
+                    user_info = await self.lookup_username(message["user"])
+                except ValueError:
+                    continue
+
+                # Replace usernames in the message
+                _LOGGER.debug("Replacing userids in message with usernames")
+                message["text"] = await self.replace_usernames(
+                    message["text"])
+
+                await opsdroid.parse(Message(message["text"],
+                                             user_info["name"],
+                                             message["channel"],
+                                             self))
 
     async def respond(self, message, room=None):
         """Respond with a message."""
@@ -124,23 +117,19 @@ class ConnectorSlack(Connector):
 
     async def keepalive_websocket(self):
         """Keep pinging the websocket to keep it alive."""
-        while self.listening:
-            await self.ping_websocket()
-
-    async def ping_websocket(self):
-        """Ping the websocket."""
-        await asyncio.sleep(60)
-        self._message_id += 1
-        try:
-            await self.websocket.send(
-                json.dumps({'id': self._message_id, 'type': 'ping'}))
-        except (websockets.exceptions.InvalidState,
-                websockets.exceptions.ConnectionClosed,
-                aiohttp.ClientOSError,
-                TimeoutError):
-            _LOGGER.info("Slack websocket closed, reconnecting...")
-            if not self.reconnecting:
-                await self.reconnect()
+        while True:
+            await asyncio.sleep(60)
+            self._message_id += 1
+            try:
+                await self.websocket.send(
+                    json.dumps({'id': self._message_id, 'type': 'ping'}))
+            except (websockets.exceptions.InvalidState,
+                    websockets.exceptions.ConnectionClosed,
+                    aiohttp.ClientOSError,
+                    TimeoutError):
+                _LOGGER.info("Slack websocket closed, reconnecting...")
+                if not self.reconnecting:
+                    await self.reconnect()
 
     async def lookup_username(self, userid):
         """Lookup a username and cache it."""
@@ -157,7 +146,7 @@ class ConnectorSlack(Connector):
 
     async def replace_usernames(self, message):
         """Replace User ID with username in message text."""
-        userids = re.findall(r"\<\@([A-Z0-9]+)(?:\|.+)?\>", message)
+        userids = re.findall(r"\<\@([A-Z0-9]+)\>", message)
         for userid in userids:
             user_info = await self.lookup_username(userid)
             message = message.replace("<@{userid}>".format(userid=userid),

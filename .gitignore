@@ -27,7 +27,6 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
-.pytest_cache
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -96,4 +95,3 @@ ENV/
 .docker/
 
 .vscode/
-.idea/
