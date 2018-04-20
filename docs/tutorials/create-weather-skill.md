@@ -3,6 +3,7 @@ We will create a skill, that will make opsdroid tell us the current weather in a
 
 This tutorial will use the  [OpenWeatherMap](https://openweathermap.org) API to get the weather information from a city. We will only need the free version of the API, so register and get your key from the [API](https://openweathermap.org/price) menu.
 
+*If you need help or if you are unsure about something join our* [gitter channel](https://gitter.im/opsdroid/) *and ask away! We are more than happy to help you.*
 
 ## Setting Up
 In the tutorial, you can choose the city that you want the weather information about and which system to use (metric or imperial). These settings will be specified in our opsdroid `configuration.yaml` file.
@@ -218,5 +219,5 @@ async def tell_weather(opsdroid, config, message):
     await message.respond("It's {} and {}% humidity in {}.".format(temp, humidity, city))
 ```
 
-Now every time you type `How's the weather` opsdroid will tell you the current weather. Hopefully this tutorial was helpful to you, if you need any help join us in the [opsdroid gitter channel](https://gitter.im/opsdroid/).
+Now every time you type `How's the weather` opsdroid will tell you the current weather. Hopefully this tutorial was helpful to you.
 

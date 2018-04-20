@@ -79,3 +79,4 @@ class MyConnector(Connector):
 
 ---
 You might also be interested in reading the [configuration reference - Connector Modules](../configuration-reference.md/#connector-modules) in the documentation.
+*If you need help or if you are unsure about something join our* [gitter channel](https://gitter.im/opsdroid/) *and ask away! We are more than happy to help you.*

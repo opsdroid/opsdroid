@@ -75,6 +75,26 @@ sudo pip3 install opsdroid
 opsdroid
 ```
 
+## Usage
+
+When running the `opsdroid` command with no arguments the bot framework will start using the configuration in `~/.opsdroid/configuration.yaml`. Beginners should check out the [introduction tutorial](http://opsdroid.readthedocs.io/en/stable/tutorials/introduction/) for information on how to configure opsdroid.
+
+For information on arguments that you can pass to opsdroid run `opsdroid --help`.
+
+```
+$ opsdroid --help
+Usage: opsdroid [OPTIONS]
+
+  Opsdroid is a chat bot framework written in python.
+
+  It is designed to be extendable, scalable and simple. See
+  https://opsdroid.github.io/ for more information.
+
+Options:
+  --gen-config   Print an example config and exit.
+  -v, --version  Print the version and exit.
+  --help         Show this message and exit.
+```
 
 ## Contributing
 

@@ -10,8 +10,7 @@ Things you can help with:
      - [Squashing bugs](#quick-links)
      - [Enhance opsdroid](#quick-links)
  
-If you need help or if you are unsure about something join our [gitter channel](https://gitter.im/opsdroid/)  and ask away! We are more than happy to help you.
-
+*If you need help or if you are unsure about something join our* [gitter channel](https://gitter.im/opsdroid/) *and ask away! We are more than happy to help you.*
 
 ## Workflow
 

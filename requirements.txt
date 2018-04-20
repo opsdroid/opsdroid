@@ -1,7 +1,8 @@
+aiohttp==3.1.3
 arrow==0.12.1
-aiohttp==3.1.2
+Babel==2.5.3
+click==6.7
 pycron==0.80.0
 pyyaml==3.12
-Babel==2.5.3
 slacker-asyncio==0.9.60
 websockets==3.2
