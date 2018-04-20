@@ -77,8 +77,24 @@ class Loader:
                 os.remove(config["install_path"] + ".py")
 
     @staticmethod
+    def is_builtin_module(config):
+        """Check if a module is a builtin."""
+        try:
+            return importlib.util.find_spec(
+                'opsdroid.{module_type}.{module_name}'.format(
+                    module_type=config["type"],
+                    module_name=config["name"]
+                )
+            )
+        except ImportError:
+            return False
+
+    @staticmethod
     def build_module_import_path(config):
         """Generate the module import path from name and type."""
+        if config["is_builtin"]:
+            return "opsdroid" + "." + config["type"] + \
+                "." + config["name"]
         return MODULES_DIRECTORY + "." + config["type"] + \
             "." + config["name"]
 
@@ -282,19 +298,21 @@ class Loader:
                 config["name"] = module['name']
 
             config["type"] = modules_type
+            config["is_builtin"] = self.is_builtin_module(config)
             config["module_path"] = self.build_module_import_path(config)
             config["install_path"] = self.build_module_install_path(config)
             if "branch" not in config:
                 config["branch"] = DEFAULT_MODULE_BRANCH
 
-            # Remove module for reinstall if no-cache set
-            self.check_cache(config)
+            if not config["is_builtin"]:
+                # Remove module for reinstall if no-cache set
+                self.check_cache(config)
 
-            # Install or update module
-            if not self._is_module_installed(config):
-                self._install_module(config)
-            else:
-                self._update_module(config)
+                # Install or update module
+                if not self._is_module_installed(config):
+                    self._install_module(config)
+                else:
+                    self._update_module(config)
 
             # Import module
             self.current_import_config = config

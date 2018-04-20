@@ -131,9 +131,9 @@ class TestLoader(unittest.TestCase):
                 self.assertEqual(error, "Pip and pip3 not found, exiting...")
 
     def test_build_module_path(self):
-        config = {}
-        config["type"] = "test"
-        config["name"] = "test"
+        config = {"type": "test",
+                  "name": "test",
+                  "is_builtin": False}
         loader = mock.Mock()
         loader.modules_directory = ""
         self.assertIn("test.test",
