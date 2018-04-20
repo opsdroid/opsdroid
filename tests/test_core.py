@@ -41,6 +41,7 @@ class TestCore(unittest.TestCase):
 
     def test_stop(self):
         with OpsDroid() as opsdroid:
+            opsdroid.eventloop.create_task(asyncio.sleep(0))
             self.assertFalse(opsdroid.eventloop.is_closed())
             opsdroid.stop()
             self.assertFalse(opsdroid.eventloop.is_running())

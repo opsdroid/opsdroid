@@ -141,6 +141,12 @@ class TestLoader(unittest.TestCase):
         self.assertIn("test",
                       ld.Loader.build_module_install_path(loader, config))
 
+        config["is_builtin"] = True
+        self.assertIn("opsdroid.test.test",
+                      ld.Loader.build_module_import_path(config))
+        self.assertIn("test",
+                      ld.Loader.build_module_install_path(loader, config))
+
     def test_check_cache_removes_dir(self):
         config = {}
         config["no-cache"] = True
