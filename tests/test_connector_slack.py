@@ -54,6 +54,7 @@ class TestConnectorAsync(asynctest.TestCase):
 
     async def test_lookup_username(self):
         connector = ConnectorSlack({"api-token": "abc123"})
+        self.assertEqual("slack", connector.name)
 
     # async def test_disconnect(self):
     #     connector = ConnectorSlack({})

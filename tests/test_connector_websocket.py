@@ -54,6 +54,7 @@ class TestConnectorAsync(asynctest.TestCase):
 
     async def test_lookup_username(self):
         connector = ConnectorWebsocket({})
+        self.assertEqual("websocket", connector.name)
 
     # async def test_disconnect(self):
     #     connector = ConnectorSlack({})
