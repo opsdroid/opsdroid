@@ -113,7 +113,7 @@ def print_example_config(ctx, param, value):
 
 
 def edit_files(ctx, param, value):
-    """Easy way to edit the config file."""
+    """Open config/log file with favourite editor."""
     if value == 'config':
         file = DEFAULT_CONFIG_PATH
     elif value == 'log':
@@ -124,7 +124,8 @@ def edit_files(ctx, param, value):
     editor = os.environ.get('EDITOR', 'vi')
     if editor == 'vi':
         if click.prompt("You are about to open a file in vi/vim, "
-                        "would you like to read a tutorial? [N/y] ",
+                        "would you like to read a tutorial? "
+                        "Press ENTER to skip or any other key to read",
                         default=False, show_default=False):
             click.echo('Read the tutorial on vim at: https://bit.ly/2HRvvrB')
             click.echo('Opening file in 5 seconds...')
