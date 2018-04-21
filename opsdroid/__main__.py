@@ -163,11 +163,11 @@ def welcome_message(config):
               expose_value=False, default=False, is_eager=True,
               help='Print the version and exit.')
 @click.option('--edit-config', '-e', is_flag=True, callback=edit_files,
-              default=False, flag_value='config',
+              default=False, flag_value='config', expose_value=False,
               help='Opens configuration.yaml with your favorite editor'
                    ' and exits.')
 @click.option('--view-log', '-l', is_flag=True, callback=edit_files,
-              default=False, flag_value='log',
+              default=False, flag_value='log', expose_value=False,
               help='Opens opsdroid logs with your favorite editor'
                    ' and exits.')
 def main():
