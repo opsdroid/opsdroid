@@ -6,8 +6,7 @@ import shutil
 import logging
 import filecmp
 
-from opsdroid.const import PRE_0_12_0_CONFIG_PATH, \
-    DEFAULT_CONFIG_PATH, DEFAULT_ROOT_PATH, PRE_0_12_0_ROOT_PATH
+from opsdroid.const import DEFAULT_ROOT_PATH, PRE_0_12_0_ROOT_PATH
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -26,13 +25,13 @@ def del_rw(action, name, exc):
     os.chmod(name, stat.S_IWRITE)
     os.remove(name)
 
-# This is meant to provide backwards compatibility for versions prior to  0.12.0
-# In the future this will probably be deleted
+# This is meant to provide backwards compatibility for versions
+# prior to  0.12.0 in the future this will probably be deleted
 
 
 def move_config_to_appdir():
     """Copy any file with .yaml extension to new appdir location."""
-    yaml_files = [file for file in os.listdir(DEFAULT_ROOT_PATH)
+    yaml_files = [file for file in os.listdir(PRE_0_12_0_ROOT_PATH)
                   if '.yaml' in file[-5:]]
 
     if not os.path.isdir(DEFAULT_ROOT_PATH):

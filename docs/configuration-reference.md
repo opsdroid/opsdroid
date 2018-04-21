@@ -22,12 +22,17 @@
 
 
 ## Config file
-
-For configuration, you simply need to create a single YAML file named `configuration.yaml`. When you run opsdroid it will look for the file in the following places in order:
+For configuration, opsdroid uses a single YAML file named `configuration.yaml`. When you run opsdroid it will look for the file in the following places in order:
 
  * `./configuration.yaml`
- * `~/.opsdroid/configuration.yaml`
  * `/etc/opsdroid/configuration.yaml`
+ * one of the default locations:
+    * Mac: `~/Library/Application Support/opsdroid`
+    * Linux: `~/.local/share/opsdroid`
+    * Windows: `C:\Documents and Settings\<User>\Application Data\Local Settings\opsdroid\opsdroid` or
+                `C:\Documents and Settings\<User>\Application Data\opsdroid\opsdroid`
+            
+_Note: If no file named `configuration.yaml` can be found on one of these folders one will be created for you taken from the [example configuration file](../opsdroid/configuration/example_configuration.yaml)_
 
 The opsdroid project itself is very simple and requires modules to give it functionality. In your configuration file, you must specify the connector, skill and database* modules you wish to use and any options they may require.
 

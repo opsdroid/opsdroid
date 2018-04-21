@@ -5,13 +5,14 @@ import subprocess
 import sys
 import logging
 import gettext
+import time
 
 import click
 
 from opsdroid.core import OpsDroid
+from opsdroid.web import Web
 from opsdroid.const import __version__, DEFAULT_LOG_FILENAME, \
     EXAMPLE_CONFIG_FILE, DEFAULT_LANGUAGE, LOCALE_DIR, DEFAULT_CONFIG_PATH
-from opsdroid.web import Web
 
 
 gettext.install('opsdroid')
@@ -111,11 +112,25 @@ def print_example_config(ctx, param, value):
     ctx.exit(0)
 
 
-def edit_config(ctx, param, value):
+def edit_files(ctx, param, value):
     """Easy way to edit the config file."""
-    if not value or ctx.resilient_parsing:
+    if value == 'config':
+        file = DEFAULT_CONFIG_PATH
+    elif value == 'log':
+        file = DEFAULT_LOG_FILENAME
+    else:
         return
-    subprocess.run([os.environ.get('EDITOR', 'vi'), DEFAULT_CONFIG_PATH])
+
+    editor = os.environ.get('EDITOR', 'vi')
+    if editor == 'vi':
+        if click.prompt("You are about to open a file in vi/vim, "
+                        "would you like to read a tutorial? [N/y] ",
+                        default=False, show_default=False):
+            click.echo('Read the tutorial on vim at: https://bit.ly/2HRvvrB')
+            click.echo('Opening file in 5 seconds...')
+            time.sleep(5)
+
+    subprocess.run([editor, file])
     ctx.exit(0)
 
 
@@ -146,9 +161,13 @@ def welcome_message(config):
 @click.option('--version', '-v', is_flag=True, callback=print_version,
               expose_value=False, default=False, is_eager=True,
               help='Print the version and exit.')
-@click.option('--edit-config', '-e', is_flag=True, callback=edit_config,
-              expose_value=False, default=False,
+@click.option('--edit-config', '-e', is_flag=True, callback=edit_files,
+              default=False, flag_value='config',
               help='Opens configuration.yaml with your favorite editor'
+                   ' and exits.')
+@click.option('--view-log', '-l', is_flag=True, callback=edit_files,
+              default=False, flag_value='log',
+              help='Opens opsdroid logs with your favorite editor'
                    ' and exits.')
 def main():
     """Opsdroid is a chat bot framework written in Python.
