@@ -9,10 +9,11 @@ import time
 
 import click
 
+from opsdroid import __version__
 from opsdroid.core import OpsDroid
 from opsdroid.web import Web
-from opsdroid.const import __version__, DEFAULT_LOG_FILENAME, \
-    EXAMPLE_CONFIG_FILE, DEFAULT_LANGUAGE, LOCALE_DIR, DEFAULT_CONFIG_PATH
+from opsdroid.const import DEFAULT_LOG_FILENAME, LOCALE_DIR, \
+    EXAMPLE_CONFIG_FILE, DEFAULT_LANGUAGE, DEFAULT_CONFIG_PATH
 
 
 gettext.install('opsdroid')

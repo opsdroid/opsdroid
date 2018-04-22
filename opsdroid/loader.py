@@ -180,8 +180,11 @@ class Loader:
                 break
 
         if not config_path:
-            move_config_to_appdir()
-            _LOGGER.info(_("No configuration files found."))
+            try:
+                move_config_to_appdir()
+            except FileNotFoundError:
+                _LOGGER.info(_("No configuration files found. "
+                               "Creating %s"), DEFAULT_CONFIG_PATH)
             config_path = self.create_default_config(DEFAULT_CONFIG_PATH)
 
         env_var_pattern = re.compile(r'^\$([A-Z_]*)$')

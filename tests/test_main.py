@@ -190,7 +190,7 @@ class TestMain(unittest.TestCase):
             runner = CliRunner()
             result = runner.invoke(opsdroid.main, ['--edit-config'], input='y')
             self.assertTrue(click_prompt.called)
-            self.assertFalse(click_echo.called)
+            self.assertTrue(click_echo.called)
             self.assertTrue(editor.called)
             self.assertEqual(result.exit_code, 0)
 
@@ -201,7 +201,7 @@ class TestMain(unittest.TestCase):
             runner = CliRunner()
             result = runner.invoke(opsdroid.main, ['--view-log'], input='y')
             self.assertTrue(click_prompt.called)
-            self.assertFalse(click_echo.called)
+            self.assertTrue(click_echo.called)
             self.assertTrue(editor.called)
             self.assertEqual(result.exit_code, 0)
 
