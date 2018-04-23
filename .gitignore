@@ -96,3 +96,4 @@ ENV/
 .docker/
 
 .vscode/
+.idea/
