@@ -310,9 +310,9 @@ class TestLoader(unittest.TestCase):
                                    '_install_module') as mockinstall, \
                     mock.patch('opsdroid.loader.DEFAULT_MODULE_DEPS_PATH',
                                os.path.join(tmp_dep_path,
-                                            'site-packages')) as dep_path, \
+                                            'site-packages')), \
                     mock.patch.object(loader, 'import_module',
-                                    mockedmodule) as mockimport:
+                                      mockedmodule) as mockimport:
                 loader.setup_modules_directory({})
                 loader._load_modules(modules_type, modules)
                 self.assertTrue(mockinstall.called)
