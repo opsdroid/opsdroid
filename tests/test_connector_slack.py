@@ -63,7 +63,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         connector = ConnectorSlack({"api-token": "abc123"})
         connector.slacker.users.info = amock.CoroutineMock()
         mock_user = mock.Mock()
-        mock_user.body = {"user": {"name" : "testuser"}}
+        mock_user.body = {"user": {"name": "testuser"}}
         connector.slacker.users.info.return_value = mock_user
 
         self.assertEqual(len(connector.known_users), 0)
@@ -81,7 +81,6 @@ class TestConnectorSlackAsync(asynctest.TestCase):
             mock_user.body = {"user": None}
             connector.slacker.users.info.return_value = mock_user
             await connector.lookup_username('invaliduser')
-
 
     async def test_respond(self):
         connector = ConnectorSlack({"api-token": "abc123"})
