@@ -124,11 +124,8 @@ def edit_files(ctx, param, value):
 
     editor = os.environ.get('EDITOR', 'vi')
     if editor == 'vi':
-        if click.prompt("You are about to open a file in vi/vim, "
-                        "would you like to read a tutorial? "
-                        "Press ENTER to skip or any other key to read",
-                        default=False, show_default=False):
-            click.echo('Read the tutorial on vim at: https://bit.ly/2HRvvrB')
+            click.echo('You are about to edit a file in vim. '
+                       'Read the tutorial on vim at: https://bit.ly/2HRvvrB')
             click.echo('Opening file in 5 seconds...')
             time.sleep(5)
 

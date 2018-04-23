@@ -9,12 +9,16 @@ This first part of the tutorial will give a brief introduction to the yaml files
 The configuration of opsdroid is done in a yaml file called `configuration.yaml`.  When you run opsdroid it will look for the file in the following places in order:
 
 - `./configuration.yaml`
--  `~/.opsdroid/configuration.yaml`
 - `/etc/opsdroid/configuration.yaml`
+ * one of the default locations:
+    * Mac: `~/Library/Application Support/opsdroid`
+    * Linux: `~/.local/share/opsdroid`
+    * Windows: `C:\Documents and Settings\<User>\Application Data\Local Settings\opsdroid\opsdroid` or
+                `C:\Documents and Settings\<User>\Application Data\opsdroid\opsdroid`
 
-_note: if no configuration file is found then opsdroid will use the `example_configuration.yaml` and place it in `~/.opsdroid/configuration.yaml`_
+_Note: if no configuration file is found then opsdroid will use the `example_configuration.yaml` and place it in one of the default locations.`_
 
-
+Make sure to read the [configuration reference documentation](../configuration-reference.md) for further information about configuring opsdroid.
 
 Using a single yaml file for every configuration of opsdroid makes things easier and effortless when configuring our bot.
 
@@ -154,9 +158,4 @@ You probably noticed the demo on [opsdroid main page](https://opsdroid.github.io
 
 
 The next step in the tutorial will teach you how to make your opsdroid reply to the message "how are you", just like you seen on the main page.
-
----
-<p style="text-align: right;">Write your first skill > </p>
-
----
 

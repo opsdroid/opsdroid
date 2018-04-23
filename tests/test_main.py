@@ -184,23 +184,19 @@ class TestMain(unittest.TestCase):
             self.assertEqual(result.exit_code, 0)
 
     def test_edit_files_config(self):
-        with mock.patch.object(click, 'prompt') as click_prompt, \
-                mock.patch.object(click, 'echo') as click_echo, \
+        with mock.patch.object(click, 'echo') as click_echo, \
                 mock.patch('subprocess.run') as editor:
             runner = CliRunner()
             result = runner.invoke(opsdroid.main, ['--edit-config'], input='y')
-            self.assertTrue(click_prompt.called)
             self.assertTrue(click_echo.called)
             self.assertTrue(editor.called)
             self.assertEqual(result.exit_code, 0)
 
     def test_edit_files_log(self):
-        with mock.patch.object(click, 'prompt') as click_prompt, \
-                mock.patch.object(click, 'echo') as click_echo, \
+        with mock.patch.object(click, 'echo') as click_echo, \
                 mock.patch('subprocess.run') as editor:
             runner = CliRunner()
-            result = runner.invoke(opsdroid.main, ['--view-log'], input='y')
-            self.assertTrue(click_prompt.called)
+            result = runner.invoke(opsdroid.main, ['--view-log'])
             self.assertTrue(click_echo.called)
             self.assertTrue(editor.called)
             self.assertEqual(result.exit_code, 0)
