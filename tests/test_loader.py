@@ -3,7 +3,6 @@ import os
 import shutil
 import subprocess
 import tempfile
-import contextlib
 import unittest
 import unittest.mock as mock
 from types import ModuleType
@@ -23,8 +22,10 @@ class TestLoader(unittest.TestCase):
     def setUp(self):
         os.umask(000)
         self._tmp_dir = os.path.join(tempfile.gettempdir(), "opsdroid_tests")
-        with contextlib.suppress(FileExistsError):
+        try:
             os.makedirs(self._tmp_dir, mode=0o777)
+        except FileExistsError:
+            pass
 
     def tearDown(self):
         shutil.rmtree(self._tmp_dir, onerror=del_rw)
@@ -309,9 +310,9 @@ class TestLoader(unittest.TestCase):
                                    '_install_module') as mockinstall, \
                     mock.patch('opsdroid.loader.DEFAULT_MODULE_DEPS_PATH',
                                os.path.join(tmp_dep_path,
-                                            'site-packages')), \
+                                            'site-packages')) as dep_path, \
                     mock.patch.object(loader, 'import_module',
-                                      mockedmodule) as mockimport:
+                                    mockedmodule) as mockimport:
                 loader.setup_modules_directory({})
                 loader._load_modules(modules_type, modules)
                 self.assertTrue(mockinstall.called)
