@@ -14,7 +14,7 @@ from opsdroid.helper import move_config_to_appdir
 from opsdroid.const import (
     DEFAULT_GIT_URL, MODULES_DIRECTORY, DEFAULT_MODULES_PATH,
     DEFAULT_MODULE_BRANCH, DEFAULT_CONFIG_PATH, EXAMPLE_CONFIG_FILE,
-    DEFAULT_MODULE_DEPS_PATH)
+    DEFAULT_MODULE_DEPS_PATH, PRE_0_12_0_ROOT_PATH, DEFAULT_ROOT_PATH)
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -181,7 +181,7 @@ class Loader:
 
         if not config_path:
             try:
-                move_config_to_appdir()
+                move_config_to_appdir(PRE_0_12_0_ROOT_PATH, DEFAULT_ROOT_PATH)
             except FileNotFoundError:
                 _LOGGER.info(_("No configuration files found. "
                                "Creating %s"), DEFAULT_CONFIG_PATH)

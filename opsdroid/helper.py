@@ -6,8 +6,6 @@ import shutil
 import logging
 import filecmp
 
-from opsdroid.const import DEFAULT_ROOT_PATH, PRE_0_12_0_ROOT_PATH
-
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -29,21 +27,21 @@ def del_rw(action, name, exc):
 # prior to  0.12.0 in the future this will probably be deleted
 
 
-def move_config_to_appdir():
-    """Copy any file with .yaml extension to new appdir location."""
-    yaml_files = [file for file in os.listdir(PRE_0_12_0_ROOT_PATH)
+def move_config_to_appdir(src, dst):
+    """Copy any .yaml extension in "src" to "dst" and remove from "src"."""
+    yaml_files = [file for file in os.listdir(src)
                   if '.yaml' in file[-5:]]
 
-    if not os.path.isdir(DEFAULT_ROOT_PATH):
-        os.mkdir(DEFAULT_ROOT_PATH)
+    if not os.path.isdir(dst):
+        os.mkdir(dst)
 
     for file in yaml_files:
-        original_file = os.path.join(PRE_0_12_0_ROOT_PATH, file)
-        copied_file = os.path.join(DEFAULT_ROOT_PATH, file)
+        original_file = os.path.join(src, file)
+        copied_file = os.path.join(dst, file)
         shutil.copyfile(original_file, copied_file)
         _LOGGER.info(_('File %s copied from %s to %s '
                        'run opsdroid -e to edit the '
                        'main config file'), file,
-                     PRE_0_12_0_ROOT_PATH, DEFAULT_ROOT_PATH)
+                     src, dst)
         if filecmp.cmp(original_file, copied_file):
             os.remove(original_file)
