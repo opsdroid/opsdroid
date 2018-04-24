@@ -1,5 +1,6 @@
 
 import os
+import tempfile
 import unittest
 import unittest.mock as mock
 
@@ -21,7 +22,7 @@ class TestHelper(unittest.TestCase):
              mock.patch('os.remove') as mock_remove:
             move_config_to_appdir(
                 os.path.abspath('tests/configs//'),
-                os.path.abspath('tests/configs/new_config_loc'))
+                tempfile.gettempdir())
 
             self.assertTrue(logmock.called)
             self.assertTrue(mock_remove.called)

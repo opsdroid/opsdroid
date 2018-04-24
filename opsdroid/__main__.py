@@ -124,10 +124,9 @@ def edit_files(ctx, param, value):
 
     editor = os.environ.get('EDITOR', 'vi')
     if editor == 'vi':
-        click.echo('You are about to edit a file in vim. '
+        click.echo('You are about to edit a file in vim. \n'
                    'Read the tutorial on vim at: https://bit.ly/2HRvvrB')
-        click.echo('Opening file in 5 seconds...')
-        time.sleep(5)
+        time.sleep(3)
 
     subprocess.run([editor, file])
     ctx.exit(0)

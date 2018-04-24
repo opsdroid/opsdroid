@@ -29,9 +29,9 @@ For configuration, opsdroid uses a single YAML file named `configuration.yaml`. 
  * one of the default locations:
     * Mac: `~/Library/Application Support/opsdroid`
     * Linux: `~/.local/share/opsdroid`
-    * Windows: `C:\Documents and Settings\<User>\Application Data\Local Settings\opsdroid\opsdroid` or
-                `C:\Documents and Settings\<User>\Application Data\opsdroid\opsdroid`
-            
+    * Windows: `C:\<User>\<Application Data>\<Local Settings>\opsdroid\` or
+                `C:\Users\<User>\AppData\Local\opsdroid`
+
 _Note: If no file named `configuration.yaml` can be found on one of these folders one will be created for you taken from the [example configuration file](../opsdroid/configuration/example_configuration.yaml)_
 
 If you are using one of the default locations you can run the command `opsdroid -e` or `opsdroid --edit-config` to open the configuration with your favourite editor(taken from the environment variable `EDITOR`) or the default editor [vim](tutorials/introduction-vim.md).
@@ -167,7 +167,7 @@ You may not want opsdroid to log to the console, for example, if you are using t
 The default locations for the logs are:
 * Mac: `/Users/<User>/Library/Logs/opsdroid`
 * Linux: `/home/<User>/.cache/opsdroid/log`
-* Windows: `C:\Users\<User>\AppData\Local\opsdroid\opsdroid\Logs`
+* Windows: `C:\Users\<User>\AppData\Local\opsdroid\Logs\`
 
 If you are using one of the default paths for your log you can run the command `opsdroid -l` or `opsdroid --view-log` to open the logs with your favourite editor(taken from the environment variable `EDITOR`) or the default editor [vim](tutorials/introduction-vim.md).
 

@@ -1,9 +1,8 @@
 """Constants used by OpsDroid."""
 import os
 from appdirs import user_log_dir, user_config_dir, user_data_dir
-from opsdroid import __version__
+from opsdroid import __version__  # noqa # pylint: disable=unused-import
 
-__version__ = __version__
 NAME = 'opsdroid'
 DEFAULT_GIT_URL = "https://github.com/opsdroid/"
 MODULES_DIRECTORY = "opsdroid-modules"
