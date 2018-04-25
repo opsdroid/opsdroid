@@ -10,10 +10,11 @@ import importlib.util
 import re
 from collections import Mapping
 import yaml
+from opsdroid.helper import move_config_to_appdir
 from opsdroid.const import (
     DEFAULT_GIT_URL, MODULES_DIRECTORY, DEFAULT_MODULES_PATH,
     DEFAULT_MODULE_BRANCH, DEFAULT_CONFIG_PATH, EXAMPLE_CONFIG_FILE,
-    DEFAULT_MODULE_DEPS_PATH)
+    DEFAULT_MODULE_DEPS_PATH, PRE_0_12_0_ROOT_PATH, DEFAULT_ROOT_PATH)
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -179,7 +180,11 @@ class Loader:
                 break
 
         if not config_path:
-            _LOGGER.info(_("No configuration files found."))
+            try:
+                move_config_to_appdir(PRE_0_12_0_ROOT_PATH, DEFAULT_ROOT_PATH)
+            except FileNotFoundError:
+                _LOGGER.info(_("No configuration files found. "
+                               "Creating %s"), DEFAULT_CONFIG_PATH)
             config_path = self.create_default_config(DEFAULT_CONFIG_PATH)
 
         env_var_pattern = re.compile(r'^\$([A-Z_]*)$')
@@ -214,8 +219,7 @@ class Loader:
 
     def setup_modules_directory(self, config):
         """Create and configure the modules directory."""
-        module_path = os.path.expanduser(
-            config.get("module-path", DEFAULT_MODULES_PATH))
+        module_path = config.get("module-path", DEFAULT_MODULES_PATH)
         sys.path.append(module_path)
 
         if not os.path.isdir(module_path):
@@ -280,13 +284,11 @@ class Loader:
                 config["name"] = module
             else:
                 config["name"] = module['name']
-
             config["type"] = modules_type
             config["module_path"] = self.build_module_import_path(config)
             config["install_path"] = self.build_module_install_path(config)
             if "branch" not in config:
                 config["branch"] = DEFAULT_MODULE_BRANCH
-
             # Remove module for reinstall if no-cache set
             self.check_cache(config)
 

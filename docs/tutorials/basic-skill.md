@@ -83,7 +83,3 @@ skills:
 
 As mentioned in the [introduction](introduction.md/), the indentation and the use of spaces instead of tabs is very important. If you have any issues when running opsdroid check both of this things, it might be a problem with a space.
 
----
-<p style="text-align: right;">Creating a weather skill > </p>
-
----

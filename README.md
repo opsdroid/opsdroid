@@ -91,9 +91,11 @@ Usage: opsdroid [OPTIONS]
   https://opsdroid.github.io/ for more information.
 
 Options:
-  --gen-config   Print an example config and exit.
-  -v, --version  Print the version and exit.
-  --help         Show this message and exit.
+  --gen-config          Print an example config and exit.
+  -v, --version         Print the version and exit.
+  -e, --edit-config     Edit configuration.yaml
+  -l, --view-log        Open opsdroid logs 
+  --help                Show this message and exit.
 ```
 
 ## Contributing
