@@ -1,7 +1,1 @@
-include README.md
-include LICENSE
-include requirements.txt
-recursive-include opsdroid/locale *
-graft opsdroid
-include opsdroid/configuration/example_configuration.yaml
-recursive-exclude * *.py[co]
+/home/simon/OpenSource/Python/opsdroid/MANIFEST.in
