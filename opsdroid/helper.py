@@ -10,7 +10,11 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def get_opsdroid():
-    """Return the running opsdroid instance."""
+    """This method return an opsdroid instance
+
+    Returns:
+        object: opsdroid instance.
+    """
     from opsdroid.core import OpsDroid
     if len(OpsDroid.instances) == 1:
         return OpsDroid.instances[0]
@@ -19,7 +23,11 @@ def get_opsdroid():
 
 
 def del_rw(action, name, exc):
-    """Error handler for removing read only files."""
+    """This method return an error handler for removing.
+        This method allow users to read only files.
+
+        to write
+    """
     os.chmod(name, stat.S_IWRITE)
     os.remove(name)
 
