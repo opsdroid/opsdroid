@@ -26,7 +26,8 @@ def del_rw(action, name, exc):
     """This method return an error handler for removing.
         This method allow users to read only files.
 
-        to write
+        Raises:
+            KeyError : Raises an exception
     """
     os.chmod(name, stat.S_IWRITE)
     os.remove(name)
@@ -36,7 +37,9 @@ def del_rw(action, name, exc):
 
 
 def move_config_to_appdir(src, dst):
-    """Copy any .yaml extension in "src" to "dst" and remove from "src"."""
+    """This method permit to make copy any files with .yaml extension
+        in "src"  folder to "dst" folder and remove the current file from "src".
+    """
     yaml_files = [file for file in os.listdir(src)
                   if '.yaml' in file[-5:]]
 
