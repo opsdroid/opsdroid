@@ -12,8 +12,9 @@ _LOGGER = logging.getLogger(__name__)
 def get_opsdroid():
     """This method return an opsdroid instance
 
-        Returns:
-            object: opsdroid instance.
+       Returns:
+           object: opsdroid instance.
+            
     """
     from opsdroid.core import OpsDroid
     if len(OpsDroid.instances) == 1:
@@ -28,7 +29,7 @@ def del_rw(action, name, exc):
 
         Raises:
             KeyError : Raises an exception
-"""
+    """
     os.chmod(name, stat.S_IWRITE)
     os.remove(name)
 
@@ -37,20 +38,20 @@ def del_rw(action, name, exc):
 
 
 def move_config_to_appdir(src, dst):
-    """ This method allows to make copy of files with .yaml extension
-        from  "src" folder to "dst" folder and remove the current file in "src".
+    """This method allows to copy files with .yaml extension
+       from "src" folder to "dst" folder and remove the current file in "src".
 
     Args:
         src (str): path file.
-        dst (str): destination path
-    
+        dst (str): destination path.
+        
     Attributes:
-        msg (str):  File 'my_file.yaml' copied from '/path/src/ to '/past/dst/'.
-        code (int): run opsdroid -e to edit the  main config file.
-     
+        Logging (str): File 'my_file.yaml' copied from '/path/src/ to '/past/dst/'
+                       run opsdroid -e to edit the  main config file.
     Examples:
         src : source path with .yaml file '/path/src/my_file.yaml.
         dst : destination folder to paste the .yaml files '/path/dst/.
+        
     """
     yaml_files = [file for file in os.listdir(src)
                   if '.yaml' in file[-5:]]
