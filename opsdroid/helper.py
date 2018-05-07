@@ -11,8 +11,10 @@ _LOGGER = logging.getLogger(__name__)
 
 def get_opsdroid():
     """Return the running opsdroid instance.
+    
     Returns:
-        object: opsdroid instance.   
+        object: opsdroid instance.
+        
     """
     from opsdroid.core import OpsDroid
     if len(OpsDroid.instances) == 1:
