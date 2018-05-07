@@ -10,11 +10,11 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def get_opsdroid():
-    """This method return an opsdroid instance
-
-       Returns:
-           object: opsdroid instance.
-            
+    """Return the running opsdroid instance.
+    
+    Returns:
+        object: opsdroid instance.
+        
     """
     from opsdroid.core import OpsDroid
     if len(OpsDroid.instances) == 1:
@@ -24,12 +24,18 @@ def get_opsdroid():
 
 
 def del_rw(action, name, exc):
-    """This method return an error handler for removing.
-        This method allow users to read only files.
+    """Error handler for removing read only files.
+    
+       Args:
+           action: 
+           name:
+           exc:
 
-        Raises:
-            KeyError : Raises an exception
+       Raises:
+           OsError : If the file to be removed is a directory.
+           
     """
+    
     os.chmod(name, stat.S_IWRITE)
     os.remove(name)
 
@@ -38,9 +44,8 @@ def del_rw(action, name, exc):
 
 
 def move_config_to_appdir(src, dst):
-    """This method allows to copy files with .yaml extension
-       from "src" folder to "dst" folder and remove the current file in "src".
-
+    """Copy any .yaml extension in "src" to "dst" and remove from "src".
+    
     Args:
         src (str): path file.
         dst (str): destination path.
@@ -53,6 +58,7 @@ def move_config_to_appdir(src, dst):
         dst : destination folder to paste the .yaml files '/path/dst/.
         
     """
+    
     yaml_files = [file for file in os.listdir(src)
                   if '.yaml' in file[-5:]]
 
