@@ -43,10 +43,11 @@ def move_config_to_appdir(src, dst):
     Args:
         src (str): path file.
         dst (str): destination path
-    Raises:
-        LogInformation (str) :  File 'my_file.yaml' copied from '/path/src/ to '/past/dst/'
-                                run opsdroid -e to edit the  main config file.
-
+    
+    Attributes:
+        msg (str):  File 'my_file.yaml' copied from '/path/src/ to '/past/dst/'.
+        code (int): run opsdroid -e to edit the  main config file.
+     
     Examples:
         src : source path with .yaml file '/path/src/my_file.yaml.
         dst : destination folder to paste the .yaml files '/path/dst/.
