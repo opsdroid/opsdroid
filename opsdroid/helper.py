@@ -25,17 +25,16 @@ def get_opsdroid():
 
 def del_rw(action, name, exc):
     """Error handler for removing read only files.
-    
-       Args:
-           action: 
-           name:
-           exc:
 
-       Raises:
-           OsError : If the file to be removed is a directory.
-           
+    Args:
+        action: 
+        name:
+        exc:
+
+    Raises:
+        OsError : If the file to be removed is a directory.
+
     """
-    
     os.chmod(name, stat.S_IWRITE)
     os.remove(name)
 
@@ -58,7 +57,6 @@ def move_config_to_appdir(src, dst):
         dst : destination folder to paste the .yaml files '/path/dst/.
         
     """
-    
     yaml_files = [file for file in os.listdir(src)
                   if '.yaml' in file[-5:]]
 
