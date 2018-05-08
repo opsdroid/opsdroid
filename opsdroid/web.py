@@ -6,7 +6,7 @@ import ssl
 
 from aiohttp import web
 
-from opsdroid.const import __version__
+from opsdroid import __version__
 
 
 _LOGGER = logging.getLogger(__name__)

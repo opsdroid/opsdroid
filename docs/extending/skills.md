@@ -1,6 +1,6 @@
 # Skills
 
-Skills are modules which define what actions opsdroid should perform based on different chat messages. They can be referenced in your `configuration.yaml` [Config](configuration-reference/#config-file) file.
+Skills are modules which define what actions opsdroid should perform based on different chat messages. They can be referenced in your `configuration.yaml`,  [Config](../configuration-reference.md/#config-file) file.
 Skills can be specified from opsdroid github repository, your own github, or from local path.
 
 ```yaml

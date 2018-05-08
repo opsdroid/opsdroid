@@ -183,6 +183,24 @@ class TestMain(unittest.TestCase):
             self.assertTrue(__version__ in click_echo.call_args[0][0])
             self.assertEqual(result.exit_code, 0)
 
+    def test_edit_files_config(self):
+        with mock.patch.object(click, 'echo') as click_echo, \
+                mock.patch('subprocess.run') as editor:
+            runner = CliRunner()
+            result = runner.invoke(opsdroid.main, ['--edit-config'], input='y')
+            self.assertTrue(click_echo.called)
+            self.assertTrue(editor.called)
+            self.assertEqual(result.exit_code, 0)
+
+    def test_edit_files_log(self):
+        with mock.patch.object(click, 'echo') as click_echo, \
+                mock.patch('subprocess.run') as editor:
+            runner = CliRunner()
+            result = runner.invoke(opsdroid.main, ['--view-log'])
+            self.assertTrue(click_echo.called)
+            self.assertTrue(editor.called)
+            self.assertEqual(result.exit_code, 0)
+
     def test_main(self):
         with mock.patch.object(sys, 'argv', ["opsdroid"]), \
                 mock.patch.object(opsdroid, 'check_dependencies') as mock_cd, \

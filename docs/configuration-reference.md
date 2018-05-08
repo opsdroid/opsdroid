@@ -22,16 +22,27 @@
 
 
 ## Config file
-
-For configuration, you simply need to create a single YAML file named `configuration.yaml`. When you run opsdroid it will look for the file in the following places in order:
+For configuration, opsdroid uses a single YAML file named `configuration.yaml`. When you run opsdroid it will look for the file in the following places in order:
 
  * `./configuration.yaml`
- * `~/.opsdroid/configuration.yaml`
  * `/etc/opsdroid/configuration.yaml`
+ * one of the default locations:
+    * Mac: `~/Library/Application Support/opsdroid`
+    * Linux: `~/.local/share/opsdroid`
+    * Windows: `C:\<User>\<Application Data>\<Local Settings>\opsdroid\` or
+                `C:\Users\<User>\AppData\Local\opsdroid`
+
+_Note: If no file named `configuration.yaml` can be found on one of these folders one will be created for you taken from the [example configuration file](../opsdroid/configuration/example_configuration.yaml)_
+
+If you are using one of the default locations you can run the command `opsdroid -e` or `opsdroid --edit-config` to open the configuration with your favourite editor(taken from the environment variable `EDITOR`) or the default editor [vim](tutorials/introduction-vim.md).
 
 The opsdroid project itself is very simple and requires modules to give it functionality. In your configuration file, you must specify the connector, skill and database* modules you wish to use and any options they may require.
 
-**Connectors** are modules for connecting opsdroid to your specific chat service. **Skills** are modules which define what actions opsdroid should perform based on different chat messages. **Database** modules connect opsdroid to your chosen database and allow skills to store information between messages.
+**Connectors** are modules for connecting opsdroid to your specific chat service. 
+
+**Skills** are modules which define what actions opsdroid should perform based on different chat messages. 
+
+**Database** modules connect opsdroid to your chosen database and allow skills to store information between messages.
 
 For example, a simple barebones configuration would look like:
 
@@ -147,9 +158,18 @@ Configure logging in opsdroid.
 
 Setting `path` will configure where opsdroid writes the log file to. This location must be writeable by the user running opsdroid. Setting this to `false` will disable log file output.
 
+_Note: If you forget to declare a path for the logs but have logging active, one of the default locations will be used._
+
 All python logging levels are available in opsdroid. `level` can be set to `debug`, `info`, `warning`, `error` and `critical`.
 
 You may not want opsdroid to log to the console, for example, if you are using the shell connector. However, if running in a container you may want exactly that. Setting `console` to `true` or `false` will enable or disable console logging.
+
+The default locations for the logs are:
+* Mac: `/Users/<User>/Library/Logs/opsdroid`
+* Linux: `/home/<User>/.cache/opsdroid/log`
+* Windows: `C:\Users\<User>\AppData\Local\opsdroid\Logs\`
+
+If you are using one of the default paths for your log you can run the command `opsdroid -l` or `opsdroid --view-log` to open the logs with your favourite editor(taken from the environment variable `EDITOR`) or the default editor [vim](tutorials/introduction-vim.md).
 
 ```yaml
 logging:
@@ -164,6 +184,8 @@ skills:
   - name: hello
   - name: seen
 ```
+
+
 
 ### Installation Path
 

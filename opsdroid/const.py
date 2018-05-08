@@ -1,15 +1,21 @@
 """Constants used by OpsDroid."""
 import os
+from appdirs import user_log_dir, user_config_dir, user_data_dir
+from opsdroid import __version__  # noqa # pylint: disable=unused-import
 
-__version__ = "0.11.2"
-
+NAME = 'opsdroid'
 DEFAULT_GIT_URL = "https://github.com/opsdroid/"
 MODULES_DIRECTORY = "opsdroid-modules"
-DEFAULT_ROOT_PATH = os.path.expanduser("~/.opsdroid")
-DEFAULT_LOG_FILENAME = os.path.join(DEFAULT_ROOT_PATH, 'output.log')
-DEFAULT_MODULES_PATH = os.path.join(DEFAULT_ROOT_PATH, "modules")
-DEFAULT_MODULE_DEPS_PATH = os.path.join(DEFAULT_ROOT_PATH, "site-packages")
-DEFAULT_CONFIG_PATH = os.path.join(DEFAULT_ROOT_PATH, "configuration.yaml")
+DEFAULT_ROOT_PATH = user_data_dir(NAME)
+DEFAULT_LOG_FILENAME = os.path.join(
+    user_log_dir(NAME, appauthor=False), 'output.log')
+DEFAULT_MODULES_PATH = user_data_dir(NAME, MODULES_DIRECTORY)
+DEFAULT_MODULE_DEPS_PATH = os.path.join(
+    user_data_dir(NAME, MODULES_DIRECTORY), "site-packages")
+DEFAULT_CONFIG_PATH = os.path.join(
+    user_config_dir(NAME, appauthor=False), "configuration.yaml")
+PRE_0_12_0_CONFIG_PATH = os.path.join(DEFAULT_ROOT_PATH, "configuration.yaml")
+PRE_0_12_0_ROOT_PATH = os.path.expanduser("~/.opsdroid")
 DEFAULT_MODULE_BRANCH = "master"
 DEFAULT_LANGUAGE = 'en'
 LOCALE_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'locale')
