@@ -44,7 +44,7 @@ class ConnectorWebsocket(Connector):
 
     async def new_websocket_handler(self, request):
         """Handle for aiohttp creating websocket connections."""
-        if len(self.active_connections) + len(self.available_connections)\
+        if len(self.active_connections) + len(self.available_connections) \
                 < self.max_connections:
             socket = {"id": str(uuid.uuid1()), "date": datetime.now()}
             self.available_connections.append(socket)
