@@ -75,4 +75,3 @@ def move_config_to_appdir(src, dst):
                      src, dst)
         if filecmp.cmp(original_file, copied_file):
             os.remove(original_file)
-
