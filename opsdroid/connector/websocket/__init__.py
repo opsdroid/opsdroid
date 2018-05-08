@@ -5,6 +5,7 @@ import uuid
 from datetime import datetime
 
 import aiohttp
+import aiohttp.web
 
 from opsdroid.connector import Connector
 from opsdroid.message import Message

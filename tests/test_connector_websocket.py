@@ -41,6 +41,22 @@ class TestConnectorAsync(asynctest.TestCase):
         self.assertTrue(opsdroid.web_server.web_app.router.add_get.called)
         self.assertTrue(opsdroid.web_server.web_app.router.add_post.called)
 
+    async def test_new_websocket_handler(self):
+        """Test the new websocket handler."""
+        import aiohttp.web
+        connector = ConnectorWebsocket({})
+        connector.max_connections = 1
+        self.assertEqual(len(connector.available_connections), 0)
+
+        response = await connector.new_websocket_handler(None)
+        self.assertTrue(isinstance(response, aiohttp.web.Response))
+        self.assertEqual(len(connector.available_connections), 1)
+        self.assertEqual(response.status, 200)
+
+        fail_response = await connector.new_websocket_handler(None)
+        self.assertTrue(isinstance(fail_response, aiohttp.web.Response))
+        self.assertEqual(fail_response.status, 429)
+
     async def test_lookup_username(self):
         """Test lookup up the username."""
         connector = ConnectorWebsocket({})
