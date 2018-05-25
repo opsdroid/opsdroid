@@ -5,6 +5,7 @@ import base64
 import yaml
 import re
 import os
+import contextlib
 
 
 def normalize(string):
@@ -103,7 +104,7 @@ def get_parsers_details():
         name = file[:-3]
         with open(parsers_path + file) as f:
             readme = f.read()
-            try:
+            with contextlib.suppress(AttributeError):
                 config = get_config_details(readme).group(4)
 
                 parsers.append({
@@ -112,9 +113,6 @@ def get_parsers_details():
                     'url': base_url + name,
                     'config': normalize(config)
                 })
-            except AttributeError:
-                # Doesn't contain config options - it's always activated
-                pass
 
     return parsers
 
