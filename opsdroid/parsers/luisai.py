@@ -2,6 +2,7 @@
 
 import logging
 import json
+import contextlib
 
 import aiohttp
 
@@ -42,13 +43,11 @@ async def parse_luisai(opsdroid, message, config):
 
             # if there is an error (eg. 404 error)
             # luis.ai responds with a status code
-            try:
+            with contextlib.suppress(KeyError):
                 if result["statusCode"] >= 300:
                     _LOGGER.error(_("luis.ai error - %s %s"),
                                   str(result["statusCode"]),
                                   result["message"])
-            except KeyError:
-                pass
 
             if "min-score" in config and \
                     result["topScoringIntent"]["score"] \
