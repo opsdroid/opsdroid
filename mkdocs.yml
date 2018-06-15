@@ -10,6 +10,7 @@ pages:
       - 'Introduction': 'tutorials/introduction.md'
       - 'Create a Basic Skill': 'tutorials/basic-skill.md'
       - 'Create a Weather Skill': 'tutorials/create-weather-skill.md'
+      - 'Introduction to Vim': 'tutorials/introduction-vim.md'
   - 'Extending opsdroid':
       - 'Adding skills': 'extending/skills.md'
       - 'Adding connectors': 'extending/connectors.md'
