@@ -35,4 +35,4 @@ notes=FIXME,XXX
 [DESIGN]
 # Raise some limits as the defaults are a bit low
 max-args=10
-max-attributes=12
+max-attributes=15

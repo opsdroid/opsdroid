@@ -49,6 +49,7 @@ nosetests.xml
 coverage.xml
 *,cover
 .hypothesis/
+.pytest_cache/
 
 # Translations
 *.mo
@@ -93,3 +94,6 @@ ENV/
 # Rope project settings
 .ropeproject
 .docker/
+
+.vscode/
+.idea/

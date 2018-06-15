@@ -80,7 +80,7 @@ skills:
     repo: "https://github.com/username/myawesomeskill.git"
 ```
 
-In this configuration we are using the [slack connector](https://github.com/opsdroid/connector-slack) with a slack [auth token](https://api.slack.com/tokens) supplied, a [mongo database](https://github.com/opsdroid/database-mongo) connection for persisting data, `hello` and `seen` skills from the official repos and finally a custom skill hosted on GitHub.
+In this configuration we are using the [slack connector](/connectors/slack.md) with a slack [auth token](https://api.slack.com/tokens) supplied, a [mongo database](https://github.com/opsdroid/database-mongo) connection for persisting data, `hello` and `seen` skills from the official repos and finally a custom skill hosted on GitHub.
 
 Configuration options such as the `token` in the slack connector or the `host`, `port` and `database` options in the mongo database are specific to those modules. Ensure you check each module's required configuration items before you use them.
 
@@ -88,7 +88,14 @@ Configuration options such as the `token` in the slack connector or the `host`, 
 
 ### Connector Modules
 
-Connector modules which are installed and connect opsdroid to a specific chat service.
+Opsdroid comes with some built-in connectors out of the box. A connector is a module which is either installed as a plugin or built-in that connect opsdroid to a specific chat service.
+
+The built-in connectors are:
+- [Slack](/connectors/slack.md)
+- [Websockets](/connectors/websocket.md)
+
+_Note: More connectors will be added as built-in connectors into the opsdroid over time._
+
 
 _Config options of the connectors themselves differ between connectors, see the connector documentation for details._
 

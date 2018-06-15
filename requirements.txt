@@ -4,4 +4,6 @@ Babel==2.6.0
 click==6.7
 pycron==0.80.0
 pyyaml==3.12
+slacker-asyncio==0.9.60
+websockets==3.2
 appdirs==1.4.3
