@@ -5,5 +5,5 @@ click==6.7
 pycron==0.80.0
 pyyaml==3.12
 slacker-asyncio==0.9.60
-websockets==3.2
+websockets==5.0.1
 appdirs==1.4.3
