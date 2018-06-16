@@ -7,6 +7,7 @@ import sys
 import shutil
 import tempfile
 import gettext
+import contextlib
 
 import click
 from click.testing import CliRunner
@@ -23,16 +24,12 @@ class TestMain(unittest.TestCase):
 
     def setUp(self):
         self._tmp_dir = os.path.join(tempfile.gettempdir(), "opsdroid_tests")
-        try:
+        with contextlib.suppress(FileExistsError):
             os.makedirs(self._tmp_dir, mode=0o777)
-        except FileExistsError:
-            pass
 
     def tearDown(self):
-        try:
+        with contextlib.suppress(PermissionError):
             shutil.rmtree(self._tmp_dir, onerror=del_rw)
-        except PermissionError:
-            pass
 
     def test_init_runs(self):
         with mock.patch.object(opsdroid, "main") as mainfunc:

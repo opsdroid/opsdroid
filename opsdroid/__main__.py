@@ -6,6 +6,7 @@ import sys
 import logging
 import gettext
 import time
+import contextlib
 
 import click
 
@@ -57,11 +58,9 @@ def configure_logging(config):
     console_handler.setFormatter(formatter)
     rootlogger.addHandler(console_handler)
 
-    try:
+    with contextlib.suppress(KeyError):
         if not config["logging"]["console"]:
             console_handler.setLevel(logging.CRITICAL)
-    except KeyError:
-        pass
 
     if logfile_path:
         logdir = os.path.dirname(os.path.realpath(logfile_path))

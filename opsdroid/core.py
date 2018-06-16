@@ -7,6 +7,7 @@ import signal
 import sys
 import weakref
 import asyncio
+import contextlib
 
 from opsdroid.memory import Memory
 from opsdroid.connector import Connector
@@ -147,11 +148,9 @@ class OpsDroid():
 
     def setup_skills(self, skills):
         """Call the setup function on the passed in skills."""
-        for skill in skills:
-            try:
+        with contextlib.suppress(AttributeError):
+            for skill in skills:
                 skill["module"].setup(self)
-            except AttributeError:
-                pass
 
     def train_parsers(self, skills):
         """Train the parsers."""
