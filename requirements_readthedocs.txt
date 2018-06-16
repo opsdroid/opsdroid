@@ -1,0 +1,5 @@
+# There is a bug in readthedocs where it always install the requirements.txt file.
+# https://github.com/rtfd/readthedocs.org/issues/1621#issuecomment-388165551
+# This can cause problems as readthedocs also does not seem to be able to install up to date packages.
+#
+# This is an empty requirements file for it to use instead asa workaround.
