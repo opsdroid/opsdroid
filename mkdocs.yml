@@ -10,10 +10,14 @@ pages:
       - 'Introduction': 'tutorials/introduction.md'
       - 'Create a Basic Skill': 'tutorials/basic-skill.md'
       - 'Create a Weather Skill': 'tutorials/create-weather-skill.md'
+      - 'Introduction to Vim': 'tutorials/introduction-vim.md'
   - 'Extending opsdroid':
       - 'Adding skills': 'extending/skills.md'
       - 'Adding connectors': 'extending/connectors.md'
       - 'Adding databases': 'extending/databases.md'
+  - 'Connectors':
+      - 'Slack': 'connectors/slack.md'
+      - 'Websocket': 'connectors/websocket.md'
   - 'Matchers':
       - 'Regular Expressions': 'matchers/regex.md'
       - 'Rasa NLU (local)': 'matchers/rasanlu.md'

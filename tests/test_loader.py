@@ -3,6 +3,7 @@ import os
 import shutil
 import subprocess
 import tempfile
+import contextlib
 import unittest
 import unittest.mock as mock
 from types import ModuleType
@@ -22,10 +23,8 @@ class TestLoader(unittest.TestCase):
     def setUp(self):
         os.umask(000)
         self._tmp_dir = os.path.join(tempfile.gettempdir(), "opsdroid_tests")
-        try:
+        with contextlib.suppress(FileExistsError):
             os.makedirs(self._tmp_dir, mode=0o777)
-        except FileExistsError:
-            pass
 
     def tearDown(self):
         shutil.rmtree(self._tmp_dir, onerror=del_rw)
@@ -131,12 +130,18 @@ class TestLoader(unittest.TestCase):
                 self.assertEqual(error, "Pip and pip3 not found, exiting...")
 
     def test_build_module_path(self):
-        config = {}
-        config["type"] = "test"
-        config["name"] = "test"
+        config = {"type": "test",
+                  "name": "test",
+                  "is_builtin": False}
         loader = mock.Mock()
         loader.modules_directory = ""
         self.assertIn("test.test",
+                      ld.Loader.build_module_import_path(config))
+        self.assertIn("test",
+                      ld.Loader.build_module_install_path(loader, config))
+
+        config["is_builtin"] = True
+        self.assertIn("opsdroid.test.test",
                       ld.Loader.build_module_import_path(config))
         self.assertIn("test",
                       ld.Loader.build_module_install_path(loader, config))
@@ -299,13 +304,18 @@ class TestLoader(unittest.TestCase):
         modules = [{"name": "testmodule"}]
         mockedmodule = mock.Mock(return_value={"name": "testmodule"})
 
-        with mock.patch.object(loader, '_install_module') as mockinstall, \
-                mock.patch.object(loader, 'import_module',
-                                  mockedmodule) as mockimport:
-            loader.setup_modules_directory({})
-            loader._load_modules(modules_type, modules)
-            self.assertTrue(mockinstall.called)
-            self.assertTrue(mockimport.called)
+        with tempfile.TemporaryDirectory() as tmp_dep_path:
+            with mock.patch.object(loader,
+                                   '_install_module') as mockinstall, \
+                    mock.patch('opsdroid.loader.DEFAULT_MODULE_DEPS_PATH',
+                               os.path.join(tmp_dep_path,
+                                            'site-packages')), \
+                    mock.patch.object(loader, 'import_module',
+                                      mockedmodule) as mockimport:
+                loader.setup_modules_directory({})
+                loader._load_modules(modules_type, modules)
+                self.assertTrue(mockinstall.called)
+                self.assertTrue(mockimport.called)
 
     def test_load_modules_fail(self):
         opsdroid, loader = self.setup()
