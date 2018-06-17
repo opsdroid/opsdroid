@@ -42,12 +42,12 @@ class Message:
 
         await asyncio.sleep(char_count*seconds)
 
-    async def respond(self, text, room=None):
+    async def respond(self, text, room=None, image=None):
         """Respond to this message using the connector it was created by."""
         opsdroid = get_opsdroid()
         response = copy(self)
         response.text = text
-
+        response.image = image
         if 'thinking-delay' in self.connector.configuration or \
            'typing-delay' in self.connector.configuration:
             await self._thinking_delay()
