@@ -3,7 +3,7 @@ arrow==0.12.1
 Babel==2.6.0
 click==6.7
 pycron==0.80.0
-pyyaml==3.12
+pyyaml==4.1
 slacker-asyncio==0.9.60
 websockets==5.0.1
 appdirs==1.4.3
