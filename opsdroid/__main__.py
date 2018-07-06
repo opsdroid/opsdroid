@@ -22,7 +22,12 @@ _LOGGER = logging.getLogger("opsdroid")
 
 
 def configure_lang(config):
-    """Configure app language based on user config."""
+    """Configure app language based on user config.
+    Args:
+        config: Language Configuration 
+    
+
+    """
     lang_code = config.get("lang", DEFAULT_LANGUAGE)
     if lang_code != DEFAULT_LANGUAGE:
         lang = gettext.translation(
