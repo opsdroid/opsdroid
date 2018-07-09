@@ -1,4 +1,4 @@
-PyGithub==1.39
+PyGithub==1.40
 Jinja2==2.10
 Pygments==2.2.0
 docutils==0.14
