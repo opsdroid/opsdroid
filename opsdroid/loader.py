@@ -10,7 +10,9 @@ import importlib.util
 import re
 from collections import Mapping
 import yaml
-from opsdroid.helper import move_config_to_appdir
+from opsdroid.helper import (
+    move_config_to_appdir, file_is_ipython_notebook,
+    convert_ipynb_to_script)
 from opsdroid.const import (
     DEFAULT_GIT_URL, MODULES_DIRECTORY, DEFAULT_MODULES_PATH,
     DEFAULT_MODULE_BRANCH, DEFAULT_CONFIG_PATH, EXAMPLE_CONFIG_FILE,
@@ -428,9 +430,11 @@ class Loader:
 
         if os.path.isfile(config["path"]):
             os.makedirs(config["install_path"], exist_ok=True)
-            shutil.copyfile(config["path"],
-                            os.path.join(config["install_path"],
-                                         "__init__.py"))
+            init_path = os.path.join(config["install_path"], "__init__.py")
+            if file_is_ipython_notebook(config["path"]):
+                convert_ipynb_to_script(config["path"], init_path)
+            else:
+                shutil.copyfile(config["path"], init_path)
             installed = True
 
         if not installed:
