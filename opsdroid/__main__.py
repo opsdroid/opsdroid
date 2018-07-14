@@ -23,6 +23,7 @@ _LOGGER = logging.getLogger("opsdroid")
 
 def configure_lang(config):
     """Configure app language based on user config.
+    
     Args:
         config: Language Configuration and it uses ISO 639-1 code.
         for more info https://en.m.wikipedia.org/wiki/List_of_ISO_639-1_codes
