@@ -43,6 +43,7 @@ class TestHelper(unittest.TestCase):
         notebook_path = \
             os.path.abspath("tests/mockmodules/skills/test_notebook.ipynb")
 
-        with tempfile.NamedTemporaryFile() as output_file:
+        with tempfile.NamedTemporaryFile(
+                mode='w', delete=False) as output_file:
             convert_ipynb_to_script(notebook_path, output_file.name)
             self.assertTrue(os.path.getsize(output_file.name) > 0)
