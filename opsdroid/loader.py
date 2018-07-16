@@ -341,6 +341,8 @@ class Loader:
 
         if self._is_local_module(config):
             self._install_local_module(config)
+        elif self._is_gist_module(config):
+            self._install_gist_module(config)
         else:
             self._install_git_module(config)
 
@@ -371,6 +373,10 @@ class Loader:
     @staticmethod
     def _is_local_module(config):
         return "path" in config
+
+    @staticmethod
+    def _is_gist_module(config):
+        return "gist" in config
 
     def _install_module_dependencies(self, config):
         if config.get('no-dep', False):
