@@ -4,7 +4,9 @@ import tempfile
 import unittest
 import unittest.mock as mock
 
-from opsdroid.helper import del_rw, move_config_to_appdir
+from opsdroid.helper import (
+    del_rw, move_config_to_appdir, file_is_ipython_notebook,
+    convert_ipynb_to_script)
 
 
 class TestHelper(unittest.TestCase):
@@ -32,3 +34,16 @@ class TestHelper(unittest.TestCase):
             self.assertTrue(mock_mkdir.called)
             self.assertTrue(logmock.called)
             self.assertTrue(mock_remove.called)
+
+    def test_file_is_ipython_notebook(self):
+        self.assertTrue(file_is_ipython_notebook('test.ipynb'))
+        self.assertFalse(file_is_ipython_notebook('test.py'))
+
+    def test_convert_ipynb_to_script(self):
+        notebook_path = \
+            os.path.abspath("tests/mockmodules/skills/test_notebook.ipynb")
+
+        with tempfile.NamedTemporaryFile(
+                mode='w', delete=False) as output_file:
+            convert_ipynb_to_script(notebook_path, output_file.name)
+            self.assertTrue(os.path.getsize(output_file.name) > 0)
