@@ -20,7 +20,6 @@ disable=
   unused-argument,
   global-statement,
   redefined-variable-type
-  no-else-return
 
 [EXCEPTIONS]
 overgeneral-exceptions=Exception
