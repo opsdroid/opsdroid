@@ -442,3 +442,9 @@ class Loader:
         if not installed:
             _LOGGER.error("Failed to install from %s",
                           str(config["path"]))
+
+    @staticmethod
+    def _install_gist_module(config):
+        # Download the gist to a tempfile
+        # Set the path in the config
+        # Run local install
