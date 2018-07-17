@@ -42,7 +42,8 @@ async def parse_witai(opsdroid, message, config):
             _LOGGER.error(_("wit.ai error - %s %s"),
                           str(result['code']), str(result['error']))
             return matched_skills
-        elif result['entities'] == {}:
+
+        if result['entities'] == {}:
             _LOGGER.error(_("wit.ai error - No intent found. Did you "
                             "forget to create one?"))
             return matched_skills

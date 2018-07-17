@@ -6,7 +6,7 @@
    - [Database Modules](#database-modules)
    - [Logging](#logging)
    - [Installation Path](#installation-path)
-   - [Parsers](#parsers) 
+   - [Parsers](#parsers)
    - [Skills](#skills)
    - [Time Zone](#time-zone)
    - [Language](#language)
@@ -38,9 +38,9 @@ If you are using one of the default locations you can run the command `opsdroid 
 
 The opsdroid project itself is very simple and requires modules to give it functionality. In your configuration file, you must specify the connector, skill and database* modules you wish to use and any options they may require.
 
-**Connectors** are modules for connecting opsdroid to your specific chat service. 
+**Connectors** are modules for connecting opsdroid to your specific chat service.
 
-**Skills** are modules which define what actions opsdroid should perform based on different chat messages. 
+**Skills** are modules which define what actions opsdroid should perform based on different chat messages.
 
 **Database** modules connect opsdroid to your chosen database and allow skills to store information between messages.
 
@@ -127,7 +127,7 @@ connectors:
     typing-delay: <int, float or two element list>
 ```
 
-_Note: As expected this will cause a delay on opsdroid time of response so make sure you don't pass a high number._ 
+_Note: As expected this will cause a delay on opsdroid time of response so make sure you don't pass a high number._
 
 See [module options](#module-options) for installing custom connectors.
 
@@ -219,7 +219,7 @@ _Config options of the parsers themselves differ between parsers, see the parser
 parsers:
   - name: regex
     enabled: true
-    
+
 # NLU parser
   - name: rasanlu
     url: http://localhost:5000
@@ -314,12 +314,20 @@ skills:
     path: /home/me/src/opsdroid-skills/myawesomeskill
 ```
 
-Or you can specify a single file.
+You can specify a single file.
 
 ```yaml
 skills:
   - name: myawesomeskill
     path: /home/me/src/opsdroid-skills/myawesomeskill/myskill.py
+```
+
+Or even an [IPython/Jupyter Notebook](http://jupyter.org/).
+
+```yaml
+skills:
+  - name: myawesomeskill
+    path: /home/me/src/opsdroid-skills/myawesomeskill/myskill.ipynb
 ```
 
 ### Disable Caching
@@ -335,7 +343,7 @@ databases:
 
 ### Disable dependency install
 
-Set `no-dep` to true to skip the installation of dependencies on every start of opsdroid. 
+Set `no-dep` to true to skip the installation of dependencies on every start of opsdroid.
 
 ```yaml
 skills:
@@ -360,7 +368,7 @@ _Note: Your environment variable names must consist of uppercase characters and 
 
 ## Include additional yaml files
 
-You can split the config into smaller modules by using the value `!include file.yaml` to import the contents of a yaml file into the main config. 
+You can split the config into smaller modules by using the value `!include file.yaml` to import the contents of a yaml file into the main config.
 
 
 ```yaml

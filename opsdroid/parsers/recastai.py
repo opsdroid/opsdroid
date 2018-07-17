@@ -46,7 +46,8 @@ async def parse_recastai(opsdroid, message, config):
         if result['results'] is None:
             _LOGGER.error(_("Recast.AI error - %s"), result["message"])
             return matched_skills
-        elif not result["results"]["intents"]:
+
+        if not result["results"]["intents"]:
             _LOGGER.error(_("Recast.AI error - No intent found "
                             "for the message %s"), str(message.text))
             return matched_skills
