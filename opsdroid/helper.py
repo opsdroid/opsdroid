@@ -111,3 +111,21 @@ def convert_ipynb_to_script(notebook_path, output_path):
         script, _ = PythonExporter().from_notebook_node(notebook)
         with open(output_path, 'w') as output_path_handle:
             output_path_handle.write(script)
+
+
+def extract_gist_id(gist_string):
+    """Extract the girst ID from a url.
+
+    Will also work if simply passed an ID.
+
+    Args:
+        gist_string (str): Gist URL.
+
+    Returns:
+        string: The gist ID.
+
+    Examples:
+        gist_string : Gist url 'https://gist.github.com/{user}/{id}'.
+
+    """
+    return gist_string.split("/")[-1]
