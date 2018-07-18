@@ -85,11 +85,13 @@ def get_logging_level(logging_level):
     """Get the logger level based on the user configuration."""
     if logging_level == 'critical':
         return logging.CRITICAL
-    elif logging_level == 'error':
+
+    if logging_level == 'error':
         return logging.ERROR
-    elif logging_level == 'warning':
+    if logging_level == 'warning':
         return logging.WARNING
-    elif logging_level == 'debug':
+
+    if logging_level == 'debug':
         return logging.DEBUG
 
     return logging.INFO

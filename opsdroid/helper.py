@@ -6,6 +6,9 @@ import shutil
 import logging
 import filecmp
 
+import nbformat
+from nbconvert import PythonExporter
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -75,3 +78,36 @@ def move_config_to_appdir(src, dst):
                      src, dst)
         if filecmp.cmp(original_file, copied_file):
             os.remove(original_file)
+
+
+def file_is_ipython_notebook(path):
+    """Check whether a file is an iPython Notebook.
+
+    Args:
+        path (str): path to the file.
+
+    Examples:
+        path : source path with .ipynb file '/path/src/my_file.ipynb.
+
+    """
+    return path.lower().endswith('.ipynb')
+
+
+def convert_ipynb_to_script(notebook_path, output_path):
+    """Convert an iPython Notebook to a python script.
+
+    Args:
+        notebook_path (str): path to the notebook file.
+        output_path (str): path to the script file destination.
+
+    Examples:
+        notebook_path : source path with .ipynb file '/path/src/my_file.ipynb.
+        output_path : destination path with .py file '/path/src/my_file.py.
+
+    """
+    with open(notebook_path, 'r') as notebook_path_handle:
+        raw_notebook = notebook_path_handle.read()
+        notebook = nbformat.reads(raw_notebook, as_version=4)
+        script, _ = PythonExporter().from_notebook_node(notebook)
+        with open(output_path, 'w') as output_path_handle:
+            output_path_handle.write(script)

@@ -2,6 +2,8 @@ aiohttp==3.3.2
 arrow==0.12.1
 Babel==2.6.0
 click==6.7
+nbconvert==5.3.1
+nbformat==4.4.0
 pycron==0.80.0
 pyyaml==3.13
 slacker-asyncio==0.9.60

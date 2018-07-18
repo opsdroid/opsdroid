@@ -467,6 +467,21 @@ class TestLoader(unittest.TestCase):
             config["install_path"], "__init__.py")))
         shutil.rmtree(config["install_path"], onerror=del_rw)
 
+    def test_install_local_module_notebook(self):
+        opsdroid, loader = self.setup()
+        config = {"name": "slack",
+                  "type": "connector",
+                  "install_path": os.path.join(
+                      self._tmp_dir, "test_local_module_file"),
+                  "path": os.path.abspath(
+                      "tests/mockmodules/skills/test_notebook.ipynb")}
+        directory, _ = os.path.split(config["path"])
+        os.makedirs(directory, exist_ok=True, mode=0o777)
+        loader._install_local_module(config)
+        self.assertTrue(os.path.isfile(os.path.join(
+            config["install_path"], "__init__.py")))
+        shutil.rmtree(config["install_path"], onerror=del_rw)
+
     def test_install_local_module_failure(self):
         opsdroid, loader = self.setup()
         config = {"name": "slack",
