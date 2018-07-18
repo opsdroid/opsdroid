@@ -114,10 +114,10 @@ async def train_rasanlu(config, skills):
                              int(time_taken))
                 await _init_model(config)
                 return True
-            else:
-                _LOGGER.debug(result)
-        else:
-            _LOGGER.error(_("Bad Rasa NLU response - %s"), await resp.text())
+
+            _LOGGER.debug(result)
+
+        _LOGGER.error(_("Bad Rasa NLU response - %s"), await resp.text())
         _LOGGER.error(_("Rasa NLU training failed."))
         return False
 
