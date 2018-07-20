@@ -470,8 +470,8 @@ class Loader:
         skill_content = python_files[0]["content"]
         extension = os.path.splitext(python_files[0]["filename"])[1]
 
-        with tempfile.NamedTemporaryFile('w', 
-                                         delete=False, 
+        with tempfile.NamedTemporaryFile('w',
+                                         delete=False,
                                          suffix=extension) as skill_file:
             skill_file.write(skill_content)
 
