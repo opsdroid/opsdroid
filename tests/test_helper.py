@@ -48,11 +48,10 @@ class TestHelper(unittest.TestCase):
             convert_ipynb_to_script(notebook_path, output_file.name)
             self.assertTrue(os.path.getsize(output_file.name) > 0)
 
-
     def test_extract_gist_id(self):
         self.assertEqual(
             extract_gist_id(
-                "https://gist.github.com/jacobtomlinson/" + \
+                "https://gist.github.com/jacobtomlinson/" +
                 "c9852fa17d3463acc14dca1217d911f6"),
             "c9852fa17d3463acc14dca1217d911f6")
 
