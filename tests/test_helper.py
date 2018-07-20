@@ -51,11 +51,10 @@ class TestHelper(unittest.TestCase):
     def test_extract_gist_id(self):
         self.assertEqual(
             extract_gist_id(
-                "https://gist.github.com/jacobtomlinson/" +
+                "https://gist.github.com/jacobtomlinson/"
                 "c9852fa17d3463acc14dca1217d911f6"),
             "c9852fa17d3463acc14dca1217d911f6")
 
         self.assertEqual(
-            extract_gist_id(
-                "c9852fa17d3463acc14dca1217d911f6"),
+            extract_gist_id("c9852fa17d3463acc14dca1217d911f6"),
             "c9852fa17d3463acc14dca1217d911f6")
