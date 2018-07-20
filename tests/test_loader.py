@@ -525,3 +525,16 @@ class TestLoader(unittest.TestCase):
             mockpull.assert_called_with(config["install_path"])
 
         shutil.rmtree(config["install_path"], onerror=del_rw)
+
+    def test_install_gist_module_file(self):
+        opsdroid, loader = self.setup()
+        config = {"name": "ping",
+                  "type": "skill",
+                  "install_path": os.path.join(
+                      self._tmp_dir, "test_gist_module_file"),
+                  "gist": "https://gist.github.com/jacobtomlinson/"
+                          "6dd35e0f62d6b779d3d0d140f338d3e5"}
+        loader._install_gist_module(config)
+        self.assertTrue(os.path.isfile(os.path.join(
+            config["install_path"], "__init__.py")))
+        shutil.rmtree(config["install_path"], onerror=del_rw)
