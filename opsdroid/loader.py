@@ -1,18 +1,20 @@
 """Class for loading in modules to OpsDroid."""
 
+import importlib
+import importlib.util
 import json
 import logging
 import os
-import sys
+import re
 import shutil
 import subprocess
-import importlib
-import importlib.util
-import re
-from collections import Mapping
-import urllib.request
-import yaml
+import sys
 import tempfile
+import urllib.request
+from collections import Mapping
+
+import yaml
+
 from opsdroid.helper import (
     move_config_to_appdir, file_is_ipython_notebook,
     convert_ipynb_to_script, extract_gist_id)
