@@ -10,6 +10,7 @@ COPY setup.py setup.py
 COPY setup.cfg setup.cfg
 COPY requirements.txt requirements.txt
 COPY README.md README.md
+COPY MANIFEST.in MANIFEST.in
 
 RUN apk update && apk add git
 RUN pip3 install --upgrade pip
