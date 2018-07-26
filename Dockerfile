@@ -1,19 +1,20 @@
 FROM python:3.5-alpine
-MAINTAINER Jacob Tomlinson <jacob@tom.linson.uk>
+LABEL maintainer="Jacob Tomlinson <jacob@tom.linson.uk>"
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 # Copy source
-COPY . .
+COPY opsdroid opsdroid
+COPY setup.py setup.py
+COPY setup.cfg setup.cfg
+COPY requirements.txt requirements.txt
+COPY README.md README.md
 
 RUN apk update && apk add git
 RUN pip3 install --upgrade pip
-RUN pip3 install --no-cache-dir -r requirements.txt
-RUN pip3 install -U tox
-
-RUN python3 setup.py compile_catalog
+RUN pip3 install --no-cache-dir .
 
 EXPOSE 8080
 
-CMD ["python", "-m", "opsdroid"]
+CMD ["opsdroid"]
