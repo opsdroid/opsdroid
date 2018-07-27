@@ -474,6 +474,7 @@ class Loader:
                                          delete=False,
                                          suffix=extension) as skill_file:
             skill_file.write(skill_content)
+            skill_file.flush()
 
             # Set the path in the config
             config["path"] = skill_file.name
