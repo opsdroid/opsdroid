@@ -221,7 +221,7 @@ class Loader:
                                          loader.construct_scalar(node))
 
             with open(included_yaml, 'r') as included:
-                return yaml.load(included)
+                return yaml.safe_load(included)
 
         yaml.add_constructor('!envvar', envvar_constructor)
         yaml.add_constructor('!include', include_constructor)
