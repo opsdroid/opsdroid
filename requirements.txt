@@ -1,4 +1,4 @@
-aiohttp==3.3.2
+aiohttp==3.0.5
 arrow==0.12.1
 Babel==2.6.0
 click==6.7
@@ -7,5 +7,5 @@ nbformat==4.4.0
 pycron==0.80.0
 pyyaml==3.13
 slacker-asyncio==0.9.60
-websockets==5.0.1
+websockets==6.0
 appdirs==1.4.3
