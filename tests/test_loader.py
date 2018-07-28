@@ -403,6 +403,19 @@ class TestLoader(unittest.TestCase):
                                          config["branch"])
         shutil.rmtree(repo_path, onerror=del_rw)
 
+    def test_install_gist_module(self):
+        opsdroid, loader = self.setup()
+        config = {"name": "ping",
+                  "type": "skill",
+                  "install_path": os.path.join(
+                      self._tmp_dir, "test_gist_module_file"),
+                  "gist": "https://gist.github.com/jacobtomlinson/"
+                          "c9852fa17d3463acc14dca1217d911f6"}
+
+        with mock.patch.object(loader, '_install_gist_module') as mockgist:
+            loader._install_module(config)
+            self.assertTrue(mockgist.called)
+
     def test_install_specific_local_path_module(self):
         opsdroid, loader = self.setup()
         repo_path = os.path.join(self._tmp_dir, "testrepo")
