@@ -114,7 +114,7 @@ def convert_ipynb_to_script(notebook_path, output_path):
 
 
 def extract_gist_id(gist_string):
-    """Extract the girst ID from a url.
+    """Extract the gist ID from a url.
 
     Will also work if simply passed an ID.
 
