@@ -50,6 +50,14 @@ class TestLoader(unittest.TestCase):
         self.assertIsNotNone(config)
         self.assertEqual(config, config2)
 
+    def test_yaml_load_exploit(self):
+        opsdroid, loader = self.setup()
+        config = loader.load_config_file(
+            [os.path.abspath("tests/configs/include_exploit.yaml")])
+        self.assertIsNone(config)
+        # If the command in exploit.yaml is echoed it will return 0
+        self.assertNotEqual(config, 0)
+
     def test_load_config_file_with_env_vars(self):
         opsdroid, loader = self.setup()
         os.environ["ENVVAR"] = 'test'
