@@ -14,11 +14,15 @@ def match_regex(regex, case_sensitive=True):
     def matcher(func):
         """Add decorated function to skills list for regex matching."""
         opsdroid = get_opsdroid()
-        opsdroid.skills.append({"regex": {"expression": regex,
-                                          "case_sensitive": case_sensitive},
-                                "skill": func,
-                                "config":
-                                opsdroid.loader.current_import_config})
+        if opsdroid:
+            config = opsdroid.loader.current_import_config
+            regex_setup = {
+                "expression": regex,
+                "case_sensitive": case_sensitive
+            }
+            opsdroid.skills.append({"regex": regex_setup,
+                                    "skill": func,
+                                    "config": config})
         return func
     return matcher
 
@@ -28,9 +32,11 @@ def match_apiai_action(action):
     def matcher(func):
         """Add decorated function to skills list for Dialogflow matching."""
         opsdroid = get_opsdroid()
-        opsdroid.skills.append({"dialogflow_action": action, "skill": func,
-                                "config":
-                                opsdroid.loader.current_import_config})
+        if opsdroid:
+            config = opsdroid.loader.current_import_config
+            opsdroid.skills.append({"dialogflow_action": action,
+                                    "skill": func,
+                                    "config": config})
         return func
     _LOGGER.warning(_("Api.ai is now called Dialogflow, this matcher "
                       "will stop working in the future. "
@@ -43,9 +49,11 @@ def match_apiai_intent(intent):
     def matcher(func):
         """Add decorated function to skills list for Dialogflow matching."""
         opsdroid = get_opsdroid()
-        opsdroid.skills.append({"dialogflow_intent": intent, "skill": func,
-                                "config":
-                                opsdroid.loader.current_import_config})
+        if opsdroid:
+            config = opsdroid.loader.current_import_config
+            opsdroid.skills.append({"dialogflow_intent": intent,
+                                    "skill": func,
+                                    "config": config})
         return func
     _LOGGER.warning(_("Api.ai is now called Dialogflow, this matcher "
                       "will stop working in the future. "
@@ -58,9 +66,11 @@ def match_dialogflow_action(action):
     def matcher(func):
         """Add decorated function to skills list for Dialogflow matching."""
         opsdroid = get_opsdroid()
-        opsdroid.skills.append({"dialogflow_action": action, "skill": func,
-                                "config":
-                                opsdroid.loader.current_import_config})
+        if opsdroid:
+            config = opsdroid.loader.current_import_config
+            opsdroid.skills.append({"dialogflow_action": action,
+                                    "skill": func,
+                                    "config": config})
         return func
     return matcher
 
@@ -70,9 +80,11 @@ def match_dialogflow_intent(intent):
     def matcher(func):
         """Add decorated function to skills list for Dialogflow matching."""
         opsdroid = get_opsdroid()
-        opsdroid.skills.append({"dialogflow_intent": intent, "skill": func,
-                                "config":
-                                opsdroid.loader.current_import_config})
+        if opsdroid:
+            config = opsdroid.loader.current_import_config
+            opsdroid.skills.append({"dialogflow_intent": intent,
+                                    "skill": func,
+                                    "config": config})
         return func
     return matcher
 
@@ -82,9 +94,11 @@ def match_luisai_intent(intent):
     def matcher(func):
         """Add decorated function to skills list for luisai matching."""
         opsdroid = get_opsdroid()
-        opsdroid.skills.append({"luisai_intent": intent, "skill": func,
-                                "config":
-                                opsdroid.loader.current_import_config})
+        if opsdroid:
+            config = opsdroid.loader.current_import_config
+            opsdroid.skills.append({"luisai_intent": intent,
+                                    "skill": func,
+                                    "config": config})
         return func
     return matcher
 
@@ -94,9 +108,11 @@ def match_rasanlu(intent):
     def matcher(func):
         """Add decorated function to skills list for Rasa NLU matching."""
         opsdroid = get_opsdroid()
-        opsdroid.skills.append({"rasanlu_intent": intent, "skill": func,
-                                "config":
-                                opsdroid.loader.current_import_config})
+        if opsdroid:
+            config = opsdroid.loader.current_import_config
+            opsdroid.skills.append({"rasanlu_intent": intent,
+                                    "skill": func,
+                                    "config": config})
         return func
     return matcher
 
@@ -106,9 +122,11 @@ def match_recastai(intent):
     def matcher(func):
         """Add decorated function to skills list for recastai matching."""
         opsdroid = get_opsdroid()
-        opsdroid.skills.append({"recastai_intent": intent, "skill": func,
-                                "config":
-                                    opsdroid.loader.current_import_config})
+        if opsdroid:
+            config = opsdroid.loader.current_import_config
+            opsdroid.skills.append({"recastai_intent": intent,
+                                    "skill": func,
+                                    "config": config})
         return func
     return matcher
 
@@ -118,9 +136,11 @@ def match_witai(intent):
     def matcher(func):
         """Add decorated function to skills list for witai matching."""
         opsdroid = get_opsdroid()
-        opsdroid.skills.append({"witai_intent": intent, "skill": func,
-                                "config":
-                                opsdroid.loader.current_import_config})
+        if opsdroid:
+            config = opsdroid.loader.current_import_config
+            opsdroid.skills.append({"witai_intent": intent,
+                                    "skill": func,
+                                    "config": config})
         return func
     return matcher
 
@@ -130,9 +150,12 @@ def match_crontab(crontab, timezone=None):
     def matcher(func):
         """Add decorated function to skills list for crontab matching."""
         opsdroid = get_opsdroid()
-        config = opsdroid.loader.current_import_config
-        opsdroid.skills.append({"crontab": crontab, "skill": func,
-                                "config": config, "timezone": timezone})
+        if opsdroid:
+            config = opsdroid.loader.current_import_config
+            opsdroid.skills.append({"crontab": crontab,
+                                    "skill": func,
+                                    "config": config,
+                                    "timezone": timezone})
         return func
     return matcher
 
@@ -142,22 +165,24 @@ def match_webhook(webhook):
     def matcher(func):
         """Add decorated function to skills list for webhook matching."""
         opsdroid = get_opsdroid()
-        config = opsdroid.loader.current_import_config
-        opsdroid.skills.append({"webhook": webhook, "skill": func,
-                                "config": config})
+        if opsdroid:
+            config = opsdroid.loader.current_import_config
+            opsdroid.skills.append({"webhook": webhook,
+                                    "skill": func,
+                                    "config": config})
 
-        async def wrapper(req, opsdroid=opsdroid, config=config):
-            """Wrap up the aiohttp handler."""
-            _LOGGER.info("Running skill %s via webhook", webhook)
-            opsdroid.stats["webhooks_called"] = \
-                opsdroid.stats["webhooks_called"] + 1
-            await func(opsdroid, config, req)
-            return Web.build_response(200, {"called_skill": webhook})
+            async def wrapper(req, opsdroid=opsdroid, config=config):
+                """Wrap up the aiohttp handler."""
+                _LOGGER.info("Running skill %s via webhook", webhook)
+                opsdroid.stats["webhooks_called"] = \
+                    opsdroid.stats["webhooks_called"] + 1
+                await func(opsdroid, config, req)
+                return Web.build_response(200, {"called_skill": webhook})
 
-        opsdroid.web_server.web_app.router.add_post(
-            "/skill/{}/{}".format(config["name"], webhook), wrapper)
-        opsdroid.web_server.web_app.router.add_post(
-            "/skill/{}/{}/".format(config["name"], webhook), wrapper)
+            opsdroid.web_server.web_app.router.add_post(
+                "/skill/{}/{}".format(config["name"], webhook), wrapper)
+            opsdroid.web_server.web_app.router.add_post(
+                "/skill/{}/{}/".format(config["name"], webhook), wrapper)
 
         return func
     return matcher
@@ -168,9 +193,11 @@ def match_always(func=None):
     def matcher(func):
         """Add decorated function to skills list for always matching."""
         opsdroid = get_opsdroid()
-        config = opsdroid.loader.current_import_config
-        opsdroid.skills.append({"always": True, "skill": func,
-                                "config": config})
+        if opsdroid:
+            config = opsdroid.loader.current_import_config
+            opsdroid.skills.append({"always": True,
+                                    "skill": func,
+                                    "config": config})
         return func
 
     # Allow for decorator with or without parenthesis as there are no args.
