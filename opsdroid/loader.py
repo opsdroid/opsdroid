@@ -1,18 +1,23 @@
 """Class for loading in modules to OpsDroid."""
 
-import logging
-import os
-import sys
-import shutil
-import subprocess
 import importlib
 import importlib.util
+import json
+import logging
+import os
 import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import urllib.request
 from collections import Mapping
+
 import yaml
+
 from opsdroid.helper import (
     move_config_to_appdir, file_is_ipython_notebook,
-    convert_ipynb_to_script)
+    convert_ipynb_to_script, extract_gist_id)
 from opsdroid.const import (
     DEFAULT_GIT_URL, MODULES_DIRECTORY, DEFAULT_MODULES_PATH,
     DEFAULT_MODULE_BRANCH, DEFAULT_CONFIG_PATH, EXAMPLE_CONFIG_FILE,
@@ -343,6 +348,8 @@ class Loader:
 
         if self._is_local_module(config):
             self._install_local_module(config)
+        elif self._is_gist_module(config):
+            self._install_gist_module(config)
         else:
             self._install_git_module(config)
 
@@ -373,6 +380,10 @@ class Loader:
     @staticmethod
     def _is_local_module(config):
         return "path" in config
+
+    @staticmethod
+    def _is_gist_module(config):
+        return "gist" in config
 
     def _install_module_dependencies(self, config):
         if config.get('no-dep', False):
@@ -440,3 +451,33 @@ class Loader:
         if not installed:
             _LOGGER.error("Failed to install from %s",
                           str(config["path"]))
+
+    def _install_gist_module(self, config):
+        gist_id = extract_gist_id(config['gist'])
+
+        # Get the content of the gist
+        req = urllib.request.Request(
+            "https://api.github.com/gists/{}".format(gist_id))
+        cont = json.loads(urllib.request.urlopen(req).read().decode('utf-8'))
+        python_files = [cont["files"][file] for file in cont["files"]
+                        if '.ipynb' in cont["files"][file]["filename"]
+                        or '.py' in cont["files"][file]["filename"]]
+
+        # We only support one skill file in a gist for now.
+        #
+        # TODO: Add support for mutliple files. Could be particularly
+        # useful for including a requirements.txt file.
+        skill_content = python_files[0]["content"]
+        extension = os.path.splitext(python_files[0]["filename"])[1]
+
+        with tempfile.NamedTemporaryFile('w',
+                                         delete=False,
+                                         suffix=extension) as skill_file:
+            skill_file.write(skill_content)
+            skill_file.flush()
+
+            # Set the path in the config
+            config["path"] = skill_file.name
+
+            # Run local install
+            self._install_local_module(config)

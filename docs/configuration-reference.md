@@ -330,6 +330,26 @@ skills:
     path: /home/me/src/opsdroid-skills/myawesomeskill/myskill.ipynb
 ```
 
+#### GitHub Gist
+
+A gist url to download and install the module from. This downloads the gist
+to a temporary file and then uses the single file local installer above. Therefore
+Notebooks are also supported.
+
+```yaml
+skills:
+ - name: ping
+   gist: https://gist.github.com/jacobtomlinson/6dd35e0f62d6b779d3d0d140f338d3e5
+```
+
+Or you can specfiy the Gist ID without the full URL.
+
+```yaml
+skills:
+ - name: ping
+   gist: 6dd35e0f62d6b779d3d0d140f338d3e5
+```
+
 ### Disable Caching
 
 Set `no-cache` to true to do a fresh git clone of the module whenever you start opsdroid.

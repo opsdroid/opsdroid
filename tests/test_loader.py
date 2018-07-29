@@ -403,6 +403,19 @@ class TestLoader(unittest.TestCase):
                                          config["branch"])
         shutil.rmtree(repo_path, onerror=del_rw)
 
+    def test_install_gist_module(self):
+        opsdroid, loader = self.setup()
+        config = {"name": "ping",
+                  "type": "skill",
+                  "install_path": os.path.join(
+                      self._tmp_dir, "test_gist_module_file"),
+                  "gist": "https://gist.github.com/jacobtomlinson/"
+                          "c9852fa17d3463acc14dca1217d911f6"}
+
+        with mock.patch.object(loader, '_install_gist_module') as mockgist:
+            loader._install_module(config)
+            self.assertTrue(mockgist.called)
+
     def test_install_specific_local_path_module(self):
         opsdroid, loader = self.setup()
         repo_path = os.path.join(self._tmp_dir, "testrepo")
@@ -524,4 +537,30 @@ class TestLoader(unittest.TestCase):
             loader._update_module(config)
             mockpull.assert_called_with(config["install_path"])
 
+        shutil.rmtree(config["install_path"], onerror=del_rw)
+
+    def test_install_gist_module_file(self):
+        opsdroid, loader = self.setup()
+        config = {"name": "ping",
+                  "type": "skill",
+                  "install_path": os.path.join(
+                      self._tmp_dir, "test_gist_module_file"),
+                  "gist": "https://gist.github.com/jacobtomlinson/"
+                          "6dd35e0f62d6b779d3d0d140f338d3e5"}
+        loader._install_gist_module(config)
+        self.assertTrue(os.path.isfile(os.path.join(
+            config["install_path"], "__init__.py")))
+        shutil.rmtree(config["install_path"], onerror=del_rw)
+
+    def test_install_gist_module_notebook(self):
+        opsdroid, loader = self.setup()
+        config = {"name": "ping",
+                  "type": "skill",
+                  "install_path": os.path.join(
+                      self._tmp_dir, "test_gist_module_file"),
+                  "gist": "https://gist.github.com/jacobtomlinson/"
+                          "c9852fa17d3463acc14dca1217d911f6"}
+        loader._install_gist_module(config)
+        self.assertTrue(os.path.isfile(os.path.join(
+            config["install_path"], "__init__.py")))
         shutil.rmtree(config["install_path"], onerror=del_rw)
