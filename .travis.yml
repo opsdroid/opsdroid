@@ -25,6 +25,7 @@ deploy:
   provider: pypi
   user: $PYPI_USER
   password: $PYPI_PASSWORD
+  skip_cleanup: true
   on:
     tags: true
     repo: opsdroid/opsdroid
