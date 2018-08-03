@@ -7,4 +7,4 @@ pillow==5.2.0
 alabaster==0.7.11
 commonmark==0.7.5
 recommonmark==0.4.0
-mkdocs==0.17.5
+mkdocs==1.0
