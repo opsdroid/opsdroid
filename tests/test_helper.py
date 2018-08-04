@@ -6,7 +6,7 @@ import unittest.mock as mock
 
 from opsdroid.helper import (
     del_rw, move_config_to_appdir, file_is_ipython_notebook,
-    convert_ipynb_to_script)
+    convert_ipynb_to_script, extract_gist_id)
 
 
 class TestHelper(unittest.TestCase):
@@ -47,3 +47,14 @@ class TestHelper(unittest.TestCase):
                 mode='w', delete=False) as output_file:
             convert_ipynb_to_script(notebook_path, output_file.name)
             self.assertTrue(os.path.getsize(output_file.name) > 0)
+
+    def test_extract_gist_id(self):
+        self.assertEqual(
+            extract_gist_id(
+                "https://gist.github.com/jacobtomlinson/"
+                "c9852fa17d3463acc14dca1217d911f6"),
+            "c9852fa17d3463acc14dca1217d911f6")
+
+        self.assertEqual(
+            extract_gist_id("c9852fa17d3463acc14dca1217d911f6"),
+            "c9852fa17d3463acc14dca1217d911f6")
