@@ -555,10 +555,14 @@ class TestLoader(unittest.TestCase):
                       self._tmp_dir, "test_gist_module_file"),
                   "gist": "https://gist.github.com/jacobtomlinson/"
                           "6dd35e0f62d6b779d3d0d140f338d3e5"}
-        loader._install_gist_module(config)
-        self.assertTrue(os.path.isfile(os.path.join(
-            config["install_path"], "__init__.py")))
-        shutil.rmtree(config["install_path"], onerror=del_rw)
+        with mock.patch('urllib.request.urlopen') as mock_urlopen:
+            with open(os.path.abspath(
+                    'tests/responses/gist_module_file.json'), 'rb') as fh:
+                mock_urlopen.return_value = fh
+                loader._install_gist_module(config)
+                self.assertTrue(os.path.isfile(os.path.join(
+                    config["install_path"], "__init__.py")))
+                shutil.rmtree(config["install_path"], onerror=del_rw)
 
     def test_install_gist_module_notebook(self):
         opsdroid, loader = self.setup()
@@ -568,7 +572,11 @@ class TestLoader(unittest.TestCase):
                       self._tmp_dir, "test_gist_module_file"),
                   "gist": "https://gist.github.com/jacobtomlinson/"
                           "c9852fa17d3463acc14dca1217d911f6"}
-        loader._install_gist_module(config)
-        self.assertTrue(os.path.isfile(os.path.join(
-            config["install_path"], "__init__.py")))
-        shutil.rmtree(config["install_path"], onerror=del_rw)
+        with mock.patch('urllib.request.urlopen') as mock_urlopen:
+            with open(os.path.abspath(
+                    'tests/responses/gist_module_notebook.json'), 'rb') as fh:
+                mock_urlopen.return_value = fh
+                loader._install_gist_module(config)
+                self.assertTrue(os.path.isfile(os.path.join(
+                    config["install_path"], "__init__.py")))
+                shutil.rmtree(config["install_path"], onerror=del_rw)
