@@ -6,7 +6,7 @@ import re
 
 import aiohttp
 import websockets
-from slacker import Slacker
+from aioslacker import Slacker
 
 from opsdroid.connector import Connector
 from opsdroid.message import Message
