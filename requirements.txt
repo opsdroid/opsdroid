@@ -7,6 +7,5 @@ nbconvert==5.3.1
 nbformat==4.4.0
 pycron==0.80.0
 pyyaml==3.13
-slacker-asyncio==0.9.60
 websockets==6.0
 appdirs==1.4.3
