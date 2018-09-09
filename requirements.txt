@@ -9,3 +9,4 @@ pycron==0.80.0
 pyyaml==3.13
 websockets==6.0
 appdirs==1.4.3
+multidict==4.3.1
