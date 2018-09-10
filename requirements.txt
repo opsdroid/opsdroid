@@ -1,4 +1,4 @@
-aiohttp==3.0.5
+aiohttp==3.4.4
 aioslacker==0.0.10
 arrow==0.12.1
 Babel==2.6.0
