@@ -229,12 +229,12 @@ class Loader:
                 return yaml.safe_load(included)
 
         yaml.add_constructor('!envvar', envvar_constructor)
-        yaml.add_constructor('!include', include_constructor)
+        yaml.SafeLoader.add_constructor('!include', include_constructor)
 
         try:
             with open(config_path, 'r') as stream:
                 _LOGGER.info(_("Loaded config from %s."), config_path)
-                return yaml.load(stream)
+                return yaml.safe_load(stream)
         except yaml.YAMLError as error:
             self.opsdroid.critical(error, 1)
         except FileNotFoundError as error:
