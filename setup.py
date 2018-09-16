@@ -95,8 +95,7 @@ setup(
               'build_py': BuildPy,
               'develop': Develop,
               **versioneer.get_cmdclass()
-    }
-    ),
+    },
     entry_points={
         'console_scripts': [
             'opsdroid = opsdroid.__main__:main'
