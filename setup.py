@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 from setuptools.command.build_py import build_py
 from setuptools.command.sdist import sdist
 from setuptools.command.develop import develop
-from opsdroid import __version__
+import versioneer
 
 PACKAGE_NAME = 'opsdroid'
 HERE = os.path.abspath(os.path.dirname(__file__))
@@ -47,7 +47,7 @@ class Sdist(sdist):
 
 setup(
     name=PACKAGE_NAME,
-    version=__version__,
+    version=versioneer.get_version(),
     license='Apache License 2.0',
     url='https://opsdroid.github.io/',
     download_url='https://github.com/opsdroid/opsdroid/releases',
@@ -91,7 +91,10 @@ setup(
         'nlu'
     ],
     setup_requires=['Babel'],
-    cmdclass={'sdist': Sdist, 'build_py': BuildPy, 'develop': Develop},
+    cmdclass=dict(
+        {'sdist': Sdist, 'build_py': BuildPy, 'develop': Develop} +
+        versioneer.get_cmdclass()
+    ),
     entry_points={
         'console_scripts': [
             'opsdroid = opsdroid.__main__:main'
