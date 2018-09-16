@@ -91,11 +91,9 @@ setup(
         'nlu'
     ],
     setup_requires=['Babel'],
-    cmdclass={'sdist': Sdist,
-              'build_py': BuildPy,
-              'develop': Develop,
-              **versioneer.get_cmdclass()
-    },
+    cmdclass=versioneer.get_cmdclass({'sdist': Sdist,
+                                      'build_py': BuildPy,
+                                      'develop': Develop}),
     entry_points={
         'console_scripts': [
             'opsdroid = opsdroid.__main__:main'
