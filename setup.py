@@ -91,9 +91,11 @@ setup(
         'nlu'
     ],
     setup_requires=['Babel'],
-    cmdclass=dict(
-        {'sdist': Sdist, 'build_py': BuildPy, 'develop': Develop} +
-        versioneer.get_cmdclass()
+    cmdclass={'sdist': Sdist,
+              'build_py': BuildPy,
+              'develop': Develop,
+              **versioneer.get_cmdclass()
+    }
     ),
     entry_points={
         'console_scripts': [
