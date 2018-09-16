@@ -3,11 +3,11 @@ LABEL maintainer="Jacob Tomlinson <jacob@tom.linson.uk>"
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
-ENV PYTHONPATH="$PYTHONPATH:/usr/src/app"
 
 # Copy source
 COPY opsdroid opsdroid
 COPY setup.py setup.py
+COPY versioneer.py versioneer.py
 COPY setup.cfg setup.cfg
 COPY requirements.txt requirements.txt
 COPY README.md README.md
