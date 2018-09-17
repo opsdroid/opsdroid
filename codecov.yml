@@ -1,0 +1,2 @@
+ignore:
+  - "opsdroid/_version.py"
