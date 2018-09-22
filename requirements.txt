@@ -1,5 +1,5 @@
 aiohttp==3.4.4
-aioslacker==0.0.10
+git+https://github.com/opsdroid/aioslacker.git@26fb78de6e9fedfaab650ea5c3b87b33c4fc9657
 arrow==0.12.1
 Babel==2.6.0
 click==6.7
