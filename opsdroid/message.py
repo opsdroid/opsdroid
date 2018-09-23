@@ -33,6 +33,7 @@ class Message:
             against
         responded_to: Boolean initialized as False. True if message has been
             responded to
+
     """
 
     def __init__(self, text, user, room, connector, raw_message=None):
@@ -114,4 +115,3 @@ class Message:
         if 'thinking-delay' in self.connector.configuration:
             await self._thinking_delay()
         return await self.connector.react(self, emoji)
-    
