@@ -12,7 +12,7 @@ class Message:
     # pylint: disable=too-few-public-methods
     """A message object.
 
-    Stores messages in format that allows OpsDroid to respond or react with
+    Stores messages in a format that allows OpsDroid to respond or react with
     delays for thinking and typing as defined in configuration YAML file.
 
     Args:
