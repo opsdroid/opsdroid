@@ -7,34 +7,32 @@ from random import randrange
 
 from opsdroid.helper import get_opsdroid
 
-"""
-Working checklist
-# Message
-"""
 
 class Message:
     # pylint: disable=too-few-public-methods
     """A message object.
-    
+
     Stores messages in format that allows OpsDroid to respond or react with
     delays for thinking and typing as defined in configuration YAML file.
-    
+
     Args:
         text: String text of message
         user: String name of user sending message
         room: String name of the room or chat channel in which message was sent
         connector: Connector object used to interact with given chat service
         raw_message: Raw message as provided by chat service. None by default
-    
+
     Attributes:
         created: Local date and time that message object was created
         text: Text of message as string
         user: String name of user sending message
         room: String name of the room or chat channel in which message was sent
         connector: Connector object used to interact with given chat service
-        raw_message: Raw message as provided by chat service, e.g. string or dictionary
-        regex: A re match object for the regular expression message was matched against
-        responded_to: Boolean initialized as False. True if message has been responded to
+        raw_message: Raw message provided by chat service
+        regex: A re match object for the regular expression message was matched
+            against
+        responded_to: Boolean initialized as False. True if message has been
+            responded to
     """
 
     def __init__(self, text, user, room, connector, raw_message=None):
@@ -50,8 +48,8 @@ class Message:
 
     async def _thinking_delay(self):
         """Make opsdroid wait x-seconds before responding.
-        
-        Number of seconds is defined in YAML config. file, accessed via connector.
+
+        Number of seconds defined in YAML config. file, accessed via connector.
         """
         seconds = self.connector.configuration.get('thinking-delay', 0)
 
@@ -62,7 +60,7 @@ class Message:
 
     async def _typing_delay(self, text):
         """Delays reply to simulate typing.
-        
+
         Seconds to delay equals number of characters in response multiplied by
         number of seconds defined in YAML config. file, accessed via connector.
         """
@@ -76,11 +74,11 @@ class Message:
 
     async def respond(self, text, room=None):
         """Respond to this message using the connector it was created by.
-        
+
         Creates copy of this message with updated text as response.
-        Delays message with _thinking_delay, _typing_delay if present in config. file.
-        Updates responded_to attribute to True if message not already responded to.
-        Logs response and response time in OpsDroid object stats
+        Delays message if thinking or typing delay present in config. file.
+        Updates responded_to attribute to True if False.
+        Logs response and response time in OpsDroid object stats.
         """
         opsdroid = get_opsdroid()
         response = copy(self)
@@ -103,16 +101,17 @@ class Message:
 
     async def react(self, emoji):
         """React to this message with emoji using the specified connector.
-        
-        Delays message with _thinking_delay if present in config. file.
-        
+
+        Delays message if thinking delay present in config. file.
+
         Args:
-            emoji: Sting name of emoji with which OpsDroid will react
-        
+            emoji: Sting name of emoji with which OpsDroid will react.
+
         Returns:
             bool: True for message successfully sent. False otherwise.
-            
+
         """
         if 'thinking-delay' in self.connector.configuration:
             await self._thinking_delay()
         return await self.connector.react(self, emoji)
+    
