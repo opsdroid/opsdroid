@@ -2,7 +2,7 @@ aiohttp==3.4.4
 aioslacker==0.0.10
 arrow==0.12.1
 Babel==2.6.0
-click==6.7
+click==7.0
 nbconvert==5.4.0
 nbformat==4.4.0
 pycron==0.80.0
