@@ -114,7 +114,7 @@ Contributing to the opsdroid ecosystem is strongly encouraged and every little b
   - Contribute to [opsdroid desktop](https://github.com/opsdroid/opsdroid-desktop) (electron and react app)
   - Promote opsdroid in a meaningful way
 
-To get started see the [contribution guide](http://opsdroid.readthedocs.io/en/latest/contributing/).
+**To get started see the [contribution guide](http://opsdroid.readthedocs.io/en/latest/contributing/).**
 
 Do you need help? Do you want to chat? [Join our Gitter channel](https://gitter.im/opsdroid/)
 
