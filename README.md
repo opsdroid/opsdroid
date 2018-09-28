@@ -1,19 +1,19 @@
  ![opsdroid](https://github.com/opsdroid/style-guidelines/raw/master/logos/logo-wide-light.png)[![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Check%20out%20opsdroid,%20an%20awesome%20open%20source%20chatbot%20framework%20written%20in%20Python.&url=https://opsdroid.github.io/&via=opsdroid&hashtags=chatbots,chatops,devops,automation,opensource)
 
-[![Current version of pypi](https://img.shields.io/pypi/v/opsdroid.svg)](https://pypi.python.org/pypi) 
-[![Build Status](https://img.shields.io/travis/opsdroid/opsdroid/master.svg?logo=travis)](https://travis-ci.org/opsdroid/opsdroid) 
-[![Build status](https://img.shields.io/appveyor/ci/jacobtomlinson/opsdroid/master.svg?logo=appveyor)](https://ci.appveyor.com/project/jacobtomlinson/opsdroid/branch/master) 
-[![codecov](https://img.shields.io/codecov/c/github/opsdroid/opsdroid.svg)](https://codecov.io/gh/opsdroid/opsdroid) 
+[![Current version of pypi](https://img.shields.io/pypi/v/opsdroid.svg)](https://pypi.python.org/pypi)
+[![Build Status](https://img.shields.io/travis/opsdroid/opsdroid/master.svg?logo=travis)](https://travis-ci.org/opsdroid/opsdroid)
+[![Build status](https://img.shields.io/appveyor/ci/jacobtomlinson/opsdroid/master.svg?logo=appveyor)](https://ci.appveyor.com/project/jacobtomlinson/opsdroid/branch/master)
+[![codecov](https://img.shields.io/codecov/c/github/opsdroid/opsdroid.svg)](https://codecov.io/gh/opsdroid/opsdroid)
 [![BCH compliance](https://bettercodehub.com/edge/badge/opsdroid/opsdroid?branch=master)](https://bettercodehub.com/)
-[![Updates](https://pyup.io/repos/github/opsdroid/opsdroid/shield.svg)](https://pyup.io/repos/github/opsdroid/opsdroid/) 
-[![Dependency Status](https://tidelift.com/badges/github/opsdroid/opsdroid?style=flat)](https://dependencyci.com/github/opsdroid/opsdroid) 
-[![Docker Build](https://img.shields.io/docker/build/opsdroid/opsdroid.svg)](https://hub.docker.com/r/opsdroid/opsdroid/builds/) 
-[![Docker Image](https://img.shields.io/microbadger/image-size/opsdroid/opsdroid.svg)](https://hub.docker.com/r/opsdroid/opsdroid/) 
-[![Docker Layers](https://img.shields.io/microbadger/layers/opsdroid/opsdroid.svg)](https://microbadger.com/#/images/opsdroid/opsdroid) 
-[![Documentation Status](https://img.shields.io/readthedocs/opsdroid/latest.svg)](http://opsdroid.readthedocs.io/en/stable/?badge=stable) 
-[![Gitter Badge](https://img.shields.io/badge/gitter-join%20chat-4fb896.svg)](https://gitter.im/opsdroid) 
-[![Backers on Open Collective](https://opencollective.com/opsdroid/backers/badge.svg)](#backers) 
-[![Sponsors on Open Collective](https://opencollective.com/opsdroid/sponsors/badge.svg)](#sponsors) 
+[![Updates](https://pyup.io/repos/github/opsdroid/opsdroid/shield.svg)](https://pyup.io/repos/github/opsdroid/opsdroid/)
+[![Dependency Status](https://tidelift.com/badges/github/opsdroid/opsdroid?style=flat)](https://dependencyci.com/github/opsdroid/opsdroid)
+[![Docker Build](https://img.shields.io/docker/build/opsdroid/opsdroid.svg)](https://hub.docker.com/r/opsdroid/opsdroid/builds/)
+[![Docker Image](https://img.shields.io/microbadger/image-size/opsdroid/opsdroid.svg)](https://hub.docker.com/r/opsdroid/opsdroid/)
+[![Docker Layers](https://img.shields.io/microbadger/layers/opsdroid/opsdroid.svg)](https://microbadger.com/#/images/opsdroid/opsdroid)
+[![Documentation Status](https://img.shields.io/readthedocs/opsdroid/latest.svg)](http://opsdroid.readthedocs.io/en/stable/?badge=stable)
+[![Gitter Badge](https://img.shields.io/badge/gitter-join%20chat-4fb896.svg)](https://gitter.im/opsdroid)
+[![Backers on Open Collective](https://opencollective.com/opsdroid/backers/badge.svg)](#backers)
+[![Sponsors on Open Collective](https://opencollective.com/opsdroid/sponsors/badge.svg)](#sponsors)
 [![Open Source Helpers](https://www.codetriage.com/opsdroid/opsdroid/badges/users.svg)](https://www.codetriage.com/opsdroid/opsdroid)
 
 An open source chat bot framework written in python. It is designed to be extendable, scalable and simple.
@@ -95,25 +95,26 @@ Options:
   --gen-config          Print an example config and exit.
   -v, --version         Print the version and exit.
   -e, --edit-config     Edit configuration.yaml
-  -l, --view-log        Open opsdroid logs 
+  -l, --view-log        Open opsdroid logs
   --help                Show this message and exit.
 ```
 
 ## Contributing
 
-[Stickers for contributors!](https://medium.com/opsdroid/stickers-for-contributors-a0a1f9c30ec1)
+Contributing to the opsdroid ecosystem is strongly encouraged and every little bit counts! We even send [sticker packs](https://medium.com/opsdroid/contributor-sticker-packs-738058ceda59) to our contributors to say thank you! There are so many ways to contribute to opsdroid:
 
-Contributing to the opsdroid ecosystem is strongly encouraged and every little bit counts! You can do this by creating modules to be used by opsdroid or by contributing to the project itself.
+  - Write code to [solve issues](https://github.com/opsdroid/opsdroid/issues) in the opsdroid core repository
+  - Improve the [documentation](https://github.com/opsdroid/opsdroid/tree/master/docs) to help others get started
+  - Write [skills](http://opsdroid.readthedocs.io/en/latest/extending/skills/), [connectors](http://opsdroid.readthedocs.io/en/latest/extending/connectors/) or [database](http://opsdroid.readthedocs.io/en/latest/extending/databases/) modules
+  - Contribute to the [opsdroid home page](https://github.com/opsdroid/opsdroid.github.io) (it’s a Jekyll website)
+  - Post about your experience using opsdroid on your own blog
+  - Contribute to [opsdroid audio](https://github.com/opsdroid/opsdroid-audio) (python voice client for opsdroid)
+  - Submit lots of useful issues (5–10 good ones is probably sticker worthy)
+  - Create [logo variations and banners](https://github.com/opsdroid/style-guidelines) for promotion
+  - Contribute to [opsdroid desktop](https://github.com/opsdroid/opsdroid-desktop) (electron and react app)
+  - Promote opsdroid in a meaningful way
 
-All contributors to the project, including the project founder [jacobtomlinson](https://github.com/jacobtomlinson), contribute using the following process:
-
- * Fork the main project to your own account
- * Work on your changes on a feature branch
- * Create a pull request back to the main project
- * Tests and test coverage will be checked automatically
- * A project maintainer will review and merge the pull request
-
-For more information see the [contribution documentation](http://opsdroid.readthedocs.io/en/latest/contributing/).
+To get started see the [contribution guide](http://opsdroid.readthedocs.io/en/latest/contributing/).
 
 Do you need help? Do you want to chat? [Join our Gitter channel](https://gitter.im/opsdroid/)
 
