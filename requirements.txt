@@ -5,7 +5,7 @@ Babel==2.6.0
 click==7.0
 nbconvert==5.4.0
 nbformat==4.4.0
-pycron==0.80.0
+pycron==1.0.0
 pyyaml==3.13
 websockets==6.0
 appdirs==1.4.3
