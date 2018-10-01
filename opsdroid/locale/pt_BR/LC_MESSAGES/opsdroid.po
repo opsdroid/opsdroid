@@ -1,0 +1,456 @@
+# Portuguese (Brazil) translations for opsdroid.
+# Copyright (C) 2018 ORGANIZATION
+# This file is distributed under the same license as the opsdroid project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: opsdroid 0.12.2+30.gf50723d\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2018-10-01 18:33-0300\n"
+"PO-Revision-Date: 2018-10-01 18:58-0300\n"
+"Last-Translator: Joao Paulo Limberger <jlimberger@gmail.com>\n"
+"Language: pt_BR\n"
+"Language-Team: pt_BR <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+"X-Generator: Poedit 2.0.6\n"
+
+#: opsdroid/__main__.py:81
+msgid "Started application"
+msgstr "A aplicacão iniciou"
+
+#: opsdroid/__main__.py:103
+msgid "Whoops! opsdroid requires python 3.5 or above."
+msgstr "Whoops! opsdroid precisa que a tua versão de python seja 3.5 ou superior."
+
+#: opsdroid/__main__.py:148
+msgid "You can customise your opsdroid by modifying your configuration.yaml"
+msgstr "Você pode personalizar o  opsdroid modificando o arquivo configuration.yaml"
+
+#: opsdroid/__main__.py:150
+msgid "Read more at: http://opsdroid.readthedocs.io/#configuration"
+msgstr "Leia mais: http://opsdroid.readthedocs.io/#configuration "
+
+#: opsdroid/__main__.py:152
+msgid "Watch the Get Started Videos at: http://bit.ly/2fnC0Fh"
+msgstr "Veja os vídeos de iniciação: http://bit.ly/2fnC0Fh"
+
+#: opsdroid/__main__.py:154
+msgid ""
+"Install Opsdroid Desktop at: \n"
+"https://github.com/opsdroid/opsdroid-desktop/releases"
+msgstr ""
+"Instala Opsdroid Desktop em: \n"
+"https://github.com/opsdroid/opsdroid-desktop/releases"
+
+#: opsdroid/__main__.py:159
+msgid "'welcome-message: true/false' is missing in configuration.yaml"
+msgstr ""
+"Parâmetro 'welcome-message: true/false' não está especificado no arquivo "
+"configuration.yaml"
+
+#: opsdroid/core.py:90
+#, python-format
+msgid "Exiting application with return code %s"
+msgstr "Saindo da aplicação com o código %s"
+
+#: opsdroid/core.py:118
+msgid "Keyboard interrupt, exiting."
+msgstr "Interrupção de teclado, saindo da aplicação."
+
+#: opsdroid/core.py:132
+#, python-format
+msgid "Loaded %i skills"
+msgstr "%i habilidades carregadas"
+
+#: opsdroid/core.py:194
+msgid "All databases failed to load"
+msgstr "Não foi possível carregar as base de dados."
+
+#: opsdroid/core.py:200
+#, python-format
+msgid "Adding database: %s"
+msgstr "Adicionando base de dados: %s"
+
+#: opsdroid/core.py:215
+msgid "Whoops there has been an error"
+msgstr "Whoops! Ocorreu um erro"
+
+#: opsdroid/core.py:216
+msgid "Check the log for details"
+msgstr "Verifica o log para mais detalhes"
+
+#: opsdroid/core.py:217
+#, python-format
+msgid "Exception when running skill '%s' "
+msgstr "Ocorreu uma exceção ao executar a habilidade '%s' "
+
+#: opsdroid/core.py:226
+msgid "Processing parsers..."
+msgstr "Processando interpretadores..."
+
+#: opsdroid/core.py:236
+msgid ""
+"Api.ai is now called Dialogflow. This parser will stop working in the future "
+"please swap: 'name: apiai' for 'name: dialogflow' in configuration.yaml"
+msgstr ""
+"Api.ai é agora chamada de Dialogflow. Este interpretador vai parar de funcionar "
+"no futuro. Por favor mudar 'name: apiai' por 'name:dialogflow' no arquivo "
+"configuration.yaml"
+
+#: opsdroid/core.py:244
+msgid "Checking dialogflow..."
+msgstr "Verifiando Dialogflow..."
+
+#: opsdroid/core.py:260
+msgid "Checking Recast.AI..."
+msgstr "Verificando Recast.AI..."
+
+#: opsdroid/core.py:268
+msgid "Checking wit.ai..."
+msgstr "Verificando wit.ai..."
+
+#: opsdroid/core.py:276
+msgid "Checking Rasa NLU..."
+msgstr "Verificando Rasa NLU..."
+
+#: opsdroid/core.py:287
+#, python-format
+msgid "Parsing input: %s"
+msgstr "Interpretando entrada: %s"
+
+#: opsdroid/helper.py:75
+#, python-format
+msgid "File %s copied from %s to %s run opsdroid -e to edit the main config file"
+msgstr ""
+"Arquivo %s copiado de %s para %s execute opsdroid -e para editar o arquivo de "
+"configuração principal. "
+
+#: opsdroid/loader.py:38
+msgid "Loaded loader"
+msgstr "Loader carregado"
+
+#: opsdroid/loader.py:59 opsdroid/loader.py:66
+#, python-format
+msgid "Loaded %s: %s"
+msgstr "Carregado %s: %s"
+
+#: opsdroid/loader.py:70
+#, python-format
+msgid "Failed to load %s: %s"
+msgstr "Falhou ao carregar %s: %s"
+
+#: opsdroid/loader.py:80
+#, python-format
+msgid "'no-cache' set, removing %s"
+msgstr "'no-cache' configurado , removendo %s"
+
+#: opsdroid/loader.py:149
+msgid "Couldn't find the command 'pip', trying again with command 'pip3'"
+msgstr ""
+"Não foi possível encontrar o comando 'pip', tentando novamente com o comando "
+"'pip3'"
+
+#: opsdroid/loader.py:159
+#, python-format
+msgid "Couldn't find the command 'pip3', install of %s will be skipped."
+msgstr "Não foi encontrado o comando 'pip3', a instalação de %s será ignorada."
+
+#: opsdroid/loader.py:164
+msgid "Pip and pip3 not found, exiting..."
+msgstr "Os comandos pip e pip3 não foram encontrados. Saindo da aplicação..."
+
+#: opsdroid/loader.py:200
+#, python-format
+msgid "Reloading module %s"
+msgstr "Carregando o módulo %s"
+
+#: opsdroid/loader.py:209
+#, python-format
+msgid "Config file %s not found."
+msgstr "Arquivo de configuração %s não foi encontrado."
+
+#: opsdroid/loader.py:236
+#, python-format
+msgid "Loaded config from %s."
+msgstr "Configuração carregada de %s."
+
+#: opsdroid/loader.py:259
+msgid "Loading modules from config..."
+msgstr "Carregando módulos da configuração.... "
+
+#: opsdroid/loader.py:268
+msgid ""
+"No databases in configuration.This will cause skills which store things in memory "
+"to lose data when opsdroid is restarted."
+msgstr ""
+"Não há bases de dados na configuração. Isso fará com que habilidades que "
+"armazenam dados em memória sejam perdidas quando o opsdroid for reiniciado."
+
+#: opsdroid/loader.py:277
+msgid "No skills in configuration, at least 1 required"
+msgstr ""
+"Não existem habilidades especificadas na configuração, pelo menos uma é necessária"
+
+#: opsdroid/loader.py:283
+msgid "No connectors in configuration, at least 1 required"
+msgstr "Sem conectores na configuração, pelo menos 1 é requerido"
+
+#: opsdroid/loader.py:290
+#, python-format
+msgid "Loading %s modules..."
+msgstr "Carregando módulos - %s"
+
+#: opsdroid/loader.py:340
+#, python-format
+msgid "Module %s failed to import."
+msgstr "Falha ao importar o módulo %s ."
+
+#: opsdroid/loader.py:347
+#, python-format
+msgid "Installing %s..."
+msgstr "Instalando %s..."
+
+#: opsdroid/loader.py:357
+#, python-format
+msgid "Installed %s to %s"
+msgstr "%s instalado em %s"
+
+#: opsdroid/loader.py:360
+#, python-format
+msgid "Install of %s failed."
+msgstr "A instalação de %s falhou"
+
+#: opsdroid/loader.py:366
+#, python-format
+msgid "Updating %s..."
+msgstr "Atualizando %s..."
+
+#: opsdroid/loader.py:369
+msgid "Local modules are not updated, skipping."
+msgstr "Módulos locais não serão atualizados, ignorando."
+
+#: opsdroid/loader.py:390
+msgid "'no-dep' set in configuration, skipping the install of dependencies."
+msgstr "'no-dep' setado na configuration, ignorando a instalação das dependências."
+
+#: opsdroid/loader.py:415
+#, python-format
+msgid "Cloning %s from remote repository"
+msgstr "Clonando %s do repositório remoto"
+
+#: opsdroid/loader.py:421
+#, python-format
+msgid "Cloning %s from local repository"
+msgstr "Clonando %s do repositório local"
+
+#: opsdroid/loader.py:426
+#, python-format
+msgid "Could not find local git repo %s"
+msgstr "Não foi possível encontrar repositório git %s"
+
+#: opsdroid/matchers.py:41
+msgid ""
+"Api.ai is now called Dialogflow, this matcher will stop working in the future. "
+"Use match_dialogflow_action instead."
+msgstr ""
+"Api.ai é agora chamado Dialogflow, este matcher irá para de funcionar no futuro. "
+"Usa match_dialogflow_action no teu código"
+
+#: opsdroid/matchers.py:58
+msgid ""
+"Api.ai is now called Dialogflow, this matcher will stop working in the future. "
+"Use match_dialogflow_intent instead."
+msgstr ""
+"Api.ai é agora chamado Dialogflow, este matcher irá para de funcionar no futuro. "
+"Usa match_dialogflow_action no teu código"
+
+#: opsdroid/memory.py:19
+#, python-format
+msgid "Getting %s from memory."
+msgstr "Obtendo %s da memória."
+
+#: opsdroid/memory.py:30
+#, python-format
+msgid "Putting %s to memory"
+msgstr "Colocando %s na memória"
+
+#: opsdroid/web.py:61
+msgid "Cannot find ssl cert or key."
+msgstr "Não foi possível encontrar o certificado ou chave SSL"
+
+#: opsdroid/web.py:68
+#, python-format
+msgid "Starting web server with host %s and port %s"
+msgstr "Iniciando servidor web com o host %s e a porta %s"
+
+#: opsdroid/connector/__init__.py:100
+#, python-format
+msgid "%s connector can't react to messages"
+msgstr "Conector %s não pode reagir às mensagens"
+
+#: opsdroid/parsers/crontab.py:17
+msgid "Running crontab skills"
+msgstr "Executando habilidades de crontab"
+
+#: opsdroid/parsers/dialogflow.py:33
+#, python-format
+msgid "Dialogflow response - %s"
+msgstr "Resposta de Dialogflow - %s"
+
+#: opsdroid/parsers/dialogflow.py:47
+msgid "No response from Dialogflow, check your network."
+msgstr "Não foi possível obter resposta de Dialogflow. Verifique a conexão."
+
+#: opsdroid/parsers/dialogflow.py:52
+#, python-format
+msgid "Dialogflow error - %s  - %s"
+msgstr "Erro de Dialogflow - %s - %s"
+
+#: opsdroid/parsers/dialogflow.py:59
+msgid "Dialogflow score lower than min-score"
+msgstr "Pontuação do Dialogflow inferior ao min-score"
+
+#: opsdroid/parsers/dialogflow.py:76 opsdroid/parsers/recastai.py:67
+#, python-format
+msgid "Matched against skill %s"
+msgstr "Correspondência entre habilidade %s"
+
+#: opsdroid/parsers/luisai.py:27
+#, python-format
+msgid "luis.ai response - %s"
+msgstr "Resposta luis.ai - %s"
+
+#: opsdroid/parsers/luisai.py:39
+msgid "No response from luis.ai, check your network."
+msgstr "Não foi possível obter resposta de luis.ai. Verifique a conexão."
+
+#: opsdroid/parsers/luisai.py:48
+#, python-format
+msgid "luis.ai error - %s %s"
+msgstr "Erro de luis.ai - %s %s"
+
+#: opsdroid/parsers/luisai.py:55
+msgid "luis.ai score lower than min-score"
+msgstr "Pontuação do luis.ai inferior ao min-score"
+
+#: opsdroid/parsers/rasanlu.py:52
+msgid "Initialising Rasa NLU model."
+msgstr "Inicializando modelo Rasa NLU."
+
+#: opsdroid/parsers/rasanlu.py:58
+msgid "Initialisation failed, training failed.."
+msgstr "Inicialização falhou, treinamento falhou."
+
+#: opsdroid/parsers/rasanlu.py:62
+#, python-format
+msgid "Initialisation complete in %s seconds."
+msgstr "Inicialização completa em %s segundos."
+
+#: opsdroid/parsers/rasanlu.py:85
+msgid "Starting Rasa NLU training."
+msgstr "A iniciar treino Rasa NLU"
+
+#: opsdroid/parsers/rasanlu.py:88
+msgid "No intents found, skipping training."
+msgstr "Nenhuma intenção encontrada, ignorando treino."
+
+#: opsdroid/parsers/rasanlu.py:93
+msgid "This model already exists, skipping training..."
+msgstr "Este modelo já existe, a ignorando treino..."
+
+#: opsdroid/parsers/rasanlu.py:98
+msgid "Now training the model. This may take a while..."
+msgstr "Treinando o modelo agora. Isto pode demorar um pouco..."
+
+#: opsdroid/parsers/rasanlu.py:106
+msgid "Unable to connect to Rasa NLU, training failed."
+msgstr "Não foi possível conectar com Rasa NLU, o treino falhou."
+
+#: opsdroid/parsers/rasanlu.py:113
+#, python-format
+msgid "Rasa NLU training completed in %s seconds."
+msgstr "Treino de Rasa NLU demorou %s segundos."
+
+#: opsdroid/parsers/rasanlu.py:120 opsdroid/parsers/rasanlu.py:148
+#, python-format
+msgid "Bad Rasa NLU response - %s"
+msgstr "Má resposta de Rasa NLU - %s"
+
+#: opsdroid/parsers/rasanlu.py:121
+msgid "Rasa NLU training failed."
+msgstr "Treino de Rasa NLU falhou."
+
+#: opsdroid/parsers/rasanlu.py:141
+msgid "Unable to connect to Rasa NLU"
+msgstr "Não foi possível conectar a Rasa NLU"
+
+#: opsdroid/parsers/rasanlu.py:145
+#, python-format
+msgid "Rasa NLU response - %s"
+msgstr "Resposta de Rasa NLU - %s"
+
+#: opsdroid/parsers/rasanlu.py:159
+msgid "No response from Rasa NLU, check your network."
+msgstr "Não foi possível obter resposta de Rasa NLU. Verifique a tua conexão."
+
+#: opsdroid/parsers/rasanlu.py:163
+msgid "Rasa NLU error - Unauthorised request.Check your 'token'."
+msgstr "Erro de Rasa NLU - Pedido não autorizado. Confirme o teu 'token'."
+
+#: opsdroid/parsers/rasanlu.py:168
+msgid "Rasa NLU error - No intent found. Did you forget to create one?"
+msgstr "Erro de Rasa NLU - Nenhuma intenção loalizada. Você esqueceu de criar uma?"
+
+#: opsdroid/parsers/rasanlu.py:174
+msgid "Rasa NLU score lower than min-score"
+msgstr "Pontuação de Rasa NLU inferior ao min-score"
+
+#: opsdroid/parsers/recastai.py:29
+#, python-format
+msgid "Recastai response - %s"
+msgstr "Resposta de Recastai - %s"
+
+#: opsdroid/parsers/recastai.py:43
+msgid "No response from Recast.AI, check your network."
+msgstr "Sem resposta de Recast.AI, verifique  a tua conexão."
+
+#: opsdroid/parsers/recastai.py:47
+#, python-format
+msgid "Recast.AI error - %s"
+msgstr "Erro de Recast.AI - %s"
+
+#: opsdroid/parsers/recastai.py:51
+#, python-format
+msgid "Recast.AI error - No intent found for the message %s"
+msgstr "Erro de Recast.AI - Nenhuma intenção encontrada para a mensagem %s"
+
+#: opsdroid/parsers/recastai.py:58
+msgid "Recast.AI score lower than min-score"
+msgstr "Pontuação de Recast.AI inferior ao min-score"
+
+#: opsdroid/parsers/witai.py:27
+#, python-format
+msgid "wit.ai response - %s"
+msgstr "Resposta de wit-ai - %s"
+
+#: opsdroid/parsers/witai.py:38
+msgid "No response from wit.ai, check your network."
+msgstr "Sem resposta de wit.ai, verifique a tua conexão."
+
+#: opsdroid/parsers/witai.py:42
+#, python-format
+msgid "wit.ai error - %s %s"
+msgstr "Erro de wit.ai - %s %s"
+
+#: opsdroid/parsers/witai.py:47
+msgid "wit.ai error - No intent found. Did you forget to create one?"
+msgstr "Erro de wit.ai - Nenhuma intenção encontrada. Esqueceu-te de criar uma?"
+
+#: opsdroid/parsers/witai.py:56
+msgid "wit.ai score lower than min-score"
+msgstr "Pontuação de wit.ai inferior ao min-score"
