@@ -10,13 +10,23 @@ from opsdroid.database.sqlite import DatabaseSqlite
 
 
 class TestDatabaseSqlite(unittest.TestCase):
-    """Test the opsdroid sqlite database class."""
+    """A database test class.
+
+    Test the opsdroid sqlite database class.
+
+    """
 
     def setUp(self):
         self.loop = asyncio.new_event_loop()
 
     def test_init(self):
-        """Test that the database is initialised properly."""
+        """Test initialisation of database class.
+
+        This method will test the initialisation of the database
+        class. It will assert if the database class properties are
+        declared and equated to None.
+
+        """
         database = DatabaseSqlite({})
         self.assertEqual(None, database.client)
         self.assertEqual(None, database.database)
@@ -26,9 +36,19 @@ class TestDatabaseSqlite(unittest.TestCase):
 
 
 class TestDatabaseSqliteAsync(asynctest.TestCase):
-    """Test the async methods of the opsdroid sqlite database class."""
+    """A async database test class.
+
+    Test the async methods of the opsdroid sqlite database class.
+
+    """
 
     async def test_connect(self):
+        """Test database connection.
+
+        This method will test the database connection of sqlite database.
+        As the database is created `opsdroid` table is created first.
+
+        """
         database = DatabaseSqlite({})
         opsdroid = amock.CoroutineMock()
         opsdroid.eventloop = self.loop
@@ -38,6 +58,13 @@ class TestDatabaseSqliteAsync(asynctest.TestCase):
         self.assertEqual("opsdroid", database.table)
 
     async def test_get_and_put(self):
+        """Test get and put functions of database
+
+        This method will test the get and put functions which help to read
+        and write data from the database. The function `put` a value with
+        key and asserts the same value after the `get` operation is completed.
+
+        """
         database = DatabaseSqlite({})
         opsdroid = amock.CoroutineMock()
         opsdroid.eventloop = self.loop
