@@ -18,6 +18,8 @@ pages:
   - 'Connectors':
       - 'Slack': 'connectors/slack.md'
       - 'Websocket': 'connectors/websocket.md'
+  - 'Databases':
+      - 'SQLite': 'databases/sqlite.md'
   - 'Matchers':
       - 'Regular Expressions': 'matchers/regex.md'
       - 'Rasa NLU (local)': 'matchers/rasanlu.md'
