@@ -77,13 +77,13 @@ class TestConnectorFacebookAsync(asynctest.TestCase):
         mock_request.query = amock.Mock()
         mock_request.query.return_value = {"hub.verify_token": 'token_123', 'hub.challenge': 'challenge_123'}
 
-        response = await connector.facebook_message_handler(mock_request)
+        response = await connector.facebook_challenge_handler(mock_request)
         self.assertEqual(type(response), aiohttp.web.Response)
         self.assertEqual(response.text, 'challenge_123')
         self.assertEqual(response.status, 200)
 
         mock_request.query.return_value = {"hub.verify_token": 'token_abc', 'hub.challenge': 'challenge_123'}
-        response = await connector.facebook_message_handler(mock_request)
+        response = await connector.facebook_challenge_handler(mock_request)
         self.assertEqual(type(response), aiohttp.web.Response)
         self.assertEqual(response.status, 403)
 
@@ -104,7 +104,7 @@ class TestConnectorFacebookAsync(asynctest.TestCase):
             post_response.text = amock.CoroutineMock()
             post_response.text.return_value = "Error"
             mock_ClientSession.post = amock.CoroutineMock()
-            mock_ClientSession.post.return_value = amock.post_response
+            mock_ClientSession.post.return_value = post_response
 
             await test_message.respond("Response")
             self.assertTrue(mock_ClientSession.post.called)
