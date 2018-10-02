@@ -9,14 +9,15 @@ from opsdroid.message import Message
 
 
 _LOGGER = logging.getLogger(__name__)
-_FACEBOOK_SEND_URL = "https://graph.facebook.com/v2.6/me/messages?access_token={}"
+_FACEBOOK_SEND_URL = "https://graph.facebook.com/v2.6/me/messages" \
+                     "?access_token={}"
 
 
 class ConnectorFacebook(Connector):
     """A connector for Facebook Messenger."""
 
     def __init__(self, config):
-        """Setup the connector."""
+        """Connector Setup."""
         super().__init__(config)
         _LOGGER.debug("Starting facebook connector")
         self.config = config
@@ -60,7 +61,8 @@ class ConnectorFacebook(Connector):
     async def facebook_challenge_handler(self, request):
         """Handle auth challenge."""
         _LOGGER.debug(request.query)
-        if request.query["hub.verify_token"] == self.config.get('verify-token'):
+        if request.query["hub.verify_token"] == \
+                self.config.get('verify-token'):
             return aiohttp.web.Response(
                 text=request.query["hub.challenge"], status=200)
         return aiohttp.web.Response(
@@ -84,7 +86,8 @@ class ConnectorFacebook(Connector):
             }
         }
         async with aiohttp.ClientSession() as session:
-            async with session.post(url, data=json.dumps(payload), headers=headers) as resp:
+            async with session.post(
+                    url, data=json.dumps(payload), headers=headers) as resp:
                 if resp.status < 300:
                     _LOGGER.info("Responded with: {}".format(message.text))
                 else:
