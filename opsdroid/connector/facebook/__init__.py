@@ -16,7 +16,8 @@ class ConnectorFacebook(Connector):
     """A connector for Facebook Messenger."""
 
     def __init__(self, config):
-        """ Setup the connector """
+        """Setup the connector."""
+        super().__init__(config)
         _LOGGER.debug("Starting facebook connector")
         self.config = config
         self.name = self.config.get("name", "facebook")
@@ -25,7 +26,7 @@ class ConnectorFacebook(Connector):
         self.bot_name = config.get("bot-name", 'opsdroid')
 
     async def connect(self, opsdroid):
-        """ Connect to the chat service """
+        """Connect to the chat service."""
         self.opsdroid = opsdroid
 
         self.opsdroid.web_server.web_app.router.add_post(
@@ -37,6 +38,7 @@ class ConnectorFacebook(Connector):
             self.facebook_challenge_handler)
 
     async def facebook_message_handler(self, request):
+        """Handle incoming message."""
         req_data = await request.json()
 
         if "object" in req_data and req_data["object"] == "page":
@@ -53,33 +55,33 @@ class ConnectorFacebook(Connector):
                         _LOGGER.error(error)
 
         return aiohttp.web.Response(
-                text=json.dumps("Received"), status=201)
+            text=json.dumps("Received"), status=201)
 
     async def facebook_challenge_handler(self, request):
+        """Handle auth challenge."""
         _LOGGER.debug(request.query)
         if request.query["hub.verify_token"] == self.config.get('verify-token'):
             return aiohttp.web.Response(
-                    text=request.query["hub.challenge"], status=200)
-        else:
-            return aiohttp.web.Response(
-                    text=json.dumps("Bad verify token"), status=403)
+                text=request.query["hub.challenge"], status=200)
+        return aiohttp.web.Response(
+            text=json.dumps("Bad verify token"), status=403)
 
     async def listen(self, opsdroid):
         """Listen for and parse new messages."""
         pass  # Listening is handled by the aiohttp web server
 
     async def respond(self, message, room=None):
-        """ Respond with a message """
+        """Respond with a message."""
         _LOGGER.debug("Responding to facebook")
         url = _FACEBOOK_SEND_URL.format(self.config.get('page-access-token'))
         headers = {'content-type': 'application/json'}
         payload = {
-          "recipient": {
-            "id": message.room
-          },
-          "message": {
-            "text": message.text
-          }
+            "recipient": {
+                "id": message.room
+            },
+            "message": {
+                "text": message.text
+            }
         }
         async with aiohttp.ClientSession() as session:
             async with session.post(url, data=json.dumps(payload), headers=headers) as resp:
