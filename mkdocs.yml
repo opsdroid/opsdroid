@@ -29,5 +29,7 @@ pages:
       - 'Webhook': 'matchers/webhook.md'
       - 'Always': 'matchers/always.md'
   - 'Contributing': 'contributing.md'
+  - 'Databases':
+      - 'Redis': 'databases/redis.md'
   - 'Releasing': 'project/making-a-release.md'
   - 'Maintainers': 'maintainers.md'
