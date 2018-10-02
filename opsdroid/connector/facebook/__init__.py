@@ -87,12 +87,12 @@ class ConnectorFacebook(Connector):
         }
         async with aiohttp.ClientSession() as session:
             resp = await session.post(
-                url, 
+                url,
                 data=json.dumps(payload),
                 headers=headers
             )
             if resp.status < 300:
-                _LOGGER.info("Responded with: %s" % message.text)
+                _LOGGER.info("Responded with: %s", message.text)
             else:
                 _LOGGER.debug(resp.status)
                 _LOGGER.debug(await resp.text())

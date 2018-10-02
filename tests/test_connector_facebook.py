@@ -92,10 +92,35 @@ class TestConnectorFacebookAsync(asynctest.TestCase):
         self.assertEqual(type(response), aiohttp.web.Response)
         self.assertEqual(response.status, 403)
 
+    async def test_listen(self):
+        """Test that listen does nothing."""
+        connector = ConnectorFacebook({})
+        await connector.listen(None)
+
     async def test_respond(self):
         """Test that responding sends a message."""
         post_response = amock.Mock()
         post_response.status = 200
+
+        with OpsDroid() as opsdroid, \
+                amock.patch('aiohttp.ClientSession.post',
+                            new=asynctest.CoroutineMock()) as patched_request:
+            self.assertTrue(opsdroid.__class__.instances)
+            connector = ConnectorFacebook({})
+            room = "a146f52c-548a-11e8-a7d1-28cfe949e12d"
+            test_message = Message(text="Hello world",
+                                   user="Alice",
+                                   room=room,
+                                   connector=connector)
+            patched_request.return_value = asyncio.Future()
+            patched_request.return_value.set_result(post_response)
+            await test_message.respond("Response")
+            self.assertTrue(patched_request.called)
+
+    async def test_respond_bad_response(self):
+        """Test that responding sends a message and get bad response."""
+        post_response = amock.Mock()
+        post_response.status = 401
         post_response.text = amock.CoroutineMock()
         post_response.text.return_value = "Error"
 
@@ -113,4 +138,4 @@ class TestConnectorFacebookAsync(asynctest.TestCase):
             patched_request.return_value.set_result(post_response)
             await test_message.respond("Response")
             self.assertTrue(patched_request.called)
-            self.assertFalse(post_response.text.called)
+            self.assertTrue(post_response.text.called)
