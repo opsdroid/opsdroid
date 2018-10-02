@@ -89,7 +89,7 @@ class ConnectorFacebook(Connector):
             async with session.post(
                     url, data=json.dumps(payload), headers=headers) as resp:
                 if resp.status < 300:
-                    _LOGGER.info("Responded with: {}".format(message.text))
+                    _LOGGER.info("Responded with: %s" % message.text)
                 else:
                     _LOGGER.debug(resp.status)
                     _LOGGER.debug(await resp.text())

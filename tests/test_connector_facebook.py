@@ -84,7 +84,7 @@ class TestConnectorFacebookAsync(asynctest.TestCase):
         self.assertEqual(response.text, 'challenge_123')
         self.assertEqual(response.status, 200)
 
-        mock_request.query.return_value = {
+        mock_request.query = {
             "hub.verify_token": 'token_abc',
             'hub.challenge': 'challenge_123'
         }
@@ -94,15 +94,14 @@ class TestConnectorFacebookAsync(asynctest.TestCase):
 
     async def test_respond(self):
         """Test that responding sends a message."""
-        post_response = amock.Mock()
+        post_response = amock.CoroutineMock()
         post_response.status = 200
         post_response.text = amock.CoroutineMock()
         post_response.text.return_value = "Error"
 
         with OpsDroid() as opsdroid, \
                 amock.patch('aiohttp.ClientSession.post',
-                            new=asynctest.CoroutineMock()) \
-                        as patched_request:
+                            new=asynctest.CoroutineMock()) as patched_request:
             self.assertTrue(opsdroid.__class__.instances)
             connector = ConnectorFacebook({})
             room = "a146f52c-548a-11e8-a7d1-28cfe949e12d"
@@ -110,8 +109,7 @@ class TestConnectorFacebookAsync(asynctest.TestCase):
                                    user="Alice",
                                    room=room,
                                    connector=connector)
-            patched_request.return_value = asyncio.Future()
-            patched_request.return_value.set_result(post_response)
+            patched_request.return_value = post_response
 
             await test_message.respond("Response")
             self.assertTrue(patched_request.called)
