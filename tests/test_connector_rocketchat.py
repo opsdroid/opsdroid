@@ -28,7 +28,7 @@ class TestConnectorSlack(unittest.TestCase):
             'access-token': 'test',
             'user-id': 'userID'
         })
-        self.assertEqual("#general", connector.default_room)
+        self.assertEqual("general", connector.default_room)
         self.assertEqual("rocket.chat", connector.name)
 
     def test_missing_token(self):

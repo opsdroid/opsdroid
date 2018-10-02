@@ -20,15 +20,14 @@ class RocketChat(Connector):
         self.default_room = config.get("default-room", "general")
         self.group = config.get("group", None)
         self.url = config.get("channel-url", "https://open.rocket.chat")
-        self.latest_update = None
         self.update_interval = config.get("update-interval", 1)
 
         try:
             self.user_id = config['user-id']
-            self.token = config['access-token']
+            self.token = config['token']
             self.headers = {
                 'X-User-Id': self.user_id,
-                "X-Auth-Token": self.token
+                "X-Auth-Token": self.token,
             }
         except (KeyError, AttributeError):
             _LOGGER.error("Unable to login: Access token is missing. "
@@ -57,6 +56,7 @@ class RocketChat(Connector):
 
     async def listen(self, opsdroid):
         """Listen to messages in the chat room."""
+        params = {}
         while True:
             if self.group:
                 url = self.build_url('groups.history?roomName={}'.format(
@@ -65,28 +65,27 @@ class RocketChat(Connector):
                 url = self.build_url('channels.history?roomName={}'.format(
                     self.default_room))
 
+            # if params:
+            #     url += '&oldest={}'.format(params['oldest'])
+
             async with aiohttp.ClientSession() as session:
-                params = {}
-                if self.latest_update:
-                    params['oldest'] = self.latest_update
-                async with session.get(url,
-                                       params=params,
+                async with session.get(url, data=params,
                                        headers=self.headers) as resp:
-                    _LOGGER.debug(resp.status)
                     if resp.status != 200:
                         _LOGGER.error("Rocket.Chat error %s, %s",
                                       resp.status, resp.text)
                     else:
                         json = await resp.json()
-                        _LOGGER.debug(json['messages'][0]['msg'])
-                        params['oldest'] = json['messages'][0]['_updatedAt']
-                        _LOGGER.debug(params)
-
-                        for response in json['messages']:
-                            _LOGGER.debug(response['msg'])
-                            await opsdroid.parse(response['msg'])
-
-                await asyncio.sleep(self.update_interval)
+                        message = Message(json['messages'][0]['msg'],
+                                          json['messages'][0]['u']['username'],
+                                          self.group,
+                                          self)
+                        await opsdroid.parse(message)
+                        # for response in json['messages']:
+                        #     _LOGGER.debug(response['msg'])
+                            # await opsdroid.parse(response['msg'])
+                        # params['oldest'] = json['messages'][0]['ts']
+            await asyncio.sleep(self.update_interval)
 
     async def respond(self, message, room=None):
         """Respond to the user."""
@@ -100,13 +99,8 @@ class RocketChat(Connector):
                     self.build_url('chat.postMessage?roomName={}'.format(
                         self.group)),
                     headers=self.headers, data=data) as resp:
-                # _LOGGER.debug(resp)
                 _LOGGER.debug(data)
                 if resp.status == 200:
                     _LOGGER.debug('Successfully responded')
                 else:
                     _LOGGER.debug("Unable to respond")
-
-  
-    async def disconnect(self, opsdroid):
-      pass
