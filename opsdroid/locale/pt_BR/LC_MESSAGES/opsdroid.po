@@ -29,7 +29,7 @@ msgstr "Whoops! opsdroid precisa que a tua versão de python seja 3.5 ou superio
 
 #: opsdroid/__main__.py:148
 msgid "You can customise your opsdroid by modifying your configuration.yaml"
-msgstr "Você pode personalizar o  opsdroid modificando o arquivo configuration.yaml"
+msgstr "Você pode personalizar o opsdroid modificando o arquivo configuration.yaml"
 
 #: opsdroid/__main__.py:150
 msgid "Read more at: http://opsdroid.readthedocs.io/#configuration"
