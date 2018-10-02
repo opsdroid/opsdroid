@@ -18,6 +18,7 @@ pages:
   - 'Connectors':
       - 'Slack': 'connectors/slack.md'
       - 'Websocket': 'connectors/websocket.md'
+      - 'Facebook': 'connectors/facebook.md'
   - 'Matchers':
       - 'Regular Expressions': 'matchers/regex.md'
       - 'Rasa NLU (local)': 'matchers/rasanlu.md'
