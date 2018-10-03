@@ -4,7 +4,7 @@ Pygments==2.2.0
 docutils==0.14
 mock==2.0.0
 pillow==5.3.0
-alabaster==0.7.11
+alabaster==0.7.12
 commonmark==0.8.1
 recommonmark==0.4.0
 mkdocs==1.0.4
