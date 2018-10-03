@@ -1,6 +1,7 @@
-import aiohttp
+"""A connector for Rocket.Chat."""
 import asyncio
 import logging
+import aiohttp
 
 from opsdroid.connector import Connector
 from opsdroid.message import Message
@@ -161,9 +162,8 @@ class RocketChat(Connector):
             data['text'] = message.text
             data['avatar'] = ''
             async with session.post(
-                    self.build_url('chat.postMessage'.format(
-                        self.group)),
-                    headers=self.headers, data=data) as resp:
+                self.build_url('chat.postMessage'),
+                headers=self.headers, data=data) as resp:
                 if resp.status == 200:
                     _LOGGER.debug('Successfully responded')
                 else:
