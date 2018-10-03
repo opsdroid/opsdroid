@@ -153,7 +153,6 @@ class RocketChat(Connector):
             room (string, optional): Name of the room to respond to.
 
         """
-        _LOGGER.debug(type(message))
         _LOGGER.debug("Responding with: %s", message.text)
         async with aiohttp.ClientSession() as session:
             data = {}
@@ -162,8 +161,8 @@ class RocketChat(Connector):
             data['text'] = message.text
             data['avatar'] = ''
             async with session.post(
-                self.build_url('chat.postMessage'),
-                headers=self.headers, data=data) as resp:
+                    self.build_url('chat.postMessage'),
+                    headers=self.headers, data=data) as resp:
                 if resp.status == 200:
                     _LOGGER.debug('Successfully responded')
                 else:
