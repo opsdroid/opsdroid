@@ -6,7 +6,7 @@ import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock
 
-from opsdroid.database.mogno import DatabaseMongo
+from opsdroid.database.mongo import DatabaseMongo
 
 
 class TestDatabaseMongo(unittest.TestCase):
