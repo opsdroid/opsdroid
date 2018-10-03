@@ -18,7 +18,8 @@ pages:
   - 'Connectors':
       - 'Slack': 'connectors/slack.md'
       - 'Websocket': 'connectors/websocket.md'
-      - 'Facebook': 'connectors/facebook.md'      
+      - 'Facebook': 'connectors/facebook.md'
+      - 'Telegram': 'connectors/telegram.md'
   - 'Databases':
       - 'MongoDB': 'databases/mongo.md'
       - 'SQLite': 'databases/sqlite.md'
