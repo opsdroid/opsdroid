@@ -91,6 +91,7 @@ Configuration options such as the `token` in the slack connector or the `host`, 
 Opsdroid comes with some built-in connectors out of the box. A connector is a module which is either installed as a plugin or built-in that connect opsdroid to a specific chat service.
 
 The built-in connectors are:
+- [Facebook](/connectors/facebook.md)
 - [Slack](/connectors/slack.md)
 - [Websockets](/connectors/websocket.md)
 
