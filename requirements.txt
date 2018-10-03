@@ -1,5 +1,5 @@
 aiohttp==3.4.4
-aioslacker==0.0.10
+aioslacker==0.0.11
 arrow==0.12.1
 Babel==2.6.0
 click==7.0
