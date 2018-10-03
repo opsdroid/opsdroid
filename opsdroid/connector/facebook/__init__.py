@@ -14,7 +14,21 @@ _FACEBOOK_SEND_URL = "https://graph.facebook.com/v2.6/me/messages" \
 
 
 class ConnectorFacebook(Connector):
-    """A connector for Facebook Messenger."""
+    """A connector for Facebook Messenger.
+
+    It handles the incoming messages from facebook messenger and sends the user
+    messages. It also handles the authentication challenge by verifying the
+    token.
+
+    Attributes:
+        config: The config for this connector specified in the
+            `configuration.yaml` file.
+        name: String name of the connector.
+        opsdroid: opsdroid instance.
+        default_room: String name of default room for chat messages.
+        bot_name: String name for bot.
+
+    """
 
     def __init__(self, config):
         """Connector Setup."""
@@ -39,7 +53,18 @@ class ConnectorFacebook(Connector):
             self.facebook_challenge_handler)
 
     async def facebook_message_handler(self, request):
-        """Handle incoming message."""
+        """Handle incoming message.
+
+        For each entry in request, it will check if the entry is a `messaging`
+        type. Then it will process all the incoming messages.
+
+        Return:
+            A 200 OK response. The Messenger Platform will resend the webhook
+            event every 20 seconds, until a 200 OK response is received.
+            Failing to return a 200 OK may cause your webhook to be
+            unsubscribed by the Messenger Platform.
+
+        """
         req_data = await request.json()
 
         if "object" in req_data and req_data["object"] == "page":
@@ -56,10 +81,15 @@ class ConnectorFacebook(Connector):
                         _LOGGER.error(error)
 
         return aiohttp.web.Response(
-            text=json.dumps("Received"), status=201)
+            text=json.dumps("Received"), status=200)
 
     async def facebook_challenge_handler(self, request):
-        """Handle auth challenge."""
+        """Handle auth challenge.
+
+        Return:
+            A response if challenge is a success or failure.
+
+        """
         _LOGGER.debug(request.query)
         if request.query["hub.verify_token"] == \
                 self.config.get('verify-token'):

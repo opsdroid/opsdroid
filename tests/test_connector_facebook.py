@@ -67,7 +67,36 @@ class TestConnectorFacebookAsync(asynctest.TestCase):
             response = await connector.facebook_message_handler(mock_request)
             self.assertTrue(connector.opsdroid.parse.called)
             self.assertEqual(type(response), aiohttp.web.Response)
-            self.assertEqual(response.status, 201)
+            self.assertEqual(response.status, 200)
+
+    async def test_facebook_message_handler_invalid(self):
+        """Test the new facebook message handler for invalid message."""
+        import aiohttp
+        connector = ConnectorFacebook({})
+        req_ob = {
+            "object": "page",
+            "entry": [{
+                "messaging": [{
+                    "message": {"text": "Hello"},
+                    "sender": {}
+                }]
+            }]
+        }
+        mock_request = amock.CoroutineMock()
+        mock_request.json = amock.CoroutineMock()
+        mock_request.json.return_value = req_ob
+
+        with OpsDroid() as opsdroid,  \
+                amock.patch('opsdroid.connector.facebook._LOGGER.error') \
+                        as logmock:
+            connector.opsdroid = opsdroid
+            connector.opsdroid.parse = amock.CoroutineMock()
+
+            response = await connector.facebook_message_handler(mock_request)
+            self.assertFalse(connector.opsdroid.parse.called)
+            self.assertTrue(logmock.called)
+            self.assertEqual(type(response), aiohttp.web.Response)
+            self.assertEqual(response.status, 200)
 
     async def test_facebook_challenge_handler(self):
         """Test the facebook challenge handler."""
