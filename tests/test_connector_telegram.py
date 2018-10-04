@@ -7,18 +7,10 @@ import asynctest.mock as amock
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector.telegram import ConnectorTelegram
-from opsdroid.message import  Message
+from opsdroid.message import Message
 
 
-class AsyncContextManagerMock(amock.MagicMock):
-    async def __aenter__(self):
-        return self.aenter
-
-    async def __aexit__(self, *args):
-        pass
-
-
-class TestConnectorSlack(unittest.TestCase):
+class TestConnectorTelegram(unittest.TestCase):
     """Test the opsdroid Telegram connector class."""
 
     def setUp(self):
@@ -30,8 +22,8 @@ class TestConnectorSlack(unittest.TestCase):
             'name': 'telegram',
             'token': 'test',
         })
-        self.assertEqual("general", connector.default_room)
-        self.assertEqual("rocket.chat", connector.name)
+        self.assertEqual(None, connector.default_room)
+        self.assertEqual("telegram", connector.name)
 
     def test_missing_token(self):
         """Test that attempt to connect without info raises an error."""
@@ -41,189 +33,125 @@ class TestConnectorSlack(unittest.TestCase):
             self.assertTrue(logmock.called)
 
 
-class TestConnectorConnectorTelegramAsync(asynctest.TestCase):
+class TestConnectorTelegramAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid Telegram connector class."""
+
+    def setUp(self):
+        self.connector = ConnectorTelegram({
+                'name': 'telegram',
+                'token': 'test',
+            })
 
     async def test_connect(self):
         connect_response = amock.Mock()
         connect_response.status = 200
+        connect_response.json = amock.CoroutineMock()
+        connect_response.return_value = {
+            "ok": True,
+            "result": {
+                "id": 635392558,
+                "is_bot": True,
+                "first_name": "opsdroid",
+                "username": "opsdroid_bot"
+            }
+        }
 
         with OpsDroid() as opsdroid, \
-            amock.patch('aiohttp.ClientSession.get',
-                        new=AsyncContextManagerMock) as patched_request, \
+            amock.patch('aiohttp.ClientSession.get') as patched_request, \
             amock.patch('opsdroid.connector.telegram._LOGGER.debug',) \
                 as logmock:
-            connector = ConnectorTelegram({
-                'name': 'telegram',
-                'token': 'test',
-            })
+
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(connect_response)
-            await connector.connect(opsdroid)
+            await self.connector.connect(opsdroid)
             self.assertTrue(logmock.called)
+            self.assertNotEqual(200, patched_request.status)
             self.assertTrue(patched_request.called)
 
     async def test_connect_failure(self):
-        connector = ConnectorTelegram({
-            'name': 'telegram',
-            'token': 'test',
-        })
-        opsdroid = amock.CoroutineMock()
-        opsdroid.eventloop = self.loop
         result = amock.MagicMock()
-        result.json = amock.CoroutineMock()
         result.status = 401
 
-        with amock.patch('aiohttp.ClientSession.get') as mocked_session:
-            mocked_session.return_value.json = result
-            with self.assertRaises(Exception):
-                await connector.connect(opsdroid)
-                self.assertFalse(mocked_session.called)
-
-    async def test_listen_loop_channel(self):
-        listen_response = amock.Mock()
-        listen_response.status = 200
-        listen_response.return_value = {
-            'messages': [
-            {
-                "_id": "ZbhuIO764jOIu",
-                "rid": "Ipej45JSbfjt9",
-                "msg": "hows it going",
-                "ts": "2018-05-11T16:05:41.047Z",
-                "u": {
-                    "_id": "ZbhuIO764jOIu",
-                    "username": "FabioRosado",
-                    "name": "Fábio Rosado"
-                },
-                "_updatedAt": "2018-05-11T16:05:41.489Z",
-                "editedBy": None,
-                "editedAt": None,
-                "emoji": None,
-                "avatar": None,
-                "alias": None,
-                "customFields": None,
-                "attachments": None,
-                "mentions": [],
-                "channels": []
-            }
-            ]}
-
         with OpsDroid() as opsdroid, \
-            amock.patch('aiohttp.ClientSession.get',
-                        new=AsyncContextManagerMock) as patched_request:
-            connector = ConnectorTelegram({
-                'name': 'telegram',
-                'token': 'test',
-            })
-            patched_request.return_value = asyncio.Future()
-            patched_request.return_value.set_result(listen_response)
-            await connector.listen(opsdroid)
-            self.assertTrue(patched_request.called)
+            amock.patch('aiohttp.ClientSession.get') as patched_request, \
+            amock.patch('opsdroid.connector.telegram._LOGGER.error',) \
+                as logmock:
 
-    async def test_listen_loop_group(self):
-        listen_response = amock.Mock()
-        listen_response.status = 200
-        listen_response.return_value.json = {
-            'messages': [
-            {
-                "_id": "ZbhuIO764jOIu",
-                "rid": "Ipej45JSbfjt9",
-                "msg": "hows it going",
-                "ts": "2018-05-11T16:05:41.047Z",
-                "u": {
-                    "_id": "ZbhuIO764jOIu",
-                    "username": "FabioRosado",
-                    "name": "Fábio Rosado"
-                },
-                "_updatedAt": "2018-05-11T16:05:41.489Z",
-                "editedBy": None,
-                "editedAt": None,
-                "emoji": None,
-                "avatar": None,
-                "alias": None,
-                "customFields": None,
-                "attachments": None,
-                "mentions": [],
-                "channels": []
-            }
-            ]}
-
-        with OpsDroid() as opsdroid, \
-            amock.patch('aiohttp.ClientSession.get',
-                        new=AsyncContextManagerMock) as patched_request:
-            connector = ConnectorTelegram({
-                'name': 'telegram',
-                'token': 'test',
-            })
             patched_request.return_value = asyncio.Future()
-            patched_request.return_value.set_result(listen_response)
-            await connector.listen(opsdroid)
-            self.assertTrue(patched_request.called)
+            patched_request.return_value.set_result(result)
+
+            await self.connector.connect(opsdroid)
+            self.assertTrue(logmock.called)
+
+    # async def test_listen_loop(self):
+    #     listen_response = amock.Mock()
+    #     listen_response.status = 200
+    #     listen_response.json = amock.CoroutineMock()
+    #     listen_response.return_value =
+    #
+    #     with OpsDroid() as opsdroid, \
+    #         amock.patch('aiohttp.ClientSession.get') as patched_request, \
+    #         amock.patch('opsdroid.connector.telegram._LOGGER.debug',) \
+    #             as logmock:
+    #
+    #         patched_request.return_value = asyncio.Future()
+    #         patched_request.return_value.set_result(listen_response)
+    #         await self.connector.listen(opsdroid)
+    #         self.assertTrue(patched_request.called)
+    #         self.assertTrue(logmock.called)
 
     async def test_listen_loop_failure(self):
         listen_response = amock.Mock()
         listen_response.status = 401
 
         with OpsDroid() as opsdroid, \
-            amock.patch('aiohttp.ClientSession.get',
-                        new=AsyncContextManagerMock) as patched_request, \
-            amock.patch('opsdroid.connector.telegram._LOGGER.error') as \
-                logmock:
-            connector = ConnectorTelegram({
-                'name': 'rocket.chat',
-                'token': 'test',
-                'user-id': 'userID',
-                'default_room': "test"
-            })
+            amock.patch('aiohttp.ClientSession.get') as patched_request, \
+            amock.patch('opsdroid.connector.telegram._LOGGER.error',) \
+                as logmock:
+
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(listen_response)
-            await connector.listen(opsdroid)
+            await self.connector.listen(opsdroid)
             self.assertTrue(logmock.called)
-            self.assertTrue(patched_request.called)
 
     async def test_respond(self):
         post_response = amock.Mock()
         post_response.status = 200
 
         with OpsDroid() as opsdroid, \
-            amock.patch('aiohttp.ClientSession.post',
-                        new=AsyncContextManagerMock) as patched_request:
+            amock.patch('aiohttp.ClientSession.post') as patched_request, \
+            amock.patch('opsdroid.connector.telegram._LOGGER.debug') \
+                as logmock:
+
             self.assertTrue(opsdroid.__class__.instances)
-            connector = ConnectorTelegram({
-                'name': 'telegram',
-                'token': 'test',
-            })
             test_message = Message(text="This is a test",
                                    user="opsdroid",
-                                   room="test",
-                                   connector=connector)
+                                   room={"id": 12404},
+                                   connector=self.connector)
 
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(post_response)
             await test_message.respond("Response")
             self.assertTrue(patched_request.called)
+            self.assertTrue(logmock.called)
 
     async def test_respond_failure(self):
         post_response = amock.Mock()
         post_response.status = 401
 
         with OpsDroid() as opsdroid, \
-            amock.patch('opsdroid.connector.telegram._LOGGER.debug', ) \
-                    as logmock, \
-            amock.patch('aiohttp.ClientSession.post',
-                        new=AsyncContextManagerMock) as patched_request:
+            amock.patch('aiohttp.ClientSession.post') as patched_request, \
+            amock.patch('opsdroid.connector.telegram._LOGGER.debug') \
+                as logmock:
+
             self.assertTrue(opsdroid.__class__.instances)
-            connector = ConnectorTelegram({
-                'name': 'telegram',
-                'token': 'test',
-            })
             test_message = Message(text="This is a test",
                                    user="opsdroid",
-                                   room="test",
-                                   connector=connector)
+                                   room={"id": 12404},
+                                   connector=self.connector)
 
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(post_response)
             await test_message.respond("Response")
             self.assertTrue(logmock.called)
-            self.assertTrue(patched_request.called)
+
