@@ -27,7 +27,7 @@ class TestDatabaseSqlite(unittest.TestCase):
         declared and equated to None.
 
         """
-        database = DatabaseSqlite({})
+        database = DatabaseSqlite({"file": "sqlite.db"})
         self.assertEqual(None, database.client)
         self.assertEqual(None, database.database)
         self.assertEqual(None, database.db_file)
@@ -49,7 +49,7 @@ class TestDatabaseSqliteAsync(asynctest.TestCase):
         As the database is created `opsdroid` table is created first.
 
         """
-        database = DatabaseSqlite({})
+        database = DatabaseSqlite({"file": "sqlite.db"})
         opsdroid = amock.CoroutineMock()
         opsdroid.eventloop = self.loop
 
@@ -65,7 +65,7 @@ class TestDatabaseSqliteAsync(asynctest.TestCase):
         key and asserts the same value after the `get` operation is completed.
 
         """
-        database = DatabaseSqlite({})
+        database = DatabaseSqlite({"file": "sqlite.db"})
         opsdroid = amock.CoroutineMock()
         opsdroid.eventloop = self.loop
 
