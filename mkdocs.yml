@@ -18,7 +18,7 @@ pages:
   - 'Connectors':
       - 'Slack': 'connectors/slack.md'
       - 'Websocket': 'connectors/websocket.md'
-      - 'Facebook': 'connectors/facebook.md'
+      - 'Facebook': 'connectors/facebook.md'      
   - 'Databases':
       - 'MongoDB': 'databases/mongo.md'
   - 'Matchers':
