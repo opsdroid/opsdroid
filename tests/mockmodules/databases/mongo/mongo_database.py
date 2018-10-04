@@ -12,10 +12,11 @@ class DatabaseMongoTest(DatabaseMongo):
         self.dummy_db = {}
 
     async def put(self, key, data):
+        """Put a value to mocked database."""
         self.dummy_db[key] = data
 
     async def get(self, key):
-        """get a value from mocked database"""
+        """Get a value from mocked database."""
         ret_value = None
         if key in self.dummy_db:
             ret_value = self.dummy_db[key]
