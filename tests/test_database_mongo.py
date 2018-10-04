@@ -21,6 +21,12 @@ class TestDatabaseMongoClass(unittest.TestCase):
 class TestDatabaseBaseMongoClassAsync(asynctest.TestCase):
     """Test the opsdroid database base class."""
 
+    def setup(self):
+        """A mockup from mongo"""
+        self.server = MockupDB()
+        port = server.run()
+        client = MongoClient(server.uri)
+
     async def test_connect(self):
         """test the method connect"""
         database = DatabaseMongoTest({})
@@ -41,11 +47,31 @@ class TestDatabaseBaseMongoClassAsync(asynctest.TestCase):
         else:
             pass
 
+    async def test_get2(self):
+        """test of mocked method get"""
+        database = DatabaseMongo({})
+        try:
+            await database.get("test")
+        except TypeError:
+            pass
+        else:
+            raise Exception
+
     async def test_put(self):
         """test of mocked method put"""
         database = DatabaseMongoTest({})
         try:
-            await database.put("test", {})
+            await database.put("test","value", {})
+        except NotImplementedError:
+            raise Exception
+        else:
+            pass
+
+    async def test_put2(self):
+        """test of mocked method put"""
+        database = DatabaseMongo({})
+        try:
+            await database.put("test","value", {})
         except NotImplementedError:
             raise Exception
         else:
