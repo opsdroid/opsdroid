@@ -98,47 +98,6 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
             await self.connector.connect(opsdroid)
             self.assertTrue(logmock.called)
 
-    async def test_listen_loop_channel(self):
-        listen_response = amock.Mock()
-        listen_response.status = 200
-        listen_response.json = amock.CoroutineMock()
-        listen_response.return_value = {
-            'messages': [
-            {
-                "_id": "ZbhuIO764jOIu",
-                "rid": "Ipej45JSbfjt9",
-                "msg": "hows it going",
-                "ts": "2018-05-11T16:05:41.047Z",
-                "u": {
-                    "_id": "ZbhuIO764jOIu",
-                    "username": "FabioRosado",
-                    "name": "Fábio Rosado"
-                },
-                "_updatedAt": "2018-05-11T16:05:41.489Z",
-                "editedBy": None,
-                "editedAt": None,
-                "emoji": None,
-                "avatar": None,
-                "alias": None,
-                "customFields": None,
-                "attachments": None,
-                "mentions": [],
-                "channels": []
-            }
-            ]}
-
-        with OpsDroid() as opsdroid, \
-            amock.patch('aiohttp.ClientSession.get') as patched_request, \
-            amock.patch('opsdroid.connector.rocketchat._LOGGER.debug',) \
-                as logmock:
-
-            patched_request.return_value = asyncio.Future()
-            patched_request.return_value.set_result(listen_response)
-            await self.connector.listen(opsdroid)
-
-            self.assertTrue(patched_request.called)
-            self.assertTrue(logmock.called)
-
     # async def test_listen_loop_channel(self):
     #     listen_response = amock.Mock()
     #     listen_response.status = 200
