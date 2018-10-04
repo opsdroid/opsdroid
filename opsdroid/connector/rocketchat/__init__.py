@@ -82,7 +82,7 @@ class RocketChat(Connector):
             if resp.status != 200:
                 _LOGGER.error("Unable to connect.")
                 _LOGGER.error("Rocket.Chat error %s, %s",
-                                  resp.status, resp.text)
+                              resp.status, resp.text)
             else:
                 json = await resp.json()
                 _LOGGER.debug("Connected to Rocket.Chat as %s",
