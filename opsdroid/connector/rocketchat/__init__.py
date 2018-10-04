@@ -77,17 +77,16 @@ class RocketChat(Connector):
         _LOGGER.info("Connecting to Rocket.Chat")
 
         async with aiohttp.ClientSession() as session:
-            async with session.get(self.build_url('me'),
-                                   headers=self.headers) as resp:
-                _LOGGER.debug(resp.status)
-                if resp.status != 200:
-                    _LOGGER.error("Unable to connect.")
-                    _LOGGER.error("Rocket.Chat error %s, %s",
+            resp = await session.get(self.build_url('me'),
+                                     headers=self.headers)
+            if resp.status != 200:
+                _LOGGER.error("Unable to connect.")
+                _LOGGER.error("Rocket.Chat error %s, %s",
                                   resp.status, resp.text)
-                else:
-                    json = await resp.json()
-                    _LOGGER.debug("Connected to Rocket.Chat as %s",
-                                  json["username"])
+            else:
+                json = await resp.json()
+                _LOGGER.debug("Connected to Rocket.Chat as %s",
+                              json["username"])
 
     async def listen(self, opsdroid):
         """Listen for and parse new messages.
@@ -123,25 +122,27 @@ class RocketChat(Connector):
                 url += '&oldest={}'.format(str(params['oldest']))
 
             async with aiohttp.ClientSession() as session:
-                async with session.get(url, data=params,
-                                       headers=self.headers) as resp:
-                    if resp.status != 200:
-                        _LOGGER.error("Rocket.Chat error %s, %s",
-                                      resp.status, resp.text)
-                        break
+                resp = await session.get(url,
+                                         headers=self.headers,
+                                         data=params)
 
-                    json = await resp.json()
-                    if json['messages']:
-                        message = Message(
-                            json['messages'][0]['msg'],
-                            json['messages'][0]['u']['username'],
-                            self.default_room,
-                            self)
-                        _LOGGER.debug("Received message from Rocket.Chat %s",
-                                      json['messages'][0]['msg'])
+                if resp.status != 200:
+                    _LOGGER.error("Rocket.Chat error %s, %s",
+                                  resp.status, resp.text)
+                    break
 
-                        await opsdroid.parse(message)
-                        params['oldest'] = json['messages'][0]['ts']
+                json = await resp.json()
+                if json['messages']:
+                    message = Message(
+                        json['messages'][0]['msg'],
+                        json['messages'][0]['u']['username'],
+                        self.default_room,
+                        self)
+                    _LOGGER.debug("Received message from Rocket.Chat %s",
+                                  json['messages'][0]['msg'])
+
+                    await opsdroid.parse(message)
+                    params['oldest'] = json['messages'][0]['ts']
 
             await asyncio.sleep(self.update_interval)
 
@@ -160,10 +161,12 @@ class RocketChat(Connector):
             data['alias'] = self.bot_name
             data['text'] = message.text
             data['avatar'] = ''
-            async with session.post(
-                    self.build_url('chat.postMessage'),
-                    headers=self.headers, data=data) as resp:
-                if resp.status == 200:
-                    _LOGGER.debug('Successfully responded')
-                else:
-                    _LOGGER.debug("Unable to respond")
+            resp = await session.post(
+                self.build_url('chat.postMessage'),
+                headers=self.headers,
+                data=data)
+
+            if resp.status == 200:
+                _LOGGER.debug('Successfully responded')
+            else:
+                _LOGGER.debug("Unable to respond")
