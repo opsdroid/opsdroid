@@ -66,7 +66,7 @@ class TestDatabaseBaseMongoClassAsync(asynctest.TestCase):
         database = DatabaseMongo({})
         try:
             await database.put("test", "value")
-        except NotImplementedError:
-            raise Exception
-        else:
+        except TypeError:
             pass
+        else:
+            raise Exception
