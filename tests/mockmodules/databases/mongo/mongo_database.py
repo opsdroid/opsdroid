@@ -3,21 +3,31 @@
 from opsdroid.database.mongo import DatabaseMongo
 
 
-class DatabaseMongoTest(DatabaseMongo):
+class DatabaseMongoTest():
     """The mocked database mongo class."""
 
     def __init__(self, config):
         """Start the class."""
-        super().__init__(config)
+        self.config = config
         self.dummy_db = {}
 
-    async def put(self, key, data):
-        """Put a value to mocked database."""
-        self.dummy_db[key] = data
+    async def find_one(self,key):
+        """Mock method find_one.
 
-    async def get(self, key):
-        """Get a value from mocked database."""
-        ret_value = None
-        if key in self.dummy_db:
-            ret_value = self.dummy_db[key]
-        return ret_value
+        Args: key(object) not considered for test
+        """
+        return await self.dummy_db;
+
+    async def update_one(self,key,update):
+        """Mock method update_one.
+
+        Args: key(object) not considered for test
+        """
+        return await self.dummy_db;
+
+    async def insert_one(self,key):
+        """Mock method insert_one.
+
+        Args: key(object) not considered for test
+        """
+        return self.dummy_db;

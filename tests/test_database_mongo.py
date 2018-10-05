@@ -2,7 +2,6 @@
 
 import unittest
 import asynctest
-import mock
 
 
 from opsdroid.database.mongo import DatabaseMongo
@@ -24,19 +23,9 @@ class TestDatabaseBaseMongoClassAsync(asynctest.TestCase):
 
     async def test_connect(self):
         """test the method connect"""
-        database = DatabaseMongoTest({})
+        database = DatabaseMongo({})
         try:
             await database.connect({})
-        except NotImplementedError:
-            raise Exception
-        else:
-            pass
-
-    async def test_get(self):
-        """test of mocked method get"""
-        database = DatabaseMongoTest({})
-        try:
-            await database.get("test")
         except NotImplementedError:
             raise Exception
         else:
@@ -45,22 +34,14 @@ class TestDatabaseBaseMongoClassAsync(asynctest.TestCase):
     async def test_get2(self):
         """test of mocked method get"""
         database = DatabaseMongo({})
+        database.database = {}
+        database.database['test'] = DatabaseMongoTest({})
         try:
             await database.get("test")
         except TypeError:
             pass
         else:
             raise Exception
-
-    async def test_put3(self):
-        """test of mocked method put"""
-        database = DatabaseMongoTest({})
-        try:
-            await database.put("test", {})
-        except NotImplementedError:
-            raise Exception
-        else:
-            pass
 
     async def test_put2(self):
         """test of mocked method put"""
@@ -75,6 +56,7 @@ class TestDatabaseBaseMongoClassAsync(asynctest.TestCase):
     async def test_put(self):
         """test of mocked  put"""
         database = DatabaseMongo({})
+        database.database = {}
         database.database['test'] = DatabaseMongoTest({})
         try:
             await database.put("test", {"_id":"0" , "key":"value"})
