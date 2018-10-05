@@ -50,7 +50,7 @@ class DatabaseMongo(Database):
         """Insert or replace an object into the database for a given key.
 
         Args:
-            key (str): the key of data to be inserted or replaced
+            key (str): the key is the databasename
             data (str or object): the data to be inserted or replaced
         """
         logging.debug("Putting %s into mongo", key)
@@ -61,7 +61,7 @@ class DatabaseMongo(Database):
             await self.database[key].insert_one(data)
 
     async def get(self, key):
-        """Get a document from the database for a given key.
+        """Get a document from the database (key) .
 
         Args:
             key (str): the key to get the data from database

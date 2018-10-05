@@ -2,6 +2,7 @@
 
 import unittest
 import asynctest
+import mock
 
 
 from opsdroid.database.mongo import DatabaseMongo
@@ -51,11 +52,11 @@ class TestDatabaseBaseMongoClassAsync(asynctest.TestCase):
         else:
             raise Exception
 
-    async def test_put(self):
+    async def test_put3(self):
         """test of mocked method put"""
         database = DatabaseMongoTest({})
         try:
-            await database.put("test", "value")
+            await database.put("test", {})
         except NotImplementedError:
             raise Exception
         else:
@@ -65,8 +66,24 @@ class TestDatabaseBaseMongoClassAsync(asynctest.TestCase):
         """test of mocked method put"""
         database = DatabaseMongo({})
         try:
-            await database.put("test", "value")
+            await database.put("test", {})
         except TypeError:
             pass
+        else:
+            raise Exception
+
+    async def test_put(self):
+        """test of mocked  put"""
+        database = DatabaseMongo({})
+        database.database['test'] = new DatabaseMongoTest({})
+        try:
+            await database.put("test", {"_id":"0" , "key":"value"})
+        except TypeError:
+            try:
+                await database.put("test", {})
+            except NotImplementedError:
+                raise Exception
+            else:
+                pass
         else:
             raise Exception
