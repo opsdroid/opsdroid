@@ -39,6 +39,7 @@ class DatabaseSqlite(Database):
         self.conn_args = {'isolation_level': None}
         self.db_file = None
         self.table = None
+        self.connected = False
         _LOGGER.debug(_("Loaded sqlite database connector"))
 
     async def connect(self, opsdroid):
@@ -57,12 +58,18 @@ class DatabaseSqlite(Database):
             "file", os.path.join(DEFAULT_ROOT_PATH, "sqlite.db"))
         self.table = self.config.get("table", "opsdroid")
 
-        async with aiosqlite.connect(self.db_file, **self.conn_args) as _db:
-            await _db.execute(
-                "CREATE TABLE IF NOT EXISTS {}"
-                "(key text PRIMARY KEY, data text)"
-                .format(self.table)
-            )
+        try:
+            async with aiosqlite.connect(self.db_file, **self.conn_args) \
+             as _db:
+                await _db.execute(
+                    "CREATE TABLE IF NOT EXISTS {}"
+                    "(key text PRIMARY KEY, data text)"
+                    .format(self.table)
+                )
+            self.connected = True
+        except aiosqlite.Error as error:
+            self.connected = False
+            _LOGGER.error(error)
         _LOGGER.info(_("Connected to sqlite %s"), self.db_file)
 
     async def put(self, key, data):
@@ -79,13 +86,19 @@ class DatabaseSqlite(Database):
         """
         _LOGGER.debug(_("Putting %s into sqlite"), key)
         json_data = json.dumps(data, cls=JSONEncoder)
-        async with aiosqlite.connect(self.db_file, **self.conn_args) as _db:
-            cur = await _db.cursor()
-            await cur.execute(
-                "DELETE FROM {} WHERE key=?".format(self.table), (key,))
-            await cur.execute(
-                "INSERT INTO {} VALUES (?, ?)".format(self.table),
-                (key, json_data))
+        try:
+            async with aiosqlite.connect(self.db_file, **self.conn_args) \
+             as _db:
+                cur = await _db.cursor()
+                await cur.execute(
+                    "DELETE FROM {} WHERE key=?".format(self.table), (key,))
+                await cur.execute(
+                    "INSERT INTO {} VALUES (?, ?)".format(self.table),
+                    (key, json_data))
+            self.connected = True
+        except aiosqlite.Error as error:
+            self.connected = False
+            _LOGGER.error(error)
 
     async def get(self, key):
         """Get data from the database for a given key.
@@ -100,13 +113,20 @@ class DatabaseSqlite(Database):
         """
         _LOGGER.debug(_("Getting %s from sqlite"), key)
         data = None
-        async with aiosqlite.connect(self.db_file, **self.conn_args) as _db:
-            cur = await _db.cursor()
-            await cur.execute(
-                "SELECT data FROM {} WHERE key=?".format(self.table), (key,))
-            row = await cur.fetchone()
-            if row:
-                data = json.loads(row[0], object_hook=JSONDecoder())
+        try:
+            async with aiosqlite.connect(self.db_file, **self.conn_args) \
+             as _db:
+                cur = await _db.cursor()
+                await cur.execute(
+                    "SELECT data FROM {} WHERE key=?".format(self.table),
+                    (key,))
+                row = await cur.fetchone()
+                if row:
+                    data = json.loads(row[0], object_hook=JSONDecoder())
+            self.connected = True
+        except aiosqlite.Error as error:
+            self.connected = False
+            _LOGGER.error(error)
         return data
 
 

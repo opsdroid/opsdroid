@@ -59,6 +59,7 @@ class TestDatabaseSqliteAsync(asynctest.TestCase):
         await database.connect(opsdroid)
 
         self.assertEqual("opsdroid", database.table)
+        self.assertEqual(True, database.connected)
 
     async def test_get_and_put(self):
         """Test get and put functions of database
@@ -78,6 +79,7 @@ class TestDatabaseSqliteAsync(asynctest.TestCase):
 
         self.assertEqual("opsdroid", database.table)
         self.assertEqual({}, data)
+        self.assertEqual(True, database.connected)
 
 
 class TestJSONEncoder(unittest.TestCase):
