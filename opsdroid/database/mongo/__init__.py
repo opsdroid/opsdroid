@@ -35,7 +35,7 @@ class DatabaseMongo(Database):
         """Connect to the database.
 
         Args:
-            obsdroid : the opsdroid instance
+            obsdroid (object): the opsdroid instance
         """
         host = self.config["host"] if "host" in self.config else "localhost"
         port = self.config["port"] if "port" in self.config else "27017"
@@ -51,7 +51,7 @@ class DatabaseMongo(Database):
 
         Args:
             key (str): the key is the databasename
-            data (str or object): the data to be inserted or replaced
+            data (object): the data to be inserted or replaced
         """
         logging.debug("Putting %s into mongo", key)
         if "_id" in data:
@@ -61,10 +61,10 @@ class DatabaseMongo(Database):
             await self.database[key].insert_one(data)
 
     async def get(self, key):
-        """Get a document from the database (key) .
+        """Get a document from the database (key).
 
         Args:
-            key (str): the key to get the data from database
+            key (str): the key is the databasename.
         """
         logging.debug("Getting %s from mongo", key)
         return await self.database[key].find_one(
