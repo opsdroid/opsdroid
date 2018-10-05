@@ -75,7 +75,7 @@ class TestDatabaseBaseMongoClassAsync(asynctest.TestCase):
     async def test_put(self):
         """test of mocked  put"""
         database = DatabaseMongo({})
-        database.database['test'] = new DatabaseMongoTest({})
+        database.database['test'] = DatabaseMongoTest({})
         try:
             await database.put("test", {"_id":"0" , "key":"value"})
         except TypeError:
