@@ -56,10 +56,13 @@ class TestDatabaseSqliteAsync(asynctest.TestCase):
         opsdroid = amock.CoroutineMock()
         opsdroid.eventloop = self.loop
 
-        await database.connect(opsdroid)
-
-        self.assertEqual("opsdroid", database.table)
-        self.assertEqual(True, database.connected)
+        try:
+            await database.connect(opsdroid)
+        except NotImplementedError:
+            raise Exception
+        else:
+            self.assertEqual("opsdroid", database.table)
+            self.assertEqual("Connection", type(database.client).__name__)
 
     async def test_get_and_put(self):
         """Test get and put functions of database
@@ -73,13 +76,16 @@ class TestDatabaseSqliteAsync(asynctest.TestCase):
         opsdroid = amock.CoroutineMock()
         opsdroid.eventloop = self.loop
 
-        await database.connect(opsdroid)
-        await database.put("hello", {})
-        data = await database.get("hello")
-
-        self.assertEqual("opsdroid", database.table)
-        self.assertEqual({}, data)
-        self.assertEqual(True, database.connected)
+        try:
+            await database.connect(opsdroid)
+            await database.put("hello", {})
+            data = await database.get("hello")
+        except NotImplementedError:
+            raise Exception
+        else:
+            self.assertEqual("opsdroid", database.table)
+            self.assertEqual({}, data)
+            self.assertEqual("Connection", type(database.client).__name__)
 
 
 class TestJSONEncoder(unittest.TestCase):
@@ -101,7 +107,8 @@ class TestJSONEncoder(unittest.TestCase):
         """
         type_cls = datetime.datetime
         test_obj = datetime.datetime(2018, 10, 2, 0, 41, 17, 74644)
-        obj = JSONEncoder.serializers[type_cls](test_obj)
+        encoder = JSONEncoder()
+        obj = encoder.default(o=test_obj)
         self.assertEqual({
             "__class__": type_cls.__name__,
             "year": 2018,
@@ -141,5 +148,6 @@ class TestJSONDecoder(unittest.TestCase):
             "second": 17,
             "microsecond": 74644
         }
-        obj = JSONDecoder.decoders[test_obj['__class__']](test_obj)
+        decoder = JSONDecoder()
+        obj = decoder(test_obj)
         self.assertEqual(datetime.datetime(2018, 10, 2, 0, 41, 17, 74644), obj)
