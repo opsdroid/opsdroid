@@ -38,3 +38,31 @@ with your bot and give him commands.
 
 _Note: To avoid unauthorized users to interact with your bot you should specify a list of whitelisted users
 in your `config.yaml`._
+
+```
+[6:13:11 PM] Fabio:
+hello
+
+Unread messages
+[6:13:12 PM] opsdroid:
+Hi FabioRosado
+```
+
+**Warning**
+
+You can send multiple private messages to opsdroid through Telegram, but if you don't have opsdroid running then
+the next time you run opsdroid all those messages will be parsed by opsdroid resulting in a stream of replies.
+
+```bash
+[8:18:10 AM] Fabio:
+bye
+ hi
+ hello
+[8:18:10 AM] opsdroid:
+Bye FabioRosado
+ Hey FabioRosado
+ Hi FabioRosado
+```
+
+To avoid this from happening, you should only contact the bot when opsdroid is running. The bot should reply immediately
+if it doesn't, check that the bot is running before attempting to send another command - or try with a risk free one like `hello`.
