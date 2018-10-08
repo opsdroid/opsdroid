@@ -93,15 +93,15 @@ class ConnectorTelegram(Connector):
             opsdroid (OpsDroid): An instance of opsdroid core.
             response (dict): Response returned by aiohttp.ClientSession.
         """
-        for response in response["result"]:
-            _LOGGER.debug(response)
-            if response["message"]["text"]:
-                user = response["message"]["from"]["username"]
+        for result in response["result"]:
+            _LOGGER.debug(result)
+            if result["message"]["text"]:
+                user = result["message"]["from"]["username"]
 
                 message = Message(
-                    response["message"]["text"],
+                    result["message"]["text"],
                     user,
-                    response["message"]["chat"],
+                    result["message"]["chat"],
                     self)
 
                 if not self.whitelisted_users or \
@@ -111,7 +111,7 @@ class ConnectorTelegram(Connector):
                     message.text = "Sorry, you're not allowed " \
                                    "to speak with this bot."
                     await self.respond(message)
-                self.latest_update = response["update_id"] + 1
+                self.latest_update = result["update_id"] + 1
 
     async def _get_messages(self, opsdroid):
         """Connect to the Telegram API.
