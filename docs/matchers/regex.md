@@ -94,9 +94,9 @@ async def remember(opsdroid, config, message):
 
 ## Score factor
 
-In order to make NLU skills execute over regex skills, opsdroid always applies a factor of `0.6` to every regex evaluated score.
+In order to make NLU skills execute over regex skills, opsdroid always applies a default factor of `0.6` to every regex evaluated score.
 
-Sometimes can be interesting for a developer to get a regex skill executed over a NLU skill, and `score_factor` keyword argument can be used to archieve this.
+If a developer want to have a regex skill executed over a NLU one then the keyword argument `score_factor` can be used to achieve this.
 
 
 ### Example 
