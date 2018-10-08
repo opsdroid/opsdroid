@@ -28,7 +28,7 @@ async def hello(opsdroid, config, message):
     await message.respond('Hey')
 ```
 
-The above skill would be called on any message which matches the regex `'hi'`, `'Hi'` or `'HI`. The `case_sensitive` kwarg is optional and defaults to `True`. 
+The above skill would be called on any message which matches the regex `'hi'`, `'Hi'`, `'hI'` or `'HI'`. The `case_sensitive` kwarg is optional and defaults to `True`. 
 
 
 ## Example 2
@@ -91,3 +91,22 @@ async def remember(opsdroid, config, message):
     await opsdroid.memory.put("remember", remember)
     await message.respond("OK I'll remember that")
 ```
+
+## Score factor
+
+In order to make NLU skills execute over regex skills, opsdroid always applies a default factor of `0.6` to every regex evaluated score.
+
+If a developer want to have a regex skill executed over a NLU one then the keyword argument `score_factor` can be used to achieve this.
+
+
+### Example 
+
+```python
+from opsdroid.matchers import match_regex
+
+@match_regex('ping', score_factor=0.9)
+async def ping(opsdroid, config, message):
+    await message.respond('pong')
+```
+
+In this example, the evaluated score of `ping` skill will be multiplied by `0.9` instead of `0.6`.
