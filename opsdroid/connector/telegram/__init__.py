@@ -27,8 +27,9 @@ class ConnectorTelegram(Connector):
         self.name = "telegram"
         self.latest_update = None
         self.default_room = None
+        self.listening = True
         self.default_user = config.get("default-user", None)
-        self.whitelisted_users = config.get("whitelisted_users", None)
+        self.whitelisted_users = config.get("whitelisted-users", None)
         self.update_interval = config.get("update_interval", 1)
 
         try:
@@ -74,6 +75,77 @@ class ConnectorTelegram(Connector):
                 _LOGGER.debug("Connected to telegram as %s",
                               json["result"]["username"])
 
+    async def _parse_message(self, opsdroid, response):
+        """Handle logic to parse a received message.
+
+        Since everyone can send a private message to any user/bot
+        in Telegram, this method allows to set a list of whitelisted
+        users that can interact with the bot. If any other user tries
+        to interact with the bot the command is not parsed and instead
+        the bot will inform that user that he is not allowed to talk
+        with the bot.
+
+        We also set self.latest_update to +1 in order to get the next
+        available message (or an empty {} if no message has been received
+        yet) with the method self._get_messages().
+
+        Args:
+            opsdroid (OpsDroid): An instance of opsdroid core.
+            response (dict): Response returned by aiohttp.ClientSession.
+        """
+        if response["message"]["text"]:
+            user = response["message"]["from"]["username"]
+
+            message = Message(
+                response["message"]["text"],
+                user,
+                response["message"]["chat"],
+                self)
+
+            if not self.whitelisted_users or \
+                    user in self.whitelisted_users:
+                await opsdroid.parse(message)
+            else:
+                message.text = "Sorry, you're not allowed " \
+                               "to speak with this bot."
+                await self.respond(message)
+            self.latest_update = response["update_id"] + 1
+
+    async def _get_messages(self, opsdroid):
+        """Connect to the Telegram API.
+
+        Uses an aiohttp ClientSession to connect to Telegram API
+        and get the latest messages from the chat service.
+
+        The data["offset"] is used to consume every new message, the API
+        returns an  int - "update_id" value. In order to get the next
+        message this value needs to be increased by 1 the next time
+        the API is called. If no new messages exists the API will just
+        return an empty {}.
+
+        Args:
+            opsdroid (OpsDroid): An instance of opsdroid core.
+
+        """
+        async with aiohttp.ClientSession() as session:
+            data = {}
+            if self.latest_update is not None:
+                data["offset"] = self.latest_update
+            resp = await session.get(self.build_url("getUpdates"),
+                                     params=data)
+            if resp.status != 200:
+                _LOGGER.error("Telegram error %s, %s",
+                              resp.status, resp.text)
+                self.listening = False
+
+            else:
+                json = await resp.json()
+                # _LOGGER.debug(json)
+
+                for response in json["result"]:
+                    _LOGGER.debug(response)
+                    await self._parse_message(opsdroid, response)
+
     async def listen(self, opsdroid):
         """Listen for and parse new messages.
 
@@ -91,41 +163,8 @@ class ConnectorTelegram(Connector):
             opsdroid (OpsDroid): An instance of opsdroid core.
 
         """
-        while True:
-            async with aiohttp.ClientSession() as session:
-                data = {}
-                if self.latest_update is not None:
-                    data["offset"] = self.latest_update
-                resp = await session.post(self.build_url("getUpdates"),
-                                          params=data)
-                if resp.status != 200:
-                    _LOGGER.error("Telegram error %s, %s",
-                                  resp.status, resp.text)
-                    break
-
-                json = await resp.json()
-                # _LOGGER.debug(json)
-
-                for response in json["result"]:
-                    _LOGGER.debug(response)
-
-                    if response["message"]["text"]:
-                        user = response["message"]["from"]["username"]
-
-                        message = Message(
-                            response["message"]["text"],
-                            user,
-                            response["message"]["chat"],
-                            self)
-
-                        if not self.whitelisted_users or \
-                                user in self.whitelisted_users:
-                            await opsdroid.parse(message)
-                        else:
-                            message.text = "Sorry, you're not allowed " \
-                                           "to speak with this bot."
-                            await self.respond(message)
-                        self.latest_update = response["update_id"] + 1
+        while self.listening:
+            await self._get_messages(opsdroid)
 
             await asyncio.sleep(self.update_interval)
 
