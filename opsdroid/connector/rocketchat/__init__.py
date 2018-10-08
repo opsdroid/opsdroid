@@ -32,6 +32,8 @@ class RocketChat(Connector):
         self.url = config.get("channel-url", "https://open.rocket.chat")
         self.update_interval = config.get("update-interval", 1)
         self.bot_name = config.get("bot-name", "opsdroid")
+        self.listening = True
+        self.latest_update = None
 
         try:
             self.user_id = config['user-id']
@@ -88,13 +90,63 @@ class RocketChat(Connector):
                 _LOGGER.debug("Connected to Rocket.Chat as %s",
                               json["username"])
 
-    async def listen(self, opsdroid):
-        """Listen for and parse new messages.
+    async def _parse_message(self, opsdroid, response):
+        """Parse the message received.
+
+        Args:
+            opsdroid (OpsDroid): An instance of opsdroid core.
+            response (dict): Response returned by aiohttp.Client.
+
+        """
+        if response['messages']:
+            message = Message(
+                response['messages'][0]['msg'],
+                response['messages'][0]['u']['username'],
+                self.default_room,
+                self)
+            _LOGGER.debug("Received message from Rocket.Chat %s",
+                          response['messages'][0]['msg'])
+
+            await opsdroid.parse(message)
+            self.latest_update = response['messages'][0]['ts']
+
+    async def _get_message(self, opsdroid):
+        """Connect to the API and get messages.
 
         This method will only listen to either a channel or a
         private room called groups by Rocket.Chat. If a group
-        is specified in the config then that takes priority
-        over channel.
+        is specified in the config then it takes priority
+        over a channel.
+
+        Args:
+            opsdroid (OpsDroid): An instance of opsdroid.core.
+
+        """
+        if self.group:
+            url = self.build_url('groups.history?roomName={}'.format(
+                self.group))
+            self.default_room = self.group
+        else:
+            url = self.build_url('channels.history?roomName={}'.format(
+                self.default_room))
+
+        if self.latest_update:
+            url += '&oldest={}'.format(self.latest_update)
+
+        async with aiohttp.ClientSession() as session:
+            resp = await session.get(url,
+                                     headers=self.headers)
+
+            if resp.status != 200:
+                _LOGGER.error("Rocket.Chat error %s, %s",
+                              resp.status, resp.text)
+                self.listening = False
+            else:
+                json = await resp.json()
+                await self._parse_message(opsdroid, json)
+
+    async def listen(self, opsdroid):
+        """Listen for and parse new messages.
 
         The method will sleep asynchronously at the end of
         every loop. The time can either be specified in the
@@ -108,42 +160,8 @@ class RocketChat(Connector):
             opsdroid (Opsdroid): An instance of opsdroid core.
 
         """
-        params = {}
-        while True:
-            if self.group:
-                url = self.build_url('groups.history?roomName={}'.format(
-                    self.group))
-                self.default_room = self.group
-            else:
-                url = self.build_url('channels.history?roomName={}'.format(
-                    self.default_room))
-
-            if params:
-                url += '&oldest={}'.format(str(params['oldest']))
-
-            async with aiohttp.ClientSession() as session:
-                resp = await session.get(url,
-                                         headers=self.headers,
-                                         data=params)
-
-                if resp.status != 200:
-                    _LOGGER.error("Rocket.Chat error %s, %s",
-                                  resp.status, resp.text)
-                    break
-
-                json = await resp.json()
-                if json['messages']:
-                    message = Message(
-                        json['messages'][0]['msg'],
-                        json['messages'][0]['u']['username'],
-                        self.default_room,
-                        self)
-                    _LOGGER.debug("Received message from Rocket.Chat %s",
-                                  json['messages'][0]['msg'])
-
-                    await opsdroid.parse(message)
-                    params['oldest'] = json['messages'][0]['ts']
-
+        while self.listening:
+            await self._get_message(opsdroid)
             await asyncio.sleep(self.update_interval)
 
     async def respond(self, message, room=None):

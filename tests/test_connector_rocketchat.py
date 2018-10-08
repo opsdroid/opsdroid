@@ -44,6 +44,7 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
                 'user-id': 'userID',
                 'default_room': "test"
             })
+        self.connector.latest_update = '2018-10-08T12:57:37.126Z'
 
     async def test_connect(self):
         connect_response = amock.Mock()
@@ -78,7 +79,9 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
 
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(connect_response)
+
             await self.connector.connect(opsdroid)
+
             self.assertTrue(logmock.called)
             self.assertNotEqual(200, patched_request.status)
             self.assertTrue(patched_request.called)
@@ -98,99 +101,105 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
             await self.connector.connect(opsdroid)
             self.assertTrue(logmock.called)
 
-    # async def test_listen_loop_channel(self):
-    #     listen_response = amock.Mock()
-    #     listen_response.status = 200
-    #     listen_response.json = amock.CoroutineMock()
-    #     listen_response.return_value = {
-    #         'messages': [
-    #         {
-    #             "_id": "ZbhuIO764jOIu",
-    #             "rid": "Ipej45JSbfjt9",
-    #             "msg": "hows it going",
-    #             "ts": "2018-05-11T16:05:41.047Z",
-    #             "u": {
-    #                 "_id": "ZbhuIO764jOIu",
-    #                 "username": "FabioRosado",
-    #                 "name": "Fábio Rosado"
-    #             },
-    #             "_updatedAt": "2018-05-11T16:05:41.489Z",
-    #             "editedBy": None,
-    #             "editedAt": None,
-    #             "emoji": None,
-    #             "avatar": None,
-    #             "alias": None,
-    #             "customFields": None,
-    #             "attachments": None,
-    #             "mentions": [],
-    #             "channels": []
-    #         }
-    #         ]}
-    #
-    #     with OpsDroid() as opsdroid, \
-    #         amock.patch('aiohttp.ClientSession.get') as patched_request, \
-    #         amock.patch('opsdroid.connector.rocketchat._LOGGER.debug',) \
-    #             as logmock:
-    #
-    #         patched_request.return_value = asyncio.Future()
-    #         patched_request.return_value.set_result(listen_response)
-    #         await self.connector.listen(opsdroid)
-    #         self.assertTrue(patched_request.called)
-    #         self.assertTrue(logmock.called)
+    async def test_get_message(self):
+        connector_group = RocketChat({
+                'name': 'rocket.chat',
+                'token': 'test',
+                'user-id': 'userID',
+                'group': "test"
+            })
+        response = amock.Mock()
+        response.status = 200
+        response.json = amock.CoroutineMock()
+        response.return_value = {
+            'messages': [
+                {
+                    "_id": "ZbhuIO764jOIu",
+                    "rid": "Ipej45JSbfjt9",
+                    "msg": "hows it going",
+                    "ts": "2018-05-11T16:05:41.047Z",
+                    "u": {
+                        "_id": "ZbhuIO764jOIu",
+                        "username": "FabioRosado",
+                        "name": "Fábio Rosado"
+                    },
+                    "_updatedAt": "2018-05-11T16:05:41.489Z",
+                    "editedBy": None,
+                    "editedAt": None,
+                    "emoji": None,
+                    "avatar": None,
+                    "alias": None,
+                    "customFields": None,
+                    "attachments": None,
+                    "mentions": [],
+                    "channels": []
+                }
+                ]}
 
-    # async def test_listen_loop_group(self):
-    #     listen_response = amock.Mock()
-    #     listen_response.status = 200
-    #     listen_response.json = amock.CoroutineMock()
-    #     listen_response.return_value.json = {
-    #         'messages': [
-    #         {
-    #             "_id": "ZbhuIO764jOIu",
-    #             "rid": "Ipej45JSbfjt9",
-    #             "msg": "hows it going",
-    #             "ts": "2018-05-11T16:05:41.047Z",
-    #             "u": {
-    #                 "_id": "ZbhuIO764jOIu",
-    #                 "username": "FabioRosado",
-    #                 "name": "Fábio Rosado"
-    #             },
-    #             "_updatedAt": "2018-05-11T16:05:41.489Z",
-    #             "editedBy": None,
-    #             "editedAt": None,
-    #             "emoji": None,
-    #             "avatar": None,
-    #             "alias": None,
-    #             "customFields": None,
-    #             "attachments": None,
-    #             "mentions": [],
-    #             "channels": []
-    #         }
-    #         ]}
-    #
-    #     with OpsDroid() as opsdroid, \
-    #         amock.patch('aiohttp.ClientSession.get') as patched_request, \
-    #         amock.patch('opsdroid.connector.rocketchat._LOGGER.debug',) \
-    #             as logmock:
-    #
-    #         patched_request.return_value = asyncio.Future()
-    #         patched_request.return_value.set_result(listen_response)
-    #         await self.connector.listen(opsdroid)
-    #         self.assertTrue(patched_request.called)
-    #         self.assertTrue(logmock.called)
+        with OpsDroid() as opsdroid, \
+            amock.patch('aiohttp.ClientSession.get') as patched_request, \
+            amock.patch.object(connector_group, '_parse_message') \
+                as mocked_parse_message:
 
-    async def test_listen_loop_failure(self):
+            patched_request.return_value = asyncio.Future()
+            patched_request.return_value.set_result(response)
+
+            await connector_group._get_message(opsdroid)
+
+            self.assertTrue(patched_request.called)
+            self.assertTrue(mocked_parse_message.called)
+
+    async def test_parse_message(self):
+        response = {
+            'messages': [
+                {
+                    "_id": "ZbhuIO764jOIu",
+                    "rid": "Ipej45JSbfjt9",
+                    "msg": "hows it going",
+                    "ts": "2018-05-11T16:05:41.047Z",
+                    "u": {
+                        "_id": "ZbhuIO764jOIu",
+                        "username": "FabioRosado",
+                        "name": "Fábio Rosado"
+                    },
+                    "_updatedAt": "2018-05-11T16:05:41.489Z",
+                    "editedBy": None,
+                    "editedAt": None,
+                    "emoji": None,
+                    "avatar": None,
+                    "alias": None,
+                    "customFields": None,
+                    "attachments": None,
+                    "mentions": [],
+                    "channels": []
+                }
+                ]}
+
+        with OpsDroid() as opsdroid, \
+                amock.patch('opsdroid.core.OpsDroid.parse') as mocked_parse:
+            await self.connector._parse_message(opsdroid, response)
+            self.assertLogs('_LOGGER', 'debug')
+            self.assertTrue(mocked_parse.called)
+            self.assertEqual("2018-05-11T16:05:41.047Z",
+                             self.connector.latest_update)
+
+
+    async def test_listen(self):
+        self.connector.side_effect = Exception()
+        await self.connector.listen(amock.CoroutineMock())
+
+    async def test_get_message_failure(self):
         listen_response = amock.Mock()
         listen_response.status = 401
 
         with OpsDroid() as opsdroid, \
-            amock.patch('aiohttp.ClientSession.get') as patched_request, \
-            amock.patch('opsdroid.connector.rocketchat._LOGGER.error',) \
-                as logmock:
+            amock.patch('aiohttp.ClientSession.get') as patched_request:
 
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(listen_response)
-            await self.connector.listen(opsdroid)
-            self.assertTrue(logmock.called)
+            await self.connector._get_message(opsdroid)
+            self.assertLogs('_LOGGER', 'error')
+            self.assertEqual(False, self.connector.listening)
 
     async def test_respond(self):
         post_response = amock.Mock()
