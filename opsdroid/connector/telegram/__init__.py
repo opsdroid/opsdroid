@@ -93,23 +93,25 @@ class ConnectorTelegram(Connector):
             opsdroid (OpsDroid): An instance of opsdroid core.
             response (dict): Response returned by aiohttp.ClientSession.
         """
-        if response["message"]["text"]:
-            user = response["message"]["from"]["username"]
+        for response in response["result"]:
+            _LOGGER.debug(response)
+            if response["message"]["text"]:
+                user = response["message"]["from"]["username"]
 
-            message = Message(
-                response["message"]["text"],
-                user,
-                response["message"]["chat"],
-                self)
+                message = Message(
+                    response["message"]["text"],
+                    user,
+                    response["message"]["chat"],
+                    self)
 
-            if not self.whitelisted_users or \
-                    user in self.whitelisted_users:
-                await opsdroid.parse(message)
-            else:
-                message.text = "Sorry, you're not allowed " \
-                               "to speak with this bot."
-                await self.respond(message)
-            self.latest_update = response["update_id"] + 1
+                if not self.whitelisted_users or \
+                        user in self.whitelisted_users:
+                    await opsdroid.parse(message)
+                else:
+                    message.text = "Sorry, you're not allowed " \
+                                   "to speak with this bot."
+                    await self.respond(message)
+                self.latest_update = response["update_id"] + 1
 
     async def _get_messages(self, opsdroid):
         """Connect to the Telegram API.
@@ -142,9 +144,7 @@ class ConnectorTelegram(Connector):
                 json = await resp.json()
                 # _LOGGER.debug(json)
 
-                for response in json["result"]:
-                    _LOGGER.debug(response)
-                    await self._parse_message(opsdroid, response)
+                await self._parse_message(opsdroid, json)
 
     async def listen(self, opsdroid):
         """Listen for and parse new messages.

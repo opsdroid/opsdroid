@@ -79,7 +79,7 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
             self.assertLogs('_LOGGER', 'error')
 
     async def test_parse_message(self):
-        response = {
+        response = { 'result': [{
             "update_id": 427647860,
             "message": {
                 "message_id": 12,
@@ -95,13 +95,13 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
                     "id": 649671308,
                     "first_name": "A",
                     "last_name": "User",
-                    "username": "user",
+                    "username": "a_user",
                     "type": "private"
                 },
                 "date": 1538756863,
                 "text": "Hello"
             }
-        }
+        }]}
 
         with OpsDroid() as opsdroid, \
                 amock.patch('opsdroid.core.OpsDroid.parse') as mocked_parse:
@@ -110,7 +110,7 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
 
     async def test_parse_message_unauthorized(self):
         self.connector.config['whitelisted-users'] = ['user', 'test']
-        response = {
+        response = { 'result': [{
             "update_id": 427647860,
             "message": {
                 "message_id": 12,
@@ -132,7 +132,7 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
                 "date": 1538756863,
                 "text": "Hello"
             }
-        }
+        }]}
 
         self.assertEqual(
             self.connector.config['whitelisted-users'], ['user', 'test'])
@@ -177,7 +177,7 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
         ]}
 
         with OpsDroid() as opsdroid, \
-            amock.patch('aiohttp.ClientSession.get') as patched_request, \
+            amock.patch('aiohttp.ClientSession.get') as patched_request,\
             amock.patch.object(self.connector, '_parse_message') \
                 as mocked_parse_message:
 
