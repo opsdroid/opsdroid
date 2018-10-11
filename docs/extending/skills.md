@@ -1,7 +1,8 @@
 # Skills
 
-Skills are modules which define what actions opsdroid should perform based on different chat messages. They can be referenced in your `configuration.yaml`,  [Config](../configuration-reference.md/#config-file) file.
+Skills are modules which define what actions opsdroid should perform based on different chat messages. They can be referenced in your `configuration.yaml`, [Config](../configuration-reference.md#config-file) file.
 Skills can be specified from opsdroid github repository, your own github, or from local path.
+
 
 ```yaml
 skills:
@@ -17,7 +18,7 @@ skills:
   ## Hello world (https://github.com/opsdroid/skill-hello)
   - name: hello
 ```
-You should look into the [Getting Started guide](/docs/tutorials/introduction.md) to know more about skills and opsdroid configuration file.
+You should look into the [Getting Started guide](../tutorials/introduction.md) to know more about skills and opsdroid configuration file.
 
 # Creating skills
 
@@ -41,7 +42,7 @@ In this example we are importing the `match_regex` decorator from the opsdroid m
 
 This decorator takes a regular expression to match against the message received from the connector. In this case we are checking to see if the message from the user is "hi".
 
-For more information about the different decorators available in opsdroid see the [matchers documentation](/docs/tutorials/introduction.md#matchers-available).
+For more information about the different decorators available in opsdroid see the [matchers documentation](../tutorials/introduction.md#matchers-available).
 
 If the message matches the regular expression then the decorated function is called. As arguments opsdroid will pass a pointer to itself along with a Message object containing information about the message from the user.
 
@@ -51,7 +52,7 @@ To ensure the bot is responsive the concurrency controls introduced in Python 3.
 
 The message object passed to the skill function is an instance of the opsdroid `Message` class which has the following properties and methods.
 
-Also depending on the matcher it may have parser specific properties too. See the [matchers documentation](/docs/tutorials/introduction.md#matchers-available) for more details.
+Also depending on the matcher it may have parser specific properties too. See the [matchers documentation](../tutorials/introduction.md#matchers-available) for more details.
 
 ### `text`
 
