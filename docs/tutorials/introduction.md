@@ -101,7 +101,7 @@ skills:
     repo: "https://github.com/username/myawesomeskill.git"
 ```
 
-In this configuration we are using the [slack connector](/connectors/slack.md) with a slack [auth token](https://api.slack.com/tokens) supplied, a [mongo database](https://github.com/opsdroid/database-mongo) connection for persisting data, `hello` and `seen` skills from the official repos and finally a custom skill hosted on GitHub.
+In this configuration we are using the [slack connector](../connectors/slack.md) with a slack [auth token](https://api.slack.com/tokens) supplied, a [mongo database](https://github.com/opsdroid/database-mongo) connection for persisting data, `hello` and `seen` skills from the official repos and finally a custom skill hosted on GitHub.
 
 Configuration options such as the `token` in the slack connector or the `host`, `port` and `database` options in the mongo database are specific to those modules. Ensure you check each module's required configuration items before you use them.
 
@@ -125,20 +125,23 @@ async def ping_local():
 The await keyword must be used within another function (typically an asyncio function). Otherwise, it will result in a syntax error.
 
 ## Matchers available
-Matchers are used to match a message, sent by a user, to a connector and a skill. Opsdroid comes ready with 8 different matchers, each one of them has its own settings and specification.
+Matchers are used to match a message, sent by a user, to a connector and a skill. Opsdroid comes ready with 9 different matchers, each one of them has its own settings and specification.
 
-- Basic matcher
-  - [Regular Expressions](/matchers/regex.md)
-- NPL Matchers
-  - [Dialogflow(previous Api.ai)](/matchers/dialogflow.md)
-  - [Wit.ai](/matchers/wit.ai.md)
-  - [Lui.ai](/matchers/luis.ai.md)
-- Special Matcher
-  - [Always](/matchers/always.md)
-  - [Crontab](/matchers/crontab.md)
-  - [Webhook](/matchers/webhook.md)
+  * Basic matcher
+    * [Regular Expressions](../matchers/regex.md)
+  * NLP Matchers
+    * [Dialogflow(previous Api.ai)](../matchers/dialogflow.md)
+    * [Wit.ai](../matchers/wit.ai.md)
+    * [Luis.ai](../matchers/luis.ai.md)
+    * [Recast.ai](../matchers/recast.ai.md)
+  * NLU Matcher
+    * [Rasa_NLU](../matchers/rasanlu.md)
+  * Special Matcher
+    * [Always](../matchers/always.md)
+    * [Crontab](../matchers/crontab.md)
+    * [Webhook](../matchers/webhook.md)
 
-Read the [Matchers overview page](matchers/overview) for a quick reference guide on how to use them.
+Read any of the matchers page for a quick reference guide on how to use them.
 
 
 ## First run - Skills available
