@@ -2,6 +2,7 @@
 
 import logging
 
+from opsdroid.const import REGEX_SCORE_FACTOR
 from opsdroid.helper import get_opsdroid
 from opsdroid.web import Web
 
@@ -9,7 +10,7 @@ from opsdroid.web import Web
 _LOGGER = logging.getLogger(__name__)
 
 
-def match_regex(regex, case_sensitive=True):
+def match_regex(regex, case_sensitive=True, score_factor=None):
     """Return regex match decorator."""
     def matcher(func):
         """Add decorated function to skills list for regex matching."""
@@ -18,7 +19,8 @@ def match_regex(regex, case_sensitive=True):
             config = opsdroid.loader.current_import_config
             regex_setup = {
                 "expression": regex,
-                "case_sensitive": case_sensitive
+                "case_sensitive": case_sensitive,
+                "score_factor": score_factor or REGEX_SCORE_FACTOR,
             }
             opsdroid.skills.append({"regex": regex_setup,
                                     "skill": func,
