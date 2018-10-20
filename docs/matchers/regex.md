@@ -2,9 +2,9 @@
 
 ## Configuring opsdroid
 
-In order to enable regex skills you must set the `enabled` parameter to true in the parsers section of the opsdroid configuration file.
+In order to enable regex skills, you must set the `enabled` parameter to true in the parsers section of the opsdroid configuration file.
 
-If a skill is configured with both the regex and some other NLU matcher then users who don't use NLU will get a simple regex match. However users with some other NLU configured will get matches on more flexible messages, but will not see duplicate responses where the regex also matched.
+If a skill is configured with both the regex and some other NLU matcher, users who don't use NLU will get a simple regex match. However, users with some other NLU configured will get matches on more flexible messages, but they will not see duplicate responses where the regex also matched.
 
 ```yaml
 parsers:
@@ -12,9 +12,9 @@ parsers:
     enabled: true
 ```
 
-##
+## About Regular Expression Matcher 
 
-This is the simplest matcher available in opsdroid. It matches the message from the user against a regular expression. If the regex matches the function is called.
+This is the simplest matcher available in opsdroid. It matches the message from the user against a regular expression. If the regex matches, the function is called.
 
 _note: The use of position anchors(`^` or `$`) are encouraged when using regex to match a function. This should prevent opsdroid to be triggered with every use of the matched regular expression_
 
@@ -29,7 +29,6 @@ async def hello(opsdroid, config, message):
 ```
 
 The above skill would be called on any message which matches the regex `'hi'`, `'Hi'`, `'hI'` or `'HI'`. The `case_sensitive` kwarg is optional and defaults to `True`. 
-
 
 ## Example 2
 
@@ -56,6 +55,7 @@ Undesired effect:
 Since this matcher searches a message for the regular expression used on a skill, opsdroid will trigger any mention of the `'cold'`. To prevent this position anchors should be used.
 
 #### Fixed example
+
 ```python
 from opsdroid.matchers import match_regex
 
@@ -92,11 +92,39 @@ async def remember(opsdroid, config, message):
     await message.respond("OK I'll remember that")
 ```
 
+### Named Groups
+
+Elaborate regular expressions may use many groups, both to capture substrings of interest, as well as to group and structure the regular expression itself. In complex regular expressions, it can become difficult to keep track of the various groups and become unecessarily complex to include multiple groups if you refer to them by their index.  Instead, give the groups names to make it easier to keep track of the different groups and retrieve them later. 
+
+#### Example 1
+
+```python
+@match_regex('my name is (\w+) and my wife is called (\w+) and my son is called (\w+)')
+async def my_name_is(opsdroid, config, message):
+    name = message.regex.group(0)
+    wife = message.regex.group(1)
+    son = message.regex.group(2)
+```
+
+The above example does not use named groups and requires knowing the exact order of each of the groups in order to request them by their index.
+
+#### Fixed Example 
+
+```python
+@match_regex('my name is (?P<name>\w+) and my wife is called (?P<wife>\w+) and my son is called (?P<son>\w+)')
+async def my_name_is(opsdroid, config, message):
+    name = message.regex.group('name')
+    wife = message.regex.group('wife')
+    son = message.regex.group('son')
+```
+
+The above example gives each group a name and retrieves each group by using their respective names.  This is the recommended approach to using groups since it will simplify entity retrieval.
+
 ## Score factor
 
 In order to make NLU skills execute over regex skills, opsdroid always applies a default factor of `0.6` to every regex evaluated score.
 
-If a developer want to have a regex skill executed over a NLU one then the keyword argument `score_factor` can be used to achieve this.
+If a developer want to have a regex skill executed over a NLU one, then the keyword argument `score_factor` can be used to achieve this.
 
 
 ### Example 
