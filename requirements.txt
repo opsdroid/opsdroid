@@ -1,6 +1,7 @@
 aiohttp==3.4.4
 aioredis==1.1.0
-aioslacker==0.0.10
+aioslacker==0.0.11
+aiosqlite==0.6.0
 arrow==0.12.1
 Babel==2.6.0
 click==7.0
@@ -11,3 +12,4 @@ pyyaml==3.13
 websockets==6.0
 appdirs==1.4.3
 multidict==4.4.2
+motor==2.0.0

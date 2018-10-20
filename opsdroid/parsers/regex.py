@@ -3,17 +3,14 @@
 import logging
 import re
 
-from opsdroid.const import REGEX_MAX_SCORE
-
-
 _LOGGER = logging.getLogger(__name__)
 
 
-async def calculate_score(regex):
+async def calculate_score(regex, score_factor):
     """Calculate the score of a regex."""
     # The score asymptotically approaches the max score
     # based on the length of the expression.
-    return (1 - (1 / ((len(regex) + 1) ** 2))) * REGEX_MAX_SCORE
+    return (1 - (1 / ((len(regex) + 1) ** 2))) * score_factor
 
 
 async def parse_regex(opsdroid, message):
@@ -21,17 +18,18 @@ async def parse_regex(opsdroid, message):
     matched_skills = []
     for skill in opsdroid.skills:
         if "regex" in skill:
-            if skill["regex"]["case_sensitive"]:
-                regex = re.search(skill["regex"]["expression"],
+            opts = skill["regex"]
+            if opts["case_sensitive"]:
+                regex = re.search(opts["expression"],
                                   message.text)
             else:
-                regex = re.search(skill["regex"]["expression"],
+                regex = re.search(opts["expression"],
                                   message.text, re.IGNORECASE)
             if regex:
                 message.regex = regex
                 matched_skills.append({
                     "score": await calculate_score(
-                        skill["regex"]["expression"]),
+                        opts["expression"], opts["score_factor"]),
                     "skill": skill["skill"],
                     "config": skill["config"],
                     "message": message

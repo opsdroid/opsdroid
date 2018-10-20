@@ -80,7 +80,7 @@ skills:
     repo: "https://github.com/username/myawesomeskill.git"
 ```
 
-In this configuration we are using the [slack connector](/connectors/slack.md) with a slack [auth token](https://api.slack.com/tokens) supplied, a [mongo database](https://github.com/opsdroid/database-mongo) connection for persisting data, `hello` and `seen` skills from the official repos and finally a custom skill hosted on GitHub.
+In this configuration we are using the [slack connector](/connectors/slack.md) with a slack [auth token](https://api.slack.com/tokens) supplied, a built-in mongo database connection for persisting data, `hello` and `seen` skills from the official repos and finally a custom skill hosted on GitHub.
 
 Configuration options such as the `token` in the slack connector or the `host`, `port` and `database` options in the mongo database are specific to those modules. Ensure you check each module's required configuration items before you use them.
 
@@ -91,6 +91,7 @@ Configuration options such as the `token` in the slack connector or the `host`, 
 Opsdroid comes with some built-in connectors out of the box. A connector is a module which is either installed as a plugin or built-in that connect opsdroid to a specific chat service.
 
 The built-in connectors are:
+- [Facebook](/connectors/facebook.md)
 - [Slack](/connectors/slack.md)
 - [Websockets](/connectors/websocket.md)
 
@@ -133,9 +134,12 @@ See [module options](#module-options) for installing custom connectors.
 
 ### Database Modules
 
-Database modules which connect opsdroid to a persistent data storage service.
+Opsdroid comes with some built-in databases out of the box. Database modules which connect opsdroid to a persistent data storage service.
 
 Skills can store data in opsdroid's "memory", this is a dictionary which can be persisted in an external database.
+
+The built-in databases are:
+- [Mongo](/databases/mongo.md)
 
 _Config options of the databases themselves differ between databases, see the database documentation for details._
 

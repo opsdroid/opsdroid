@@ -22,6 +22,22 @@ class TestParserRegex(asynctest.TestCase):
             skills = await parse_regex(opsdroid, message)
             self.assertEqual(mock_skill, skills[0]["skill"])
 
+    async def test_parse_regex_priority(self):
+        with OpsDroid() as opsdroid:
+            regex = r"(.*)"
+
+            mock_skill_low = amock.CoroutineMock()
+            match_regex(regex, score_factor=0.6)(mock_skill_low)
+
+            mock_skill_high = amock.CoroutineMock()
+            match_regex(regex, score_factor=1)(mock_skill_high)
+
+            mock_connector = amock.CoroutineMock()
+            message = Message("Hello world", "user", "default", mock_connector)
+
+            skills = await opsdroid.get_ranked_skills(message)
+            self.assertEqual(mock_skill_high, skills[0]["skill"])
+
     async def test_parse_regex_raises(self):
         with OpsDroid() as opsdroid:
             mock_skill = amock.CoroutineMock()
