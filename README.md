@@ -1,7 +1,7 @@
  ![opsdroid](https://github.com/opsdroid/style-guidelines/raw/master/logos/logo-wide-light.png)[![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Check%20out%20opsdroid,%20an%20awesome%20open%20source%20chatbot%20framework%20written%20in%20Python.&url=https://opsdroid.github.io/&via=opsdroid&hashtags=chatbots,chatops,devops,automation,opensource)
 
 [![Current version of pypi](https://img.shields.io/pypi/v/opsdroid.svg)](https://pypi.python.org/pypi)
-[![Build Status](https://img.shields.io/travis/com/opsdroid/opsdroid/master.svg?logo=travis)](https://travis-ci.com/opsdroid/opsdroid)
+[![Build Status](https://img.shields.io/travis/org/opsdroid/opsdroid/master.svg?logo=travis)](https://travis-ci.org/opsdroid/opsdroid)
 [![Build status](https://img.shields.io/appveyor/ci/opsdroid/opsdroid/master.svg?logo=appveyor)](https://ci.appveyor.com/project/opsdroid/opsdroid/branch/master)
 [![codecov](https://img.shields.io/codecov/c/github/opsdroid/opsdroid.svg)](https://codecov.io/gh/opsdroid/opsdroid)
 [![BCH compliance](https://bettercodehub.com/edge/badge/opsdroid/opsdroid?branch=master)](https://bettercodehub.com/)
