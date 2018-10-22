@@ -147,7 +147,15 @@ class OpsDroid():
             self.eventloop.close()
 
     def setup_skills(self, skills):
-        """Call the setup function on the passed in skills."""
+        """Call the setup function on the loaded skills.
+
+        Iterates through all the skills which have been loaded and runs
+        any setup functions which have been defined in the skill.
+
+        Args:
+            skills (list): A list of all the loaded skills.
+
+        """
         with contextlib.suppress(AttributeError):
             for skill in skills:
                 skill["module"].setup(self, self.config)
