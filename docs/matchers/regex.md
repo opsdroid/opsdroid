@@ -4,7 +4,7 @@
 
 In order to enable regex skills, you must set the `enabled` parameter to true in the parsers section of the opsdroid configuration file.
 
-If a skill is configured with both the regex and some other NLU matcher, users who don't use NLU will get a simple regex match. However, users with some other NLU configured will get matches on more flexible messages, but they will not see duplicate responses where the regex also matched.
+If a skill is configured with both the regex and some other NLU matcher then users who don't use NLU will get a simple regex match. However, users with some other NLU configured will get matches on more flexible messages, but they will not see duplicate responses where the regex also matched.
 
 ```yaml
 parsers:
@@ -14,7 +14,7 @@ parsers:
 
 ## About Regular Expression Matcher 
 
-This is the simplest matcher available in opsdroid. It matches the message from the user against a regular expression. If the regex matches, the function is called.
+This is the simplest matcher available in opsdroid. It matches the message from the user against a regular expression. If the regex matches then the function is called.
 
 _note: The use of position anchors(`^` or `$`) are encouraged when using regex to match a function. This should prevent opsdroid to be triggered with every use of the matched regular expression_
 
@@ -94,7 +94,7 @@ async def remember(opsdroid, config, message):
 
 ### Named Groups
 
-Elaborate regular expressions may use many groups, both to capture substrings of interest, as well as to group and structure the regular expression itself. In complex regular expressions, it can become difficult to keep track of the various groups and become unecessarily complex to include multiple groups if you refer to them by their index.  Instead, give the groups names to make it easier to keep track of the different groups and retrieve them later. 
+Elaborate regular expressions may use many groups, which allow a developer to capture substrings of interest as well as group and structure the regular expression itself.  It can become difficult to keep track of the multiple groups in complex regular expressions and be unnecessarily complex to include the groups if you refer to them by their index.  Instead, give the groups names to make it easier to keep track of the different groups and retrieve them later. 
 
 #### Example 1
 
@@ -124,7 +124,7 @@ The above example gives each group a name and retrieves each group by using thei
 
 In order to make NLU skills execute over regex skills, opsdroid always applies a default factor of `0.6` to every regex evaluated score.
 
-If a developer want to have a regex skill executed over a NLU one, then the keyword argument `score_factor` can be used to achieve this.
+If a developer want to have a regex skill executed over a NLU one then the keyword argument `score_factor` can be used to achieve this.
 
 
 ### Example 
