@@ -6,7 +6,6 @@
 [![codecov](https://img.shields.io/codecov/c/github/opsdroid/opsdroid.svg)](https://codecov.io/gh/opsdroid/opsdroid)
 [![BCH compliance](https://bettercodehub.com/edge/badge/opsdroid/opsdroid?branch=master)](https://bettercodehub.com/)
 [![Updates](https://pyup.io/repos/github/opsdroid/opsdroid/shield.svg)](https://pyup.io/repos/github/opsdroid/opsdroid/)
-[![Dependency Status](https://tidelift.com/badges/github/opsdroid/opsdroid?style=flat)](https://dependencyci.com/github/opsdroid/opsdroid)
 [![Docker Build](https://img.shields.io/docker/build/opsdroid/opsdroid.svg)](https://hub.docker.com/r/opsdroid/opsdroid/builds/)
 [![Docker Image](https://img.shields.io/microbadger/image-size/opsdroid/opsdroid.svg)](https://hub.docker.com/r/opsdroid/opsdroid/)
 [![Docker Layers](https://img.shields.io/microbadger/layers/opsdroid/opsdroid.svg)](https://microbadger.com/#/images/opsdroid/opsdroid)
