@@ -6,6 +6,7 @@ import asynctest
 import asynctest.mock as amock
 import importlib
 
+from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.message import Message
 from opsdroid.connector import Connector
@@ -19,6 +20,7 @@ class TestCore(unittest.TestCase):
 
     def setUp(self):
         self.previous_loop = asyncio.get_event_loop()
+        configure_lang({})
 
     def tearDown(self):
         self.previous_loop.close()
@@ -148,6 +150,9 @@ class TestCore(unittest.TestCase):
             example_modules.append({"module": {"name": "test"}})
             opsdroid.setup_skills(example_modules)
             self.assertEqual(len(example_modules[0]["module"].mock_calls), 1)
+            self.assertEqual(example_modules[0]['module'].method_calls[0][0], 'setup')
+            self.assertEqual(len(example_modules[0]['module'].method_calls[0][1]), 2)
+            self.assertEqual(example_modules[0]['module'].method_calls[0][1][1], {})
 
     def test_default_connector(self):
         with OpsDroid() as opsdroid:
