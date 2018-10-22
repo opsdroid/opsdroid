@@ -1,6 +1,6 @@
 aiohttp==3.4.4
 aioslacker==0.0.11
-aiosqlite==0.6.0
+aiosqlite==0.7.0
 arrow==0.12.1
 Babel==2.6.0
 click==7.0
