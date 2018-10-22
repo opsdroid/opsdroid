@@ -150,7 +150,7 @@ class OpsDroid():
         """Call the setup function on the passed in skills."""
         with contextlib.suppress(AttributeError):
             for skill in skills:
-                skill["module"].setup(self)
+                skill["module"].setup(self, self.config)
 
     def train_parsers(self, skills):
         """Train the parsers."""
