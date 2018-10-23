@@ -1,8 +1,8 @@
 """A connector for Rocket.Chat."""
 import asyncio
 import logging
-import aiohttp
 import datetime
+import aiohttp
 
 from opsdroid.connector import Connector
 from opsdroid.message import Message
@@ -192,5 +192,4 @@ class RocketChat(Connector):
             if resp.status == 200:
                 _LOGGER.debug('Successfully responded')
             else:
-                _LOGGER.debug("Error - {}: Unable to respond".format(
-                    resp.status))
+                _LOGGER.debug("Error - %s: Unable to respond", resp.status)
