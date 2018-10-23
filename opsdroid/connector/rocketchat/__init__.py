@@ -2,6 +2,7 @@
 import asyncio
 import logging
 import aiohttp
+import datetime
 
 from opsdroid.connector import Connector
 from opsdroid.message import Message
@@ -33,7 +34,7 @@ class RocketChat(Connector):
         self.update_interval = config.get("update-interval", 1)
         self.bot_name = config.get("bot-name", "opsdroid")
         self.listening = True
-        self.latest_update = None
+        self.latest_update = datetime.datetime.utcnow().isoformat()
 
         try:
             self.user_id = config['user-id']
@@ -102,7 +103,7 @@ class RocketChat(Connector):
             message = Message(
                 response['messages'][0]['msg'],
                 response['messages'][0]['u']['username'],
-                self.default_room,
+                response['messages'][0]['rid'],
                 self)
             _LOGGER.debug("Received message from Rocket.Chat %s",
                           response['messages'][0]['msg'])
@@ -167,6 +168,10 @@ class RocketChat(Connector):
     async def respond(self, message, room=None):
         """Respond with a message.
 
+        The message argument carries both the text to reply with but
+        also which room to reply with depending of the roomId(rid) got
+        from the _parse_message method.
+
         Args:
             message (object): An instance of Message
             room (string, optional): Name of the room to respond to.
@@ -175,7 +180,7 @@ class RocketChat(Connector):
         _LOGGER.debug("Responding with: %s", message.text)
         async with aiohttp.ClientSession() as session:
             data = {}
-            data['channel'] = "#{}".format(self.default_room)
+            data['channel'] = message.room
             data['alias'] = self.bot_name
             data['text'] = message.text
             data['avatar'] = ''
@@ -187,4 +192,5 @@ class RocketChat(Connector):
             if resp.status == 200:
                 _LOGGER.debug('Successfully responded')
             else:
-                _LOGGER.debug("Unable to respond")
+                _LOGGER.debug("Error - {}: Unable to respond".format(
+                    resp.status))
