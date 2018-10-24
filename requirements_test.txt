@@ -1,4 +1,4 @@
-flake8==3.5.0
+flake8==3.6.0
 pylint==2.1.1
 coveralls==1.5.1
 astroid==2.0.4
