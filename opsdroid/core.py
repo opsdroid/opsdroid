@@ -167,22 +167,24 @@ class OpsDroid():
         for skill in self.skills:
             for matcher in skill.matchers:
                 if "webhook" in matcher:
-                    webhook = matcher['webhook']
 
                     async def wrapper(req, opsdroid=self, config=skill.config):
                         """Wrap up the aiohttp handler."""
-                        _LOGGER.info("Running skill %s via webhook", webhook)
+                        _LOGGER.info("Running skill %s via webhook",
+                                     matcher['webhook'])
                         opsdroid.stats["webhooks_called"] = \
                             opsdroid.stats["webhooks_called"] + 1
                         await skill(opsdroid, config, req)
-                        return Web.build_response(200,
-                                                  {"called_skill": webhook})
+                        return Web.build_response(
+                            200, {"called_skill": matcher['webhook']})
 
                     self.web_server.web_app.router.add_post(
-                        "/skill/{}/{}".format(skill.config["name"], webhook),
+                        "/skill/{}/{}".format(
+                            skill.config["name"], matcher['webhook']),
                         wrapper)
                     self.web_server.web_app.router.add_post(
-                        "/skill/{}/{}/".format(skill.config["name"], webhook),
+                        "/skill/{}/{}/".format(
+                            skill.config["name"], matcher['webhook']),
                         wrapper)
 
     def train_parsers(self, skills):
