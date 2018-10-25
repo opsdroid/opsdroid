@@ -56,18 +56,19 @@ async def parse_luisai(opsdroid, message, config):
                 return matched_skills
 
             for skill in opsdroid.skills:
-                if "luisai_intent" in skill:
-                    try:
-                        intents = [i["intent"] for i in result["intents"]]
-                    except KeyError:
-                        continue
+                for matcher in skill.matchers:
+                    if "luisai_intent" in matcher:
+                        try:
+                            intents = [i["intent"] for i in result["intents"]]
+                        except KeyError:
+                            continue
 
-                    if skill["luisai_intent"] in intents:
-                        message.luisai = result
-                        matched_skills.append({
-                            "score": result["topScoringIntent"]["score"],
-                            "skill": skill["skill"],
-                            "config": skill["config"],
-                            "message": message
-                        })
+                        if matcher["luisai_intent"] in intents:
+                            message.luisai = result
+                            matched_skills.append({
+                                "score": result["topScoringIntent"]["score"],
+                                "skill": skill,
+                                "config": skill.config,
+                                "message": message
+                            })
     return matched_skills

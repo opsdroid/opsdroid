@@ -58,15 +58,16 @@ async def parse_witai(opsdroid, message, config):
 
         if result:
             for skill in opsdroid.skills:
-                if "witai_intent" in skill:
-                    if (skill['witai_intent'] in
-                            [i['value'] for i in
-                             result['entities']['intent']]):
-                        message.witai = result
-                        matched_skills.append({
-                            "score": confidence,
-                            "skill": skill["skill"],
-                            "config": skill["config"],
-                            "message": message
-                        })
+                for matcher in skill.matchers:
+                    if "witai_intent" in matcher:
+                        if (matcher['witai_intent'] in
+                                [i['value'] for i in
+                                 result['entities']['intent']]):
+                            message.witai = result
+                            matched_skills.append({
+                                "score": confidence,
+                                "skill": skill,
+                                "config": skill.config,
+                                "message": message
+                            })
     return matched_skills

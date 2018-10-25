@@ -5,6 +5,7 @@ import asynctest.mock as amock
 import aiohttp
 from aiohttp import ClientOSError
 
+from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.matchers import match_rasanlu
 from opsdroid.message import Message
@@ -14,6 +15,21 @@ from opsdroid.connector import Connector
 
 class TestParserRasaNLU(asynctest.TestCase):
     """Test the opsdroid Rasa NLU parser."""
+
+    async def setup(self):
+        configure_lang({})
+
+    async def getMockSkill(self):
+        async def mockedskill(opsdroid, config, message):
+            pass
+        mockedskill.config = {}
+        return mockedskill
+
+    async def getRaisingMockSkill(self):
+        async def mockedskill(opsdroid, config, message):
+            raise Exception()
+        mockedskill.config = {}
+        return mockedskill
 
     async def test_call_rasanlu(self):
         mock_connector = Connector({})
@@ -95,8 +111,8 @@ class TestParserRasaNLU(asynctest.TestCase):
             opsdroid.config['parsers'] = [
                 {'name': 'rasanlu', 'access-token': 'test', 'min-score': 0.3}
             ]
-            mock_skill = amock.CoroutineMock()
-            match_rasanlu('get_weather')(mock_skill)
+            mock_skill = await self.getMockSkill()
+            opsdroid.skills.append(match_rasanlu('get_weather')(mock_skill))
 
             mock_connector = amock.CoroutineMock()
             message = Message("how's the weather outside", "user",
@@ -139,12 +155,11 @@ class TestParserRasaNLU(asynctest.TestCase):
             opsdroid.config['parsers'] = [
                 {'name': 'rasanlu', 'access-token': 'test', 'min-score': 0.3}
             ]
-            mock_skill = amock.CoroutineMock()
-            mock_skill.side_effect = Exception()
-            opsdroid.loader.current_import_config = {
+            mock_skill = await self.getRaisingMockSkill()
+            mock_skill.config = {
                 "name": "mocked-skill"
             }
-            match_rasanlu('get_weather')(mock_skill)
+            opsdroid.skills.append(match_rasanlu('get_weather')(mock_skill))
 
             mock_connector = amock.MagicMock()
             mock_connector.respond = amock.CoroutineMock()
@@ -183,9 +198,10 @@ class TestParserRasaNLU(asynctest.TestCase):
                     opsdroid, message, opsdroid.config['parsers'][0])
                 self.assertEqual(mock_skill, skills[0]["skill"])
 
-            await opsdroid.run_skill(
-                skills[0]["skill"], skills[0]["config"], message)
-            self.assertTrue(skills[0]["skill"].called)
+            with amock.patch('opsdroid.core._LOGGER.exception') as logmock:
+                await opsdroid.run_skill(
+                    skills[0]["skill"], skills[0]["config"], message)
+                self.assertTrue(logmock.called)
 
     async def test_parse_rasanlu_failure(self):
         with OpsDroid() as opsdroid:
@@ -323,10 +339,13 @@ class TestParserRasaNLU(asynctest.TestCase):
 
     async def test__get_all_intents(self):
         skills = [
-            {"intents": "Hello"},
-            {"intents": None},
-            {"intents": "World"}
+            await self.getMockSkill(),
+            await self.getMockSkill(),
+            await self.getMockSkill()
         ]
+        skills[0].matchers = [{"intents": "Hello"}]
+        skills[1].matchers = [{"intents": None}]
+        skills[2].matchers = [{"intents": "World"}]
         intents = await rasanlu._get_all_intents(skills)
         self.assertEqual(type(intents), type(b""))
         self.assertEqual(intents, b"Hello\n\nWorld")

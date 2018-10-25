@@ -62,23 +62,24 @@ async def parse_dialogflow(opsdroid, message, config):
         if result:
 
             for skill in opsdroid.skills:
+                for matcher in skill.matchers:
 
-                if "dialogflow_action" in skill or \
-                                "dialogflow_intent" in skill:
-                    if ("action" in result["result"] and
-                            skill["dialogflow_action"] in
-                            result["result"]["action"]) \
-                            or ("intentName" in result["result"] and
-                                skill["dialogflow_intent"] in
-                                result["result"]["intentName"]):
-                        message.dialogflow = result
-                        message.apiai = message.dialogflow
-                        _LOGGER.debug(_("Matched against skill %s"),
-                                      skill["config"]["name"])
-                        matched_skills.append({
-                            "score": result["result"]["score"],
-                            "skill": skill["skill"],
-                            "config": skill["config"],
-                            "message": message
-                        })
+                    if "dialogflow_action" in matcher or \
+                            "dialogflow_intent" in matcher:
+                        if ("action" in result["result"] and
+                                matcher["dialogflow_action"] in
+                                result["result"]["action"]) \
+                                or ("intentName" in result["result"] and
+                                    matcher["dialogflow_intent"] in
+                                    result["result"]["intentName"]):
+                            message.dialogflow = result
+                            message.apiai = message.dialogflow
+                            _LOGGER.debug(_("Matched against skill %s"),
+                                          skill.config["name"])
+                            matched_skills.append({
+                                "score": result["result"]["score"],
+                                "skill": skill,
+                                "config": skill.config,
+                                "message": message
+                            })
     return matched_skills

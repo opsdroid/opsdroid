@@ -6,6 +6,7 @@ import asynctest
 import asynctest.mock as amock
 import importlib
 
+from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.message import Message
 from opsdroid.connector import Connector
@@ -19,6 +20,7 @@ class TestCore(unittest.TestCase):
 
     def setUp(self):
         self.previous_loop = asyncio.get_event_loop()
+        configure_lang({})
 
     def tearDown(self):
         self.previous_loop.close()
@@ -57,9 +59,11 @@ class TestCore(unittest.TestCase):
 
     def test_load_config(self):
         with OpsDroid() as opsdroid:
-            opsdroid.loader = mock.Mock()
-            opsdroid.load()
-            self.assertTrue(opsdroid.loader.load_config_file.called)
+            opsdroid.loader.load_modules_from_config = mock.Mock()
+            opsdroid.loader.load_modules_from_config.return_value = \
+                {"skills": [], "databases": [], "connectors": []}
+            opsdroid.load({})
+            self.assertTrue(opsdroid.loader.load_modules_from_config.called)
 
     @asynctest.patch('opsdroid.core.parse_crontab')
     def test_start_loop(self, mocked_parse_crontab):
@@ -73,24 +77,16 @@ class TestCore(unittest.TestCase):
             opsdroid.setup_skills = mock.Mock()
             opsdroid.start_connector_tasks = mock.Mock()
             opsdroid.eventloop.run_forever = mock.Mock()
+            opsdroid.modules = {"skills": [],
+                                "databases": [],
+                                "connectors": []}
 
             with self.assertRaises(RuntimeError):
                 opsdroid.start_loop()
 
             self.assertTrue(opsdroid.start_databases.called)
-            self.assertTrue(opsdroid.setup_skills.called)
             self.assertTrue(opsdroid.start_connector_tasks.called)
             self.assertTrue(opsdroid.eventloop.run_forever.called)
-
-    def test_load_regex_skill(self):
-        with OpsDroid() as opsdroid:
-            regex = r".*"
-            skill = mock.MagicMock()
-            decorator = match_regex(regex)
-            decorator(skill)
-            self.assertEqual(len(opsdroid.skills), 1)
-            self.assertEqual(opsdroid.skills[0]["regex"]["expression"], regex)
-            self.assertIsInstance(opsdroid.skills[0]["skill"], mock.MagicMock)
 
     def test_start_databases(self):
         with OpsDroid() as opsdroid:
@@ -144,10 +140,12 @@ class TestCore(unittest.TestCase):
     def test_setup_modules(self):
         with OpsDroid() as opsdroid:
             example_modules = []
-            example_modules.append({"module": mock.MagicMock()})
-            example_modules.append({"module": {"name": "test"}})
+            mockskill = lambda x: x * 2
+            mockskill.skill = True
+            mockmodule = mock.Mock(setup=mock.MagicMock(), mockskill=mockskill)
+            example_modules.append({"module": mockmodule, "config": {}})
             opsdroid.setup_skills(example_modules)
-            self.assertEqual(len(example_modules[0]["module"].mock_calls), 1)
+            self.assertEqual(len(mockmodule.setup.mock_calls), 1)
 
     def test_default_connector(self):
         with OpsDroid() as opsdroid:
@@ -176,6 +174,15 @@ class TestCore(unittest.TestCase):
 class TestCoreAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid core class."""
 
+    async def setUp(self):
+        configure_lang({})
+
+    async def getMockSkill(self):
+        async def mockedskill(opsdroid, config, message):
+            await message.respond("Test")
+        mockedskill.config = {}
+        return mockedskill
+
     async def test_disconnect(self):
         with OpsDroid() as opsdroid:
             connector = Connector({})
@@ -189,26 +196,28 @@ class TestCoreAsync(asynctest.TestCase):
     async def test_parse_regex(self):
         with OpsDroid() as opsdroid:
             regex = r"Hello .*"
-            skill = amock.CoroutineMock()
             mock_connector = Connector({})
-            match_regex(regex)(skill)
+            mock_connector.respond = amock.CoroutineMock()
+            skill = await self.getMockSkill()
+            opsdroid.skills.append(match_regex(regex)(skill))
             message = Message("Hello world", "user", "default", mock_connector)
             tasks = await opsdroid.parse(message)
             for task in tasks:
                 await task
-            self.assertTrue(skill.called)
+            self.assertTrue(mock_connector.respond.called)
 
     async def test_parse_regex_insensitive(self):
         with OpsDroid() as opsdroid:
             regex = r"Hello .*"
-            skill = amock.CoroutineMock()
             mock_connector = Connector({})
-            match_regex(regex, case_sensitive=False)(skill)
+            mock_connector.respond = amock.CoroutineMock()
+            skill = await self.getMockSkill()
+            opsdroid.skills.append(match_regex(regex, case_sensitive=False)(skill))
             message = Message("HELLO world", "user", "default", mock_connector)
             tasks = await opsdroid.parse(message)
             for task in tasks:
                 await task
-            self.assertTrue(skill.called)
+            self.assertTrue(mock_connector.respond.called)
 
     async def test_parse_dialogflow(self):
         with OpsDroid() as opsdroid:

@@ -22,7 +22,7 @@ class Web:
             self.config = self.opsdroid.config["web"]
         except KeyError:
             self.config = {}
-        self.web_app = web.Application(loop=self.opsdroid.eventloop)
+        self.web_app = web.Application()
         self.web_app.router.add_get('/', self.web_index_handler)
         self.web_app.router.add_get('', self.web_index_handler)
         self.web_app.router.add_get('/stats', self.web_stats_handler)
@@ -77,12 +77,12 @@ class Web:
         """Build a json response object."""
         return web.Response(text=json.dumps(result), status=status)
 
-    def web_index_handler(self, request):
+    async def web_index_handler(self, request):
         """Handle root web request."""
         return self.build_response(200, {
             "message": "Welcome to the opsdroid API"})
 
-    def web_stats_handler(self, request):
+    async def web_stats_handler(self, request):
         """Handle stats request."""
         stats = self.opsdroid.stats
         try:

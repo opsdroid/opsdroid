@@ -76,7 +76,7 @@ class TestWeb(asynctest.TestCase):
             opsdroid.config["web"] = {}
             app = web.Web(opsdroid)
             self.assertEqual(
-                type(app.web_index_handler(None)), aiohttp.web.Response)
+                type(await app.web_index_handler(None)), aiohttp.web.Response)
 
     async def test_web_stats_handler(self):
         """Check the stats handler."""
@@ -84,7 +84,7 @@ class TestWeb(asynctest.TestCase):
             opsdroid.config["web"] = {}
             app = web.Web(opsdroid)
             self.assertEqual(
-                type(app.web_stats_handler(None)), aiohttp.web.Response)
+                type(await app.web_stats_handler(None)), aiohttp.web.Response)
 
     async def test_web_start(self):
         """Check the stats handler."""

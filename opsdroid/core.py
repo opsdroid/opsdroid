@@ -13,6 +13,7 @@ from opsdroid.memory import Memory
 from opsdroid.connector import Connector
 from opsdroid.database import Database
 from opsdroid.loader import Loader
+from opsdroid.web import Web
 from opsdroid.parsers.always import parse_always
 from opsdroid.parsers.regex import parse_regex
 from opsdroid.parsers.dialogflow import parse_dialogflow
@@ -21,7 +22,6 @@ from opsdroid.parsers.recastai import parse_recastai
 from opsdroid.parsers.witai import parse_witai
 from opsdroid.parsers.rasanlu import parse_rasanlu, train_rasanlu
 from opsdroid.parsers.crontab import parse_crontab
-from opsdroid.const import DEFAULT_CONFIG_PATH
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -47,6 +47,7 @@ class OpsDroid():
                 self.eventloop.add_signal_handler(sig, self.call_stop)
         self.skills = []
         self.memory = Memory()
+        self.modules = {}
         self.loader = Loader(self)
         self.config = {}
         self.stats = {
@@ -55,7 +56,7 @@ class OpsDroid():
             "total_response_time": 0,
             "total_responses": 0,
         }
-        self.web_server = None
+        self.web_server = Web(self)
         self.stored_path = []
 
     def __enter__(self):
@@ -117,24 +118,20 @@ class OpsDroid():
         print('')  # Prints a character return for return to shell
         _LOGGER.info(_("Keyboard interrupt, exiting."))
 
-    def load(self):
-        """Load configuration."""
-        self.config = self.loader.load_config_file([
-            "configuration.yaml",
-            DEFAULT_CONFIG_PATH,
-            "/etc/opsdroid/configuration.yaml"
-            ])
+    def load(self, config):
+        """Load modules."""
+        self.config = config
+        self.modules = self.loader.load_modules_from_config(self.config)
+        _LOGGER.debug(_("Loaded %i skills"), len(self.modules["skills"]))
+        self.setup_skills(self.modules["skills"])
+        self.setup_webhooks()
+        self.train_parsers(self.modules["skills"])
 
     def start_loop(self):
         """Start the event loop."""
-        connectors, databases, skills = \
-            self.loader.load_modules_from_config(self.config)
-        _LOGGER.debug(_("Loaded %i skills"), len(skills))
-        if databases is not None:
-            self.start_databases(databases)
-        self.setup_skills(skills)
-        self.train_parsers(skills)
-        self.start_connector_tasks(connectors)
+        if self.modules["databases"] is not None:
+            self.start_databases(self.modules["databases"])
+        self.start_connector_tasks(self.modules["connectors"])
         self.eventloop.create_task(parse_crontab(self))
         self.web_server.start()
         try:
@@ -148,9 +145,38 @@ class OpsDroid():
 
     def setup_skills(self, skills):
         """Call the setup function on the passed in skills."""
+        for skill in skills:
+            for _, func in skill["module"].__dict__.items():
+                if hasattr(func, "skill"):
+                    func.config = skill['config']
+                    self.skills.append(func)
+
         with contextlib.suppress(AttributeError):
             for skill in skills:
                 skill["module"].setup(self)
+
+    def setup_webhooks(self):
+        """Add the webhooks for the webhook skills to the router."""
+        for skill in self.skills:
+            for matcher in skill.matchers:
+                if "webhook" in matcher:
+                    webhook = matcher['webhook']
+
+                    async def wrapper(req, opsdroid=self, config=skill.config):
+                        """Wrap up the aiohttp handler."""
+                        _LOGGER.info("Running skill %s via webhook", webhook)
+                        opsdroid.stats["webhooks_called"] = \
+                            opsdroid.stats["webhooks_called"] + 1
+                        await skill(opsdroid, config, req)
+                        return Web.build_response(200,
+                                                  {"called_skill": webhook})
+
+                    self.web_server.web_app.router.add_post(
+                        "/skill/{}/{}".format(skill.config["name"], webhook),
+                        wrapper)
+                    self.web_server.web_app.router.add_post(
+                        "/skill/{}/{}/".format(skill.config["name"], webhook),
+                        wrapper)
 
     def train_parsers(self, skills):
         """Train the parsers."""
