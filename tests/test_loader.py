@@ -79,18 +79,22 @@ class TestLoader(unittest.TestCase):
         shutil.rmtree(os.path.split(test_config_path)[0], onerror=del_rw)
 
     def test_generate_config_if_none_exist(self):
+        cdf_backup = Loader.create_default_config
         Loader.create_default_config = mock.Mock(
             return_value=os.path.abspath("tests/configs/minimal.yaml"))
         Loader.load_config_file(["file_which_does_not_exist"])
         self.assertTrue(Loader.create_default_config.called)
+        Loader.create_default_config = cdf_backup
 
     def test_load_non_existant_config_file(self):
+        cdf_backup = Loader.create_default_config
         Loader.create_default_config = mock.Mock(
             return_value=os.path.abspath("/tmp/my_nonexistant_config"))
         with mock.patch('sys.exit') as mock_sysexit:
             Loader.load_config_file(["file_which_does_not_exist"])
             self.assertTrue(Loader.create_default_config.called)
             self.assertTrue(mock_sysexit.called)
+        Loader.create_default_config = cdf_backup
 
     def test_load_broken_config_file(self):
         with mock.patch('sys.exit') as patched_sysexit:
