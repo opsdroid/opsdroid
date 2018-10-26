@@ -77,6 +77,21 @@ class Web:
         """Build a json response object."""
         return web.Response(text=json.dumps(result), status=status)
 
+    def register_skill(self, opsdroid, skill, webhook):
+        """Register a new skill in the web app router."""
+        async def wrapper(req, opsdroid=opsdroid, config=skill.config):
+            """Wrap up the aiohttp handler."""
+            _LOGGER.info("Running skill %s via webhook", webhook)
+            opsdroid.stats["webhooks_called"] = \
+                opsdroid.stats["webhooks_called"] + 1
+            await skill(opsdroid, config, req)
+            return Web.build_response(200, {"called_skill": webhook})
+
+        self.web_app.router.add_post(
+            "/skill/{}/{}".format(skill.config["name"], webhook), wrapper)
+        self.web_app.router.add_post(
+            "/skill/{}/{}/".format(skill.config["name"], webhook), wrapper)
+
     async def web_index_handler(self, request):
         """Handle root web request."""
         return self.build_response(200, {
