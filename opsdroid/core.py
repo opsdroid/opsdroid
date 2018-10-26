@@ -35,7 +35,7 @@ class OpsDroid():
 
     instances = []
 
-    def __init__(self):
+    def __init__(self, config={}):
         """Start opsdroid."""
         self.bot_name = 'opsdroid'
         self.sys_status = 0
@@ -49,7 +49,7 @@ class OpsDroid():
         self.memory = Memory()
         self.modules = {}
         self.loader = Loader(self)
-        self.config = {}
+        self.config = config
         self.stats = {
             "messages_parsed": 0,
             "webhooks_called": 0,
@@ -118,9 +118,8 @@ class OpsDroid():
         print('')  # Prints a character return for return to shell
         _LOGGER.info(_("Keyboard interrupt, exiting."))
 
-    def load(self, config):
+    def load(self):
         """Load modules."""
-        self.config = config
         self.modules = self.loader.load_modules_from_config(self.config)
         _LOGGER.debug(_("Loaded %i skills"), len(self.modules["skills"]))
         self.setup_skills(self.modules["skills"])

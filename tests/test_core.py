@@ -62,7 +62,7 @@ class TestCore(unittest.TestCase):
             opsdroid.loader.load_modules_from_config = mock.Mock()
             opsdroid.loader.load_modules_from_config.return_value = \
                 {"skills": [], "databases": [], "connectors": []}
-            opsdroid.load({})
+            opsdroid.load()
             self.assertTrue(opsdroid.loader.load_modules_from_config.called)
 
     @asynctest.patch('opsdroid.core.parse_crontab')

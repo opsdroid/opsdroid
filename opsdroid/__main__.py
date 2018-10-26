@@ -192,8 +192,8 @@ def main():
     configure_logging(config)
     welcome_message(config)
 
-    with OpsDroid() as opsdroid:
-        opsdroid.load(config)
+    with OpsDroid(config=config) as opsdroid:
+        opsdroid.load()
         opsdroid.start_loop()
 
 
