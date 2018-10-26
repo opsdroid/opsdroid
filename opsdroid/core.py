@@ -35,7 +35,7 @@ class OpsDroid():
 
     instances = []
 
-    def __init__(self, config={}):
+    def __init__(self, config=None):
         """Start opsdroid."""
         self.bot_name = 'opsdroid'
         self.sys_status = 0
@@ -49,7 +49,10 @@ class OpsDroid():
         self.memory = Memory()
         self.modules = {}
         self.loader = Loader(self)
-        self.config = config
+        if config is None:
+            self.config = {}
+        else:
+            self.config = config
         self.stats = {
             "messages_parsed": 0,
             "webhooks_called": 0,
