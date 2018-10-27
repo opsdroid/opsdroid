@@ -107,6 +107,7 @@ class TestWeb(asynctest.TestCase):
         """Check the stats handler."""
         with OpsDroid() as opsdroid:
             app = web.Web(opsdroid)
+            app.runner = amock.CoroutineMock()
             app.runner.cleanup = amock.CoroutineMock()
             await app.stop()
             self.assertTrue(app.runner.cleanup.called)
