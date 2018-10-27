@@ -44,10 +44,14 @@ class OpsDroid():
         self.eventloop = asyncio.get_event_loop()
         if os.name != 'nt':
             for sig in (signal.SIGINT, signal.SIGTERM):
-                self.eventloop.add_signal_handler(sig, self.call_stop)
+                self.eventloop.add_signal_handler(
+                    sig,
+                    lambda: asyncio.ensure_future(self.stop()))
+        self.eventloop.set_exception_handler(self.handle_async_exception)
         self.skills = []
         self.memory = Memory()
         self.modules = {}
+        self.cron_task = None
         self.loader = Loader(self)
         if config is None:
             self.config = {}
@@ -101,25 +105,11 @@ class OpsDroid():
         _LOGGER.critical(error)
         self.exit()
 
-    def call_stop(self):
-        """Signal handler to call disconnect and stop."""
-        future = asyncio.ensure_future(self.disconnect())
-        future.add_done_callback(self.stop)
-        return future
-
-    async def disconnect(self):
-        """Disconnect all the connectors."""
-        for connector in self.connectors:
-            await connector.disconnect(self)
-
-    def stop(self, future=None):
-        """Stop the event loop."""
-        pending = asyncio.Task.all_tasks()
-        for task in pending:
-            task.cancel()
-        self.eventloop.stop()
-        print('')  # Prints a character return for return to shell
-        _LOGGER.info(_("Keyboard interrupt, exiting."))
+    @staticmethod
+    def handle_async_exception(loop, context):
+        """Handle exceptions from async coroutines."""
+        _LOGGER.error("Caught exception")
+        _LOGGER.error(context)
 
     def load(self):
         """Load modules."""
@@ -129,21 +119,45 @@ class OpsDroid():
         self.setup_webhooks()
         self.train_parsers(self.modules["skills"])
 
-    def start_loop(self):
+    def start(self):
         """Start the event loop."""
         if self.modules["databases"] is not None:
             self.start_databases(self.modules["databases"])
         self.start_connector_tasks(self.modules["connectors"])
-        self.eventloop.create_task(parse_crontab(self))
-        self.web_server.start()
+        self.cron_task = self.eventloop.create_task(parse_crontab(self))
+        self.eventloop.create_task(self.web_server.start())
+        _LOGGER.info("Opsdroid is now running, press ctrl+c to exit.")
         try:
             pending = asyncio.Task.all_tasks()
             self.eventloop.run_until_complete(asyncio.gather(*pending))
-        except RuntimeError as error:
-            if str(error) != 'Event loop is closed':
-                raise error
         finally:
+            self.eventloop.stop()
             self.eventloop.close()
+            self.exit()
+
+    async def stop(self, future=None):
+        """Stop the event loop."""
+        _LOGGER.info(_("Keyboard interrupt, exiting."))
+
+        for connector in self.connectors:
+            _LOGGER.info(_("Stopping connector %s..."), connector.name)
+            await connector.disconnect(self)
+            _LOGGER.info(_("Stopped connector %s"), connector.name)
+
+        for database in self.memory.databases:
+            _LOGGER.info(_("Stopping database %s..."), database.name)
+            await database.disconnect(self)
+            _LOGGER.info(_("Stopped database %s"), database.name)
+
+        _LOGGER.info(_("Stopping web server..."))
+        await self.web_server.stop()
+        _LOGGER.info(_("Stopped web server"))
+
+        _LOGGER.info(_("Stopping cron..."))
+        self.cron_task.cancel()
+        _LOGGER.info(_("Stopped cron"))
+
+        _LOGGER.info(_("Bye!"))
 
     def setup_skills(self, skills):
         """Call the setup function on the loaded skills.

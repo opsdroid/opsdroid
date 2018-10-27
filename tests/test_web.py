@@ -4,6 +4,7 @@ import ssl
 import asynctest
 import asynctest.mock as amock
 
+from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid import web
 import aiohttp.web
@@ -11,6 +12,9 @@ import aiohttp.web
 
 class TestWeb(asynctest.TestCase):
     """Test the opsdroid web class."""
+
+    def setUp(self):
+        configure_lang({})
 
     async def test_web(self):
         """Create a web object and check the config."""
@@ -89,7 +93,20 @@ class TestWeb(asynctest.TestCase):
     async def test_web_start(self):
         """Check the stats handler."""
         with OpsDroid() as opsdroid:
-            with amock.patch('aiohttp.web.run_app') as webmock:
+            with amock.patch('aiohttp.web.AppRunner.setup') as mock_runner, \
+                    amock.patch('aiohttp.web.TCPSite.__init__') as mock_tcpsite, \
+                    amock.patch('aiohttp.web.TCPSite.start') as mock_tcpsite_start:
+                mock_tcpsite.return_value = None
                 app = web.Web(opsdroid)
-                app.start()
-                self.assertTrue(webmock.called)
+                await app.start()
+                self.assertTrue(mock_runner.called)
+                self.assertTrue(mock_tcpsite.called)
+                self.assertTrue(mock_tcpsite_start.called)
+
+    async def test_web_stop(self):
+        """Check the stats handler."""
+        with OpsDroid() as opsdroid:
+            app = web.Web(opsdroid)
+            app.runner.cleanup = amock.CoroutineMock()
+            await app.stop()
+            self.assertTrue(app.runner.cleanup.called)

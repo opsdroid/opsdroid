@@ -6,6 +6,7 @@ from datetime import datetime
 
 import aiohttp
 import aiohttp.web
+from aiohttp import WSCloseCode
 
 from opsdroid.connector import Connector
 from opsdroid.message import Message
@@ -27,6 +28,7 @@ class ConnectorWebsocket(Connector):
         self.default_room = None
         self.max_connections = self.config.get("max-connections", 10)
         self.connection_timeout = self.config.get("connection-timeout", 60)
+        self.accepting_connections = True
         self.active_connections = {}
         self.available_connections = []
         self.bot_name = self.config.get("bot-name", 'opsdroid')
@@ -34,6 +36,7 @@ class ConnectorWebsocket(Connector):
     async def connect(self, opsdroid):
         """Connect to the chat service."""
         self.opsdroid = opsdroid
+        self.accepting_connections = True
 
         self.opsdroid.web_server.web_app.router.add_get(
             "/connector/websocket/{socket}",
@@ -43,10 +46,19 @@ class ConnectorWebsocket(Connector):
             "/connector/websocket",
             self.new_websocket_handler)
 
+    async def disconnect(self, opsdroid):
+        """Disconnect from current sessions."""
+        self.accepting_connections = False
+        connections_to_close = self.active_connections.copy()
+        for connection in connections_to_close:
+            await connections_to_close[connection].close(
+                code=WSCloseCode.GOING_AWAY,
+                message='Server shutdown')
+
     async def new_websocket_handler(self, request):
         """Handle for aiohttp creating websocket connections."""
         if len(self.active_connections) + len(self.available_connections) \
-                < self.max_connections:
+                < self.max_connections and self.accepting_connections:
             socket = {"id": str(uuid.uuid1()), "date": datetime.now()}
             self.available_connections.append(socket)
             return aiohttp.web.Response(

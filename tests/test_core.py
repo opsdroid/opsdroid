@@ -10,6 +10,7 @@ from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.message import Message
 from opsdroid.connector import Connector
+from opsdroid.database import Database
 from opsdroid.matchers import (match_regex, match_dialogflow_action,
                                match_luisai_intent, match_recastai,
                                match_rasanlu, match_witai)
@@ -41,22 +42,6 @@ class TestCore(unittest.TestCase):
         with OpsDroid() as opsdroid, self.assertRaises(SystemExit):
             opsdroid.critical("An error", 1)
 
-    def test_stop(self):
-        with OpsDroid() as opsdroid:
-            opsdroid.eventloop.create_task(asyncio.sleep(0))
-            self.assertFalse(opsdroid.eventloop.is_closed())
-            opsdroid.stop()
-            self.assertFalse(opsdroid.eventloop.is_running())
-
-    def test_call_stop(self):
-        with OpsDroid() as opsdroid:
-            opsdroid.stop = mock.Mock()
-            opsdroid.disconnect = amock.CoroutineMock()
-
-            opsdroid.call_stop()
-
-            self.assertTrue(opsdroid.disconnect.called)
-
     def test_load_config(self):
         with OpsDroid() as opsdroid:
             opsdroid.loader.load_modules_from_config = mock.Mock()
@@ -66,7 +51,7 @@ class TestCore(unittest.TestCase):
             self.assertTrue(opsdroid.loader.load_modules_from_config.called)
 
     @asynctest.patch('opsdroid.core.parse_crontab')
-    def test_start_loop(self, mocked_parse_crontab):
+    def test_start(self, mocked_parse_crontab):
         with OpsDroid() as opsdroid:
             mockconfig = {}, {}, {}
             opsdroid.web_server = mock.Mock()
@@ -76,17 +61,19 @@ class TestCore(unittest.TestCase):
             opsdroid.start_databases = mock.Mock()
             opsdroid.setup_skills = mock.Mock()
             opsdroid.start_connector_tasks = mock.Mock()
-            opsdroid.eventloop.run_forever = mock.Mock()
+            opsdroid.eventloop = mock.MagicMock()
+            opsdroid.eventloop.run_until_complete = mock.Mock()
             opsdroid.modules = {"skills": [],
                                 "databases": [],
                                 "connectors": []}
 
-            with self.assertRaises(RuntimeError):
-                opsdroid.start_loop()
+            with mock.patch('sys.exit') as mock_sysexit:
+                opsdroid.start()
 
             self.assertTrue(opsdroid.start_databases.called)
             self.assertTrue(opsdroid.start_connector_tasks.called)
-            self.assertTrue(opsdroid.eventloop.run_forever.called)
+            self.assertTrue(opsdroid.eventloop.run_until_complete.called)
+            self.assertTrue(mock_sysexit.called)
 
     def test_start_databases(self):
         with OpsDroid() as opsdroid:
@@ -186,15 +173,28 @@ class TestCoreAsync(asynctest.TestCase):
         mockedskill.config = {}
         return mockedskill
 
-    async def test_disconnect(self):
+    async def test_stop(self):
         with OpsDroid() as opsdroid:
-            connector = Connector({})
-            opsdroid.connectors.append(connector)
-            connector.disconnect = amock.CoroutineMock()
+            mock_connector = Connector({})
+            mock_connector.disconnect = amock.CoroutineMock()
+            opsdroid.connectors = [mock_connector]
 
-            await opsdroid.disconnect()
+            mock_database = Database({})
+            mock_database.disconnect = amock.CoroutineMock()
+            opsdroid.memory.databases = [mock_database]
 
-            self.assertTrue(connector.disconnect.called)
+            opsdroid.web_server = amock.CoroutineMock()
+            opsdroid.web_server.stop = amock.CoroutineMock()
+
+            opsdroid.cron_task = amock.CoroutineMock()
+            opsdroid.cron_task.cancel = amock.CoroutineMock()
+
+            await opsdroid.stop()
+
+            self.assertTrue(mock_connector.disconnect.called)
+            self.assertTrue(mock_database.disconnect.called)
+            self.assertTrue(opsdroid.web_server.stop)
+            self.assertTrue(opsdroid.cron_task.cancel.called)
 
     async def test_parse_regex(self):
         with OpsDroid() as opsdroid:

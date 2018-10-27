@@ -23,6 +23,8 @@ class Web:
         except KeyError:
             self.config = {}
         self.web_app = web.Application()
+        self.runner = web.AppRunner(self.web_app)
+        self.site = None
         self.web_app.router.add_get('/', self.web_index_handler)
         self.web_app.router.add_get('', self.web_index_handler)
         self.web_app.router.add_get('/stats', self.web_stats_handler)
@@ -63,14 +65,23 @@ class Web:
         except KeyError:
             return None
 
-    def start(self):
+    async def start(self):
         """Start web servers."""
-        _LOGGER.debug(_(
-            "Starting web server with host %s and port %s"),
-                      self.get_host, self.get_port)
-        web.run_app(self.web_app, host=self.get_host,
-                    port=self.get_port, print=_LOGGER.info,
-                    ssl_context=self.get_ssl_context)
+        _LOGGER.info(_("Started web server on %s://%s%s"),
+                     "http" if self.get_ssl_context is None else "https",
+                     self.get_host,
+                     ":{}".format(self.get_port)
+                     if self.get_port not in (80, 443) else "")
+        await self.runner.setup()
+        self.site = web.TCPSite(self.runner,
+                                host=self.get_host,
+                                port=self.get_port,
+                                ssl_context=self.get_ssl_context)
+        await self.site.start()
+
+    async def stop(self):
+        """Stop the web server."""
+        await self.runner.cleanup()
 
     @staticmethod
     def build_response(status, result):
