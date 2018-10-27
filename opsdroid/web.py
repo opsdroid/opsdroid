@@ -103,6 +103,15 @@ class Web:
         self.web_app.router.add_post(
             "/skill/{}/{}/".format(skill.config["name"], webhook), wrapper)
 
+    def setup_webhooks(self, skills):
+        """Add the webhooks for the webhook skills to the router."""
+        for skill in skills:
+            for matcher in skill.matchers:
+                if "webhook" in matcher:
+                    self.register_skill(
+                        self.opsdroid, skill, matcher["webhook"]
+                    )
+
     async def web_index_handler(self, request):
         """Handle root web request."""
         return self.build_response(200, {

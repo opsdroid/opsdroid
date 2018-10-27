@@ -60,7 +60,7 @@ class TestCore(unittest.TestCase):
                 mock.Mock(return_value=mockconfig)
             opsdroid.start_databases = mock.Mock()
             opsdroid.setup_skills = mock.Mock()
-            opsdroid.start_connector_tasks = mock.Mock()
+            opsdroid.start_connectors = mock.Mock()
             opsdroid.eventloop = mock.MagicMock()
             opsdroid.eventloop.run_until_complete = mock.Mock()
             opsdroid.modules = {"skills": [],
@@ -71,7 +71,7 @@ class TestCore(unittest.TestCase):
                 opsdroid.start()
 
             self.assertTrue(opsdroid.start_databases.called)
-            self.assertTrue(opsdroid.start_connector_tasks.called)
+            self.assertTrue(opsdroid.start_connectors.called)
             self.assertTrue(opsdroid.eventloop.run_until_complete.called)
             self.assertTrue(mock_sysexit.called)
 
@@ -88,7 +88,7 @@ class TestCore(unittest.TestCase):
 
     def test_start_connectors(self):
         with OpsDroid() as opsdroid:
-            opsdroid.start_connector_tasks([])
+            opsdroid.start_connectors([])
 
             module = {}
             module["config"] = {}
@@ -96,13 +96,13 @@ class TestCore(unittest.TestCase):
                 "tests.mockmodules.connectors.connector_mocked")
 
             try:
-                opsdroid.start_connector_tasks([module])
+                opsdroid.start_connectors([module])
             except NotImplementedError:
                 self.fail("Connector raised NotImplementedError.")
 
     def test_start_connectors_not_implemented(self):
         with OpsDroid() as opsdroid:
-            opsdroid.start_connector_tasks([])
+            opsdroid.start_connectors([])
 
             module = {}
             module["config"] = {}
@@ -110,11 +110,11 @@ class TestCore(unittest.TestCase):
                 "tests.mockmodules.connectors.connector_bare")
 
             with self.assertRaises(NotImplementedError):
-                opsdroid.start_connector_tasks([module])
+                opsdroid.start_connectors([module])
                 self.assertEqual(1, len(opsdroid.connectors))
 
             with self.assertRaises(NotImplementedError):
-                opsdroid.start_connector_tasks([module, module])
+                opsdroid.start_connectors([module, module])
                 self.assertEqual(3, len(opsdroid.connectors))
 
     def test_multiple_opsdroids(self):

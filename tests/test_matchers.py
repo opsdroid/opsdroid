@@ -110,7 +110,7 @@ class TestMatchers(asynctest.TestCase):
             decorator = matchers.match_webhook(webhook)
             opsdroid.skills.append(decorator(await self.getMockSkill()))
             opsdroid.skills[0].config = {"name": "mockedskill"}
-            opsdroid.setup_webhooks()
+            opsdroid.web_server.setup_webhooks(opsdroid.skills)
             self.assertEqual(len(opsdroid.skills), 1)
             self.assertEqual(opsdroid.skills[0].matchers[0]["webhook"], webhook)
             self.assertTrue(asyncio.iscoroutinefunction(opsdroid.skills[0]))
@@ -126,7 +126,7 @@ class TestMatchers(asynctest.TestCase):
             decorator = matchers.match_webhook(webhook)
             opsdroid.skills.append(decorator(await self.getMockSkill()))
             opsdroid.skills[0].config = {"name": "mockedskill"}
-            opsdroid.setup_webhooks()
+            opsdroid.web_server.setup_webhooks(opsdroid.skills)
             postcalls, _ = \
                 opsdroid.web_server.web_app.router.add_post.call_args_list[0]
             wrapperfunc = postcalls[1]

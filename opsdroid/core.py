@@ -38,6 +38,7 @@ class OpsDroid():
     def __init__(self, config=None):
         """Start opsdroid."""
         self.bot_name = 'opsdroid'
+        self.running = True
         self.sys_status = 0
         self.connectors = []
         self.connector_tasks = []
@@ -116,14 +117,14 @@ class OpsDroid():
         self.modules = self.loader.load_modules_from_config(self.config)
         _LOGGER.debug(_("Loaded %i skills"), len(self.modules["skills"]))
         self.setup_skills(self.modules["skills"])
-        self.setup_webhooks()
+        self.web_server.setup_webhooks(self.skills)
         self.train_parsers(self.modules["skills"])
 
     def start(self):
         """Start the event loop."""
         if self.modules["databases"] is not None:
             self.start_databases(self.modules["databases"])
-        self.start_connector_tasks(self.modules["connectors"])
+        self.start_connectors(self.modules["connectors"])
         self.cron_task = self.eventloop.create_task(parse_crontab(self))
         self.eventloop.create_task(self.web_server.start())
         _LOGGER.info("Opsdroid is now running, press ctrl+c to exit.")
@@ -137,7 +138,7 @@ class OpsDroid():
 
     async def stop(self, future=None):
         """Stop the event loop."""
-        _LOGGER.info(_("Keyboard interrupt, exiting."))
+        _LOGGER.info(_("Received stop signal, exiting."))
 
         for connector in self.connectors:
             _LOGGER.info(_("Stopping connector %s..."), connector.name)
@@ -178,15 +179,6 @@ class OpsDroid():
             for skill in skills:
                 skill["module"].setup(self, self.config)
 
-    def setup_webhooks(self):
-        """Add the webhooks for the webhook skills to the router."""
-        for skill in self.skills:
-            for matcher in skill.matchers:
-                if "webhook" in matcher:
-                    self.web_server.register_skill(
-                        self, skill, matcher["webhook"]
-                    )
-
     def train_parsers(self, skills):
         """Train the parsers."""
         if "parsers" in self.config:
@@ -203,7 +195,7 @@ class OpsDroid():
             self.eventloop.run_until_complete(
                 asyncio.gather(*tasks, loop=self.eventloop))
 
-    def start_connector_tasks(self, connectors):
+    def start_connectors(self, connectors):
         """Start the connectors."""
         for connector_module in connectors:
             for _, cls in connector_module["module"].__dict__.items():
