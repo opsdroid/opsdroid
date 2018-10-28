@@ -194,7 +194,7 @@ def main():
 
     with OpsDroid(config=config) as opsdroid:
         opsdroid.load()
-        opsdroid.start()
+        opsdroid.run()
 
 
 def init():

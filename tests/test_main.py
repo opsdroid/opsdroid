@@ -205,7 +205,7 @@ class TestMain(unittest.TestCase):
                 mock.patch.object(opsdroid, 'welcome_message') as mock_wm, \
                 mock.patch.object(OpsDroid, 'load') as mock_load, \
                 mock.patch.object(web, 'Web'), \
-                mock.patch.object(OpsDroid, 'start') as mock_loop:
+                mock.patch.object(OpsDroid, 'run') as mock_loop:
             runner = CliRunner()
             runner.invoke(opsdroid.main, [])
             self.assertTrue(mock_cd.called)

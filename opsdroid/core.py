@@ -9,6 +9,7 @@ import weakref
 import asyncio
 import contextlib
 
+from opsdroid.const import DEFAULT_CONFIG_PATH
 from opsdroid.memory import Memory
 from opsdroid.connector import Connector
 from opsdroid.database import Database
@@ -38,7 +39,7 @@ class OpsDroid():
     def __init__(self, config=None):
         """Start opsdroid."""
         self.bot_name = 'opsdroid'
-        self.running = True
+        self._running = False
         self.sys_status = 0
         self.connectors = []
         self.connector_tasks = []
@@ -47,7 +48,7 @@ class OpsDroid():
             for sig in (signal.SIGINT, signal.SIGTERM):
                 self.eventloop.add_signal_handler(
                     sig,
-                    lambda: asyncio.ensure_future(self.stop()))
+                    lambda: asyncio.ensure_future(self.handle_signal()))
         self.eventloop.set_exception_handler(self.handle_async_exception)
         self.skills = []
         self.memory = Memory()
@@ -64,7 +65,7 @@ class OpsDroid():
             "total_response_time": 0,
             "total_responses": 0,
         }
-        self.web_server = Web(self)
+        self.web_server = None
         self.stored_path = []
 
     def __enter__(self):
@@ -112,53 +113,89 @@ class OpsDroid():
         _LOGGER.error("Caught exception")
         _LOGGER.error(context)
 
+    def is_running(self):
+        """Check whether opsdroid is running."""
+        return self._running
+
+    async def handle_signal(self):
+        """Handle signals."""
+        self._running = False
+        await self.unload()
+
+    def run(self):
+        """Start the event loop."""
+        _LOGGER.info(_("Opsdroid is now running, press ctrl+c to exit."))
+        if not self.is_running():
+            self._running = True
+            while self.is_running():
+                pending = asyncio.Task.all_tasks()
+                try:
+                    self.eventloop.run_until_complete(asyncio.gather(*pending))
+                except asyncio.CancelledError:
+                    pass
+
+            self.eventloop.stop()
+            self.eventloop.close()
+
+            _LOGGER.info(_("Bye!"))
+            self.exit()
+        else:
+            _LOGGER.error(_("Oops! Opsdroid is already running."))
+
     def load(self):
         """Load modules."""
         self.modules = self.loader.load_modules_from_config(self.config)
         _LOGGER.debug(_("Loaded %i skills"), len(self.modules["skills"]))
         self.setup_skills(self.modules["skills"])
+        self.web_server = Web(self)
         self.web_server.setup_webhooks(self.skills)
         self.train_parsers(self.modules["skills"])
-
-    def start(self):
-        """Start the event loop."""
         if self.modules["databases"] is not None:
             self.start_databases(self.modules["databases"])
         self.start_connectors(self.modules["connectors"])
         self.cron_task = self.eventloop.create_task(parse_crontab(self))
         self.eventloop.create_task(self.web_server.start())
-        _LOGGER.info("Opsdroid is now running, press ctrl+c to exit.")
-        try:
-            pending = asyncio.Task.all_tasks()
-            self.eventloop.run_until_complete(asyncio.gather(*pending))
-        finally:
-            self.eventloop.stop()
-            self.eventloop.close()
-            self.exit()
 
-    async def stop(self, future=None):
+    async def unload(self, future=None):
         """Stop the event loop."""
         _LOGGER.info(_("Received stop signal, exiting."))
+
+        _LOGGER.info(_("Removing skills..."))
+        for skill in self.skills:
+            _LOGGER.info(_("Removed %s"), skill.config['name'])
+            self.skills.remove(skill)
 
         for connector in self.connectors:
             _LOGGER.info(_("Stopping connector %s..."), connector.name)
             await connector.disconnect(self)
+            self.connectors.remove(connector)
             _LOGGER.info(_("Stopped connector %s"), connector.name)
 
         for database in self.memory.databases:
             _LOGGER.info(_("Stopping database %s..."), database.name)
             await database.disconnect(self)
+            self.memory.databases.remove(database)
             _LOGGER.info(_("Stopped database %s"), database.name)
 
         _LOGGER.info(_("Stopping web server..."))
         await self.web_server.stop()
+        self.web_server = None
         _LOGGER.info(_("Stopped web server"))
 
         _LOGGER.info(_("Stopping cron..."))
         self.cron_task.cancel()
+        self.cron_task = None
         _LOGGER.info(_("Stopped cron"))
 
-        _LOGGER.info(_("Bye!"))
+    async def reload(self):
+        """Reload opsdroid."""
+        await self.unload()
+        self.config = Loader.load_config_file([
+            "configuration.yaml",
+            DEFAULT_CONFIG_PATH,
+            "/etc/opsdroid/configuration.yaml"
+        ])
+        self.load()
 
     def setup_skills(self, skills):
         """Call the setup function on the loaded skills.
@@ -207,7 +244,10 @@ class OpsDroid():
 
         if connectors:
             for connector in self.connectors:
-                self.eventloop.run_until_complete(connector.connect(self))
+                if self.eventloop.is_running():
+                    self.eventloop.create_task(connector.connect(self))
+                else:
+                    self.eventloop.run_until_complete(connector.connect(self))
             for connector in self.connectors:
                 task = self.eventloop.create_task(connector.listen(self))
                 self.connector_tasks.append(task)
