@@ -92,7 +92,7 @@ class Web:
         """Register a new skill in the web app router."""
         async def wrapper(req, opsdroid=opsdroid, config=skill.config):
             """Wrap up the aiohttp handler."""
-            _LOGGER.info(_("Running skill %s via webhook", webhook))
+            _LOGGER.info(_("Running skill %s via webhook"), webhook)
             opsdroid.stats["webhooks_called"] = \
                 opsdroid.stats["webhooks_called"] + 1
             await skill(opsdroid, config, req)
