@@ -93,6 +93,7 @@ Opsdroid comes with some built-in connectors out of the box. A connector is a mo
 The built-in connectors are:
 - [Facebook](/connectors/facebook.md)
 - [Slack](/connectors/slack.md)
+- [Twitter](/connectors/twitter.md)
 - [Websockets](/connectors/websocket.md)
 
 _Note: More connectors will be added as built-in connectors into the opsdroid over time._

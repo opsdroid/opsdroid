@@ -16,9 +16,10 @@ pages:
       - 'Adding connectors': 'extending/connectors.md'
       - 'Adding databases': 'extending/databases.md'
   - 'Connectors':
+      - 'Facebook': 'connectors/facebook.md'
       - 'Slack': 'connectors/slack.md'
+      - 'Twitter': 'connectors/twitter.md'
       - 'Websocket': 'connectors/websocket.md'
-      - 'Facebook': 'connectors/facebook.md'      
   - 'Databases':
       - 'MongoDB': 'databases/mongo.md'
       - 'SQLite': 'databases/sqlite.md'
