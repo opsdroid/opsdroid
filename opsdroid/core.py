@@ -129,10 +129,8 @@ class OpsDroid():
             self._running = True
             while self.is_running():
                 pending = asyncio.Task.all_tasks()
-                try:
+                with contextlib.suppress(asyncio.CancelledError):
                     self.eventloop.run_until_complete(asyncio.gather(*pending))
-                except asyncio.CancelledError:
-                    pass
 
             self.eventloop.stop()
             self.eventloop.close()
