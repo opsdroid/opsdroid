@@ -110,7 +110,7 @@ class OpsDroid():
     @staticmethod
     def handle_async_exception(loop, context):
         """Handle exceptions from async coroutines."""
-        _LOGGER.error("Caught exception")
+        _LOGGER.error(_("Caught exception"))
         _LOGGER.error(context)
 
     def is_running(self):
