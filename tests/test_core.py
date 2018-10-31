@@ -10,6 +10,8 @@ from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.message import Message
 from opsdroid.connector import Connector
+from opsdroid.database import Database
+from opsdroid.web import Web
 from opsdroid.matchers import (match_regex, match_dialogflow_action,
                                match_luisai_intent, match_recastai,
                                match_rasanlu, match_witai)
@@ -37,62 +39,81 @@ class TestCore(unittest.TestCase):
             opsdroid.exit()
             self.assertTrue(opsdroid.eventloop.stop.called)
 
+    def test_is_running(self):
+        with OpsDroid() as opsdroid:
+            self.assertFalse(opsdroid.is_running())
+            opsdroid._running = True
+            self.assertTrue(opsdroid.is_running())
+
     def test_critical(self):
         with OpsDroid() as opsdroid, self.assertRaises(SystemExit):
             opsdroid.critical("An error", 1)
 
-    def test_stop(self):
+    def test_load_modules(self):
         with OpsDroid() as opsdroid:
-            opsdroid.eventloop.create_task(asyncio.sleep(0))
-            self.assertFalse(opsdroid.eventloop.is_closed())
-            opsdroid.stop()
-            self.assertFalse(opsdroid.eventloop.is_running())
+            opsdroid.loader.load_modules_from_config = mock.Mock()
+            opsdroid.loader.load_modules_from_config.return_value = \
+                {"skills": [], "databases": [], "connectors": []}
+            with self.assertRaises(SystemExit):
+                opsdroid.load()
+            self.assertTrue(opsdroid.loader.load_modules_from_config.called)
 
-    def test_call_stop(self):
-        with OpsDroid() as opsdroid:
-            opsdroid.stop = mock.Mock()
-            opsdroid.disconnect = amock.CoroutineMock()
-
-            opsdroid.call_stop()
-
-            self.assertTrue(opsdroid.disconnect.called)
-
-    def test_load_config(self):
-        with OpsDroid() as opsdroid:
-            opsdroid.loader = mock.Mock()
-            opsdroid.load()
-            self.assertTrue(opsdroid.loader.load_config_file.called)
-
-    @asynctest.patch('opsdroid.core.parse_crontab')
-    def test_start_loop(self, mocked_parse_crontab):
+    def test_run(self):
         with OpsDroid() as opsdroid:
             mockconfig = {}, {}, {}
+            opsdroid.is_running = amock.Mock(side_effect=[False, True, False])
+            opsdroid.eventloop = mock.MagicMock()
+            opsdroid.eventloop.run_until_complete = mock.Mock()
+
+            with mock.patch('sys.exit') as mock_sysexit:
+                opsdroid.run()
+
+            self.assertTrue(opsdroid.eventloop.run_until_complete.called)
+            self.assertTrue(mock_sysexit.called)
+
+    def test_run_cancelled(self):
+        with OpsDroid() as opsdroid:
+            mockconfig = {}, {}, {}
+            opsdroid.is_running = amock.Mock(side_effect=[False, True, False])
+            opsdroid.eventloop = mock.MagicMock()
+            opsdroid.eventloop.run_until_complete = mock.Mock(side_effect=asyncio.CancelledError)
+
+            with mock.patch('sys.exit') as mock_sysexit:
+                opsdroid.run()
+
+            self.assertTrue(opsdroid.eventloop.run_until_complete.called)
+            self.assertTrue(mock_sysexit.called)
+
+    def test_run_already_running(self):
+        with OpsDroid() as opsdroid:
+            opsdroid._running = True
+            opsdroid.eventloop = mock.MagicMock()
+            opsdroid.eventloop.run_until_complete = mock.Mock(side_effect=asyncio.CancelledError)
+
+            with mock.patch('sys.exit') as mock_sysexit:
+                opsdroid.run()
+
+            self.assertFalse(opsdroid.eventloop.run_until_complete.called)
+            self.assertFalse(mock_sysexit.called)
+
+    @asynctest.patch('opsdroid.core.parse_crontab')
+    def test_load(self, mocked_parse_crontab):
+        with OpsDroid() as opsdroid:
+            mockconfig = {"skills": [],
+                          "databases": [{"name": "mockdb"}],
+                          "connectors": []}
             opsdroid.web_server = mock.Mock()
             opsdroid.loader = mock.Mock()
             opsdroid.loader.load_modules_from_config = \
                 mock.Mock(return_value=mockconfig)
             opsdroid.start_databases = mock.Mock()
             opsdroid.setup_skills = mock.Mock()
-            opsdroid.start_connector_tasks = mock.Mock()
-            opsdroid.eventloop.run_forever = mock.Mock()
+            opsdroid.start_connectors = mock.Mock()
 
-            with self.assertRaises(RuntimeError):
-                opsdroid.start_loop()
+            opsdroid.load()
 
             self.assertTrue(opsdroid.start_databases.called)
-            self.assertTrue(opsdroid.setup_skills.called)
-            self.assertTrue(opsdroid.start_connector_tasks.called)
-            self.assertTrue(opsdroid.eventloop.run_forever.called)
-
-    def test_load_regex_skill(self):
-        with OpsDroid() as opsdroid:
-            regex = r".*"
-            skill = mock.MagicMock()
-            decorator = match_regex(regex)
-            decorator(skill)
-            self.assertEqual(len(opsdroid.skills), 1)
-            self.assertEqual(opsdroid.skills[0]["regex"]["expression"], regex)
-            self.assertIsInstance(opsdroid.skills[0]["skill"], mock.MagicMock)
+            self.assertTrue(opsdroid.start_connectors.called)
 
     def test_start_databases(self):
         with OpsDroid() as opsdroid:
@@ -107,7 +128,7 @@ class TestCore(unittest.TestCase):
 
     def test_start_connectors(self):
         with OpsDroid() as opsdroid:
-            opsdroid.start_connector_tasks([])
+            opsdroid.start_connectors([])
 
             module = {}
             module["config"] = {}
@@ -115,13 +136,18 @@ class TestCore(unittest.TestCase):
                 "tests.mockmodules.connectors.connector_mocked")
 
             try:
-                opsdroid.start_connector_tasks([module])
+                opsdroid.start_connectors([module])
             except NotImplementedError:
                 self.fail("Connector raised NotImplementedError.")
+            self.assertEqual(len(opsdroid.connectors), 1)
+
+            with mock.patch.object(opsdroid.eventloop, 'is_running', return_value=True):
+                opsdroid.start_connectors([module])
+                self.assertEqual(len(opsdroid.connectors), 2)
 
     def test_start_connectors_not_implemented(self):
         with OpsDroid() as opsdroid:
-            opsdroid.start_connector_tasks([])
+            opsdroid.start_connectors([])
 
             module = {}
             module["config"] = {}
@@ -129,11 +155,11 @@ class TestCore(unittest.TestCase):
                 "tests.mockmodules.connectors.connector_bare")
 
             with self.assertRaises(NotImplementedError):
-                opsdroid.start_connector_tasks([module])
+                opsdroid.start_connectors([module])
                 self.assertEqual(1, len(opsdroid.connectors))
 
             with self.assertRaises(NotImplementedError):
-                opsdroid.start_connector_tasks([module, module])
+                opsdroid.start_connectors([module, module])
                 self.assertEqual(3, len(opsdroid.connectors))
 
     def test_multiple_opsdroids(self):
@@ -146,13 +172,15 @@ class TestCore(unittest.TestCase):
     def test_setup_modules(self):
         with OpsDroid() as opsdroid:
             example_modules = []
-            example_modules.append({"module": mock.MagicMock()})
-            example_modules.append({"module": {"name": "test"}})
+            mockskill = lambda x: x * 2
+            mockskill.skill = True
+            mockmodule = mock.Mock(setup=mock.MagicMock(), mockskill=mockskill)
+            example_modules.append({"module": mockmodule, "config": {}})
             opsdroid.setup_skills(example_modules)
-            self.assertEqual(len(example_modules[0]["module"].mock_calls), 1)
-            self.assertEqual(example_modules[0]['module'].method_calls[0][0], 'setup')
-            self.assertEqual(len(example_modules[0]['module'].method_calls[0][1]), 2)
-            self.assertEqual(example_modules[0]['module'].method_calls[0][1][1], {})
+            self.assertEqual(len(mockmodule.setup.mock_calls), 1)
+            self.assertEqual(mockmodule.method_calls[0][0], 'setup')
+            self.assertEqual(len(mockmodule.method_calls[0][1]), 2)
+            self.assertEqual(mockmodule.method_calls[0][1][1], {})
 
     def test_default_connector(self):
         with OpsDroid() as opsdroid:
@@ -181,39 +209,90 @@ class TestCore(unittest.TestCase):
 class TestCoreAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid core class."""
 
-    async def test_disconnect(self):
+    async def setUp(self):
+        configure_lang({})
+
+    async def getMockSkill(self):
+        async def mockedskill(opsdroid, config, message):
+            await message.respond("Test")
+        mockedskill.config = {}
+        return mockedskill
+
+    async def test_handle_signal(self):
         with OpsDroid() as opsdroid:
-            connector = Connector({})
-            opsdroid.connectors.append(connector)
-            connector.disconnect = amock.CoroutineMock()
+            opsdroid._running = True
+            self.assertTrue(opsdroid.is_running())
+            opsdroid.unload = amock.CoroutineMock()
+            await opsdroid.handle_signal()
+            self.assertFalse(opsdroid.is_running())
+            self.assertTrue(opsdroid.unload.called)
 
-            await opsdroid.disconnect()
+    async def test_unload(self):
+        with OpsDroid() as opsdroid:
+            mock_connector = Connector({})
+            mock_connector.disconnect = amock.CoroutineMock()
+            opsdroid.connectors = [mock_connector]
 
-            self.assertTrue(connector.disconnect.called)
+            mock_database = Database({})
+            mock_database.disconnect = amock.CoroutineMock()
+            opsdroid.memory.databases = [mock_database]
+
+            mock_skill = amock.Mock(config={"name": "mockskill"})
+            opsdroid.skills = [mock_skill]
+
+            opsdroid.web_server = Web(opsdroid)
+            opsdroid.web_server.stop = amock.CoroutineMock()
+            mock_web_server = opsdroid.web_server
+
+            opsdroid.cron_task = amock.CoroutineMock()
+            opsdroid.cron_task.cancel = amock.CoroutineMock()
+            mock_cron_task = opsdroid.cron_task
+
+            await opsdroid.unload()
+
+            self.assertTrue(mock_connector.disconnect.called)
+            self.assertTrue(mock_database.disconnect.called)
+            self.assertTrue(mock_web_server.stop.called)
+            self.assertTrue(opsdroid.web_server is None)
+            self.assertTrue(mock_cron_task.cancel.called)
+            self.assertTrue(opsdroid.cron_task is None)
+            self.assertFalse(opsdroid.connectors)
+            self.assertFalse(opsdroid.memory.databases)
+            self.assertFalse(opsdroid.skills)
+
+    async def test_reload(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.load = mock.Mock()
+            opsdroid.unload = amock.CoroutineMock()
+            await opsdroid.reload()
+            self.assertTrue(opsdroid.load.called)
+            self.assertTrue(opsdroid.unload.called)
 
     async def test_parse_regex(self):
         with OpsDroid() as opsdroid:
             regex = r"Hello .*"
-            skill = amock.CoroutineMock()
             mock_connector = Connector({})
-            match_regex(regex)(skill)
+            mock_connector.respond = amock.CoroutineMock()
+            skill = await self.getMockSkill()
+            opsdroid.skills.append(match_regex(regex)(skill))
             message = Message("Hello world", "user", "default", mock_connector)
             tasks = await opsdroid.parse(message)
             for task in tasks:
                 await task
-            self.assertTrue(skill.called)
+            self.assertTrue(mock_connector.respond.called)
 
     async def test_parse_regex_insensitive(self):
         with OpsDroid() as opsdroid:
             regex = r"Hello .*"
-            skill = amock.CoroutineMock()
             mock_connector = Connector({})
-            match_regex(regex, case_sensitive=False)(skill)
+            mock_connector.respond = amock.CoroutineMock()
+            skill = await self.getMockSkill()
+            opsdroid.skills.append(match_regex(regex, case_sensitive=False)(skill))
             message = Message("HELLO world", "user", "default", mock_connector)
             tasks = await opsdroid.parse(message)
             for task in tasks:
                 await task
-            self.assertTrue(skill.called)
+            self.assertTrue(mock_connector.respond.called)
 
     async def test_parse_dialogflow(self):
         with OpsDroid() as opsdroid:

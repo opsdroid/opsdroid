@@ -1,2 +1,7 @@
 [run]
 source = opsdroid
+
+[report]
+show_missing = True
+omit =
+    opsdroid/_version.py

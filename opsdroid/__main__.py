@@ -12,7 +12,7 @@ import click
 
 from opsdroid import __version__
 from opsdroid.core import OpsDroid
-from opsdroid.web import Web
+from opsdroid.loader import Loader
 from opsdroid.const import DEFAULT_LOG_FILENAME, LOCALE_DIR, \
     EXAMPLE_CONFIG_FILE, DEFAULT_LANGUAGE, DEFAULT_CONFIG_PATH
 
@@ -183,13 +183,18 @@ def main():
     """
     check_dependencies()
 
-    with OpsDroid() as opsdroid:
+    config = Loader.load_config_file([
+        "configuration.yaml",
+        DEFAULT_CONFIG_PATH,
+        "/etc/opsdroid/configuration.yaml"
+        ])
+    configure_lang(config)
+    configure_logging(config)
+    welcome_message(config)
+
+    with OpsDroid(config=config) as opsdroid:
         opsdroid.load()
-        configure_lang(opsdroid.config)
-        configure_logging(opsdroid.config)
-        welcome_message(opsdroid.config)
-        opsdroid.web_server = Web(opsdroid)
-        opsdroid.start_loop()
+        opsdroid.run()
 
 
 def init():

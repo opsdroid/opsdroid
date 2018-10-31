@@ -52,26 +52,27 @@ async def parse_recastai(opsdroid, message, config):
                             "for the message %s"), str(message.text))
             return matched_skills
 
+        confidence = result["results"]["intents"][0]["confidence"]
+
         if "min-score" in config and \
-                result["results"]["intents"][0]["confidence"] < \
-                config["min-score"]:
+                confidence < config["min-score"]:
             _LOGGER.debug(_("Recast.AI score lower than min-score"))
             return matched_skills
 
         if result:
             for skill in opsdroid.skills:
-                if "recastai_intent" in skill:
-                    if (skill["recastai_intent"] in
-                            result["results"]["intents"][0]["slug"]):
-                        message.recastai = result
-                        _LOGGER.debug(_("Matched against skill %s"),
-                                      skill["config"]["name"])
+                for matcher in skill.matchers:
+                    if "recastai_intent" in matcher:
+                        if (matcher["recastai_intent"] in
+                                result["results"]["intents"][0]["slug"]):
+                            message.recastai = result
+                            _LOGGER.debug(_("Matched against skill %s"),
+                                          skill.config["name"])
 
-                        matched_skills.append({
-                            "score":
-                                result["results"]["intents"][0]["confidence"],
-                            "skill": skill["skill"],
-                            "config": skill["config"],
-                            "message": message
-                        })
+                            matched_skills.append({
+                                "score": confidence,
+                                "skill": skill,
+                                "config": skill.config,
+                                "message": message
+                            })
     return matched_skills

@@ -27,7 +27,7 @@ class Database():
         self.database = None
 
     async def connect(self, opsdroid):
-        """Connect to chat service and store the connection object.
+        """Connect to database service and store the connection object.
 
         This method should connect to the given database using a native
         python library for that database. The library will most likely involve
@@ -39,6 +39,15 @@ class Database():
 
         """
         raise NotImplementedError
+
+    async def disconnect(self):
+        """Disconnect from the database.
+
+        This method should disconnect from the given database using a native
+        python library for that database.
+
+        """
+        pass
 
     async def put(self, key, data):
         """Store the data object in a database against the key.

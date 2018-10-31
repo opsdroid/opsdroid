@@ -9,10 +9,12 @@ import weakref
 import asyncio
 import contextlib
 
+from opsdroid.const import DEFAULT_CONFIG_PATH
 from opsdroid.memory import Memory
 from opsdroid.connector import Connector
 from opsdroid.database import Database
 from opsdroid.loader import Loader
+from opsdroid.web import Web
 from opsdroid.parsers.always import parse_always
 from opsdroid.parsers.regex import parse_regex
 from opsdroid.parsers.dialogflow import parse_dialogflow
@@ -21,7 +23,6 @@ from opsdroid.parsers.recastai import parse_recastai
 from opsdroid.parsers.witai import parse_witai
 from opsdroid.parsers.rasanlu import parse_rasanlu, train_rasanlu
 from opsdroid.parsers.crontab import parse_crontab
-from opsdroid.const import DEFAULT_CONFIG_PATH
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -35,20 +36,29 @@ class OpsDroid():
 
     instances = []
 
-    def __init__(self):
+    def __init__(self, config=None):
         """Start opsdroid."""
         self.bot_name = 'opsdroid'
+        self._running = False
         self.sys_status = 0
         self.connectors = []
         self.connector_tasks = []
         self.eventloop = asyncio.get_event_loop()
         if os.name != 'nt':
             for sig in (signal.SIGINT, signal.SIGTERM):
-                self.eventloop.add_signal_handler(sig, self.call_stop)
+                self.eventloop.add_signal_handler(
+                    sig,
+                    lambda: asyncio.ensure_future(self.handle_signal()))
+        self.eventloop.set_exception_handler(self.handle_async_exception)
         self.skills = []
         self.memory = Memory()
+        self.modules = {}
+        self.cron_task = None
         self.loader = Loader(self)
-        self.config = {}
+        if config is None:
+            self.config = {}
+        else:
+            self.config = config
         self.stats = {
             "messages_parsed": 0,
             "webhooks_called": 0,
@@ -97,54 +107,93 @@ class OpsDroid():
         _LOGGER.critical(error)
         self.exit()
 
-    def call_stop(self):
-        """Signal handler to call disconnect and stop."""
-        future = asyncio.ensure_future(self.disconnect())
-        future.add_done_callback(self.stop)
-        return future
+    @staticmethod
+    def handle_async_exception(loop, context):
+        """Handle exceptions from async coroutines."""
+        _LOGGER.error(_("Caught exception"))
+        _LOGGER.error(context)
 
-    async def disconnect(self):
-        """Disconnect all the connectors."""
-        for connector in self.connectors:
-            await connector.disconnect(self)
+    def is_running(self):
+        """Check whether opsdroid is running."""
+        return self._running
 
-    def stop(self, future=None):
-        """Stop the event loop."""
-        pending = asyncio.Task.all_tasks()
-        for task in pending:
-            task.cancel()
-        self.eventloop.stop()
-        print('')  # Prints a character return for return to shell
-        _LOGGER.info(_("Keyboard interrupt, exiting."))
+    async def handle_signal(self):
+        """Handle signals."""
+        self._running = False
+        await self.unload()
+
+    def run(self):
+        """Start the event loop."""
+        _LOGGER.info(_("Opsdroid is now running, press ctrl+c to exit."))
+        if not self.is_running():
+            self._running = True
+            while self.is_running():
+                pending = asyncio.Task.all_tasks()
+                with contextlib.suppress(asyncio.CancelledError):
+                    self.eventloop.run_until_complete(asyncio.gather(*pending))
+
+            self.eventloop.stop()
+            self.eventloop.close()
+
+            _LOGGER.info(_("Bye!"))
+            self.exit()
+        else:
+            _LOGGER.error(_("Oops! Opsdroid is already running."))
 
     def load(self):
-        """Load configuration."""
-        self.config = self.loader.load_config_file([
+        """Load modules."""
+        self.modules = self.loader.load_modules_from_config(self.config)
+        _LOGGER.debug(_("Loaded %i skills"), len(self.modules["skills"]))
+        self.setup_skills(self.modules["skills"])
+        self.web_server = Web(self)
+        self.web_server.setup_webhooks(self.skills)
+        self.train_parsers(self.modules["skills"])
+        if self.modules["databases"] is not None:
+            self.start_databases(self.modules["databases"])
+        self.start_connectors(self.modules["connectors"])
+        self.cron_task = self.eventloop.create_task(parse_crontab(self))
+        self.eventloop.create_task(self.web_server.start())
+
+    async def unload(self, future=None):
+        """Stop the event loop."""
+        _LOGGER.info(_("Received stop signal, exiting."))
+
+        _LOGGER.info(_("Removing skills..."))
+        for skill in self.skills:
+            _LOGGER.info(_("Removed %s"), skill.config['name'])
+            self.skills.remove(skill)
+
+        for connector in self.connectors:
+            _LOGGER.info(_("Stopping connector %s..."), connector.name)
+            await connector.disconnect(self)
+            self.connectors.remove(connector)
+            _LOGGER.info(_("Stopped connector %s"), connector.name)
+
+        for database in self.memory.databases:
+            _LOGGER.info(_("Stopping database %s..."), database.name)
+            await database.disconnect(self)
+            self.memory.databases.remove(database)
+            _LOGGER.info(_("Stopped database %s"), database.name)
+
+        _LOGGER.info(_("Stopping web server..."))
+        await self.web_server.stop()
+        self.web_server = None
+        _LOGGER.info(_("Stopped web server"))
+
+        _LOGGER.info(_("Stopping cron..."))
+        self.cron_task.cancel()
+        self.cron_task = None
+        _LOGGER.info(_("Stopped cron"))
+
+    async def reload(self):
+        """Reload opsdroid."""
+        await self.unload()
+        self.config = Loader.load_config_file([
             "configuration.yaml",
             DEFAULT_CONFIG_PATH,
             "/etc/opsdroid/configuration.yaml"
-            ])
-
-    def start_loop(self):
-        """Start the event loop."""
-        connectors, databases, skills = \
-            self.loader.load_modules_from_config(self.config)
-        _LOGGER.debug(_("Loaded %i skills"), len(skills))
-        if databases is not None:
-            self.start_databases(databases)
-        self.setup_skills(skills)
-        self.train_parsers(skills)
-        self.start_connector_tasks(connectors)
-        self.eventloop.create_task(parse_crontab(self))
-        self.web_server.start()
-        try:
-            pending = asyncio.Task.all_tasks()
-            self.eventloop.run_until_complete(asyncio.gather(*pending))
-        except RuntimeError as error:
-            if str(error) != 'Event loop is closed':
-                raise error
-        finally:
-            self.eventloop.close()
+        ])
+        self.load()
 
     def setup_skills(self, skills):
         """Call the setup function on the loaded skills.
@@ -156,6 +205,11 @@ class OpsDroid():
             skills (list): A list of all the loaded skills.
 
         """
+        for skill in skills:
+            for _, func in skill["module"].__dict__.items():
+                if hasattr(func, "skill"):
+                    func.config = skill['config']
+                    self.skills.append(func)
         with contextlib.suppress(AttributeError):
             for skill in skills:
                 skill["module"].setup(self, self.config)
@@ -176,7 +230,7 @@ class OpsDroid():
             self.eventloop.run_until_complete(
                 asyncio.gather(*tasks, loop=self.eventloop))
 
-    def start_connector_tasks(self, connectors):
+    def start_connectors(self, connectors):
         """Start the connectors."""
         for connector_module in connectors:
             for _, cls in connector_module["module"].__dict__.items():
@@ -188,7 +242,10 @@ class OpsDroid():
 
         if connectors:
             for connector in self.connectors:
-                self.eventloop.run_until_complete(connector.connect(self))
+                if self.eventloop.is_running():
+                    self.eventloop.create_task(connector.connect(self))
+                else:
+                    self.eventloop.run_until_complete(connector.connect(self))
             for connector in self.connectors:
                 task = self.eventloop.create_task(connector.listen(self))
                 self.connector_tasks.append(task)
