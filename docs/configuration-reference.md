@@ -94,6 +94,7 @@ The built-in connectors are:
 - [Facebook](/connectors/facebook.md)
 - [Slack](/connectors/slack.md)
 - [Websockets](/connectors/websocket.md)
+- [Telegram](/connectors/telegram.md)
 
 _Note: More connectors will be added as built-in connectors into the opsdroid over time._
 
