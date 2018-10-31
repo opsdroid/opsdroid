@@ -78,9 +78,6 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules'
     ],
     install_requires=REQUIRES,
-    dependency_links=[
-        "git+https://github.com/opsdroid/aioslacker.git@26fb78de6e9fedfaab650ea5c3b87b33c4fc9657#egg=aioslacker==0.0.10"
-    ],
     test_suite='tests',
     keywords=[
         'bot',
