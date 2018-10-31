@@ -2,8 +2,10 @@
 import asynctest
 import asynctest.mock as mock
 
+import asyncio
 import aiohttp.web
 
+from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.web import Web
 from opsdroid import matchers
@@ -12,91 +14,92 @@ from opsdroid import matchers
 class TestMatchers(asynctest.TestCase):
     """Test the opsdroid matcher decorators."""
 
+    async def setUp(self):
+        configure_lang({})
+
+    async def getMockSkill(self):
+        async def mockedskill(opsdroid, config, message):
+            pass
+        return mockedskill
+
     async def test_match_regex(self):
         with OpsDroid() as opsdroid:
             regex = r"(.*)"
-            mockedskill = mock.MagicMock()
             decorator = matchers.match_regex(regex)
-            decorator(mockedskill)
+            opsdroid.skills.append(decorator(await self.getMockSkill()))
             self.assertEqual(len(opsdroid.skills), 1)
-            self.assertEqual(opsdroid.skills[0]["regex"]["expression"], regex)
-            self.assertIsInstance(opsdroid.skills[0]["skill"], mock.MagicMock)
+            self.assertEqual(opsdroid.skills[0].matchers[0]["regex"]["expression"], regex)
+            self.assertTrue(asyncio.iscoroutinefunction(opsdroid.skills[0]))
 
     async def test_match_apiai(self):
         with OpsDroid() as opsdroid:
             action = "myaction"
-            mockedskill = mock.MagicMock()
             decorator = matchers.match_apiai_action(action)
-            decorator(mockedskill)
+            opsdroid.skills.append(decorator(await self.getMockSkill()))
             self.assertEqual(len(opsdroid.skills), 1)
-            self.assertEqual(opsdroid.skills[0]["dialogflow_action"], action)
-            self.assertIsInstance(opsdroid.skills[0]["skill"], mock.MagicMock)
+            self.assertEqual(opsdroid.skills[0].matchers[0]["dialogflow_action"], action)
+            self.assertTrue(asyncio.iscoroutinefunction(opsdroid.skills[0]))
             intent = "myIntent"
             decorator = matchers.match_apiai_intent(intent)
-            decorator(mockedskill)
+            opsdroid.skills.append(decorator(await self.getMockSkill()))
             self.assertEqual(len(opsdroid.skills), 2)
-            self.assertEqual(opsdroid.skills[1]["dialogflow_intent"], intent)
-            self.assertIsInstance(opsdroid.skills[1]["skill"], mock.MagicMock)
+            self.assertEqual(opsdroid.skills[1].matchers[0]["dialogflow_intent"], intent)
+            self.assertTrue(asyncio.iscoroutinefunction(opsdroid.skills[1]))
             with mock.patch('opsdroid.matchers._LOGGER.warning') as logmock:
                 decorator = matchers.match_apiai_intent(intent)
-                decorator(mockedskill)
+                opsdroid.skills.append(decorator(await self.getMockSkill()))
                 self.assertTrue(logmock.called)
 
     async def test_match_dialogflow(self):
         with OpsDroid() as opsdroid:
             action = "myaction"
-            mockedskill = mock.MagicMock()
             decorator = matchers.match_dialogflow_action(action)
-            decorator(mockedskill)
+            opsdroid.skills.append(decorator(await self.getMockSkill()))
             self.assertEqual(len(opsdroid.skills), 1)
-            self.assertEqual(opsdroid.skills[0]["dialogflow_action"], action)
-            self.assertIsInstance(opsdroid.skills[0]["skill"], mock.MagicMock)
+            self.assertEqual(opsdroid.skills[0].matchers[0]["dialogflow_action"], action)
+            self.assertTrue(asyncio.iscoroutinefunction(opsdroid.skills[0]))
             intent = "myIntent"
             decorator = matchers.match_dialogflow_intent(intent)
-            decorator(mockedskill)
+            opsdroid.skills.append(decorator(await self.getMockSkill()))
             self.assertEqual(len(opsdroid.skills), 2)
-            self.assertEqual(opsdroid.skills[1]["dialogflow_intent"], intent)
-            self.assertIsInstance(opsdroid.skills[1]["skill"], mock.MagicMock)
+            self.assertEqual(opsdroid.skills[1].matchers[0]["dialogflow_intent"], intent)
+            self.assertTrue(asyncio.iscoroutinefunction(opsdroid.skills[1]))
 
     async def test_match_luisai(self):
         with OpsDroid() as opsdroid:
             intent = "myIntent"
-            mockedskill = mock.MagicMock()
             decorator = matchers.match_luisai_intent(intent)
-            decorator(mockedskill)
+            opsdroid.skills.append(decorator(await self.getMockSkill()))
             self.assertEqual(len(opsdroid.skills), 1)
-            self.assertEqual(opsdroid.skills[0]["luisai_intent"], intent)
-            self.assertIsInstance(opsdroid.skills[0]["skill"], mock.MagicMock)
+            self.assertEqual(opsdroid.skills[0].matchers[0]["luisai_intent"], intent)
+            self.assertTrue(asyncio.iscoroutinefunction(opsdroid.skills[0]))
 
     async def test_match_witai(self):
         with OpsDroid() as opsdroid:
             intent = "myIntent"
-            mockedskill = mock.MagicMock()
             decorator = matchers.match_witai(intent)
-            decorator(mockedskill)
+            opsdroid.skills.append(decorator(await self.getMockSkill()))
             self.assertEqual(len(opsdroid.skills), 1)
-            self.assertEqual(opsdroid.skills[0]["witai_intent"], intent)
-            self.assertIsInstance(opsdroid.skills[0]["skill"], mock.MagicMock)
+            self.assertEqual(opsdroid.skills[0].matchers[0]["witai_intent"], intent)
+            self.assertTrue(asyncio.iscoroutinefunction(opsdroid.skills[0]))
 
     async def test_match_rasanu(self):
         with OpsDroid() as opsdroid:
             intent = "myIntent"
-            mockedskill = mock.MagicMock()
             decorator = matchers.match_rasanlu(intent)
-            decorator(mockedskill)
+            opsdroid.skills.append(decorator(await self.getMockSkill()))
             self.assertEqual(len(opsdroid.skills), 1)
-            self.assertEqual(opsdroid.skills[0]["rasanlu_intent"], intent)
-            self.assertIsInstance(opsdroid.skills[0]["skill"], mock.MagicMock)
+            self.assertEqual(opsdroid.skills[0].matchers[0]["rasanlu_intent"], intent)
+            self.assertTrue(asyncio.iscoroutinefunction(opsdroid.skills[0]))
 
     async def test_match_crontab(self):
         with OpsDroid() as opsdroid:
             crontab = "* * * * *"
-            mockedskill = mock.MagicMock()
             decorator = matchers.match_crontab(crontab)
-            decorator(mockedskill)
+            opsdroid.skills.append(decorator(await self.getMockSkill()))
             self.assertEqual(len(opsdroid.skills), 1)
-            self.assertEqual(opsdroid.skills[0]["crontab"], crontab)
-            self.assertIsInstance(opsdroid.skills[0]["skill"], mock.MagicMock)
+            self.assertEqual(opsdroid.skills[0].matchers[0]["crontab"], crontab)
+            self.assertTrue(asyncio.iscoroutinefunction(opsdroid.skills[0]))
 
     async def test_match_webhook(self):
         with OpsDroid() as opsdroid:
@@ -104,12 +107,13 @@ class TestMatchers(asynctest.TestCase):
             opsdroid.web_server = Web(opsdroid)
             opsdroid.web_server.web_app = mock.Mock()
             webhook = "test"
-            mockedskill = mock.MagicMock()
             decorator = matchers.match_webhook(webhook)
-            decorator(mockedskill)
+            opsdroid.skills.append(decorator(await self.getMockSkill()))
+            opsdroid.skills[0].config = {"name": "mockedskill"}
+            opsdroid.web_server.setup_webhooks(opsdroid.skills)
             self.assertEqual(len(opsdroid.skills), 1)
-            self.assertEqual(opsdroid.skills[0]["webhook"], webhook)
-            self.assertIsInstance(opsdroid.skills[0]["skill"], mock.MagicMock)
+            self.assertEqual(opsdroid.skills[0].matchers[0]["webhook"], webhook)
+            self.assertTrue(asyncio.iscoroutinefunction(opsdroid.skills[0]))
             self.assertEqual(
                 opsdroid.web_server.web_app.router.add_post.call_count, 2)
 
@@ -119,9 +123,10 @@ class TestMatchers(asynctest.TestCase):
             opsdroid.web_server = Web(opsdroid)
             opsdroid.web_server.web_app = mock.Mock()
             webhook = "test"
-            mockedskill = mock.CoroutineMock()
             decorator = matchers.match_webhook(webhook)
-            decorator(mockedskill)
+            opsdroid.skills.append(decorator(await self.getMockSkill()))
+            opsdroid.skills[0].config = {"name": "mockedskill"}
+            opsdroid.web_server.setup_webhooks(opsdroid.skills)
             postcalls, _ = \
                 opsdroid.web_server.web_app.router.add_post.call_args_list[0]
             wrapperfunc = postcalls[1]

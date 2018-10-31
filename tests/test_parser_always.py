@@ -2,6 +2,7 @@
 import asynctest
 import asynctest.mock as amock
 
+from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.matchers import match_always
 from opsdroid.message import Message
@@ -11,38 +12,54 @@ from opsdroid.parsers.always import parse_always
 class TestParserAlways(asynctest.TestCase):
     """Test the opsdroid always parser."""
 
+    async def setup(self):
+        configure_lang({})
+
+    async def getMockSkill(self):
+        async def mockedskill(opsdroid, config, message):
+            pass
+        mockedskill.config = {}
+        return mockedskill
+
+    async def getRaisingMockSkill(self):
+        async def mockedskill(opsdroid, config, message):
+            raise Exception()
+        mockedskill.config = {}
+        return mockedskill
+
     async def test_parse_always_decorator_parens(self):
         with OpsDroid() as opsdroid:
-            mock_skill = amock.CoroutineMock()
-            match_always()(mock_skill)
+            mock_skill = await self.getMockSkill()
+            opsdroid.skills.append(match_always()(mock_skill))
+            opsdroid.run_skill = amock.CoroutineMock()
 
             mock_connector = amock.CoroutineMock()
             message = Message("Hello world", "user", "default", mock_connector)
 
             await parse_always(opsdroid, message)
 
-            self.assertTrue(mock_skill.called)
+            self.assertTrue(opsdroid.run_skill.called)
 
     async def test_parse_always_decorate_no_parens(self):
         with OpsDroid() as opsdroid:
-            mock_skill = amock.CoroutineMock()
-            match_always(mock_skill)
+            mock_skill = await self.getMockSkill()
+            opsdroid.skills.append(match_always(mock_skill))
+            opsdroid.run_skill = amock.CoroutineMock()
 
             mock_connector = amock.CoroutineMock()
             message = Message("Hello world", "user", "default", mock_connector)
 
             await parse_always(opsdroid, message)
 
-            self.assertTrue(mock_skill.called)
+            self.assertTrue(opsdroid.run_skill.called)
 
     async def test_parse_always_raises(self):
         with OpsDroid() as opsdroid:
-            mock_skill = amock.CoroutineMock()
-            mock_skill.side_effect = Exception()
-            opsdroid.loader.current_import_config = {
-                "name": "mocked-skill"
+            mock_skill = await self.getRaisingMockSkill()
+            mock_skill.config = {
+                "name": "greetings"
             }
-            match_always()(mock_skill)
+            opsdroid.skills.append(match_always()(mock_skill))
             self.assertEqual(len(opsdroid.skills), 1)
 
             mock_connector = amock.MagicMock()
@@ -50,6 +67,6 @@ class TestParserAlways(asynctest.TestCase):
             message = Message("Hello world", "user",
                               "default", mock_connector)
 
-            await parse_always(opsdroid, message)
-
-            self.assertTrue(mock_skill.called)
+            with amock.patch('opsdroid.core._LOGGER.exception') as logmock:
+                await parse_always(opsdroid, message)
+                self.assertTrue(logmock.called)

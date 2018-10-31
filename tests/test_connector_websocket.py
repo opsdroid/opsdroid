@@ -43,6 +43,25 @@ class TestConnectorWebsocketAsync(asynctest.TestCase):
         self.assertTrue(opsdroid.web_server.web_app.router.add_get.called)
         self.assertTrue(opsdroid.web_server.web_app.router.add_post.called)
 
+    async def test_disconnect(self):
+        """Test the disconnect method closes all sockets."""
+        connector = ConnectorWebsocket({})
+        opsdroid = amock.CoroutineMock()
+
+        connector.active_connections = {
+            "connection1": amock.CoroutineMock(),
+            "connection2": amock.CoroutineMock(),
+        }
+
+        connector.active_connections["connection1"].close = amock.CoroutineMock()
+        connector.active_connections["connection2"].close = amock.CoroutineMock()
+
+        await connector.disconnect(opsdroid)
+
+        self.assertTrue(connector.active_connections["connection1"].close.called)
+        self.assertTrue(connector.active_connections["connection2"].close.called)
+        self.assertFalse(connector.accepting_connections)
+
     async def test_new_websocket_handler(self):
         """Test the new websocket handler."""
         import aiohttp.web

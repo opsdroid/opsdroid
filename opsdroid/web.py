@@ -22,7 +22,9 @@ class Web:
             self.config = self.opsdroid.config["web"]
         except KeyError:
             self.config = {}
-        self.web_app = web.Application(loop=self.opsdroid.eventloop)
+        self.web_app = web.Application()
+        self.runner = web.AppRunner(self.web_app)
+        self.site = None
         self.web_app.router.add_get('/', self.web_index_handler)
         self.web_app.router.add_get('', self.web_index_handler)
         self.web_app.router.add_get('/stats', self.web_stats_handler)
@@ -63,26 +65,59 @@ class Web:
         except KeyError:
             return None
 
-    def start(self):
+    async def start(self):
         """Start web servers."""
-        _LOGGER.debug(_(
-            "Starting web server with host %s and port %s"),
-                      self.get_host, self.get_port)
-        web.run_app(self.web_app, host=self.get_host,
-                    port=self.get_port, print=_LOGGER.info,
-                    ssl_context=self.get_ssl_context)
+        _LOGGER.info(_("Started web server on %s://%s%s"),
+                     "http" if self.get_ssl_context is None else "https",
+                     self.get_host,
+                     ":{}".format(self.get_port)
+                     if self.get_port not in (80, 443) else "")
+        await self.runner.setup()
+        self.site = web.TCPSite(self.runner,
+                                host=self.get_host,
+                                port=self.get_port,
+                                ssl_context=self.get_ssl_context)
+        await self.site.start()
+
+    async def stop(self):
+        """Stop the web server."""
+        await self.runner.cleanup()
 
     @staticmethod
     def build_response(status, result):
         """Build a json response object."""
         return web.Response(text=json.dumps(result), status=status)
 
-    def web_index_handler(self, request):
+    def register_skill(self, opsdroid, skill, webhook):
+        """Register a new skill in the web app router."""
+        async def wrapper(req, opsdroid=opsdroid, config=skill.config):
+            """Wrap up the aiohttp handler."""
+            _LOGGER.info(_("Running skill %s via webhook"), webhook)
+            opsdroid.stats["webhooks_called"] = \
+                opsdroid.stats["webhooks_called"] + 1
+            await skill(opsdroid, config, req)
+            return Web.build_response(200, {"called_skill": webhook})
+
+        self.web_app.router.add_post(
+            "/skill/{}/{}".format(skill.config["name"], webhook), wrapper)
+        self.web_app.router.add_post(
+            "/skill/{}/{}/".format(skill.config["name"], webhook), wrapper)
+
+    def setup_webhooks(self, skills):
+        """Add the webhooks for the webhook skills to the router."""
+        for skill in skills:
+            for matcher in skill.matchers:
+                if "webhook" in matcher:
+                    self.register_skill(
+                        self.opsdroid, skill, matcher["webhook"]
+                    )
+
+    async def web_index_handler(self, request):
         """Handle root web request."""
         return self.build_response(200, {
             "message": "Welcome to the opsdroid API"})
 
-    def web_stats_handler(self, request):
+    async def web_stats_handler(self, request):
         """Handle stats request."""
         stats = self.opsdroid.stats
         try:
