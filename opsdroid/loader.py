@@ -192,7 +192,8 @@ class Loader:
         shutil.copyfile(EXAMPLE_CONFIG_FILE, config_path)
         return config_path
 
-    def load_config_file(self, config_paths):
+    @classmethod
+    def load_config_file(cls, config_paths):
         """Load a yaml config file from path."""
         config_path = ""
         for possible_path in config_paths:
@@ -208,7 +209,7 @@ class Loader:
             except FileNotFoundError:
                 _LOGGER.info(_("No configuration files found. "
                                "Creating %s"), DEFAULT_CONFIG_PATH)
-            config_path = self.create_default_config(DEFAULT_CONFIG_PATH)
+            config_path = cls.create_default_config(DEFAULT_CONFIG_PATH)
 
         env_var_pattern = re.compile(r'^\$([A-Z_]*)$')
         yaml.add_implicit_resolver("!envvar", env_var_pattern)
@@ -236,9 +237,11 @@ class Loader:
                 _LOGGER.info(_("Loaded config from %s."), config_path)
                 return yaml.load(stream)
         except yaml.YAMLError as error:
-            self.opsdroid.critical(error, 1)
+            _LOGGER.critical(error)
+            sys.exit(1)
         except FileNotFoundError as error:
-            self.opsdroid.critical(str(error), 1)
+            _LOGGER.critical(error)
+            sys.exit(1)
 
     def setup_modules_directory(self, config):
         """Create and configure the modules directory."""
@@ -283,7 +286,9 @@ class Loader:
             self.opsdroid.critical(_(
                 "No connectors in configuration, at least 1 required"), 1)
 
-        return connectors, databases, skills
+        return {"connectors": connectors,
+                "databases": databases,
+                "skills": skills}
 
     def _load_modules(self, modules_type, modules):
         """Install and load modules."""

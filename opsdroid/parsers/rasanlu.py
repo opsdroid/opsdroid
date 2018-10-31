@@ -16,8 +16,9 @@ _LOGGER = logging.getLogger(__name__)
 
 async def _get_all_intents(skills):
     """Get all skill intents and concatenate into a single markdown string."""
-    intents = [skill["intents"] for skill in skills
-               if skill["intents"] is not None]
+    matchers = [matcher for skill in skills for matcher in skill.matchers]
+    intents = [matcher["intents"] for matcher in matchers
+               if matcher["intents"] is not None]
     if not intents:
         return None
     intents = "\n\n".join(intents)
@@ -176,14 +177,15 @@ async def parse_rasanlu(opsdroid, message, config):
 
     if result:
         for skill in opsdroid.skills:
-            if "rasanlu_intent" in skill:
-                if skill['rasanlu_intent'] == result['intent']['name']:
-                    message.rasanlu = result
-                    matched_skills.append({
-                        "score": confidence,
-                        "skill": skill["skill"],
-                        "config": skill["config"],
-                        "message": message
-                    })
+            for matcher in skill.matchers:
+                if "rasanlu_intent" in matcher:
+                    if matcher['rasanlu_intent'] == result['intent']['name']:
+                        message.rasanlu = result
+                        matched_skills.append({
+                            "score": confidence,
+                            "skill": skill,
+                            "config": skill.config,
+                            "message": message
+                        })
 
     return matched_skills
