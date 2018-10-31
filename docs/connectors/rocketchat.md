@@ -25,8 +25,9 @@ connectors:
 
 _Notes:_
 
-- The name of the channel room is meant to be added without the #.
+- Opsdroid will only listen to one channel/group at a time
 - A group is a private channel - this takes priority over a channel when trying to connect to the service.
+- The name of the channel room is meant to be added without the #.
 - Opsdroid will keep pinging the chat service to see if new messages where received, you can increase/decrease 
 the time between pings by adding the param `update-interval`. _Note: Opsdroid will only read the last received message._
 
