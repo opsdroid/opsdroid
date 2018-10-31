@@ -8,7 +8,9 @@ import unittest
 import unittest.mock as mock
 from types import ModuleType
 
+from opsdroid.__main__ import configure_lang
 from opsdroid import loader as ld
+from opsdroid.loader import Loader
 from opsdroid.helper import del_rw
 
 
@@ -16,6 +18,7 @@ class TestLoader(unittest.TestCase):
     """Test the opsdroid loader class."""
 
     def setup(self):
+        configure_lang({})
         opsdroid = mock.MagicMock()
         loader = ld.Loader(opsdroid)
         return opsdroid, loader
@@ -51,12 +54,12 @@ class TestLoader(unittest.TestCase):
         self.assertEqual(config, config2)
 
     def test_yaml_load_exploit(self):
-        opsdroid, loader = self.setup()
-        config = loader.load_config_file(
-            [os.path.abspath("tests/configs/include_exploit.yaml")])
-        self.assertIsNone(config)
-        # If the command in exploit.yaml is echoed it will return 0
-        self.assertNotEqual(config, 0)
+        with mock.patch('sys.exit'):
+            config = Loader.load_config_file(
+                [os.path.abspath("tests/configs/include_exploit.yaml")])
+            self.assertIsNone(config)
+            # If the command in exploit.yaml is echoed it will return 0
+            self.assertNotEqual(config, 0)
 
     def test_load_config_file_with_env_vars(self):
         opsdroid, loader = self.setup()
@@ -76,26 +79,28 @@ class TestLoader(unittest.TestCase):
         shutil.rmtree(os.path.split(test_config_path)[0], onerror=del_rw)
 
     def test_generate_config_if_none_exist(self):
-        opsdroid, loader = self.setup()
-        loader.create_default_config = mock.Mock(
+        cdf_backup = Loader.create_default_config
+        Loader.create_default_config = mock.Mock(
             return_value=os.path.abspath("tests/configs/minimal.yaml"))
-        loader.load_config_file(["file_which_does_not_exist"])
-        self.assertTrue(loader.create_default_config.called)
+        Loader.load_config_file(["file_which_does_not_exist"])
+        self.assertTrue(Loader.create_default_config.called)
+        Loader.create_default_config = cdf_backup
 
     def test_load_non_existant_config_file(self):
-        opsdroid, loader = self.setup()
-        loader.create_default_config = mock.Mock(
+        cdf_backup = Loader.create_default_config
+        Loader.create_default_config = mock.Mock(
             return_value=os.path.abspath("/tmp/my_nonexistant_config"))
-        loader.load_config_file(["file_which_does_not_exist"])
-        self.assertTrue(loader.create_default_config.called)
-        self.assertTrue(loader.opsdroid.critical.called)
+        with mock.patch('sys.exit') as mock_sysexit:
+            Loader.load_config_file(["file_which_does_not_exist"])
+            self.assertTrue(Loader.create_default_config.called)
+            self.assertTrue(mock_sysexit.called)
+        Loader.create_default_config = cdf_backup
 
     def test_load_broken_config_file(self):
-        opsdroid, loader = self.setup()
-        loader.opsdroid.critical = mock.Mock()
-        loader.load_config_file(
-            [os.path.abspath("tests/configs/broken.yaml")])
-        self.assertTrue(loader.opsdroid.critical.called)
+        with mock.patch('sys.exit') as patched_sysexit:
+            Loader.load_config_file(
+                [os.path.abspath("tests/configs/broken.yaml")])
+            self.assertTrue(patched_sysexit.called)
 
     def test_git_clone(self):
         with mock.patch.object(subprocess, 'Popen') as mock_subproc_popen:
@@ -283,27 +288,27 @@ class TestLoader(unittest.TestCase):
 
     def test_load_minimal_config_file(self):
         opsdroid, loader = self.setup()
-        config = loader.load_config_file(
+        config = Loader.load_config_file(
             [os.path.abspath("tests/configs/minimal.yaml")])
         loader._install_module = mock.MagicMock()
         loader.import_module = mock.MagicMock()
-        connectors, databases, skills = loader.load_modules_from_config(config)
-        self.assertIsNotNone(connectors)
-        self.assertIsNone(databases)
-        self.assertIsNotNone(skills)
+        modules = loader.load_modules_from_config(config)
+        self.assertIsNotNone(modules["connectors"])
+        self.assertIsNone(modules["databases"])
+        self.assertIsNotNone(modules["skills"])
         self.assertIsNotNone(config)
 
     def test_load_minimal_config_file_2(self):
         opsdroid, loader = self.setup()
         loader._install_module = mock.MagicMock()
         loader.import_module = mock.MagicMock()
-        config = loader.load_config_file(
+        config = Loader.load_config_file(
             [os.path.abspath("tests/configs/minimal_2.yaml")])
-        connectors, databases, skills = loader.load_modules_from_config(config)
+        modules = loader.load_modules_from_config(config)
+        self.assertIsNotNone(modules["connectors"])
+        self.assertIsNone(modules["databases"])
+        self.assertIsNotNone(modules["skills"])
         self.assertIsNotNone(config)
-        self.assertIsNotNone(connectors)
-        self.assertIsNone(databases)
-        self.assertIsNotNone(skills)
 
     def test_load_modules(self):
         opsdroid, loader = self.setup()

@@ -4,6 +4,7 @@ import asynctest.mock as amock
 
 from aiohttp import ClientOSError
 
+from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.matchers import match_recastai
 from opsdroid.message import Message
@@ -13,6 +14,21 @@ from opsdroid.connector import Connector
 
 class TestParserRecastAi(asynctest.TestCase):
     """Test the opsdroid recastai parser."""
+
+    async def setup(self):
+        configure_lang({})
+
+    async def getMockSkill(self):
+        async def mockedskill(opsdroid, config, message):
+            pass
+        mockedskill.config = {}
+        return mockedskill
+
+    async def getRaisingMockSkill(self):
+        async def mockedskill(opsdroid, config, message):
+            raise Exception()
+        mockedskill.config = {}
+        return mockedskill
 
     async def test_call_recastai(self):
         mock_connector = Connector({})
@@ -54,11 +70,11 @@ class TestParserRecastAi(asynctest.TestCase):
             opsdroid.config['parsers'] = [
                 {'name': 'recastai', 'access-token': "test"}
             ]
-            mock_skill = amock.CoroutineMock()
-            opsdroid.loader.current_import_config = {
+            mock_skill = await self.getMockSkill()
+            mock_skill.config = {
                 "name": "greetings"
             }
-            match_recastai('greetings')(mock_skill)
+            opsdroid.skills.append(match_recastai('greetings')(mock_skill))
 
             mock_connector = amock.CoroutineMock()
             message = Message("Hello", "user", "default", mock_connector)
@@ -96,12 +112,11 @@ class TestParserRecastAi(asynctest.TestCase):
             opsdroid.config['parsers'] = [
                     {'name': 'recastai', 'access-token': "test"}
                 ]
-            mock_skill = amock.CoroutineMock()
-            mock_skill.side_effect = Exception()
-            opsdroid.loader.current_import_config = {
-                "name": "mocked-intent"
+            mock_skill = await self.getRaisingMockSkill()
+            mock_skill.config = {
+                "name": "mocked-skill"
             }
-            match_recastai('greetings')(mock_skill)
+            opsdroid.skills.append(match_recastai('greetings')(mock_skill))
 
             mock_connector = amock.MagicMock()
             mock_connector.respond = amock.CoroutineMock()
@@ -136,17 +151,21 @@ class TestParserRecastAi(asynctest.TestCase):
                     opsdroid, message, opsdroid.config['parsers'][0])
                 self.assertEqual(mock_skill, skills[0]["skill"])
 
-            await opsdroid.run_skill(
-                skills[0]["skill"], skills[0]["config"], message)
-            self.assertTrue(skills[0]["skill"].called)
+            with amock.patch('opsdroid.core._LOGGER.exception') as logmock:
+                await opsdroid.run_skill(
+                    skills[0]["skill"], skills[0]["config"], message)
+                self.assertTrue(logmock.called)
 
     async def test_parse_recastai_failure(self):
         with OpsDroid() as opsdroid:
             opsdroid.config['parsers'] = [
                     {'name': 'recastai', 'access-token': "test"}
                 ]
-            mock_skill = amock.CoroutineMock()
-            match_recastai('greetings')(mock_skill)
+            mock_skill = await self.getMockSkill()
+            mock_skill.config = {
+                "name": "greetings"
+            }
+            opsdroid.skills.append(match_recastai('greetings')(mock_skill))
 
             mock_connector = amock.CoroutineMock()
             message = Message("", "user", "default", mock_connector)
@@ -166,8 +185,11 @@ class TestParserRecastAi(asynctest.TestCase):
             opsdroid.config['parsers'] = [
                     {'name': 'recastai', 'access-token': "test"}
                 ]
-            mock_skill = amock.CoroutineMock()
-            match_recastai('greetings')(mock_skill)
+            mock_skill = await self.getMockSkill()
+            mock_skill.config = {
+                "name": "greetings"
+            }
+            opsdroid.skills.append(match_recastai('greetings')(mock_skill))
 
             mock_connector = amock.CoroutineMock()
             message = Message(
@@ -209,8 +231,11 @@ class TestParserRecastAi(asynctest.TestCase):
                         "min-score": 1.0
                     }
                 ]
-            mock_skill = amock.CoroutineMock()
-            match_recastai('intent')(mock_skill)
+            mock_skill = await self.getMockSkill()
+            mock_skill.config = {
+                "name": "greetings"
+            }
+            opsdroid.skills.append(match_recastai('intent')(mock_skill))
 
             mock_connector = amock.CoroutineMock()
             message = Message("Hello", "user", "default", mock_connector)
@@ -242,8 +267,6 @@ class TestParserRecastAi(asynctest.TestCase):
                 await recastai.parse_recastai(
                     opsdroid, message, opsdroid.config['parsers'][0])
 
-            self.assertFalse(mock_skill.called)
-
     async def test_parse_recastai_raise_ClientOSError(self):
         with OpsDroid() as opsdroid:
             opsdroid.config['parsers'] = [
@@ -252,8 +275,11 @@ class TestParserRecastAi(asynctest.TestCase):
                         'access-token': "test",
                     }
                 ]
-            mock_skill = amock.CoroutineMock()
-            match_recastai('greetings')(mock_skill)
+            mock_skill = await self.getMockSkill()
+            mock_skill.config = {
+                "name": "greetings"
+            }
+            opsdroid.skills.append(match_recastai('greetings')(mock_skill))
 
             mock_connector = amock.CoroutineMock()
             message = Message("Hello", "user", "default", mock_connector)
@@ -264,5 +290,4 @@ class TestParserRecastAi(asynctest.TestCase):
                 await recastai.parse_recastai(
                     opsdroid, message, opsdroid.config['parsers'][0])
 
-            self.assertFalse(mock_skill.called)
             self.assertTrue(mocked_call.called)
