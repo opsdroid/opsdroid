@@ -1,5 +1,6 @@
 """Class to encapsulate a message."""
 
+from abc import ABC
 from datetime import datetime
 from copy import copy
 import asyncio
@@ -8,7 +9,11 @@ from random import randrange
 from opsdroid.helper import get_opsdroid
 
 
-class Message:
+class Event(ABC):
+    pass
+
+
+class Message(Event):
     # pylint: disable=too-few-public-methods
     """A message object.
 
