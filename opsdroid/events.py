@@ -120,3 +120,13 @@ class Message(Event):
         if 'thinking-delay' in self.connector.configuration:
             await self._thinking_delay()
         return await self.connector.react(self, emoji)
+
+
+class Image(Message):
+    def __init__(self, image_url, user, room, connector):
+        self.created = datetime.now()
+        self.url = image_url
+        self.user = user
+        self.room = room
+        self.connector = connector
+        self.responded_to = False
