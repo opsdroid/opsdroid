@@ -5,7 +5,7 @@ import asynctest.mock as amock
 from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.matchers import match_always
-from opsdroid.message import Message
+from opsdroid.events import Message
 from opsdroid.parsers.always import parse_always
 
 

@@ -1,7 +1,7 @@
 """A base class for connectors to inherit from."""
 
 import logging
-from opsdroid.message import Message  # NOQA # pylint: disable=unused-import
+from opsdroid.events import Message  # NOQA # pylint: disable=unused-import
 
 
 _LOGGER = logging.getLogger(__name__)

@@ -19,7 +19,7 @@ The crontab matcher is a bit different to other matchers. This matcher doesn't t
 ```python
 from opsdroid.skill import Skill
 from opsdroid.matchers import match_crontab
-from opsdroid.message import Message
+from opsdroid.events import Message
 
 class CrontabSkill(Skill):
     @match_crontab('* * * * *', timezone="Europe/London")

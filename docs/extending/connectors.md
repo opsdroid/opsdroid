@@ -35,7 +35,7 @@ import chatlibrary
 
 # Import opsdroid dependencies
 from opsdroid.connector import Connector
-from opsdroid.message import Message
+from opsdroid.events import Message
 
 
 class MyConnector(Connector):

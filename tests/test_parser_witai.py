@@ -7,7 +7,7 @@ from aiohttp import ClientOSError
 from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.matchers import match_witai
-from opsdroid.message import Message
+from opsdroid.events import Message
 from opsdroid.parsers import witai
 from opsdroid.connector import Connector
 

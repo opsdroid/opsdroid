@@ -2,7 +2,7 @@
 import asynctest
 import asynctest.mock as amock
 
-from opsdroid.message import Message
+from opsdroid.events import Message
 from opsdroid.connector import Connector
 from opsdroid.__main__ import configure_lang
 
@@ -60,7 +60,7 @@ class TestMessage(asynctest.TestCase):
         }, opsdroid=opsdroid)
 
         with amock.patch(
-                'opsdroid.message.Message._thinking_delay') as logmock:
+                'opsdroid.events.Message._thinking_delay') as logmock:
             message = Message("hi", "user", "default", mock_connector)
             with self.assertRaises(NotImplementedError):
                 await message.respond("Hello there")
@@ -108,7 +108,7 @@ class TestMessage(asynctest.TestCase):
             'module_path': 'opsdroid-modules.connector.shell'
         }, opsdroid=opsdroid)
         with amock.patch(
-                'opsdroid.message.Message._typing_delay') as logmock:
+                'opsdroid.events.Message._typing_delay') as logmock:
             with amock.patch('asyncio.sleep') as mocksleep:
                 message = Message("hi", "user", "default", mock_connector)
                 with self.assertRaises(NotImplementedError):

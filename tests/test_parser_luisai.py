@@ -8,7 +8,7 @@ from aiohttp import ClientOSError
 from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.matchers import match_luisai_intent
-from opsdroid.message import Message
+from opsdroid.events import Message
 from opsdroid.parsers import luisai
 from opsdroid.connector import Connector
 

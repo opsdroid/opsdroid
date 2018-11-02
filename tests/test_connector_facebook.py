@@ -7,8 +7,7 @@ import asynctest.mock as amock
 from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.connector.facebook import ConnectorFacebook
-from opsdroid.message import Message
-from opsdroid.__main__ import configure_lang
+from opsdroid.events import Message
 
 
 class TestConnectorFacebook(unittest.TestCase):
@@ -96,13 +95,15 @@ class TestConnectorFacebookAsync(asynctest.TestCase):
         mock_request.json = amock.CoroutineMock()
         mock_request.json.return_value = req_ob
 
-        with OpsDroid() as opsdroid:
+        with OpsDroid() as opsdroid,  \
+                amock.patch('opsdroid.connector.facebook._LOGGER.error') \
+                        as logmock:
             connector.opsdroid = opsdroid
             connector.opsdroid.parse = amock.CoroutineMock()
 
             response = await connector.facebook_message_handler(mock_request)
             self.assertFalse(connector.opsdroid.parse.called)
-            self.assertLogs('_LOGGER', 'error')
+            self.assertTrue(logmock.called)
             self.assertEqual(type(response), aiohttp.web.Response)
             self.assertEqual(response.status, 200)
 

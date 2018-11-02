@@ -18,7 +18,7 @@ from aiohttp.web import Request
 
 from opsdroid.skill import Skill
 from opsdroid.matchers import match_webhook
-from opsdroid.message import Message
+from opsdroid.events import Message
 
 class MySkill(Skill):
     @match_webhook('examplewebhook')

@@ -8,7 +8,7 @@ import importlib
 
 from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
-from opsdroid.message import Message
+from opsdroid.events import Message
 from opsdroid.connector import Connector
 from opsdroid.database import Database
 from opsdroid.web import Web
