@@ -78,7 +78,7 @@ class Message(Event):
 
         await asyncio.sleep(char_count*seconds)
 
-    async def respond(self, text, room=None):
+    async def respond(self, response_event, room=None):
         """Respond to this message using the connector it was created by.
 
         Creates copy of this message with updated text as response.
@@ -87,8 +87,11 @@ class Message(Event):
         Logs response and response time in OpsDroid object stats.
         """
         opsdroid = get_opsdroid()
-        response = copy(self)
-        response.text = text
+        if isinstance(response_event, str):
+            response = copy(self)
+            response.text = response_event
+        else:
+            response = response_event
 
         if 'thinking-delay' in self.connector.configuration or \
            'typing-delay' in self.connector.configuration:
