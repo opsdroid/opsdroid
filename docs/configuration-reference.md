@@ -95,6 +95,7 @@ The built-in connectors are:
 - [Slack](/connectors/slack.md)
 - [Websockets](/connectors/websocket.md)
 - [Telegram](/connectors/telegram.md)
+- [Rocket.Chat](/connectors/rocketchat.md)
 
 _Note: More connectors will be added as built-in connectors into the opsdroid over time._
 

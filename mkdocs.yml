@@ -20,6 +20,7 @@ pages:
       - 'Websocket': 'connectors/websocket.md'
       - 'Facebook': 'connectors/facebook.md'
       - 'Telegram': 'connectors/telegram.md'
+      - 'Rocket.Chat': 'connectors/rocketchat.md'
   - 'Databases':
       - 'MongoDB': 'databases/mongo.md'
       - 'SQLite': 'databases/sqlite.md'
