@@ -18,7 +18,7 @@ _LOGGER = logging.getLogger(__name__)
 class ConnectorSlack(Connector):
     """A connector for Slack."""
 
-    def __init__(self, config, *, opsdroid):
+    def __init__(self, config, opsdroid=None):
         """Create the connector."""
         super().__init__(config, opsdroid=opsdroid)
         _LOGGER.debug("Starting Slack connector")

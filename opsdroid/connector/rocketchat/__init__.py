@@ -14,7 +14,7 @@ API_PATH = '/api/v1/'
 class RocketChat(Connector):
     """A connector for the chat service Rocket.Chat."""
 
-    def __init__(self, config, *, opsdroid):
+    def __init__(self, config, opsdroid=None):
         """Create the connector.
 
         Sets up logic for the Connector class, gets data from

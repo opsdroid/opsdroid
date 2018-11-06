@@ -14,7 +14,7 @@ class Connector():
 
     """
 
-    def __init__(self, config, *, opsdroid):
+    def __init__(self, config, opsdroid=None):
         """Create the connector.
 
         Set some basic properties from the connector config such as the name

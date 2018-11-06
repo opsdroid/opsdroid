@@ -14,7 +14,7 @@ _LOGGER = logging.getLogger(__name__)
 class ConnectorTelegram(Connector):
     """A connector the the char service Telegram."""
 
-    def __init__(self, config, *, opsdroid):
+    def __init__(self, config, opsdroid=None):
         """Create the connector.
 
         Args:

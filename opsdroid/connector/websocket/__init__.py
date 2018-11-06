@@ -18,13 +18,12 @@ _LOGGER = logging.getLogger(__name__)
 class ConnectorWebsocket(Connector):
     """A connector which allows websocket connections."""
 
-    def __init__(self, config, *, opsdroid):
+    def __init__(self, config, opsdroid=None):
         """Create the connector."""
         super().__init__(config, opsdroid=opsdroid)
         _LOGGER.debug("Starting Websocket connector")
         self.name = "websocket"
         self.config = config
-        self.opsdroid = opsdroid
         self.default_room = None
         self.max_connections = self.config.get("max-connections", 10)
         self.connection_timeout = self.config.get("connection-timeout", 60)

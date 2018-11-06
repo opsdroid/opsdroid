@@ -30,7 +30,7 @@ class ConnectorFacebook(Connector):
 
     """
 
-    def __init__(self, config, *, opsdroid):
+    def __init__(self, config, opsdroid=None):
         """Connector Setup."""
         super().__init__(config, opsdroid=opsdroid)
         _LOGGER.debug("Starting facebook connector")
