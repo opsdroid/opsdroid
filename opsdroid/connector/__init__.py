@@ -14,7 +14,7 @@ class Connector():
 
     """
 
-    def __init__(self, config):
+    def __init__(self, config, *, opsdroid):
         """Create the connector.
 
         Set some basic properties from the connector config such as the name
@@ -29,21 +29,19 @@ class Connector():
         self.name = ""
         self.config = config
         self.default_room = None
+        self.opsdroid = opsdroid
 
     @property
     def configuration(self):
         """Class property used to access the connector config."""
         return self.config
 
-    async def connect(self, opsdroid):
+    async def connect(self):
         """Connect to chat service.
 
         This method should create a connection to the desired chat service.
         It should also be possible to call it multiple times in the event of
         being disconnected.
-
-        Args:
-            opsdroid (OpsDroid): An instance of the opsdroid core.
 
         """
         raise NotImplementedError
@@ -112,14 +110,11 @@ class Connector():
         """
         pass
 
-    async def disconnect(self, opsdroid):
+    async def disconnect(self):
         """Disconnect from the chat service.
 
         This method is called when opsdroid is exiting, it can be used to close
         connections or do other cleanup.
-
-        Args:
-            opsdroid (OpsDroid): An instance of the opsdroid core.
 
         """
         pass

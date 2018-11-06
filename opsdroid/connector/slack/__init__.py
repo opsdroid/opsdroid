@@ -18,13 +18,12 @@ _LOGGER = logging.getLogger(__name__)
 class ConnectorSlack(Connector):
     """A connector for Slack."""
 
-    def __init__(self, config):
+    def __init__(self, config, *, opsdroid):
         """Create the connector."""
-        super().__init__(config)
+        super().__init__(config, opsdroid)
         _LOGGER.debug("Starting Slack connector")
         self.name = "slack"
         self.config = config
-        self.opsdroid = None
         self.default_room = config.get("default-room", "#general")
         self.icon_emoji = config.get("icon-emoji", ':robot_face:')
         self.token = config["api-token"]
@@ -37,10 +36,8 @@ class ConnectorSlack(Connector):
         self.listening = True
         self._message_id = 0
 
-    async def connect(self, opsdroid=None):
+    async def connect(self):
         """Connect to the chat service."""
-        if opsdroid is not None:
-            self.opsdroid = opsdroid
 
         _LOGGER.info("Connecting to Slack")
 

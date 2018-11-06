@@ -14,7 +14,7 @@ API_PATH = '/api/v1/'
 class RocketChat(Connector):
     """A connector for the chat service Rocket.Chat."""
 
-    def __init__(self, config):
+    def __init__(self, config, *, opsdroid):
         """Create the connector.
 
         Sets up logic for the Connector class, gets data from
@@ -25,7 +25,7 @@ class RocketChat(Connector):
                 file config.yaml.
 
         """
-        super().__init__(config)
+        super().__init__(config, opsdroid)
         self.name = "rocket.chat"
         self.config = config
         self.default_room = config.get("default-room", "general")
@@ -64,7 +64,7 @@ class RocketChat(Connector):
         """
         return "{}{}{}".format(self.url, API_PATH, method)
 
-    async def connect(self, opsdroid):
+    async def connect(self):
         """Connect to the chat service.
 
         This method is used to text if the connection to the chat
@@ -72,9 +72,6 @@ class RocketChat(Connector):
         the response is a JSON format containing information
         about the user. Other than the user username, the
         information is not used.
-
-        Args:
-            opsdroid (OpsDroid): An instance of opsdroid core.
 
         """
         _LOGGER.info("Connecting to Rocket.Chat")

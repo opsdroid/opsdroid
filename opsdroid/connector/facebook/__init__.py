@@ -30,19 +30,17 @@ class ConnectorFacebook(Connector):
 
     """
 
-    def __init__(self, config):
+    def __init__(self, config, *, opsdroid):
         """Connector Setup."""
-        super().__init__(config)
+        super().__init__(config, opsdroid)
         _LOGGER.debug("Starting facebook connector")
         self.config = config
         self.name = self.config.get("name", "facebook")
-        self.opsdroid = None
         self.default_room = None
         self.bot_name = config.get("bot-name", 'opsdroid')
 
-    async def connect(self, opsdroid):
+    async def connect(self):
         """Connect to the chat service."""
-        self.opsdroid = opsdroid
 
         self.opsdroid.web_server.web_app.router.add_post(
             "/connector/{}".format(self.name),

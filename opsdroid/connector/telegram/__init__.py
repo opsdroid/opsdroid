@@ -14,7 +14,7 @@ _LOGGER = logging.getLogger(__name__)
 class ConnectorTelegram(Connector):
     """A connector the the char service Telegram."""
 
-    def __init__(self, config):
+    def __init__(self, config, *, opsdroid):
         """Create the connector.
 
         Args:
@@ -23,7 +23,7 @@ class ConnectorTelegram(Connector):
 
         """
         _LOGGER.debug("Loaded telegram connector")
-        super().__init__(config)
+        super().__init__(config, opsdroid)
         self.name = "telegram"
         self.latest_update = None
         self.default_room = None
@@ -50,15 +50,12 @@ class ConnectorTelegram(Connector):
         """
         return "https://api.telegram.org/bot{}/{}".format(self.token, method)
 
-    async def connect(self, opsdroid):
+    async def connect(self):
         """Connect to Telegram.
 
         This method is not an authorization call. It basically
         checks if the API token was provided and makes an API
         call to Telegram and evaluates the status of the call.
-
-        Args:
-            opsdroid (OpsDroid): An instance of opsdroid core.
 
         """
         _LOGGER.debug("Connecting to telegram")
