@@ -31,7 +31,8 @@ class TestParserWitai(asynctest.TestCase):
         return mockedskill
 
     async def test_call_witai(self):
-        mock_connector = Connector({})
+        opsdroid = amock.CoroutineMock()
+        mock_connector = Connector({}, opsdroid=opsdroid)
         message = Message("how's the weather outside", "user",
                           "default", mock_connector)
         config = {'name': 'witai', 'access-token': 'test', 'min-score': 0.3}

@@ -31,7 +31,8 @@ class TestParserRecastAi(asynctest.TestCase):
         return mockedskill
 
     async def test_call_recastai(self):
-        mock_connector = Connector({})
+        opsdroid = amock.CoroutineMock()
+        mock_connector = Connector({}, opsdroid=opsdroid)
         message = Message("Hello", "user", "default", mock_connector)
         config = {'name': 'recastai', 'access-token': 'test'}
         result = amock.Mock()

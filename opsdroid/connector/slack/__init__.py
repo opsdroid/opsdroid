@@ -20,7 +20,7 @@ class ConnectorSlack(Connector):
 
     def __init__(self, config, *, opsdroid):
         """Create the connector."""
-        super().__init__(config, opsdroid)
+        super().__init__(config, opsdroid=opsdroid)
         _LOGGER.debug("Starting Slack connector")
         self.name = "slack"
         self.config = config
@@ -38,7 +38,6 @@ class ConnectorSlack(Connector):
 
     async def connect(self):
         """Connect to the chat service."""
-
         _LOGGER.info("Connecting to Slack")
 
         try:

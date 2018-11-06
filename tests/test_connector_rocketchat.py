@@ -5,6 +5,7 @@ import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock
 
+from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.connector.rocketchat import RocketChat
 from opsdroid.message import Message
@@ -22,7 +23,7 @@ class TestRocketChat(unittest.TestCase):
             'name': 'rocket.chat',
             'access-token': 'test',
             'user-id': 'userID'
-        })
+        }, opsdroid=OpsDroid())
         self.assertEqual("general", connector.default_room)
         self.assertEqual("rocket.chat", connector.name)
 
@@ -30,7 +31,7 @@ class TestRocketChat(unittest.TestCase):
         """Test that attempt to connect without info raises an error."""
         with mock.patch('opsdroid.connector.rocketchat._LOGGER.error') \
                 as logmock:
-            RocketChat({})
+            RocketChat({}, opsdroid=OpsDroid())
             self.assertTrue(logmock.called)
 
 
@@ -38,12 +39,13 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid Slack connector class."""
 
     def setUp(self):
+        configure_lang({})
         self.connector = RocketChat({
                 'name': 'rocket.chat',
                 'token': 'test',
                 'user-id': 'userID',
                 'default_room': "test"
-            })
+            }, opsdroid=OpsDroid)
         self.connector.latest_update = '2018-10-08T12:57:37.126Z'
 
     async def test_connect(self):
@@ -80,7 +82,7 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(connect_response)
 
-            await self.connector.connect(opsdroid)
+            await self.connector.connect()
 
             self.assertTrue(logmock.called)
             self.assertNotEqual(200, patched_request.status)
@@ -98,7 +100,7 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
 
-            await self.connector.connect(opsdroid)
+            await self.connector.connect()
             self.assertTrue(logmock.called)
 
     async def test_get_message(self):
@@ -107,7 +109,7 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
                 'token': 'test',
                 'user-id': 'userID',
                 'group': "test"
-            })
+            }, opsdroid=OpsDroid())
         response = amock.Mock()
         response.status = 200
         response.json = amock.CoroutineMock()

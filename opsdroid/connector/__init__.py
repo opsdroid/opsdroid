@@ -98,7 +98,7 @@ class Connector():
         _LOGGER.debug(_("%s connector can't react to messages"), self.name)
         return False
 
-    async def user_typing(self, opsdroid, trigger):
+    async def user_typing(self, trigger):
         """Signals that opsdroid is typing.
 
         Args:

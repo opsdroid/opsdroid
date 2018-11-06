@@ -23,7 +23,7 @@ class ConnectorTelegram(Connector):
 
         """
         _LOGGER.debug("Loaded telegram connector")
-        super().__init__(config, opsdroid)
+        super().__init__(config, opsdroid=opsdroid)
         self.name = "telegram"
         self.latest_update = None
         self.default_room = None

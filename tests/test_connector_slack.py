@@ -6,6 +6,8 @@ import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock
 
+from opsdroid.__main__ import configure_lang
+from opsdroid.core import OpsDroid
 from opsdroid.connector.slack import ConnectorSlack
 from opsdroid.message import Message
 
@@ -18,14 +20,14 @@ class TestConnectorSlack(unittest.TestCase):
 
     def test_init(self):
         """Test that the connector is initialised properly."""
-        connector = ConnectorSlack({"api-token": "abc123"})
+        connector = ConnectorSlack({"api-token": "abc123"}, opsdroid=OpsDroid())
         self.assertEqual("#general", connector.default_room)
         self.assertEqual("slack", connector.name)
 
     def test_missing_api_key(self):
         """Test that creating without an API key raises an error."""
         with self.assertRaises(KeyError):
-            ConnectorSlack({})
+            ConnectorSlack({}, opsdroid=OpsDroid())
 
     # def test_listen(self):
     #     connector = ConnectorSlack({})
@@ -53,22 +55,25 @@ class TestConnectorSlack(unittest.TestCase):
 class TestConnectorSlackAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid Slack connector class."""
 
+    async def setUp(self):
+        configure_lang({})
+
     async def test_connect(self):
-        connector = ConnectorSlack({"api-token": "abc123"})
+        connector = ConnectorSlack({"api-token": "abc123"}, opsdroid=OpsDroid())
         opsdroid = amock.CoroutineMock()
         opsdroid.eventloop = self.loop
         connector.slacker.rtm.start = amock.CoroutineMock()
         connector.keepalive_websocket = amock.CoroutineMock()
         with amock.patch('websockets.connect', new=amock.CoroutineMock()) \
                 as mocked_websocket_connect:
-            await connector.connect(opsdroid)
+            await connector.connect()
         self.assertTrue(connector.slacker.rtm.start.called)
         self.assertTrue(mocked_websocket_connect.called)
         self.assertTrue(connector.keepalive_websocket.called)
 
     async def test_reconnect_on_error(self):
         import aiohttp
-        connector = ConnectorSlack({"api-token": "abc123"})
+        connector = ConnectorSlack({"api-token": "abc123"}, opsdroid=OpsDroid())
         connector.slacker.rtm.start = amock.CoroutineMock()
         connector.slacker.rtm.start.side_effect = aiohttp.ClientOSError()
         connector.reconnect = amock.CoroutineMock()
@@ -78,7 +83,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
 
     async def test_listen_loop(self):
         """Test that listening consumes from the socket."""
-        connector = ConnectorSlack({"api-token": "abc123"})
+        connector = ConnectorSlack({"api-token": "abc123"}, opsdroid=OpsDroid())
         connector.receive_from_websocket = amock.CoroutineMock()
         connector.receive_from_websocket.side_effect = Exception()
         with self.assertRaises(Exception):
@@ -88,7 +93,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
     async def test_receive_from_websocket(self):
         """Test receive_from_websocket receives and reconnects."""
         import websockets
-        connector = ConnectorSlack({"api-token": "abc123"})
+        connector = ConnectorSlack({"api-token": "abc123"}, opsdroid=OpsDroid())
 
         connector.websocket = amock.CoroutineMock()
         connector.websocket.recv = amock.CoroutineMock()
@@ -106,7 +111,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
 
     async def test_process_message(self):
         """Test processing a slack message."""
-        connector = ConnectorSlack({"api-token": "abc123"})
+        connector = ConnectorSlack({"api-token": "abc123"}, opsdroid=OpsDroid())
         connector.lookup_username = amock.CoroutineMock()
         connector.lookup_username.return_value = {"name": "testuser"}
         connector.opsdroid = amock.CoroutineMock()
@@ -139,7 +144,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
 
     async def test_keepalive_websocket_loop(self):
         """Test that listening consumes from the socket."""
-        connector = ConnectorSlack({"api-token": "abc123"})
+        connector = ConnectorSlack({"api-token": "abc123"}, opsdroid=OpsDroid())
         connector.ping_websocket = amock.CoroutineMock()
         connector.ping_websocket.side_effect = Exception()
         with self.assertRaises(Exception):
@@ -149,7 +154,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
     async def test_ping_websocket(self):
         """Test pinging the websocket."""
         import websockets
-        connector = ConnectorSlack({"api-token": "abc123"})
+        connector = ConnectorSlack({"api-token": "abc123"}, opsdroid=OpsDroid())
         with amock.patch('asyncio.sleep', new=amock.CoroutineMock()) \
                 as mocked_sleep:
             connector.websocket = amock.CoroutineMock()
@@ -166,7 +171,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
 
     async def test_lookup_username(self):
         """Test that looking up a username works and that it caches."""
-        connector = ConnectorSlack({"api-token": "abc123"})
+        connector = ConnectorSlack({"api-token": "abc123"}, opsdroid=OpsDroid())
         connector.slacker.users.info = amock.CoroutineMock()
         mock_user = mock.Mock()
         mock_user.body = {"user": {"name": "testuser"}}
@@ -189,13 +194,13 @@ class TestConnectorSlackAsync(asynctest.TestCase):
             await connector.lookup_username('invaliduser')
 
     async def test_respond(self):
-        connector = ConnectorSlack({"api-token": "abc123"})
+        connector = ConnectorSlack({"api-token": "abc123"}, opsdroid=OpsDroid())
         connector.slacker.chat.post_message = amock.CoroutineMock()
         await connector.respond(Message("test", "user", "room", connector))
         self.assertTrue(connector.slacker.chat.post_message.called)
 
     async def test_reconnect(self):
-        connector = ConnectorSlack({"api-token": "abc123"})
+        connector = ConnectorSlack({"api-token": "abc123"}, opsdroid=OpsDroid())
         connector.connect = amock.CoroutineMock()
         with amock.patch('asyncio.sleep') as mocked_sleep:
             await connector.reconnect(10)
@@ -203,7 +208,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
             self.assertTrue(mocked_sleep.called)
 
     async def test_replace_usernames(self):
-        connector = ConnectorSlack({"api-token": "abc123"})
+        connector = ConnectorSlack({"api-token": "abc123"}, opsdroid=OpsDroid())
         connector.lookup_username = amock.CoroutineMock()
         connector.lookup_username.return_value = {"name": 'user'}
         result = await connector.replace_usernames("Hello <@U023BECGF>!")

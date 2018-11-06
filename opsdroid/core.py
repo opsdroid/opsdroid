@@ -243,9 +243,9 @@ class OpsDroid():
         if connectors:
             for connector in self.connectors:
                 if self.eventloop.is_running():
-                    self.eventloop.create_task(connector.connect(self))
+                    self.eventloop.create_task(connector.connect())
                 else:
-                    self.eventloop.run_until_complete(connector.connect(self))
+                    self.eventloop.run_until_complete(connector.connect())
             for connector in self.connectors:
                 task = self.eventloop.create_task(connector.listen(self))
                 self.connector_tasks.append(task)

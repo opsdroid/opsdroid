@@ -32,7 +32,8 @@ class TestParserRasaNLU(asynctest.TestCase):
         return mockedskill
 
     async def test_call_rasanlu(self):
-        mock_connector = Connector({})
+        opsdroid = amock.CoroutineMock()
+        mock_connector = Connector({}, opsdroid=opsdroid)
         message = Message("how's the weather outside", "user",
                           "default", mock_connector)
         config = {'name': 'rasanlu',
@@ -75,7 +76,8 @@ class TestParserRasaNLU(asynctest.TestCase):
             self.assertTrue(patched_request.called)
 
     async def test_call_rasanlu_bad_response(self):
-        mock_connector = Connector({})
+        opsdroid = amock.CoroutineMock()
+        mock_connector = Connector({}, opsdroid=opsdroid)
         message = Message("how's the weather outside", "user",
                           "default", mock_connector)
         config = {'name': 'rasanlu', 'access-token': 'test', 'min-score': 0.3}
@@ -91,7 +93,8 @@ class TestParserRasaNLU(asynctest.TestCase):
             self.assertEqual(response, result.text.return_value)
 
     async def test_call_rasanlu_raises(self):
-        mock_connector = Connector({})
+        opsdroid = amock.CoroutineMock()
+        mock_connector = Connector({}, opsdroid=opsdroid)
         message = Message("how's the weather outside", "user",
                           "default", mock_connector)
         config = {'name': 'rasanlu', 'access-token': 'test', 'min-score': 0.3}

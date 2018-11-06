@@ -25,7 +25,7 @@ class RocketChat(Connector):
                 file config.yaml.
 
         """
-        super().__init__(config, opsdroid)
+        super().__init__(config, opsdroid=opsdroid)
         self.name = "rocket.chat"
         self.config = config
         self.default_room = config.get("default-room", "general")

@@ -4,6 +4,7 @@ import asyncio
 import asynctest
 import asynctest.mock as amock
 
+from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.connector.websocket import ConnectorWebsocket
 from opsdroid.message import Message
@@ -16,36 +17,39 @@ class TestConnectorWebsocket(unittest.TestCase):
         self.loop = asyncio.new_event_loop()
 
     def test_init(self):
-        connector = ConnectorWebsocket({})
+        connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
         self.assertEqual(None, connector.default_room)
         self.assertEqual("websocket", connector.name)
 
     def test_property(self):
-        connector = ConnectorWebsocket({})
+        connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
         self.assertEqual("websocket", connector.name)
 
 
 class TestConnectorWebsocketAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid Websocket connector class."""
 
+    async def setUp(self):
+        configure_lang({})
+
     async def test_connect(self):
         """Test the connect method adds the handlers."""
-        connector = ConnectorWebsocket({})
         opsdroid = amock.CoroutineMock()
+        connector = ConnectorWebsocket({}, opsdroid=opsdroid)
         opsdroid.web_server = amock.CoroutineMock()
         opsdroid.web_server.web_app = amock.CoroutineMock()
         opsdroid.web_server.web_app.router = amock.CoroutineMock()
         opsdroid.web_server.web_app.router.add_get = amock.CoroutineMock()
         opsdroid.web_server.web_app.router.add_post = amock.CoroutineMock()
 
-        await connector.connect(opsdroid)
+        await connector.connect()
 
         self.assertTrue(opsdroid.web_server.web_app.router.add_get.called)
         self.assertTrue(opsdroid.web_server.web_app.router.add_post.called)
 
     async def test_disconnect(self):
         """Test the disconnect method closes all sockets."""
-        connector = ConnectorWebsocket({})
+        connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
         opsdroid = amock.CoroutineMock()
 
         connector.active_connections = {
@@ -56,7 +60,7 @@ class TestConnectorWebsocketAsync(asynctest.TestCase):
         connector.active_connections["connection1"].close = amock.CoroutineMock()
         connector.active_connections["connection2"].close = amock.CoroutineMock()
 
-        await connector.disconnect(opsdroid)
+        await connector.disconnect()
 
         self.assertTrue(connector.active_connections["connection1"].close.called)
         self.assertTrue(connector.active_connections["connection2"].close.called)
@@ -65,7 +69,7 @@ class TestConnectorWebsocketAsync(asynctest.TestCase):
     async def test_new_websocket_handler(self):
         """Test the new websocket handler."""
         import aiohttp.web
-        connector = ConnectorWebsocket({})
+        connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
         connector.max_connections = 1
         self.assertEqual(len(connector.available_connections), 0)
 
@@ -80,19 +84,19 @@ class TestConnectorWebsocketAsync(asynctest.TestCase):
 
     async def test_lookup_username(self):
         """Test lookup up the username."""
-        connector = ConnectorWebsocket({})
+        connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
         self.assertEqual("websocket", connector.name)
 
     async def test_listen(self):
         """Test that listen does nothing."""
-        connector = ConnectorWebsocket({})
+        connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
         await connector.listen(None)
 
     async def test_respond(self):
         """Test that responding sends a message down the correct websocket."""
         with OpsDroid() as opsdroid:
             self.assertTrue(opsdroid.__class__.instances)
-            connector = ConnectorWebsocket({})
+            connector = ConnectorWebsocket({}, opsdroid=opsdroid)
             room = "a146f52c-548a-11e8-a7d1-28cfe949e12d"
             connector.active_connections[room] = amock.CoroutineMock()
             connector.active_connections[room].send_str = amock.CoroutineMock()
@@ -119,7 +123,7 @@ class TestConnectorWebsocketAsync(asynctest.TestCase):
         """Test the websocket handler."""
         import aiohttp
         from datetime import datetime, timedelta
-        connector = ConnectorWebsocket({})
+        connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
         room = "a146f52c-548a-11e8-a7d1-28cfe949e12d"
         mock_request = amock.Mock()
         mock_request.match_info = amock.Mock()

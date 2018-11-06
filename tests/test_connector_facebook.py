@@ -4,6 +4,7 @@ import asyncio
 import asynctest
 import asynctest.mock as amock
 
+from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.connector.facebook import ConnectorFacebook
 from opsdroid.message import Message
@@ -16,29 +17,34 @@ class TestConnectorFacebook(unittest.TestCase):
         self.loop = asyncio.new_event_loop()
 
     def test_init(self):
-        connector = ConnectorFacebook({})
+        opsdroid = amock.CoroutineMock()
+        connector = ConnectorFacebook({}, opsdroid=opsdroid)
         self.assertEqual(None, connector.default_room)
         self.assertEqual("facebook", connector.name)
 
     def test_property(self):
-        connector = ConnectorFacebook({})
+        opsdroid = amock.CoroutineMock()
+        connector = ConnectorFacebook({}, opsdroid=opsdroid)
         self.assertEqual("facebook", connector.name)
 
 
 class TestConnectorFacebookAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid Facebook connector class."""
 
+    async def setUp(self):
+        configure_lang({})
+
     async def test_connect(self):
         """Test the connect method adds the handlers."""
-        connector = ConnectorFacebook({})
         opsdroid = amock.CoroutineMock()
+        connector = ConnectorFacebook({}, opsdroid=opsdroid)
         opsdroid.web_server = amock.CoroutineMock()
         opsdroid.web_server.web_app = amock.CoroutineMock()
         opsdroid.web_server.web_app.router = amock.CoroutineMock()
         opsdroid.web_server.web_app.router.add_get = amock.CoroutineMock()
         opsdroid.web_server.web_app.router.add_post = amock.CoroutineMock()
 
-        await connector.connect(opsdroid)
+        await connector.connect()
 
         self.assertTrue(opsdroid.web_server.web_app.router.add_get.called)
         self.assertTrue(opsdroid.web_server.web_app.router.add_post.called)
@@ -46,7 +52,8 @@ class TestConnectorFacebookAsync(asynctest.TestCase):
     async def test_facebook_message_handler(self):
         """Test the new facebook message handler."""
         import aiohttp
-        connector = ConnectorFacebook({})
+        opsdroid = amock.CoroutineMock()
+        connector = ConnectorFacebook({}, opsdroid=opsdroid)
         req_ob = {
             "object": "page",
             "entry": [{
@@ -72,7 +79,8 @@ class TestConnectorFacebookAsync(asynctest.TestCase):
     async def test_facebook_message_handler_invalid(self):
         """Test the new facebook message handler for invalid message."""
         import aiohttp
-        connector = ConnectorFacebook({})
+        opsdroid = amock.CoroutineMock()
+        connector = ConnectorFacebook({}, opsdroid=opsdroid)
         req_ob = {
             "object": "page",
             "entry": [{
@@ -101,7 +109,8 @@ class TestConnectorFacebookAsync(asynctest.TestCase):
     async def test_facebook_challenge_handler(self):
         """Test the facebook challenge handler."""
         import aiohttp
-        connector = ConnectorFacebook({'verify-token': 'token_123'})
+        opsdroid = amock.CoroutineMock()
+        connector = ConnectorFacebook({'verify-token': 'token_123'}, opsdroid=opsdroid)
         mock_request = amock.Mock()
         mock_request.query = {
             "hub.verify_token": 'token_123',
@@ -123,7 +132,8 @@ class TestConnectorFacebookAsync(asynctest.TestCase):
 
     async def test_listen(self):
         """Test that listen does nothing."""
-        connector = ConnectorFacebook({})
+        opsdroid = amock.CoroutineMock()
+        connector = ConnectorFacebook({}, opsdroid=opsdroid)
         await connector.listen(None)
 
     async def test_respond(self):
@@ -135,7 +145,7 @@ class TestConnectorFacebookAsync(asynctest.TestCase):
                 amock.patch('aiohttp.ClientSession.post',
                             new=asynctest.CoroutineMock()) as patched_request:
             self.assertTrue(opsdroid.__class__.instances)
-            connector = ConnectorFacebook({})
+            connector = ConnectorFacebook({}, opsdroid=opsdroid)
             room = "a146f52c-548a-11e8-a7d1-28cfe949e12d"
             test_message = Message(text="Hello world",
                                    user="Alice",
@@ -157,7 +167,7 @@ class TestConnectorFacebookAsync(asynctest.TestCase):
                 amock.patch('aiohttp.ClientSession.post',
                             new=asynctest.CoroutineMock()) as patched_request:
             self.assertTrue(opsdroid.__class__.instances)
-            connector = ConnectorFacebook({})
+            connector = ConnectorFacebook({}, opsdroid=opsdroid)
             room = "a146f52c-548a-11e8-a7d1-28cfe949e12d"
             test_message = Message(text="Hello world",
                                    user="Alice",
