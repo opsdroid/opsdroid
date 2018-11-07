@@ -185,6 +185,12 @@ class OpsDroid():
         self.cron_task = None
         _LOGGER.info(_("Stopped cron"))
 
+        _LOGGER.info(_("Stopping pending tasks..."))
+        tasks = asyncio.Task.all_tasks()
+        for task in tasks:
+            task.cancel()
+        _LOGGER.info(_("Stopped pending tasks"))
+
     async def reload(self):
         """Reload opsdroid."""
         await self.unload()
