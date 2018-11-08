@@ -189,6 +189,8 @@ class OpsDroid():
         tasks = asyncio.Task.all_tasks()
         for task in tasks:
             task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await task
         _LOGGER.info(_("Stopped pending tasks"))
 
     async def reload(self):
