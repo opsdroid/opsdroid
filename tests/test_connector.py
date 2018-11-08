@@ -4,6 +4,7 @@ import asyncio
 import asynctest
 
 from opsdroid.connector import Connector
+from opsdroid.__main__ import configure_lang
 
 
 class TestConnectorBaseClass(unittest.TestCase):
@@ -11,6 +12,7 @@ class TestConnectorBaseClass(unittest.TestCase):
 
     def setUp(self):
         self.loop = asyncio.new_event_loop()
+        configure_lang({})
 
     def test_init(self):
         config = {"example_item": "test"}

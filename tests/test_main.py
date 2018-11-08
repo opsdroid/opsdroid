@@ -13,6 +13,7 @@ import click
 from click.testing import CliRunner
 
 import opsdroid.__main__ as opsdroid
+from opsdroid.__main__ import configure_lang
 import opsdroid.web as web
 from opsdroid.const import __version__
 from opsdroid.core import OpsDroid
@@ -26,6 +27,7 @@ class TestMain(unittest.TestCase):
         self._tmp_dir = os.path.join(tempfile.gettempdir(), "opsdroid_tests")
         with contextlib.suppress(FileExistsError):
             os.makedirs(self._tmp_dir, mode=0o777)
+        configure_lang({})
 
     def tearDown(self):
         with contextlib.suppress(PermissionError):

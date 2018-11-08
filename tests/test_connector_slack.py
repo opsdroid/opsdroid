@@ -8,6 +8,7 @@ import asynctest.mock as amock
 
 from opsdroid.connector.slack import ConnectorSlack
 from opsdroid.message import Message
+from opsdroid.__main__ import configure_lang
 
 
 class TestConnectorSlack(unittest.TestCase):
@@ -15,6 +16,7 @@ class TestConnectorSlack(unittest.TestCase):
 
     def setUp(self):
         self.loop = asyncio.new_event_loop()
+        configure_lang({})
 
     def test_init(self):
         """Test that the connector is initialised properly."""

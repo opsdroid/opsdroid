@@ -7,6 +7,7 @@ import asynctest.mock as amock
 from opsdroid.core import OpsDroid
 from opsdroid.connector.websocket import ConnectorWebsocket
 from opsdroid.message import Message
+from opsdroid.__main__ import configure_lang
 
 
 class TestConnectorWebsocket(unittest.TestCase):
@@ -14,6 +15,7 @@ class TestConnectorWebsocket(unittest.TestCase):
 
     def setUp(self):
         self.loop = asyncio.new_event_loop()
+        configure_lang({})
 
     def test_init(self):
         connector = ConnectorWebsocket({})
