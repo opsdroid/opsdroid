@@ -51,14 +51,17 @@ class Loader:
 
         # Proceed only if config.name is specified
         # and parent module can be imported
-        if config["name"] and importlib.util.find_spec(config["module_path"]):
+        module_spec = None
+        if config.get("no-install", False):
+            module_spec = importlib.util.find_spec(config["module_path"])
+        elif config["name"] and importlib.util.find_spec(config["module_path"]):
             module_spec = importlib.util.find_spec(config["module_path"] +
                                                    "." + config["name"])
-            if module_spec:
-                module = Loader.import_module_from_spec(module_spec)
-                _LOGGER.debug(_("Loaded %s: %s"), config["type"],
-                              config["module_path"])
-                return module
+        if module_spec:
+            module = Loader.import_module_from_spec(module_spec)
+            _LOGGER.debug(_("Loaded %s: %s"), config["type"],
+                          config["module_path"])
+            return module
 
         module_spec = importlib.util.find_spec(config["module_path"])
         if module_spec:
@@ -100,7 +103,9 @@ class Loader:
     @staticmethod
     def build_module_import_path(config):
         """Generate the module import path from name and type."""
-        if config["is_builtin"]:
+        if config["no-install"]:
+            return config["path"].replace('/', '.')
+        elif config["is_builtin"]:
             return "opsdroid" + "." + config["type"] + \
                 "." + config["name"]
         return MODULES_DIRECTORY + "." + config["type"] + \
@@ -314,12 +319,13 @@ class Loader:
                 config["name"] = module['name']
             config["type"] = modules_type
             config["is_builtin"] = self.is_builtin_module(config)
+            config["no-install"] = module.get("no-install", False)
             config["module_path"] = self.build_module_import_path(config)
             config["install_path"] = self.build_module_install_path(config)
             if "branch" not in config:
                 config["branch"] = DEFAULT_MODULE_BRANCH
 
-            if not config["is_builtin"]:
+            if not config["is_builtin"] and not config["no-install"]:
                 # Remove module for reinstall if no-cache set
                 self.check_cache(config)
 
