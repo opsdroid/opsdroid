@@ -13,6 +13,7 @@ from opsdroid.const import DEFAULT_CONFIG_PATH
 from opsdroid.memory import Memory
 from opsdroid.connector import Connector
 from opsdroid.database import Database
+from opsdroid.skill import Skill
 from opsdroid.loader import Loader
 from opsdroid.web import Web
 from opsdroid.parsers.always import parse_always
@@ -214,9 +215,19 @@ class OpsDroid():
         """
         for skill in skills:
             for _, func in skill["module"].__dict__.items():
+                if isinstance(func, type) and issubclass(func, Skill):
+                    skill_obj = func(self, skill['config'])
+
+                    for method in skill_obj.__dict__.values():
+                        if hasattr(method, 'skill'):
+                            self.skills.append(method)
+
+                    continue
+
                 if hasattr(func, "skill"):
                     func.config = skill['config']
                     self.skills.append(func)
+
         with contextlib.suppress(AttributeError):
             for skill in skills:
                 skill["module"].setup(self, self.config)
