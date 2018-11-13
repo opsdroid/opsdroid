@@ -214,7 +214,7 @@ class OpsDroid():
 
         """
         for skill in skills:
-            for _, func in skill["module"].__dict__.items():
+            for func in skill["module"].__dict__.values():
                 if isinstance(func, type) and issubclass(func, Skill) and func != Skill:
                     skill_obj = func(self, skill['config'])
 
@@ -230,12 +230,19 @@ class OpsDroid():
                     continue
 
                 if hasattr(func, "skill"):
+                    _LOGGER.warning(_("Function based skills are deprecated "
+                                      "and will be removed in a future "
+                                      "release. Please use class-based skills "
+                                      "instead."))
                     func.config = skill['config']
                     self.skills.append(func)
 
         with contextlib.suppress(AttributeError):
             for skill in skills:
                 skill["module"].setup(self, self.config)
+                _LOGGER.warning(_("<skill module>.setup() is deprecated and "
+                                  "will be removed in a future release. "
+                                  "Please use class-based skills instead."))
 
     def train_parsers(self, skills):
         """Train the parsers."""
