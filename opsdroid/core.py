@@ -219,6 +219,10 @@ class OpsDroid():
                     skill_obj = func(self, skill['config'])
 
                     for name in skill_obj.__dir__():
+                        # pylint: disable=broad-except Getting an attribute of an object might
+                        # raise any type of exceptions, for example within an external library
+                        # called from an object property.  Since we are only interested in skill
+                        # methods, we can safely ignore these.
                         try:
                             method = getattr(skill_obj, name)
                         except Exception:
