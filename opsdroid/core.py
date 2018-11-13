@@ -215,10 +215,15 @@ class OpsDroid():
         """
         for skill in skills:
             for _, func in skill["module"].__dict__.items():
-                if isinstance(func, type) and issubclass(func, Skill):
+                if isinstance(func, type) and issubclass(func, Skill) and func != Skill:
                     skill_obj = func(self, skill['config'])
 
-                    for method in skill_obj.__dict__.values():
+                    for name in skill_obj.__dir__():
+                        try:
+                            method = getattr(skill_obj, name)
+                        except Exception:
+                            continue
+
                         if hasattr(method, 'skill'):
                             self.skills.append(method)
 

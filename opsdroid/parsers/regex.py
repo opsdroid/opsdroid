@@ -32,7 +32,7 @@ async def parse_regex(opsdroid, skills, message):
                         "score": await calculate_score(
                             opts["expression"], opts["score_factor"]),
                         "skill": skill,
-                        "config": getattr(skill, 'config', getattr(skill, '__skill_attrs__', {}).get('config', None)),
+                        "config": skill.config,
                         "message": message
                     })
     return matched_skills
