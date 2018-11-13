@@ -72,6 +72,13 @@ class ConnectorShell(Connector):
         """Clear the prompt."""
         print("\r" + (" " * self.prompt_length) + "\r", end="", flush=True)
 
+    async def _parse_message(self, opsdroid):
+        """Parse user input."""
+        self.draw_prompt()
+        user_input = await self.async_input('')
+        message = Message(user_input, self.user, None, self)
+        await opsdroid.parse(message)
+
     async def connect(self, opsdroid):
         """Connect to the shell.
 
@@ -89,10 +96,7 @@ class ConnectorShell(Connector):
         """
         _LOGGER.debug(_("Connecting to shell"))
         while self.listening:
-            self.draw_prompt()
-            user_input = await self.async_input('')
-            message = Message(user_input, self.user, None, self)
-            await opsdroid.parse(message)
+            await self._parse_message(opsdroid)
 
     async def respond(self, message, room=None):
         """Respond with a message.
