@@ -94,6 +94,7 @@ Opsdroid comes with some built-in connectors out of the box. A connector is a mo
 
 The built-in connectors are:
 
+- [Shell](/connectors/shell.md)
 - [Facebook](/connectors/facebook.md)
 - [GitHub](/connectors/github.md)
 - [Rocket.Chat](/connectors/rocketchat.md)

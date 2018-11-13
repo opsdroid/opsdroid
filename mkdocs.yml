@@ -16,6 +16,7 @@ pages:
       - 'Adding connectors': 'extending/connectors.md'
       - 'Adding databases': 'extending/databases.md'
   - 'Connectors':
+      - 'Shell': 'connectors/shell.md'
       - 'Slack': 'connectors/slack.md'
       - 'Websocket': 'connectors/websocket.md'
       - 'Facebook': 'connectors/facebook.md'
