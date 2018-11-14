@@ -64,26 +64,12 @@ class TestConnectorShellAsync(asynctest.TestCase):
                 'bot-name': 'opsdroid'
             })
 
-    # async def test_async_input(self):
-    #     message = "Hello"
-    #     reader = amock.CoroutineMock()
-    #     writer = amock.CoroutineMock()
-    #
-    #     reader.readline.return_value = amock.CoroutineMock(
-    #         return_value=message.encode('utf8'))
-    #
-    #     with amock.patch(
-    #             'opsdroid.connector.shell.ConnectorShell.stdio') \
-    #             as mocked_stdio:
-    #
-    #         mocked_stdio.return_value = [reader, writer]
-    #
-    #         writer.write.set_result = message
-    #         writer.drain = amock.CoroutineMock()
-    #
-    #         test = await self.connector.async_input(message)
-    #
-    #         self.assertEqual(test, "Hello")
+    async def test_read_stdin(self):
+        with amock.patch(
+                'opsdroid.connector.shell.ConnectorShell.read_stdin') \
+                as mocked_read_stdin:
+            await self.connector.read_stdin()
+            self.assertTrue(mocked_read_stdin.called)
 
     async def test_connect(self):
         with OpsDroid() as opsdroid:
