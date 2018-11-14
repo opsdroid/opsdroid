@@ -3,7 +3,6 @@ import logging
 import os
 import sys
 import asyncio
-from asyncio.streams import StreamWriter, FlowControlMixin
 
 from opsdroid.connector import Connector
 from opsdroid.message import Message
@@ -24,42 +23,38 @@ class ConnectorShell(Connector):
         self.prompt_length = None
         self.listening = True
         self.reader = None
-        self.writer = None
 
         for name in ('LOGNAME', 'USER', 'LNAME', 'USERNAME'):
             user = os.environ.get(name)
             if user:
                 self.user = user
 
-    async def stdio(self):
-        """Create Standard I/O logic."""
+    async def read_stdin(self):
+        """Create a stream reader to read stdin asynchronously.
+
+        Returns:
+            class: asyncio.streams.StreamReader
+        """
         loop = asyncio.get_event_loop()
 
         self.reader = asyncio.StreamReader()
         reader_protocol = asyncio.StreamReaderProtocol(self.reader)
 
-        writer_transport, writer_protocol = await loop.connect_write_pipe(
-            FlowControlMixin, os.fdopen(0, 'wb'))
-
-        self.writer = StreamWriter(
-            writer_transport, writer_protocol, None, loop)
-
         await loop.connect_read_pipe(lambda: reader_protocol, sys.stdin)
 
-        return self.reader, self.writer
+        return self.reader
 
-    async def async_input(self, message):
-        """User input."""
-        if isinstance(message, str):
-            message = message.encode('utf8')
+    async def async_input(self):
+        """Read user input asynchronously from stdin.
 
-        if (self.reader, self.writer) == (None, None):
-            self.reader, self.writer = await self.stdio()
-
-        self.writer.write(message)
-        await self.writer.drain()
+        Returns:
+            string: A decoded string from user input.
+        """
+        if not self.reader:
+            self.reader = await self.read_stdin()
 
         line = await self.reader.readline()
+
         return line.decode('utf8').replace('\r', '').replace('\n', '')
 
     def draw_prompt(self):
@@ -75,7 +70,7 @@ class ConnectorShell(Connector):
     async def _parse_message(self, opsdroid):
         """Parse user input."""
         self.draw_prompt()
-        user_input = await self.async_input('')
+        user_input = await self.async_input()
         message = Message(user_input, self.user, None, self)
         await opsdroid.parse(message)
 
