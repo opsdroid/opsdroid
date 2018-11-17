@@ -4,6 +4,7 @@ import io
 import contextlib
 import asyncio
 import unittest
+import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock
 
@@ -76,6 +77,13 @@ class TestConnectorShellAsync(asynctest.TestCase):
             await self.connector.connect(opsdroid)
 
             self.assertTrue(self.connector.connect)
+
+    @amock.patch('opsdroid.connector.shell.ConnectorShell.read_stdin')
+    async def test_async_input(self, mocked_read):
+        mocked_read.readline.return_value.side_effect = 'hi'
+        with contextlib.suppress(AttributeError, TypeError):
+            await self.connector.async_input()
+            self.assertEqual(mocked_read, 'hi')
 
     async def test_parse_message(self):
 
