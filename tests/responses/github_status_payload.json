@@ -1,0 +1,295 @@
+{
+    "id": 5815600009,
+    "sha": "b32a39d57d34422362c06346220069b196e00f62",
+    "name": "opsdroid/opsdroid-audio",
+    "target_url": "https://travis-ci.org/opsdroid/opsdroid-audio/builds/455948125?utm_source=github_status&utm_medium=notification",
+    "context": "continuous-integration/travis-ci/push",
+    "description": "The Travis CI build is in progress",
+    "state": "pending",
+    "commit": {
+      "sha": "b32a39d57d34422362c06346220069b196e00f62",
+      "node_id": "MDY6Q29tbWl0ODM5Mjc2NjM6YjMyYTM5ZDU3ZDM0NDIyMzYyYzA2MzQ2MjIwMDY5YjE5NmUwMGY2Mg==",
+      "commit": {
+        "author": {
+          "name": "pyup.io bot",
+          "email": "github-bot@pyup.io",
+          "date": "2018-04-25T14:55:42Z"
+        },
+        "committer": {
+          "name": "Jacob Tomlinson",
+          "email": "jacobtomlinson@users.noreply.github.com",
+          "date": "2018-04-25T14:55:42Z"
+        },
+        "message": "Update pytest from 3.5.0 to 3.5.1 (#109)",
+        "tree": {
+          "sha": "b28528bd5d8c9660a23ef969486303a75b5100c5",
+          "url": "https://api.github.com/repos/opsdroid/opsdroid-audio/git/trees/b28528bd5d8c9660a23ef969486303a75b5100c5"
+        },
+        "url": "https://api.github.com/repos/opsdroid/opsdroid-audio/git/commits/b32a39d57d34422362c06346220069b196e00f62",
+        "comment_count": 0,
+        "verification": {
+          "verified": false,
+          "reason": "unsigned",
+          "signature": null,
+          "payload": null
+        }
+      },
+      "url": "https://api.github.com/repos/opsdroid/opsdroid-audio/commits/b32a39d57d34422362c06346220069b196e00f62",
+      "html_url": "https://github.com/opsdroid/opsdroid-audio/commit/b32a39d57d34422362c06346220069b196e00f62",
+      "comments_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/commits/b32a39d57d34422362c06346220069b196e00f62/comments",
+      "author": {
+        "login": "pyup-bot",
+        "id": 16239342,
+        "node_id": "MDQ6VXNlcjE2MjM5MzQy",
+        "avatar_url": "https://avatars0.githubusercontent.com/u/16239342?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/pyup-bot",
+        "html_url": "https://github.com/pyup-bot",
+        "followers_url": "https://api.github.com/users/pyup-bot/followers",
+        "following_url": "https://api.github.com/users/pyup-bot/following{/other_user}",
+        "gists_url": "https://api.github.com/users/pyup-bot/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/pyup-bot/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/pyup-bot/subscriptions",
+        "organizations_url": "https://api.github.com/users/pyup-bot/orgs",
+        "repos_url": "https://api.github.com/users/pyup-bot/repos",
+        "events_url": "https://api.github.com/users/pyup-bot/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/pyup-bot/received_events",
+        "type": "User",
+        "site_admin": false
+      },
+      "committer": {
+        "login": "jacobtomlinson",
+        "id": 1610850,
+        "node_id": "MDQ6VXNlcjE2MTA4NTA=",
+        "avatar_url": "https://avatars3.githubusercontent.com/u/1610850?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/jacobtomlinson",
+        "html_url": "https://github.com/jacobtomlinson",
+        "followers_url": "https://api.github.com/users/jacobtomlinson/followers",
+        "following_url": "https://api.github.com/users/jacobtomlinson/following{/other_user}",
+        "gists_url": "https://api.github.com/users/jacobtomlinson/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/jacobtomlinson/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/jacobtomlinson/subscriptions",
+        "organizations_url": "https://api.github.com/users/jacobtomlinson/orgs",
+        "repos_url": "https://api.github.com/users/jacobtomlinson/repos",
+        "events_url": "https://api.github.com/users/jacobtomlinson/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/jacobtomlinson/received_events",
+        "type": "User",
+        "site_admin": false
+      },
+      "parents": [
+        {
+          "sha": "6c79a4a8e0f1b65a39941a7ef736804b08c92a2c",
+          "url": "https://api.github.com/repos/opsdroid/opsdroid-audio/commits/6c79a4a8e0f1b65a39941a7ef736804b08c92a2c",
+          "html_url": "https://github.com/opsdroid/opsdroid-audio/commit/6c79a4a8e0f1b65a39941a7ef736804b08c92a2c"
+        }
+      ]
+    },
+    "branches": [
+      {
+        "name": "master",
+        "commit": {
+          "sha": "b32a39d57d34422362c06346220069b196e00f62",
+          "url": "https://api.github.com/repos/opsdroid/opsdroid-audio/commits/b32a39d57d34422362c06346220069b196e00f62"
+        }
+      },
+      {
+        "name": "pyup-update-astroid-1.5.3-to-2.0.4",
+        "commit": {
+          "sha": "d1842000c15200910e30806d3d90cd7597377a18",
+          "url": "https://api.github.com/repos/opsdroid/opsdroid-audio/commits/d1842000c15200910e30806d3d90cd7597377a18"
+        }
+      },
+      {
+        "name": "pyup-update-coveralls-1.3.0-to-1.5.1",
+        "commit": {
+          "sha": "362867f61a0e1d49310731d72a6116daf1100ef8",
+          "url": "https://api.github.com/repos/opsdroid/opsdroid-audio/commits/362867f61a0e1d49310731d72a6116daf1100ef8"
+        }
+      },
+      {
+        "name": "pyup-update-flake8-3.5.0-to-3.6.0",
+        "commit": {
+          "sha": "77d305afa6e7da4a1c6da1b96ceeea52eb439a9d",
+          "url": "https://api.github.com/repos/opsdroid/opsdroid-audio/commits/77d305afa6e7da4a1c6da1b96ceeea52eb439a9d"
+        }
+      },
+      {
+        "name": "pyup-update-google-api-python-client-1.6.6-to-1.7.4",
+        "commit": {
+          "sha": "955d578ce3ba1c6d4548c34d64fd16682b36258e",
+          "url": "https://api.github.com/repos/opsdroid/opsdroid-audio/commits/955d578ce3ba1c6d4548c34d64fd16682b36258e"
+        }
+      },
+      {
+        "name": "pyup-update-gtts-1.2.2-to-2.0.1",
+        "commit": {
+          "sha": "408df3a2cb290e2815a04d78a1dff878910fc25e",
+          "url": "https://api.github.com/repos/opsdroid/opsdroid-audio/commits/408df3a2cb290e2815a04d78a1dff878910fc25e"
+        }
+      },
+      {
+        "name": "pyup-update-pydocstyle-2.1.1-to-3.0.0",
+        "commit": {
+          "sha": "d1e4b25ad3c34222b1e54d43d541348a3b49b0f7",
+          "url": "https://api.github.com/repos/opsdroid/opsdroid-audio/commits/d1e4b25ad3c34222b1e54d43d541348a3b49b0f7"
+        }
+      },
+      {
+        "name": "pyup-update-pylint-1.7.5-to-2.1.1",
+        "commit": {
+          "sha": "226e0db99dc353f6dc7b7e63700bbedb13af5751",
+          "url": "https://api.github.com/repos/opsdroid/opsdroid-audio/commits/226e0db99dc353f6dc7b7e63700bbedb13af5751"
+        }
+      },
+      {
+        "name": "pyup-update-pytest-3.5.1-to-4.0.0",
+        "commit": {
+          "sha": "56efcde3bb35c4c9e488146d1964e3e78e45b673",
+          "url": "https://api.github.com/repos/opsdroid/opsdroid-audio/commits/56efcde3bb35c4c9e488146d1964e3e78e45b673"
+        }
+      },
+      {
+        "name": "pyup-update-pytest-cov-2.5.1-to-2.6.0",
+        "commit": {
+          "sha": "d7dbd635df656c868452678644d5e9b3b9ef7033",
+          "url": "https://api.github.com/repos/opsdroid/opsdroid-audio/commits/d7dbd635df656c868452678644d5e9b3b9ef7033"
+        }
+      }
+    ],
+    "created_at": "2018-11-16T12:17:49+00:00",
+    "updated_at": "2018-11-16T12:17:49+00:00",
+    "repository": {
+      "id": 83927663,
+      "node_id": "MDEwOlJlcG9zaXRvcnk4MzkyNzY2Mw==",
+      "name": "opsdroid-audio",
+      "full_name": "opsdroid/opsdroid-audio",
+      "private": false,
+      "owner": {
+        "login": "opsdroid",
+        "id": 20677702,
+        "node_id": "MDEyOk9yZ2FuaXphdGlvbjIwNjc3NzAy",
+        "avatar_url": "https://avatars2.githubusercontent.com/u/20677702?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/opsdroid",
+        "html_url": "https://github.com/opsdroid",
+        "followers_url": "https://api.github.com/users/opsdroid/followers",
+        "following_url": "https://api.github.com/users/opsdroid/following{/other_user}",
+        "gists_url": "https://api.github.com/users/opsdroid/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/opsdroid/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/opsdroid/subscriptions",
+        "organizations_url": "https://api.github.com/users/opsdroid/orgs",
+        "repos_url": "https://api.github.com/users/opsdroid/repos",
+        "events_url": "https://api.github.com/users/opsdroid/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/opsdroid/received_events",
+        "type": "Organization",
+        "site_admin": false
+      },
+      "html_url": "https://github.com/opsdroid/opsdroid-audio",
+      "description": "🗣 A companion application for opsdroid which adds hotwords, speech recognition and audio responses.",
+      "fork": false,
+      "url": "https://api.github.com/repos/opsdroid/opsdroid-audio",
+      "forks_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/forks",
+      "keys_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/keys{/key_id}",
+      "collaborators_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/collaborators{/collaborator}",
+      "teams_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/teams",
+      "hooks_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/hooks",
+      "issue_events_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/issues/events{/number}",
+      "events_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/events",
+      "assignees_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/assignees{/user}",
+      "branches_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/branches{/branch}",
+      "tags_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/tags",
+      "blobs_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/git/blobs{/sha}",
+      "git_tags_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/git/tags{/sha}",
+      "git_refs_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/git/refs{/sha}",
+      "trees_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/git/trees{/sha}",
+      "statuses_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/statuses/{sha}",
+      "languages_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/languages",
+      "stargazers_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/stargazers",
+      "contributors_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/contributors",
+      "subscribers_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/subscribers",
+      "subscription_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/subscription",
+      "commits_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/commits{/sha}",
+      "git_commits_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/git/commits{/sha}",
+      "comments_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/comments{/number}",
+      "issue_comment_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/issues/comments{/number}",
+      "contents_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/contents/{+path}",
+      "compare_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/compare/{base}...{head}",
+      "merges_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/merges",
+      "archive_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/{archive_format}{/ref}",
+      "downloads_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/downloads",
+      "issues_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/issues{/number}",
+      "pulls_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/pulls{/number}",
+      "milestones_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/milestones{/number}",
+      "notifications_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/notifications{?since,all,participating}",
+      "labels_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/labels{/name}",
+      "releases_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/releases{/id}",
+      "deployments_url": "https://api.github.com/repos/opsdroid/opsdroid-audio/deployments",
+      "created_at": "2017-03-04T22:04:15Z",
+      "updated_at": "2018-05-21T17:47:36Z",
+      "pushed_at": "2018-11-16T12:17:48Z",
+      "git_url": "git://github.com/opsdroid/opsdroid-audio.git",
+      "ssh_url": "git@github.com:opsdroid/opsdroid-audio.git",
+      "clone_url": "https://github.com/opsdroid/opsdroid-audio.git",
+      "svn_url": "https://github.com/opsdroid/opsdroid-audio",
+      "homepage": null,
+      "size": 2453,
+      "stargazers_count": 3,
+      "watchers_count": 3,
+      "language": "Python",
+      "has_issues": true,
+      "has_projects": true,
+      "has_downloads": true,
+      "has_wiki": true,
+      "has_pages": false,
+      "forks_count": 2,
+      "mirror_url": null,
+      "archived": false,
+      "open_issues_count": 27,
+      "license": {
+        "key": "apache-2.0",
+        "name": "Apache License 2.0",
+        "spdx_id": "Apache-2.0",
+        "url": "https://api.github.com/licenses/apache-2.0",
+        "node_id": "MDc6TGljZW5zZTI="
+      },
+      "forks": 2,
+      "open_issues": 27,
+      "watchers": 3,
+      "default_branch": "master"
+    },
+    "organization": {
+      "login": "opsdroid",
+      "id": 20677702,
+      "node_id": "MDEyOk9yZ2FuaXphdGlvbjIwNjc3NzAy",
+      "url": "https://api.github.com/orgs/opsdroid",
+      "repos_url": "https://api.github.com/orgs/opsdroid/repos",
+      "events_url": "https://api.github.com/orgs/opsdroid/events",
+      "hooks_url": "https://api.github.com/orgs/opsdroid/hooks",
+      "issues_url": "https://api.github.com/orgs/opsdroid/issues",
+      "members_url": "https://api.github.com/orgs/opsdroid/members{/member}",
+      "public_members_url": "https://api.github.com/orgs/opsdroid/public_members{/member}",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/20677702?v=4",
+      "description": "An open source python chat-ops bot framework"
+    },
+    "sender": {
+      "login": "jacobtomlinson",
+      "id": 1610850,
+      "node_id": "MDQ6VXNlcjE2MTA4NTA=",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/1610850?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/jacobtomlinson",
+      "html_url": "https://github.com/jacobtomlinson",
+      "followers_url": "https://api.github.com/users/jacobtomlinson/followers",
+      "following_url": "https://api.github.com/users/jacobtomlinson/following{/other_user}",
+      "gists_url": "https://api.github.com/users/jacobtomlinson/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/jacobtomlinson/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/jacobtomlinson/subscriptions",
+      "organizations_url": "https://api.github.com/users/jacobtomlinson/orgs",
+      "repos_url": "https://api.github.com/users/jacobtomlinson/repos",
+      "events_url": "https://api.github.com/users/jacobtomlinson/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/jacobtomlinson/received_events",
+      "type": "User",
+      "site_admin": false
+    }
+  }
