@@ -34,6 +34,7 @@ class ConnectorShell(Connector):
 
         Returns:
             class: asyncio.streams.StreamReader
+
         """
         loop = asyncio.get_event_loop()
 
@@ -49,6 +50,7 @@ class ConnectorShell(Connector):
 
         Returns:
             string: A decoded string from user input.
+
         """
         if not self.reader:
             self.reader = await self.read_stdin()
