@@ -2,6 +2,7 @@
 import logging
 import os
 import sys
+import platform
 import asyncio
 
 from opsdroid.connector import Connector
@@ -23,6 +24,7 @@ class ConnectorShell(Connector):
         self.prompt_length = None
         self.listening = True
         self.reader = None
+        self.loop = asyncio.get_event_loop()
 
         for name in ('LOGNAME', 'USER', 'LNAME', 'USERNAME'):
             user = os.environ.get(name)
@@ -36,12 +38,12 @@ class ConnectorShell(Connector):
             class: asyncio.streams.StreamReader
 
         """
-        loop = asyncio.get_event_loop()
-
-        self.reader = asyncio.StreamReader()
+        self.reader = asyncio.StreamReader(loop=self.loop)
         reader_protocol = asyncio.StreamReaderProtocol(self.reader)
 
-        await loop.connect_read_pipe(lambda: reader_protocol, sys.stdin)
+        await self.loop.connect_read_pipe(
+            lambda: reader_protocol,
+            sys.stdin)
 
         return self.reader
 
@@ -52,12 +54,15 @@ class ConnectorShell(Connector):
             string: A decoded string from user input.
 
         """
-        if not self.reader:
-            self.reader = await self.read_stdin()
+        if platform.system() == 'Window':
+            line = await self.loop.run_in_executor(None, sys.stdin.readline)
+            return line
+        else:
+            if not self.reader:
+                self.reader = await self.read_stdin()
+            line = await self.reader.readline()
 
-        line = await self.reader.readline()
-
-        return line.decode('utf8').replace('\r', '').replace('\n', '')
+        return line.decode('utf8')
 
     def draw_prompt(self):
         """Draw the user input prompt."""
