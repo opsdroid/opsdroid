@@ -6,6 +6,8 @@ import re
 
 import aiohttp
 import websockets
+from emoji import demojize
+import slacker
 from aioslacker import Slacker
 
 from opsdroid.connector import Connector
@@ -110,17 +112,34 @@ class ConnectorSlack(Connector):
             await self.opsdroid.parse(Message(message["text"],
                                               user_info["name"],
                                               message["channel"],
-                                              self))
+                                              self,
+                                              raw_message=message))
 
     async def respond(self, message, room=None):
         """Respond with a message."""
-        _LOGGER.debug("Responding with: '" + message.text +
-                      "' in room " + message.room)
+        _LOGGER.debug("Responding with: '%s' in room  %s",
+                      message.text, message.room)
         await self.slacker.chat.post_message(message.room,
                                              message.text,
                                              as_user=False,
                                              username=self.bot_name,
                                              icon_emoji=self.icon_emoji)
+
+    async def react(self, message, emoji):
+        """React to a message."""
+        emoji = demojize(emoji)
+        _LOGGER.debug("Reacting with: %s", emoji)
+        try:
+            await self.slacker.reactions.post('reactions.add', data={
+                'name': emoji,
+                'channel': message.room,
+                'timestamp': message.raw_message['ts']
+            })
+        except slacker.Error as error:
+            if str(error) == 'invalid_name':
+                _LOGGER.warning('Slack does not support the emoji %s', emoji)
+            else:
+                raise
 
     async def keepalive_websocket(self):
         """Keep pinging the websocket to keep it alive."""
