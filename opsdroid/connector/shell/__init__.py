@@ -62,7 +62,7 @@ class ConnectorShell(Connector):
                 self.reader = await self.read_stdin()
             line = await self.reader.readline()
 
-        return line.decode('utf8')
+            return line.decode('utf8')
 
     def draw_prompt(self):
         """Draw the user input prompt."""
