@@ -104,7 +104,7 @@ class TestParserRecastAi(asynctest.TestCase):
                         }
                 }
                 skills = await recastai.parse_recastai(
-                    opsdroid, message, opsdroid.config['parsers'][0])
+                    opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
                 self.assertEqual(mock_skill, skills[0]["skill"])
 
     async def test_parse_recastai_raises(self):
@@ -148,7 +148,7 @@ class TestParserRecastAi(asynctest.TestCase):
                 }
 
                 skills = await recastai.parse_recastai(
-                    opsdroid, message, opsdroid.config['parsers'][0])
+                    opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
                 self.assertEqual(mock_skill, skills[0]["skill"])
 
             with amock.patch('opsdroid.core._LOGGER.exception') as logmock:
@@ -177,7 +177,7 @@ class TestParserRecastAi(asynctest.TestCase):
                     'message': 'Text is empty'
                 }
                 skills = await recastai.parse_recastai(
-                    opsdroid, message, opsdroid.config['parsers'][0])
+                    opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
                 self.assertFalse(skills)
 
     async def test_parse_recastai_no_intent(self):
@@ -218,7 +218,7 @@ class TestParserRecastAi(asynctest.TestCase):
                 with amock.patch(
                         'opsdroid.parsers.recastai._LOGGER.error') as logmock:
                     skills = await recastai.parse_recastai(
-                        opsdroid, message, opsdroid.config['parsers'][0])
+                        opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
                     self.assertTrue(logmock.called)
                     self.assertFalse(skills)
 
@@ -265,7 +265,7 @@ class TestParserRecastAi(asynctest.TestCase):
                         }
                 }
                 await recastai.parse_recastai(
-                    opsdroid, message, opsdroid.config['parsers'][0])
+                    opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
 
     async def test_parse_recastai_raise_ClientOSError(self):
         with OpsDroid() as opsdroid:
@@ -288,6 +288,6 @@ class TestParserRecastAi(asynctest.TestCase):
                     as mocked_call:
                 mocked_call.side_effect = ClientOSError()
                 await recastai.parse_recastai(
-                    opsdroid, message, opsdroid.config['parsers'][0])
+                    opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
 
             self.assertTrue(mocked_call.called)

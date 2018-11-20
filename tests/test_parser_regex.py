@@ -35,7 +35,7 @@ class TestParserRegex(asynctest.TestCase):
             mock_connector = amock.CoroutineMock()
             message = Message("Hello world", "user", "default", mock_connector)
 
-            skills = await parse_regex(opsdroid, message)
+            skills = await parse_regex(opsdroid, opsdroid.skills, message)
             self.assertEqual(mock_skill, skills[0]["skill"])
 
     async def test_parse_regex_priority(self):
@@ -51,7 +51,7 @@ class TestParserRegex(asynctest.TestCase):
             mock_connector = amock.CoroutineMock()
             message = Message("Hello world", "user", "default", mock_connector)
 
-            skills = await opsdroid.get_ranked_skills(message)
+            skills = await opsdroid.get_ranked_skills(opsdroid.skills, message)
             self.assertEqual(mock_skill_high, skills[0]["skill"])
 
     async def test_parse_regex_raises(self):
@@ -66,5 +66,5 @@ class TestParserRegex(asynctest.TestCase):
             message = Message("Hello world", "user",
                               "default", mock_connector)
 
-            skills = await parse_regex(opsdroid, message)
+            skills = await parse_regex(opsdroid, opsdroid.skills, message)
             self.assertEqual(mock_skill, skills[0]["skill"])

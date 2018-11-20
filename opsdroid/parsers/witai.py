@@ -28,7 +28,7 @@ async def call_witai(message, config):
         return result
 
 
-async def parse_witai(opsdroid, message, config):
+async def parse_witai(opsdroid, skills, message, config):
     """Parse a message against all witai skills."""
     matched_skills = []
     if 'access-token' in config:
@@ -57,7 +57,7 @@ async def parse_witai(opsdroid, message, config):
             return matched_skills
 
         if result:
-            for skill in opsdroid.skills:
+            for skill in skills:
                 for matcher in skill.matchers:
                     if "witai_intent" in matcher:
                         if (matcher['witai_intent'] in
