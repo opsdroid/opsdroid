@@ -40,7 +40,7 @@ class Database():
         """
         raise NotImplementedError
 
-    async def disconnect(self):
+    async def disconnect(self, opsdroid):
         """Disconnect from the database.
 
         This method should disconnect from the given database using a native

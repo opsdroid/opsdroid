@@ -1,36 +1,38 @@
 # Configuration reference
+
 **Quick Links:**
+
 - [Config file](#config-file)
 - [Reference](#reference)
-   - [Connector Modules](#connector-modules)
-   - [Database Modules](#database-modules)
-   - [Logging](#logging)
-   - [Installation Path](#installation-path)
-   - [Parsers](#parsers)
-   - [Skills](#skills)
-   - [Time Zone](#time-zone)
-   - [Language](#language)
-   - [Web Server](#web-server)
+  - [Connector Modules](#connector-modules)
+  - [Database Modules](#database-modules)
+  - [Logging](#logging)
+  - [Installation Path](#installation-path)
+  - [Parsers](#parsers)
+  - [Skills](#skills)
+  - [Time Zone](#time-zone)
+  - [Language](#language)
+  - [Web Server](#web-server)
 - [Module Options](#module-options)
-   - [Install Location](#install-location)
-   - [Git Repository](#git-repository)
-   - [Local Directory](#local-directory)
-   - [Disable Caching](#disable-caching)
-   - [Disable dependency install](#disable-dependency-install)
+  - [Install Location](#install-location)
+  - [Git Repository](#git-repository)
+  - [Local Directory](#local-directory)
+  - [Disable Caching](#disable-caching)
+  - [Disable dependency install](#disable-dependency-install)
 - [Environment Variables](#environment-variables)
 - [Include Additional Yaml Files](#include-additional-yaml-files)
 
-
 ## Config file
+
 For configuration, opsdroid uses a single YAML file named `configuration.yaml`. When you run opsdroid it will look for the file in the following places in order:
 
- * `./configuration.yaml`
- * `/etc/opsdroid/configuration.yaml`
- * one of the default locations:
-    * Mac: `~/Library/Application Support/opsdroid`
-    * Linux: `~/.local/share/opsdroid`
-    * Windows: `C:\<User>\<Application Data>\<Local Settings>\opsdroid\` or
-                `C:\Users\<User>\AppData\Local\opsdroid`
+- `./configuration.yaml`
+- `/etc/opsdroid/configuration.yaml`
+- one of the default locations:
+  - Mac: `~/Library/Application Support/opsdroid`
+  - Linux: `~/.local/share/opsdroid`
+  - Windows: `C:\<User>\<Application Data>\<Local Settings>\opsdroid\` or
+             `C:\Users\<User>\AppData\Local\opsdroid`
 
 _Note: If no file named `configuration.yaml` can be found on one of these folders one will be created for you taken from the [example configuration file](../opsdroid/configuration/example_configuration.yaml)_
 
@@ -91,14 +93,15 @@ Configuration options such as the `token` in the slack connector or the `host`, 
 Opsdroid comes with some built-in connectors out of the box. A connector is a module which is either installed as a plugin or built-in that connect opsdroid to a specific chat service.
 
 The built-in connectors are:
+
 - [Facebook](/connectors/facebook.md)
-- [Slack](/connectors/slack.md)
-- [Websockets](/connectors/websocket.md)
-- [Telegram](/connectors/telegram.md)
+- [GitHub](/connectors/github.md)
 - [Rocket.Chat](/connectors/rocketchat.md)
+- [Slack](/connectors/slack.md)
+- [Telegram](/connectors/telegram.md)
+- [Websockets](/connectors/websocket.md)
 
 _Note: More connectors will be added as built-in connectors into the opsdroid over time._
-
 
 _Config options of the connectors themselves differ between connectors, see the connector documentation for details._
 
@@ -118,7 +121,6 @@ Some connectors will allow you to specify a delay to simulate a real user, you j
 
 **Thinking Delay:** accepts a _int_, _float_ or a _list_ to delay reply by _x_ seconds.
 **Typing Delay:** accepts a _int_, _float_ or a _list_ to delay reply by _x_ seconds - this is calculated by the length of opsdroid response text so waiting time will be variable.
-
 
 Example:
 
@@ -141,7 +143,9 @@ Opsdroid comes with some built-in databases out of the box. Database modules whi
 Skills can store data in opsdroid's "memory", this is a dictionary which can be persisted in an external database.
 
 The built-in databases are:
-- [Mongo](/databases/mongo.md)
+
+- [Mongo DB](/databases/mongo.md)
+- [SQLite](/databases/sqlite.md)
 
 _Config options of the databases themselves differ between databases, see the database documentation for details._
 
@@ -178,9 +182,10 @@ All python logging levels are available in opsdroid. `level` can be set to `debu
 You may not want opsdroid to log to the console, for example, if you are using the shell connector. However, if running in a container you may want exactly that. Setting `console` to `true` or `false` will enable or disable console logging.
 
 The default locations for the logs are:
-* Mac: `/Users/<User>/Library/Logs/opsdroid`
-* Linux: `/home/<User>/.cache/opsdroid/log`
-* Windows: `C:\Users\<User>\AppData\Local\opsdroid\Logs\`
+
+- Mac: `/Users/<User>/Library/Logs/opsdroid`
+- Linux: `/home/<User>/.cache/opsdroid/log`
+- Windows: `C:\Users\<User>\AppData\Local\opsdroid\Logs\`
 
 If you are using one of the default paths for your log you can run the command `opsdroid -l` or `opsdroid --view-log` to open the logs with your favourite editor(taken from the environment variable `EDITOR`) or the default editor [vim](tutorials/introduction-vim.md).
 
@@ -197,8 +202,6 @@ skills:
   - name: hello
   - name: seen
 ```
-
-
 
 ### Installation Path
 
@@ -263,6 +266,7 @@ timezone: 'Europe/London'
 ```
 
 ### Language
+
 Configure the language to use opsdroid.
 
 To use opsdroid with a different language other than English you can specify it in your configuration.yaml. The language code needs to be in the standardized [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes).
@@ -395,7 +399,6 @@ _Note: Your environment variable names must consist of uppercase characters and 
 ## Include additional yaml files
 
 You can split the config into smaller modules by using the value `!include file.yaml` to import the contents of a yaml file into the main config.
-
 
 ```yaml
 skills: !include skills.yaml

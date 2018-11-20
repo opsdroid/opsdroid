@@ -19,6 +19,7 @@ pages:
       - 'Slack': 'connectors/slack.md'
       - 'Websocket': 'connectors/websocket.md'
       - 'Facebook': 'connectors/facebook.md'
+      - 'GitHub': 'connectors/github.md'
       - 'Telegram': 'connectors/telegram.md'
       - 'Rocket.Chat': 'connectors/rocketchat.md'
   - 'Databases':

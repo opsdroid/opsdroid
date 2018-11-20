@@ -10,6 +10,7 @@ import asynctest.mock as amock
 
 from opsdroid.database.sqlite import DatabaseSqlite, JSONEncoder, JSONDecoder
 from opsdroid.database.sqlite import register_json_type
+from opsdroid.__main__ import configure_lang
 
 
 class TestDatabaseSqlite(unittest.TestCase):
@@ -21,6 +22,7 @@ class TestDatabaseSqlite(unittest.TestCase):
 
     def setUp(self):
         self.loop = asyncio.new_event_loop()
+        configure_lang({})
 
     def test_init(self):
         """Test initialisation of database class.

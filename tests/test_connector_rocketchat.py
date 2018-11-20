@@ -9,6 +9,7 @@ from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.connector.rocketchat import RocketChat
 from opsdroid.message import Message
+from opsdroid.__main__ import configure_lang
 
 
 class TestRocketChat(unittest.TestCase):
@@ -16,6 +17,7 @@ class TestRocketChat(unittest.TestCase):
 
     def setUp(self):
         self.loop = asyncio.new_event_loop()
+        configure_lang({})
 
     def test_init(self):
         """Test that the connector is initialised properly."""
