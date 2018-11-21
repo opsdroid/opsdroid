@@ -41,7 +41,6 @@ class Web:
             int: returns value of port being used, config or default
 
         """
-
         try:
             port = self.config["port"]
         except KeyError:
@@ -62,7 +61,6 @@ class Web:
             string: returns address of host being used, config or default
 
         """
-
         try:
             host = self.config["host"]
         except KeyError:
@@ -80,7 +78,6 @@ class Web:
             string (or NoneType): returns ssl context of None.
 
         """
-
         try:
             ssl_config = self.config["ssl"]
             sslcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
@@ -121,7 +118,6 @@ class Web:
             json: returns json object with list of responses for the bot
 
         """
-
         return web.Response(text=json.dumps(result), status=status)
 
     def register_skill(self, opsdroid, skill, webhook):
@@ -158,7 +154,6 @@ class Web:
             dict: returns successful status code and greeting for the root page
 
         """
-
         return self.build_response(200, {
             "message": "Welcome to the opsdroid API"})
 
