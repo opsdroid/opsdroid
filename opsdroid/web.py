@@ -13,7 +13,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class Web:
-    """Web server for opsdroid."""
+    """Create class for opsdroid Web server."""
 
     def __init__(self, opsdroid):
         """Create web object."""
@@ -32,7 +32,16 @@ class Web:
 
     @property
     def get_port(self):
-        """Return port from config or the default."""
+        """Return port from config or the default.
+
+        Args:
+            self: instance method
+
+        Returns:
+            int: returns value of port being used, config or default
+
+        """
+
         try:
             port = self.config["port"]
         except KeyError:
@@ -44,7 +53,16 @@ class Web:
 
     @property
     def get_host(self):
-        """Return host from config or the default."""
+        """Return host from config or the default.
+
+        Args:
+            self: instance method
+
+        Returns:
+            string: returns address of host being used, config or default
+
+        """
+
         try:
             host = self.config["host"]
         except KeyError:
@@ -53,7 +71,16 @@ class Web:
 
     @property
     def get_ssl_context(self):
-        """Return the ssl context or None."""
+        """Return the ssl context or None.
+
+        Args:
+            self: instance method
+
+        Returns:
+            string (or NoneType): returns ssl context of None.
+
+        """
+
         try:
             ssl_config = self.config["ssl"]
             sslcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
@@ -85,7 +112,16 @@ class Web:
 
     @staticmethod
     def build_response(status, result):
-        """Build a json response object."""
+        """Build a json response object to power the bot reponses.
+
+        Args:
+            result: serialize obj as a JSON formated stream
+
+        Returns:
+            json: returns json object with list of responses for the bot
+
+        """
+
         return web.Response(text=json.dumps(result), status=status)
 
     def register_skill(self, opsdroid, skill, webhook):
@@ -113,12 +149,29 @@ class Web:
                     )
 
     async def web_index_handler(self, request):
-        """Handle root web request."""
+        """Handle root web request to opsdroid API.
+
+        Args:
+            request: web request to the root (index)
+
+        Returns:
+            dict: returns successful status code and greeting for the root page
+
+        """
+
         return self.build_response(200, {
             "message": "Welcome to the opsdroid API"})
 
     async def web_stats_handler(self, request):
-        """Handle stats request."""
+        """Handle stats request.
+
+        Args:
+            request: web request to render opsdroid stats
+
+        Returns:
+            dict: returns successful status code and dictionary with stats requested
+
+        """
         stats = self.opsdroid.stats
         try:
             stats["average_response_time"] = \
