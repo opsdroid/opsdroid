@@ -13,10 +13,10 @@ async def calculate_score(regex, score_factor):
     return (1 - (1 / ((len(regex) + 1) ** 2))) * score_factor
 
 
-async def parse_regex(opsdroid, message):
+async def parse_regex(opsdroid, skills, message):
     """Parse a message against all regex skills."""
     matched_skills = []
-    for skill in opsdroid.skills:
+    for skill in skills:
         for matcher in skill.matchers:
             if "regex" in matcher:
                 opts = matcher["regex"]

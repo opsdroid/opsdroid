@@ -31,7 +31,7 @@ async def call_recastai(message, config, lang=DEFAULT_LANGUAGE):
         return result
 
 
-async def parse_recastai(opsdroid, message, config):
+async def parse_recastai(opsdroid, skills, message, config):
     """Parse a message against all recastai intents."""
     matched_skills = []
     if 'access-token' in config:
@@ -60,7 +60,7 @@ async def parse_recastai(opsdroid, message, config):
             return matched_skills
 
         if result:
-            for skill in opsdroid.skills:
+            for skill in skills:
                 for matcher in skill.matchers:
                     if "recastai_intent" in matcher:
                         if (matcher["recastai_intent"] in

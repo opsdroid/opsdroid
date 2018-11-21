@@ -129,3 +129,22 @@ def extract_gist_id(gist_string):
 
     """
     return gist_string.split("/")[-1]
+
+
+def add_skill_attributes(func):
+    """Add the attributes which makes a function a skill.
+
+    Args:
+        func (func): Skill function.
+
+    Returns:
+        func: The skill function with the new attributes.
+
+    """
+    if not hasattr(func, 'skill'):
+        func.skill = True
+    if not hasattr(func, 'matchers'):
+        func.matchers = []
+    if not hasattr(func, 'constraints'):
+        func.constraints = []
+    return func
