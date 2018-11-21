@@ -282,10 +282,10 @@ class OpsDroid():
             _LOGGER.exception(_("Exception when running skill '%s' "),
                               str(config["name"]))
 
-    async def get_ranked_skills(self, message):
+    async def get_ranked_skills(self, skills, message):
         """Take a message and return a ranked list of matching skills."""
-        skills = []
-        skills = skills + await parse_regex(self, message)
+        ranked_skills = []
+        ranked_skills += await parse_regex(self, skills, message)
 
         if "parsers" in self.config:
             _LOGGER.debug(_("Processing parsers..."))
@@ -307,42 +307,65 @@ class OpsDroid():
                     ("enabled" not in dialogflow[0] or
                      dialogflow[0]["enabled"] is not False):
                 _LOGGER.debug(_("Checking dialogflow..."))
-                skills = skills + \
-                    await parse_dialogflow(self, message, dialogflow[0])
+                ranked_skills += \
+                    await parse_dialogflow(self, skills,
+                                           message, dialogflow[0])
 
             luisai = [p for p in parsers if p["name"] == "luisai"]
             if len(luisai) == 1 and \
                     ("enabled" not in luisai[0] or
                      luisai[0]["enabled"] is not False):
                 _LOGGER.debug("Checking luisai...")
-                skills = skills + \
-                    await parse_luisai(self, message, luisai[0])
+                ranked_skills += \
+                    await parse_luisai(self, skills,
+                                       message, luisai[0])
 
             recastai = [p for p in parsers if p["name"] == "recastai"]
             if len(recastai) == 1 and \
                     ("enabled" not in recastai[0] or
                      recastai[0]["enabled"] is not False):
                 _LOGGER.debug(_("Checking Recast.AI..."))
-                skills = skills + \
-                    await parse_recastai(self, message, recastai[0])
+                ranked_skills += \
+                    await parse_recastai(self, skills,
+                                         message, recastai[0])
 
             witai = [p for p in parsers if p["name"] == "witai"]
             if len(witai) == 1 and \
                     ("enabled" not in witai[0] or
                      witai[0]["enabled"] is not False):
                 _LOGGER.debug(_("Checking wit.ai..."))
-                skills = skills + \
-                    await parse_witai(self, message, witai[0])
+                ranked_skills += \
+                    await parse_witai(self, skills,
+                                      message, witai[0])
 
             rasanlu = [p for p in parsers if p["name"] == "rasanlu"]
             if len(rasanlu) == 1 and \
                     ("enabled" not in rasanlu[0] or
                      rasanlu[0]["enabled"] is not False):
                 _LOGGER.debug(_("Checking Rasa NLU..."))
-                skills = skills + \
-                    await parse_rasanlu(self, message, rasanlu[0])
+                ranked_skills += \
+                    await parse_rasanlu(self, skills,
+                                        message, rasanlu[0])
 
-        return sorted(skills, key=lambda k: k["score"], reverse=True)
+        return sorted(ranked_skills, key=lambda k: k["score"], reverse=True)
+
+    async def _constrain_skills(self, skills, message):
+        """Remove skills with contraints which prohibit them from running.
+
+        Args:
+            skills (list): A list of skills to be checked for constraints.
+            message (opsdroid.message.Message): The message currently being
+                parsed.
+
+        Returns:
+            list: A list of the skills which were not constrained.
+
+        """
+        for skill in skills:
+            for constraint in skill.constraints:
+                if not constraint(message):
+                    skills.remove(skill)
+        return skills
 
     async def parse(self, message):
         """Parse a string against all skills."""
@@ -354,7 +377,10 @@ class OpsDroid():
             tasks.append(
                 self.eventloop.create_task(parse_always(self, message)))
 
-            ranked_skills = await self.get_ranked_skills(message)
+            unconstrained_skills = await self._constrain_skills(
+                self.skills, message)
+            ranked_skills = await self.get_ranked_skills(
+                unconstrained_skills, message)
             if ranked_skills:
                 tasks.append(
                     self.eventloop.create_task(

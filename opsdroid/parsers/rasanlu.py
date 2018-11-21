@@ -151,7 +151,7 @@ async def call_rasanlu(text, config):
         return result
 
 
-async def parse_rasanlu(opsdroid, message, config):
+async def parse_rasanlu(opsdroid, skills, message, config):
     """Parse a message against all Rasa NLU skills."""
     matched_skills = []
     try:
@@ -176,7 +176,7 @@ async def parse_rasanlu(opsdroid, message, config):
         return matched_skills
 
     if result:
-        for skill in opsdroid.skills:
+        for skill in skills:
             for matcher in skill.matchers:
                 if "rasanlu_intent" in matcher:
                     if matcher['rasanlu_intent'] == result['intent']['name']:

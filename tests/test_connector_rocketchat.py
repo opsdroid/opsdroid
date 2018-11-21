@@ -48,6 +48,7 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
                 'user-id': 'userID',
                 'default_room': "test"
             }, opsdroid=OpsDroid())
+
         self.connector.latest_update = '2018-10-08T12:57:37.126Z'
 
     async def test_connect(self):

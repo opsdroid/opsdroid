@@ -35,7 +35,7 @@ async def call_dialogflow(message, config, lang=DEFAULT_LANGUAGE):
         return result
 
 
-async def parse_dialogflow(opsdroid, message, config):
+async def parse_dialogflow(opsdroid, skills, message, config):
     """Parse a message against all Dialogflow skills."""
     matched_skills = []
     if 'access-token' in config:
@@ -61,7 +61,7 @@ async def parse_dialogflow(opsdroid, message, config):
 
         if result:
 
-            for skill in opsdroid.skills:
+            for skill in skills:
                 for matcher in skill.matchers:
 
                     if "dialogflow_action" in matcher or \

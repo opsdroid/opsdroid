@@ -82,7 +82,7 @@ class TestParserDialogflow(asynctest.TestCase):
                         }
                     }
                 skills = await dialogflow.parse_dialogflow(
-                    opsdroid, message, opsdroid.config['parsers'][0])
+                    opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
                 self.assertEqual(mock_skill, skills[0]["skill"])
 
     async def test_parse_dialogflow_raises(self):
@@ -113,7 +113,7 @@ class TestParserDialogflow(asynctest.TestCase):
                         }
                     }
                 skills = await dialogflow.parse_dialogflow(
-                    opsdroid, message, opsdroid.config['parsers'][0])
+                    opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
                 self.assertEqual(mock_skill, skills[0]["skill"])
 
             with amock.patch('opsdroid.core._LOGGER.exception') as logmock:
@@ -145,7 +145,7 @@ class TestParserDialogflow(asynctest.TestCase):
                         }
                     }
                 skills = await dialogflow.parse_dialogflow(
-                    opsdroid, message, opsdroid.config['parsers'][0])
+                    opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
                 self.assertFalse(skills)
 
     async def test_parse_dialogflow_low_score(self):
@@ -176,7 +176,7 @@ class TestParserDialogflow(asynctest.TestCase):
                         }
                     }
                 await dialogflow.parse_dialogflow(
-                    opsdroid, message, opsdroid.config['parsers'][0])
+                    opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
 
             self.assertFalse(mock_skill.called)
 
@@ -198,7 +198,7 @@ class TestParserDialogflow(asynctest.TestCase):
                     as mocked_call:
                 mocked_call.side_effect = ClientOSError()
                 await dialogflow.parse_dialogflow(
-                    opsdroid, message, opsdroid.config['parsers'][0])
+                    opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
 
             self.assertFalse(mock_skill.called)
             self.assertTrue(mocked_call.called)
