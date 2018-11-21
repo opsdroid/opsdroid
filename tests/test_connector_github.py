@@ -41,11 +41,12 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid github connector class."""
 
     def setUp(self):
+        opsdroid = amock.CoroutineMock()
         configure_lang({})
         self.connector = ConnectorGitHub({
             'name': 'github',
             'token': 'test'
-        })
+        }, opsdroid=opsdroid)
 
     async def test_connect(self):
         opsdroid_mock = amock.CoroutineMock()
@@ -73,11 +74,11 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
 
-            await self.connector.connect(opsdroid)
+            await self.connector.connect()
             self.assertTrue(logmock.called)
 
     async def test_disconnect(self):
-        self.assertEqual(await self.connector.disconnect(None), None)
+        self.assertEqual(await self.connector.disconnect(), None)
 
     async def test_get_comment(self):
         """Test a comment create event creates a message and parses it."""
@@ -169,7 +170,7 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
         does not block.
 
         """
-        self.assertEqual(await self.connector.listen(None), None)
+        self.assertEqual(await self.connector.listen(), None)
 
     async def test_respond(self):
         with amock.patch('aiohttp.ClientSession.post') as patched_request:

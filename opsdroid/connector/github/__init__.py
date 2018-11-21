@@ -15,9 +15,9 @@ GITHUB_API_URL = "https://api.github.com"
 class ConnectorGitHub(Connector):
     """A connector for GitHub."""
 
-    def __init__(self, config):
+    def __init__(self, config, opsdroid=None):
         """Create the connector."""
-        super().__init__(config)
+        super().__init__(config, opsdroid=opsdroid)
         logging.debug("Loaded GitHub connector")
         self.config = config
         try:
@@ -27,12 +27,11 @@ class ConnectorGitHub(Connector):
                           "You must set 'token' in your config")
         self.name = self.config.get("name", "github")
         self.default_room = None
-        self.opsdroid = None
+        self.opsdroid = opsdroid
         self.github_username = None
 
-    async def connect(self, opsdroid):
+    async def connect(self):
         """Connect to GitHub."""
-        self.opsdroid = opsdroid
         url = '{}/user?access_token={}'.format(
             GITHUB_API_URL, self.github_token)
         async with aiohttp.ClientSession() as session:
@@ -50,11 +49,11 @@ class ConnectorGitHub(Connector):
             "/connector/{}".format(self.name),
             self.github_message_handler)
 
-    async def disconnect(self, opsdroid):
+    async def disconnect(self):
         """Disconnect from GitHub."""
         pass
 
-    async def listen(self, opsdroid):
+    async def listen(self):
         """Listen for new message."""
         pass  # Listening is handled by the aiohttp web server
 

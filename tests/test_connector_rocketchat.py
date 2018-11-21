@@ -47,7 +47,7 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
                 'token': 'test',
                 'user-id': 'userID',
                 'default_room': "test"
-            }, opsdroid=OpsDroid)
+            }, opsdroid=OpsDroid())
         self.connector.latest_update = '2018-10-08T12:57:37.126Z'
 
     async def test_connect(self):
@@ -148,7 +148,7 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(response)
 
-            await connector_group._get_message(opsdroid)
+            await connector_group._get_message()
 
             self.assertTrue(patched_request.called)
             self.assertTrue(mocked_parse_message.called)
@@ -181,12 +181,11 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
 
         with OpsDroid() as opsdroid, \
                 amock.patch('opsdroid.core.OpsDroid.parse') as mocked_parse:
-            await self.connector._parse_message(opsdroid, response)
+            await self.connector._parse_message(response)
             self.assertLogs('_LOGGER', 'debug')
             self.assertTrue(mocked_parse.called)
             self.assertEqual("2018-05-11T16:05:41.047Z",
                              self.connector.latest_update)
-
 
     async def test_listen(self):
         self.connector.side_effect = Exception()
@@ -201,7 +200,7 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
 
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(listen_response)
-            await self.connector._get_message(opsdroid)
+            await self.connector._get_message()
             self.assertLogs('_LOGGER', 'error')
             self.assertEqual(False, self.connector.listening)
 

@@ -6,7 +6,6 @@ import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock
 
-from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.connector.slack import ConnectorSlack
 from opsdroid.message import Message

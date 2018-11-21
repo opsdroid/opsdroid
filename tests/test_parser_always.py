@@ -16,13 +16,13 @@ class TestParserAlways(asynctest.TestCase):
         configure_lang({})
 
     async def getMockSkill(self):
-        async def mockedskill(opsdroid, config, message):
+        async def mockedskill(config, message):
             pass
         mockedskill.config = {}
         return mockedskill
 
     async def getRaisingMockSkill(self):
-        async def mockedskill(opsdroid, config, message):
+        async def mockedskill(config, message):
             raise Exception()
         mockedskill.config = {}
         return mockedskill

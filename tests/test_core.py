@@ -60,7 +60,6 @@ class TestCore(unittest.TestCase):
 
     def test_run(self):
         with OpsDroid() as opsdroid:
-            mockconfig = {}, {}, {}
             opsdroid.is_running = amock.Mock(side_effect=[False, True, False])
             opsdroid.eventloop = mock.MagicMock()
             opsdroid.eventloop.run_until_complete = mock.Mock()
@@ -73,7 +72,6 @@ class TestCore(unittest.TestCase):
 
     def test_run_cancelled(self):
         with OpsDroid() as opsdroid:
-            mockconfig = {}, {}, {}
             opsdroid.is_running = amock.Mock(side_effect=[False, True, False])
             opsdroid.eventloop = mock.MagicMock()
             opsdroid.eventloop.run_until_complete = mock.Mock(side_effect=asyncio.CancelledError)
