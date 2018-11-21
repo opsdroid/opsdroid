@@ -76,10 +76,6 @@ welcome-message: true
 
 ## Connector modules
 connectors:
-
-  - name: shell
-    # optional
-    bot-name: "mybot" # default "opsdroid"
   
   - name: websocket
     # optional
@@ -87,7 +83,11 @@ connectors:
     max-connections: 10 # default is 10 users can be connected at once
     connection-timeout: 10 # default 10 seconds before requested socket times out
   
-  # Uncomment the connector(s) that you wish opsdroid to work on
+### Uncomment the connector(s) that you wish opsdroid to work on
+#
+#  - name: shell
+#    # optional
+#    bot-name: "mybot" # default "opsdroid"
 #
 #  ## Ciscospark (https://github.com/opsdroid/connector-ciscospark)
 #  - name: ciscospark
