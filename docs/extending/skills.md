@@ -106,7 +106,7 @@ async def remember(opsdroid, config, message):
     await message.respond(information)
 ```
 
-In the above example we have defined two skill functions. The first takes whatever the user says after the work "remember" and stores it in the database.
+In the above example we have defined two skill functions. The first takes whatever the user says after the word "remember" and stores it in the database.
 
 The second retrieves and prints out that text when the user says "remind me".
 

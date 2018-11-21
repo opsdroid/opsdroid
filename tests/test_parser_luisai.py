@@ -97,7 +97,7 @@ class TestParserLuisai(asynctest.TestCase):
                         "entities": []
                     }
                 skills = await luisai.parse_luisai(
-                    opsdroid, message, opsdroid.config['parsers'][0])
+                    opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
                 self.assertEqual(mock_skill, skills[0]["skill"])
 
     async def test_parse_luisai_nointents(self):
@@ -129,7 +129,7 @@ class TestParserLuisai(asynctest.TestCase):
                         "entities": []
                     }
                 skills = await luisai.parse_luisai(
-                    opsdroid, message, opsdroid.config['parsers'][0])
+                    opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
                 self.assertFalse(skills)
 
     async def test_parse_luisai_raises(self):
@@ -168,7 +168,7 @@ class TestParserLuisai(asynctest.TestCase):
                         "entities": []
                     }
                 skills = await luisai.parse_luisai(
-                    opsdroid, message, opsdroid.config['parsers'][0])
+                    opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
                 self.assertEqual(mock_skill, skills[0]["skill"])
 
             with amock.patch('opsdroid.core._LOGGER.exception') as logmock:
@@ -197,7 +197,7 @@ class TestParserLuisai(asynctest.TestCase):
                         "statusCode": 401
                     }
                 skills = await luisai.parse_luisai(
-                    opsdroid, message, opsdroid.config['parsers'][0])
+                    opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
                 self.assertFalse(skills)
 
     async def test_parse_luisai_low_score(self):
@@ -232,7 +232,7 @@ class TestParserLuisai(asynctest.TestCase):
                         ],
                         "entities": []
                     }
-                await luisai.parse_luisai(opsdroid, message,
+                await luisai.parse_luisai(opsdroid, opsdroid.skills, message,
                                           opsdroid.config['parsers'][0])
 
             self.assertFalse(mock_skill.called)
@@ -256,7 +256,7 @@ class TestParserLuisai(asynctest.TestCase):
             with amock.patch.object(luisai, 'call_luisai') as \
                     mocked_call:
                 mocked_call.side_effect = ClientOSError()
-                await luisai.parse_luisai(opsdroid, message,
+                await luisai.parse_luisai(opsdroid, opsdroid.skills, message,
                                           opsdroid.config['parsers'][0])
 
             self.assertFalse(mock_skill.called)

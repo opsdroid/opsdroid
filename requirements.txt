@@ -4,11 +4,12 @@ aiosqlite==0.8.0
 arrow==0.12.1
 Babel==2.6.0
 click==7.0
+emoji==0.5.1
 nbconvert==5.4.0
 nbformat==4.4.0
 pycron==1.0.0
 pyyaml==3.13
 websockets==7.0
 appdirs==1.4.3
-multidict==4.4.2
+multidict==4.5.0
 motor==2.0.0

@@ -26,7 +26,7 @@ class TestDatabaseBaseClassAsync(asynctest.TestCase):
     async def test_disconnect(self):
         database = Database({})
         try:
-            await database.disconnect()
+            await database.disconnect(None)
         except NotImplementedError:
             self.fail("disconnect() raised NotImplementedError unexpectedly!")
 

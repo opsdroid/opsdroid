@@ -29,7 +29,7 @@ async def call_luisai(message, config):
         return result
 
 
-async def parse_luisai(opsdroid, message, config):
+async def parse_luisai(opsdroid, skills, message, config):
     """Parse a message against all luisai skills."""
     matched_skills = []
     if 'appid' in config and 'appkey' in config:
@@ -55,7 +55,7 @@ async def parse_luisai(opsdroid, message, config):
                 _LOGGER.debug(_("luis.ai score lower than min-score"))
                 return matched_skills
 
-            for skill in opsdroid.skills:
+            for skill in skills:
                 for matcher in skill.matchers:
                     if "luisai_intent" in matcher:
                         try:

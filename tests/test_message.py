@@ -4,10 +4,14 @@ import asynctest.mock as amock
 
 from opsdroid.message import Message
 from opsdroid.connector import Connector
+from opsdroid.__main__ import configure_lang
 
 
 class TestMessage(asynctest.TestCase):
     """Test the opsdroid message class."""
+
+    async def setup(self):
+        configure_lang({})
 
     async def test_message(self):
         opsdroid = amock.CoroutineMock()
