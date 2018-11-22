@@ -158,13 +158,13 @@ class Web:
             "message": "Welcome to the opsdroid API"})
 
     async def web_stats_handler(self, request):
-        r"""Handle stats request.
+        """Handle stats request.
 
         Args:
             request: web request to render opsdroid stats
 
         Returns:
-            dict: returns successful status code and dictionary with \
+            dict: returns successful status code and dictionary with
                   stats requested
 
         """
