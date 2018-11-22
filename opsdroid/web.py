@@ -158,7 +158,7 @@ class Web:
             "message": "Welcome to the opsdroid API"})
 
     async def web_stats_handler(self, request):
-        """Handle stats request.
+        r"""Handle stats request.
 
         Args:
             request: web request to render opsdroid stats
