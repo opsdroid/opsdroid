@@ -3,18 +3,10 @@
 import logging
 
 from opsdroid.const import REGEX_SCORE_FACTOR
+from opsdroid.helper import add_skill_attributes
 
 
 _LOGGER = logging.getLogger(__name__)
-
-
-def add_skill_attributes(func):
-    """Add the attributes which makes a function a skill."""
-    if not hasattr(func, 'skill'):
-        func.skill = True
-    if not hasattr(func, 'matchers'):
-        func.matchers = []
-    return func
 
 
 def match_regex(regex, case_sensitive=True, score_factor=None):

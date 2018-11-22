@@ -147,7 +147,7 @@ class TestParserRasaNLU(asynctest.TestCase):
                     "text": "how's the weather outside"
                 }
                 skills = await rasanlu.parse_rasanlu(
-                    opsdroid, message, opsdroid.config['parsers'][0])
+                    opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
                 self.assertEqual(mock_skill, skills[0]["skill"])
 
     async def test_parse_rasanlu_raises(self):
@@ -195,7 +195,7 @@ class TestParserRasaNLU(asynctest.TestCase):
                     "text": "how's the weather outside"
                 }
                 skills = await rasanlu.parse_rasanlu(
-                    opsdroid, message, opsdroid.config['parsers'][0])
+                    opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
                 self.assertEqual(mock_skill, skills[0]["skill"])
 
             with amock.patch('opsdroid.core._LOGGER.exception') as logmock:
@@ -219,7 +219,7 @@ class TestParserRasaNLU(asynctest.TestCase):
                     as mocked_call_rasanlu:
                 mocked_call_rasanlu.return_value = "unauthorized"
                 skills = await rasanlu.parse_rasanlu(
-                    opsdroid, message, opsdroid.config['parsers'][0])
+                    opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
                 self.assertFalse(skills)
 
     async def test_parse_rasanlu_low_score(self):
@@ -262,7 +262,7 @@ class TestParserRasaNLU(asynctest.TestCase):
                     ],
                     "text": "how's the weather outside"
                 }
-                await rasanlu.parse_rasanlu(opsdroid, message,
+                await rasanlu.parse_rasanlu(opsdroid, opsdroid.skills, message,
                                             opsdroid.config['parsers'][0])
 
             self.assertFalse(mock_skill.called)
@@ -287,7 +287,7 @@ class TestParserRasaNLU(asynctest.TestCase):
                     "intent_ranking": [],
                     "text": "hi"
                 }
-                await rasanlu.parse_rasanlu(opsdroid, message,
+                await rasanlu.parse_rasanlu(opsdroid, opsdroid.skills, message,
                                             opsdroid.config['parsers'][0])
 
             self.assertFalse(mock_skill.called)
@@ -312,7 +312,7 @@ class TestParserRasaNLU(asynctest.TestCase):
                     "intent_ranking": [],
                     "text": "hi"
                 }
-                await rasanlu.parse_rasanlu(opsdroid, message,
+                await rasanlu.parse_rasanlu(opsdroid, opsdroid.skills, message,
                                             opsdroid.config['parsers'][0])
 
             self.assertFalse(mock_skill.called)
@@ -331,7 +331,7 @@ class TestParserRasaNLU(asynctest.TestCase):
 
             with amock.patch.object(rasanlu, 'call_rasanlu') as mocked_call:
                 mocked_call.side_effect = ClientOSError()
-                await rasanlu.parse_rasanlu(opsdroid, message,
+                await rasanlu.parse_rasanlu(opsdroid, opsdroid.skills, message,
                                             opsdroid.config['parsers'][0])
 
             self.assertFalse(mock_skill.called)

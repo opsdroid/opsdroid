@@ -35,6 +35,7 @@ pages:
       - 'Crontab': 'matchers/crontab.md'
       - 'Webhook': 'matchers/webhook.md'
       - 'Always': 'matchers/always.md'
+  - 'Constraints': 'constraints.md'
   - 'Contributing': 'contributing.md'
   - 'Releasing': 'project/making-a-release.md'
   - 'Maintainers': 'maintainers.md'
