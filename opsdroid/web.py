@@ -164,7 +164,8 @@ class Web:
             request: web request to render opsdroid stats
 
         Returns:
-            dict: returns successful status code and dictionary with stats requested
+            dict: returns successful status code and dictionary with \
+                  stats requested
 
         """
         stats = self.opsdroid.stats
