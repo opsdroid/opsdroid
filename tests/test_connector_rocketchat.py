@@ -30,10 +30,8 @@ class TestRocketChat(unittest.TestCase):
 
     def test_missing_token(self):
         """Test that attempt to connect without info raises an error."""
-        with mock.patch('opsdroid.connector.rocketchat._LOGGER.error') \
-                as logmock:
-            RocketChat({})
-            self.assertTrue(logmock.called)
+        RocketChat({})
+        self.assertLogs('_LOGGER', 'error')
 
 
 class TestConnectorRocketChatAsync(asynctest.TestCase):
@@ -75,16 +73,14 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
         }
 
         with OpsDroid() as opsdroid, \
-            amock.patch('aiohttp.ClientSession.get') as patched_request, \
-            amock.patch('opsdroid.connector.rocketchat._LOGGER.debug',) \
-                as logmock:
+            amock.patch('aiohttp.ClientSession.get') as patched_request:
 
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(connect_response)
 
             await self.connector.connect(opsdroid)
 
-            self.assertTrue(logmock.called)
+            self.assertLogs('_LOGGER', 'debug')
             self.assertNotEqual(200, patched_request.status)
             self.assertTrue(patched_request.called)
 
@@ -93,15 +89,13 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
         result.status = 401
 
         with OpsDroid() as opsdroid, \
-            amock.patch('aiohttp.ClientSession.get') as patched_request, \
-            amock.patch('opsdroid.connector.rocketchat._LOGGER.error',) \
-                as logmock:
+            amock.patch('aiohttp.ClientSession.get') as patched_request:
 
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
 
             await self.connector.connect(opsdroid)
-            self.assertTrue(logmock.called)
+            self.assertLogs('_LOGGER', 'error')
 
     async def test_get_message(self):
         connector_group = RocketChat({
@@ -208,9 +202,7 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
         post_response.status = 200
 
         with OpsDroid() as opsdroid, \
-            amock.patch('aiohttp.ClientSession.post') as patched_request, \
-            amock.patch('opsdroid.connector.rocketchat._LOGGER.debug') \
-                as logmock:
+            amock.patch('aiohttp.ClientSession.post') as patched_request:
 
             self.assertTrue(opsdroid.__class__.instances)
             test_message = Message(text="This is a test",
@@ -222,16 +214,14 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
             patched_request.return_value.set_result(post_response)
             await test_message.respond("Response")
             self.assertTrue(patched_request.called)
-            self.assertTrue(logmock.called)
+            self.assertLogs('_LOGGER', 'debug')
 
     async def test_respond_failure(self):
         post_response = amock.Mock()
         post_response.status = 401
 
         with OpsDroid() as opsdroid, \
-            amock.patch('aiohttp.ClientSession.post') as patched_request, \
-            amock.patch('opsdroid.connector.rocketchat._LOGGER.debug') \
-                as logmock:
+            amock.patch('aiohttp.ClientSession.post') as patched_request:
 
             self.assertTrue(opsdroid.__class__.instances)
             test_message = Message(text="This is a test",
@@ -242,4 +232,4 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(post_response)
             await test_message.respond("Response")
-            self.assertTrue(logmock.called)
+            self.assertLogs('_LOGGER', 'debug')

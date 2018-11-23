@@ -115,10 +115,10 @@ class TestParserDialogflow(asynctest.TestCase):
                     opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
                 self.assertEqual(mock_skill, skills[0]["skill"])
 
-            with amock.patch('opsdroid.core._LOGGER.exception') as logmock:
-                await opsdroid.run_skill(
-                    skills[0]["skill"], skills[0]["config"], message)
-                self.assertTrue(logmock.called)
+            await opsdroid.run_skill(
+                skills[0]["skill"], skills[0]["config"], message
+            )
+            self.assertLogs('_LOGGER', 'exception')
 
     async def test_parse_dialogflow_failure(self):
         with OpsDroid() as opsdroid:

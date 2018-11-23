@@ -151,10 +151,9 @@ class TestParserRecastAi(asynctest.TestCase):
                     opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
                 self.assertEqual(mock_skill, skills[0]["skill"])
 
-            with amock.patch('opsdroid.core._LOGGER.exception') as logmock:
-                await opsdroid.run_skill(
-                    skills[0]["skill"], skills[0]["config"], message)
-                self.assertTrue(logmock.called)
+            await opsdroid.run_skill(
+                skills[0]["skill"], skills[0]["config"], message)
+            self.assertLogs('_LOGGER', 'exception')
 
     async def test_parse_recastai_failure(self):
         with OpsDroid() as opsdroid:
@@ -215,12 +214,11 @@ class TestParserRecastAi(asynctest.TestCase):
                             'version': '2.10.1',
                             'timestamp': '2017-11-15T07:32:42.641604+00:00',
                             'status': 200}}
-                with amock.patch(
-                        'opsdroid.parsers.recastai._LOGGER.error') as logmock:
-                    skills = await recastai.parse_recastai(
-                        opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
-                    self.assertTrue(logmock.called)
-                    self.assertFalse(skills)
+
+                skills = await recastai.parse_recastai(
+                    opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
+                self.assertLogs('_LOGGER', 'error')
+                self.assertFalse(skills)
 
     async def test_parse_recastai_low_score(self):
         with OpsDroid() as opsdroid:
