@@ -541,8 +541,7 @@ class TestLoader(unittest.TestCase):
                   "repo": "https://github.com/rmccue/test-repository.git",
                   "branch": "master"}
         os.mkdir(config["install_path"])
-        with mock.patch('opsdroid.loader._LOGGER.debug'), \
-                mock.patch.object(loader, 'git_pull') as mockpull:
+        with mock.patch.object(loader, 'git_pull') as mockpull:
             loader._update_module(config)
             mockpull.assert_called_with(config["install_path"])
 
