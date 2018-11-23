@@ -47,7 +47,7 @@ class TestMatchers(asynctest.TestCase):
             self.assertTrue(asyncio.iscoroutinefunction(opsdroid.skills[1]))
             decorator = matchers.match_apiai_intent(intent)
             opsdroid.skills.append(decorator(await self.getMockSkill()))
-            self.assertassertLogs('_LOGGER', 'warning')
+            self.assertLogs('_LOGGER', 'warning')
 
     async def test_match_dialogflow(self):
         with OpsDroid() as opsdroid:
