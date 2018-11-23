@@ -79,6 +79,5 @@ class TestParserCrontab(asynctest.TestCase):
                 opsdroid.skills.append(match_crontab("* * * * *")(mock_skill))
                 self.assertEqual(len(opsdroid.skills), 1)
 
-                with amock.patch('opsdroid.core._LOGGER.exception') as logmock:
-                    await parse_crontab(opsdroid)
-                    self.assertTrue(logmock.called)
+                await parse_crontab(opsdroid)
+                self.assertLogs('_LOGGER', 'exception')

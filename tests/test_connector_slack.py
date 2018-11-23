@@ -209,9 +209,8 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         import slacker
         connector = ConnectorSlack({"api-token": "abc123"})
         connector.slacker.reactions.post = amock.CoroutineMock(side_effect=slacker.Error('invalid_name'))
-        with amock.patch('opsdroid.connector.slack._LOGGER.warning',) as logmock:
-            await connector.react(Message("test", "user", "room", connector, {'ts': 0}), "😀")
-        self.assertTrue(logmock.called)
+        await connector.react(Message("test", "user", "room", connector, {'ts': 0}), "😀")
+        self.assertLogs('_LOGGER', 'warning')
 
     async def test_react_unknown_error(self):
         import slacker

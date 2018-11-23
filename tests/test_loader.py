@@ -218,10 +218,9 @@ class TestLoader(unittest.TestCase):
         config = {}
         config['no-dep'] = True
 
-        with mock.patch('opsdroid.loader._LOGGER.debug') as logmock:
-            loader._install_module_dependencies(config)
-            self.assertTrue(logmock.called)
-            self.assertEqual(loader._install_module_dependencies(config), None)
+        loader._install_module_dependencies(config)
+        self.assertLogs('_LOGGER', 'debug')
+        self.assertEqual(loader._install_module_dependencies(config), None)
 
         with mock.patch.object(loader, '_install_module_dependencies') \
                 as nodep:
@@ -454,10 +453,9 @@ class TestLoader(unittest.TestCase):
                   "install_path":
                   os.path.join(self._tmp_dir, "test_default_remote_module"),
                   "branch": "master"}
-        with mock.patch('opsdroid.loader._LOGGER.debug') as logmock, \
-                mock.patch.object(loader, 'pip_install_deps') as mockdeps:
+        with mock.patch.object(loader, 'pip_install_deps') as mockdeps:
             loader._install_module(config)
-            self.assertTrue(logmock.called)
+            self.assertLogs('_LOGGER', 'debug')
             mockdeps.assert_called_with(
                     os.path.join(config["install_path"], "requirements.txt"))
 
@@ -515,9 +513,8 @@ class TestLoader(unittest.TestCase):
                   "install_path": os.path.join(
                       self._tmp_dir, "test_local_module_failure"),
                   "path": os.path.join(self._tmp_dir, "doesnotexist")}
-        with mock.patch('opsdroid.loader._LOGGER.error') as logmock:
-            loader._install_local_module(config)
-            self.assertTrue(logmock.called)
+        loader._install_local_module(config)
+        self.assertLogs('_LOGGER', 'error')
 
     def test_update_existing_local_module(self):
         opsdroid, loader = self.setup()
@@ -531,9 +528,8 @@ class TestLoader(unittest.TestCase):
         os.makedirs(config["install_path"], exist_ok=True, mode=0o777)
         os.makedirs(config["path"], exist_ok=True, mode=0o777)
 
-        with mock.patch('opsdroid.loader._LOGGER.debug') as logmock:
-            loader._update_module(config)
-            self.assertTrue(logmock.called)
+        loader._update_module(config)
+        self.assertLogs('_LOGGER', 'debug')
 
         shutil.rmtree(base_path, onerror=del_rw)
 

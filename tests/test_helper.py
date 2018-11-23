@@ -20,8 +20,7 @@ class TestHelper(unittest.TestCase):
             self.assertTrue(mock_remove.called)
 
     def test_move_config(self):
-        with mock.patch('opsdroid.helper._LOGGER.info') as logmock, \
-             mock.patch('os.mkdir') as mock_mkdir, \
+        with mock.patch('os.mkdir') as mock_mkdir, \
              mock.patch('os.path.isdir') as mock_isdir, \
              mock.patch('os.remove') as mock_remove:
 
@@ -32,7 +31,7 @@ class TestHelper(unittest.TestCase):
                 tempfile.gettempdir())
 
             self.assertTrue(mock_mkdir.called)
-            self.assertTrue(logmock.called)
+            self.assertLogs('_LOGGER', 'info')
             self.assertTrue(mock_remove.called)
 
     def test_file_is_ipython_notebook(self):
