@@ -62,6 +62,9 @@ class ConnectorSlack(Connector):
             _LOGGER.error(error)
             _LOGGER.error("Failed to connect to Slack, retrying in 10")
             await self.reconnect(10)
+        except Exception:
+            await self.slacker.close()
+            raise
 
     async def reconnect(self, delay=None):
         """Reconnect to the websocket."""
