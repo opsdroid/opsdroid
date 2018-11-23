@@ -94,7 +94,7 @@ class TestConnectorFacebookAsync(asynctest.TestCase):
 
             response = await connector.facebook_message_handler(mock_request)
             self.assertFalse(connector.opsdroid.parse.called)
-            self.assertLogs('opsdroid.connector.facebook._LOGGER', 'error')
+            self.assertLogs('_LOGGER', 'error')
             self.assertEqual(type(response), aiohttp.web.Response)
             self.assertEqual(response.status, 200)
 
