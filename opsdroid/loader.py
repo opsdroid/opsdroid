@@ -11,7 +11,7 @@ import subprocess
 import sys
 import tempfile
 import urllib.request
-from collections import Mapping
+from collections.abc import Mapping
 
 import yaml
 
@@ -47,20 +47,26 @@ class Loader:
     @staticmethod
     def import_module(config):
         """Import module namespace as variable and return it."""
-        # Check if the module can be imported and proceed with import
+        # Try to import the module from various locations, return the first
+        # successful import, or None if they all failed
+        #
+        # 1. try to import the module directly off PYTHONPATH
+        # 2. try to import a module with the given name in the module_path
+        # 3. try to import the module_path itself
+        module_spec = None
+        namespaces = [
+            config["module"],
+            config["module_path"] + '.' + config["name"],
+            config["module_path"],
+        ]
+        for namespace in namespaces:
+            try:
+                module_spec = importlib.util.find_spec(namespace)
+                if module_spec:
+                    break
+            except (ImportError, AttributeError):
+                continue
 
-        # Proceed only if config.name is specified
-        # and parent module can be imported
-        if config["name"] and importlib.util.find_spec(config["module_path"]):
-            module_spec = importlib.util.find_spec(config["module_path"] +
-                                                   "." + config["name"])
-            if module_spec:
-                module = Loader.import_module_from_spec(module_spec)
-                _LOGGER.debug(_("Loaded %s: %s"), config["type"],
-                              config["module_path"])
-                return module
-
-        module_spec = importlib.util.find_spec(config["module_path"])
         if module_spec:
             module = Loader.import_module_from_spec(module_spec)
             _LOGGER.debug(_("Loaded %s: %s"),
@@ -69,7 +75,6 @@ class Loader:
 
         _LOGGER.error(_("Failed to load %s: %s"),
                       config["type"], config["module_path"])
-
         return None
 
     @staticmethod
@@ -310,8 +315,10 @@ class Loader:
             if not isinstance(config, Mapping):
                 config = {}
                 config["name"] = module
+                config["module"] = ''
             else:
                 config["name"] = module['name']
+                config["module"] = module.get("module", '')
             config["type"] = modules_type
             config["is_builtin"] = self.is_builtin_module(config)
             config["module_path"] = self.build_module_import_path(config)
@@ -319,7 +326,9 @@ class Loader:
             if "branch" not in config:
                 config["branch"] = DEFAULT_MODULE_BRANCH
 
-            if not config["is_builtin"]:
+            # If the module isn't builtin, or isn't already on the
+            # python path, install it
+            if not (config["is_builtin"] or config["module"]):
                 # Remove module for reinstall if no-cache set
                 self.check_cache(config)
 
