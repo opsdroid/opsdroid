@@ -241,6 +241,7 @@ class TestLoader(unittest.TestCase):
         config["module_path"] = "os"
         config["name"] = "path"
         config["type"] = "system"
+        config["module"] = ""
 
         module = ld.Loader.import_module(config)
         self.assertIsInstance(module, ModuleType)
@@ -250,6 +251,7 @@ class TestLoader(unittest.TestCase):
         config["module_path"] = "os"
         config["name"] = ""
         config["type"] = "system"
+        config["module"] = ""
 
         module = ld.Loader.import_module(config)
         self.assertIsInstance(module, ModuleType)
@@ -259,9 +261,21 @@ class TestLoader(unittest.TestCase):
         config["module_path"] = "nonexistant"
         config["name"] = "module"
         config["type"] = "broken"
+        config["module"] = ""
 
         module = ld.Loader.import_module(config)
         self.assertEqual(module, None)
+
+    def test_import_module_from_path(self):
+        config = {}
+        config["module_path"] = ""
+        config["name"] = "module"
+        config["type"] = ""
+        config["module"] = "os.path"
+
+        module = ld.Loader.import_module(config)
+        self.assertIsInstance(module, ModuleType)
+
 
     def test_load_config(self):
         opsdroid, loader = self.setup()
