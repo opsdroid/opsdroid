@@ -1,7 +1,7 @@
 # Skills
 
-Skills are modules which define what actions opsdroid should perform based on different chat messages. They can be referenced in your `configuration.yaml`, [Config](../configuration-reference.md#config-file) file.
-Skills can be specified from opsdroid github repository, your own github, or from local path.
+Skills are modules which define what actions opsdroid should perform based on different chat messages. They can be referenced in your `configuration.yaml` [Config](../configuration-reference.md#config-file) file.
+Skills can be specified from the opsdroid github repository, your own github, from the local path, or imported directly from your PYTHONPATH.
 
 
 ```yaml
@@ -15,6 +15,9 @@ skills:
   ## From custom repository
   - name: mygithubskill
     path: https://github.com/me/mygithubskill.git
+  ## From PYTHONPATH
+  - name: myimportedskill
+    module: 'my.imported.skill'
   ## Hello world (https://github.com/opsdroid/skill-hello)
   - name: hello
 ```
