@@ -101,8 +101,12 @@ class ConnectorWebsocket(Connector):
         return websocket
 
     async def listen(self, opsdroid):
-        """Listen for and parse new messages."""
-        pass  # Listening is handled by the aiohttp web server
+        """Listen for and parse new messages.
+
+        Listening is handled by the aiohttp web server so
+        we don't need to do anything here.
+
+        """
 
     async def respond(self, message, room=None):
         """Respond with a message."""

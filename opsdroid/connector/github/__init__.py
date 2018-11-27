@@ -52,11 +52,13 @@ class ConnectorGitHub(Connector):
 
     async def disconnect(self, opsdroid):
         """Disconnect from GitHub."""
-        pass
 
     async def listen(self, opsdroid):
-        """Listen for new message."""
-        pass  # Listening is handled by the aiohttp web server
+        """Listen for new message.
+
+        Listening is handled by the aiohttp web server
+
+        """
 
     async def github_message_handler(self, request):
         """Handle event from GitHub."""

@@ -110,7 +110,6 @@ class Connector():
         Triggers the "user is typing" event if the chat service that
         opsdroid is connected to accepts it.
         """
-        pass
 
     async def disconnect(self, opsdroid):
         """Disconnect from the chat service.
@@ -122,4 +121,3 @@ class Connector():
             opsdroid (OpsDroid): An instance of the opsdroid core.
 
         """
-        pass
