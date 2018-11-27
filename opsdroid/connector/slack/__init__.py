@@ -62,6 +62,9 @@ class ConnectorSlack(Connector):
             _LOGGER.error(error)
             _LOGGER.error("Failed to connect to Slack, retrying in 10")
             await self.reconnect(10)
+        except Exception:
+            await self.disconnect()
+            raise
 
     async def reconnect(self, delay=None):
         """Reconnect to the websocket."""
@@ -72,6 +75,10 @@ class ConnectorSlack(Connector):
             await self.connect()
         finally:
             self.reconnecting = False
+
+    async def disconnect(self, opsdroid=None):
+        """Disconnect from Slack."""
+        await self.slacker.close()
 
     async def listen(self, opsdroid):
         """Listen for and parse new messages."""

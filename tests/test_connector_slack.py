@@ -78,6 +78,16 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         await connector.connect()
         self.assertTrue(connector.reconnect.called)
 
+    async def test_abort_on_connection_error(self):
+        connector = ConnectorSlack({"api-token": "abc123"})
+        connector.slacker.rtm.start = amock.CoroutineMock()
+        connector.slacker.rtm.start.side_effect = Exception()
+        connector.slacker.close = amock.CoroutineMock()
+
+        with self.assertRaises(Exception):
+            await connector.connect()
+        self.assertTrue(connector.slacker.close.called)
+
     async def test_listen_loop(self):
         """Test that listening consumes from the socket."""
         connector = ConnectorSlack({"api-token": "abc123"})
