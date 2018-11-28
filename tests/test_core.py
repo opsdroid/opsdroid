@@ -306,10 +306,9 @@ class TestCoreAsync(asynctest.TestCase):
                 self.assertEqual(len(tasks), 1)
 
                 # Once apiai parser stops working, remove this test!
-                with amock.patch('opsdroid.core._LOGGER.warning') as logmock:
-                    opsdroid.config["parsers"] = [{"name": "apiai"}]
-                    tasks = await opsdroid.parse(message)
-                    self.assertTrue(logmock.called)
+                opsdroid.config["parsers"] = [{"name": "apiai"}]
+                tasks = await opsdroid.parse(message)
+                self.assertLogs('_LOGGER', 'warning')
 
                 # But leave this bit
                 for task in tasks:

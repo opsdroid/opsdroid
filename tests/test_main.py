@@ -131,9 +131,8 @@ class TestMain(unittest.TestCase):
 
     def test_welcome_message(self):
         config = {"welcome-message": True}
-        with mock.patch('opsdroid.__main__._LOGGER.info') as logmock:
-            opsdroid.welcome_message(config)
-            self.assertTrue(logmock.called)
+        opsdroid.welcome_message(config)
+        self.assertLogs('_LOGGER', 'info')
 
     def test_welcome_exception(self):
         config = {}

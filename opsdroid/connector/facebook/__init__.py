@@ -95,9 +95,13 @@ class ConnectorFacebook(Connector):
         return aiohttp.web.Response(
             text=json.dumps("Bad verify token"), status=403)
 
+
     async def listen(self):
-        """Listen for and parse new messages."""
-        pass  # Listening is handled by the aiohttp web server
+        """Listen for new message.
+
+        Listening is handled by the aiohttp web server
+
+        """
 
     async def respond(self, message, room=None):
         """Respond with a message."""

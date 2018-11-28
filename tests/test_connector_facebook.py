@@ -96,15 +96,13 @@ class TestConnectorFacebookAsync(asynctest.TestCase):
         mock_request.json = amock.CoroutineMock()
         mock_request.json.return_value = req_ob
 
-        with OpsDroid() as opsdroid,  \
-                amock.patch('opsdroid.connector.facebook._LOGGER.error') \
-                        as logmock:
+        with OpsDroid() as opsdroid:
             connector.opsdroid = opsdroid
             connector.opsdroid.parse = amock.CoroutineMock()
 
             response = await connector.facebook_message_handler(mock_request)
             self.assertFalse(connector.opsdroid.parse.called)
-            self.assertTrue(logmock.called)
+            self.assertLogs('_LOGGER', 'error')
             self.assertEqual(type(response), aiohttp.web.Response)
             self.assertEqual(response.status, 200)
 

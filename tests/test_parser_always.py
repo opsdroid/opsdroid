@@ -67,6 +67,5 @@ class TestParserAlways(asynctest.TestCase):
             message = Message("Hello world", "user",
                               "default", mock_connector)
 
-            with amock.patch('opsdroid.core._LOGGER.exception') as logmock:
-                await parse_always(opsdroid, message)
-                self.assertTrue(logmock.called)
+            await parse_always(message)
+            self.assertLogs('_LOGGER', 'exception')

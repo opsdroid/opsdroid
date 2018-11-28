@@ -31,10 +31,8 @@ class TestConnectorGitHub(unittest.TestCase):
 
     def test_missing_token(self):
         """Test that attempt to connect without info raises an error."""
-        with mock.patch('opsdroid.connector.github._LOGGER.error') \
-                as logmock:
-            ConnectorGitHub({})
-            self.assertTrue(logmock.called)
+        ConnectorGitHub({})
+        self.assertLogs('_LOGGER', 'error')
 
 
 class TestConnectorGitHubAsync(asynctest.TestCase):
@@ -67,15 +65,13 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
         result.status = 401
 
         with OpsDroid() as opsdroid, \
-            amock.patch('aiohttp.ClientSession.get') as patched_request, \
-            amock.patch('opsdroid.connector.github._LOGGER.error',) \
-                as logmock:
+            amock.patch('aiohttp.ClientSession.get') as patched_request:
 
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
 
             await self.connector.connect()
-            self.assertTrue(logmock.called)
+            self.assertLogs('_LOGGER', 'error')
 
     async def test_disconnect(self):
         self.assertEqual(await self.connector.disconnect(), None)
