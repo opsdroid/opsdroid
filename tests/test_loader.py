@@ -278,18 +278,25 @@ class TestLoader(unittest.TestCase):
         self.assertIsInstance(module, ModuleType)
 
     def test_import_module_from_entrypoint(self):
-        distro = pkg_resources.Distribution()
-        ep = pkg_resources.EntryPoint("myep", "os.path", dist=distro)
-        fake = mock.MagicMock(return_value=(ep,))
-        pkg_resources.iter_entry_points = fake
+
         config = {}
         config["module_path"] = ""
         config["name"] = "myep"
         config["type"] = ""
         config["module"] = ""
+
+        distro = pkg_resources.Distribution()
+        ep = pkg_resources.EntryPoint("myep", "os.path", dist=distro)
         config["entrypoint"] = ep
-        module = ld.Loader.import_module(config)
-        self.assertIsInstance(module, ModuleType)
+
+        opsdroid, loader = self.setup()
+        loader.modules_directory = "."
+        modules = [{"name": "myep"}]
+
+        with mock.patch("opsdroid.loader.iter_entry_points") as mock_iter_entry_points:
+            mock_iter_entry_points.return_value = (ep,)
+            loaded = loader._load_modules("database", modules)
+            self.assertEqual(loaded[0]["config"]["name"], "myep")
 
     def test_load_config(self):
         opsdroid, loader = self.setup()
