@@ -67,5 +67,5 @@ class TestParserAlways(asynctest.TestCase):
             message = Message("Hello world", "user",
                               "default", mock_connector)
 
-            await parse_always(message)
+            await parse_always(opsdroid, message)
             self.assertLogs('_LOGGER', 'exception')

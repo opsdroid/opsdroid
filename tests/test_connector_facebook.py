@@ -134,7 +134,7 @@ class TestConnectorFacebookAsync(asynctest.TestCase):
         """Test that listen does nothing."""
         opsdroid = amock.CoroutineMock()
         connector = ConnectorFacebook({}, opsdroid=opsdroid)
-        await connector.listen(None)
+        await connector.listen()
 
     async def test_respond(self):
         """Test that responding sends a message."""

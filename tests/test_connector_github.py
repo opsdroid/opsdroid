@@ -56,7 +56,7 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
             })
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(mockresponse)
-            await self.connector.connect(opsdroid_mock)
+            await self.connector.connect()
             self.assertEqual(self.connector.github_username, "opsdroid")
             self.assertTrue(opsdroid_mock.web_server.web_app.router.add_post.called)
 

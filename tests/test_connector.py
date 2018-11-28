@@ -37,7 +37,7 @@ class TestConnectorBaseClass(unittest.TestCase):
     def test_listen(self):
         connector = Connector({}, opsdroid=OpsDroid())
         with self.assertRaises(NotImplementedError):
-            self.loop.run_until_complete(connector.listen({}))
+            self.loop.run_until_complete(connector.listen())
 
     def test_respond(self):
         connector = Connector({}, opsdroid=OpsDroid())

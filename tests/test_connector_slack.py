@@ -98,7 +98,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         connector.receive_from_websocket = amock.CoroutineMock()
         connector.receive_from_websocket.side_effect = Exception()
         with self.assertRaises(Exception):
-            await connector.listen(amock.CoroutineMock())
+            await connector.listen()
         self.assertTrue(connector.receive_from_websocket.called)
 
     async def test_receive_from_websocket(self):

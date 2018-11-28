@@ -185,7 +185,7 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
 
     async def test_listen(self):
         self.connector.side_effect = Exception()
-        await self.connector.listen(amock.CoroutineMock())
+        await self.connector.listen()
 
     async def test_get_message_failure(self):
         listen_response = amock.Mock()
