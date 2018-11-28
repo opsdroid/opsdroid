@@ -5,7 +5,6 @@ import importlib.util
 import json
 import logging
 import os
-import pkg_resources
 import re
 import shutil
 import subprocess
@@ -13,7 +12,7 @@ import sys
 import tempfile
 import urllib.request
 from collections.abc import Mapping
-
+from pkg_resources import iter_entry_points
 import yaml
 
 from opsdroid.helper import (
@@ -57,7 +56,8 @@ class Loader:
         # 4. try to import the module_path itself
 
         if config.get("entrypoint"):
-            _LOGGER.debug("Loading entry point-defined module for %s" % config["name"])
+            _LOGGER.debug(_("Loading entry point-defined module for %s"),
+                          config["name"])
             return config["entrypoint"].load()
 
         module_spec = None
@@ -311,11 +311,13 @@ class Loader:
             os.makedirs(DEFAULT_MODULE_DEPS_PATH)
         sys.path.append(DEFAULT_MODULE_DEPS_PATH)
 
-        # entry point group naming scheme: opsdroid_ + module type plural, eg. "opsdroid_databases"
+        # entry point group naming scheme: opsdroid_ + module type plural,
+        # eg. "opsdroid_databases"
         epname = "opsdroid_%ss" % modules_type
-        entry_points = {ep.name: ep for ep in pkg_resources.iter_entry_points(group=epname)}
+        entry_points = {ep.name: ep for ep in iter_entry_points(group=epname)}
         for epname in entry_points:
-            _LOGGER.debug("Found installed external package for %s '%s' support" % (modules_type, epname))
+            _LOGGER.debug(_("Found installed package for %s '%s' support"),
+                          modules_type, epname)
 
         for module in modules:
 
@@ -343,7 +345,9 @@ class Loader:
 
             # If the module isn't builtin, or isn't already on the
             # python path, install it
-            if not (config["is_builtin"] or config["module"] or config.get("entrypoint")):
+            if not (config["is_builtin"]
+                    or config["module"]
+                    or config.get("entrypoint")):
                 # Remove module for reinstall if no-cache set
                 self.check_cache(config)
 
