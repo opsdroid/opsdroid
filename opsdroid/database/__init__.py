@@ -47,7 +47,6 @@ class Database():
         python library for that database.
 
         """
-        pass
 
     async def put(self, key, data):
         """Store the data object in a database against the key.
