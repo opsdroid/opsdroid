@@ -8,6 +8,7 @@ import unittest
 import unittest.mock as mock
 from types import ModuleType
 
+import pkg_resources
 from opsdroid.__main__ import configure_lang
 from opsdroid import loader as ld
 from opsdroid.loader import Loader
@@ -276,6 +277,19 @@ class TestLoader(unittest.TestCase):
         module = ld.Loader.import_module(config)
         self.assertIsInstance(module, ModuleType)
 
+    def test_import_module_from_entrypoint(self):
+        distro = pkg_resources.Distribution()
+        ep = pkg_resources.EntryPoint("myep", "os.path", dist=distro)
+        fake = mock.MagicMock(return_value=(ep,))
+        pkg_resources.iter_entry_points = fake
+        config = {}
+        config["module_path"] = ""
+        config["name"] = "myep"
+        config["type"] = ""
+        config["module"] = ""
+        config["entrypoint"] = ep
+        module = ld.Loader.import_module(config)
+        self.assertIsInstance(module, ModuleType)
 
     def test_load_config(self):
         opsdroid, loader = self.setup()
