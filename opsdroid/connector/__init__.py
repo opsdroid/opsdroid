@@ -7,7 +7,7 @@ from opsdroid.message import Message  # NOQA # pylint: disable=unused-import
 _LOGGER = logging.getLogger(__name__)
 
 
-class Connector():
+class Connector:
     """A base connector.
 
     Connectors are used to interact with a given chat service.
@@ -46,7 +46,7 @@ class Connector():
         """
         raise NotImplementedError
 
-    async def listen(self, opsdroid):
+    async def listen(self):
         """Listen to chat service and parse all messages.
 
         This method should block the thread with an infinite loop and create
@@ -56,9 +56,6 @@ class Connector():
         As the method should include some kind of `while True` all messages
         from the chat service should be "awaited" asyncronously to avoid
         blocking the thread.
-
-        Args:
-            opsdroid (OpsDroid): An instance of the opsdroid core.
 
         """
         raise NotImplementedError

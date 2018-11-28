@@ -6,9 +6,9 @@ import re
 
 import aiohttp
 import websockets
-from emoji import demojize
 import slacker
 from aioslacker import Slacker
+from emoji import demojize
 
 from opsdroid.connector import Connector
 from opsdroid.message import Message
@@ -69,7 +69,7 @@ class ConnectorSlack(Connector):
         finally:
             self.reconnecting = False
 
-    async def listen(self, opsdroid):
+    async def listen(self):
         """Listen for and parse new messages."""
         while self.listening:
             await self.receive_from_websocket()

@@ -109,7 +109,7 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
 
         with OpsDroid() as opsdroid, \
                 amock.patch('opsdroid.core.OpsDroid.parse') as mocked_parse:
-            await self.connector._parse_message(opsdroid, response)
+            await self.connector._parse_message(response)
             self.assertTrue(mocked_parse.called)
 
     async def test_parse_message_unauthorized(self):
@@ -146,7 +146,7 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
         with OpsDroid() as opsdroid, \
                 amock.patch.object(self.connector, 'respond') \
                 as mocked_respond:
-            await self.connector._parse_message(opsdroid, response)
+            await self.connector._parse_message(response)
             self.assertTrue(mocked_respond.called)
             self.assertTrue(mocked_respond.called_with(message_text))
 
@@ -189,10 +189,10 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
 
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(listen_response)
-            await self.connector._get_messages(opsdroid)
+            await self.connector._get_messages()
             self.assertTrue(patched_request.called)
             self.assertLogs('_LOGGER', 'debug')
-            # self.assertTrue(mocked_parse_message.called)
+            self.assertTrue(mocked_parse_message.called)
 
     async def test_get_messages_failure(self):
         listen_response = amock.Mock()
@@ -203,13 +203,13 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
 
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(listen_response)
-            await self.connector._get_messages(opsdroid)
+            await self.connector._get_messages()
             self.assertLogs('_LOGGER', 'error')
 
     async def test_listen(self):
         self.connector.listening = amock.CoroutineMock()
         self.connector.listening.side_effect = Exception()
-        await self.connector.listen(amock.CoroutineMock())
+        await self.connector.listen()
 
     async def test_respond(self):
         post_response = amock.Mock()

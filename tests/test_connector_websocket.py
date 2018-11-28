@@ -52,7 +52,6 @@ class TestConnectorWebsocketAsync(asynctest.TestCase):
     async def test_disconnect(self):
         """Test the disconnect method closes all sockets."""
         connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
-        opsdroid = amock.CoroutineMock()
 
         connector.active_connections = {
             "connection1": amock.CoroutineMock(),
@@ -75,12 +74,12 @@ class TestConnectorWebsocketAsync(asynctest.TestCase):
         connector.max_connections = 1
         self.assertEqual(len(connector.available_connections), 0)
 
-        response = await connector.new_websocket_handler(None)
+        response = await connector.new_websocket_handler()
         self.assertTrue(isinstance(response, aiohttp.web.Response))
         self.assertEqual(len(connector.available_connections), 1)
         self.assertEqual(response.status, 200)
 
-        fail_response = await connector.new_websocket_handler(None)
+        fail_response = await connector.new_websocket_handler()
         self.assertTrue(isinstance(fail_response, aiohttp.web.Response))
         self.assertEqual(fail_response.status, 429)
 
@@ -92,7 +91,7 @@ class TestConnectorWebsocketAsync(asynctest.TestCase):
     async def test_listen(self):
         """Test that listen does nothing."""
         connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
-        await connector.listen(None)
+        await connector.listen()
 
     async def test_respond(self):
         """Test that responding sends a message down the correct websocket."""

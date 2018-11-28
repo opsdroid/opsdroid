@@ -53,7 +53,7 @@ class ConnectorWebsocket(Connector):
                 code=WSCloseCode.GOING_AWAY,
                 message='Server shutdown')
 
-    async def new_websocket_handler(self, request):
+    async def new_websocket_handler(self):
         """Handle for aiohttp creating websocket connections."""
         if len(self.active_connections) + len(self.available_connections) \
                 < self.max_connections and self.accepting_connections:
@@ -98,7 +98,7 @@ class ConnectorWebsocket(Connector):
 
         return websocket
 
-    async def listen(self, opsdroid):
+    async def listen(self):
         """Listen for and parse new messages."""
         pass  # Listening is handled by the aiohttp web server
 
