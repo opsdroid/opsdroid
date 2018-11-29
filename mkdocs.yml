@@ -12,9 +12,11 @@ pages:
       - 'Create a Weather Skill': 'tutorials/create-weather-skill.md'
       - 'Introduction to Vim': 'tutorials/introduction-vim.md'
   - 'Extending opsdroid':
+      - 'Introduction': 'extending/intro.md'
       - 'Adding skills': 'extending/skills.md'
       - 'Adding connectors': 'extending/connectors.md'
       - 'Adding databases': 'extending/databases.md'
+      - 'Extension packaging': 'extending/packaging.md'
   - 'Connectors':
       - 'Slack': 'connectors/slack.md'
       - 'Websocket': 'connectors/websocket.md'
