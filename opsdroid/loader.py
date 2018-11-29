@@ -55,7 +55,7 @@ class Loader:
         # 3. try to import a module with the given name in the module_path
         # 4. try to import the module_path itself
 
-        if config.get("entrypoint"):
+        if config["entrypoint"]:
             _LOGGER.debug(_("Loading entry point-defined module for %s"),
                           config["name"])
             return config["entrypoint"].load()
@@ -313,7 +313,7 @@ class Loader:
 
         # entry point group naming scheme: opsdroid_ + module type plural,
         # eg. "opsdroid_databases"
-        epname = "opsdroid_%ss" % modules_type
+        epname = "opsdroid_{}s".format(modules_type)
         entry_points = {ep.name: ep for ep in iter_entry_points(group=epname)}
         for epname in entry_points:
             _LOGGER.debug(_("Found installed package for %s '%s' support"),
@@ -338,6 +338,8 @@ class Loader:
             config["is_builtin"] = self.is_builtin_module(config)
             if config["name"] in entry_points:
                 config["entrypoint"] = entry_points[config["name"]]
+            else:
+                config["entrypoint"] = None
             config["module_path"] = self.build_module_import_path(config)
             config["install_path"] = self.build_module_install_path(config)
             if "branch" not in config:
@@ -347,7 +349,7 @@ class Loader:
             # python path, install it
             if not (config["is_builtin"]
                     or config["module"]
-                    or config.get("entrypoint")):
+                    or config["entrypoint"]):
                 # Remove module for reinstall if no-cache set
                 self.check_cache(config)
 
