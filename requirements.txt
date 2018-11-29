@@ -11,5 +11,5 @@ pycron==1.0.0
 pyyaml==3.13
 websockets==7.0
 appdirs==1.4.3
-multidict==4.5.1
+multidict==4.5.2
 motor==2.0.0
