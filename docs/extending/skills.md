@@ -1,33 +1,8 @@
-# Skills
-
-Skills are modules which define what actions opsdroid should perform based on different chat messages. They can be referenced in your `configuration.yaml` [Config](../configuration-reference.md#config-file) file.
-Skills can be specified from the opsdroid github repository, your own github, from the local path, or imported directly from your PYTHONPATH.
-
-
-```yaml
-skills:
-  ## From local folder
-  - name: myawesomeskill
-    path: /home/me/src/opsdroid-skills/myawesomeskill
-  ## From local file
-  - name: mysimpleskill
-    path: /home/me/src/opsdroid-skills/mysimpleskill.py
-  ## From custom repository
-  - name: mygithubskill
-    path: https://github.com/me/mygithubskill.git
-  ## From PYTHONPATH
-  - name: myimportedskill
-    module: 'my.imported.skill'
-  ## Hello world (https://github.com/opsdroid/skill-hello)
-  - name: hello
-```
-You should look into the [Getting Started guide](../tutorials/introduction.md) to know more about skills and opsdroid configuration file.
-
 # Creating skills
 
-Like all opsdroid modules skills are installed as a git repository. However skills are designed to be simpler than other modules to ensure that it is easy to get started.
+Skills are designed to be simpler than other modules to ensure that it is easy to get started.
 
-To create a skill you need to create a single python file in your repository with the `__init__.py` name. For example the skill `hello` has a single file called `__init__.py`.
+To create a skill you need to at minimum create a single python file in your repository with the `__init__.py` name. For example the skill `hello` has a single file called `__init__.py`.
 
 Within this file should be functions which are decorated with an opsdroid matcher function to let opsdroid know when to trigger the skill. Let's get started with an example.
 
