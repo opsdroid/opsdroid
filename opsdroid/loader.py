@@ -1,5 +1,7 @@
 """Class for loading in modules to OpsDroid."""
 
+# pylint: disable=too-many-branches
+
 import importlib
 import importlib.util
 import json
