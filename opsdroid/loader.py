@@ -55,7 +55,7 @@ class Loader:
         # 3. try to import a module with the given name in the module_path
         # 4. try to import the module_path itself
 
-        if config["entrypoint"]:
+        if config.get("entrypoint"):
             _LOGGER.debug(_("Loading entry point-defined module for %s"),
                           config["name"])
             return config["entrypoint"].load()
