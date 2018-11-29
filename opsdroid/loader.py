@@ -1,5 +1,7 @@
 """Class for loading in modules to OpsDroid."""
 
+# pylint: disable=too-many-branches
+
 import importlib
 import importlib.util
 import json
@@ -12,7 +14,7 @@ import sys
 import tempfile
 import urllib.request
 from collections.abc import Mapping
-
+from pkg_resources import iter_entry_points
 import yaml
 
 from opsdroid.helper import (
@@ -50,9 +52,16 @@ class Loader:
         # Try to import the module from various locations, return the first
         # successful import, or None if they all failed
         #
-        # 1. try to import the module directly off PYTHONPATH
-        # 2. try to import a module with the given name in the module_path
-        # 3. try to import the module_path itself
+        # 1. check for entry point for installed module
+        # 2. try to import the module directly off PYTHONPATH
+        # 3. try to import a module with the given name in the module_path
+        # 4. try to import the module_path itself
+
+        if config.get("entrypoint"):
+            _LOGGER.debug(_("Loading entry point-defined module for %s"),
+                          config["name"])
+            return config["entrypoint"].load()
+
         module_spec = None
         namespaces = [
             config["module"],
@@ -304,6 +313,14 @@ class Loader:
             os.makedirs(DEFAULT_MODULE_DEPS_PATH)
         sys.path.append(DEFAULT_MODULE_DEPS_PATH)
 
+        # entry point group naming scheme: opsdroid_ + module type plural,
+        # eg. "opsdroid_databases"
+        epname = "opsdroid_{}s".format(modules_type)
+        entry_points = {ep.name: ep for ep in iter_entry_points(group=epname)}
+        for epname in entry_points:
+            _LOGGER.debug(_("Found installed package for %s '%s' support"),
+                          modules_type, epname)
+
         for module in modules:
 
             # Set up module config
@@ -321,6 +338,10 @@ class Loader:
                 config["module"] = module.get("module", '')
             config["type"] = modules_type
             config["is_builtin"] = self.is_builtin_module(config)
+            if config["name"] in entry_points:
+                config["entrypoint"] = entry_points[config["name"]]
+            else:
+                config["entrypoint"] = None
             config["module_path"] = self.build_module_import_path(config)
             config["install_path"] = self.build_module_install_path(config)
             if "branch" not in config:
@@ -328,7 +349,9 @@ class Loader:
 
             # If the module isn't builtin, or isn't already on the
             # python path, install it
-            if not (config["is_builtin"] or config["module"]):
+            if not (config["is_builtin"]
+                    or config["module"]
+                    or config["entrypoint"]):
                 # Remove module for reinstall if no-cache set
                 self.check_cache(config)
 
