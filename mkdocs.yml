@@ -24,6 +24,7 @@ pages:
       - 'GitHub': 'connectors/github.md'
       - 'Telegram': 'connectors/telegram.md'
       - 'Rocket.Chat': 'connectors/rocketchat.md'
+      - 'Matrix': 'connectors/matrix.md'
   - 'Databases':
       - 'MongoDB': 'databases/mongo.md'
       - 'SQLite': 'databases/sqlite.md'
