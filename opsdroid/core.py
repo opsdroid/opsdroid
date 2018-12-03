@@ -237,7 +237,7 @@ class OpsDroid():
                 if isinstance(cls, type) and \
                    issubclass(cls, Connector) and\
                    cls is not Connector:
-                    connector = cls(connector_module["config"])
+                    connector = cls(connector_module["config"], self)
                     self.connectors.append(connector)
 
         if connectors:
