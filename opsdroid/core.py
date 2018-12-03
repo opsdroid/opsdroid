@@ -165,13 +165,13 @@ class OpsDroid():
 
         for connector in self.connectors:
             _LOGGER.info(_("Stopping connector %s..."), connector.name)
-            await connector.disconnect(self)
+            await connector.disconnect()
             self.connectors.remove(connector)
             _LOGGER.info(_("Stopped connector %s"), connector.name)
 
         for database in self.memory.databases:
             _LOGGER.info(_("Stopping database %s..."), database.name)
-            await database.disconnect(self)
+            await database.disconnect()
             self.memory.databases.remove(database)
             _LOGGER.info(_("Stopped database %s"), database.name)
 
