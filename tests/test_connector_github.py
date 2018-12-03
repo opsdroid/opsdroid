@@ -47,7 +47,6 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
         }, opsdroid=opsdroid)
 
     async def test_connect(self):
-        opsdroid_mock = amock.CoroutineMock()
         with amock.patch('aiohttp.ClientSession.get') as patched_request:
             mockresponse = amock.CoroutineMock()
             mockresponse.status = 200
@@ -58,7 +57,7 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
             patched_request.return_value.set_result(mockresponse)
             await self.connector.connect()
             self.assertEqual(self.connector.github_username, "opsdroid")
-            self.assertTrue(opsdroid_mock.web_server.web_app.router.add_post.called)
+            self.assertTrue(self.connector.opsdroid.web_server.web_app.router.add_post.called)
 
     async def test_connect_failure(self):
         result = amock.MagicMock()

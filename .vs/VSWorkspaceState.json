@@ -1,0 +1,10 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\opsdroid",
+    "\\opsdroid\\connector",
+    "\\opsdroid\\connector\\facebook"
+  ],
+  "SelectedNode": "\\opsdroid\\connector\\facebook\\__init__.py",
+  "PreviewInSolutionExplorer": false
+}
