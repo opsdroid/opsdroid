@@ -14,18 +14,19 @@ API_PATH = '/api/v1/'
 class RocketChat(Connector):
     """A connector for the chat service Rocket.Chat."""
 
-    def __init__(self, config):
+    def __init__(self, config, opsdroid=None):
         """Create the connector.
 
         Sets up logic for the Connector class, gets data from
             the config.yaml or adds default values.
 
         Args:
+            opsdroid (OpsDroid): An instance of opsdroid.core.
             config (dict): configuration settings from the
                 file config.yaml.
 
         """
-        super().__init__(config)
+        super().__init__(config, opsdroid=opsdroid)
         self.name = "rocket.chat"
         self.config = config
         self.default_room = config.get("default-room", "general")
@@ -54,7 +55,6 @@ class RocketChat(Connector):
         Rocket.Chat REST API. Uses the global variable API_PATH
         that points to current api version. (example: /api/v1/)
 
-
         Args:
             method (string): Api call endpoint.
 
@@ -64,7 +64,7 @@ class RocketChat(Connector):
         """
         return "{}{}{}".format(self.url, API_PATH, method)
 
-    async def connect(self, opsdroid):
+    async def connect(self):
         """Connect to the chat service.
 
         This method is used to text if the connection to the chat
@@ -72,9 +72,6 @@ class RocketChat(Connector):
         the response is a JSON format containing information
         about the user. Other than the user username, the
         information is not used.
-
-        Args:
-            opsdroid (OpsDroid): An instance of opsdroid core.
 
         """
         _LOGGER.info("Connecting to Rocket.Chat")
@@ -91,11 +88,10 @@ class RocketChat(Connector):
                 _LOGGER.debug("Connected to Rocket.Chat as %s",
                               json["username"])
 
-    async def _parse_message(self, opsdroid, response):
+    async def _parse_message(self, response):
         """Parse the message received.
 
         Args:
-            opsdroid (OpsDroid): An instance of opsdroid core.
             response (dict): Response returned by aiohttp.Client.
 
         """
@@ -108,19 +104,16 @@ class RocketChat(Connector):
             _LOGGER.debug("Received message from Rocket.Chat %s",
                           response['messages'][0]['msg'])
 
-            await opsdroid.parse(message)
+            await self.opsdroid.parse(message)
             self.latest_update = response['messages'][0]['ts']
 
-    async def _get_message(self, opsdroid):
+    async def _get_message(self):
         """Connect to the API and get messages.
 
         This method will only listen to either a channel or a
         private room called groups by Rocket.Chat. If a group
         is specified in the config then it takes priority
         over a channel.
-
-        Args:
-            opsdroid (OpsDroid): An instance of opsdroid.core.
 
         """
         if self.group:
@@ -144,9 +137,9 @@ class RocketChat(Connector):
                 self.listening = False
             else:
                 json = await resp.json()
-                await self._parse_message(opsdroid, json)
+                await self._parse_message(json)
 
-    async def listen(self, opsdroid):
+    async def listen(self):
         """Listen for and parse new messages.
 
         The method will sleep asynchronously at the end of
@@ -157,12 +150,9 @@ class RocketChat(Connector):
         If the channel didn't get any new messages opsdroid
         will still call the REST API, but won't do anything.
 
-        Args:
-            opsdroid (Opsdroid): An instance of opsdroid core.
-
         """
         while self.listening:
-            await self._get_message(opsdroid)
+            await self._get_message()
             await asyncio.sleep(self.update_interval)
 
     async def respond(self, message, room=None):

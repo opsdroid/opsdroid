@@ -14,7 +14,8 @@ class TestMessage(asynctest.TestCase):
         configure_lang({})
 
     async def test_message(self):
-        mock_connector = Connector({})
+        opsdroid = amock.CoroutineMock()
+        mock_connector = Connector({}, opsdroid=opsdroid)
         raw_message = {
             'text': 'Hello world',
             'user': 'user',
@@ -41,7 +42,8 @@ class TestMessage(asynctest.TestCase):
 
     async def test_response_effects(self):
         """Responding to a message shouldn't change the message."""
-        mock_connector = Connector({})
+        opsdroid = amock.CoroutineMock()
+        mock_connector = Connector({}, opsdroid=opsdroid)
         message_text = "Hello world"
         message = Message(message_text, "user", "default", mock_connector)
         with self.assertRaises(NotImplementedError):
@@ -49,12 +51,13 @@ class TestMessage(asynctest.TestCase):
         self.assertEqual(message_text, message.text)
 
     async def test_thinking_delay(self):
+        opsdroid = amock.CoroutineMock()
         mock_connector = Connector({
             'name': 'shell',
             'thinking-delay': 3,
             'type': 'connector',
             'module_path': 'opsdroid-modules.connector.shell'
-        })
+        }, opsdroid=opsdroid)
 
         with amock.patch(
                 'opsdroid.message.Message._thinking_delay') as logmock:
@@ -65,12 +68,13 @@ class TestMessage(asynctest.TestCase):
             self.assertTrue(logmock.called)
 
     async def test_thinking_sleep(self):
+        opsdroid = amock.CoroutineMock()
         mock_connector_int = Connector({
             'name': 'shell',
             'thinking-delay': 3,
             'type': 'connector',
             'module_path': 'opsdroid-modules.connector.shell'
-        })
+        }, opsdroid=opsdroid)
 
         with amock.patch('asyncio.sleep') as mocksleep_int:
             message = Message("hi", "user", "default", mock_connector_int)
@@ -86,7 +90,7 @@ class TestMessage(asynctest.TestCase):
             'thinking-delay': [1, 4],
             'type': 'connector',
             'module_path': 'opsdroid-modules.connector.shell'
-        })
+        }, opsdroid=opsdroid)
 
         with amock.patch('asyncio.sleep') as mocksleep_list:
             message = Message("hi", "user", "default", mock_connector_list)
@@ -96,12 +100,13 @@ class TestMessage(asynctest.TestCase):
             self.assertTrue(mocksleep_list.called)
 
     async def test_typing_delay(self):
+        opsdroid = amock.CoroutineMock()
         mock_connector = Connector({
             'name': 'shell',
             'typing-delay': 0.3,
             'type': 'connector',
             'module_path': 'opsdroid-modules.connector.shell'
-        })
+        }, opsdroid=opsdroid)
         with amock.patch(
                 'opsdroid.message.Message._typing_delay') as logmock:
             with amock.patch('asyncio.sleep') as mocksleep:
@@ -119,7 +124,7 @@ class TestMessage(asynctest.TestCase):
             'typing-delay': [1, 4],
             'type': 'connector',
             'module_path': 'opsdroid-modules.connector.shell'
-        })
+        }, opsdroid=opsdroid)
 
         with amock.patch('asyncio.sleep') as mocksleep_list:
             message = Message("hi", "user", "default", mock_connector_list)
@@ -129,12 +134,13 @@ class TestMessage(asynctest.TestCase):
             self.assertTrue(mocksleep_list.called)
 
     async def test_typing_sleep(self):
+        opsdroid = amock.CoroutineMock()
         mock_connector = Connector({
             'name': 'shell',
             'typing-delay': 6,
             'type': 'connector',
             'module_path': 'opsdroid-modules.connector.shell'
-        })
+        }, opsdroid=opsdroid)
         with amock.patch('asyncio.sleep') as mocksleep:
             message = Message("hi", "user", "default", mock_connector)
             with self.assertRaises(NotImplementedError):
@@ -143,11 +149,12 @@ class TestMessage(asynctest.TestCase):
             self.assertTrue(mocksleep.called)
 
     async def test_react(self):
+        opsdroid = amock.CoroutineMock()
         mock_connector = Connector({
             'name': 'shell',
             'thinking-delay': 2,
             'type': 'connector',
-        })
+        }, opsdroid=opsdroid)
         with amock.patch('asyncio.sleep') as mocksleep:
             message = Message("Hello world", "user", "default", mock_connector)
             reacted = await message.react("emoji")

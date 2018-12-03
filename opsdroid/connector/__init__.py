@@ -7,14 +7,14 @@ from opsdroid.message import Message  # NOQA # pylint: disable=unused-import
 _LOGGER = logging.getLogger(__name__)
 
 
-class Connector():
+class Connector:
     """A base connector.
 
     Connectors are used to interact with a given chat service.
 
     """
 
-    def __init__(self, config):
+    def __init__(self, config, opsdroid=None):
         """Create the connector.
 
         Set some basic properties from the connector config such as the name
@@ -29,26 +29,24 @@ class Connector():
         self.name = ""
         self.config = config
         self.default_room = None
+        self.opsdroid = opsdroid
 
     @property
     def configuration(self):
         """Class property used to access the connector config."""
         return self.config
 
-    async def connect(self, opsdroid):
+    async def connect(self):
         """Connect to chat service.
 
         This method should create a connection to the desired chat service.
         It should also be possible to call it multiple times in the event of
         being disconnected.
 
-        Args:
-            opsdroid (OpsDroid): An instance of the opsdroid core.
-
         """
         raise NotImplementedError
 
-    async def listen(self, opsdroid):
+    async def listen(self):
         """Listen to chat service and parse all messages.
 
         This method should block the thread with an infinite loop and create
@@ -58,9 +56,6 @@ class Connector():
         As the method should include some kind of `while True` all messages
         from the chat service should be "awaited" asyncronously to avoid
         blocking the thread.
-
-        Args:
-            opsdroid (OpsDroid): An instance of the opsdroid core.
 
         """
         raise NotImplementedError
@@ -100,7 +95,7 @@ class Connector():
         _LOGGER.debug(_("%s connector can't react to messages"), self.name)
         return False
 
-    async def user_typing(self, opsdroid, trigger):
+    async def user_typing(self, trigger):
         """Signals that opsdroid is typing.
 
         Args:
@@ -111,13 +106,10 @@ class Connector():
         opsdroid is connected to accepts it.
         """
 
-    async def disconnect(self, opsdroid):
+    async def disconnect(self):
         """Disconnect from the chat service.
 
         This method is called when opsdroid is exiting, it can be used to close
         connections or do other cleanup.
-
-        Args:
-            opsdroid (OpsDroid): An instance of the opsdroid core.
 
         """

@@ -6,9 +6,9 @@ import re
 
 import aiohttp
 import websockets
-from emoji import demojize
 import slacker
 from aioslacker import Slacker
+from emoji import demojize
 
 from opsdroid.connector import Connector
 from opsdroid.message import Message
@@ -20,13 +20,12 @@ _LOGGER = logging.getLogger(__name__)
 class ConnectorSlack(Connector):
     """A connector for Slack."""
 
-    def __init__(self, config):
+    def __init__(self, config, opsdroid=None):
         """Create the connector."""
-        super().__init__(config)
+        super().__init__(config, opsdroid=opsdroid)
         _LOGGER.debug("Starting Slack connector")
         self.name = "slack"
         self.config = config
-        self.opsdroid = None
         self.default_room = config.get("default-room", "#general")
         self.icon_emoji = config.get("icon-emoji", ':robot_face:')
         self.token = config["api-token"]
@@ -39,11 +38,8 @@ class ConnectorSlack(Connector):
         self.listening = True
         self._message_id = 0
 
-    async def connect(self, opsdroid=None):
+    async def connect(self):
         """Connect to the chat service."""
-        if opsdroid is not None:
-            self.opsdroid = opsdroid
-
         _LOGGER.info("Connecting to Slack")
 
         try:
@@ -76,11 +72,11 @@ class ConnectorSlack(Connector):
         finally:
             self.reconnecting = False
 
-    async def disconnect(self, opsdroid=None):
+    async def disconnect(self):
         """Disconnect from Slack."""
         await self.slacker.close()
 
-    async def listen(self, opsdroid):
+    async def listen(self):
         """Listen for and parse new messages."""
         while self.listening:
             await self.receive_from_websocket()

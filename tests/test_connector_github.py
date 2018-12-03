@@ -39,14 +39,14 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid github connector class."""
 
     def setUp(self):
+        opsdroid = amock.CoroutineMock()
         configure_lang({})
         self.connector = ConnectorGitHub({
             'name': 'github',
             'token': 'test'
-        })
+        }, opsdroid=opsdroid)
 
     async def test_connect(self):
-        opsdroid_mock = amock.CoroutineMock()
         with amock.patch('aiohttp.ClientSession.get') as patched_request:
             mockresponse = amock.CoroutineMock()
             mockresponse.status = 200
@@ -55,9 +55,9 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
             })
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(mockresponse)
-            await self.connector.connect(opsdroid_mock)
+            await self.connector.connect()
             self.assertEqual(self.connector.github_username, "opsdroid")
-            self.assertTrue(opsdroid_mock.web_server.web_app.router.add_post.called)
+            self.assertTrue(self.connector.opsdroid.web_server.web_app.router.add_post.called)
 
     async def test_connect_failure(self):
         result = amock.MagicMock()
@@ -69,11 +69,11 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
 
-            await self.connector.connect(opsdroid)
+            await self.connector.connect()
             self.assertLogs('_LOGGER', 'error')
 
     async def test_disconnect(self):
-        self.assertEqual(await self.connector.disconnect(None), None)
+        self.assertEqual(await self.connector.disconnect(), None)
 
     async def test_get_comment(self):
         """Test a comment create event creates a message and parses it."""
@@ -165,7 +165,7 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
         does not block.
 
         """
-        self.assertEqual(await self.connector.listen(None), None)
+        self.assertEqual(await self.connector.listen(), None)
 
     async def test_respond(self):
         with amock.patch('aiohttp.ClientSession.post') as patched_request:

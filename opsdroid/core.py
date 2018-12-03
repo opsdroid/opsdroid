@@ -237,17 +237,17 @@ class OpsDroid():
                 if isinstance(cls, type) and \
                    issubclass(cls, Connector) and\
                    cls is not Connector:
-                    connector = cls(connector_module["config"])
+                    connector = cls(connector_module["config"], self)
                     self.connectors.append(connector)
 
         if connectors:
             for connector in self.connectors:
                 if self.eventloop.is_running():
-                    self.eventloop.create_task(connector.connect(self))
+                    self.eventloop.create_task(connector.connect())
                 else:
-                    self.eventloop.run_until_complete(connector.connect(self))
+                    self.eventloop.run_until_complete(connector.connect())
             for connector in self.connectors:
-                task = self.eventloop.create_task(connector.listen(self))
+                task = self.eventloop.create_task(connector.listen())
                 self.connector_tasks.append(task)
         else:
             self.critical("All connectors failed to load", 1)

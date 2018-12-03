@@ -18,13 +18,12 @@ _LOGGER = logging.getLogger(__name__)
 class ConnectorWebsocket(Connector):
     """A connector which allows websocket connections."""
 
-    def __init__(self, config):
+    def __init__(self, config, opsdroid=None):
         """Create the connector."""
-        super().__init__(config)
+        super().__init__(config, opsdroid=opsdroid)
         _LOGGER.debug("Starting Websocket connector")
         self.name = "websocket"
         self.config = config
-        self.opsdroid = None
         self.default_room = None
         self.max_connections = self.config.get("max-connections", 10)
         self.connection_timeout = self.config.get("connection-timeout", 60)
@@ -33,9 +32,8 @@ class ConnectorWebsocket(Connector):
         self.available_connections = []
         self.bot_name = self.config.get("bot-name", 'opsdroid')
 
-    async def connect(self, opsdroid):
+    async def connect(self):
         """Connect to the chat service."""
-        self.opsdroid = opsdroid
         self.accepting_connections = True
 
         self.opsdroid.web_server.web_app.router.add_get(
@@ -46,7 +44,7 @@ class ConnectorWebsocket(Connector):
             "/connector/websocket",
             self.new_websocket_handler)
 
-    async def disconnect(self, opsdroid):
+    async def disconnect(self):
         """Disconnect from current sessions."""
         self.accepting_connections = False
         connections_to_close = self.active_connections.copy()
@@ -55,7 +53,7 @@ class ConnectorWebsocket(Connector):
                 code=WSCloseCode.GOING_AWAY,
                 message='Server shutdown')
 
-    async def new_websocket_handler(self, request):
+    async def new_websocket_handler(self):
         """Handle for aiohttp creating websocket connections."""
         if len(self.active_connections) + len(self.available_connections) \
                 < self.max_connections and self.accepting_connections:
@@ -100,7 +98,7 @@ class ConnectorWebsocket(Connector):
 
         return websocket
 
-    async def listen(self, opsdroid):
+    async def listen(self):
         """Listen for and parse new messages.
 
         Listening is handled by the aiohttp web server so

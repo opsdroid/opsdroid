@@ -5,6 +5,7 @@ import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock
 
+from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.connector.telegram import ConnectorTelegram
 from opsdroid.message import Message
@@ -23,13 +24,13 @@ class TestConnectorTelegram(unittest.TestCase):
         connector = ConnectorTelegram({
             'name': 'telegram',
             'token': 'test',
-        })
+        }, opsdroid=OpsDroid())
         self.assertEqual(None, connector.default_room)
         self.assertEqual("telegram", connector.name)
 
     def test_missing_token(self):
         """Test that attempt to connect without info raises an error."""
-        ConnectorTelegram({})
+        ConnectorTelegram({}, opsdroid=OpsDroid())
         self.assertLogs('_LOGGER', 'error')
 
 
@@ -37,11 +38,12 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid Telegram connector class."""
 
     def setUp(self):
+        configure_lang({})
         self.connector = ConnectorTelegram({
                 'name': 'telegram',
                 'token': 'bot:765test',
                 'whitelisted-users': ['user', 'test']
-            })
+            }, opsdroid=OpsDroid())
 
     async def test_connect(self):
         connect_response = amock.Mock()
@@ -62,7 +64,7 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
 
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(connect_response)
-            await self.connector.connect(opsdroid)
+            await self.connector.connect()
             self.assertLogs('_LOGGER', 'debug')
             self.assertNotEqual(200, patched_request.status)
             self.assertTrue(patched_request.called)
@@ -77,7 +79,7 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
 
-            await self.connector.connect(opsdroid)
+            await self.connector.connect()
             self.assertLogs('_LOGGER', 'error')
 
     async def test_parse_message(self):
@@ -107,7 +109,7 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
 
         with OpsDroid() as opsdroid, \
                 amock.patch('opsdroid.core.OpsDroid.parse') as mocked_parse:
-            await self.connector._parse_message(opsdroid, response)
+            await self.connector._parse_message(response)
             self.assertTrue(mocked_parse.called)
 
     async def test_parse_message_unauthorized(self):
@@ -144,7 +146,7 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
         with OpsDroid() as opsdroid, \
                 amock.patch.object(self.connector, 'respond') \
                 as mocked_respond:
-            await self.connector._parse_message(opsdroid, response)
+            await self.connector._parse_message(response)
             self.assertTrue(mocked_respond.called)
             self.assertTrue(mocked_respond.called_with(message_text))
 
@@ -187,10 +189,10 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
 
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(listen_response)
-            await self.connector._get_messages(opsdroid)
+            await self.connector._get_messages()
             self.assertTrue(patched_request.called)
             self.assertLogs('_LOGGER', 'debug')
-            # self.assertTrue(mocked_parse_message.called)
+            self.assertTrue(mocked_parse_message.called)
 
     async def test_get_messages_failure(self):
         listen_response = amock.Mock()
@@ -201,13 +203,13 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
 
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(listen_response)
-            await self.connector._get_messages(opsdroid)
+            await self.connector._get_messages()
             self.assertLogs('_LOGGER', 'error')
 
     async def test_listen(self):
         self.connector.listening = amock.CoroutineMock()
         self.connector.listening.side_effect = Exception()
-        await self.connector.listen(amock.CoroutineMock())
+        await self.connector.listen()
 
     async def test_respond(self):
         post_response = amock.Mock()

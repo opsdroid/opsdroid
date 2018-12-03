@@ -32,7 +32,8 @@ class TestParserDialogflow(asynctest.TestCase):
         return mockedskill
 
     async def test_call_dialogflow(self):
-        mock_connector = Connector({})
+        opsdroid = amock.CoroutineMock()
+        mock_connector = Connector({}, opsdroid=opsdroid)
         message = Message("Hello world", "user", "default", mock_connector)
         config = {'name': 'dialogflow', 'access-token': 'test'}
         result = amock.Mock()

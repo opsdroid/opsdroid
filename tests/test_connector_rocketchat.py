@@ -5,6 +5,7 @@ import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock
 
+from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.connector.rocketchat import RocketChat
 from opsdroid.message import Message
@@ -24,12 +25,13 @@ class TestRocketChat(unittest.TestCase):
             'name': 'rocket.chat',
             'access-token': 'test',
             'user-id': 'userID'
-        })
+        }, opsdroid=OpsDroid())
         self.assertEqual("general", connector.default_room)
         self.assertEqual("rocket.chat", connector.name)
 
     def test_missing_token(self):
         """Test that attempt to connect without info raises an error."""
+
         RocketChat({})
         self.assertLogs('_LOGGER', 'error')
 
@@ -38,12 +40,14 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid Slack connector class."""
 
     def setUp(self):
+        configure_lang({})
         self.connector = RocketChat({
                 'name': 'rocket.chat',
                 'token': 'test',
                 'user-id': 'userID',
                 'default_room': "test"
-            })
+            }, opsdroid=OpsDroid())
+
         self.connector.latest_update = '2018-10-08T12:57:37.126Z'
 
     async def test_connect(self):
@@ -78,7 +82,7 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(connect_response)
 
-            await self.connector.connect(opsdroid)
+            await self.connector.connect()
 
             self.assertLogs('_LOGGER', 'debug')
             self.assertNotEqual(200, patched_request.status)
@@ -94,7 +98,7 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
 
-            await self.connector.connect(opsdroid)
+            await self.connector.connect()
             self.assertLogs('_LOGGER', 'error')
 
     async def test_get_message(self):
@@ -103,7 +107,7 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
                 'token': 'test',
                 'user-id': 'userID',
                 'group': "test"
-            })
+            }, opsdroid=OpsDroid())
         response = amock.Mock()
         response.status = 200
         response.json = amock.CoroutineMock()
@@ -140,7 +144,7 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(response)
 
-            await connector_group._get_message(opsdroid)
+            await connector_group._get_message()
 
             self.assertTrue(patched_request.called)
             self.assertTrue(mocked_parse_message.called)
@@ -173,16 +177,15 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
 
         with OpsDroid() as opsdroid, \
                 amock.patch('opsdroid.core.OpsDroid.parse') as mocked_parse:
-            await self.connector._parse_message(opsdroid, response)
+            await self.connector._parse_message(response)
             self.assertLogs('_LOGGER', 'debug')
             self.assertTrue(mocked_parse.called)
             self.assertEqual("2018-05-11T16:05:41.047Z",
                              self.connector.latest_update)
 
-
     async def test_listen(self):
         self.connector.side_effect = Exception()
-        await self.connector.listen(amock.CoroutineMock())
+        await self.connector.listen()
 
     async def test_get_message_failure(self):
         listen_response = amock.Mock()
@@ -193,7 +196,7 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
 
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(listen_response)
-            await self.connector._get_message(opsdroid)
+            await self.connector._get_message()
             self.assertLogs('_LOGGER', 'error')
             self.assertEqual(False, self.connector.listening)
 

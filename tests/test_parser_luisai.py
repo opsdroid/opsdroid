@@ -32,7 +32,8 @@ class TestParserLuisai(asynctest.TestCase):
         return mockedskill
 
     async def test_call_luisai(self):
-        mock_connector = Connector({})
+        opsdroid = amock.CoroutineMock()
+        mock_connector = Connector({}, opsdroid=opsdroid)
         message = Message("schedule meeting", "user", "default",
                           mock_connector)
         config = {'name': 'luisai',

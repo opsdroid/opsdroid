@@ -14,7 +14,7 @@ _LOGGER = logging.getLogger(__name__)
 class ConnectorTelegram(Connector):
     """A connector the the char service Telegram."""
 
-    def __init__(self, config):
+    def __init__(self, config, opsdroid=None):
         """Create the connector.
 
         Args:
@@ -23,8 +23,9 @@ class ConnectorTelegram(Connector):
 
         """
         _LOGGER.debug("Loaded telegram connector")
-        super().__init__(config)
+        super().__init__(config, opsdroid=opsdroid)
         self.name = "telegram"
+        self.opsdroid = opsdroid
         self.latest_update = None
         self.default_room = None
         self.listening = True
@@ -42,7 +43,7 @@ class ConnectorTelegram(Connector):
         """Build the url to connect to the API.
 
         Args:
-            methods (string): API call end point.
+            method (string): API call end point.
 
         Return:
             String that represents the full API url.
@@ -50,15 +51,12 @@ class ConnectorTelegram(Connector):
         """
         return "https://api.telegram.org/bot{}/{}".format(self.token, method)
 
-    async def connect(self, opsdroid):
+    async def connect(self):
         """Connect to Telegram.
 
         This method is not an authorization call. It basically
         checks if the API token was provided and makes an API
         call to Telegram and evaluates the status of the call.
-
-        Args:
-            opsdroid (OpsDroid): An instance of opsdroid core.
 
         """
         _LOGGER.debug("Connecting to telegram")
@@ -75,7 +73,7 @@ class ConnectorTelegram(Connector):
                 _LOGGER.debug("Connected to telegram as %s",
                               json["result"]["username"])
 
-    async def _parse_message(self, opsdroid, response):
+    async def _parse_message(self, response):
         """Handle logic to parse a received message.
 
         Since everyone can send a private message to any user/bot
@@ -90,8 +88,8 @@ class ConnectorTelegram(Connector):
         yet) with the method self._get_messages().
 
         Args:
-            opsdroid (OpsDroid): An instance of opsdroid core.
             response (dict): Response returned by aiohttp.ClientSession.
+
         """
         for result in response["result"]:
             _LOGGER.debug(result)
@@ -106,14 +104,14 @@ class ConnectorTelegram(Connector):
 
                 if not self.whitelisted_users or \
                         user in self.whitelisted_users:
-                    await opsdroid.parse(message)
+                    await self.opsdroid.parse(message)
                 else:
                     message.text = "Sorry, you're not allowed " \
                                    "to speak with this bot."
                     await self.respond(message)
                 self.latest_update = result["update_id"] + 1
 
-    async def _get_messages(self, opsdroid):
+    async def _get_messages(self):
         """Connect to the Telegram API.
 
         Uses an aiohttp ClientSession to connect to Telegram API
@@ -124,9 +122,6 @@ class ConnectorTelegram(Connector):
         message this value needs to be increased by 1 the next time
         the API is called. If no new messages exists the API will just
         return an empty {}.
-
-        Args:
-            opsdroid (OpsDroid): An instance of opsdroid core.
 
         """
         async with aiohttp.ClientSession() as session:
@@ -142,11 +137,10 @@ class ConnectorTelegram(Connector):
 
             else:
                 json = await resp.json()
-                # _LOGGER.debug(json)
 
-                await self._parse_message(opsdroid, json)
+                await self._parse_message(json)
 
-    async def listen(self, opsdroid):
+    async def listen(self):
         """Listen for and parse new messages.
 
         The bot will always listen to all opened chat windows,
@@ -164,7 +158,7 @@ class ConnectorTelegram(Connector):
 
         """
         while self.listening:
-            await self._get_messages(opsdroid)
+            await self._get_messages()
 
             await asyncio.sleep(self.update_interval)
 
