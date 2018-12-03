@@ -247,7 +247,7 @@ class OpsDroid():
                 else:
                     self.eventloop.run_until_complete(connector.connect())
             for connector in self.connectors:
-                task = self.eventloop.create_task(connector.listen(self))
+                task = self.eventloop.create_task(connector.listen())
                 self.connector_tasks.append(task)
         else:
             self.critical("All connectors failed to load", 1)
