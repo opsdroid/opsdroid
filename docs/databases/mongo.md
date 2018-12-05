@@ -10,7 +10,7 @@ None.
 
 ```yaml
 databases:
-  mongo:
+  - name: mongo
     host:       "my host"     # (optional) default "localhost"
     port:       "12345"       # (optional) default "27017"
     database:   "mydatabase"  # (optional) default "opsdroid"

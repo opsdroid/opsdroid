@@ -21,12 +21,12 @@ class TestDatabaseBaseClassAsync(asynctest.TestCase):
     async def test_connect(self):
         database = Database({})
         with self.assertRaises(NotImplementedError):
-            await database.connect({})
+            await database.connect()
 
     async def test_disconnect(self):
         database = Database({})
         try:
-            await database.disconnect(None)
+            await database.disconnect()
         except NotImplementedError:
             self.fail("disconnect() raised NotImplementedError unexpectedly!")
 

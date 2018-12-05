@@ -59,7 +59,7 @@ class TestDatabaseSqliteAsync(asynctest.TestCase):
         opsdroid.eventloop = self.loop
 
         try:
-            await database.connect(opsdroid)
+            await database.connect()
         except NotImplementedError:
             raise Exception
         else:
@@ -79,7 +79,7 @@ class TestDatabaseSqliteAsync(asynctest.TestCase):
         opsdroid.eventloop = self.loop
 
         try:
-            await database.connect(opsdroid)
+            await database.connect()
             await database.put("hello", {})
             data = await database.get("hello")
         except NotImplementedError:
