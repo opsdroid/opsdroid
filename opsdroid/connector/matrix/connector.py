@@ -1,3 +1,5 @@
+"""Connector for Matrix (https://matrix.org)"""
+
 import re
 import logging
 
@@ -18,7 +20,7 @@ __all__ = ['ConnectorMatrix']
 
 
 class ConnectorMatrix(Connector):
-    """Docstring."""
+    """Connector for Matrix (https://matrix.org)"""
 
     def __init__(self, config):  # noqa: D107
         """Init the config for the connector."""
