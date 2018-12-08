@@ -19,7 +19,7 @@ __all__ = ['ConnectorMatrix']
 
 class ConnectorMatrix(Connector):
     def __init__(self, config):
-        # Init the config for the connector
+        """Init the config for the connector."""
         self.name = "ConnectorMatrix"  # The name of your connector
         self.config = config  # The config dictionary to be accessed later
         self.rooms = config.get('rooms', None)
@@ -35,6 +35,7 @@ class ConnectorMatrix(Connector):
 
     @property
     def filter_json(self):
+        """Define JSON filter to apply to incoming events."""
         return {
             "event_format": "client",
             "account_data": {
@@ -64,10 +65,7 @@ class ConnectorMatrix(Connector):
         }
 
     async def make_filter(self, api, room_ids):
-        """
-        Make a filter on the server for future syncs.
-        """
-
+        """Make a filter on the server for future syncs."""
         fjson = self.filter_json
         for room_id in room_ids:
             fjson['room']['rooms'].append(room_id)
@@ -78,7 +76,7 @@ class ConnectorMatrix(Connector):
         return resp['filter_id']
 
     async def connect(self, opsdroid):
-        # Create connection object with chat library
+        """Create connection object with chat library."""
         session = aiohttp.ClientSession()
         mapi = AsyncHTTPAPI(self.homeserver, session)
 
@@ -106,8 +104,8 @@ class ConnectorMatrix(Connector):
             await self.connection.set_display_name(self.mxid, self.nick)
 
     async def listen(self, opsdroid):
-        # Listen for new messages from the chat service
         while True:
+        """Listen for new messages from the chat service."""
             try:
                 response = await self.connection.sync(
                     self.connection.sync_token,
@@ -132,6 +130,8 @@ class ConnectorMatrix(Connector):
 
     async def _get_nick(self, roomid, mxid):
         """
+        Get nickname from user ID.
+
         Get the nickname of a sender depending on the room specific config
         setting.
         """
@@ -152,8 +152,10 @@ class ConnectorMatrix(Connector):
 
     async def _get_html_content(self, message, body=None, msgtype="m.text"):
         """
+        Get HTML from a message.
+
         Return the json representation of the message in
-        "org.matrix.custom.html" format
+        "org.matrix.custom.html" format.
         """
         clean_html = clean(message)
 
@@ -172,10 +174,10 @@ class ConnectorMatrix(Connector):
             }
 
     async def respond(self, message, roomname=None):
-        # Send message.text back to the chat service
 
         if not roomname:
             # Connector responds in the same room it received the original message
+        """Send `message.text` back to the chat service."""
             room_id = message.room
         else:
             room_id = self.rooms[roomname]
@@ -199,9 +201,11 @@ class ConnectorMatrix(Connector):
                 await self._get_html_content(message.text))
 
     async def disconnect(self, opsdroid=None):
+        """Close the matrix session."""
         self.session.close()
 
     def get_roomname(self, room):
+        """Get the name of a room from alias or room ID."""
         if room.startswith(('#', '!')):
             for connroom in self.rooms:
                 if room == connroom or room == self.room_ids[connroom]:

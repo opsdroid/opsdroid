@@ -1,6 +1,4 @@
-"""
-Helpers for sanitising HTML input to the bot.
-"""
+"""Helpers for sanitising HTML input to the bot."""
 
 import bleach
 
@@ -63,6 +61,8 @@ ALLOWED_ATTRIBUTES = {
 
 def clean(html, **kwargs):
     """
+    Sanitise HTML fragments.
+
     A version of `bleach.clean` but with Riot's allowed tags and ``strip=True``
     by default.
     """

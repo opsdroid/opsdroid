@@ -1,6 +1,5 @@
-"""
-This is a asyncio wrapper for the matrix API class.
-"""
+"""This is an asyncio wrapper for the matrix API class."""
+
 import json
 from asyncio import sleep
 from urllib.parse import quote
@@ -74,25 +73,29 @@ class AsyncHTTPAPI(MatrixHttpApi):
                     return await response.json()
 
     async def get_display_name(self, user_id):
+        """Query matrix for a user's display name."""
         content = await self._send("GET", "/profile/%s/displayname" % user_id)
         return content.get('displayname', None)
 
     async def set_display_name(self, user_id, display_name):
+        """Tell matrix to set a new display name for the given user."""
         content = {"displayname": display_name}
         await self._send("PUT", "/profile/%s/displayname" % user_id, content)
 
     async def get_avatar_url(self, user_id):
+        """Query matrix for the URL of a user's avatar."""
         content = await self._send("GET", "/profile/%s/avatar_url" % user_id)
         return content.get('avatar_url', None)
 
     async def get_room_id(self, room_alias):
-        """Get room id from its alias
+        """Get room id from its alias.
 
         Args:
             room_alias(str): The room alias name.
 
         Returns:
             Wanted room's id.
+
         """
         content = await self._send(
             "GET",
@@ -101,7 +104,7 @@ class AsyncHTTPAPI(MatrixHttpApi):
         return content.get("room_id", None)
 
     async def get_room_displayname(self, room_id, user_id):
-        """Get a users displayname for the given room"""
+        """Get a user's displayname for the given room."""
         if room_id.startswith('#'):
             room_id = await self.get_room_id(room_id)
 
