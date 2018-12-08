@@ -18,7 +18,9 @@ __all__ = ['ConnectorMatrix']
 
 
 class ConnectorMatrix(Connector):
-    def __init__(self, config):
+    """Docstring."""
+
+    def __init__(self, config):  # noqa: D107
         """Init the config for the connector."""
         self.name = "ConnectorMatrix"  # The name of your connector
         self.config = config  # The config dictionary to be accessed later
@@ -96,16 +98,18 @@ class ConnectorMatrix(Connector):
 
         # Do initial sync so we don't get old messages later.
         response = await self.connection.sync(
-            timeout_ms=3000, filter='{ "room": { "timeline" : { "limit" : 1 } } }',
+            timeout_ms=3000,
+            filter='{ "room": { "timeline" : { "limit" : 1 } } }',
             set_presence="online")
         self.connection.sync_token = response["next_batch"]
 
-        if self.nick and await self.connection.get_display_name(self.mxid) != self.nick:
+        if self.nick \
+           and await self.connection.get_display_name(self.mxid) != self.nick:
             await self.connection.set_display_name(self.mxid, self.nick)
 
     async def listen(self, opsdroid):
-        while True:
         """Listen for new messages from the chat service."""
+        while True:  # pylint: disable=R1702
             try:
                 response = await self.connection.sync(
                     self.connection.sync_token,
@@ -120,12 +124,13 @@ class ConnectorMatrix(Connector):
                             if event['content']['msgtype'] == 'm.text':
                                 if event['sender'] != self.mxid:
                                     message = Message(event['content']['body'],
-                                                      await self._get_nick(roomid,
-                                                                           event['sender']),
+                                                      await self._get_nick(
+                                                          roomid,
+                                                          event['sender']),
                                                       roomid, self,
                                                       raw_message=event)
                                     await opsdroid.parse(message)
-            except Exception:
+            except Exception:  # pylint: disable=W0703
                 _LOGGER.exception('Matrix Sync Error')
 
     async def _get_nick(self, roomid, mxid):
@@ -138,15 +143,16 @@ class ConnectorMatrix(Connector):
         if self.room_specific_nicks:
             try:
                 return await self.connection.get_room_displayname(roomid, mxid)
-            except Exception:
+            except Exception:  # pylint: disable=W0703
                 # Fallback to the non-room specific one
-                logging.exception("Failed to lookup room specific nick for {}".format(mxid))
+                logging.exception(
+                    "Failed to lookup room specific nick for {}".format(mxid))
 
         try:
             return await self.connection.get_display_name(mxid)
-        except MatrixRequestError as e:
+        except MatrixRequestError as mre:
             # Log the error if it's not the 404 from the user not having a nick
-            if e.code != 404:
+            if mre.code != 404:
                 logging.exception("Failed to lookup nick for {}".format(mxid))
             return mxid
 
@@ -159,7 +165,8 @@ class ConnectorMatrix(Connector):
         """
         clean_html = clean(message)
 
-        # Markdown leaves a <p></p> around standard messages that we want to strip:
+        # Markdown leaves a <p></p> around standard messages that we want to
+        # strip:
         if clean_html.startswith('<p>'):
             clean_html = clean_html[3:]
             if clean_html.endswith('</p>'):
@@ -173,14 +180,14 @@ class ConnectorMatrix(Connector):
             "formatted_body": clean_html
             }
 
-    async def respond(self, message, roomname=None):
-
-        if not roomname:
-            # Connector responds in the same room it received the original message
+    async def respond(self, message, room=None):
         """Send `message.text` back to the chat service."""
+        if not room:
+            # Connector responds in the same room it received the original
+            # message
             room_id = message.room
         else:
-            room_id = self.rooms[roomname]
+            room_id = self.rooms[room]
 
         # Ensure we have a room id not alias
         if not room_id.startswith('!'):
@@ -208,7 +215,7 @@ class ConnectorMatrix(Connector):
         """Get the name of a room from alias or room ID."""
         if room.startswith(('#', '!')):
             for connroom in self.rooms:
-                if room == connroom or room == self.room_ids[connroom]:
+                if room in (connroom, self.room_ids[connroom]):
                     return connroom
 
         return room

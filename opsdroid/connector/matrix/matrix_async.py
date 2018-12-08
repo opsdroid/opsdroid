@@ -10,7 +10,7 @@ from matrix_client.errors import MatrixError, MatrixRequestError
 
 class AsyncHTTPAPI(MatrixHttpApi):
     """
-    Contains all raw matrix HTTP client-server API calls using asyncio and coroutines.
+    Contains all matrix client-server API calls using asyncio and coroutines.
 
     Usage:
         async def main():
@@ -24,7 +24,7 @@ class AsyncHTTPAPI(MatrixHttpApi):
         loop.run_until_complete(main())
     """
 
-    def __init__(self, base_url, client_session, token=None):
+    def __init__(self, base_url, client_session, token=None):  # noqa: D107
         self.base_url = base_url
         self.token = token
         self.txn_id = 0
@@ -35,11 +35,15 @@ class AsyncHTTPAPI(MatrixHttpApi):
                     method,
                     path,
                     content=None,
-                    query_params={},
-                    headers={},
+                    query_params=None,
+                    headers=None,
                     api_path="/_matrix/client/r0"):
         if not content:
             content = {}
+        if not query_params:
+            query_params = {}
+        if not headers:
+            headers = {}
 
         method = method.upper()
         if method not in ["GET", "PUT", "DELETE", "POST"]:
@@ -113,4 +117,3 @@ class AsyncHTTPAPI(MatrixHttpApi):
         for mem in members:
             if mem['sender'] == user_id:
                 return mem['content']['displayname']
-
