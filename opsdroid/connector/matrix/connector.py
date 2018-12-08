@@ -3,12 +3,13 @@ import logging
 
 import aiohttp
 
+from matrix_api_async.api_asyncio import AsyncHTTPAPI
+from matrix_client.errors import MatrixRequestError
+
 from opsdroid.connector import Connector
 from opsdroid.message import Message
 
-from matrix_api_async.api_asyncio import AsyncHTTPAPI
 from .html_cleaner import clean
-from matrix_client.errors import MatrixRequestError
 
 
 _LOGGER = logging.getLogger(__name__)
