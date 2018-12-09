@@ -20,9 +20,13 @@ class TestConnectorMatrix(unittest.TestCase):
 
     def test_init(self):
         """Test that the connector is initialised properly."""
-        connector = ConnectorMatrix({"api-token": "abc123"})
-        self.assertEqual("#general", connector.default_room)
-        self.assertEqual("matrix", connector.name)
+        connector = ConnectorMatrix(
+            {"room": "#notaroom:matrix.org",
+             "mxid": "@nobody:matrix.org",
+             "password": "nothing"}
+        )
+        self.assertEqual("#notaroom:matrix.org", connector.default_room)
+        self.assertEqual("ConnectorMatrix", connector.name)
 
     def test_missing_api_key(self):
         """Test that creating without an API key raises an error."""
