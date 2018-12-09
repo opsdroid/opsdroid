@@ -29,27 +29,27 @@ class TestConnectorMatrix(unittest.TestCase):
         with self.assertRaises(KeyError):
             ConnectorMatrix({})
 
-    # def test_listen(self):
-    #     connector = ConnectorMatrix({})
-    #     with self.assertRaises(NotImplementedError):
-    #         self.loop.run_until_complete(connector.listen({}))
+    def test_listen(self):
+        connector = ConnectorMatrix({})
+        with self.assertRaises(NotImplementedError):
+            self.loop.run_until_complete(connector.listen({}))
 
-    # def test_respond(self):
-    #     connector = ConnectorMatrix({})
-    #     with self.assertRaises(NotImplementedError):
-    #         self.loop.run_until_complete(connector.respond({}))
+    def test_respond(self):
+        connector = ConnectorMatrix({})
+        with self.assertRaises(NotImplementedError):
+            self.loop.run_until_complete(connector.respond({}))
 
-    # def test_react(self):
-    #     connector = ConnectorMatrix({})
-    #     reacted = self.loop.run_until_complete(connector.react({}, 'emoji'))
-    #     self.assertFalse(reacted)
+    def test_react(self):
+        connector = ConnectorMatrix({})
+        reacted = self.loop.run_until_complete(connector.react({}, 'emoji'))
+        self.assertFalse(reacted)
 
-    # def test_user_typing(self):
-    #     opsdroid = 'opsdroid'
-    #     connector = ConnectorMatrix({})
-    #     user_typing = self.loop.run_until_complete(
-    #         connector.user_typing(opsdroid, trigger=True))
-    #     assert user_typing is None
+    def test_user_typing(self):
+        opsdroid = 'opsdroid'
+        connector = ConnectorMatrix({})
+        user_typing = self.loop.run_until_complete(
+            connector.user_typing(opsdroid, trigger=True))
+        assert user_typing is None
 
 
 class TestConnectorMatrixAsync(asynctest.TestCase):
