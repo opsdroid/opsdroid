@@ -22,7 +22,7 @@ This application is designed to take messages from chat services and execute pyt
 ## ChatOps
 _"ChatOps is an operational paradigm where work that is already happening in the background today is brought into a common chatroom. By doing this, you are unifying the communication about what work should get done with actual history of the work being done."_ - [StackStorm](https://docs.stackstorm.com/chatops/chatops.html)
 
-In the new frontier of DevOps it is becoming more and more popular to interact with your automation tools via an instant messenger. opsdroid is a framework to make creating and extending your ChatOps workflows powerful but simple.
+In this new frontier of DevOps, it is becoming more and more popular to interact with your automation tools via an instant messenger. Opsdroid is a framework to make creating and extending your ChatOps workflows powerful but simple.
 
 ## Why use opsdroid?
 
@@ -37,7 +37,7 @@ In the new frontier of DevOps it is becoming more and more popular to interact w
 
 ## Quick start
 
-```
+```python
 pip3 install opsdroid
 opsdroid
 ```
