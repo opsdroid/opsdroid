@@ -6,7 +6,7 @@ A database module for opsdroid to persist memory in a [SQLite](https://www.sqlit
 
 ```yaml
 databases:
-  sqlite:
+  - name: sqlite
     file: "my_file.db"  # (optional) default "~/.opsdroid/sqlite.db"
     table: "my_table"  # (optional) default "opsdroid"
 ```

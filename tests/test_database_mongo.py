@@ -25,7 +25,7 @@ class TestDatabaseBaseMongoClassAsync(asynctest.TestCase):
         """test the method connect"""
         database = DatabaseMongo({})
         try:
-            await database.connect({})
+            await database.connect()
         except NotImplementedError:
             raise Exception
         else:

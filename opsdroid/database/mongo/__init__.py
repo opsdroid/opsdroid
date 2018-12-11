@@ -13,7 +13,7 @@ class DatabaseMongo(Database):
 
     """
 
-    def __init__(self, config):
+    def __init__(self, config, opsdroid=None):
         """Create the connection.
 
         Set some basic properties from the database config such as the name
@@ -24,19 +24,15 @@ class DatabaseMongo(Database):
                            `configuration.yaml` file.
 
         """
-        super().__init__(config)
+        super().__init__(config, opsdroid=opsdroid)
         logging.debug("Loaded mongo database connector")
         self.name = "mongo"
         self.config = config
         self.client = None
         self.database = None
 
-    async def connect(self, opsdroid):
-        """Connect to the database.
-
-        Args:
-            obsdroid (object): the opsdroid instance
-        """
+    async def connect(self):
+        """Connect to the database."""
         host = self.config["host"] if "host" in self.config else "localhost"
         port = self.config["port"] if "port" in self.config else "27017"
         database = self.config["database"] \

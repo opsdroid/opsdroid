@@ -21,7 +21,7 @@ class DatabaseSqlite(Database):
 
     """
 
-    def __init__(self, config):
+    def __init__(self, config, opsdroid=None):
         """Initialise the sqlite database.
 
         Set basic properties of the database. Initialise properties like
@@ -33,7 +33,7 @@ class DatabaseSqlite(Database):
                            specified in `configuration.yaml` file.
 
         """
-        super().__init__(config)
+        super().__init__(config, opsdroid=opsdroid)
         self.name = "sqlite"
         self.config = config
         self.conn_args = {'isolation_level': None}
@@ -41,7 +41,7 @@ class DatabaseSqlite(Database):
         self.table = None
         _LOGGER.debug(_("Loaded sqlite database connector"))
 
-    async def connect(self, opsdroid):
+    async def connect(self):
         """Connect to the database.
 
         This method will connect to the sqlite database. It will create
@@ -162,7 +162,7 @@ class JSONEncoder(json.JSONEncoder):
         return marshaller(o)
 
 
-class JSONDecoder():
+class JSONDecoder:
     """A JSONDecoder class.
 
     This class will convert dict containing datetime values

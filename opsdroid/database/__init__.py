@@ -1,14 +1,14 @@
 """A base class for databases to inherit from."""
 
 
-class Database():
+class Database:
     """A base database.
 
     Database classes are used to persist key/value pairs in a database.
 
     """
 
-    def __init__(self, config):
+    def __init__(self, config, opsdroid=None):
         """Create the database.
 
         Set some basic properties from the database config such as the name
@@ -23,10 +23,11 @@ class Database():
         """
         self.name = ""
         self.config = config
+        self.opsdroid = opsdroid
         self.client = None
         self.database = None
 
-    async def connect(self, opsdroid):
+    async def connect(self):
         """Connect to database service and store the connection object.
 
         This method should connect to the given database using a native
@@ -34,13 +35,10 @@ class Database():
         a connection object which will be used by the put and get methods.
         This object should be stored in self.
 
-        Args:
-            opsdroid (OpsDroid): An instance of the opsdroid core.
-
         """
         raise NotImplementedError
 
-    async def disconnect(self, opsdroid):
+    async def disconnect(self):
         """Disconnect from the database.
 
         This method should disconnect from the given database using a native
