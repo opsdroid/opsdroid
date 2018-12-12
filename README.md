@@ -37,7 +37,7 @@ In this new frontier of DevOps, it is becoming more and more popular to interact
 
 ## Quick start
 
-```python
+```bash
 pip3 install opsdroid
 opsdroid
 ```
