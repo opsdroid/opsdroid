@@ -60,7 +60,11 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid Matrix connector class."""
 
     async def test_connect(self):
-        connector = ConnectorMatrix({"api-token": "abc123"})
+        connector = ConnectorMatrix(
+            {"room": "#notaroom:matrix.org",
+             "mxid": "@nobody:matrix.org",
+             "password": "nothing"}
+        )
         opsdroid = amock.CoroutineMock()
         opsdroid.eventloop = self.loop
         connector.matrixer.rtm.start = amock.CoroutineMock()
@@ -74,7 +78,11 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
 
     async def test_reconnect_on_error(self):
         import aiohttp
-        connector = ConnectorMatrix({"api-token": "abc123"})
+        connector = ConnectorMatrix(
+            {"room": "#notaroom:matrix.org",
+             "mxid": "@nobody:matrix.org",
+             "password": "nothing"}
+        )
         connector.matrixer.rtm.start = amock.CoroutineMock()
         connector.matrixer.rtm.start.side_effect = aiohttp.ClientOSError()
         connector.reconnect = amock.CoroutineMock()
@@ -84,7 +92,11 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
 
     async def test_listen_loop(self):
         """Test that listening consumes from the socket."""
-        connector = ConnectorMatrix({"api-token": "abc123"})
+        connector = ConnectorMatrix(
+            {"room": "#notaroom:matrix.org",
+             "mxid": "@nobody:matrix.org",
+             "password": "nothing"}
+        )
         connector.receive_from_websocket = amock.CoroutineMock()
         connector.receive_from_websocket.side_effect = Exception()
         with self.assertRaises(Exception):
@@ -94,7 +106,11 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
     async def test_receive_from_websocket(self):
         """Test receive_from_websocket receives and reconnects."""
         import websockets
-        connector = ConnectorMatrix({"api-token": "abc123"})
+        connector = ConnectorMatrix(
+            {"room": "#notaroom:matrix.org",
+             "mxid": "@nobody:matrix.org",
+             "password": "nothing"}
+        )
 
         connector.websocket = amock.CoroutineMock()
         connector.websocket.recv = amock.CoroutineMock()
@@ -112,7 +128,11 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
 
     async def test_process_message(self):
         """Test processing a matrix message."""
-        connector = ConnectorMatrix({"api-token": "abc123"})
+        connector = ConnectorMatrix(
+            {"room": "#notaroom:matrix.org",
+             "mxid": "@nobody:matrix.org",
+             "password": "nothing"}
+        )
         connector.lookup_username = amock.CoroutineMock()
         connector.lookup_username.return_value = {"name": "testuser"}
         connector.opsdroid = amock.CoroutineMock()
@@ -145,7 +165,11 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
 
     async def test_keepalive_websocket_loop(self):
         """Test that listening consumes from the socket."""
-        connector = ConnectorMatrix({"api-token": "abc123"})
+        connector = ConnectorMatrix(
+            {"room": "#notaroom:matrix.org",
+             "mxid": "@nobody:matrix.org",
+             "password": "nothing"}
+        )
         connector.ping_websocket = amock.CoroutineMock()
         connector.ping_websocket.side_effect = Exception()
         with self.assertRaises(Exception):
@@ -172,7 +196,11 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
 
     async def test_lookup_username(self):
         """Test that looking up a username works and that it caches."""
-        connector = ConnectorMatrix({"api-token": "abc123"})
+        connector = ConnectorMatrix(
+            {"room": "#notaroom:matrix.org",
+             "mxid": "@nobody:matrix.org",
+             "password": "nothing"}
+        )
         connector.matrixer.users.info = amock.CoroutineMock()
         mock_user = mock.Mock()
         mock_user.body = {"user": {"name": "testuser"}}
@@ -195,13 +223,21 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             await connector.lookup_username('invaliduser')
 
     async def test_respond(self):
-        connector = ConnectorMatrix({"api-token": "abc123"})
+        connector = ConnectorMatrix(
+            {"room": "#notaroom:matrix.org",
+             "mxid": "@nobody:matrix.org",
+             "password": "nothing"}
+        )
         connector.matrixer.chat.post_message = amock.CoroutineMock()
         await connector.respond(Message("test", "user", "room", connector))
         self.assertTrue(connector.matrixer.chat.post_message.called)
 
     async def test_reconnect(self):
-        connector = ConnectorMatrix({"api-token": "abc123"})
+        connector = ConnectorMatrix(
+            {"room": "#notaroom:matrix.org",
+             "mxid": "@nobody:matrix.org",
+             "password": "nothing"}
+        )
         connector.connect = amock.CoroutineMock()
         with amock.patch('asyncio.sleep') as mocked_sleep:
             await connector.reconnect(10)
@@ -209,7 +245,11 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             self.assertTrue(mocked_sleep.called)
 
     async def test_replace_usernames(self):
-        connector = ConnectorMatrix({"api-token": "abc123"})
+        connector = ConnectorMatrix(
+            {"room": "#notaroom:matrix.org",
+             "mxid": "@nobody:matrix.org",
+             "password": "nothing"}
+        )
         connector.lookup_username = amock.CoroutineMock()
         connector.lookup_username.return_value = {"name": 'user'}
         result = await connector.replace_usernames("Hello <@U023BECGF>!")
