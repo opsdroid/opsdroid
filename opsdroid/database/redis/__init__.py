@@ -11,10 +11,27 @@ from opsdroid.database import Database
 class RedisDatabase(Database):
     """Database class for storing data within a Redis instance."""
 
-    client = None
-    _connect = lambda *args, **kwargs: aioredis.create_connection(*args[1:], **kwargs)
+    def __init__(self, config, opsdroid=None):
+        """Initialise the sqlite database.
 
-    async def connect(self, opsdroid):
+        Set basic properties of the database. Initialise properties like
+        name, connection arguments, database file, table name and config.
+
+        Args:
+            config (dict): The configuration of the database which consists
+                           of `file` and `table` name of the sqlite database
+                           specified in `configuration.yaml` file.
+
+        """
+        super().__init__(config, opsdroid=opsdroid)
+        self.config = config
+        self.client = None
+        self.host = self.config.get("host", "localhost")
+        self.port = self.config.get("port", "6379")
+        self.database = self.config.get("database", 0)
+        self.password = self.config.get("password", None)
+
+    async def connect(self):
         """Connect to the database.
 
         This method will connect to a Redis database. By default it will
@@ -24,10 +41,11 @@ class RedisDatabase(Database):
             opsdroid (OpsDroid): An instance of opsdroid core.
 
         """
-        host = self.config.get("host", "localhost")
-        port = self.config.get("port", "6379")
-        database = self.config.get("database", 0)
-        self.client = await self._connect((host, port), db=database)
+        self.client = await aioredis.create_connection(
+            (self.host, self.port),
+            db=self.database,
+            password=self.password
+        )
 
     async def put(self, key, data):
         """Store the data object in Redis against the key.

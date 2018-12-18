@@ -54,7 +54,7 @@ class TestRedisDatabaseAsync(asynctest.TestCase):
     async def test_connect(self):
         db = RedisDatabase({})
         db._connect = amock.CoroutineMock()
-        await db.connect({})
+        await db.connect()
 
         db._connect.assert_awaited_once()
 
