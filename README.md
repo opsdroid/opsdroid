@@ -56,6 +56,16 @@ docker pull opsdroid/opsdroid:latest
 docker run --rm -it -v /path/to/configuration.yaml:/root/.config/opsdroid/configuration.yaml:ro opsdroid/opsdroid:latest
 ```
 
+### Docker Service
+
+```bash
+# Create the opsdroid config file
+docker config create OpsdroidConfig /path/to/configuration.yaml
+
+# Create the service
+docker service create --name opsdroid --config source=OpsdroidConfig,target=/root/.config/opsdroid/configuration.yaml opsdroid/opsdroid:latest
+```
+
 ### Ubuntu 16.04 LTS
 
 ```bash
