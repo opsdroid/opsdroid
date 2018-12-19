@@ -4,11 +4,11 @@ A connector for [Facebook Messenger](https://developers.facebook.com/docs/messen
 
 ## Requirements
 
-**This connector requires access token for your facebook page.**
+**This connector requires access token for your Facebook page.**
 
 Follow the steps to get access token :
 
- - Create a Facbook page for your bot
+ - Create a Facebook page for your bot
  - Visit https://developers.facebook.com
  - Create a new app and add a messenger product
  - Generate a `page-access-token` for the page you created
