@@ -43,7 +43,7 @@ class RedisDatabase(Database):
             host=self.host,
             port=self.port,
             db=self.database,
-            auto_reconnect=False,
+            auto_reconnect=self.reconnect,
             password=self.password,
         )
 

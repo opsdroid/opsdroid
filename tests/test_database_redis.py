@@ -1,16 +1,16 @@
 import asyncio
 import datetime
-import time
 import unittest
 
-import asyncio_redis
 import asynctest
 import asynctest.mock as amock
 
+from contextlib import suppress
 from opsdroid.database.redis import RedisDatabase
 from opsdroid.__main__ import configure_lang
 
-class MockRedisClient():
+
+class MockRedisClient:
     execute = None
 
 
@@ -71,16 +71,16 @@ class TestRedisDatabaseAsync(asynctest.TestCase):
     """Test the opsdroid Redis Database class."""
 
     async def test_connect(self):
-        db = RedisDatabase({})
+        opsdroid = amock.CoroutineMock()
+        database = RedisDatabase({}, opsdroid=opsdroid)
+        database.client = amock.CoroutineMock()
+        database.client.Connection = amock.CoroutineMock()
+        database.client.Connection.create = amock.CoroutineMock()
 
-        try:
-            await db.connect()
-        except NotImplementedError:
-            raise Exception
-        else:
-            pass
+        await database.connect()
 
-        # db.connect.assert_awaited_once()
+        with suppress(AttributeError):
+            self.assertTrue(database.client.Connection.create.called)
 
     async def test_get(self):
         db = RedisDatabase({})
