@@ -78,6 +78,6 @@ There are also the following manual actions which need to be performed:
 
 If the version is not a simple `patch` release then the last action is to write a post on the @opsdroid [Medium blog](https://medium.com/opsdroid) about the release.
 
-_If it is a `patch` release than add a note to the bottom of the last release blog post._
+_If it is a `patch` release then add a note to the bottom of the last release blog post._
 
 This post should include some preamble about the contents of the release, highlighting anything particularly exciting. It should then include a copy of the release notes.
