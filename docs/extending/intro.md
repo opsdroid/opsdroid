@@ -1,6 +1,6 @@
 # Opsdroid extensions
 
-Opsdroid can be extended by developing new skill, connector, or database extensions.
+Opsdroid can be extended by developing a new skill, connector, or database extensions.
 
 ## Single-module extensions
 

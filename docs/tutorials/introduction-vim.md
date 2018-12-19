@@ -37,7 +37,7 @@ Things that you will learn:
 _Note: Vi/Vim has a lot of different commands and combinations, this is just an introduction and you should read other sources if you want to learn how to use Vi/Vim properly._
 
 #### Saving and quitting Vi/Vim
-Now that you know how to edit a text in Vi/Vim, the most important thing you will learn will be how to save your changes and quit. If you press the _:_ key of your keyboard, you will be able to enter commands to Vi/Vim.
+Now that you know how to edit text in Vi/Vim, the most important thing you will learn will be how to save your changes and quit. If you press the _:_ key of your keyboard, you will be able to enter commands to Vi/Vim.
 
 To save a file all you need to do is type `:w` and then press enter.
 
@@ -70,7 +70,7 @@ To move around all you need is pressing a few keys to do different things. Movin
 - `gg` - move to the beginning of the file (line 1)
 - `G` - move to the end of the line (last line)
 
-This two commands can be used while moving/editing the file:
+These two commands can be used while moving/editing the file:
 
 - `o` - adds an empty line below the cursor, moves the cursor to that line, enters edit mode
 - `O` - adds an empty line above the cursor, moves the cursor to that line, enters edit mode
