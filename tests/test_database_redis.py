@@ -1,13 +1,14 @@
+import asyncio
 import datetime
 import time
 import unittest
 
-import aioredis
+import asyncio_redis
 import asynctest
 import asynctest.mock as amock
 
 from opsdroid.database.redis import RedisDatabase
-
+from opsdroid.__main__ import configure_lang
 
 class MockRedisClient():
     execute = None
@@ -15,6 +16,25 @@ class MockRedisClient():
 
 class TestRedisDatabase(unittest.TestCase):
     """Test the opsdroid Redis database class."""
+
+    def setUp(self):
+        self.loop = asyncio.new_event_loop()
+        configure_lang({})
+
+    def test_init(self):
+        """Test initialisation of database class.
+
+        This method will test the initialisation of the database
+        class. It will assert if the database class properties are
+        declared and equated to None.
+
+        """
+        database = RedisDatabase({})
+        self.assertEqual(None, database.client)
+        self.assertEqual(0, database.database)
+        self.assertEqual("localhost", database.host)
+        self.assertEqual(6379, database.port)
+        self.assertEqual(None, database.password)
 
     def test_other(self):
         unserialized_data = {
@@ -30,7 +50,6 @@ class TestRedisDatabase(unittest.TestCase):
         # timezone of the computer it makes the unittest fragile depending on the timezone of the user.
         self.assertEqual(serialized_data["example_datetime"][0:10], "datetime::")
         self.assertEqual(serialized_data["example_date"][0:6], "date::")
-
 
     def test_convert_timestamp_to_object(self):
         serialized_data = {
@@ -53,36 +72,47 @@ class TestRedisDatabaseAsync(asynctest.TestCase):
 
     async def test_connect(self):
         db = RedisDatabase({})
-        db.connect = amock.CoroutineMock()
-        await db.connect()
 
-        db.connect.assert_awaited_once()
+        try:
+            await db.connect()
+        except NotImplementedError:
+            raise Exception
+        else:
+            pass
+
+        # db.connect.assert_awaited_once()
 
     async def test_get(self):
         db = RedisDatabase({})
         db.client = MockRedisClient()
-        db.client.execute = amock.CoroutineMock(return_value='{"key":"value"}')
+        db.client.get = amock.CoroutineMock(return_value='{"key":"value"}')
 
         result = await db.get("string")
 
         self.assertDictEqual(result, dict(key="value"))
-        db.client.execute.assert_awaited_once()
 
     async def test_get_return_None(self):
         db = RedisDatabase({})
         db.client = MockRedisClient()
-        db.client.execute = amock.CoroutineMock(return_value=None)
+        db.client.get = amock.CoroutineMock(return_value=None)
 
         result = await db.get("string")
 
         self.assertEqual(result, None)
-        db.client.execute.assert_awaited_once()
 
     async def test_put(self):
         db = RedisDatabase({})
         db.client = MockRedisClient()
-        db.client.execute = amock.CoroutineMock(return_value='{"key":"value"}')
+        db.client.set = amock.CoroutineMock(return_value='{"key":"value"}')
 
         result = await db.put("string", dict(key="value"))
 
-        db.client.execute.assert_awaited_once()
+    async def test_disconnect(self):
+        db = RedisDatabase({})
+        db.client = MockRedisClient()
+        db.client.close = amock.CoroutineMock()
+
+        result = await db.disconnect()
+
+        self.assertTrue(db.client.close.called)
+

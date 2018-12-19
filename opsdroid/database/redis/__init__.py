@@ -3,7 +3,7 @@ from datetime import date, datetime
 import json
 import time
 
-import aioredis
+import asyncio_redis
 
 from opsdroid.database import Database
 
@@ -27,9 +27,10 @@ class RedisDatabase(Database):
         self.config = config
         self.client = None
         self.host = self.config.get("host", "localhost")
-        self.port = self.config.get("port", "6379")
+        self.port = self.config.get("port", 6379)
         self.database = self.config.get("database", 0)
         self.password = self.config.get("password", None)
+        self.reconnect = self.config.get("reconnect", False)
 
     async def connect(self):
         """Connect to the database.
@@ -38,10 +39,12 @@ class RedisDatabase(Database):
         connect to Redis on localhost on port 6379
 
         """
-        self.client = await aioredis.create_redis(
-            (self.host, self.port),
+        self.client = await asyncio_redis.Connection.create(
+            host=self.host,
+            port=self.port,
             db=self.database,
-            password=self.password
+            auto_reconnect=self.reconnect,
+            password=self.password,
         )
 
     async def put(self, key, data):
@@ -53,7 +56,7 @@ class RedisDatabase(Database):
 
         """
         data = self.convert_object_to_timestamp(data)
-        await self.client.execute('SET', key, json.dumps(data))
+        await self.client.set(key, json.dumps(data))
 
     async def get(self, key):
         """Get data from Redis for a given key.
@@ -66,12 +69,16 @@ class RedisDatabase(Database):
                             object found for that key.
 
         """
-        data = await self.client.execute('GET', key, encoding="utf-8")
+        data = await self.client.get(key)
 
         if data:
             return self.convert_timestamp_to_object(json.loads(data))
 
         return None
+
+    async def disconnect(self):
+        """Disconnect from the database."""
+        self.client.close()
 
     @staticmethod
     def convert_object_to_timestamp(data):
