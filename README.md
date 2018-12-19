@@ -75,7 +75,7 @@ sudo apt-get update
 # Install pip for python3 and locales
 sudo apt-get install python3-pip language-pack-en git
 
-# Enure pip is up-to-date
+# Ensure pip is up-to-date
 pip3 install --upgrade pip
 
 # Install opsdroid

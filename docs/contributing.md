@@ -99,7 +99,7 @@ python setup.py update_catalog
 
 Now, you can translate editing manually or with [Poedit](https://poedit.net/) the `po` files in `locale/<lang>/LC_MESSAGES/opsdroid.po`. Those files contain the real translations and are versioned.
 
-After you made a change in any `po` file, in order to view the changes in opsdroid, you should compile them to `mo` binary files, the format readed by python gettext:
+After you made a change in any `po` file, in order to view the changes in opsdroid, you should compile them to `mo` binary files, the format read by python gettext:
 ```shell
 python setup.py compile_catalog
 ```
