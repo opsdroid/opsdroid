@@ -45,4 +45,4 @@ Pyup-bot pull requests should be treated like any other pull request when mergin
 
 This project contains a directory called [`scripts`](https://github.com/opsdroid/opsdroid/tree/master/scripts) which are simple python scripts for use by maintainers when working on opsdroid. Each directory contains the script itself, a README and other supporting files. See the individual README files for more information.
 
-_These scripts may have dependancies so you should run `pip install -r requirements_dev.txt` from the root of the project._
+_These scripts may have dependencies so you should run `pip install -r requirements_dev.txt` from the root of the project._

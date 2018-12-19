@@ -173,7 +173,7 @@ welcome-message: true
 
 Configure logging in opsdroid.
 
-Setting `path` will configure where opsdroid writes the log file to. This location must be writeable by the user running opsdroid. Setting this to `false` will disable log file output.
+Setting `path` will configure where opsdroid writes the log file to. This location must be writable by the user running opsdroid. Setting this to `false` will disable log file output.
 
 _Note: If you forget to declare a path for the logs but have logging active, one of the default locations will be used._
 
@@ -352,7 +352,7 @@ skills:
    gist: https://gist.github.com/jacobtomlinson/6dd35e0f62d6b779d3d0d140f338d3e5
 ```
 
-Or you can specfiy the Gist ID without the full URL.
+Or you can specify the Gist ID without the full URL.
 
 ```yaml
 skills:
