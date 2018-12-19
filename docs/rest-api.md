@@ -6,7 +6,7 @@ There is a RESTful API for opsdroid which by default is only accessible to `loca
 
 ### `/` _[GET]_
 
-A test url you can use to check whether the API is running.
+A test URL you can use to check whether the API is running.
 
 **Example response**
 
