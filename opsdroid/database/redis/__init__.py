@@ -37,11 +37,8 @@ class RedisDatabase(Database):
         This method will connect to a Redis database. By default it will
         connect to Redis on localhost on port 6379
 
-        Args:
-            opsdroid (OpsDroid): An instance of opsdroid core.
-
         """
-        self.client = await aioredis.create_connection(
+        self.client = await aioredis.create_redis(
             (self.host, self.port),
             db=self.database,
             password=self.password

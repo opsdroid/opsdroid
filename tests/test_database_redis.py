@@ -53,10 +53,10 @@ class TestRedisDatabaseAsync(asynctest.TestCase):
 
     async def test_connect(self):
         db = RedisDatabase({})
-        db._connect = amock.CoroutineMock()
+        db.connect = amock.CoroutineMock()
         await db.connect()
 
-        db._connect.assert_awaited_once()
+        db.connect.assert_awaited_once()
 
     async def test_get(self):
         db = RedisDatabase({})
@@ -66,6 +66,16 @@ class TestRedisDatabaseAsync(asynctest.TestCase):
         result = await db.get("string")
 
         self.assertDictEqual(result, dict(key="value"))
+        db.client.execute.assert_awaited_once()
+
+    async def test_get_return_None(self):
+        db = RedisDatabase({})
+        db.client = MockRedisClient()
+        db.client.execute = amock.CoroutineMock(return_value=None)
+
+        result = await db.get("string")
+
+        self.assertEqual(result, None)
         db.client.execute.assert_awaited_once()
 
     async def test_put(self):
