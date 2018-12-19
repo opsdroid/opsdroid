@@ -73,14 +73,13 @@ class TestRedisDatabaseAsync(asynctest.TestCase):
     async def test_connect(self):
         opsdroid = amock.CoroutineMock()
         database = RedisDatabase({}, opsdroid=opsdroid)
-        database.client = amock.CoroutineMock()
-        database.client.Connection = amock.CoroutineMock()
-        database.client.Connection.create = amock.CoroutineMock()
+        import asyncio_redis
+        with amock.patch.object(asyncio_redis.Connection, 'create') as mocked_connection:
+            mocked_connection.side_effect = NotImplementedError
 
-        await database.connect()
-
-        with suppress(AttributeError):
-            self.assertTrue(database.client.Connection.create.called)
+            with suppress(NotImplementedError):
+                await database.connect()
+                self.assertTrue(mocked_connection.called)
 
     async def test_get(self):
         db = RedisDatabase({})
