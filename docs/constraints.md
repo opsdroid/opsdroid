@@ -4,7 +4,7 @@ As well as matchers opsdroid also has constraints. There are decorators for your
 
 ## Constrain rooms
 
-The constraint `constrain_rooms(rooms)` allows you restrict a skill to a specific set of rooms in your chat client.
+The constraint `constrain_rooms(rooms)` allows you to restrict a skill to a specific set of rooms in your chat client.
 
 ### Example
 
@@ -22,7 +22,7 @@ async def hello(opsdroid, config, message):
 
 ## Constrain users
 
-The constraint `constrain_users(users)` allows you restrict a skill to a specific set of users in your chat client.
+The constraint `constrain_users(users)` allows you to restrict a skill to a specific set of users in your chat client.
 
 ### Example
 
@@ -40,7 +40,7 @@ async def hello(opsdroid, config, message):
 
 ## Constrain connectors
 
-The constraint `constrain_connectors(connectors)` allows you restrict a skill to a specific connector. Useful if you are configuring opsdroid with more than one connector.
+The constraint `constrain_connectors(connectors)` allows you to restrict a skill to a specific connector. Useful if you are configuring opsdroid with more than one connector.
 
 ### Example
 
