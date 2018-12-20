@@ -247,11 +247,14 @@ class TestCoreAsync(asynctest.TestCase):
             opsdroid.cron_task.cancel = amock.CoroutineMock()
             mock_cron_task = opsdroid.cron_task
 
-            task = asyncio.Task(amock.CoroutineMock, loop=self.loop)
+            async def task():
+                await asyncio.sleep(.5)
+
+            t = asyncio.Task(task(), loop=self.loop)
 
             await opsdroid.unload()
 
-            self.assertTrue(task.cancel())
+            self.assertTrue(t.cancel())
             self.assertTrue(mock_connector.disconnect.called)
             self.assertTrue(mock_database.disconnect.called)
             self.assertTrue(mock_web_server.stop.called)
