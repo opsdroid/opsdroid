@@ -76,13 +76,13 @@ welcome-message: true
 
 ## Connector modules
 connectors:
-  
+
   - name: websocket
     # optional
     bot-name: "mybot" # default "opsdroid"
     max-connections: 10 # default is 10 users can be connected at once
     connection-timeout: 10 # default 10 seconds before requested socket times out
-  
+
 ### Uncomment the connector(s) that you wish opsdroid to work on
 #
 #  - name: shell
@@ -174,7 +174,7 @@ connectors:
 # databases:
 #
 #  ## Mongo (https://github.com/opsdroid/database-mongo)
-#  mongo:
+#  - name: mongo
 #    host:       "my host"     # (optional) default "localhost"
 #    port:       "12345"       # (optional) default "27017"
 #    database:   "mydatabase"  # (optional) default "opsdroid"
@@ -186,7 +186,7 @@ connectors:
 #    database:   "7"           # (optional) default "0"
 #
 #  ## Sqlite (https://github.com/opsdroid/database-sqlite)
-#  sqlite:
+#  - name: sqlite
 #    file: "my_file.db"  # (optional) default "~/.opsdroid/sqlite.db"
 #    table: "my_table"  # (optional) default "opsdroid"
 #
@@ -197,16 +197,16 @@ skills:
 
   ## Dance (https://github.com/opsdroid/skill-dance)
   - name: dance
-  
+
   ## Hello (https://github.com/opsdroid/skill-hello)
   - name: hello
-  
+
   ## Loudnoises (https://github.com/opsdroid/skill-loudnoises)
   - name: loudnoises
-  
+
   ## Seen (https://github.com/opsdroid/skill-seen)
   - name: seen
-  
+
   # Configurations for other skills uncomment desired skill to activate it.
 #
 #  ## Cloudhealth (https://github.com/opsdroid/skill-cloudhealth)
@@ -326,7 +326,7 @@ skills:
 #  ## Weather (https://github.com/opsdroid/skill-weather)
 #  - name: weather
 #    # Required
-#    city: London,UK    # For accuracy use {city},{country code}          
+#    city: London,UK    # For accuracy use {city},{country code}
 #    unit: metric       # Choose metric/imperial
 #    api-key: 6fut9e098d8g90g
 #
