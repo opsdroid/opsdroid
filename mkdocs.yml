@@ -27,6 +27,7 @@ pages:
   - 'Databases':
       - 'MongoDB': 'databases/mongo.md'
       - 'SQLite': 'databases/sqlite.md'
+      - 'Redis': 'databases/redis.md'
   - 'Matchers':
       - 'Regular Expressions': 'matchers/regex.md'
       - 'Rasa NLU (local)': 'matchers/rasanlu.md'
