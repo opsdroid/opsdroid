@@ -127,7 +127,9 @@ class Web:
             _LOGGER.info(_("Running skill %s via webhook"), webhook)
             opsdroid.stats["webhooks_called"] = \
                 opsdroid.stats["webhooks_called"] + 1
-            await skill(opsdroid, config, req)
+            resp = await skill(opsdroid, config, req)
+            if isinstance(resp, web.Response):
+                return resp
             return Web.build_response(200, {"called_skill": webhook})
 
         self.web_app.router.add_post(
