@@ -541,23 +541,6 @@ class TestLoader(unittest.TestCase):
             config["install_path"], "__init__.py")))
         shutil.rmtree(config["install_path"], onerror=del_rw)
 
-    def test_load_local_class_skill(self):
-        opsdropd, loader = self.setup()
-        config = {"name": "skilltest",
-                  "type": "skill",
-                  "install_path": os.path.join(
-                      self._tmp_dir, "test_load_local_class_skill/skill"),
-                  "path": os.path.abspath("tests/mockmodules/skills/temp_skill.py")}
-        directory, _ = os.path.split(config["path"])
-        os.makedirs(directory, exist_ok=True, mode=0o777)
-        loader._install_local_module(config)
-        self.assertTrue(os.path.isfile(os.path.join(
-            config["install_path"], "__init__.py")))
-
-        loader.modules_directory = os.path.split(config["install_path"])[0]
-        self.assertTrue(False)
-        shutil.rmtree(config["install_path"], onerror=del_rw)
-
     def test_install_local_module_failure(self):
         opsdroid, loader = self.setup()
         config = {"name": "slack",
