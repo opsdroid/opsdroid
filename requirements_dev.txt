@@ -3,7 +3,7 @@ Jinja2==2.10
 Pygments==2.3.1
 docutils==0.14
 mock==2.0.0
-pillow==5.3.0
+pillow==5.4.0
 alabaster==0.7.12
 commonmark==0.8.1
 recommonmark==0.4.0
