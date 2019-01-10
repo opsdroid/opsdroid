@@ -56,7 +56,6 @@ class ConnectorMatrix(Connector):
                     "types": []
                 },
                 "timeline": {
-                    "limit": 10,
                     "types": ["m.room.message"]
                 },
                 "ephemeral": {
@@ -105,9 +104,25 @@ class ConnectorMatrix(Connector):
             set_presence="online")
         self.connection.sync_token = response["next_batch"]
 
-        if self.nick \
-           and await self.connection.get_display_name(self.mxid) != self.nick:
-            await self.connection.set_display_name(self.mxid, self.nick)
+        if self.nick:
+            display_name = await self.connection.get_display_name(self.mxid)
+            if display_name != self.nick:
+                await self.connection.set_display_name(self.mxid, self.nick)
+
+    async def _parse_sync_response(self, response):
+        self.connection.sync_token = response["next_batch"]
+        for roomid in self.room_ids.values():
+            room = response['rooms']['join'].get(roomid, None)
+            if room and 'timeline' in room:
+                for event in room['timeline']['events']:
+                    if event['content']['msgtype'] == 'm.text':
+                        if event['sender'] != self.mxid:
+                            return Message(event['content']['body'],
+                                           await self._get_nick(
+                                               roomid,
+                                               event['sender']),
+                                           roomid, self,
+                                           raw_message=event)
 
     async def listen(self, opsdroid):
         """Listen for new messages from the chat service."""
@@ -118,20 +133,9 @@ class ConnectorMatrix(Connector):
                     timeout_ms=int(6 * 60 * 60 * 1e3),  # 6h in ms
                     filter=self.filter_id)
                 _LOGGER.debug("matrix sync request returned")
-                self.connection.sync_token = response["next_batch"]
-                for roomid in self.room_ids.values():
-                    room = response['rooms']['join'].get(roomid, None)
-                    if room and 'timeline' in room:
-                        for event in room['timeline']['events']:
-                            if event['content']['msgtype'] == 'm.text':
-                                if event['sender'] != self.mxid:
-                                    message = Message(event['content']['body'],
-                                                      await self._get_nick(
-                                                          roomid,
-                                                          event['sender']),
-                                                      roomid, self,
-                                                      raw_message=event)
-                                    await opsdroid.parse(message)
+                message = await self._parse_sync_response(response)
+                await opsdroid.parse(message)
+
             except Exception:  # pylint: disable=W0703
                 _LOGGER.exception('Matrix Sync Error')
 
