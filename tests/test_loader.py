@@ -1,4 +1,4 @@
-
+import sys
 import os
 import shutil
 import subprocess
@@ -9,6 +9,7 @@ import unittest.mock as mock
 from types import ModuleType
 
 import pkg_resources
+from yaml import YAMLError
 from opsdroid.__main__ import configure_lang
 from opsdroid import loader as ld
 from opsdroid.loader import Loader
@@ -44,6 +45,24 @@ class TestLoader(unittest.TestCase):
         config = loader.load_config_file(
             [os.path.abspath("tests/configs/minimal_2.yaml")])
         self.assertIsNotNone(config)
+
+    def test_load_exploit(self):
+        """This will test if you can run python code from
+        config.yaml. The expected result should be:
+        - Yaml.YAMLError exception raised
+        - _LOGGER.critical message
+        - sys.exit
+
+        Note: the unittest.main(exit=False) is important so
+        other tests won't fail when sys.exit is called.
+        """
+        opsdroid, loader = self.setup()
+        with self.assertRaises(SystemExit):
+            config = loader.load_config_file(
+                [os.path.abspath("tests/configs/include_exploit.yaml")])
+            self.assertLogs('_LOGGER', 'critical')
+            self.assertRaises(YAMLError)
+            unittest.main(exit=False)
 
     def test_load_config_file_with_include(self):
         opsdroid, loader = self.setup()
