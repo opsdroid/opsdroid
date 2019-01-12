@@ -16,20 +16,22 @@ Similar to the crontab matcher this matcher doesn't take a message as an input, 
 ```python
 from aiohttp.web import Request
 
+from opsdroid.skill import Skill
 from opsdroid.matchers import match_webhook
 from opsdroid.message import Message
 
-@match_webhook('examplewebhook')
-async def mywebhookskill(opsdroid, config, message):
+class MySkill(Skill):
+    @match_webhook('examplewebhook')
+    async def mywebhookskill(self, message):
 
-    if type(message) is not Message and type(message) is Request:
-      # Capture the request POST data and set message to a default message
-      request = await message.post()
-      message = Message("", None, connector.default_room,
-                        opsdroid.default_connector)
+        if type(message) is not Message and type(message) is Request:
+          # Capture the request POST data and set message to a default message
+          request = await message.post()
+          message = Message("", None, self.opsdroid.connector.default_room,
+                            self.opsdroid.default_connector)
 
-    # Respond
-    await message.respond('Hey')
+        # Respond
+        await message.respond('Hey')
 ```
 
 ## Custom Responses
@@ -39,19 +41,21 @@ You can also return a custom `Response` object from your skill if you need to gi
 ```python
 from aiohttp.web import Request, Response
 
+from opsdroid.skill import Skill
 from opsdroid.matchers import match_webhook
 from opsdroid.message import Message
 
-@match_webhook('examplewebhook')
-async def mywebhookskill(opsdroid, config, message):
+class MySkill(Skill):
+    @match_webhook('examplewebhook')
+    async def mywebhookskill(self, message):
 
-    if type(message) is not Message and type(message) is Request:
-      # Capture the request POST data and set message to a default message
-      request = await message.post()
-      message = Message("", None, connector.default_room,
-                        opsdroid.default_connector)
+        if type(message) is not Message and type(message) is Request:
+          # Capture the request POST data and set message to a default message
+          request = await message.post()
+          message = Message("", None, self.opsdroid.connector.default_room,
+                            self.opsdroid.default_connector)
 
-    # Respond
-    await message.respond('Hey')
-    return Response(body='my custom response', status=201)
+        # Respond
+        await message.respond('Hey')
+        return Response(body='my custom response', status=201)
 ```

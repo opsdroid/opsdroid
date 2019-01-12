@@ -169,16 +169,23 @@ class TestCore(unittest.TestCase):
 
     def test_setup_modules(self):
         with OpsDroid() as opsdroid:
-            example_modules = []
+
             mockskill = lambda x: x * 2
             mockskill.skill = True
             mockmodule = mock.Mock(setup=mock.MagicMock(), mockskill=mockskill)
-            example_modules.append({"module": mockmodule, "config": {}})
+            example_modules = [{"module": mockmodule, "config": {}}]
             opsdroid.setup_skills(example_modules)
             self.assertEqual(len(mockmodule.setup.mock_calls), 1)
             self.assertEqual(mockmodule.method_calls[0][0], 'setup')
             self.assertEqual(len(mockmodule.method_calls[0][1]), 2)
             self.assertEqual(mockmodule.method_calls[0][1][1], {})
+            self.assertEqual(len(opsdroid.skills), 2)
+
+            mockclassmodule = importlib.import_module(
+                "tests.mockmodules.skills.skill.skilltest")
+            example_modules = [{"module": mockclassmodule, "config": {}}]
+            opsdroid.setup_skills(example_modules)
+            self.assertEqual(len(opsdroid.skills), 3)
 
     def test_default_connector(self):
         with OpsDroid() as opsdroid:

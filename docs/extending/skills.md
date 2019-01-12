@@ -4,16 +4,18 @@ Skills are designed to be simpler than other modules to ensure that it is easy t
 
 To create a skill you need to at minimum create a single python file in your repository with the `__init__.py` name. For example the skill `hello` has a single file called `__init__.py`.
 
-Within this file should be functions which are decorated with an opsdroid matcher function to let opsdroid know when to trigger the skill. Let's get started with an example.
+Within this file should be a class with methods decorated with an opsdroid matcher function to let opsdroid know when to trigger the skill. Let's get started with an example.
 
 ## Hello world
 
 ```python
+from opsdroid.skill import Skill
 from opsdroid.matchers import match_regex
 
-@match_regex(r'hi')
-async def hello(opsdroid, config, message):
-    await message.respond('Hey')
+class HelloSkill(Skill):
+    @match_regex(r'hi')
+    async def hello(self, message):
+        await message.respond('Hey')
 ```
 
 In this example we are importing the `match_regex` decorator from the opsdroid matchers library. We are then using it to decorate a simple hello world function.
@@ -70,18 +72,21 @@ Stores the object provided for a specific key.
 ### Example
 
 ```python
+from opsdroid.skill import Skill
 from opsdroid.matchers import match_regex
 
-@match_regex(r'remember (.*)')
-async def remember(opsdroid, config, message):
-    remember = message.regex.group(1)
-    await opsdroid.memory.put("remember", remember)
-    await message.respond("OK I'll remember that")
 
-@match_regex(r'remind me')
-async def remember(opsdroid, config, message):
-    information = await opsdroid.memory.get("remember")
-    await message.respond(information)
+class RememberSkill(Skill):
+    @match_regex(r'remember (.*)')
+    async def remember(self, message):
+        remember = message.regex.group(1)
+        await self.opsdroid.memory.put("remember", remember)
+        await message.respond("OK I'll remember that")
+
+    @match_regex(r'remind me')
+    async def remember(self, message):
+        information = await self.opsdroid.memory.get("remember")
+        await message.respond(information)
 ```
 
 In the above example we have defined two skill functions. The first takes whatever the user says after the word "remember" and stores it in the database.
@@ -90,12 +95,16 @@ The second retrieves and prints out that text when the user says "remind me".
 
 ## Setup
 
-If your skill requires any setup to be done when opsdroid is started you can create a method simple called `setup` which takes a pointer to opsdroid as it's only argument.
+All initialisation that might be required for your skill can go to the `__init__` method, which takes `opsdroid` and `config` as its arguments.
 
 ```python
-def setup(opsdroid):
-  # do some setup stuff here
+class MySkill(Skill):
+    def __init__(self, opsdroid, config):
+        super(MySkill, self).__init__(opsdroid, config)
+        # do some setup stuff here
 ```
+
+**IMPORTANT** Always remember to chain up to the `__init__` method of the `Skill` class, or your skill won’t work!
 
 ## Multiple matchers
 

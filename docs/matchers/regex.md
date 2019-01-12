@@ -12,7 +12,7 @@ parsers:
     enabled: true
 ```
 
-## About Regular Expression Matcher 
+## About Regular Expression Matcher
 
 This is the simplest matcher available in opsdroid. It matches the message from the user against a regular expression. If the regex matches then the function is called.
 
@@ -21,32 +21,36 @@ _note: The use of position anchors(`^` or `$`) are encouraged when using regex t
 ## Example 1
 
 ```python
+from opsdroid.skill import Skill
 from opsdroid.matchers import match_regex
 
-@match_regex('hi', case_sensitive=False)
-async def hello(opsdroid, config, message):
-    await message.respond('Hey')
+class MySkill(Skill):
+    @match_regex('hi', case_sensitive=False)
+    async def hello(self, message):
+        await message.respond('Hey')
 ```
 
-The above skill would be called on any message which matches the regex `'hi'`, `'Hi'`, `'hI'` or `'HI'`. The `case_sensitive` kwarg is optional and defaults to `True`. 
+The above skill would be called on any message which matches the regex `'hi'`, `'Hi'`, `'hI'` or `'HI'`. The `case_sensitive` kwarg is optional and defaults to `True`.
 
 ## Example 2
 
 ```python
+from opsdroid.skill import Skill
 from opsdroid.matchers import match_regex
 
+class MySkill(Skill):
 @match_regex('cold')
-async def is_cold(opsdroid, config, message):
+async def is_cold(self, message):
     await message.respond('it is')
 ```
 
-The above skill would be called on any message that matches the regex `'cold'` . 
+The above skill would be called on any message that matches the regex `'cold'` .
 
 > user: is it cold?
 >
 > opsdroid: it is
 
-Undesired effect: 
+Undesired effect:
 
 > user:  Wow, yesterday was so cold at practice!
 >
@@ -57,11 +61,13 @@ Since this matcher searches a message for the regular expression used on a skill
 #### Fixed example
 
 ```python
+from opsdroid.skill import Skill
 from opsdroid.matchers import match_regex
 
-@match_regex('cold$')
-async def is_cold(opsdroid, config, message):
-    await message.respond('it is')
+class MySkill(Skill):
+    @match_regex('cold$')
+    async def is_cold(self, message):
+        await message.respond('it is')
 ```
 
 Now this skill will only be triggered if `'cold'` is located at the end of the message.
@@ -72,7 +78,7 @@ Now this skill will only be triggered if `'cold'` is located at the end of the m
 >
 > user: Wow it was so cold outside yesterday!
 >
-> opsdroid: 
+> opsdroid:
 
 Since `'cold'` wasn't located at the end of the message, opsdroid didn't react to the second message posted by the user.
 
@@ -83,39 +89,49 @@ Since `'cold'` wasn't located at the end of the message, opsdroid didn't react t
 A _[re match object](https://docs.python.org/3/library/re.html#re.MatchObject)_ for the regular expression the message was matched against. This allows you to access any wildcard matches in the regex from within your skill.
 
 ```python
+from opsdroid.skill import Skill
 from opsdroid.matchers import match_regex
 
-@match_regex(r'remember (.*)')
-async def remember(opsdroid, config, message):
-    remember = message.regex.group(1)
-    await opsdroid.memory.put("remember", remember)
-    await message.respond("OK I'll remember that")
+class MySkill(Skill):
+    @match_regex(r'remember (.*)')
+    async def remember(self, message):
+        remember = message.regex.group(1)
+        await self.opsdroid.memory.put("remember", remember)
+        await message.respond("OK I'll remember that")
 ```
 
 ### Named Groups
 
-Elaborate regular expressions may use many groups, which allow a developer to capture substrings of interest as well as group and structure the regular expression itself.  It can become difficult to keep track of the multiple groups in complex regular expressions and be unnecessarily complex to include the groups if you refer to them by their index.  Instead, give the groups names to make it easier to keep track of the different groups and retrieve them later. 
+Elaborate regular expressions may use many groups, which allow a developer to capture substrings of interest as well as group and structure the regular expression itself.  It can become difficult to keep track of the multiple groups in complex regular expressions and be unnecessarily complex to include the groups if you refer to them by their index.  Instead, give the groups names to make it easier to keep track of the different groups and retrieve them later.
 
 #### Example 1
 
 ```python
-@match_regex('my name is (\w+) and my wife is called (\w+) and my son is called (\w+)')
-async def my_name_is(opsdroid, config, message):
-    name = message.regex.group(0)
-    wife = message.regex.group(1)
-    son = message.regex.group(2)
+from opsdroid.skill import Skill
+from opsdroid.matchers import match_regex
+
+class MySkill(Skill):
+    @match_regex('my name is (\w+) and my wife is called (\w+) and my son is called (\w+)')
+    async def my_name_is(self, message):
+        name = message.regex.group(0)
+        wife = message.regex.group(1)
+        son = message.regex.group(2)
 ```
 
 The above example does not use named groups and requires knowing the exact order of each of the groups in order to request them by their index.
 
-#### Fixed Example 
+#### Fixed Example
 
 ```python
-@match_regex('my name is (?P<name>\w+) and my wife is called (?P<wife>\w+) and my son is called (?P<son>\w+)')
-async def my_name_is(opsdroid, config, message):
-    name = message.regex.group('name')
-    wife = message.regex.group('wife')
-    son = message.regex.group('son')
+from opsdroid.skill import Skill
+from opsdroid.matchers import match_regex
+
+class MySkill(Skill):
+    @match_regex('my name is (?P<name>\w+) and my wife is called (?P<wife>\w+) and my son is called (?P<son>\w+)')
+    async def my_name_is(self, message):
+        name = message.regex.group('name')
+        wife = message.regex.group('wife')
+        son = message.regex.group('son')
 ```
 
 The above example gives each group a name and retrieves each group by using their respective names.  This is the recommended approach to using groups since it will simplify entity retrieval.
@@ -127,14 +143,16 @@ In order to make NLU skills execute over regex skills, opsdroid always applies a
 If a developer want to have a regex skill executed over a NLU one then the keyword argument `score_factor` can be used to achieve this.
 
 
-### Example 
+### Example
 
 ```python
+from opsdroid.skill import Skill
 from opsdroid.matchers import match_regex
 
-@match_regex('ping', score_factor=0.9)
-async def ping(opsdroid, config, message):
-    await message.respond('pong')
+class MySkill(Skill):
+    @match_regex('ping', score_factor=0.9)
+    async def ping(self, message):
+        await message.respond('pong')
 ```
 
 In this example, the evaluated score of `ping` skill will be multiplied by `0.9` instead of `0.6`.

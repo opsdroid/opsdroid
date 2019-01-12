@@ -21,12 +21,14 @@ parsers:
 ## Example 1
 
 ```python
+from opsdroid.skill import Skill
 from opsdroid.matchers import match_luisai_intent
 
-@match_luisai_intent('Calendar.Add')
-async def passthrough(opsdroid, config, message):
-    if message.luisai["topScoringIntent"]["intent"]=="Calendar.Add":
-        await message.respond(str(message.luisai))
+class MySkill(Skill):
+   @match_luisai_intent('Calendar.Add')
+   async def passthrough(self, message):
+      if message.luisai["topScoringIntent"]["intent"]=="Calendar.Add":
+         await message.respond(str(message.luisai))
 ```
 
 The above skill would be called on any intent which has an action of `'Calendar.Add'`
@@ -46,12 +48,14 @@ _Note: "Each LUIS app has a unique app ID, and endpoint log." [Multi-language LU
 An http response object which has been returned by the luis.ai API. This allows you to access any information from the matched intent including the query, top scoring intent, intents etc.
 
 ```python
+from opsdroid.skill import Skill
 from opsdroid.matchers import match_luisai_intent
 
-@match_luisai_intent('Calendar.Add')
-async def passthrough(opsdroid, config, message):
-    if message.luisai["topScoringIntent"]["intent"]=="Calendar.Add":
-        await message.respond(str(message.luisai))
+class MySkill(Skill):
+   @match_luisai_intent('Calendar.Add')
+   async def passthrough(self, message):
+      if message.luisai["topScoringIntent"]["intent"]=="Calendar.Add":
+         await message.respond(str(message.luisai))
 ```
 
 This example skill will print the following on the message "schedule meeting"

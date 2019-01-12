@@ -2,8 +2,8 @@
 
 ## Configuring opsdroid
 
-In order to enable wit.ai skills, you must specify an `access-token` for your bot in the parsers section of the opsdroid configuration file. 
-You can find this `access-token` in the settings of your App under the name: `'Server Access Token: '`. 
+In order to enable wit.ai skills, you must specify an `access-token` for your bot in the parsers section of the opsdroid configuration file.
+You can find this `access-token` in the settings of your App under the name: `'Server Access Token: '`.
 
 You can also set a `min-score` option to tell opsdroid to ignore any matches which score less than a given number between 0 and 1. The default for this is 0 which will match all messages.
 
@@ -22,21 +22,23 @@ parsers:
 ## [Example 1](#example1)
 
 ```python
+from opsdroid.skill import Skill
 from opsdroid.matchers import match_witai
 
-@match_witai('get_weather')
-async def weather(opsdroid, config, message):
-    """Hard Coded version of weather function"""
-    temp = 10
-    humidity = "80%"
-    city = message.witai['entities']['location'][0]['value']
-    status = "Clouds"
+class MySkill(Skill):
+    @match_witai('get_weather')
+    async def weather(self, message):
+        """Hard Coded version of weather function"""
+        temp = 10
+        humidity = "80%"
+        city = message.witai['entities']['location'][0]['value']
+        status = "Clouds"
 
-    await message.respond("It's currently {} degrees, {}% humidity in {} and {} is forecasted "
-                          "for today".format(temp, humidity, city, status))
+        await message.respond("It's currently {} degrees, {}% humidity in {} and {} is forecasted "
+                              "for today".format(temp, humidity, city, status))
 ```
 
-The above skill would be called on any intent which has a name of `'get_weather'`. 
+The above skill would be called on any intent which has a name of `'get_weather'`.
 
 #### Usage example
 
@@ -61,14 +63,15 @@ An http response object which has been returned by the wit.ai API. This allows y
 ## Example Skill
 
 ```python
+from opsdroid.skill import Skill
 from opsdroid.matchers import match_witai
 
 import json
 
-
-@match_witai('get_weather')
-async def dumpResponse(opsdroid, config, message):
-    print(json.dumps(message.witai))
+class MySkill(Skill):
+    @match_witai('get_weather')
+    async def dumpResponse(self, message):
+        print(json.dumps(message.witai))
 ```
 
 ### Return Value on "How's the weather?"
@@ -77,15 +80,15 @@ The example skill will print the following on the message "how's the weather?".
 
 ```json
 {
-  "msg_id": "0zTl3L16kFW4PwtSt", 
-  "_text": "how's the weather", 
+  "msg_id": "0zTl3L16kFW4PwtSt",
+  "_text": "how's the weather",
   "entities": {
      "intent": [
        {
-         "confidence": 0.77586417870417, 
+         "confidence": 0.77586417870417,
          "value": "get_weather"
-       } 
-     ]    
+       }
+     ]
   }
 }
 ```
@@ -96,20 +99,20 @@ The example skill will print the following on the message "What's the weather li
 
 ```json
 {
-   "msg_id": "0zrCQ5LEkWd0MoHYM", 
-   "_text": "What's the weather like in London?", 
+   "msg_id": "0zrCQ5LEkWd0MoHYM",
+   "_text": "What's the weather like in London?",
    "entities": {
       "location": [
         {
-          "suggested": true, 
-          "confidence": 0.74044071131585, 
-          "value": "London", 
+          "suggested": true,
+          "confidence": 0.74044071131585,
+          "value": "London",
           "type": "value"
         }
-      ], 
+      ],
       "intent": [
         {
-          "confidence": 0.99979499373014, 
+          "confidence": 0.99979499373014,
           "value": "get_weather"
         }
       ]
@@ -118,7 +121,7 @@ The example skill will print the following on the message "What's the weather li
 
 ```
 
-Since Wit.ai can recognise locations, you can use this values on your skills to return different things. 
+Since Wit.ai can recognise locations, you can use this values on your skills to return different things.
 On our weather skill([example 1](#example1)) we changed the city param to get the temperature related to any city passed on the message.
 
 

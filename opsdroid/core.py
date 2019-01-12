@@ -13,6 +13,7 @@ from opsdroid.const import DEFAULT_CONFIG_PATH
 from opsdroid.memory import Memory
 from opsdroid.connector import Connector
 from opsdroid.database import Database
+from opsdroid.skill import Skill
 from opsdroid.loader import Loader
 from opsdroid.web import Web
 from opsdroid.parsers.always import parse_always
@@ -213,13 +214,43 @@ class OpsDroid():
 
         """
         for skill in skills:
-            for _, func in skill["module"].__dict__.items():
+            for func in skill["module"].__dict__.values():
+                if (isinstance(func, type) and
+                        issubclass(func, Skill) and
+                        func != Skill):
+                    skill_obj = func(self, skill['config'])
+
+                    for name in skill_obj.__dir__():
+                        # pylint: disable=broad-except
+                        # Getting an attribute of
+                        # an object might raise any type of exceptions, for
+                        # example within an external library called from an
+                        # object property.  Since we are only interested in
+                        # skill methods, we can safely ignore these.
+                        try:
+                            method = getattr(skill_obj, name)
+                        except Exception:
+                            continue
+
+                        if hasattr(method, 'skill'):
+                            self.skills.append(method)
+
+                    continue
+
                 if hasattr(func, "skill"):
+                    _LOGGER.warning(_("Function based skills are deprecated "
+                                      "and will be removed in a future "
+                                      "release. Please use class-based skills "
+                                      "instead."))
                     func.config = skill['config']
                     self.skills.append(func)
+
         with contextlib.suppress(AttributeError):
             for skill in skills:
                 skill["module"].setup(self, self.config)
+                _LOGGER.warning(_("<skill module>.setup() is deprecated and "
+                                  "will be removed in a future release. "
+                                  "Please use class-based skills instead."))
 
     def train_parsers(self, skills):
         """Train the parsers."""
