@@ -22,6 +22,11 @@ class TestMatchers(asynctest.TestCase):
             pass
         return mockedskill
 
+    async def getMockWebSkill(self):
+        async def mockedwebskill(opsdroid, config, message):
+            return aiohttp.web.Response(body=b'custom response', status=200)
+        return mockedwebskill
+
     async def test_match_regex(self):
         with OpsDroid() as opsdroid:
             regex = r"(.*)"
@@ -131,3 +136,20 @@ class TestMatchers(asynctest.TestCase):
             wrapperfunc = postcalls[1]
             webhookresponse = await wrapperfunc(None)
             self.assertEqual(type(webhookresponse), aiohttp.web.Response)
+
+    async def test_match_webhook_custom_response(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.loader.current_import_config = {"name": "testhook"}
+            opsdroid.web_server = Web(opsdroid)
+            opsdroid.web_server.web_app = mock.Mock()
+            webhook = "test"
+            decorator = matchers.match_webhook(webhook)
+            opsdroid.skills.append(decorator(await self.getMockWebSkill()))
+            opsdroid.skills[0].config = {"name": "mockedskill"}
+            opsdroid.web_server.setup_webhooks(opsdroid.skills)
+            postcalls, _ = \
+                opsdroid.web_server.web_app.router.add_post.call_args_list[0]
+            wrapperfunc = postcalls[1]
+            webhookresponse = await wrapperfunc(None)
+            self.assertEqual(type(webhookresponse), aiohttp.web.Response)
+            self.assertEqual(webhookresponse.body, b'custom response')
