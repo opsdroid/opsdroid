@@ -49,4 +49,4 @@ class TestSkill(unittest.TestCase):
         message = Mock()
         skill.hello_skill(message)
 
-        message.respond.assert_called_once()
+        self.assertTrue(message.respond.called_once)
