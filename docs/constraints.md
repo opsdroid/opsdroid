@@ -11,13 +11,15 @@ The constraint `constrain_rooms(rooms)` allows you to restrict a skill to a spec
 The following skill will respond with 'Hey' if a user says 'hi' in either the `#general` or `#random` rooms but not in `#public`.
 
 ```python
+from opsdroid.skill import Skill
 from opsdroid.matchers import match_regex
 from opsdroid.constraints import constrain_rooms
 
-@match_regex(r'hi')
-@constrain_rooms(['#general', '#random'])
-async def hello(opsdroid, config, message):
-    await message.respond('Hey')
+class MySkill(Skill):
+    @match_regex(r'hi')
+    @constrain_rooms(['#general', '#random'])
+    async def hello(self, message):
+        await message.respond('Hey')
 ```
 
 ## Constrain users
@@ -29,13 +31,15 @@ The constraint `constrain_users(users)` allows you to restrict a skill to a spec
 The following skill will respond with 'Hey' if the users `alice` or `bob` say 'hi' but not if `charlie` says it.
 
 ```python
+from opsdroid.skill import Skill
 from opsdroid.matchers import match_regex
 from opsdroid.constraints import constrain_users
 
-@match_regex(r'hi')
-@constrain_users(['alice', 'bob'])
-async def hello(opsdroid, config, message):
-    await message.respond('Hey')
+class MySkill(Skill):
+    @match_regex(r'hi')
+    @constrain_users(['alice', 'bob'])
+    async def hello(self, message):
+        await message.respond('Hey')
 ```
 
 ## Constrain connectors
@@ -47,11 +51,13 @@ The constraint `constrain_connectors(connectors)` allows you to restrict a skill
 The following skill will respond with 'Hey' via the `websocket` connector but not the `slack` connector.
 
 ```python
+from opsdroid.skill import Skill
 from opsdroid.matchers import match_regex
 from opsdroid.constraints import constrain_connectors
 
-@match_regex(r'hi')
-@constrain_connectors(['websocket'])
-async def hello(opsdroid, config, message):
-    await message.respond('Hey')
+class MySkill(Skill):
+    @match_regex(r'hi')
+    @constrain_connectors(['websocket'])
+    async def hello(self, message):
+        await message.respond('Hey')
 ```

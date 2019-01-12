@@ -8,7 +8,7 @@ class TestSkill(Skill):
     """A mocked skill."""
 
     @match_regex("test")
-    def test_method(self, opsdroid, config, message):
+    def test_method(self, message):
         """A test method skill."""
         pass
 

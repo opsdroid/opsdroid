@@ -13,9 +13,11 @@ When a message is parsed all skills are ranked by the parsers in order of how co
 ## Example
 
 ```python
+from opsdroid.skill import Skill
 from opsdroid.matchers import match_always
 
-@match_always
-async def keep_track(opsdroid, config, message):
-    # Put message.user into a database along with a timestamp
+class TrackingSkill(Skill):
+    @match_always
+    async def keep_track(self, message):
+        # Put message.user into a database along with a timestamp
 ```

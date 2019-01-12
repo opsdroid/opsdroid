@@ -32,14 +32,16 @@ Rasa NLU is also trained via the API and so opsdroid can do the training for you
 
 Skill file (`__init__.py`).
 ```python
+from opsdroid.skill import Skill
 from opsdroid.matchers import match_rasanlu
 
-@match_rasanlu('greetings')
-async def hello(opsdroid, config, message):
-    """Replies to user when any 'greetings' 
-    intent is returned by Rasa NLU
-    """
-    await message.respond("Hello there!")
+class MySkill(Skill):
+    @match_rasanlu('greetings')
+    async def hello(self, message):
+        """Replies to user when any 'greetings'
+        intent is returned by Rasa NLU
+        """
+        await message.respond("Hello there!")
 ```
 
 Intents file (`intents.md`).
@@ -57,18 +59,20 @@ Intents file (`intents.md`).
 
 > **Note** - Rasa NLU requires an intent to have at least three training examples in the list. There must also be a minimum of two intents in your file for Rasa to train.
 
-The above skill would be called on any intent which has a name of `'greetings'`. 
+The above skill would be called on any intent which has a name of `'greetings'`.
 
 ## Example 2
 
 Skill file (`__init__.py`).
 ```python
+from opsdroid.skill import Skill
 from opsdroid.matchers import match_rasanlu
 
-@match_rasanlu('ask-joke')
-async def my_skill(opsdroid, config, message):
-    """Returns a joke if asked by the user"""
-    await message.respond('What do you call a bear with no teeth? -- A gummy bear!')
+class MySkill(Skill):
+    @match_rasanlu('ask-joke')
+    async def my_skill(self, message):
+        """Returns a joke if asked by the user"""
+        await message.respond('What do you call a bear with no teeth? -- A gummy bear!')
 ```
 
 Intents file (`intents.md`).
@@ -94,14 +98,15 @@ An http response object which has been returned by the Rasa NLU API. This allows
 ## Example Skill
 
 ```python
+from opsdroid.skill import Skill
 from opsdroid.matchers import match_rasanlu
 
 import json
 
-
-@match_rasanlu('restaurants')
-async def dumpResponse(opsdroid, config, message):
-    print(json.dumps(message.rasanlu))
+class MySkill(Skill):
+    @match_rasanlu('restaurants')
+    async def dumpResponse(self, message):
+        print(json.dumps(message.rasanlu))
 ```
 
 ### Return Value on "I am looking for a Mexican restaurant in the center of town"

@@ -14,7 +14,7 @@ from opsdroid.matchers import match_regex
 
 class HelloSkill(Skill):
     @match_regex(r'hi')
-    async def hello(message):
+    async def hello(self, message):
         await message.respond('Hey')
 ```
 
@@ -78,13 +78,13 @@ from opsdroid.matchers import match_regex
 
 class RememberSkill(Skill):
     @match_regex(r'remember (.*)')
-    async def remember(message):
+    async def remember(self, message):
         remember = message.regex.group(1)
         await self.opsdroid.memory.put("remember", remember)
         await message.respond("OK I'll remember that")
 
     @match_regex(r'remind me')
-    async def remember(message):
+    async def remember(self, message):
         information = await self.opsdroid.memory.get("remember")
         await message.respond(information)
 ```

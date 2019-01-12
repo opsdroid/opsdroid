@@ -21,11 +21,13 @@ parsers:
 ## Example 1
 
 ```python
+from opsdroid.skill import Skill
 from opsdroid.matchers import match_dialogflow_action
 
-@match_dialogflow_action('mydomain.myaction')
-async def my_skill(opsdroid, config, message):
-    await message.respond('An appropriate response!')
+class MySkill(Skill):
+  @match_dialogflow_action('mydomain.myaction')
+  async def my_skill(self, message):
+      await message.respond('An appropriate response!')
 ```
 
 The above skill would be called on any intent which has an action of `'mydomain.myaction'`.
@@ -33,11 +35,13 @@ The above skill would be called on any intent which has an action of `'mydomain.
 ## Example 2
 
 ```python
+from opsdroid.skill import Skill
 from opsdroid.matchers import match_dialogflow_intent
 
-@match_dialogflow_intent('myIntent')
-async def my_skill(opsdroid, config, message):
-    await message.respond('An appropriate response!')
+class MySkill(Skill):
+  @match_dialogflow_intent('myIntent')
+  async def my_skill(self, message):
+      await message.respond('An appropriate response!')
 ```
 
 The above skill would be called on any intent which has a name of `'myIntent'`.
@@ -58,12 +62,13 @@ An http response object which has been returned by the Dialogflow API. This allo
 
 ```python
 import json
-
+from opsdroid.skill import Skill
 from opsdroid.matchers import match_dialogflow_action
 
-@match_dialogflow_action('smalltalk.greetings')
-async def dump_response(opsdroid, config, message):
-    print(json.dumps(message.dialogflow))
+class MySkill(Skill):
+  @match_dialogflow_action('smalltalk.greetings')
+  async def dump_response(self, message):
+      print(json.dumps(message.dialogflow))
 ```
 
 This example skill will print the following on the message "whats up?".
