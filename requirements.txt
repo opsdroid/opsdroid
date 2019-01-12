@@ -9,7 +9,7 @@ emoji==0.5.1
 nbconvert==5.4.0
 nbformat==4.4.0
 pycron==1.0.0
-pyyaml==4.2b1
+pyyaml==4.2b4
 websockets==7.0
 appdirs==1.4.3
 multidict==4.5.2
