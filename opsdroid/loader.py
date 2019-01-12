@@ -249,7 +249,7 @@ class Loader:
         try:
             with open(config_path, 'r') as stream:
                 _LOGGER.info(_("Loaded config from %s."), config_path)
-                return yaml.load(stream)
+                return yaml.load(stream, Loader=yaml.SafeLoader)
         except yaml.YAMLError as error:
             _LOGGER.critical(error)
             sys.exit(1)
