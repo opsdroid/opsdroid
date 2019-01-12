@@ -183,7 +183,7 @@ async def get_weather(config):
     return response.json()
 
 
-class MySkill(Skill):
+class WeatherSkill(Skill):
 
     @match_regex()
     async def tell_weather(self, message):
@@ -193,7 +193,7 @@ class MySkill(Skill):
 We need to chose what should trigger opsdroid to tell us the weather. Let's make opsdroid trigger when we type `How's the weather`.
 
 ```python
-class MySkill(Skill):
+class WeatherSkill(Skill):
 
     @match_regex("How's the weather?")
     async def tell_weather(self, message):
@@ -205,7 +205,7 @@ Now that we have a way to trigger the skill we will use our `get_weather` functi
 Make your function look like this:
 
 ```python
-class MySkill(Skill):
+class WeatherSkill(Skill):
 
     @match_regex("How's the weather?")
     async def tell_weather(self, message):
@@ -220,7 +220,7 @@ What's left to do is to make opsdroid say the temperature in your city. We can d
 Change `tell_weather` function to the following:
 
 ```python
-class MySkill(Skill):
+class WeatherSkill(Skill):
 
     @match_regex("How's the weather?")
     async def tell_weather(self, message):
@@ -243,7 +243,7 @@ from opsdroid.matchers import match_regex
 import aiohttp
 
 
-class MySkill(Skill):
+class WeatherSkill(Skill):
 
     async def _get_weather(self):
         api_url = "http://api.openweathermap.org/data/2.5/weather?q="
