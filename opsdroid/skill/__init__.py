@@ -1,5 +1,4 @@
-"""Base class for class-based skills
-"""
+"""Base class for class-based skills."""
 from functools import wraps
 
 
@@ -12,18 +11,32 @@ def _skill_decorator(func):
 
     return decorated_skill
 
+
 class Skill:
+    """A skill prototype to use when creating classy skills."""
+
+    # pylint: disable=too-few-public-methods
     def __init__(self, opsdroid, config, *args, **kwargs):
+        """Create the skill.
+
+        Set some basic properties from the skill.
+
+        Args:
+            opsdroid (OpsDroid): The running opsdroid instance pointer.
+            config (dict): The config for this database specified in the
+                           `configuration.yaml` file.
+        """
         super(Skill, self).__init__()
 
         self.opsdroid = opsdroid
         self.config = config
 
         for name in self.__dir__():
-            # pylint: disable=broad-except Getting an attribute of an object might raise any type
-            # of exceptions, for example within an external library called from an object
-            # property.  Since we are only interested in skill methods, we can safely ignore
-            # these.
+            # pylint: disable=broad-except
+            # Getting an attribute of an object
+            # might raise any type of exceptions, for example within an
+            # external library called from an object  property.  Since we are
+            # only interested in skill methods, we can safely ignore these.
             try:
                 method = getattr(self, name)
             except Exception:
