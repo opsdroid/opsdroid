@@ -96,6 +96,7 @@ The built-in connectors are:
 
 - [Facebook](/connectors/facebook.md)
 - [GitHub](/connectors/github.md)
+- [Matrix](/connectors/matrix.md)
 - [Rocket.Chat](/connectors/rocketchat.md)
 - [Slack](/connectors/slack.md)
 - [Telegram](/connectors/telegram.md)
