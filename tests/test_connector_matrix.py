@@ -199,10 +199,10 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
     #     self.connector.respond(message)
 
     async def test_disconnect(self):
-        with amock.patch('aiohttp.ClientSession') as patched_session:
-            self.connector.session = patched_session
-            await self.connector.disconnect()
-            assert patched_session.close.called
+        self.connector.session = amock.MagicMock()
+        self.connector.session.close = amock.CoroutineMock()
+        await self.connector.disconnect()
+        assert self.connector.session.close.called
 
     async def get_roomname(self):
         pass
