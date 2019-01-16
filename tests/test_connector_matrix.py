@@ -6,6 +6,7 @@ import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock
 from matrix_api_async import AsyncHTTPAPI
+from matrix_client.errors import MatrixRequestError
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector.matrix import ConnectorMatrix
@@ -160,11 +161,24 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
     async def test_get_nick(self):
         self.connector.room_specific_nicks = True
 
-        with amock.patch(api_string.format('get_room_displayname')) as patched_name:
-            patched_name.return_value = asyncio.Future()
-            patched_name.return_value.set_result('')
+        with amock.patch(api_string.format('get_room_displayname')) as patched_roomname, \
+             amock.patch(api_string.format('get_display_name')) as patched_globname:
+            patched_roomname.return_value = asyncio.Future()
+            patched_roomname.return_value.set_result('')
 
-            assert await self.connector._get_nick('!notaroom:matrix.org', '@notaperson:matrix.org') == ''
+            mxid = '@notaperson:matrix.org'
+            assert await self.connector._get_nick('!notaroom:matrix.org', mxid) == ''
+            # Test if a room displayname couldn't be found
+            patched_roomname.side_effect = Exception()
+
+            # Test if that leads to a global displayname being returned
+            patched_globname.return_value = asyncio.Future()
+            patched_globname.return_value.set_result('@notaperson')
+            assert await self.connector._get_nick('!notaroom:matrix.org', mxid) == '@notaperson'
+
+            # Test that failed nickname lookup returns the mxid
+            patched_globname.side_effect = MatrixRequestError()
+            assert await self.connector._get_nick('!notaroom:matrix.org', mxid) == mxid
 
     async def test_get_html_content(self):
         pass
