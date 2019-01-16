@@ -162,7 +162,8 @@ class ConnectorMatrix(Connector):
                 logging.exception("Failed to lookup nick for {}".format(mxid))
             return mxid
 
-    def _get_formatted_message_body(self, message, body=None, msgtype="m.text"):
+    @staticmethod
+    def _get_formatted_message_body(message, body=None, msgtype="m.text"):
         """
         Get HTML from a message.
 
