@@ -22,9 +22,9 @@ __all__ = ['ConnectorMatrix']
 class ConnectorMatrix(Connector):
     """Connector for Matrix (https://matrix.org)."""
 
-    def __init__(self, config):  # noqa: D107
+    def __init__(self, config, opsdroid=None):  # noqa: D107
         """Init the config for the connector."""
-        super().__init__(config)
+        super().__init__(config, opsdroid=opsdroid)
 
         self.name = "ConnectorMatrix"  # The name of your connector
         self.config = config  # The config dictionary to be accessed later
