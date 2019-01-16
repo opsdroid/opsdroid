@@ -5,252 +5,175 @@ import unittest
 import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock
+from matrix_api_async import AsyncHTTPAPI
 
+from opsdroid.core import OpsDroid
 from opsdroid.connector.matrix import ConnectorMatrix
 from opsdroid.message import Message
 from opsdroid.__main__ import configure_lang
 
+api_string = 'matrix_api_async.AsyncHTTPAPI.{}'
 
-class TestConnectorMatrix(unittest.TestCase):
-    """Test the opsdroid Matrix connector class."""
-
-    def setUp(self):
-        self.loop = asyncio.new_event_loop()
-        configure_lang({})
-
-    def test_init(self):
-        """Test that the connector is initialised properly."""
-        connector = ConnectorMatrix(
-            {"room": "#notaroom:matrix.org",
-             "mxid": "@nobody:matrix.org",
-             "password": "nothing"}
-        )
-        self.assertEqual("#notaroom:matrix.org", connector.default_room)
-        self.assertEqual("ConnectorMatrix", connector.name)
-
-    def test_missing_api_key(self):
-        """Test that creating without an API key raises an error."""
-        with self.assertRaises(KeyError):
-            ConnectorMatrix({})
-
-    # def test_listen(self):
-    #     connector = ConnectorMatrix({})
-    #     with self.assertRaises(NotImplementedError):
-    #         self.loop.run_until_complete(connector.listen({}))
-
-    # def test_respond(self):
-    #     connector = ConnectorMatrix({})
-    #     with self.assertRaises(NotImplementedError):
-    #         self.loop.run_until_complete(connector.respond({}))
-
-    # def test_react(self):
-    #     connector = ConnectorMatrix({})
-    #     reacted = self.loop.run_until_complete(connector.react({}, 'emoji'))
-    #     self.assertFalse(reacted)
-
-    # def test_user_typing(self):
-    #     opsdroid = 'opsdroid'
-    #     connector = ConnectorMatrix({})
-    #     user_typing = self.loop.run_until_complete(
-    #         connector.user_typing(opsdroid, trigger=True))
-    #     assert user_typing is None
+def setup_connector():
+    connector = ConnectorMatrix(
+        {"room": "#test:localhost",
+         "mxid": "@opsdroid:localhost",
+         "password": "hello",
+         "homeserver": "http://localhost:8008"}
+    )
+    return connector
 
 
 class TestConnectorMatrixAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid Matrix connector class."""
-
-    async def test_connect(self):
-        connector = ConnectorMatrix(
-            {"room": "#notaroom:matrix.org",
-             "mxid": "@nobody:matrix.org",
-             "password": "nothing"}
-        )
-        opsdroid = amock.CoroutineMock()
-        opsdroid.eventloop = self.loop
-        connector.matrixer.rtm.start = amock.CoroutineMock()
-        connector.keepalive_websocket = amock.CoroutineMock()
-        with amock.patch('websockets.connect', new=amock.CoroutineMock()) \
-                as mocked_websocket_connect:
-            await connector.connect(opsdroid)
-        self.assertTrue(connector.matrixer.rtm.start.called)
-        self.assertTrue(mocked_websocket_connect.called)
-        self.assertTrue(connector.keepalive_websocket.called)
-
-    async def test_reconnect_on_error(self):
-        import aiohttp
-        connector = ConnectorMatrix(
-            {"room": "#notaroom:matrix.org",
-             "mxid": "@nobody:matrix.org",
-             "password": "nothing"}
-        )
-        connector.matrixer.rtm.start = amock.CoroutineMock()
-        connector.matrixer.rtm.start.side_effect = aiohttp.ClientOSError()
-        connector.reconnect = amock.CoroutineMock()
-
-        await connector.connect()
-        self.assertTrue(connector.reconnect.called)
-
-    async def test_listen_loop(self):
-        """Test that listening consumes from the socket."""
-        connector = ConnectorMatrix(
-            {"room": "#notaroom:matrix.org",
-             "mxid": "@nobody:matrix.org",
-             "password": "nothing"}
-        )
-        connector.receive_from_websocket = amock.CoroutineMock()
-        connector.receive_from_websocket.side_effect = Exception()
-        with self.assertRaises(Exception):
-            await connector.listen(amock.CoroutineMock())
-        self.assertTrue(connector.receive_from_websocket.called)
-
-    async def test_receive_from_websocket(self):
-        """Test receive_from_websocket receives and reconnects."""
-        import websockets
-        connector = ConnectorMatrix(
-            {"room": "#notaroom:matrix.org",
-             "mxid": "@nobody:matrix.org",
-             "password": "nothing"}
-        )
-
-        connector.websocket = amock.CoroutineMock()
-        connector.websocket.recv = amock.CoroutineMock()
-        connector.websocket.recv.return_value = '[]'
-        connector.process_message = amock.CoroutineMock()
-        await connector.receive_from_websocket()
-        self.assertTrue(connector.websocket.recv.called)
-        self.assertTrue(connector.process_message.called)
-
-        connector.websocket.recv.side_effect = \
-            websockets.exceptions.ConnectionClosed(500, "Mock Error")
-        connector.reconnect = amock.CoroutineMock()
-        await connector.receive_from_websocket()
-        self.assertTrue(connector.reconnect.called)
-
-    async def test_process_message(self):
-        """Test processing a matrix message."""
-        connector = ConnectorMatrix(
-            {"room": "#notaroom:matrix.org",
-             "mxid": "@nobody:matrix.org",
-             "password": "nothing"}
-        )
-        connector.lookup_username = amock.CoroutineMock()
-        connector.lookup_username.return_value = {"name": "testuser"}
-        connector.opsdroid = amock.CoroutineMock()
-        connector.opsdroid.parse = amock.CoroutineMock()
-
-        message = {   # https://api.matrix.com/events/message
-            "type": "message",
-            "channel": "C2147483705",
-            "user": "U2147483697",
-            "text": "Hello, world!",
-            "ts": "1355517523.000005",
-            "edited": {
-                "user": "U2147483697",
-                "ts": "1355517536.000001"
+    @property
+    def sync_return(self):
+        return {
+            "account_data": {
+                "events": []
+            },
+            "device_lists": {
+                "changed": [],
+                "left": []
+            },
+            "device_one_time_keys_count": {
+                "signed_curve25519": 50
+            },
+            "groups": {
+                "invite": {},
+                "join": {},
+                "leave": {}
+            },
+            "next_batch": "s801873745",
+            "presence": {
+                "events": []
+            },
+            "rooms": {
+                "invite": {},
+                "join": {
+                    "!aroomid:localhost": {
+                        "account_data": {
+                            "events": []
+                        },
+                        "ephemeral": {
+                            "events": []
+                        },
+                        "state": {
+                            "events": []
+                        },
+                        "summary": {},
+                        "timeline": {
+                            "events": [
+                                {
+                                    "content": {
+                                        "body": "LOUD NOISES",
+                                        "msgtype": "m.text"
+                                    },
+                                    "event_id": "$eventid:localhost",
+                                    "origin_server_ts": 1547124373956,
+                                    "sender": "@cadair:cadair.com",
+                                    "type": "m.room.message",
+                                    "unsigned": {
+                                        "age": 3498
+                                    }
+                                }
+                            ],
+                            "limited": False,
+                            "prev_batch": "s801873709_690923311_714269_220789851_103743426_545343_16236676_11101067_27940"
+                        },
+                        "unread_notifications": {
+                            "highlight_count": 0,
+                            "notification_count": 0
+                        }
+                    }
+                },
+                "leave": {}
+            },
+            "to_device": {
+                "events": []
             }
         }
-        await connector.process_message(message)
-        self.assertTrue(connector.opsdroid.parse.called)
 
-        connector.opsdroid.parse.reset_mock()
-        message["subtype"] = "bot_message"
-        await connector.process_message(message)
-        self.assertFalse(connector.opsdroid.parse.called)
-        del message["subtype"]
+    def setUp(self):
+        self.connector = setup_connector()
+        self.api = AsyncHTTPAPI('https://notaurl.com', None)
+        self.connector.connection = self.api
 
-        connector.opsdroid.parse.reset_mock()
-        connector.lookup_username.side_effect = ValueError
-        await connector.process_message(message)
-        self.assertFalse(connector.opsdroid.parse.called)
+    async def test_make_filter(self):
+        with amock.patch(api_string.format('create_filter')) as patched_filter:
+            patched_filter.return_value = asyncio.Future()
+            patched_filter.return_value.set_result({'filter_id': 'arbitrary string'})
+            test_rooms = ['!notaroom:matrix.org', '!notanotherroom:matrix.org']
+            filter_id = await self.connector.make_filter(self.api, test_rooms)
+            assert filter_id == 'arbitrary string'
 
-    async def test_keepalive_websocket_loop(self):
-        """Test that listening consumes from the socket."""
-        connector = ConnectorMatrix(
-            {"room": "#notaroom:matrix.org",
-             "mxid": "@nobody:matrix.org",
-             "password": "nothing"}
-        )
-        connector.ping_websocket = amock.CoroutineMock()
-        connector.ping_websocket.side_effect = Exception()
-        with self.assertRaises(Exception):
-            await connector.keepalive_websocket()
-        self.assertTrue(connector.ping_websocket.called)
+            patched_filter.assert_called()
+            assert patched_filter.call_args[1]['user_id'] == '@opsdroid:localhost'
+            assert patched_filter.call_args[1]['filter_params']['room']['rooms'] == test_rooms
 
-    async def test_ping_websocket(self):
-        """Test pinging the websocket."""
-        import websockets
-        connector = ConnectorMatrix({"api-token": "abc123"})
-        with amock.patch('asyncio.sleep', new=amock.CoroutineMock()) \
-                as mocked_sleep:
-            connector.websocket = amock.CoroutineMock()
-            connector.websocket.send = amock.CoroutineMock()
-            await connector.ping_websocket()
-            self.assertTrue(mocked_sleep.called)
-            self.assertTrue(connector.websocket.send.called)
+    async def test_connect(self):
+        with amock.patch(api_string.format('login')) as patched_login, \
+             amock.patch(api_string.format('join_room')) as patched_join_room, \
+             amock.patch(api_string.format('create_filter')) as patched_filter, \
+             amock.patch(api_string.format('sync')) as patched_sync, \
+             OpsDroid() as opsdroid:
 
-            connector.reconnect = amock.CoroutineMock()
-            connector.websocket.send.side_effect = \
-                websockets.exceptions.ConnectionClosed(500, "Mock Error")
-            await connector.ping_websocket()
-            self.assertTrue(connector.reconnect.called)
+            patched_login.return_value = asyncio.Future()
+            patched_login.return_value.set_result({'access_token': 'arbitrary string1'})
 
-    async def test_lookup_username(self):
-        """Test that looking up a username works and that it caches."""
-        connector = ConnectorMatrix(
-            {"room": "#notaroom:matrix.org",
-             "mxid": "@nobody:matrix.org",
-             "password": "nothing"}
-        )
-        connector.matrixer.users.info = amock.CoroutineMock()
-        mock_user = mock.Mock()
-        mock_user.body = {"user": {"name": "testuser"}}
-        connector.matrixer.users.info.return_value = mock_user
+            patched_join_room.return_value = asyncio.Future()
+            patched_join_room.return_value.set_result({'room_id': '!aroomid:localhost'})
 
-        self.assertEqual(len(connector.known_users), 0)
+            patched_filter.return_value = asyncio.Future()
+            patched_filter.return_value.set_result({'filter_id': 'arbitrary string'})
 
-        await connector.lookup_username('testuser')
-        self.assertTrue(len(connector.known_users), 1)
-        self.assertTrue(connector.matrixer.users.info.called)
+            patched_sync.return_value = asyncio.Future()
+            patched_sync.return_value.set_result({'next_batch': 'arbitrary string2'})
 
-        connector.matrixer.users.info.reset_mock()
-        await connector.lookup_username('testuser')
-        self.assertEqual(len(connector.known_users), 1)
-        self.assertFalse(connector.matrixer.users.info.called)
+            await self.connector.connect(opsdroid)
 
-        with self.assertRaises(ValueError):
-            mock_user.body = {"user": None}
-            connector.matrixer.users.info.return_value = mock_user
-            await connector.lookup_username('invaliduser')
+            assert '!aroomid:localhost' in self.connector.room_ids.values()
 
-    async def test_respond(self):
-        connector = ConnectorMatrix(
-            {"room": "#notaroom:matrix.org",
-             "mxid": "@nobody:matrix.org",
-             "password": "nothing"}
-        )
-        connector.matrixer.chat.post_message = amock.CoroutineMock()
-        await connector.respond(Message("test", "user", "room", connector))
-        self.assertTrue(connector.matrixer.chat.post_message.called)
+            assert self.connector.connection.token == 'arbitrary string1'
 
-    async def test_reconnect(self):
-        connector = ConnectorMatrix(
-            {"room": "#notaroom:matrix.org",
-             "mxid": "@nobody:matrix.org",
-             "password": "nothing"}
-        )
-        connector.connect = amock.CoroutineMock()
-        with amock.patch('asyncio.sleep') as mocked_sleep:
-            await connector.reconnect(10)
-            self.assertTrue(connector.connect.called)
-            self.assertTrue(mocked_sleep.called)
+            assert self.connector.filter_id == 'arbitrary string'
 
-    async def test_replace_usernames(self):
-        connector = ConnectorMatrix(
-            {"room": "#notaroom:matrix.org",
-             "mxid": "@nobody:matrix.org",
-             "password": "nothing"}
-        )
-        connector.lookup_username = amock.CoroutineMock()
-        connector.lookup_username.return_value = {"name": 'user'}
-        result = await connector.replace_usernames("Hello <@U023BECGF>!")
-        self.assertEqual(result, "Hello user!")
+            assert self.connector.connection.sync_token == 'arbitrary string2'
+
+    async def test_listen(self):
+        self.connector.room_ids = {'main': '!aroomid:localhost'}
+        self.connector.filter_id = 'arbitrary string'
+
+        with amock.patch(api_string.format('get_display_name')) as patched_name:
+            patched_name.return_value = asyncio.Future()
+            patched_name.return_value.set_result('SomeUsersName')
+
+            returned_message = await self.connector._parse_sync_response(self.sync_return)
+
+            assert returned_message.text == 'LOUD NOISES'
+            assert returned_message.user == 'SomeUsersName'
+            assert returned_message.room == '!aroomid:localhost'
+            assert returned_message.connector == self.connector
+            raw_message = self.sync_return['rooms']['join']['!aroomid:localhost']['timeline']['events'][0]
+            assert returned_message.raw_message == raw_message
+
+    async def test_get_nick(self):
+        self.connector.room_specific_nicks = True
+
+        with amock.patch(api_string.format('get_room_displayname')) as patched_name:
+            patched_name.return_value = asyncio.Future()
+            patched_name.return_value.set_result('')
+
+    async def test_get_html_content(self):
+        pass
+
+    # async def test_respond(self):
+    #     message = await self.connector._parse_sync_response(self.sync_return)
+
+    #     self.connector.respond(message)
+
+    async def test_disconnect(self):
+        pass
+
+    async def get_roomname(self):
+        pass
