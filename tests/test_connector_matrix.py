@@ -118,7 +118,13 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
              amock.patch(api_string.format('join_room')) as patched_join_room, \
              amock.patch(api_string.format('create_filter')) as patched_filter, \
              amock.patch(api_string.format('sync')) as patched_sync, \
+             amock.patch(api_string.format('get_display_name')) as patched_get_nick, \
+             amock.patch(api_string.format('set_display_name')) as patch_set_nick, \
+             amock.patch('aiohttp.ClientSession') as patch_cs, \
              OpsDroid() as opsdroid:
+
+            # Skip actually creating a client session
+            patch_cs.return_value = amock.MagicMock()
 
             patched_login.return_value = asyncio.Future()
             patched_login.return_value.set_result({'access_token': 'arbitrary string1'})
@@ -141,6 +147,27 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             assert self.connector.filter_id == 'arbitrary string'
 
             assert self.connector.connection.sync_token == 'arbitrary string2'
+
+            self.connector.nick = "Rabbit Hole"
+
+            patched_get_nick.return_value = asyncio.Future()
+            patched_get_nick.return_value.set_result("Rabbit Hole")
+
+            await self.connector.connect()
+
+            assert patched_get_nick.called
+            assert not patch_set_nick.called
+
+            patched_get_nick.return_value = asyncio.Future()
+            patched_get_nick.return_value.set_result("Neo")
+
+            self.connector.mxid = "@morpheus:matrix.org"
+
+            await self.connector.connect()
+
+            assert patched_get_nick.called
+            assert patch_set_nick.called_once_with("@morpheus:matrix.org", "Rabbit Hole")
+
 
     async def test_listen(self):
         self.connector.room_ids = {'main': '!aroomid:localhost'}

@@ -215,7 +215,7 @@ class ConnectorMatrix(Connector):
 
     async def disconnect(self):
         """Close the matrix session."""
-        self.session.close()
+        await self.session.close()
 
     def get_roomname(self, room):
         """Get the name of a room from alias or room ID."""
