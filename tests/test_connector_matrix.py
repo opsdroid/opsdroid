@@ -164,6 +164,8 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             patched_name.return_value = asyncio.Future()
             patched_name.return_value.set_result('')
 
+            assert await self.connector._get_nick('!notaroom:matrix.org', '@notaperson:matrix.org') == ''
+
     async def test_get_html_content(self):
         pass
 
