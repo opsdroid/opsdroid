@@ -24,6 +24,8 @@ class ConnectorMatrix(Connector):
 
     def __init__(self, config):  # noqa: D107
         """Init the config for the connector."""
+        super().__init__(config)
+
         self.name = "ConnectorMatrix"  # The name of your connector
         self.config = config  # The config dictionary to be accessed later
         self.rooms = config.get('rooms', None)
@@ -36,6 +38,9 @@ class ConnectorMatrix(Connector):
         self.homeserver = config.get('homeserver', "https://matrix.org")
         self.password = config['password']
         self.room_specific_nicks = config.get("room_specific_nicks", False)
+        self.session = None
+        self.filter_id = None
+        self.connection = None
 
     @property
     def filter_json(self):
@@ -152,14 +157,14 @@ class ConnectorMatrix(Connector):
             except Exception:  # pylint: disable=W0703
                 # Fallback to the non-room specific one
                 logging.exception(
-                    "Failed to lookup room specific nick for {}".format(mxid))
+                    "Failed to lookup room specific nick for %s", mxid)
 
         try:
             return await self.connection.get_display_name(mxid)
         except MatrixRequestError as mre:
             # Log the error if it's not the 404 from the user not having a nick
             if mre.code != 404:
-                logging.exception("Failed to lookup nick for {}".format(mxid))
+                logging.exception("Failed to lookup nick for %s", mxid)
             return mxid
 
     @staticmethod
