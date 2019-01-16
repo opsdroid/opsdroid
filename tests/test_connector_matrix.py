@@ -1,5 +1,6 @@
 """Tests for the ConnectorMatrix class."""
 import asyncio
+import aiohttp
 
 import unittest
 import unittest.mock as mock
@@ -189,7 +190,10 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
     #     self.connector.respond(message)
 
     async def test_disconnect(self):
-        pass
+        with amock.patch('aiohttp.ClientSession') as patched_session:
+            self.connector.session = patched_session
+            await self.connector.disconnect()
+            assert patched_session.close.called
 
     async def get_roomname(self):
         pass
