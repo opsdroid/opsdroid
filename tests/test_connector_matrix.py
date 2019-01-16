@@ -130,7 +130,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             patched_sync.return_value = asyncio.Future()
             patched_sync.return_value.set_result({'next_batch': 'arbitrary string2'})
 
-            await self.connector.connect(opsdroid)
+            await self.connector.connect()
 
             assert '!aroomid:localhost' in self.connector.room_ids.values()
 
