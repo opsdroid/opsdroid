@@ -10,6 +10,7 @@
 [![Docker Image](https://img.shields.io/microbadger/image-size/opsdroid/opsdroid.svg)](https://hub.docker.com/r/opsdroid/opsdroid/)
 [![Docker Layers](https://img.shields.io/microbadger/layers/opsdroid/opsdroid.svg)](https://microbadger.com/#/images/opsdroid/opsdroid)
 [![Documentation Status](https://img.shields.io/readthedocs/opsdroid/latest.svg)](http://opsdroid.readthedocs.io/en/stable/?badge=stable)
+[![Matrix Chat](https://img.shields.io/matrix/opsdroid-general:matrix.org.svg?logo=matrix)](https://riot.im/app/#/room/#opsdroid-general:matrix.org)
 [![Gitter Badge](https://img.shields.io/badge/gitter-join%20chat-4fb896.svg)](https://gitter.im/opsdroid)
 [![Backers on Open Collective](https://opencollective.com/opsdroid/backers/badge.svg)](#backers)
 [![Sponsors on Open Collective](https://opencollective.com/opsdroid/sponsors/badge.svg)](#sponsors)
