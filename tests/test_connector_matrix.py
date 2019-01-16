@@ -1,6 +1,8 @@
 """Tests for the ConnectorMatrix class."""
 import asyncio
 
+import aiohttp
+import mock
 import asynctest
 import asynctest.mock as amock
 from matrix_api_async import AsyncHTTPAPI
@@ -8,9 +10,10 @@ from matrix_client.errors import MatrixRequestError
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector.matrix import ConnectorMatrix
-from opsdroid.__main__ import configure_lang
+from opsdroid.__main__ import configure_lang  # noqa
 
 api_string = 'matrix_api_async.AsyncHTTPAPI.{}'
+
 
 def setup_connector():
     """Initiate a basic connector setup for testing on"""
@@ -167,8 +170,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             assert patched_get_nick.called
             assert patch_set_nick.called_once_with("@morpheus:matrix.org", "Rabbit Hole")
 
-
-    async def test_listen(self):
+    async def test_parse_sync_response(self):
         self.connector.room_ids = {'main': '!aroomid:localhost'}
         self.connector.filter_id = 'arbitrary string'
 
@@ -207,22 +209,68 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             patched_globname.side_effect = MatrixRequestError()
             assert await self.connector._get_nick('#notaroom:localhost', mxid) == mxid
 
-    async def test_get_html_content(self):
+    async def test_get_formatted_message_body(self):
         original_html = "<p><h3><no>Hello World</no></h3></p>"
         original_body = "### Hello World"
-        message = await self.connector._get_html_content(original_html)
+        message = self.connector._get_formatted_message_body(original_html)
         assert message['formatted_body'] == "<h3>Hello World</h3>"
         assert message['body'] == "Hello World"
 
-        message = await self.connector._get_html_content(original_html,
-                                                         original_body)
+        message = self.connector._get_formatted_message_body(original_html,
+                                                             original_body)
         assert message['formatted_body'] == "<h3>Hello World</h3>"
         assert message['body'] == "### Hello World"
 
-    # async def test_respond(self):
-    #     message = await self.connector._parse_sync_response(self.sync_return)
+    async def _get_message(self):
+        self.connector.room_ids = {'main': '!aroomid:localhost'}
+        self.connector.filter_id = 'arbitrary string'
+        m = 'opsdroid.connector.matrix.ConnectorMatrix._get_nick'
 
-    #     self.connector.respond(message)
+        with amock.patch(m) as patched_nick:
+            patched_nick.return_value = asyncio.Future()
+            patched_nick.return_value.set_result("Neo")
+
+            return await self.connector._parse_sync_response(self.sync_return)
+
+    async def test_respond_retry(self):
+        message = await self._get_message()
+        with amock.patch(api_string.format("send_message_event")) as patched_send:
+            patched_send.return_value = asyncio.Future()
+            patched_send.return_value.set_result(None)
+            await self.connector.respond(message)
+
+            message_obj = self.connector._get_formatted_message_body(message.text)
+            assert patched_send.called_once_with(message.room,
+                                                 "m.room.message",
+                                                 message_obj)
+
+            patched_send.side_effect = [aiohttp.client_exceptions.ServerDisconnectedError(),
+                                        patched_send.return_value]
+
+            await self.connector.respond(message)
+
+            message_obj = self.connector._get_formatted_message_body(message.text)
+            assert patched_send.called_once_with(message.room,
+                                                 "m.room.message",
+                                                 message_obj)
+
+    async def test_respond_room(self):
+        message = await self._get_message()
+        with amock.patch(api_string.format("send_message_event")) as patched_send, \
+             amock.patch(api_string.format("get_room_id")) as patched_room_id:
+
+            patched_send.return_value = asyncio.Future()
+            patched_send.return_value.set_result(None)
+
+            patched_room_id.return_value = asyncio.Future()
+            patched_room_id.return_value.set_result(message.room)
+
+            await self.connector.respond(message, room="main")
+
+            message_obj = self.connector._get_formatted_message_body(message.text)
+            assert patched_send.called_once_with(message.room,
+                                                 "m.room.message",
+                                                 message_obj)
 
     async def test_disconnect(self):
         self.connector.session = amock.MagicMock()
