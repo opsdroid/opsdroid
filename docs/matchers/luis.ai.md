@@ -39,7 +39,7 @@ You can find a quick getting started with luis.ai guide [here](https://docs.micr
 
 If you want to use LUIS in a different language other than English, you will need to create a new app with the language that you wish to support.
 
-_Note: "Each LUIS app has a unique app ID, and endpoint log." [Multi-language LUIS apps Reference](https://docs.microsoft.com/en-us/azure/cognitive-services/LUIS/luis-supported-languages)
+_Note: "Each LUIS app has a unique app ID, and endpoint log." [Multi-language LUIS apps Reference](https://docs.microsoft.com/en-us/azure/cognitive-services/LUIS/luis-supported-languages)_
 
 ## Message object additional parameters
 
