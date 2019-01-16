@@ -78,7 +78,7 @@ class ConnectorMatrix(Connector):
 
         return resp['filter_id']
 
-    async def connect(self, opsdroid):
+    async def connect(self):
         """Create connection object with chat library."""
         session = aiohttp.ClientSession()
         mapi = AsyncHTTPAPI(self.homeserver, session)
@@ -124,7 +124,7 @@ class ConnectorMatrix(Connector):
                                            roomid, self,
                                            raw_message=event)
 
-    async def listen(self, opsdroid):
+    async def listen(self):
         """Listen for new messages from the chat service."""
         while True:  # pylint: disable=R1702
             try:
@@ -134,7 +134,7 @@ class ConnectorMatrix(Connector):
                     filter=self.filter_id)
                 _LOGGER.debug("matrix sync request returned")
                 message = await self._parse_sync_response(response)
-                await opsdroid.parse(message)
+                await self.opsdroid.parse(message)
 
             except Exception:  # pylint: disable=W0703
                 _LOGGER.exception('Matrix Sync Error')
@@ -213,7 +213,7 @@ class ConnectorMatrix(Connector):
                 "m.room.message",
                 await self._get_html_content(message.text))
 
-    async def disconnect(self, opsdroid=None):
+    async def disconnect(self):
         """Close the matrix session."""
         self.session.close()
 
