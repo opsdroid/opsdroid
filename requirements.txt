@@ -15,5 +15,5 @@ appdirs==1.4.3
 multidict==4.5.2
 motor==2.0.0
 setuptools==40.6.3
-matrix-api-async
+matrix-api-async==0.1.0
 bleach
