@@ -107,7 +107,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             filter_id = await self.connector.make_filter(self.api, test_rooms)
             assert filter_id == 'arbitrary string'
 
-            patched_filter.assert_called()
+            assert patched_filter.called
             assert patched_filter.call_args[1]['user_id'] == '@opsdroid:localhost'
             assert patched_filter.call_args[1]['filter_params']['room']['rooms'] == test_rooms
 
