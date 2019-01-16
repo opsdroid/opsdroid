@@ -1,6 +1,5 @@
  ![opsdroid](https://github.com/opsdroid/style-guidelines/raw/master/logos/logo-wide-light.png)
 
-[![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Check%20out%20opsdroid,%20an%20awesome%20open%20source%20chatbot%20framework%20written%20in%20Python.&url=https://opsdroid.github.io/&via=opsdroid&hashtags=chatbots,chatops,devops,automation,opensource)
 [![Current version of pypi](https://img.shields.io/pypi/v/opsdroid.svg)](https://pypi.python.org/pypi)
 [![Build Status](https://img.shields.io/travis/opsdroid/opsdroid/master.svg?logo=travis)](https://travis-ci.org/opsdroid/opsdroid)
 [![Build status](https://img.shields.io/appveyor/ci/opsdroid/opsdroid/master.svg?logo=appveyor)](https://ci.appveyor.com/project/opsdroid/opsdroid/branch/master)
@@ -20,6 +19,8 @@
 An open source chat bot framework written in python. It is designed to be extendable, scalable and simple.
 
 This application is designed to take messages from chat services and execute python functions (skills) based on their contents. Those functions can be anything you like, from simple conversational responses to running complex tasks. The true power of this project is to act as a glue library to bring the multitude of natural language APIs, chat services and third party APIs together.
+
+Would like to tweet about OpsDroid? Do it with one click by pressing the button -> [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Check%20out%20opsdroid,%20an%20awesome%20open%20source%20chatbot%20framework%20written%20in%20Python.&url=https://opsdroid.github.io/&via=opsdroid&hashtags=chatbots,chatops,devops,automation,opensource)
 
 ## ChatOps
 _"ChatOps is an operational paradigm where work that is already happening in the background today is brought into a common chatroom. By doing this, you are unifying the communication about what work should get done with actual history of the work being done."_ - [StackStorm](https://docs.stackstorm.com/chatops/chatops.html)
