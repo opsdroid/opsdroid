@@ -182,7 +182,16 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             assert await self.connector._get_nick('!notaroom:matrix.org', mxid) == mxid
 
     async def test_get_html_content(self):
-        pass
+        original_html = "<p><h3><no>Hello World</no></h3></p>"
+        original_body = "### Hello World"
+        message = await self.connector._get_html_content(original_html)
+        assert message['formatted_body'] == "<h3>Hello World</h3>"
+        assert message['body'] == "Hello World"
+
+        message = await self.connector._get_html_content(original_html,
+                                                         original_body)
+        assert message['formatted_body'] == "<h3>Hello World</h3>"
+        assert message['body'] == "### Hello World"
 
     # async def test_respond(self):
     #     message = await self.connector._parse_sync_response(self.sync_return)

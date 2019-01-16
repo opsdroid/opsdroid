@@ -124,7 +124,7 @@ class ConnectorMatrix(Connector):
                                            roomid, self,
                                            raw_message=event)
 
-    async def listen(self):
+    async def listen(self):  # pragma: no cover
         """Listen for new messages from the chat service."""
         while True:  # pylint: disable=R1702
             try:
@@ -169,14 +169,14 @@ class ConnectorMatrix(Connector):
         Return the json representation of the message in
         "org.matrix.custom.html" format.
         """
-        clean_html = clean(message)
-
         # Markdown leaves a <p></p> around standard messages that we want to
         # strip:
-        if clean_html.startswith('<p>'):
-            clean_html = clean_html[3:]
-            if clean_html.endswith('</p>'):
-                clean_html = clean_html[:-4]
+        if message.startswith('<p>'):
+            message = message[3:]
+            if message.endswith('</p>'):
+                message = message[:-4]
+
+        clean_html = clean(message)
 
         return {
             # Strip out any tags from the markdown to make the body
