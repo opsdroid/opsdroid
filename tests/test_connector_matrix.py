@@ -195,18 +195,18 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             patched_roomname.return_value.set_result('')
 
             mxid = '@notaperson:matrix.org'
-            assert await self.connector._get_nick('!notaroom:matrix.org', mxid) == ''
+            assert await self.connector._get_nick('#notaroom:localhost', mxid) == ''
             # Test if a room displayname couldn't be found
             patched_roomname.side_effect = Exception()
 
             # Test if that leads to a global displayname being returned
             patched_globname.return_value = asyncio.Future()
             patched_globname.return_value.set_result('@notaperson')
-            assert await self.connector._get_nick('!notaroom:matrix.org', mxid) == '@notaperson'
+            assert await self.connector._get_nick('#notaroom:localhost', mxid) == '@notaperson'
 
             # Test that failed nickname lookup returns the mxid
             patched_globname.side_effect = MatrixRequestError()
-            assert await self.connector._get_nick('!notaroom:matrix.org', mxid) == mxid
+            assert await self.connector._get_nick('#notaroom:localhost', mxid) == mxid
 
     async def test_get_html_content(self):
         original_html = "<p><h3><no>Hello World</no></h3></p>"
@@ -231,5 +231,13 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
         await self.connector.disconnect()
         assert self.connector.session.close.called
 
-    async def get_roomname(self):
-        pass
+    def test_get_roomname(self):
+        self.connector.rooms = ['#notthisroom:localhost',
+                                 '#thisroom:localhost']
+        self.connector.room_ids = dict(zip(self.connector.rooms,
+                                           ['!aroomid:localhost',
+                                            '!anotherroomid:localhost']))
+
+        assert self.connector.get_roomname('#thisroom:localhost') == '#thisroom:localhost'
+        assert self.connector.get_roomname('!anotherroomid:localhost') == '#thisroom:localhost'
+        assert self.connector.get_roomname('someroom') == 'someroom'
