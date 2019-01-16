@@ -1,9 +1,6 @@
 """Tests for the ConnectorMatrix class."""
 import asyncio
-import aiohttp
 
-import unittest
-import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock
 from matrix_api_async import AsyncHTTPAPI
@@ -11,12 +8,12 @@ from matrix_client.errors import MatrixRequestError
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector.matrix import ConnectorMatrix
-from opsdroid.message import Message
 from opsdroid.__main__ import configure_lang
 
 api_string = 'matrix_api_async.AsyncHTTPAPI.{}'
 
 def setup_connector():
+    """Initiate a basic connector setup for testing on"""
     connector = ConnectorMatrix(
         {"room": "#test:localhost",
          "mxid": "@opsdroid:localhost",
@@ -30,6 +27,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid Matrix connector class."""
     @property
     def sync_return(self):
+        """Define some mock json to return from the sync method"""
         return {
             "account_data": {
                 "events": []
@@ -81,7 +79,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
                                 }
                             ],
                             "limited": False,
-                            "prev_batch": "s801873709_690923311_714269_220789851_103743426_545343_16236676_11101067_27940"
+                            "prev_batch": "s801873709"
                         },
                         "unread_notifications": {
                             "highlight_count": 0,
@@ -97,6 +95,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
         }
 
     def setUp(self):
+        """Basic setting up for tests"""
         self.connector = setup_connector()
         self.api = AsyncHTTPAPI('https://notaurl.com', None)
         self.connector.connection = self.api
@@ -233,7 +232,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
 
     def test_get_roomname(self):
         self.connector.rooms = ['#notthisroom:localhost',
-                                 '#thisroom:localhost']
+                                '#thisroom:localhost']
         self.connector.room_ids = dict(zip(self.connector.rooms,
                                            ['!aroomid:localhost',
                                             '!anotherroomid:localhost']))
