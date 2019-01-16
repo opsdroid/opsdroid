@@ -1,8 +1,8 @@
 """Tests for the ConnectorMatrix class."""
 import asyncio
+from unittest import mock
 
 import aiohttp
-import mock
 import asynctest
 import asynctest.mock as amock
 from matrix_api_async import AsyncHTTPAPI
