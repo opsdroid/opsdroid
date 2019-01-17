@@ -5,7 +5,7 @@ import logging
 import aiohttp
 
 from opsdroid.connector import Connector
-from opsdroid.message import Message
+from opsdroid.events import Message
 
 
 _LOGGER = logging.getLogger(__name__)

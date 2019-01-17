@@ -11,7 +11,7 @@ import asynctest.mock as amock
 from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.connector.github import ConnectorGitHub
-from opsdroid.message import Message
+from opsdroid.events import Message
 
 
 class TestConnectorGitHub(unittest.TestCase):

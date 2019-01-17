@@ -8,7 +8,7 @@ import asynctest.mock as amock
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector.slack import ConnectorSlack
-from opsdroid.message import Message
+from opsdroid.events import Message
 from opsdroid.__main__ import configure_lang
 
 
