@@ -11,7 +11,7 @@ from aioslacker import Slacker
 from emoji import demojize
 
 from opsdroid.connector import Connector
-from opsdroid.events import Message
+from opsdroid.message import Message
 
 
 _LOGGER = logging.getLogger(__name__)

@@ -5,7 +5,7 @@ import datetime
 import aiohttp
 
 from opsdroid.connector import Connector
-from opsdroid.events import Message
+from opsdroid.message import Message
 
 _LOGGER = logging.getLogger(__name__)
 API_PATH = '/api/v1/'
