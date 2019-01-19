@@ -1,4 +1,4 @@
-"""Class to encapsulate a message."""
+"""Classes to describe different kinds of possible event."""
 
 from abc import ABC
 from datetime import datetime
@@ -129,11 +129,16 @@ class Message(Event):
         return await self.connector.react(self, emoji)
 
 
-class Image(Message):
-    def __init__(self, image_url, user, room, connector):
-        self.created = datetime.now()
-        self.url = image_url
-        self.user = user
-        self.room = room
-        self.connector = connector
-        self.responded_to = False
+class File(Event):
+    """Event class to represent arbitrary files as bytes."""
+    def __init__(self, user, room, connector, file_bytes, url=None):
+        super.__init__(user, room, connector)
+        self.file_bytes = file_bytes
+        self.url = url
+
+
+class Image(File):
+    """Event class specifically for image files."""
+    def __init__(self, user, room, connector, image_bytes=None, image_url=None):
+        super.__init__(user, room, connector,
+                       file_bytes=image_bytes, url=image_url)
