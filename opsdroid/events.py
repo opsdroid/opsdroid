@@ -10,7 +10,16 @@ from opsdroid.helper import get_opsdroid
 
 
 class Event(ABC):
-    pass
+    """A generic event type.
+
+    """
+    def __init__(self, user, room, connector)
+        """Initiate object with most basic info about its creation."""
+        self.created = datetime.now()
+        self.user = user
+        self.room = room
+        self.connector = connector
+        self.responded_to = False
 
 
 class Message(Event):
@@ -43,14 +52,9 @@ class Message(Event):
 
     def __init__(self, text, user, room, connector, raw_message=None):
         """Create object with minimum properties."""
-        self.created = datetime.now()
         self.text = text
-        self.user = user
-        self.room = room
-        self.connector = connector
         self.raw_message = raw_message
         self.regex = None
-        self.responded_to = False
 
     async def _thinking_delay(self):
         """Make opsdroid wait x-seconds before responding.
