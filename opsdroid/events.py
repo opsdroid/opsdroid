@@ -13,7 +13,7 @@ class Event(ABC):
     """A generic event type.
 
     """
-    def __init__(self, user, room, connector)
+    def __init__(self, user, room, connector):
         """Initiate object with most basic info about its creation."""
         self.created = datetime.now()
         self.user = user
@@ -52,7 +52,7 @@ class Message(Event):
 
     def __init__(self, user, room, connector, text, raw_message=None):
         """Create object with minimum properties."""
-        super.__init__(user, room, connector)
+        super().__init__(user, room, connector)
         self.text = text
         self.raw_message = raw_message
         self.regex = None
@@ -133,7 +133,7 @@ class Message(Event):
 class File(Event):
     """Event class to represent arbitrary files as bytes."""
     def __init__(self, user, room, connector, file_bytes, url=None):
-        super.__init__(user, room, connector)
+        super().__init__(user, room, connector)
         self.file_bytes = file_bytes
         self.url = url
 
@@ -141,5 +141,5 @@ class File(Event):
 class Image(File):
     """Event class specifically for image files."""
     def __init__(self, user, room, connector, image_bytes=None, image_url=None):
-        super.__init__(user, room, connector,
+        super().__init__(user, room, connector,
                        file_bytes=image_bytes, url=image_url)

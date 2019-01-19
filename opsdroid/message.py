@@ -1,6 +1,6 @@
 """Support for deprecated opsdroid.message.Message"""
 
-from warnings import warn, DeprecationWarning
+from warnings import warn
 
 from opsdroid.events import Message as NewMessage
 
