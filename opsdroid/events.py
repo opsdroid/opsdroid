@@ -30,18 +30,18 @@ class Message(Event):
     delays for thinking and typing as defined in configuration YAML file.
 
     Args:
-        text: String text of message
         user: String name of user sending message
         room: String name of the room or chat channel in which message was sent
         connector: Connector object used to interact with given chat service
+        text: String text of message
         raw_message: Raw message as provided by chat service. None by default
 
     Attributes:
         created: Local date and time that message object was created
-        text: Text of message as string
         user: String name of user sending message
         room: String name of the room or chat channel in which message was sent
         connector: Connector object used to interact with given chat service
+        text: Text of message as string
         raw_message: Raw message provided by chat service
         regex: A re match object for the regular expression message was matched
             against
@@ -50,8 +50,9 @@ class Message(Event):
 
     """
 
-    def __init__(self, text, user, room, connector, raw_message=None):
+    def __init__(self, user, room, connector, text, raw_message=None):
         """Create object with minimum properties."""
+        super.__init__(user, room, connector)
         self.text = text
         self.raw_message = raw_message
         self.regex = None
