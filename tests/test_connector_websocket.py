@@ -19,12 +19,12 @@ class TestConnectorWebsocket(unittest.TestCase):
         configure_lang({})
 
     def test_init(self):
-        connector = ConnectorWebsocket({})
+        connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
         self.assertEqual(None, connector.default_room)
         self.assertEqual("websocket", connector.name)
 
     def test_property(self):
-        connector = ConnectorWebsocket({})
+        connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
         self.assertEqual("websocket", connector.name)
 
 
@@ -36,7 +36,6 @@ class TestConnectorWebsocketAsync(asynctest.TestCase):
 
     async def test_connect(self):
         """Test the connect method adds the handlers."""
-        connector = ConnectorWebsocket({})
         opsdroid = amock.CoroutineMock()
         connector = ConnectorWebsocket({}, opsdroid=opsdroid)
         opsdroid.web_server = amock.CoroutineMock()
