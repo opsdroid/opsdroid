@@ -28,7 +28,7 @@ _Notes:_
 - Opsdroid will only listen to one channel/group at a time
 - A group is a private channel - this takes priority over a channel when trying to connect to the service.
 - The name of the channel room is meant to be added without the #.
-- Opsdroid will keep pinging the chat service to see if new messages where received, you can increase/decrease 
+- Opsdroid will keep pinging the chat service to see if new messages were received; you can increase/decrease 
 the time between pings by adding the param `update-interval`. _Note: Opsdroid will only read the last received message._
 
 
@@ -45,7 +45,7 @@ Hi FabioRosado
 ```
 
 In this example, I was using my own account to interact with opsdroid through Rocket.Chat, so you can see that 
-even thought opsdroid replied to "hi", the actual username shown was mine - this happens because I used my personal 
+even though opsdroid replied to "hi", the actual username shown was mine - this happens because I used my personal 
 access token to test the connection. 
 
 This will also give you the possibility to just use a single account and interact with opsdroid through the chat service
