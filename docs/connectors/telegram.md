@@ -4,8 +4,8 @@ A connector for [Telegram](https://telegram.org/).
 
 ## Requirements
 
-- An Telegram account - to create a bot
-- An Bot API Token
+- A Telegram account - to create a bot
+- A Bot API Token
 
 _Note: To register a new bot, open Telegram, write **@BotFather** and type `/newbot`. 
 Provide a name and username (ending in bot) and BotFather will give you your API Token._
@@ -33,7 +33,7 @@ To talk with Opsdroid you will have to start a new private chat by searching for
 in the search bar.
 
 For example, if you named your bot: `MyAwesome_Bot` you can just search for that name and wait for the 
-result to show up, then click on the name of your bot and a new chat window will start. You can know talk 
+result to show up, then click on the name of your bot and a new chat window will start. You can now talk 
 with your bot and give him commands.
 
 _Note: To avoid unauthorized users to interact with your bot you should specify a list of whitelisted users
@@ -64,5 +64,5 @@ Bye FabioRosado
  Hi FabioRosado
 ```
 
-To avoid this from happening, you should only contact the bot when opsdroid is running. The bot should reply immediately
-if it doesn't, check that the bot is running before attempting to send another command - or try with a risk free one like `hello`.
+To avoid this from happening, you should only contact the bot when opsdroid is running. The bot should reply immediately.
+If it doesn't, check that the bot is running before attempting to send another command - or try with a risk free one like `hello`.
