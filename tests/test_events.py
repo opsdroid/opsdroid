@@ -2,9 +2,27 @@
 import asynctest
 import asynctest.mock as amock
 
-from opsdroid.events import Message
+from opsdroid import events
 from opsdroid.connector import Connector
 from opsdroid.__main__ import configure_lang
+
+
+class TestEvent(asynctest.TestCase):
+    """Test the opsdroid event class."""
+
+    async def setup(self):
+        configure_lang({})
+
+    async def test_event(self):
+        opsdroid = amock.CoroutineMock()
+        mock_connector = Connector({}, opsdroid=opsdroid)
+        event = events.Event(
+            "user",
+            "default",
+            mock_connector)
+
+        self.assertEqual(event.user, "user")
+        self.assertEqual(event.room, "default")
 
 
 class TestMessage(asynctest.TestCase):
@@ -23,7 +41,7 @@ class TestMessage(asynctest.TestCase):
             'timestamp': '01/01/2000 19:23:00',
             'messageId': '101'
         }
-        message = Message(
+        message = events.Message(
             "user",
             "default",
             mock_connector,
@@ -45,7 +63,7 @@ class TestMessage(asynctest.TestCase):
         opsdroid = amock.CoroutineMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
         message_text = "Hello world"
-        message = Message("user", "default", mock_connector, message_text)
+        message = events.Message("user", "default", mock_connector, message_text)
         with self.assertRaises(NotImplementedError):
             await message.respond("Goodbye world")
         self.assertEqual(message_text, message.text)
@@ -61,7 +79,7 @@ class TestMessage(asynctest.TestCase):
 
         with amock.patch(
                 'opsdroid.events.Message._thinking_delay') as logmock:
-            message = Message("user", "default", mock_connector, "hi")
+            message = events.Message("user", "default", mock_connector, "hi")
             with self.assertRaises(NotImplementedError):
                 await message.respond("Hello there")
 
@@ -77,7 +95,7 @@ class TestMessage(asynctest.TestCase):
         }, opsdroid=opsdroid)
 
         with amock.patch('asyncio.sleep') as mocksleep_int:
-            message = Message("user", "default", mock_connector_int, "hi")
+            message = events.Message("user", "default", mock_connector_int, "hi")
             with self.assertRaises(NotImplementedError):
                 await message.respond("Hello there")
 
@@ -93,7 +111,7 @@ class TestMessage(asynctest.TestCase):
         }, opsdroid=opsdroid)
 
         with amock.patch('asyncio.sleep') as mocksleep_list:
-            message = Message("user", "default", mock_connector_list, "hi")
+            message = events.Message("user", "default", mock_connector_list, "hi")
             with self.assertRaises(NotImplementedError):
                 await message.respond("Hello there")
 
@@ -110,7 +128,7 @@ class TestMessage(asynctest.TestCase):
         with amock.patch(
                 'opsdroid.events.Message._typing_delay') as logmock:
             with amock.patch('asyncio.sleep') as mocksleep:
-                message = Message("user", "default", mock_connector, "hi")
+                message = events.Message("user", "default", mock_connector, "hi")
                 with self.assertRaises(NotImplementedError):
                     await message.respond("Hello there")
 
@@ -127,7 +145,7 @@ class TestMessage(asynctest.TestCase):
         }, opsdroid=opsdroid)
 
         with amock.patch('asyncio.sleep') as mocksleep_list:
-            message = Message("user", "default", mock_connector_list, "hi")
+            message = events.Message("user", "default", mock_connector_list, "hi")
             with self.assertRaises(NotImplementedError):
                 await message.respond("Hello there")
 
@@ -142,7 +160,7 @@ class TestMessage(asynctest.TestCase):
             'module_path': 'opsdroid-modules.connector.shell'
         }, opsdroid=opsdroid)
         with amock.patch('asyncio.sleep') as mocksleep:
-            message = Message("user", "default", mock_connector, "hi")
+            message = events.Message("user", "default", mock_connector, "hi")
             with self.assertRaises(NotImplementedError):
                 await message.respond("Hello there")
 
@@ -156,7 +174,7 @@ class TestMessage(asynctest.TestCase):
             'type': 'connector',
         }, opsdroid=opsdroid)
         with amock.patch('asyncio.sleep') as mocksleep:
-            message = Message("user", "default", mock_connector, "Hello world")
+            message = events.Message("user", "default", mock_connector, "Hello world")
             reacted = await message.react("emoji")
             self.assertTrue(mocksleep.called)
             self.assertFalse(reacted)
