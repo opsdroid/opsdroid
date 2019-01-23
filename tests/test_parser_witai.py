@@ -33,8 +33,8 @@ class TestParserWitai(asynctest.TestCase):
     async def test_call_witai(self):
         opsdroid = amock.CoroutineMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
-        message = Message("how's the weather outside", "user",
-                          "default", mock_connector)
+        message = Message("user", "default", mock_connector,
+                          "how's the weather outside")
         config = {'name': 'witai', 'access-token': 'test', 'min-score': 0.3}
         result = amock.Mock()
         result.json = amock.CoroutineMock()
@@ -64,8 +64,8 @@ class TestParserWitai(asynctest.TestCase):
             opsdroid.skills.append(match_witai('get_weather')(mock_skill))
 
             mock_connector = amock.CoroutineMock()
-            message = Message("how's the weather outside", "user",
-                              "default", mock_connector)
+            message = Message("user", "default", mock_connector,
+                              "how's the weather outside")
 
             with amock.patch.object(witai, 'call_witai') as mocked_call_witai:
                 mocked_call_witai.return_value = {
@@ -96,8 +96,8 @@ class TestParserWitai(asynctest.TestCase):
 
             mock_connector = amock.MagicMock()
             mock_connector.respond = amock.CoroutineMock()
-            message = Message("how's the weather outside", "user",
-                              "default", mock_connector)
+            message = Message("user", "default", mock_connector,
+                              "how's the weather outside")
 
             with amock.patch.object(witai, 'call_witai') as mocked_call_witai:
                 mocked_call_witai.return_value = {
@@ -128,8 +128,8 @@ class TestParserWitai(asynctest.TestCase):
             match_witai('get_weather')(mock_skill)
 
             mock_connector = amock.CoroutineMock()
-            message = Message("how's the weather outside", "user",
-                              "default", mock_connector)
+            message = Message("user", "default", mock_connector,
+                              "how's the weather outside")
 
             with amock.patch.object(witai, 'call_witai') as mocked_call_witai:
                 mocked_call_witai.return_value = {
@@ -149,8 +149,8 @@ class TestParserWitai(asynctest.TestCase):
             match_witai('get_weather')(mock_skill)
 
             mock_connector = amock.CoroutineMock()
-            message = Message("how's the weather outside", "user",
-                              "default", mock_connector)
+            message = Message,("user", "default", mock_connector,
+                               "how's the weather outside")
 
             with amock.patch.object(witai, 'call_witai') as mocked_call_witai:
                 mocked_call_witai.return_value = {
@@ -178,8 +178,7 @@ class TestParserWitai(asynctest.TestCase):
             match_witai('get_weather')(mock_skill)
 
             mock_connector = amock.CoroutineMock()
-            message = Message("hi", "user",
-                              "default", mock_connector)
+            message = Message("user", "default", mock_connector, "hi")
 
             with amock.patch.object(witai, 'call_witai') as mocked_call_witai:
                 mocked_call_witai.return_value = {
@@ -200,8 +199,8 @@ class TestParserWitai(asynctest.TestCase):
             match_witai('get_weather')(mock_skill)
 
             mock_connector = amock.CoroutineMock()
-            message = Message("how's the weather outside", "user",
-                              "default", mock_connector)
+            message = Message("user", "default", mock_connector,
+                              "how's the weather outside")
 
             with amock.patch.object(witai, 'call_witai') as mocked_call_witai:
                 mocked_call_witai.return_value = {
@@ -228,8 +227,8 @@ class TestParserWitai(asynctest.TestCase):
             match_witai('get_weather')(mock_skill)
 
             mock_connector = amock.CoroutineMock()
-            message = Message("how's the weather outside", "user",
-                              "default", mock_connector)
+            message = Message("user", "default", mock_connector,
+                              "how's the weather outside")
 
             with amock.patch.object(witai, 'call_witai') as mocked_call:
                 mocked_call.side_effect = ClientOSError()

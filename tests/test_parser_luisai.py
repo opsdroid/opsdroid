@@ -34,8 +34,8 @@ class TestParserLuisai(asynctest.TestCase):
     async def test_call_luisai(self):
         opsdroid = amock.CoroutineMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
-        message = Message("schedule meeting", "user", "default",
-                          mock_connector)
+        message = Message("user", "default", mock_connector,
+                          "schedule meeting")
         config = {'name': 'luisai',
                   'appid': 'test',
                   'appkey': 'test',
@@ -77,8 +77,8 @@ class TestParserLuisai(asynctest.TestCase):
             opsdroid.skills.append(match_luisai_intent('Calendar.Add')(mock_skill))
 
             mock_connector = amock.CoroutineMock()
-            message = Message("schedule meeting", "user", "default",
-                              mock_connector)
+            message = Message("user", "default", mock_connector,
+                              "schedule meeting")
 
             with amock.patch.object(luisai, 'call_luisai') as \
                     mocked_call_luisai:
@@ -115,8 +115,8 @@ class TestParserLuisai(asynctest.TestCase):
             opsdroid.skills.append(match_luisai_intent('Calendar.Add')(mock_skill))
 
             mock_connector = amock.CoroutineMock()
-            message = Message("schedule meeting", "user", "default",
-                              mock_connector)
+            message = Message("user", "default", mock_connector,
+                              "schedule meeting")
 
             with amock.patch.object(luisai, 'call_luisai') as \
                     mocked_call_luisai:
@@ -148,8 +148,8 @@ class TestParserLuisai(asynctest.TestCase):
 
             mock_connector = amock.MagicMock()
             mock_connector.respond = amock.CoroutineMock()
-            message = Message("schedule meeting", "user", "default",
-                              mock_connector)
+            message = Message("user", "default", mock_connector,
+                              "schedule meeting")
 
             with amock.patch.object(luisai, 'call_luisai') as \
                     mocked_call_luisai:
@@ -188,8 +188,8 @@ class TestParserLuisai(asynctest.TestCase):
             match_luisai_intent('Calendar.Add')(mock_skill)
 
             mock_connector = amock.CoroutineMock()
-            message = Message("schedule meeting", "user", "default",
-                              mock_connector)
+            message = Message("user", "default", mock_connector,
+                              "schedule meeting")
 
             with amock.patch.object(luisai, 'call_luisai') as \
                     mocked_call_luisai:
@@ -213,8 +213,8 @@ class TestParserLuisai(asynctest.TestCase):
             match_luisai_intent('Calendar.Add')(mock_skill)
 
             mock_connector = amock.CoroutineMock()
-            message = Message("schedule meeting", "user", "default",
-                              mock_connector)
+            message = Message("user", "default", mock_connector,
+                              "schedule meeting")
 
             with amock.patch.object(luisai, 'call_luisai') as \
                     mocked_call_luisai:
@@ -250,8 +250,8 @@ class TestParserLuisai(asynctest.TestCase):
             match_luisai_intent('Calendar.Add')(mock_skill)
 
             mock_connector = amock.CoroutineMock()
-            message = Message("schedule meeting", "user", "default",
-                              mock_connector)
+            message = Message("user", "default", mock_connector,
+                              "schedule meeting")
 
             with amock.patch.object(luisai, 'call_luisai') as \
                     mocked_call:
