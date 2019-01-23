@@ -122,11 +122,11 @@ class ConnectorMatrix(Connector):
                 for event in room['timeline']['events']:
                     if event['content']['msgtype'] == 'm.text':
                         if event['sender'] != self.mxid:
-                            return Message(event['content']['body'],
-                                           await self._get_nick(
+                            return Message(await self._get_nick(
                                                roomid,
                                                event['sender']),
                                            roomid, self,
+                                           event['content']['body'],
                                            raw_message=event)
 
     async def listen(self):  # pragma: no cover
