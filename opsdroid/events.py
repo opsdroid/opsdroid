@@ -9,12 +9,29 @@ from random import randrange
 from opsdroid.helper import get_opsdroid
 
 
+# pylint: disable=too-few-public-methods
 class Event(ABC):
     """A generic event type.
 
+    Initiates an Event object with the most basic information about its
+    creation.
+
+    Args:
+        user: String name of user sending event
+        room: String name of the room or chat channel in which event was sent
+        connector: Connector object used to interact with given chat service
+
+    Attributes:
+        created: Local date and time that message object was created
+        user: String name of user sending message
+        room: String name of the room or chat channel in which message was sent
+        connector: Connector object used to interact with given chat service
+        responded_to: Boolean initialized as False. True if message has been
+            responded to
+
     """
-    def __init__(self, user, room, connector):
-        """Initiate object with most basic info about its creation."""
+
+    def __init__(self, user, room, connector):  # noqa: D107
         self.created = datetime.now()
         self.user = user
         self.room = room
@@ -23,7 +40,6 @@ class Event(ABC):
 
 
 class Message(Event):
-    # pylint: disable=too-few-public-methods
     """A message object.
 
     Stores messages in a format that allows OpsDroid to respond or react with
@@ -50,7 +66,8 @@ class Message(Event):
 
     """
 
-    def __init__(self, user, room, connector, text, raw_message=None):
+    def __init__(self, user, room, connector,
+                 text, raw_message=None):  # noqa: D107
         """Create object with minimum properties."""
         super().__init__(user, room, connector)
         self.text = text
@@ -132,7 +149,9 @@ class Message(Event):
 
 class File(Event):
     """Event class to represent arbitrary files as bytes."""
-    def __init__(self, user, room, connector, file_bytes, url=None):
+
+    def __init__(self, user, room, connector,
+                 file_bytes, url=None):  # noqa: D107
         super().__init__(user, room, connector)
         self.file_bytes = file_bytes
         self.url = url
@@ -140,6 +159,8 @@ class File(Event):
 
 class Image(File):
     """Event class specifically for image files."""
-    def __init__(self, user, room, connector, image_bytes=None, image_url=None):
+
+    def __init__(self, user, room, connector,
+                 image_bytes=None, image_url=None):  # noqa: D107
         super().__init__(user, room, connector,
-                       file_bytes=image_bytes, url=image_url)
+                         file_bytes=image_bytes, url=image_url)
