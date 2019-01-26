@@ -62,8 +62,8 @@ class Message(Event):
         connector: Connector object used to interact with given chat service
         text: Text of message as string
         raw_event: Raw message provided by chat service
-        raw_match: A match object for a search against which the message was matched
-            E.g. a regular expression or natural language intent
+        raw_match: A match object for a search against which the message was
+            matched. E.g. a regular expression or natural language intent
         responded_to: Boolean initialized as False. True if event has been
             responded to
 
