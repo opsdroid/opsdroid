@@ -178,3 +178,43 @@ class TestMessage(asynctest.TestCase):
             reacted = await message.react("emoji")
             self.assertTrue(mocksleep.called)
             self.assertFalse(reacted)
+
+
+class TestFile(asynctest.TestCase):
+    """Test the opsdroid file class"""
+
+    async def setup(self):
+        configure_lang({})
+
+    async def test_file(self):
+        opsdroid = amock.CoroutineMock()
+        mock_connector = Connector({}, opsdroid=opsdroid)
+        event = events.File(
+            "user",
+            "default",
+            mock_connector,
+            bytes("some file contents", "utf-8"))
+
+        self.assertEqual(event.user, "user")
+        self.assertEqual(event.room, "default")
+        self.assertEqual(event.file_bytes.decode(), "some file contents")
+
+
+class TestImage(asynctest.TestCase):
+    """Test the opsdroid image class"""
+
+    async def setup(self):
+        configure_lang({})
+
+    async def test_image(self):
+        opsdroid = amock.CoroutineMock()
+        mock_connector = Connector({}, opsdroid=opsdroid)
+        event = events.File(
+            "user",
+            "default",
+            mock_connector,
+            bytes("some image contents", "utf-8"))
+
+        self.assertEqual(event.user, "user")
+        self.assertEqual(event.room, "default")
+        self.assertEqual(event.file_bytes.decode(), "some image contents")
