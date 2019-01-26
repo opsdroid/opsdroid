@@ -1,10 +1,10 @@
 """Classes to describe different kinds of possible event."""
 
-from abc import ABC
-from datetime import datetime
-from copy import copy
 import asyncio
+from abc import ABC
+from copy import copy
 from random import randrange
+from datetime import datetime
 
 from opsdroid.helper import get_opsdroid
 
@@ -75,6 +75,7 @@ class Message(Event):
         super().__init__(user, room, connector)
         self.text = text
         self.raw_event = raw_event
+        self.raw_message = raw_event # For backwards compatibility
         self.raw_match = None
 
     async def _thinking_delay(self):
