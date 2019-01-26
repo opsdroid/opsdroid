@@ -5,7 +5,7 @@ import logging
 import aiohttp
 
 from opsdroid.connector import Connector
-from opsdroid.message import Message
+from opsdroid.events import Message
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -69,10 +69,10 @@ class ConnectorFacebook(Connector):
                 for fb_msg in entry["messaging"]:
                     _LOGGER.debug(fb_msg)
                     try:
-                        message = Message(fb_msg["message"]["text"],
+                        message = Message(fb_msg["sender"]["id"],
                                           fb_msg["sender"]["id"],
-                                          fb_msg["sender"]["id"],
-                                          self)
+                                          self,
+                                          fb_msg["message"]["text"])
                         await self.opsdroid.parse(message)
                     except KeyError as error:
                         _LOGGER.error(error)

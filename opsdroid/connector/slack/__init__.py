@@ -11,7 +11,7 @@ from aioslacker import Slacker
 from emoji import demojize
 
 from opsdroid.connector import Connector
-from opsdroid.message import Message
+from opsdroid.events import Message
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -112,10 +112,10 @@ class ConnectorSlack(Connector):
             message["text"] = await self.replace_usernames(
                 message["text"])
 
-            await self.opsdroid.parse(Message(message["text"],
-                                              user_info["name"],
+            await self.opsdroid.parse(Message(user_info["name"],
                                               message["channel"],
                                               self,
+                                              message["text"],
                                               raw_event=message))
 
     async def respond(self, message, room=None):

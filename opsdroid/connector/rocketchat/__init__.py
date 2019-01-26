@@ -5,7 +5,7 @@ import datetime
 import aiohttp
 
 from opsdroid.connector import Connector
-from opsdroid.message import Message
+from opsdroid.events import Message
 
 _LOGGER = logging.getLogger(__name__)
 API_PATH = '/api/v1/'
@@ -97,10 +97,10 @@ class RocketChat(Connector):
         """
         if response['messages']:
             message = Message(
-                response['messages'][0]['msg'],
                 response['messages'][0]['u']['username'],
                 response['messages'][0]['rid'],
-                self)
+                self,
+                response['messages'][0]['msg'])
             _LOGGER.debug("Received message from Rocket.Chat %s",
                           response['messages'][0]['msg'])
 

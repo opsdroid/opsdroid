@@ -5,7 +5,7 @@ import logging
 import aiohttp
 
 from opsdroid.connector import Connector
-from opsdroid.message import Message
+from opsdroid.events import Message
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -83,10 +83,10 @@ class ConnectorGitHub(Connector):
             issue = "{}/{}#{}".format(payload["repository"]["owner"]["login"],
                                       payload["repository"]["name"],
                                       issue_number)
-            message = Message(body,
-                              payload["sender"]["login"],
+            message = Message(payload["sender"]["login"],
                               issue,
-                              self)
+                              self,
+                              body)
             await self.opsdroid.parse(message)
         except KeyError as error:
             _LOGGER.error("Key %s not found in payload", error)
