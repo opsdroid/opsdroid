@@ -52,9 +52,9 @@ class TestMessage(asynctest.TestCase):
         self.assertEqual(message.user, "user")
         self.assertEqual(message.room, "default")
         self.assertEqual(
-            message.raw_message['timestamp'], '01/01/2000 19:23:00'
+            message.raw_event['timestamp'], '01/01/2000 19:23:00'
             )
-        self.assertEqual(message.raw_message['messageId'], '101')
+        self.assertEqual(message.raw_event['messageId'], '101')
         with self.assertRaises(NotImplementedError):
             await message.respond("Goodbye world")
 

@@ -11,10 +11,10 @@ warn("opsdroid.message.Message is deprecated. "
 
 
 # pylint: disable=C0103
-def Message(text, user, room, connector, raw_message=None):
+def Message(text, user, room, connector, raw_event=None):
     """
     Stand-in function for the deprecated opsdroid.message.Message object.
 
     Returns a new opsdroid.events.Message object using the same arguments.
     """
-    return NewMessage(user, room, connector, text, raw_message)
+    return NewMessage(user, room, connector, text, raw_event)

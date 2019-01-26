@@ -126,7 +126,7 @@ class ConnectorMatrix(Connector):
                                 await self._get_nick(roomid, event['sender']),
                                 roomid, self,
                                 event['content']['body'],
-                                raw_message=event)
+                                raw_event=event)
 
     async def listen(self):  # pragma: no cover
         """Listen for new messages from the chat service."""

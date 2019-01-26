@@ -116,7 +116,7 @@ class ConnectorSlack(Connector):
                                               user_info["name"],
                                               message["channel"],
                                               self,
-                                              raw_message=message))
+                                              raw_event=message))
 
     async def respond(self, message, room=None):
         """Respond with a message."""
@@ -136,7 +136,7 @@ class ConnectorSlack(Connector):
             await self.slacker.reactions.post('reactions.add', data={
                 'name': emoji,
                 'channel': message.room,
-                'timestamp': message.raw_message['ts']
+                'timestamp': message.raw_event['ts']
             })
         except slacker.Error as error:
             if str(error) == 'invalid_name':

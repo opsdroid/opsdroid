@@ -20,22 +20,25 @@ class Event(ABC):
         user: String name of user sending event
         room: String name of the room or chat channel in which event was sent
         connector: Connector object used to interact with given chat service
+        raw_event: Optional raw representation for event.
 
     Attributes:
         created: Local date and time that message object was created
         user: String name of user sending message
         room: String name of the room or chat channel in which message was sent
         connector: Connector object used to interact with given chat service
-        responded_to: Boolean initialized as False. True if message has been
+        raw_event: Raw event provided by chat service
+        responded_to: Boolean initialized as False. True if event has been
             responded to
 
     """
 
-    def __init__(self, user, room, connector):  # noqa: D107
+    def __init__(self, user, room, connector, raw_event=None):  # noqa: D107
         self.created = datetime.now()
         self.user = user
         self.room = room
         self.connector = connector
+        self.raw_event = raw_event
         self.responded_to = False
 
 
@@ -50,7 +53,7 @@ class Message(Event):
         room: String name of the room or chat channel in which message was sent
         connector: Connector object used to interact with given chat service
         text: String text of message
-        raw_message: Raw message as provided by chat service. None by default
+        raw_event: Raw message as provided by chat service. None by default
 
     Attributes:
         created: Local date and time that message object was created
@@ -58,21 +61,21 @@ class Message(Event):
         room: String name of the room or chat channel in which message was sent
         connector: Connector object used to interact with given chat service
         text: Text of message as string
-        raw_message: Raw message provided by chat service
-        regex: A re match object for the regular expression message was matched
-            against
-        responded_to: Boolean initialized as False. True if message has been
+        raw_event: Raw message provided by chat service
+        raw_match: A match object for a search against which the message was matched
+            E.g. a regular expression or natural language intent
+        responded_to: Boolean initialized as False. True if event has been
             responded to
 
     """
 
     def __init__(self, user, room, connector,
-                 text, raw_message=None):  # noqa: D107
+                 text, raw_event=None):  # noqa: D107
         """Create object with minimum properties."""
         super().__init__(user, room, connector)
         self.text = text
-        self.raw_message = raw_message
-        self.regex = None
+        self.raw_event = raw_event
+        self.raw_match = None
 
     async def _thinking_delay(self):
         """Make opsdroid wait x-seconds before responding.
