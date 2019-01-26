@@ -1,4 +1,3 @@
-
 import asynctest
 import asynctest.mock as amock
 
@@ -57,6 +56,10 @@ class TestMessage(asynctest.TestCase):
         self.assertEqual(message.raw_event['messageId'], '101')
         with self.assertRaises(NotImplementedError):
             await message.respond("Goodbye world")
+        # Also try responding with just some empty Event
+        with self.assertRaises(NotImplementedError):
+            await message.respond(events.Event(
+                message.user, message.room, message.connector))
 
     async def test_response_effects(self):
         """Responding to a message shouldn't change the message."""
