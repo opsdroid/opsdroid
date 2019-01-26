@@ -209,7 +209,7 @@ class TestImage(asynctest.TestCase):
     async def test_image(self):
         opsdroid = amock.CoroutineMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
-        event = events.File(
+        event = events.Image(
             "user",
             "default",
             mock_connector,
