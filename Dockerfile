@@ -15,7 +15,7 @@ COPY MANIFEST.in MANIFEST.in
 
 RUN apk update && apk add git
 RUN pip3 install --upgrade pip
-RUN pip3 install --no-cache-dir .
+RUN pip3 install --no-cache-dir --no-use-pep517 .
 
 EXPOSE 8080
 
