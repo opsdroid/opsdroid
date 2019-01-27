@@ -53,7 +53,7 @@ class ConnectorWebsocket(Connector):
                 code=WSCloseCode.GOING_AWAY,
                 message='Server shutdown')
 
-    async def new_websocket_handler(self):
+    async def new_websocket_handler(self, request):
         """Handle for aiohttp creating websocket connections."""
         if len(self.active_connections) + len(self.available_connections) \
                 < self.max_connections and self.accepting_connections:
