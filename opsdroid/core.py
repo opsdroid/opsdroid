@@ -8,7 +8,6 @@ import sys
 import weakref
 import asyncio
 import contextlib
-import inspect
 
 from opsdroid.const import DEFAULT_CONFIG_PATH
 from opsdroid.memory import Memory
