@@ -392,7 +392,7 @@ class OpsDroid():
 
         Args:
             skills (list): A list of skills to be checked for constraints.
-            message (opsdroid.message.Message): The message currently being
+            message (opsdroid.events.Message): The message currently being
                 parsed.
 
         Returns:

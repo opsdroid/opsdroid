@@ -11,7 +11,7 @@ from aioslacker import Slacker
 from emoji import demojize
 
 from opsdroid.connector import Connector
-from opsdroid.message import Message
+from opsdroid.events import Message
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -112,11 +112,11 @@ class ConnectorSlack(Connector):
             message["text"] = await self.replace_usernames(
                 message["text"])
 
-            await self.opsdroid.parse(Message(message["text"],
-                                              user_info["name"],
+            await self.opsdroid.parse(Message(user_info["name"],
                                               message["channel"],
                                               self,
-                                              raw_message=message))
+                                              message["text"],
+                                              raw_event=message))
 
     async def respond(self, message, room=None):
         """Respond with a message."""
@@ -136,7 +136,7 @@ class ConnectorSlack(Connector):
             await self.slacker.reactions.post('reactions.add', data={
                 'name': emoji,
                 'channel': message.room,
-                'timestamp': message.raw_message['ts']
+                'timestamp': message.raw_event['ts']
             })
         except slacker.Error as error:
             if str(error) == 'invalid_name':

@@ -11,7 +11,7 @@ import asynctest.mock as amock
 from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.connector.github import ConnectorGitHub
-from opsdroid.message import Message
+from opsdroid.events import Message
 
 
 class TestConnectorGitHub(unittest.TestCase):
@@ -174,8 +174,8 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(mockresponse)
             resp = await self.connector.respond(
-                Message('test', 'jacobtomlinson',
-                        'opsdroid/opsdroid#1', self.connector))
+                Message('jacobtomlinson', 'opsdroid/opsdroid#1',
+                        self.connector, 'test'))
             self.assertTrue(patched_request.called)
             self.assertTrue(resp)
 
@@ -187,8 +187,8 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
             patched_request.return_value.set_result(mockresponse)
             self.connector.github_username = 'opsdroid-bot'
             resp = await self.connector.respond(
-                Message('test', 'opsdroid-bot',
-                        'opsdroid/opsdroid#1', self.connector))
+                Message('opsdroid-bot', 'opsdroid/opsdroid#1',
+                        self.connector, 'test'))
             self.assertFalse(patched_request.called)
             self.assertTrue(resp)
 
@@ -202,7 +202,7 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(mockresponse)
             resp = await self.connector.respond(
-                Message('test', 'opsdroid-bot',
-                        'opsdroid/opsdroid#1', self.connector))
+                Message('opsdroid-bot', 'opsdroid/opsdroid#1',
+                        self.connector, 'test'))
             self.assertTrue(patched_request.called)
             self.assertFalse(resp)

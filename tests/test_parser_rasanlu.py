@@ -8,7 +8,7 @@ from aiohttp import ClientOSError
 from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.matchers import match_rasanlu
-from opsdroid.message import Message
+from opsdroid.events import Message
 from opsdroid.parsers import rasanlu
 from opsdroid.connector import Connector
 
@@ -34,8 +34,8 @@ class TestParserRasaNLU(asynctest.TestCase):
     async def test_call_rasanlu(self):
         opsdroid = amock.CoroutineMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
-        message = Message("how's the weather outside", "user",
-                          "default", mock_connector)
+        message = Message("user", "default", mock_connector,
+                          "how's the weather outside")
         config = {'name': 'rasanlu',
                   'access-token': 'test',
                   'min-score': 0.3,
@@ -78,8 +78,8 @@ class TestParserRasaNLU(asynctest.TestCase):
     async def test_call_rasanlu_bad_response(self):
         opsdroid = amock.CoroutineMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
-        message = Message("how's the weather outside", "user",
-                          "default", mock_connector)
+        message = Message("user", "default", mock_connector,
+                          "how's the weather outside")
         config = {'name': 'rasanlu', 'access-token': 'test', 'min-score': 0.3}
         result = amock.Mock()
         result.status = 403
@@ -95,8 +95,8 @@ class TestParserRasaNLU(asynctest.TestCase):
     async def test_call_rasanlu_raises(self):
         opsdroid = amock.CoroutineMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
-        message = Message("how's the weather outside", "user",
-                          "default", mock_connector)
+        message = Message("user", "default", mock_connector,
+                          "how's the weather outside")
         config = {'name': 'rasanlu', 'access-token': 'test', 'min-score': 0.3}
         result = amock.Mock()
         result.status = 403
@@ -118,8 +118,8 @@ class TestParserRasaNLU(asynctest.TestCase):
             opsdroid.skills.append(match_rasanlu('get_weather')(mock_skill))
 
             mock_connector = amock.CoroutineMock()
-            message = Message("how's the weather outside", "user",
-                              "default", mock_connector)
+            message = Message("user", "default", mock_connector,
+                              "how's the weather outside")
 
             with amock.patch.object(rasanlu, 'call_rasanlu') \
                     as mocked_call_rasanlu:
@@ -166,8 +166,8 @@ class TestParserRasaNLU(asynctest.TestCase):
 
             mock_connector = amock.MagicMock()
             mock_connector.respond = amock.CoroutineMock()
-            message = Message("how's the weather outside", "user",
-                              "default", mock_connector)
+            message = Message("user", "default", mock_connector,
+                              "how's the weather outside")
 
             with amock.patch.object(rasanlu, 'call_rasanlu') \
                     as mocked_call_rasanlu:
@@ -215,8 +215,8 @@ class TestParserRasaNLU(asynctest.TestCase):
             match_rasanlu('get_weather')(mock_skill)
 
             mock_connector = amock.CoroutineMock()
-            message = Message("how's the weather outside", "user",
-                              "default", mock_connector)
+            message = Message("user", "default", mock_connector,
+                              "how's the weather outside")
 
             with amock.patch.object(rasanlu, 'call_rasanlu') \
                     as mocked_call_rasanlu:
@@ -234,8 +234,8 @@ class TestParserRasaNLU(asynctest.TestCase):
             match_rasanlu('get_weather')(mock_skill)
 
             mock_connector = amock.CoroutineMock()
-            message = Message("how's the weather outside", "user",
-                              "default", mock_connector)
+            message = Message("user", "default", mock_connector,
+                              "how's the weather outside")
 
             with amock.patch.object(rasanlu, 'call_rasanlu') \
                     as mocked_call_rasanlu:
@@ -279,8 +279,8 @@ class TestParserRasaNLU(asynctest.TestCase):
             match_rasanlu('get_weather')(mock_skill)
 
             mock_connector = amock.CoroutineMock()
-            message = Message("hi", "user",
-                              "default", mock_connector)
+            message = Message("user", "default", mock_connector,
+                              "hi")
 
             with amock.patch.object(rasanlu, 'call_rasanlu') \
                     as mocked_call_rasanlu:
@@ -304,8 +304,8 @@ class TestParserRasaNLU(asynctest.TestCase):
             match_rasanlu('get_weather')(mock_skill)
 
             mock_connector = amock.CoroutineMock()
-            message = Message("how's the weather outside", "user",
-                              "default", mock_connector)
+            message = Message("user", "default", mock_connector,
+                              "how's the weather outside")
 
             with amock.patch.object(rasanlu, 'call_rasanlu') \
                     as mocked_call_rasanlu:
@@ -329,8 +329,8 @@ class TestParserRasaNLU(asynctest.TestCase):
             match_rasanlu('get_weather')(mock_skill)
 
             mock_connector = amock.CoroutineMock()
-            message = Message("how's the weather outside", "user",
-                              "default", mock_connector)
+            message = Message("user", "default", mock_connector,
+                              "how's the weather outside")
 
             with amock.patch.object(rasanlu, 'call_rasanlu') as mocked_call:
                 mocked_call.side_effect = ClientOSError()

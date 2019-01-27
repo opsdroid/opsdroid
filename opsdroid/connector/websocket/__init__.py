@@ -9,7 +9,7 @@ import aiohttp.web
 from aiohttp import WSCloseCode
 
 from opsdroid.connector import Connector
-from opsdroid.message import Message
+from opsdroid.events import Message
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -87,7 +87,7 @@ class ConnectorWebsocket(Connector):
 
         async for msg in websocket:
             if msg.type == aiohttp.WSMsgType.TEXT:
-                message = Message(msg.data, None, socket, self)
+                message = Message(None, socket, self, msg.data)
                 await self.opsdroid.parse(message)
             elif msg.type == aiohttp.WSMsgType.ERROR:
                 _LOGGER.error('Websocket connection closed with exception %s',

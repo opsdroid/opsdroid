@@ -9,7 +9,7 @@ from matrix_api_async.api_asyncio import AsyncHTTPAPI
 from matrix_client.errors import MatrixRequestError
 
 from opsdroid.connector import Connector
-from opsdroid.message import Message
+from opsdroid.events import Message
 
 from .html_cleaner import clean
 
@@ -122,12 +122,11 @@ class ConnectorMatrix(Connector):
                 for event in room['timeline']['events']:
                     if event['content']['msgtype'] == 'm.text':
                         if event['sender'] != self.mxid:
-                            return Message(event['content']['body'],
-                                           await self._get_nick(
-                                               roomid,
-                                               event['sender']),
-                                           roomid, self,
-                                           raw_message=event)
+                            return Message(
+                                await self._get_nick(roomid, event['sender']),
+                                roomid, self,
+                                event['content']['body'],
+                                raw_event=event)
 
     async def listen(self):  # pragma: no cover
         """Listen for new messages from the chat service."""

@@ -185,7 +185,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             assert returned_message.room == '!aroomid:localhost'
             assert returned_message.connector == self.connector
             raw_message = self.sync_return['rooms']['join']['!aroomid:localhost']['timeline']['events'][0]
-            assert returned_message.raw_message == raw_message
+            assert returned_message.raw_event == raw_message
 
     async def test_get_nick(self):
         self.connector.room_specific_nicks = True

@@ -4,7 +4,7 @@ import asynctest.mock as mock
 
 from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
-from opsdroid.message import Message
+from opsdroid.events import Message
 from opsdroid.matchers import match_regex
 from opsdroid import constraints
 
@@ -30,7 +30,7 @@ class TestConstraints(asynctest.TestCase):
             opsdroid.skills.append(skill)
 
             tasks = await opsdroid.parse(
-                Message('Hello', 'user', '#random', None)
+                Message('user', '#random', None, 'Hello')
             )
             self.assertEqual(len(tasks), 1) # Just match_always
 
@@ -43,7 +43,7 @@ class TestConstraints(asynctest.TestCase):
             opsdroid.skills.append(skill)
 
             tasks = await opsdroid.parse(
-                Message('Hello', 'user', '#general', None)
+                Message('user', '#general', None, 'Hello')
             )
             self.assertEqual(len(tasks), 2) # match_always and the skill
 
@@ -57,7 +57,7 @@ class TestConstraints(asynctest.TestCase):
             opsdroid.skills.append(skill)
 
             tasks = await opsdroid.parse(
-                Message('Hello', 'otheruser', '#general', None)
+                Message('otheruser', '#general', None, 'Hello')
             )
             self.assertEqual(len(tasks), 1) # Just match_always
 
@@ -70,7 +70,7 @@ class TestConstraints(asynctest.TestCase):
             opsdroid.skills.append(skill)
 
             tasks = await opsdroid.parse(
-                Message('Hello', 'user', '#general', None)
+                Message('user', '#general', None, 'Hello')
             )
             self.assertEqual(len(tasks), 2) # match_always and the skill
 
@@ -85,7 +85,7 @@ class TestConstraints(asynctest.TestCase):
             connector.configure_mock(name='twitter')
 
             tasks = await opsdroid.parse(
-                Message('Hello', 'user', '#random', connector)
+                Message('user', '#random', connector, 'Hello')
             )
             self.assertEqual(len(tasks), 1) # Just match_always
 
@@ -100,6 +100,6 @@ class TestConstraints(asynctest.TestCase):
             connector.configure_mock(name='slack')
 
             tasks = await opsdroid.parse(
-                Message('Hello', 'user', '#general', connector)
+                Message('user', '#general', connector, 'Hello')
             )
             self.assertEqual(len(tasks), 2) # match_always and the skill

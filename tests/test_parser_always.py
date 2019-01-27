@@ -5,7 +5,7 @@ import asynctest.mock as amock
 from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.matchers import match_always
-from opsdroid.message import Message
+from opsdroid.events import Message
 from opsdroid.parsers.always import parse_always
 
 
@@ -34,7 +34,7 @@ class TestParserAlways(asynctest.TestCase):
             opsdroid.run_skill = amock.CoroutineMock()
 
             mock_connector = amock.CoroutineMock()
-            message = Message("Hello world", "user", "default", mock_connector)
+            message = Message("user", "default", mock_connector, "Hello world")
 
             await parse_always(opsdroid, message)
 
@@ -47,7 +47,7 @@ class TestParserAlways(asynctest.TestCase):
             opsdroid.run_skill = amock.CoroutineMock()
 
             mock_connector = amock.CoroutineMock()
-            message = Message("Hello world", "user", "default", mock_connector)
+            message = Message("user", "default", mock_connector, "Hello world")
 
             await parse_always(opsdroid, message)
 
@@ -64,8 +64,8 @@ class TestParserAlways(asynctest.TestCase):
 
             mock_connector = amock.MagicMock()
             mock_connector.respond = amock.CoroutineMock()
-            message = Message("Hello world", "user",
-                              "default", mock_connector)
+            message = Message("user", "default",
+                              mock_connector, "Hello world")
 
             await parse_always(opsdroid, message)
             self.assertLogs('_LOGGER', 'exception')

@@ -5,7 +5,7 @@ import aiohttp
 
 
 from opsdroid.connector import Connector
-from opsdroid.message import Message
+from opsdroid.events import Message
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -97,10 +97,10 @@ class ConnectorTelegram(Connector):
                 user = result["message"]["from"]["username"]
 
                 message = Message(
-                    result["message"]["text"],
                     user,
                     result["message"]["chat"],
-                    self)
+                    self,
+                    result["message"]["text"])
 
                 if not self.whitelisted_users or \
                         user in self.whitelisted_users:
