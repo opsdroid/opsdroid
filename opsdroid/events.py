@@ -75,7 +75,7 @@ class Message(Event):
         super().__init__(user, room, connector)
         self.text = text
         self.raw_event = raw_event
-        self.raw_message = raw_event # For backwards compatibility
+        self.raw_message = raw_event  # For backwards compatibility
         self.raw_match = None
 
     async def _thinking_delay(self):
