@@ -8,6 +8,7 @@ import sys
 import weakref
 import asyncio
 import contextlib
+import inspect
 
 from opsdroid.const import DEFAULT_CONFIG_PATH
 from opsdroid.memory import Memory
@@ -312,7 +313,12 @@ class OpsDroid():
         # halt the application. If a skill throws an exception it just doesn't
         # give a response to the user, so an error response should be given.
         try:
-            await skill(self, config, message)
+            await skill(message)
+        except TypeError as error:
+            if 'positional arguments' in str(error):
+                await skill(self, config, message)
+            else:
+                raise error
         except Exception:
             if message:
                 await message.respond(_("Whoops there has been an error"))
