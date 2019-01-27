@@ -74,12 +74,12 @@ class TestConnectorWebsocketAsync(asynctest.TestCase):
         connector.max_connections = 1
         self.assertEqual(len(connector.available_connections), 0)
 
-        response = await connector.new_websocket_handler()
+        response = await connector.new_websocket_handler(None)
         self.assertTrue(isinstance(response, aiohttp.web.Response))
         self.assertEqual(len(connector.available_connections), 1)
         self.assertEqual(response.status, 200)
 
-        fail_response = await connector.new_websocket_handler()
+        fail_response = await connector.new_websocket_handler(None)
         self.assertTrue(isinstance(fail_response, aiohttp.web.Response))
         self.assertEqual(fail_response.status, 429)
 
