@@ -313,7 +313,7 @@ class OpsDroid():
         # halt the application. If a skill throws an exception it just doesn't
         # give a response to the user, so an error response should be given.
         try:
-            if len(inspect.getargspec(skill)[0]) > 1:
+            if len(inspect.signature(skill).parameters.keys()) > 1:
                 await skill(self, config, message)
             else:
                 await skill(message)
