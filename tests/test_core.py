@@ -224,6 +224,12 @@ class TestCoreAsync(asynctest.TestCase):
         mockedskill.config = {}
         return mockedskill
 
+    async def getMockMethodSkill(self):
+        async def mockedskill(message):
+            await message.respond("Test")
+        mockedskill.config = {}
+        return mockedskill
+
     async def test_handle_signal(self):
         with OpsDroid() as opsdroid:
             opsdroid._running = True
@@ -286,6 +292,19 @@ class TestCoreAsync(asynctest.TestCase):
             mock_connector = Connector({}, opsdroid=opsdroid)
             mock_connector.respond = amock.CoroutineMock()
             skill = await self.getMockSkill()
+            opsdroid.skills.append(match_regex(regex)(skill))
+            message = Message("user", "default", mock_connector, "Hello world")
+            tasks = await opsdroid.parse(message)
+            for task in tasks:
+                await task
+            self.assertTrue(mock_connector.respond.called)
+
+    async def test_parse_regex_method_skill(self):
+        with OpsDroid() as opsdroid:
+            regex = r"Hello .*"
+            mock_connector = Connector({}, opsdroid=opsdroid)
+            mock_connector.respond = amock.CoroutineMock()
+            skill = await self.getMockMethodSkill()
             opsdroid.skills.append(match_regex(regex)(skill))
             message = Message("user", "default", mock_connector, "Hello world")
             tasks = await opsdroid.parse(message)
