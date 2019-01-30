@@ -28,8 +28,7 @@ class RocketChat(Connector):
         """
         super().__init__(config, opsdroid=opsdroid)
         self.name = "rocket.chat"
-        self.config = config
-        self.default_room = config.get("default-room", "general")
+        self.default_target = config.get("default-room", "general")
         self.group = config.get("group", None)
         self.url = config.get("channel-url", "https://open.rocket.chat")
         self.update_interval = config.get("update-interval", 1)
@@ -119,10 +118,10 @@ class RocketChat(Connector):
         if self.group:
             url = self.build_url('groups.history?roomName={}'.format(
                 self.group))
-            self.default_room = self.group
+            self.default_target = self.group
         else:
             url = self.build_url('channels.history?roomName={}'.format(
-                self.default_room))
+                self.default_target))
 
         if self.latest_update:
             url += '&oldest={}'.format(self.latest_update)
@@ -156,7 +155,7 @@ class RocketChat(Connector):
             await asyncio.sleep(self.update_interval)
 
     @register_event(Message)
-    async def send_message(self, message, target=None):
+    async def send_message(self, message, target):
         """Respond with a message.
 
         The message argument carries both the text to reply with but
@@ -165,13 +164,13 @@ class RocketChat(Connector):
 
         Args:
             message (object): An instance of Message
-            room (string, optional): Name of the room to respond to.
+            target (string): Name of the room to respond to.
 
         """
         _LOGGER.debug("Responding with: %s", message.text)
         async with aiohttp.ClientSession() as session:
             data = {}
-            data['channel'] = target if target else message.target
+            data['channel'] = target
             data['alias'] = self.bot_name
             data['text'] = message.text
             data['avatar'] = ''

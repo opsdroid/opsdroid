@@ -84,8 +84,8 @@ class Message(Event):
 
     """
 
-    def __init__(self, user, target, connector,
-                 text, raw_event=None):  # noqa: D107
+    def __init__(self, user, target, connector, text,
+                 raw_event=None):  # noqa: D107
         """Create object with minimum properties."""
         super().__init__(user, target, connector)
         self.text = text
@@ -145,8 +145,9 @@ class Message(Event):
 
 class Reaction(Event):
     """Event class to support Unicode reaction to an event."""
-    def __init__(self, user, target, connector, raw_event=None):
+    def __init__(self, user, target, connector, emoji, raw_event=None):
         super().__init__(user, target, connector, raw_event)
+        self.emoji = emoji
 
 
 class File(Event):

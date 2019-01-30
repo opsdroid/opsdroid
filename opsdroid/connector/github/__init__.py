@@ -19,14 +19,12 @@ class ConnectorGitHub(Connector):
         """Create the connector."""
         super().__init__(config, opsdroid=opsdroid)
         logging.debug("Loaded GitHub connector")
-        self.config = config
         try:
             self.github_token = config["token"]
         except KeyError:
             _LOGGER.error("Missing auth token!"
                           "You must set 'token' in your config")
         self.name = self.config.get("name", "github")
-        self.default_room = None
         self.opsdroid = opsdroid
         self.github_username = None
 
@@ -95,13 +93,13 @@ class ConnectorGitHub(Connector):
             text=json.dumps("Received"), status=201)
 
     @register_event(Message)
-    async def send_message(self, message, target=None):
+    async def send_message(self, message, target):
         """Respond with a message."""
         # stop immediately if the message is from the bot itself.
         if message.user == self.github_username:
             return True
         _LOGGER.debug("Responding via GitHub")
-        repo, issue = message.room.split('#')
+        repo, issue = target.split('#')
         url = "{}/repos/{}/issues/{}/comments".format(
             GITHUB_API_URL, repo, issue)
         headers = {'Authorization': ' token {}'.format(self.github_token)}

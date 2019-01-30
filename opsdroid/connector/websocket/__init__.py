@@ -23,8 +23,6 @@ class ConnectorWebsocket(Connector):
         super().__init__(config, opsdroid=opsdroid)
         _LOGGER.debug("Starting Websocket connector")
         self.name = "websocket"
-        self.config = config
-        self.default_room = None
         self.max_connections = self.config.get("max-connections", 10)
         self.connection_timeout = self.config.get("connection-timeout", 60)
         self.accepting_connections = True
@@ -107,9 +105,8 @@ class ConnectorWebsocket(Connector):
         """
 
     @register_event(Message)
-    async def send_message(self, message, target=None):
+    async def send_message(self, message, target):
         """Respond with a message."""
-        target = target if target else message.target
         try:
             if target is None:
                 target = next(iter(self.active_connections))

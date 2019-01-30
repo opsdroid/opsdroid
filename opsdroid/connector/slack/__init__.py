@@ -25,8 +25,7 @@ class ConnectorSlack(Connector):
         super().__init__(config, opsdroid=opsdroid)
         _LOGGER.debug("Starting Slack connector")
         self.name = "slack"
-        self.config = config
-        self.default_room = config.get("default-room", "#general")
+        self.default_target = config.get("default-room", "#general")
         self.icon_emoji = config.get("icon-emoji", ':robot_face:')
         self.token = config["api-token"]
         self.slacker = Slacker(self.token)
@@ -48,7 +47,7 @@ class ConnectorSlack(Connector):
 
             _LOGGER.debug("Connected as %s", self.bot_name)
             _LOGGER.debug("Using icon %s", self.icon_emoji)
-            _LOGGER.debug("Default room is %s", self.default_room)
+            _LOGGER.debug("Default room is %s", self.default_target)
             _LOGGER.info("Connected successfully")
 
             if self.keepalive is None or self.keepalive.done():
@@ -125,27 +124,27 @@ class ConnectorSlack(Connector):
                                               raw_event=message))
 
     @register_event(Message)
-    async def send_message(self, message, target=None):
+    async def send_message(self, message, target):
         """Respond with a message."""
         _LOGGER.debug("Responding with: '%s' in room  %s",
-                      message.text, message.room)
-        await self.slacker.chat.post_message(target if target else message.target,
+                      message.text, target)
+        await self.slacker.chat.post_message(target,
                                              message.text,
                                              as_user=False,
                                              username=self.bot_name,
                                              icon_emoji=self.icon_emoji)
 
     @register_event(Reaction)
-    async def send_reaction(self, reaction):
+    async def send_reaction(self, reaction, target):
+        """Send a reaction to a message, here the ``target`` is a Message."""
         """React to a message."""
-        message = reaction.prev_event
         emoji = demojize(reaction.emoji)
         _LOGGER.debug("Reacting with: %s", emoji)
         try:
             await self.slacker.reactions.post('reactions.add', data={
                 'name': emoji,
-                'channel': message.room,
-                'timestamp': message.raw_event['ts']
+                'channel': target.target,
+                'timestamp': target.raw_event['ts']
             })
         except slacker.Error as error:
             if str(error) == 'invalid_name':

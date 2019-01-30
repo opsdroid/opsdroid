@@ -27,12 +27,11 @@ class ConnectorMatrix(Connector):
         super().__init__(config, opsdroid=opsdroid)
 
         self.name = "ConnectorMatrix"  # The name of your connector
-        self.config = config  # The config dictionary to be accessed later
         self.rooms = config.get('rooms', None)
         if not self.rooms:
             self.rooms = {'main': config['room']}
         self.room_ids = {}
-        self.default_room = self.rooms['main']
+        self.default_target = self.rooms['main']
         self.mxid = config['mxid']
         self.nick = config.get('nick', None)
         self.homeserver = config.get('homeserver', "https://matrix.org")
@@ -192,14 +191,12 @@ class ConnectorMatrix(Connector):
             }
 
     @register_event(Message)
-    async def send_message(self, message, target=None):
+    async def send_message(self, message, target):
         """Send `message.text` back to the chat service."""
-        if not room:
-            # Connector responds in the same room it received the original
-            # message
-            room_id = message.room
+        if not target.startswith(("!", "#")):
+            room_id = self.rooms[target]
         else:
-            room_id = self.rooms[room]
+            room_id = target
 
         # Ensure we have a room id not alias
         if not room_id.startswith('!'):

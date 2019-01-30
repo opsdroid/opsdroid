@@ -75,7 +75,7 @@ class Connector:
         """
         self.name = ""
         self.config = config
-        self.default_room = None
+        self.default_target = None
         self.opsdroid = opsdroid
 
     @property
@@ -127,7 +127,10 @@ class Connector:
         Returns:
             bool: True for event successfully sent. False otherwise.
         """
-        return await self.events[type(event)](self, event, target=target)
+        target = target if target else event.target if event.target else self.default_target
+        if target is None:
+            raise ValueError("No valid target for this event")
+        return await self.events[type(event)](self, event, target)
 
     async def disconnect(self):
         """Disconnect from the chat service.
