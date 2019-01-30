@@ -17,10 +17,13 @@ class Event(ABC):
     creation.
 
     Args:
-        user: String name of user sending event
-        room: String name of the room or chat channel in which event was sent
-        connector: Connector object used to interact with given chat service
-        raw_event: Optional raw representation for event.
+        user (string, optional): String name of user sending message
+        room (string, optional): String name of the room or chat channel in
+                                 which message was sent
+        connector (Connector, optional): Connector object used to interact with
+                                         given chat service
+        raw_event (dict, optional): Raw message as provided by chat service.
+                                    None by default
 
     Attributes:
         created: Local date and time that message object was created
@@ -33,7 +36,8 @@ class Event(ABC):
 
     """
 
-    def __init__(self, user, target, connector, raw_event=None):  # noqa: D107
+    def __init__(self, user=None, target=None,
+                 connector=None, raw_event=None):  # noqa: D107
         self.created = datetime.now()
         self.user = user
         self.target = target
@@ -44,6 +48,11 @@ class Event(ABC):
     def respond(self, event, target=None):
         opsdroid = get_opsdroid()
         event.prev_event = self
+        # Inherit the user, target and event from the event we are responding
+        # to if they are not explicitly provided by this Event
+        event.user = event.user if event.user else self.user
+        event.target = event.target if event.target else self.target
+        event.connector = event.connector if event.connector else self.connector
 
         await self.connector.send(event, target)
 
@@ -64,11 +73,13 @@ class Message(Event):
     delays for thinking and typing as defined in configuration YAML file.
 
     Args:
-        user: String name of user sending message
-        room: String name of the room or chat channel in which message was sent
-        connector: Connector object used to interact with given chat service
-        text: String text of message
-        raw_event: Raw message as provided by chat service. None by default
+        text (string): String text of message
+        room (string, optional): String name of the room or chat channel in
+                                 which message was sent
+        connector (Connector, optional): Connector object used to interact with
+                                         given chat service
+        raw_event (dict, optional): Raw message as provided by chat service.
+                                    None by default
 
     Attributes:
         created: Local date and time that message object was created
@@ -84,13 +95,11 @@ class Message(Event):
 
     """
 
-    def __init__(self, user, target, connector, text,
-                 raw_event=None):  # noqa: D107
+    def __init__(self, text, **kwargs):
         """Create object with minimum properties."""
-        super().__init__(user, target, connector)
+        super().__init__(**kwargs)
         self.text = text
-        self.raw_event = raw_event
-        self.raw_message = raw_event  # For backwards compatibility
+        self.raw_message = self.raw_event  # For backwards compatibility
         self.raw_match = None
 
     async def _thinking_delay(self):
@@ -144,21 +153,30 @@ class Message(Event):
 
 
 class Reaction(Event):
-    """Event class to support Unicode reaction to an event."""
-    def __init__(self, user, target, connector, emoji, raw_event=None):
-        super().__init__(user, target, connector, raw_event)
+    """Event class to support Unicode reaction to an event.
+
+    Args:
+        emoji (string): The emoji to react with.
+        room (string, optional): String name of the room or chat channel in
+                                 which message was sent
+        connector (Connector, optional): Connector object used to interact with
+                                         given chat service
+        raw_event (dict, optional): Raw message as provided by chat service.
+                                    None by default
+    """
+    def __init__(self, emoji, **kwargs):
+        super().__init__(**kwargs)
         self.emoji = emoji
 
 
 class File(Event):
     """Event class to represent arbitrary files as bytes."""
 
-    def __init__(self, user, target, connector, raw_event=None,
-                 file_bytes=None, url=None):  # noqa: D107
+    def __init__(self, file_bytes=None, url=None, **kwargs):  # noqa: D107
         if not file_bytes or url:
             raise ValueError("Either file_bytes or url must be specified")
 
-        super().__init__(user, target, connector, raw_event)
+        super().__init__(**kwargs)
 
         self.file_bytes = file_bytes
         self.url = url
@@ -167,7 +185,5 @@ class File(Event):
 class Image(File):
     """Event class specifically for image files."""
 
-    def __init__(self, user, target, connector, raw_event=None,
-                 image_bytes=None, image_url=None):  # noqa: D107
-        super().__init__(user, target, connector, raw_event=raw_event,
-                         file_bytes=image_bytes, url=image_url)
+    def __init__(self, image_bytes=None, image_url=None, **kwargs):  # noqa: D107
+        super().__init__(file_bytes=image_bytes, url=image_url, **kwargs)
