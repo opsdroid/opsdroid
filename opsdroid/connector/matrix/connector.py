@@ -8,7 +8,7 @@ import aiohttp
 from matrix_api_async.api_asyncio import AsyncHTTPAPI
 from matrix_client.errors import MatrixRequestError
 
-from opsdroid.connector import Connector
+from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
 
 from .html_cleaner import clean
@@ -191,7 +191,8 @@ class ConnectorMatrix(Connector):
             "formatted_body": clean_html
             }
 
-    async def respond(self, message, room=None):
+    @register_event(Message)
+    async def send_message(self, message, target=None):
         """Send `message.text` back to the chat service."""
         if not room:
             # Connector responds in the same room it received the original

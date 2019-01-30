@@ -4,7 +4,7 @@ import logging
 import datetime
 import aiohttp
 
-from opsdroid.connector import Connector
+from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
 
 _LOGGER = logging.getLogger(__name__)
@@ -155,7 +155,8 @@ class RocketChat(Connector):
             await self._get_message()
             await asyncio.sleep(self.update_interval)
 
-    async def respond(self, message, room=None):
+    @register_event(Message)
+    async def send_message(self, message, target=None):
         """Respond with a message.
 
         The message argument carries both the text to reply with but
@@ -170,7 +171,7 @@ class RocketChat(Connector):
         _LOGGER.debug("Responding with: %s", message.text)
         async with aiohttp.ClientSession() as session:
             data = {}
-            data['channel'] = message.room
+            data['channel'] = target if target else message.target
             data['alias'] = self.bot_name
             data['text'] = message.text
             data['avatar'] = ''

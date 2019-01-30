@@ -1,10 +1,29 @@
 """A base class for connectors to inherit from."""
 
+import collections
+import inspect
 import logging
-from opsdroid.events import Message  # NOQA # pylint: disable=unused-import
+
+from opsdroid.events import Event
 
 
 _LOGGER = logging.getLogger(__name__)
+
+
+__all__ = ['Connector', 'register_event']
+
+
+def register_event(event_type):
+    """
+    Register a method to handle a specific `opsdroid.events.Event` object.
+
+    Args:
+        event (Event): The event class this method can handle.
+    """
+    def decorator(func):
+        func.__opsdroid_event__ = event_type
+        return func
+    return decorator
 
 
 class Connector:
@@ -13,6 +32,34 @@ class Connector:
     Connectors are used to interact with a given chat service.
 
     """
+    def __new__(cls, *args, **kwargs):
+        """
+        Before constructing the class parse all the methods that have been
+        decorated with ``register_event``.
+        """
+
+        # Get all 'function' members as the wrapped methods are functions
+        # This returns a tuple of (name, function) for each method.
+        functions = inspect.getmembers(cls, predicate=inspect.isfunction)
+
+        # Filter out anything that's not got the attribute __opsdroid_event__
+        event_methods = filter(lambda f: hasattr(f, "__opsdroid_event__"),
+                               # Just extract the function objects
+                               map(lambda t: t[1], functions))
+
+        # If we don't have the event call the unknown event coroutine
+        cls.events = collections.defaultdict(lambda: cls._unknown_event)
+
+        for event_method in event_methods:
+            event_type = event_method.__opsdroid_event__
+
+            if not issubclass(event_type, Event):
+                raise TypeError(f"The event type {event_type} is not"
+                                " a valid OpsDroid event type")
+
+            cls.events[event_type] = event_method
+
+        return super().__new__(cls, *args, **kwargs)
 
     def __init__(self, config, opsdroid=None):
         """Create the connector.
@@ -56,60 +103,35 @@ class Connector:
         As the method should include some kind of `while True` all messages
         from the chat service should be "awaited" asyncronously to avoid
         blocking the thread.
-
         """
         raise NotImplementedError
 
-    async def respond(self, message, room=None):
-        """Send a message back to the chat service.
+    async def _unknown_event(self, event, target=None):
+        """
+        This is the fallback function that is called if the subclass can not
+        handle the event type.
+        """
+        raise TypeError(
+            "Connector {type(self)} can not handle the"
+            " '{type(event).__name__}' event type.".format(self=self,
+                                                           event=event))
 
-        The message object will have a `text` property which should be sent
-        back to the chat service. It may also have a `room` and `user` property
-        which gives information on where the message should be directed.
+    async def send(self, event, target=None):
+        """Send a message to the chat service.
 
         Args:
-            message (Message): A message received by the connector.
-            room (string): Name of the room to send the message to
+            event (Event): A message received by the connector.
+            target (string): The name of the room or other place to send the
+            event.
 
         Returns:
-            bool: True for message successfully sent. False otherwise.
-
+            bool: True for event successfully sent. False otherwise.
         """
-        raise NotImplementedError
-
-    async def react(self, message, emoji):
-        """React to a message.
-
-        Not all connectors will have capabilities to react messages, so this
-        method don't have to be implemented and by default logs a debug message
-        and returns False.
-
-        Args:
-            message (Message): A message received by the connector.
-            emoji    (string): The emoji name with which opsdroid will react
-
-        Returns:
-            bool: True for message successfully sent. False otherwise.
-
-        """
-        _LOGGER.debug(_("%s connector can't react to messages"), self.name)
-        return False
-
-    async def user_typing(self, trigger):
-        """Signals that opsdroid is typing.
-
-        Args:
-            opsdroid (OpsDroid): An instance of the opsdroid core.
-            trigger: a bool that allows the event to be triggered on/off
-
-        Triggers the "user is typing" event if the chat service that
-        opsdroid is connected to accepts it.
-        """
+        return await self.events[type(event)](self, event, target=target)
 
     async def disconnect(self):
         """Disconnect from the chat service.
 
         This method is called when opsdroid is exiting, it can be used to close
         connections or do other cleanup.
-
         """

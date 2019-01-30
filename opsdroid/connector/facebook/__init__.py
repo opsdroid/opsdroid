@@ -4,7 +4,7 @@ import logging
 
 import aiohttp
 
-from opsdroid.connector import Connector
+from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
 
 
@@ -102,7 +102,8 @@ class ConnectorFacebook(Connector):
 
         """
 
-    async def respond(self, message, room=None):
+    @register_event(Message)
+    async def send_message(self, message, target=None):
         """Respond with a message."""
         _LOGGER.debug("Responding to facebook")
         url = _FACEBOOK_SEND_URL.format(self.config.get('page-access-token'))

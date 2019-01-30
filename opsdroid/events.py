@@ -33,13 +33,28 @@ class Event(ABC):
 
     """
 
-    def __init__(self, user, room, connector, raw_event=None):  # noqa: D107
+    def __init__(self, user, target, connector, raw_event=None):  # noqa: D107
         self.created = datetime.now()
         self.user = user
-        self.room = room
+        self.target = target
         self.connector = connector
         self.raw_event = raw_event
         self.responded_to = False
+
+    def respond(self, event, target=None):
+        opsdroid = get_opsdroid()
+        event.prev_event = self
+
+        await self.connector.send(event, target)
+
+        if not self.responded_to:
+            now = datetime.now()
+            opsdroid.stats["total_responses"] = \
+                opsdroid.stats["total_responses"] + 1
+            opsdroid.stats["total_response_time"] = \
+                opsdroid.stats["total_response_time"] + \
+                (now - self.created).total_seconds()
+            self.responded_to = True
 
 
 class Message(Event):
@@ -69,10 +84,10 @@ class Message(Event):
 
     """
 
-    def __init__(self, user, room, connector,
+    def __init__(self, user, target, connector,
                  text, raw_event=None):  # noqa: D107
         """Create object with minimum properties."""
-        super().__init__(user, room, connector)
+        super().__init__(user, target, connector)
         self.text = text
         self.raw_event = raw_event
         self.raw_message = raw_event  # For backwards compatibility
@@ -104,7 +119,7 @@ class Message(Event):
 
         await asyncio.sleep(char_count*seconds)
 
-    async def respond(self, response_event, room=None):
+    async def respond(self, response_event, target=None):
         """Respond to this message using the connector it was created by.
 
         Creates copy of this message with updated text as response.
@@ -112,51 +127,38 @@ class Message(Event):
         Updates responded_to attribute to True if False.
         Logs response and response time in OpsDroid object stats.
         """
-        opsdroid = get_opsdroid()
         if isinstance(response_event, str):
             response = copy(self)
             response.text = response_event
         else:
             response = response_event
 
+        response.prev_event = self
+
         if 'thinking-delay' in self.connector.configuration or \
            'typing-delay' in self.connector.configuration:
             await self._thinking_delay()
             await self._typing_delay(response.text)
 
-        await self.connector.respond(response, room)
-        if not self.responded_to:
-            now = datetime.now()
-            opsdroid.stats["total_responses"] = \
-                opsdroid.stats["total_responses"] + 1
-            opsdroid.stats["total_response_time"] = \
-                opsdroid.stats["total_response_time"] + \
-                (now - self.created).total_seconds()
-            self.responded_to = True
+        await super().respond(response, target)
 
-    async def react(self, emoji):
-        """React to this message with emoji using the specified connector.
 
-        Delays message if thinking delay present in config. file.
-
-        Args:
-            emoji: Sting name of emoji with which OpsDroid will react.
-
-        Returns:
-            bool: True for message successfully sent. False otherwise.
-
-        """
-        if 'thinking-delay' in self.connector.configuration:
-            await self._thinking_delay()
-        return await self.connector.react(self, emoji)
+class Reaction(Event):
+    """Event class to support Unicode reaction to an event."""
+    def __init__(self, user, target, connector, raw_event=None):
+        super().__init__(user, target, connector, raw_event)
 
 
 class File(Event):
     """Event class to represent arbitrary files as bytes."""
 
-    def __init__(self, user, room, connector,
-                 file_bytes, url=None):  # noqa: D107
-        super().__init__(user, room, connector)
+    def __init__(self, user, target, connector, raw_event=None,
+                 file_bytes=None, url=None):  # noqa: D107
+        if not file_bytes or url:
+            raise ValueError("Either file_bytes or url must be specified")
+
+        super().__init__(user, target, connector, raw_event)
+
         self.file_bytes = file_bytes
         self.url = url
 
@@ -164,7 +166,7 @@ class File(Event):
 class Image(File):
     """Event class specifically for image files."""
 
-    def __init__(self, user, room, connector,
+    def __init__(self, user, target, connector, raw_event=None,
                  image_bytes=None, image_url=None):  # noqa: D107
-        super().__init__(user, room, connector,
+        super().__init__(user, target, connector, raw_event=raw_event,
                          file_bytes=image_bytes, url=image_url)

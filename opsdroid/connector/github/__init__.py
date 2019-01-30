@@ -4,7 +4,7 @@ import logging
 
 import aiohttp
 
-from opsdroid.connector import Connector
+from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
 
 
@@ -94,7 +94,8 @@ class ConnectorGitHub(Connector):
         return aiohttp.web.Response(
             text=json.dumps("Received"), status=201)
 
-    async def respond(self, message, room=None):
+    @register_event(Message)
+    async def send_message(self, message, target=None):
         """Respond with a message."""
         # stop immediately if the message is from the bot itself.
         if message.user == self.github_username:

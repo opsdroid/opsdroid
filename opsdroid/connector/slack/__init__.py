@@ -10,8 +10,8 @@ import slacker
 from aioslacker import Slacker
 from emoji import demojize
 
-from opsdroid.connector import Connector
-from opsdroid.events import Message
+from opsdroid.connector import Connector, register_event
+from opsdroid.events import Message, Reaction
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -124,19 +124,22 @@ class ConnectorSlack(Connector):
                                               message["text"],
                                               raw_event=message))
 
-    async def respond(self, message, room=None):
+    @register_event(Message)
+    async def send_message(self, message, target=None):
         """Respond with a message."""
         _LOGGER.debug("Responding with: '%s' in room  %s",
                       message.text, message.room)
-        await self.slacker.chat.post_message(message.room,
+        await self.slacker.chat.post_message(target if target else message.target,
                                              message.text,
                                              as_user=False,
                                              username=self.bot_name,
                                              icon_emoji=self.icon_emoji)
 
-    async def react(self, message, emoji):
+    @register_event(Reaction)
+    async def send_reaction(self, reaction):
         """React to a message."""
-        emoji = demojize(emoji)
+        message = reaction.prev_event
+        emoji = demojize(reaction.emoji)
         _LOGGER.debug("Reacting with: %s", emoji)
         try:
             await self.slacker.reactions.post('reactions.add', data={
