@@ -105,13 +105,13 @@ class ConnectorWebsocket(Connector):
         """
 
     @register_event(Message)
-    async def send_message(self, message, target):
+    async def send_message(self, message):
         """Respond with a message."""
         try:
-            if target is None:
-                target = next(iter(self.active_connections))
+            if message.target is None:
+                message.target = next(iter(self.active_connections))
             _LOGGER.debug("Responding with: '" + message.text +
-                          "' in target " + target)
-            await self.active_connections[target].send_str(message.text)
+                          "' in target " + message.target)
+            await self.active_connections[message.target].send_str(message.text)
         except KeyError:
-            _LOGGER.error("No active socket for target %s", target)
+            _LOGGER.error("No active socket for target %s", message.target)

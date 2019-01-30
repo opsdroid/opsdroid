@@ -242,12 +242,11 @@ class ConnectorTelegram(Connector):
         message_getter.cancel()
 
     @register_event(Message)
-    async def send_message(self, message, target):
+    async def send_message(self, message):
         """Respond with a message.
 
         Args:
             message (object): An instance of Message.
-            target (string): Name of the room to respond to.
 
         """
         _LOGGER.debug("Responding with: %s", message.text)

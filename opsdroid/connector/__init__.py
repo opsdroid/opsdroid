@@ -116,7 +116,7 @@ class Connector:
             " '{type(event).__name__}' event type.".format(self=self,
                                                            event=event))
 
-    async def send(self, event, target=None):
+    async def send(self, event):
         """Send a message to the chat service.
 
         Args:
@@ -127,10 +127,11 @@ class Connector:
         Returns:
             bool: True for event successfully sent. False otherwise.
         """
-        target = target if target else event.target if event.target else self.default_target
-        if target is None:
-            raise ValueError("No valid target for this event")
-        return await self.events[type(event)](self, event, target)
+
+        # If the event does not have a target, use the default.
+        event.target = event.target or self.default_target
+
+        return await self.events[type(event)](self, event)
 
     async def disconnect(self):
         """Disconnect from the chat service.

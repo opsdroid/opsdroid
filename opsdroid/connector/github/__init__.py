@@ -93,13 +93,13 @@ class ConnectorGitHub(Connector):
             text=json.dumps("Received"), status=201)
 
     @register_event(Message)
-    async def send_message(self, message, target):
+    async def send_message(self, message):
         """Respond with a message."""
         # stop immediately if the message is from the bot itself.
         if message.user == self.github_username:
             return True
         _LOGGER.debug("Responding via GitHub")
-        repo, issue = target.split('#')
+        repo, issue = message.target.split('#')
         url = "{}/repos/{}/issues/{}/comments".format(
             GITHUB_API_URL, repo, issue)
         headers = {'Authorization': ' token {}'.format(self.github_token)}

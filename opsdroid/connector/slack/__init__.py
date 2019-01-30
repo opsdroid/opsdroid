@@ -124,18 +124,18 @@ class ConnectorSlack(Connector):
                                               raw_event=message))
 
     @register_event(Message)
-    async def send_message(self, message, target):
+    async def send_message(self, message):
         """Respond with a message."""
         _LOGGER.debug("Responding with: '%s' in room  %s",
-                      message.text, target)
-        await self.slacker.chat.post_message(target,
+                      message.text, message.target)
+        await self.slacker.chat.post_message(message.target,
                                              message.text,
                                              as_user=False,
                                              username=self.bot_name,
                                              icon_emoji=self.icon_emoji)
 
     @register_event(Reaction)
-    async def send_reaction(self, reaction, target):
+    async def send_reaction(self, reaction):
         """Send a reaction to a message, here the ``target`` is a Message."""
         """React to a message."""
         emoji = demojize(reaction.emoji)
@@ -143,8 +143,8 @@ class ConnectorSlack(Connector):
         try:
             await self.slacker.reactions.post('reactions.add', data={
                 'name': emoji,
-                'channel': target.target,
-                'timestamp': target.raw_event['ts']
+                'channel': reaction.target,
+                'timestamp': reaction.linked_event.raw_event['ts']
             })
         except slacker.Error as error:
             if str(error) == 'invalid_name':

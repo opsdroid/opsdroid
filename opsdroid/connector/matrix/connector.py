@@ -191,12 +191,12 @@ class ConnectorMatrix(Connector):
             }
 
     @register_event(Message)
-    async def send_message(self, message, target):
+    async def send_message(self, message):
         """Send `message.text` back to the chat service."""
-        if not target.startswith(("!", "#")):
-            room_id = self.rooms[target]
+        if not message.target.startswith(("!", "#")):
+            room_id = self.rooms[message.target]
         else:
-            room_id = target
+            room_id = message.target
 
         # Ensure we have a room id not alias
         if not room_id.startswith('!'):

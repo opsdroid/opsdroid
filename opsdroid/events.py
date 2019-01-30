@@ -36,25 +36,35 @@ class Event(ABC):
 
     """
 
-    def __init__(self, user=None, target=None,
-                 connector=None, raw_event=None):  # noqa: D107
-        self.created = datetime.now()
+    def __init__(self, user=None, target=None, connector=None, event_id=None,
+                 linked_event=None, raw_event=None):  # noqa: D107
         self.user = user
         self.target = target
         self.connector = connector
+        self.linked_event = linked_event
+
+        self.created = datetime.now()
+        self.event_id = event_id
         self.raw_event = raw_event
         self.responded_to = False
 
-    def respond(self, event, target=None):
+    def respond(self, event):
+        """Respond to this event with another event.
+
+        This implies no link between the event we are responding with and this
+        event.
+        """
         opsdroid = get_opsdroid()
-        event.prev_event = self
+
         # Inherit the user, target and event from the event we are responding
         # to if they are not explicitly provided by this Event
-        event.user = event.user if event.user else self.user
-        event.target = event.target if event.target else self.target
-        event.connector = event.connector if event.connector else self.connector
+        event.user = event.user or self.user
+        event.target = event.target or self.target
+        event.connector = event.connector or self.connector
+        event.linked_event = event.linked_event or self
 
-        await self.connector.send(event, target)
+        # TODO: This needs to be opsdroid.send
+        await self.connector.send(event)
 
         if not self.responded_to:
             now = datetime.now()
@@ -128,7 +138,7 @@ class Message(Event):
 
         await asyncio.sleep(char_count*seconds)
 
-    async def respond(self, response_event, target=None):
+    async def respond(self, response_event):
         """Respond to this message using the connector it was created by.
 
         Creates copy of this message with updated text as response.
@@ -137,19 +147,16 @@ class Message(Event):
         Logs response and response time in OpsDroid object stats.
         """
         if isinstance(response_event, str):
-            response = copy(self)
-            response.text = response_event
+            response = Message(response_event)
         else:
             response = response_event
-
-        response.prev_event = self
 
         if 'thinking-delay' in self.connector.configuration or \
            'typing-delay' in self.connector.configuration:
             await self._thinking_delay()
             await self._typing_delay(response.text)
 
-        await super().respond(response, target)
+        await super().respond(response)
 
 
 class Reaction(Event):

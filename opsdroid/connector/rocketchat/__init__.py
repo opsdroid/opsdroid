@@ -155,7 +155,7 @@ class RocketChat(Connector):
             await asyncio.sleep(self.update_interval)
 
     @register_event(Message)
-    async def send_message(self, message, target):
+    async def send_message(self, message):
         """Respond with a message.
 
         The message argument carries both the text to reply with but
@@ -164,13 +164,12 @@ class RocketChat(Connector):
 
         Args:
             message (object): An instance of Message
-            target (string): Name of the room to respond to.
 
         """
         _LOGGER.debug("Responding with: %s", message.text)
         async with aiohttp.ClientSession() as session:
             data = {}
-            data['channel'] = target
+            data['channel'] = message.target
             data['alias'] = self.bot_name
             data['text'] = message.text
             data['avatar'] = ''

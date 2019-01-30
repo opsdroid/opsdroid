@@ -101,14 +101,14 @@ class ConnectorFacebook(Connector):
         """
 
     @register_event(Message)
-    async def send_message(self, message, target):
+    async def send_message(self, message):
         """Respond with a message."""
         _LOGGER.debug("Responding to facebook")
         url = _FACEBOOK_SEND_URL.format(self.config.get('page-access-token'))
         headers = {'content-type': 'application/json'}
         payload = {
             "recipient": {
-                "id": target
+                "id": message.target
             },
             "message": {
                 "text": message.text
