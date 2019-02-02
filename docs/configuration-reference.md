@@ -94,13 +94,13 @@ Opsdroid comes with some built-in connectors out of the box. A connector is a mo
 
 The built-in connectors are:
 
-- [Facebook](https://github.com/opsdroid/opsdroid/blob/master/docs/connectors/facebook.md)
-- [GitHub](https://github.com/opsdroid/opsdroid/blob/master/docs/connectors/github.md)
-- [Matrix](https://github.com/opsdroid/opsdroid/blob/master/docs/connectors/matrix.md)
-- [Rocket.Chat](https://github.com/opsdroid/opsdroid/blob/master/docs/connectors/rocketchat.md)
-- [Slack](https://github.com/opsdroid/opsdroid/blob/master/docs/connectors/slack.md)
-- [Telegram](https://github.com/opsdroid/opsdroid/blob/master/docs/connectors/telegram.md)
-- [Websockets](https://github.com/opsdroid/opsdroid/blob/master/docs/connectors/websocket.md)
+- [Facebook](connectors/facebook.md)
+- [GitHub](connectors/github.md)
+- [Matrix](connectors/matrix.md)
+- [Rocket.Chat](connectors/rocketchat.md)
+- [Slack](connectors/slack.md)
+- [Telegram](connectors/telegram.md)
+- [Websockets](connectors/websocket.md)
 
 _Note: More connectors will be added as built-in connectors into the opsdroid over time._
 
@@ -145,9 +145,9 @@ Skills can store data in opsdroid's "memory", this is a dictionary which can be 
 
 The built-in databases are:
 
-- [Mongo DB](https://github.com/opsdroid/opsdroid/blob/master/docs/databases/mongo.md)
-- [SQLite](https://github.com/opsdroid/opsdroid/blob/master/docs/databases/sqlite.md)
-- [Redis](https://github.com/opsdroid/opsdroid/blob/master/docs/databases/redis.md)
+- [Mongo DB](databases/mongo.md)
+- [SQLite](databases/sqlite.md)
+- [Redis](databases/redis.md)
 
 _Config options of the databases themselves differ between databases, see the database documentation for details._
 
