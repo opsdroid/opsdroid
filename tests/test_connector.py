@@ -7,6 +7,7 @@ import asynctest.mock as amock
 from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.connector import Connector
+from opsdroid.events import Message, Typing, Reaction
 from opsdroid.__main__ import configure_lang
 
 
@@ -20,7 +21,7 @@ class TestConnectorBaseClass(unittest.TestCase):
     def test_init(self):
         config = {"example_item": "test"}
         connector = Connector(config, opsdroid=OpsDroid())
-        self.assertEqual(None, connector.default_room)
+        self.assertEqual(None, connector.default_target)
         self.assertEqual("", connector.name)
         self.assertEqual("test", connector.config["example_item"])
 
@@ -41,20 +42,13 @@ class TestConnectorBaseClass(unittest.TestCase):
 
     def test_respond(self):
         connector = Connector({}, opsdroid=OpsDroid())
-        with self.assertRaises(NotImplementedError):
-            self.loop.run_until_complete(connector.respond({}))
+        with self.assertRaises(TypeError):
+            self.loop.run_until_complete(connector.send(Message("")))
 
-    def test_react(self):
+    def test_unsupported_event(self):
         connector = Connector({}, opsdroid=OpsDroid())
-        reacted = self.loop.run_until_complete(connector.react({}, 'emoji'))
-        self.assertFalse(reacted)
-
-    def test_user_typing(self):
-        opsdroid = 'opsdroid'
-        connector = Connector({}, opsdroid=OpsDroid())
-        user_typing = self.loop.run_until_complete(
-            connector.user_typing(trigger=True))
-        assert user_typing is None
+        with self.assertRaises(TypeError):
+            self.loop.run_until_complete(connector.send(Reaction("emoji")))
 
 
 class TestConnectorAsync(asynctest.TestCase):

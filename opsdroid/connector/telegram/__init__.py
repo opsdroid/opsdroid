@@ -170,7 +170,7 @@ class ConnectorTelegram(Connector):
                 else:
                     message.text = "Sorry, you're not allowed " \
                                    "to speak with this bot."
-                    await self.respond(message)
+                    await self.send(message)
                 self.latest_update = result["update_id"] + 1
             else:
                 _LOGGER.error("Unable to parse the message.")

@@ -17,4 +17,4 @@ def Message(text, user, room, connector, raw_event=None):
 
     Returns a new opsdroid.events.Message object using the same arguments.
     """
-    return NewMessage(user, room, connector, text, raw_event)
+    return NewMessage(text, user, room, connector, raw_event=raw_event)

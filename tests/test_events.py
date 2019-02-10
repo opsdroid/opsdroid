@@ -21,7 +21,7 @@ class TestEvent(asynctest.TestCase):
             mock_connector)
 
         self.assertEqual(event.user, "user")
-        self.assertEqual(event.room, "default")
+        self.assertEqual(event.target, "default")
 
 
 class TestMessage(asynctest.TestCase):
@@ -41,33 +41,33 @@ class TestMessage(asynctest.TestCase):
             'messageId': '101'
         }
         message = events.Message(
+            "Hello world",
             "user",
             "default",
             mock_connector,
-            "Hello world",
-            raw_message)
+            raw_event=raw_message)
 
         self.assertEqual(message.text, "Hello world")
         self.assertEqual(message.user, "user")
-        self.assertEqual(message.room, "default")
+        self.assertEqual(message.target, "default")
         self.assertEqual(
             message.raw_event['timestamp'], '01/01/2000 19:23:00'
             )
         self.assertEqual(message.raw_event['messageId'], '101')
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(TypeError):
             await message.respond("Goodbye world")
         # Also try responding with just some empty Event
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(TypeError):
             await message.respond(events.Event(
-                message.user, message.room, message.connector))
+                message.user, message.target, message.connector))
 
     async def test_response_effects(self):
         """Responding to a message shouldn't change the message."""
         opsdroid = amock.CoroutineMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
         message_text = "Hello world"
-        message = events.Message("user", "default", mock_connector, message_text)
-        with self.assertRaises(NotImplementedError):
+        message = events.Message(message_text, "user", "default", mock_connector)
+        with self.assertRaises(TypeError):
             await message.respond("Goodbye world")
         self.assertEqual(message_text, message.text)
 
@@ -82,8 +82,8 @@ class TestMessage(asynctest.TestCase):
 
         with amock.patch(
                 'opsdroid.events.Message._thinking_delay') as logmock:
-            message = events.Message("user", "default", mock_connector, "hi")
-            with self.assertRaises(NotImplementedError):
+            message = events.Message("hi", "user", "default", mock_connector)
+            with self.assertRaises(TypeError):
                 await message.respond("Hello there")
 
             self.assertTrue(logmock.called)
@@ -98,8 +98,8 @@ class TestMessage(asynctest.TestCase):
         }, opsdroid=opsdroid)
 
         with amock.patch('asyncio.sleep') as mocksleep_int:
-            message = events.Message("user", "default", mock_connector_int, "hi")
-            with self.assertRaises(NotImplementedError):
+            message = events.Message("hi", "user", "default", mock_connector_int)
+            with self.assertRaises(TypeError):
                 await message.respond("Hello there")
 
             self.assertTrue(mocksleep_int.called)
@@ -114,8 +114,8 @@ class TestMessage(asynctest.TestCase):
         }, opsdroid=opsdroid)
 
         with amock.patch('asyncio.sleep') as mocksleep_list:
-            message = events.Message("user", "default", mock_connector_list, "hi")
-            with self.assertRaises(NotImplementedError):
+            message = events.Message("hi", "user", "default", mock_connector_list)
+            with self.assertRaises(TypeError):
                 await message.respond("Hello there")
 
             self.assertTrue(mocksleep_list.called)
@@ -131,8 +131,8 @@ class TestMessage(asynctest.TestCase):
         with amock.patch(
                 'opsdroid.events.Message._typing_delay') as logmock:
             with amock.patch('asyncio.sleep') as mocksleep:
-                message = events.Message("user", "default", mock_connector, "hi")
-                with self.assertRaises(NotImplementedError):
+                message = events.Message("hi", "user", "default", mock_connector)
+                with self.assertRaises(TypeError):
                     await message.respond("Hello there")
 
                 self.assertTrue(logmock.called)
@@ -148,8 +148,8 @@ class TestMessage(asynctest.TestCase):
         }, opsdroid=opsdroid)
 
         with amock.patch('asyncio.sleep') as mocksleep_list:
-            message = events.Message("user", "default", mock_connector_list, "hi")
-            with self.assertRaises(NotImplementedError):
+            message = events.Message("hi", "user", "default", mock_connector_list)
+            with self.assertRaises(TypeError):
                 await message.respond("Hello there")
 
             self.assertTrue(mocksleep_list.called)
@@ -163,8 +163,8 @@ class TestMessage(asynctest.TestCase):
             'module_path': 'opsdroid-modules.connector.shell'
         }, opsdroid=opsdroid)
         with amock.patch('asyncio.sleep') as mocksleep:
-            message = events.Message("user", "default", mock_connector, "hi")
-            with self.assertRaises(NotImplementedError):
+            message = events.Message("hi", "user", "default", mock_connector)
+            with self.assertRaises(TypeError):
                 await message.respond("Hello there")
 
             self.assertTrue(mocksleep.called)
@@ -177,10 +177,10 @@ class TestMessage(asynctest.TestCase):
             'type': 'connector',
         }, opsdroid=opsdroid)
         with amock.patch('asyncio.sleep') as mocksleep:
-            message = events.Message("user", "default", mock_connector, "Hello world")
-            reacted = await message.react("emoji")
+            message = events.Message("Hello world", "user", "default", mock_connector)
+            with self.assertRaises(TypeError):
+                await message.respond(events.Reaction("emoji"))
             self.assertTrue(mocksleep.called)
-            self.assertFalse(reacted)
 
 
 class TestFile(asynctest.TestCase):
@@ -193,13 +193,13 @@ class TestFile(asynctest.TestCase):
         opsdroid = amock.CoroutineMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
         event = events.File(
-            "user",
-            "default",
-            mock_connector,
-            bytes("some file contents", "utf-8"))
+            bytes("some file contents", "utf-8"),
+            user="user",
+            target="default",
+            connector=mock_connector)
 
         self.assertEqual(event.user, "user")
-        self.assertEqual(event.room, "default")
+        self.assertEqual(event.target, "default")
         self.assertEqual(event.file_bytes.decode(), "some file contents")
 
 
@@ -213,11 +213,11 @@ class TestImage(asynctest.TestCase):
         opsdroid = amock.CoroutineMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
         event = events.Image(
-            "user",
-            "default",
-            mock_connector,
-            bytes("some image contents", "utf-8"))
+            bytes("some image contents", "utf-8"),
+            user="user",
+            target="default",
+            connector=mock_connector)
 
         self.assertEqual(event.user, "user")
-        self.assertEqual(event.room, "default")
+        self.assertEqual(event.target, "default")
         self.assertEqual(event.file_bytes.decode(), "some image contents")

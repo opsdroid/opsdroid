@@ -81,10 +81,11 @@ class ConnectorGitHub(Connector):
             issue = "{}/{}#{}".format(payload["repository"]["owner"]["login"],
                                       payload["repository"]["name"],
                                       issue_number)
-            message = Message(payload["sender"]["login"],
+            message = Message(body,
+                              payload["sender"]["login"],
                               issue,
                               self,
-                              body)
+                              raw_event=payload)
             await self.opsdroid.parse(message)
         except KeyError as error:
             _LOGGER.error("Key %s not found in payload", error)

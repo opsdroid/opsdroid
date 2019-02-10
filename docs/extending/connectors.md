@@ -44,7 +44,7 @@ class MyConnector(Connector):
     # Init the config for the connector
     self.name = "MyConnector" # The name of your connector
     self.config = config # The config dictionary to be accessed later
-    self.default_room = "MyDefaultRoom" # The default room for messages to go
+    self.default_target = "MyDefaultRoom" # The default room for messages to go
 
   async def connect(self, opsdroid):
     # Create connection object with chat library

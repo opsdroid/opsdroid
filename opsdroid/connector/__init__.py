@@ -54,12 +54,12 @@ class Connector:
             event_type = event_method.__opsdroid_event__
 
             if not issubclass(event_type, Event):
-                raise TypeError(f"The event type {event_type} is not"
-                                " a valid OpsDroid event type")
+                raise TypeError("The event type {event_type} is not"
+                                " a valid OpsDroid event type".format(event_type))
 
             cls.events[event_type] = event_method
 
-        return super().__new__(cls, *args, **kwargs)
+        return super().__new__(cls)
 
     def __init__(self, config, opsdroid=None):
         """Create the connector.
@@ -112,9 +112,9 @@ class Connector:
         handle the event type.
         """
         raise TypeError(
-            "Connector {type(self)} can not handle the"
-            " '{type(event).__name__}' event type.".format(self=self,
-                                                           event=event))
+            "Connector {stype} can not handle the"
+            " '{eventt.__name__}' event type.".format(stype=type(self),
+                                                      eventt=type(event)))
 
     async def send(self, event):
         """Send a message to the chat service.
@@ -127,6 +127,9 @@ class Connector:
         Returns:
             bool: True for event successfully sent. False otherwise.
         """
+        if not isinstance(event, Event):
+            raise TypeError(
+                "The event argument to send must be an opsdroid Event object")
 
         # If the event does not have a target, use the default.
         event.target = event.target or self.default_target

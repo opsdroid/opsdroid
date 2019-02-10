@@ -2,7 +2,6 @@
 
 import asyncio
 from abc import ABC
-from copy import copy
 from random import randrange
 from datetime import datetime
 
@@ -36,8 +35,8 @@ class Event(ABC):
 
     """
 
-    def __init__(self, user=None, target=None, connector=None, event_id=None,
-                 linked_event=None, raw_event=None):  # noqa: D107
+    def __init__(self, user=None, target=None, connector=None, raw_event=None,
+                 event_id=None, linked_event=None):  # noqa: D107
         self.user = user
         self.target = target
         self.connector = connector
@@ -48,7 +47,7 @@ class Event(ABC):
         self.raw_event = raw_event
         self.responded_to = False
 
-    def respond(self, event):
+    async def respond(self, event):
         """Respond to this event with another event.
 
         This implies no link between the event we are responding with and this
@@ -74,6 +73,20 @@ class Event(ABC):
                 opsdroid.stats["total_response_time"] + \
                 (now - self.created).total_seconds()
             self.responded_to = True
+
+
+class Typing(Event):
+    """An event to set the user typing.
+
+    Args:
+        trigger (bool): Trigger typing on or off.
+        timeout (float, optional): Timeout on typing event.
+
+    """
+    def __init__(self, trigger, timeout=None, *args, **kwargs):
+        self.timeout = timeout
+        self.trigger = trigger
+        super().__init__(self, *args, **kwargs)
 
 
 class Message(Event):
@@ -105,9 +118,9 @@ class Message(Event):
 
     """
 
-    def __init__(self, text, **kwargs):
+    def __init__(self, text, *args, **kwargs):
         """Create object with minimum properties."""
-        super().__init__(**kwargs)
+        super().__init__(*args, **kwargs)
         self.text = text
         self.raw_message = self.raw_event  # For backwards compatibility
         self.raw_match = None
@@ -154,7 +167,8 @@ class Message(Event):
         if 'thinking-delay' in self.connector.configuration or \
            'typing-delay' in self.connector.configuration:
             await self._thinking_delay()
-            await self._typing_delay(response.text)
+            if isinstance(response, Message):
+                await self._typing_delay(response.text)
 
         await super().respond(response)
 
@@ -171,19 +185,19 @@ class Reaction(Event):
         raw_event (dict, optional): Raw message as provided by chat service.
                                     None by default
     """
-    def __init__(self, emoji, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, emoji, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.emoji = emoji
 
 
 class File(Event):
     """Event class to represent arbitrary files as bytes."""
 
-    def __init__(self, file_bytes=None, url=None, **kwargs):  # noqa: D107
-        if not file_bytes or url:
+    def __init__(self, file_bytes=None, url=None, *args, **kwargs):  # noqa: D107
+        if not (file_bytes or url):
             raise ValueError("Either file_bytes or url must be specified")
 
-        super().__init__(**kwargs)
+        super().__init__(*args, **kwargs)
 
         self.file_bytes = file_bytes
         self.url = url
@@ -192,5 +206,5 @@ class File(Event):
 class Image(File):
     """Event class specifically for image files."""
 
-    def __init__(self, image_bytes=None, image_url=None, **kwargs):  # noqa: D107
-        super().__init__(file_bytes=image_bytes, url=image_url, **kwargs)
+    def __init__(self, image_bytes=None, image_url=None, *args, **kwargs):  # noqa: D107
+        super().__init__(file_bytes=image_bytes, url=image_url, *args, **kwargs)

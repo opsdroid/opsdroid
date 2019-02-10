@@ -24,7 +24,7 @@ class TestConnectorTelegram(unittest.TestCase):
             'name': 'telegram',
             'token': 'test',
         }, opsdroid=OpsDroid())
-        self.assertEqual(None, connector.default_room)
+        self.assertEqual(None, connector.default_target)
         self.assertEqual("telegram", connector.name)
 
     def test_missing_token(self):
@@ -249,7 +249,7 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
 
         message_text = "Sorry, you're not allowed to speak with this bot."
 
-        with amock.patch.object(self.connector, 'respond') \
+        with amock.patch.object(self.connector, 'send') \
                 as mocked_respond:
             await self.connector._parse_message(response)
             self.assertTrue(mocked_respond.called)
