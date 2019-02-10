@@ -265,7 +265,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             patched_room_id.return_value = asyncio.Future()
             patched_room_id.return_value.set_result(message.target)
 
-            message.room = "main"
+            message.target = "main"
             await self.connector.send(message)
 
             message_obj = self.connector._get_formatted_message_body(message.text)

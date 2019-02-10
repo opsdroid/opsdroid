@@ -202,6 +202,13 @@ class TestFile(asynctest.TestCase):
         self.assertEqual(event.target, "default")
         self.assertEqual(event.file_bytes.decode(), "some file contents")
 
+    def test_error_on_construct(self):
+        with self.assertRaises(ValueError):
+            events.File()
+
+        with self.assertRaises(ValueError):
+            events.File(b"a", "https://localhost")
+
 
 class TestImage(asynctest.TestCase):
     """Test the opsdroid image class"""

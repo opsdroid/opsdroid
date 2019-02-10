@@ -57,7 +57,7 @@ class Connector:
             if not issubclass(event_type, Event):
                 err_msg = ("The event type {event_type} is "
                            "not a valid OpsDroid event type")
-                raise TypeError(err_msg.format(event_type))
+                raise TypeError(err_msg.format(event_type=event_type))
             cls.events[event_type] = event_method
 
         return super().__new__(cls)

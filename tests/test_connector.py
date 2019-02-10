@@ -6,8 +6,8 @@ import asynctest.mock as amock
 
 from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
-from opsdroid.connector import Connector
-from opsdroid.events import Message, Typing, Reaction
+from opsdroid.connector import Connector, register_event
+from opsdroid.events import Message, Reaction
 from opsdroid.__main__ import configure_lang
 
 
@@ -50,6 +50,18 @@ class TestConnectorBaseClass(unittest.TestCase):
         with self.assertRaises(TypeError):
             self.loop.run_until_complete(connector.send(Reaction("emoji")))
 
+    def test_incorrect_event(self):
+        class NotanEvent:
+            pass
+
+        class MyConnector(Connector):
+            @register_event(NotanEvent)
+            def send_my_event(self, event):
+                pass
+
+        with self.assertRaises(TypeError):
+            MyConnector()
+
 
 class TestConnectorAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid connector base class."""
@@ -60,3 +72,8 @@ class TestConnectorAsync(asynctest.TestCase):
         connector = Connector({}, opsdroid=OpsDroid())
         res = await connector.disconnect()
         assert res is None
+
+    async def test_send_incorrect_event(self):
+        connector = Connector({"name": "shell"})
+        with self.assertRaises(TypeError):
+            await connector.send(object())

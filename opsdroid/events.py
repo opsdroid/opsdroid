@@ -75,7 +75,7 @@ class Event(ABC):
             self.responded_to = True
 
 
-class Typing(Event):
+class Typing(Event):  # pragma: nocover
     """An event to set the user typing.
 
     Args:
@@ -198,7 +198,7 @@ class File(Event):
 
     def __init__(self, file_bytes=None, url=None,
                  *args, **kwargs):  # noqa: D107
-        if not (file_bytes or url):
+        if not (file_bytes or url) or (file_bytes and url):
             raise ValueError("Either file_bytes or url must be specified")
 
         super().__init__(*args, **kwargs)
