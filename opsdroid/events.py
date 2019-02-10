@@ -8,7 +8,7 @@ from datetime import datetime
 from opsdroid.helper import get_opsdroid
 
 
-# pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods,keyword-arg-before-vararg
 class Event(ABC):
     """A generic event type.
 
@@ -83,7 +83,9 @@ class Typing(Event):
         timeout (float, optional): Timeout on typing event.
 
     """
+
     def __init__(self, trigger, timeout=None, *args, **kwargs):
+        """Create the object."""
         self.timeout = timeout
         self.trigger = trigger
         super().__init__(self, *args, **kwargs)
@@ -151,7 +153,7 @@ class Message(Event):
 
         await asyncio.sleep(char_count*seconds)
 
-    async def respond(self, response_event):
+    async def respond(self, event):
         """Respond to this message using the connector it was created by.
 
         Creates copy of this message with updated text as response.
@@ -159,10 +161,10 @@ class Message(Event):
         Updates responded_to attribute to True if False.
         Logs response and response time in OpsDroid object stats.
         """
-        if isinstance(response_event, str):
-            response = Message(response_event)
+        if isinstance(event, str):
+            response = Message(event)
         else:
-            response = response_event
+            response = event
 
         if 'thinking-delay' in self.connector.configuration or \
            'typing-delay' in self.connector.configuration:
@@ -185,7 +187,8 @@ class Reaction(Event):
         raw_event (dict, optional): Raw message as provided by chat service.
                                     None by default
     """
-    def __init__(self, emoji, *args, **kwargs):
+
+    def __init__(self, emoji, *args, **kwargs):  # noqa: D107
         super().__init__(*args, **kwargs)
         self.emoji = emoji
 
@@ -193,7 +196,8 @@ class Reaction(Event):
 class File(Event):
     """Event class to represent arbitrary files as bytes."""
 
-    def __init__(self, file_bytes=None, url=None, *args, **kwargs):  # noqa: D107
+    def __init__(self, file_bytes=None, url=None,
+                 *args, **kwargs):  # noqa: D107
         if not (file_bytes or url):
             raise ValueError("Either file_bytes or url must be specified")
 
@@ -206,5 +210,7 @@ class File(Event):
 class Image(File):
     """Event class specifically for image files."""
 
-    def __init__(self, image_bytes=None, image_url=None, *args, **kwargs):  # noqa: D107
-        super().__init__(file_bytes=image_bytes, url=image_url, *args, **kwargs)
+    def __init__(self, image_bytes=None, image_url=None,
+                 *args, **kwargs):  # noqa: D107
+        super().__init__(file_bytes=image_bytes, url=image_url,
+                         *args, **kwargs)

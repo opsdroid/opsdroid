@@ -32,12 +32,13 @@ class Connector:
     Connectors are used to interact with a given chat service.
 
     """
+
     def __new__(cls, *args, **kwargs):
-        """
+        """Create the class object.
+
         Before constructing the class parse all the methods that have been
         decorated with ``register_event``.
         """
-
         # Get all 'function' members as the wrapped methods are functions
         # This returns a tuple of (name, function) for each method.
         functions = inspect.getmembers(cls, predicate=inspect.isfunction)
@@ -54,9 +55,9 @@ class Connector:
             event_type = event_method.__opsdroid_event__
 
             if not issubclass(event_type, Event):
-                raise TypeError("The event type {event_type} is not"
-                                " a valid OpsDroid event type".format(event_type))
-
+                err_msg = ("The event type {event_type} is "
+                           "not a valid OpsDroid event type")
+                raise TypeError(err_msg.format(event_type))
             cls.events[event_type] = event_method
 
         return super().__new__(cls)
@@ -107,10 +108,7 @@ class Connector:
         raise NotImplementedError
 
     async def _unknown_event(self, event, target=None):
-        """
-        This is the fallback function that is called if the subclass can not
-        handle the event type.
-        """
+        """Fallback for when the subclass can not handle the event type."""
         raise TypeError(
             "Connector {stype} can not handle the"
             " '{eventt.__name__}' event type.".format(stype=type(self),
@@ -126,6 +124,7 @@ class Connector:
 
         Returns:
             bool: True for event successfully sent. False otherwise.
+
         """
         if not isinstance(event, Event):
             raise TypeError(
