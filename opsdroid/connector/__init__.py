@@ -3,8 +3,9 @@
 import collections
 import inspect
 import logging
+import warnings
 
-from opsdroid.events import Event
+from opsdroid.events import Event, Reaction
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -114,6 +115,60 @@ class Connector:
             " '{eventt.__name__}' event type.".format(stype=type(self),
                                                       eventt=type(event)))
 
+    async def respond(self, message, room=None):
+        """Send a message back to the chat service.
+
+        The message object will have a `text` property which should be sent
+        back to the chat service. It may also have a `room` and `user` property
+        which gives information on where the message should be directed.
+
+        Args:
+            message (Message): A message received by the connector.
+            room (string): Name of the room to send the message to
+
+        Returns:
+            bool: True for message successfully sent. False otherwise.
+
+        """
+        warnings.warn(
+            "Connector.respond is deprecated. Use "
+            "Connector.send instead.",
+            DeprecationWarning)
+
+        if room:
+            message.target = room
+
+        return await self.send(message)
+
+    async def disconnect(self):
+        """Disconnect from the chat service.
+
+        This method is called when opsdroid is exiting, it can be used to close
+        connections or do other cleanup.
+        """
+
+    async def react(self, message, emoji):
+        """React to a message.
+
+        Not all connectors will have capabilities to react messages, so this
+        method don't have to be implemented and by default logs a debug message
+        and returns False.
+
+        Args:
+            message (Message): A message received by the connector.
+            emoji    (string): The emoji name with which opsdroid will react
+
+        Returns:
+            bool: True for message successfully sent. False otherwise.
+
+        """
+        warnings.warn(
+            "Connector.react is deprecated. Use "
+            "Connector.respond(events.Reaction(emoji)) instead.",
+            DeprecationWarning)
+
+        return await message.respond(Reaction(emoji))
+
     async def send(self, event):
         """Send a message to the chat service.
 
@@ -135,9 +190,22 @@ class Connector:
 
         return await self.events[type(event)](self, event)
 
-    async def disconnect(self):
-        """Disconnect from the chat service.
+    @property
+    def default_room(self):
+        warnings.warn(
+            "Connector.default_room is deprecated. Use "
+            "Connector.default_target instead.",
+            DeprecationWarning)
 
-        This method is called when opsdroid is exiting, it can be used to close
-        connections or do other cleanup.
-        """
+        return self.default_target
+
+    @default_room.setter
+    def default_room(self, value):
+        warnings.warn(
+            "Connector.default_room is deprecated. Use "
+            "Connector.default_target instead.",
+            DeprecationWarning)
+
+        self.default_target = value
+
+
