@@ -62,8 +62,8 @@ class Event(ABC):
         event.connector = event.connector or self.connector
         event.linked_event = event.linked_event or self
 
-        # TODO: This needs to be opsdroid.send
-        await self.connector.send(event)
+        opsdroid = get_opsdroid()
+        await opsdroid.send(event)
 
         if not self.responded_to:
             now = datetime.now()

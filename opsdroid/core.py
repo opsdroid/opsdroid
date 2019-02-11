@@ -291,6 +291,24 @@ class OpsDroid():
         else:
             self.critical("All connectors failed to load", 1)
 
+    @property
+    def _connector_names(self):
+        """Mapping of names to connector instances."""
+        if not self.connectors:
+            raise ValueError("No connectors have been started")
+
+        names = {}
+        for connector in self.connectors:
+            name = connector.config.get("name", connector.name)
+            # Deduplicate any names
+            if name in names:
+                # Calculate the number of keys in names which start with name.
+                n_key = len(list(filter(lambda x: x.startswith(name), names)))
+                name += "_{}".format(n_key)
+            names[name] = connector
+
+        return names
+
     def start_databases(self, databases):
         """Start the databases."""
         if not databases:
@@ -431,3 +449,23 @@ class OpsDroid():
                                        message)))
 
         return tasks
+
+    async def send(self, event):
+        """Send an event.
+
+        If ``event.connector`` is not set this method will use
+        `OpsDroid.default_connector`. If ``event.connector`` is a string, it
+        will be resolved to the name of the connectors configured in this
+        instance.
+
+        Args:
+            event (opsdroid.events.Event): The event to send.
+
+        """
+        if isinstance(event.connector, str):
+            event.connector = self._connector_names[event.connector]
+
+        if not event.connector:
+            event.connector = self.default_connector
+
+        return await event.connector.send(event)

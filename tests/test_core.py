@@ -401,3 +401,56 @@ class TestCoreAsync(asynctest.TestCase):
                 self.assertEqual(len(tasks), 1)
                 for task in tasks:
                     await task
+
+    async def test_send_default_one(self):
+        with OpsDroid() as opsdroid, \
+             amock.patch("opsdroid.connector.Connector.send") as patched_send:
+            connector = Connector({"name": "shell"})
+            patched_send.return_value = asyncio.Future()
+            patched_send.return_value.set_result("")
+
+            opsdroid.connectors = [connector]
+
+            input_message = Message("Test")
+            await opsdroid.send(input_message)
+
+            patched_send.assert_called_once()
+            message = patched_send.call_args[0][0]
+
+            assert message is input_message
+
+    async def test_send_default_explicit(self):
+        with OpsDroid() as opsdroid, \
+             amock.patch("opsdroid.connector.Connector.send") as patched_send:
+            connector = Connector({"name": "shell", "default": True})
+            connector2 = Connector({"name": "matrix"})
+            patched_send.return_value = asyncio.Future()
+            patched_send.return_value.set_result("")
+
+            opsdroid.connectors = [connector, connector2]
+
+            input_message = Message("Test")
+            await opsdroid.send(input_message)
+
+            patched_send.assert_called_once()
+            message = patched_send.call_args[0][0]
+
+            assert message is input_message
+
+    async def test_send_name(self):
+        with OpsDroid() as opsdroid, \
+             amock.patch("opsdroid.connector.Connector.send") as patched_send:
+            connector = Connector({"name": "shell"})
+            connector2 = Connector({"name": "matrix"})
+            patched_send.return_value = asyncio.Future()
+            patched_send.return_value.set_result("")
+
+            opsdroid.connectors = [connector, connector2]
+
+            input_message = Message("Test", connector="shell")
+            await opsdroid.send(input_message)
+
+            patched_send.assert_called_once()
+            message = patched_send.call_args[0][0]
+
+            assert message is input_message
