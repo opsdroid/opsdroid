@@ -2,7 +2,7 @@ aiohttp==3.5.4
 aioslacker==0.0.11
 aiosqlite==0.8.1
 appdirs==1.4.3
-arrow==0.13.0
+arrow==0.13.1
 asyncio_redis==0.15.1
 Babel==2.6.0
 bleach==3.1.0
