@@ -42,7 +42,7 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
         self.connector = ConnectorTelegram({
                 'name': 'telegram',
                 'token': 'bot:765test',
-                'whitelisted-users': ['user', 'test']
+                'whitelisted-users': ['user', 'test', 'AnUser']
             }, opsdroid=OpsDroid())
 
     async def test_connect(self):
@@ -59,8 +59,7 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
             }
         }
 
-        with OpsDroid() as opsdroid, \
-            amock.patch('aiohttp.ClientSession.get') as patched_request:
+        with amock.patch('aiohttp.ClientSession.get') as patched_request:
 
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(connect_response)
@@ -73,8 +72,7 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
         result = amock.MagicMock()
         result.status = 401
 
-        with OpsDroid() as opsdroid, \
-            amock.patch('aiohttp.ClientSession.get') as patched_request:
+        with amock.patch('aiohttp.ClientSession.get') as patched_request:
 
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
@@ -82,8 +80,8 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
             await self.connector.connect()
             self.assertLogs('_LOGGER', 'error')
 
-    async def test_parse_message(self):
-        response = { 'result': [{
+    async def test_parse_message_username(self):
+        response = {'result': [{
             "update_id": 427647860,
             "message": {
                 "message_id": 12,
@@ -107,14 +105,62 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
             }
         }]}
 
-        with OpsDroid() as opsdroid, \
-                amock.patch('opsdroid.core.OpsDroid.parse') as mocked_parse:
+        with amock.patch('opsdroid.core.OpsDroid.parse') as mocked_parse:
             await self.connector._parse_message(response)
             self.assertTrue(mocked_parse.called)
 
+    async def test_parse_message_first_name(self):
+        response = { 'result': [{
+            "update_id": 427647860,
+            "message": {
+                "message_id": 12,
+                "from": {
+                    "id": 649671308,
+                    "is_bot": False,
+                    "first_name": "AnUser",
+                    "type": "private",
+                    "language_code": "en-GB"
+                },
+                "chat": {
+                    "id": 649671308,
+                    "first_name": "AnUser",
+                    "type": "private"
+                },
+                "date": 1538756863,
+                "text": "Hello"
+            }
+        }]}
+
+        with amock.patch('opsdroid.core.OpsDroid.parse') as mocked_parse:
+            await self.connector._parse_message(response)
+            self.assertTrue(mocked_parse.called)
+
+    async def test_parse_message_bad_result(self):
+        response = {'result': [{
+            "update_id": 427647860,
+            "message": {
+                "message_id": 12,
+                "from": {
+                    "id": 649671308,
+                    "is_bot": False,
+                    "first_name": "test",
+                    "language_code": "en-GB"
+                },
+                "chat": {
+                    "id": 649671308,
+                    "first_name": "test",
+                    "type": "private"
+                },
+                "date": 1538756863,
+            }
+        }]}
+
+        await self.connector._parse_message(response)
+        self.assertLogs('error', '_LOGGER')
+
     async def test_parse_message_unauthorized(self):
         self.connector.config['whitelisted-users'] = ['user', 'test']
-        response = { 'result': [{
+        response = {'result': [{
             "update_id": 427647860,
             "message": {
                 "message_id": 12,

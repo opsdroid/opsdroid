@@ -93,8 +93,13 @@ class ConnectorTelegram(Connector):
         """
         for result in response["result"]:
             _LOGGER.debug(result)
-            if result["message"]["text"]:
+
+            try:
                 user = result["message"]["from"]["username"]
+            except KeyError:
+                user = result["message"]["from"]["first_name"]
+
+            if "message" in result and "text" in result["message"]:
 
                 message = Message(
                     user,
@@ -110,6 +115,8 @@ class ConnectorTelegram(Connector):
                                    "to speak with this bot."
                     await self.respond(message)
                 self.latest_update = result["update_id"] + 1
+            else:
+                _LOGGER.error("Unable to parse message.")
 
     async def _get_messages(self):
         """Connect to the Telegram API.
