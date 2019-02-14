@@ -9,6 +9,7 @@ import websockets
 import slacker
 from aioslacker import Slacker
 from emoji import demojize
+import contextlib
 
 from opsdroid.connector import Connector
 from opsdroid.events import Message
@@ -60,7 +61,8 @@ class ConnectorSlack(Connector):
             await self.reconnect(10)
         except Exception:
             await self.disconnect()
-            raise
+            _LOGGER.error("Failed to connect to Slack - "
+                          "the connector will not be used.")
 
     async def reconnect(self, delay=None):
         """Reconnect to the websocket."""
@@ -74,12 +76,16 @@ class ConnectorSlack(Connector):
 
     async def disconnect(self):
         """Disconnect from Slack."""
-        await self.slacker.close()
+        with contextlib.suppress(TypeError):
+            await self.slacker.close()
 
     async def listen(self):
         """Listen for and parse new messages."""
         while self.listening:
-            await self.receive_from_websocket()
+            try:
+                await self.receive_from_websocket()
+            except AttributeError:
+                break
 
     async def receive_from_websocket(self):
         """Get the next message from the websocket."""
