@@ -191,7 +191,8 @@ class Connector:
         return await self.events[type(event)](self, event)
 
     @property
-    def default_room(self):
+    def default_room(self):  # noqa: D401
+        """The room to send messages to if not specified."""
         warnings.warn(
             "Connector.default_room is deprecated. Use "
             "Connector.default_target instead.",
@@ -207,5 +208,3 @@ class Connector:
             DeprecationWarning)
 
         self.default_target = value
-
-

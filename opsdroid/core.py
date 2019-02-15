@@ -291,8 +291,9 @@ class OpsDroid():
         else:
             self.critical("All connectors failed to load", 1)
 
+    # pylint: disable=W0640
     @property
-    def _connector_names(self):
+    def _connector_names(self):  # noqa: D401
         """Mapping of names to connector instances."""
         if not self.connectors:
             raise ValueError("No connectors have been started")

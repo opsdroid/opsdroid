@@ -4,7 +4,6 @@ import asyncio
 from abc import ABC
 from random import randrange
 from datetime import datetime
-import warnings
 
 from opsdroid.helper import get_opsdroid
 
@@ -174,13 +173,6 @@ class Message(Event):
                 await self._typing_delay(response.text)
 
         await super().respond(response)
-
-    async def react(self, emoji):
-        warnings.warn(
-            "Message.react is deprecated. Use "
-            "Message.respond(events.Reaction(emoji)) instead.",
-            DeprecationWarning)
-        return await self.respond(Reaction(emoji))
 
 
 class Reaction(Event):

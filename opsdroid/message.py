@@ -11,16 +11,21 @@ warn("opsdroid.message.Message is deprecated. "
 
 
 # pylint: disable=C0103
-def Message(text, user, room, connector, raw_message=None):
-    """
-    Stand-in function for the deprecated opsdroid.message.Message object.
+class Message(NewMessage):
+    """A message object.
 
-    Returns a new opsdroid.events.Message object using the same arguments.
+    Deprecated. Use ``opsdroid.events.Message`` instead.
     """
-    return NewMessage(text, user, room, connector, raw_event=raw_message)
+
+    def __init__(self, text, user, room, connector,
+                 raw_message=None):  # noqa: D401
+        """Deprecated opsdroid.message.Message object."""
+        super().__init__(text, user, room, connector,
+                         raw_event=raw_message)
 
     @property
-    def room(self):
+    def room(self):  # noqa: D401
+        """The room the message was sent into."""
         warn(
             "Message.room is deprecated. Use "
             "Message.target instead.",
@@ -38,7 +43,8 @@ def Message(text, user, room, connector, raw_message=None):
         self.target = value
 
     @property
-    def raw_message(self):
+    def raw_message(self):  # noqa: D401
+        """The raw contents of the message."""
         warn(
             "Message.raw_message is deprecated. Use "
             "Message.raw_event instead.",
