@@ -39,6 +39,28 @@ class ConnectorTelegram(Connector):
             _LOGGER.error("Unable to login: Access token is missing. "
                           "Telegram connector will be unavailable.")
 
+    @staticmethod
+    def get_user(response):
+        """Get user from response.
+
+        The API response is different depending on how
+        the bot is set up and where the message is coming
+        from. This method was created to keep if/else
+        statements to a minium on  _parse_message.
+
+        Args:
+            response (dict): Response returned by aiohttp.ClientSession.
+
+        """
+        user = None
+        if "username" in response["message"]["from"]:
+            user = response["message"]["from"]["username"]
+
+        elif "first_name" in response["message"]["from"]:
+            user = response["message"]["from"]["first_name"]
+
+        return user
+
     def build_url(self, method):
         """Build the url to connect to the API.
 
@@ -93,13 +115,9 @@ class ConnectorTelegram(Connector):
         """
         for result in response["result"]:
             _LOGGER.debug(result)
+            user = self.get_user(result)
 
-            try:
-                user = result["message"]["from"]["username"]
-            except KeyError:
-                user = result["message"]["from"]["first_name"]
-
-            if "message" in result and "text" in result["message"]:
+            if "message" in result and "text" in result["message"] and user:
 
                 message = Message(
                     user,

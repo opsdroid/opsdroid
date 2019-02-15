@@ -97,7 +97,7 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
                     "id": 649671308,
                     "first_name": "A",
                     "last_name": "User",
-                    "username": "a_user",
+                    "username": "user",
                     "type": "private"
                 },
                 "date": 1538756863,
