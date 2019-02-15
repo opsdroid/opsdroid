@@ -414,7 +414,6 @@ class TestCoreAsync(asynctest.TestCase):
             input_message = Message("Test")
             await opsdroid.send(input_message)
 
-            patched_send.assert_called_once()
             message = patched_send.call_args[0][0]
 
             assert message is input_message
@@ -432,7 +431,6 @@ class TestCoreAsync(asynctest.TestCase):
             input_message = Message("Test")
             await opsdroid.send(input_message)
 
-            patched_send.assert_called_once()
             message = patched_send.call_args[0][0]
 
             assert message is input_message
@@ -450,7 +448,6 @@ class TestCoreAsync(asynctest.TestCase):
             input_message = Message("Test", connector="shell")
             await opsdroid.send(input_message)
 
-            patched_send.assert_called_once()
             message = patched_send.call_args[0][0]
 
             assert message is input_message
