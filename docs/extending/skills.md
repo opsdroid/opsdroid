@@ -39,14 +39,14 @@ In opsdroid when events are received the connector emits `Event` objects which c
 _Note: Not all connectors support all event types. To find out which events a connector will emit you can access the `.events` attribute of a connector._
 
 
-The base `Event` class has the following attributes. Also depending on the matcher it may have parser specific properties too. See the [matchers documentation](../tutorials/introduction.md#matchers-available) for more details.
+The base `Event` class has the following attributes. Also depending on the matcher it may have parser specific properties too. See the [matchers documentation](tutorials/introduction.md#matchers-available) for more details.
 
 
 * `user`: A _string_ containing the username of the user who wrote the message.
 
 * `target`: A _string_ normally containing the name of the room or chat channel the message was sent in.
 
-* `connector`: A pointer to the opsdroid _connector object_ which receieved the message.
+* `connector`: A pointer to the opsdroid _connector object_ which received the message.
 
 * `raw_event`: The raw event received by the connector (may be `None`).
 

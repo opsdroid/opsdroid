@@ -16,7 +16,7 @@ The base `Event` class has the following attributes and methods:
 
 * `target`: A string normally containing the name of the room or chat channel the message was sent in.
 
-* `connector`: A pointer to the opsdroid _connector object_ which receieved the message.
+* `connector`: A pointer to the opsdroid _connector object_ which received the message.
 
 * `linked_event`: Another event linked to this one, for example the event that a `Message` replies to.
 

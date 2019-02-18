@@ -68,7 +68,6 @@ class Event(ABC):
         event.connector = event.connector or self.connector
         event.linked_event = event.linked_event or self
 
-        opsdroid = get_opsdroid()
         await opsdroid.send(event)
 
         if not self.responded_to:
