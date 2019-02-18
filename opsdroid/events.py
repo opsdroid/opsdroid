@@ -2,6 +2,7 @@
 
 import asyncio
 from abc import ABC
+import urllib.request
 from random import randrange
 from datetime import datetime
 
@@ -23,11 +24,16 @@ class Event(ABC):
                                          given chat service
         raw_event (dict, optional): Raw message as provided by chat service.
                                     None by default
+        event_id (object, optional): The unique id for this event as provided
+                                     by the connector.
+        linked_event (Event, optional): An event to link to this one, i.e. the
+                                        event that a reaction applies to.
 
     Attributes:
         created: Local date and time that message object was created
         user: String name of user sending message
-        room: String name of the room or chat channel in which message was sent
+        target: String name of the room or chat channel in which message
+                was sent.
         connector: Connector object used to interact with given chat service
         raw_event: Raw event provided by chat service
         responded_to: Boolean initialized as False. True if event has been
@@ -75,22 +81,6 @@ class Event(ABC):
             self.responded_to = True
 
 
-class Typing(Event):  # pragma: nocover
-    """An event to set the user typing.
-
-    Args:
-        trigger (bool): Trigger typing on or off.
-        timeout (float, optional): Timeout on typing event.
-
-    """
-
-    def __init__(self, trigger, timeout=None, *args, **kwargs):
-        """Create the object."""
-        self.timeout = timeout
-        self.trigger = trigger
-        super().__init__(self, *args, **kwargs)
-
-
 class Message(Event):
     """A message object.
 
@@ -124,7 +114,6 @@ class Message(Event):
         """Create object with minimum properties."""
         super().__init__(*args, **kwargs)
         self.text = text
-        self.raw_message = self.raw_event  # For backwards compatibility
         self.raw_match = None
 
     async def _thinking_delay(self):
@@ -151,6 +140,7 @@ class Message(Event):
         if isinstance(seconds, list):
             seconds = randrange(seconds[0], seconds[1])
 
+        # TODO: Add support for sending typing events here
         await asyncio.sleep(char_count*seconds)
 
     async def respond(self, event):
@@ -173,6 +163,22 @@ class Message(Event):
                 await self._typing_delay(response.text)
 
         await super().respond(response)
+
+
+class Typing(Event):  # pragma: nocover
+    """An event to set the user typing.
+
+    Args:
+        trigger (bool): Trigger typing on or off.
+        timeout (float, optional): Timeout on typing event.
+
+    """
+
+    def __init__(self, trigger, timeout=None, *args, **kwargs):
+        """Create the object."""
+        self.timeout = timeout
+        self.trigger = trigger
+        super().__init__(self, *args, **kwargs)
 
 
 class Reaction(Event):
@@ -203,8 +209,18 @@ class File(Event):
 
         super().__init__(*args, **kwargs)
 
-        self.file_bytes = file_bytes
+        self._file_bytes = file_bytes
         self.url = url
+
+    @property
+    def file_bytes(self):  # noqa: D401
+        """The `bytes` representation of this file."""
+        if not self._file_bytes and self.url:
+            with urllib.request.urlopen(self.url) as response:
+                self._file_bytes = response.read()
+                return self._file_bytes
+
+        return self._file_bytes
 
 
 class Image(File):
@@ -214,3 +230,8 @@ class Image(File):
                  *args, **kwargs):  # noqa: D107
         super().__init__(file_bytes=image_bytes, url=image_url,
                          *args, **kwargs)
+
+    @property
+    def image_bytes(self):  # noqa: D401
+        """The `bytes` representation of this image."""
+        return self.file_bytes
