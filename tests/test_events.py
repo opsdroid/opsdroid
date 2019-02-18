@@ -1,3 +1,5 @@
+from unittest import mock
+
 import asynctest
 import asynctest.mock as amock
 
@@ -210,6 +212,23 @@ class TestFile(asynctest.TestCase):
         with self.assertRaises(ValueError):
             events.File(b"a", "https://localhost")
 
+    def test_file_bytes(self):
+        f = events.File(url="http://spam.eggs/monty.jpg")
+        with mock.patch("urllib.request.urlopen") as patch_urlopen:
+            response = mock.Mock()
+            response.__enter__ = mock.Mock(return_value=response)
+            response.__exit__ = mock.Mock(return_value=False)
+            response.read = mock.Mock()
+            response.read.return_value = b"bob"
+            patch_urlopen.return_value = response
+
+            assert f.file_bytes == b"bob"
+            assert patch_urlopen.call_count == 1
+
+            # Now test we don't re-download the url
+            assert f.file_bytes == b"bob"
+            assert patch_urlopen.call_count == 1
+
 
 class TestImage(asynctest.TestCase):
     """Test the opsdroid image class"""
@@ -228,4 +247,4 @@ class TestImage(asynctest.TestCase):
 
         self.assertEqual(event.user, "user")
         self.assertEqual(event.target, "default")
-        self.assertEqual(event.file_bytes.decode(), "some image contents")
+        self.assertEqual(event.image_bytes.decode(), "some image contents")

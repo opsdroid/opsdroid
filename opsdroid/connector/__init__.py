@@ -5,7 +5,7 @@ import inspect
 import logging
 import warnings
 
-from opsdroid.events import Event, Reaction
+from opsdroid.events import Event, Reaction, Message
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -134,6 +134,9 @@ class Connector:
             "Connector.respond is deprecated. Use "
             "Connector.send instead.",
             DeprecationWarning)
+
+        if isinstance(message, str):
+            message = Message(message)
 
         if room:
             message.target = room

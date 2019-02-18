@@ -211,6 +211,21 @@ class TestCore(unittest.TestCase):
                 opsdroid.train_parsers({})
                 opsdroid.eventloop.close()
 
+    def test_connector_names(self):
+        with OpsDroid() as opsdroid:
+            with self.assertRaises(ValueError):
+                opsdroid._connector_names
+
+            # Ensure names are always unique
+            c1 = Connector({"name": "spam"}, opsdroid=opsdroid)
+            c2 = Connector({"name": "spam"}, opsdroid=opsdroid)
+
+            opsdroid.connectors = [c1, c2]
+
+            names = opsdroid._connector_names
+            assert "spam" in names
+            assert "spam_1" in names
+
 
 class TestCoreAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid core class."""

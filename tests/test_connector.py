@@ -7,7 +7,7 @@ import asynctest.mock as amock
 from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.connector import Connector, register_event
-from opsdroid.events import Message, Reaction
+from opsdroid.events import Event, Message, Reaction
 from opsdroid.__main__ import configure_lang
 
 
@@ -77,3 +77,31 @@ class TestConnectorAsync(asynctest.TestCase):
         connector = Connector({"name": "shell"})
         with self.assertRaises(TypeError):
             await connector.send(object())
+
+    async def test_dep_respond(self):
+        connector = Connector({"name": "shell"})
+        with amock.patch("opsdroid.connector.Connector.send") as patched_send:
+            with self.assertWarns(DeprecationWarning):
+                await connector.respond("hello", room="bob")
+
+            patched_send.call_count == 1
+
+    async def test_dep_react(self):
+        connector = Connector({"name": "shell"})
+        with amock.patch("opsdroid.events.Message.respond") as patched_respond:
+            with self.assertWarns(DeprecationWarning):
+                await connector.react(Message("ori"), "hello")
+
+            patched_respond.call_count == 1
+
+    async def test_depreacted_properties(self):
+        connector = Connector({"name": "shell"})
+
+        connector.default_target = "spam"
+        with self.assertWarns(DeprecationWarning):
+            assert connector.default_room == "spam"
+
+        with self.assertWarns(DeprecationWarning):
+            connector.default_room = "eggs"
+
+        assert connector.default_target == "eggs"

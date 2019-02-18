@@ -37,3 +37,24 @@ class TestMessage(asynctest.TestCase):
             self.assertEqual(message.raw_event['messageId'], '101')
             with self.assertRaises(TypeError):
                 await message.respond("Goodbye world")
+
+    def test_depreacted_properties(self):
+        message = Message("hello", "user", "", "")
+
+        message.target = "spam"
+        with self.assertWarns(DeprecationWarning):
+            assert message.room == "spam"
+
+        with self.assertWarns(DeprecationWarning):
+            message.room = "eggs"
+
+        assert message.room == "eggs"
+
+        message.raw_event = "spam"
+        with self.assertWarns(DeprecationWarning):
+            assert message.raw_message == "spam"
+
+        with self.assertWarns(DeprecationWarning):
+            message.raw_message = "eggs"
+
+        assert message.raw_event == "eggs"
