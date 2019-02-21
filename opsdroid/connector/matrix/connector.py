@@ -36,11 +36,20 @@ class ConnectorMatrix(Connector):
         self.mxid = config['mxid']
         self.nick = config.get('nick', None)
         self.homeserver = config.get('homeserver', "https://matrix.org")
-        self.password = config['password']
         self.room_specific_nicks = config.get("room_specific_nicks", False)
         self.session = None
         self.filter_id = None
         self.connection = None
+        try:
+            self.token = config['access_token']
+            self.password = None
+        else:
+            self.password = config['password']
+            self.token = None
+        except (KeyError, AttributeError):
+            _LOGGER.error("Unable to login: Config error"
+                          "Matrix connector will not be available.")
+
 
     @property
     def filter_json(self):
@@ -89,9 +98,13 @@ class ConnectorMatrix(Connector):
         mapi = AsyncHTTPAPI(self.homeserver, session)
 
         self.session = session
-        login_response = await mapi.login(
-            "m.login.password", user=self.mxid, password=self.password)
-        mapi.token = login_response['access_token']
+        if self.token is not None:
+            mapi.token = self.token
+        else:
+            login_response = await mapi.login(
+                "m.login.password", user=self.mxid, password=self.password)
+            mapi.token = login_response['access_token']
+        
         mapi.sync_token = None
 
         for roomname, room in self.rooms.items():
