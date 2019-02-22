@@ -1,8 +1,8 @@
-# Recast.AI Matcher
+# SAP Conversational AI Matcher (previously Recast.ai)
 
 ## Configuring opsdroid
 
-In order to enable Recast.AI skills, you must specify an `access-token` for your bot in the parsers section of the opsdroid configuration file.
+In order to enable SAP Conversational AI skills, you must specify an `access-token` for your bot in the parsers section of the opsdroid configuration file.
 You can find this `access-token` in the settings of your bot under the name: `'Request access token'`.
 
 You can also set a `min-score` option to tell opsdroid to ignore any matches which score less than a given number between 0 and 1. The default for this is 0 which will match all messages.
@@ -10,26 +10,26 @@ You can also set a `min-score` option to tell opsdroid to ignore any matches whi
 ```yaml
 
 parsers:
-  - name: recastai
+  - name: sapcai
     access-token: 85769fjoso084jd
     min-score: 0.8
 ```
 
 ##
 
-[Recast.AI](https://recast.ai/) is an NLP API for matching strings to [intents](https://recast.ai/docs/intent). Intents are created on the Recast.AI website.
+[SAP Conversational AI](https://cai.tools.sap/) is an NLP API for matching strings to [intents](https://cai.tools.sap/docs/concepts/intent). Intents are created on the SAP Conversational AI website.
 
 ## [Example 1](#example1)
 
 ```python
 from opsdroid.skill import Skill
-from opsdroid.matchers import match_recastai
+from opsdroid.matchers import match_sapcai
 
 class MySkill(Skill):
-    @match_recastai('greetings')
+    @match_sapcai('greetings')
     async def hello(self, message):
         """Replies to user when any 'greetings'
-        intent is returned by Recast.AI
+        intent is returned by SAP Conversational AI
         """
         await message.respond("Hello there!")
 ```
@@ -40,10 +40,10 @@ The above skill would be called on any intent which has a name of `'greetings'`.
 
 ```python
 from opsdroid.skill import Skill
-from opsdroid.matchers import match_recastai
+from opsdroid.matchers import match_sapcai
 
 class MySkill(Skill):
-    @match_recastai('ask-joke')
+    @match_sapcai('ask-joke')
     async def my_skill(self, message):
         """Returns a joke if asked by the user"""
         await message.respond('What do you call a bear with no teeth? -- A gummy bear!')
@@ -52,33 +52,33 @@ class MySkill(Skill):
 The above skill would be called on any intent which has a name of `'ask-joke'`.
 
 
-## Creating a Recast.AI bot
-You need to [register](https://recast.ai/signup) on Recast.AI and create a bot in order to use Recast.AI with opsdroid.
+## Creating a SAP Conversational AI bot
+You need to [register](https://cai.tools.sap/signup) on SAP Conversational AI and create a bot in order to use SAP Conversational AI with opsdroid.
 
-You can find a quick getting started with the Recast.AI guide [here](https://recast.ai/docs/create-your-bot).
+You can find a quick getting started with the SAP Conversational AI guide [here](https://cai.tools.sap/docs/concepts/create-builder-bot).
 
-If you want to use Recast.AI in a different language other than English, all you need to do is specify the `lang` parameter in opsdroid's configuration.
+If you want to use SAP Conversational AI in a different language other than English, all you need to do is specify the `lang` parameter in opsdroid's configuration.
 
-_Note: "If you do not have any expressions in this language, we will use your default bot language for processing." - [Recast.AI Language page](https://recast.ai/docs/language)_
+_Note: "If you do not have any expressions in this language, we will use your default bot language for processing." - [SAP Conversational AI Language page](https://cai.tools.sap/docs/concepts/language)_
 
 ## Message object additional parameters
 
 ### `message.recastai`
 
-An http response object which has been returned by the Recast.AI API. This allows you to access any information from the matched intent including other entities, intents, values, etc.
+An http response object which has been returned by the SAP Conversational AI API. This allows you to access any information from the matched intent including other entities, intents, values, etc.
 
 
 ## Example Skill
 
 ```python
 from opsdroid.skill import Skill
-from opsdroid.matchers import match_recastai
+from opsdroid.matchers import match_sapcai
 
 import json
 
 class MySkill(Skill):
-    @match_recastai('ask-feeling')
-    async def dumpResponse(self, message):
+    @match_sapcai('ask-feeling')
+    async def dump_response(self, message):
         print(json.dumps(message.recastai))
 ```
 
