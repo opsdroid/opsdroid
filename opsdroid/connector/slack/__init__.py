@@ -117,10 +117,10 @@ class ConnectorSlack(Connector):
             message["text"] = await self.replace_usernames(
                 message["text"])
 
-            await self.opsdroid.parse(Message(user_info["name"],
+            await self.opsdroid.parse(Message(message["text"],
+                                              user_info["name"],
                                               message["channel"],
                                               self,
-                                              message["text"],
                                               raw_event=message))
 
     @register_event(Message)

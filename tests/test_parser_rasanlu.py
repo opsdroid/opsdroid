@@ -34,8 +34,8 @@ class TestParserRasaNLU(asynctest.TestCase):
     async def test_call_rasanlu(self):
         opsdroid = amock.CoroutineMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
-        message = Message("user", "default", mock_connector,
-                          "how's the weather outside")
+        message = Message("how's the weather outside", "user", "default",
+                          mock_connector)
         config = {'name': 'rasanlu',
                   'access-token': 'test',
                   'min-score': 0.3,
@@ -78,8 +78,8 @@ class TestParserRasaNLU(asynctest.TestCase):
     async def test_call_rasanlu_bad_response(self):
         opsdroid = amock.CoroutineMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
-        message = Message("user", "default", mock_connector,
-                          "how's the weather outside")
+        message = Message("how's the weather outside", "user", "default",
+                          mock_connector)
         config = {'name': 'rasanlu', 'access-token': 'test', 'min-score': 0.3}
         result = amock.Mock()
         result.status = 403
@@ -95,8 +95,8 @@ class TestParserRasaNLU(asynctest.TestCase):
     async def test_call_rasanlu_raises(self):
         opsdroid = amock.CoroutineMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
-        message = Message("user", "default", mock_connector,
-                          "how's the weather outside")
+        message = Message("how's the weather outside", "user", "default",
+                          mock_connector)
         config = {'name': 'rasanlu', 'access-token': 'test', 'min-score': 0.3}
         result = amock.Mock()
         result.status = 403
@@ -118,8 +118,8 @@ class TestParserRasaNLU(asynctest.TestCase):
             opsdroid.skills.append(match_rasanlu('get_weather')(mock_skill))
 
             mock_connector = amock.CoroutineMock()
-            message = Message("user", "default", mock_connector,
-                              "how's the weather outside")
+            message = Message("how's the weather outside", "user", "default",
+                              mock_connector)
 
             with amock.patch.object(rasanlu, 'call_rasanlu') \
                     as mocked_call_rasanlu:
