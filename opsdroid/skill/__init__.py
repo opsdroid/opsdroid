@@ -26,7 +26,7 @@ class Skill:
             config (dict): The config for this database specified in the
                            `configuration.yaml` file.
         """
-        super(Skill, self).__init__()
+        super().__init__()
 
         self.opsdroid = opsdroid
         self.config = config

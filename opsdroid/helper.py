@@ -23,8 +23,6 @@ def get_opsdroid():
     if len(OpsDroid.instances) == 1:
         return OpsDroid.instances[0]
 
-    return None
-
 
 def del_rw(action, name, exc):
     """Error handler for removing read only files.

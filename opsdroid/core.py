@@ -10,6 +10,7 @@ import asyncio
 import contextlib
 import inspect
 
+from opsdroid import events
 from opsdroid.const import DEFAULT_CONFIG_PATH
 from opsdroid.memory import Memory
 from opsdroid.connector import Connector
@@ -18,6 +19,7 @@ from opsdroid.skill import Skill
 from opsdroid.loader import Loader
 from opsdroid.web import Web
 from opsdroid.parsers.always import parse_always
+from opsdroid.parsers.event_type import parse_event_type
 from opsdroid.parsers.regex import parse_regex
 from opsdroid.parsers.parseformat import parse_format
 from opsdroid.parsers.dialogflow import parse_dialogflow
@@ -113,7 +115,13 @@ class OpsDroid():
     @staticmethod
     def handle_async_exception(loop, context):
         """Handle exceptions from async coroutines."""
-        _LOGGER.error(_("Caught exception"))
+        if "future" in context:
+            try:
+                context['future'].result()
+            except Exception:
+                _LOGGER.exception(_("Caught exception"))
+        else:
+            _LOGGER.error(_("Caught exception"))
         _LOGGER.error(context)
 
     def is_running(self):
@@ -339,16 +347,18 @@ class OpsDroid():
                 await skill(message)
         except Exception:
             if message:
-                await message.respond(_("Whoops there has been an error"))
-                await message.respond(_("Check the log for details"))
+                await message.respond(events.Message(_("Whoops there has been an error")))
+                await message.respond(events.Message(_("Check the log for details")))
             _LOGGER.exception(_("Exception when running skill '%s' "),
                               str(config["name"]))
 
     async def get_ranked_skills(self, skills, message):
         """Take a message and return a ranked list of matching skills."""
         ranked_skills = []
-        ranked_skills += await parse_regex(self, skills, message)
-        ranked_skills += await parse_format(self, skills, message)
+        if isinstance(message, events.Message):
+            ranked_skills += await parse_regex(self, skills, message)
+            ranked_skills += await parse_format(self, skills, message)
+        ranked_skills += await parse_event_type(self, message)
 
         if "parsers" in self.config:
             _LOGGER.debug(_("Processing parsers..."))
@@ -431,27 +441,26 @@ class OpsDroid():
             )
         ]
 
-    async def parse(self, message):
+    async def parse(self, event):
         """Parse a string against all skills."""
         self.stats["messages_parsed"] = self.stats["messages_parsed"] + 1
         tasks = []
-        if message is not None:
-            if str(message.text).strip():
-                _LOGGER.debug(_("Parsing input: %s"), message.text)
+        if isinstance(event, events.Event):
+            _LOGGER.debug(_("Parsing input: %s"), event)
 
+            tasks.append(
+                self.eventloop.create_task(parse_always(self, event)))
+
+            unconstrained_skills = await self._constrain_skills(
+                self.skills, event)
+            ranked_skills = await self.get_ranked_skills(
+                unconstrained_skills, event)
+            if ranked_skills:
                 tasks.append(
-                    self.eventloop.create_task(parse_always(self, message)))
-
-                unconstrained_skills = await self._constrain_skills(
-                    self.skills, message)
-                ranked_skills = await self.get_ranked_skills(
-                    unconstrained_skills, message)
-                if ranked_skills:
-                    tasks.append(
-                        self.eventloop.create_task(
-                            self.run_skill(ranked_skills[0]["skill"],
-                                           ranked_skills[0]["config"],
-                                           ranked_skills[0]["message"])))
+                    self.eventloop.create_task(
+                        self.run_skill(ranked_skills[0]["skill"],
+                                       ranked_skills[0]["config"],
+                                       event)))
 
         return tasks
 

@@ -27,6 +27,15 @@ class TestEvent(asynctest.TestCase):
         self.assertEqual(event.user, "user")
         self.assertEqual(event.target, "default")
 
+    def test_unique_subclasses(self):
+        with self.assertRaises(NameError):
+            class Message(events.Event):
+                pass
+
+        class Message(events.Event):  # noqa
+            _no_register = True
+            pass
+
 
 class TestMessage(asynctest.TestCase):
     """Test the opsdroid message class."""

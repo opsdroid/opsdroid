@@ -3,6 +3,7 @@
 import re
 import logging
 from concurrent.futures import CancelledError
+from urllib.parse import urlparse
 
 import aiohttp
 
@@ -10,9 +11,10 @@ from matrix_api_async.api_asyncio import AsyncHTTPAPI
 from matrix_client.errors import MatrixRequestError
 
 from opsdroid.connector import Connector, register_event
-from opsdroid.events import Message
+from opsdroid.events import Message, Image, File
 
 from .html_cleaner import clean
+from .create_events import MatrixEventCreator
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -41,6 +43,8 @@ class ConnectorMatrix(Connector):
         self.session = None
         self.filter_id = None
         self.connection = None
+
+        self._event_creator = MatrixEventCreator(self)
 
     @property
     def filter_json(self):
@@ -120,15 +124,9 @@ class ConnectorMatrix(Connector):
             room = response['rooms']['join'].get(roomid, None)
             if room and 'timeline' in room:
                 for event in room['timeline']['events']:
-                    if event['content']['msgtype'] == 'm.text':
-                        if event['sender'] != self.mxid:
-                            return Message(
-                                event['content']['body'],
-                                await self._get_nick(roomid, event['sender']),
-                                roomid,
-                                self,
-                                event_id=event['event_id'],
-                                raw_event=event)
+                    if event['sender'] != self.mxid:
+                        return await self._event_creator.create_event(event,
+                                                                      roomid)
 
     async def listen(self):  # pragma: no cover
         """Listen for new messages from the chat service."""
@@ -229,6 +227,44 @@ class ConnectorMatrix(Connector):
                 room_id,
                 "m.room.message",
                 self._get_formatted_message_body(message.text))
+
+    def _get_image_info(self, image):
+        w, h = image.dimensions
+        return {
+            "w": w,
+            "h": h,
+            "mimetype": image.mimetype,
+            "size": len(image.file_bytes)
+        }
+
+    @register_event(File)
+    @register_event(Image)
+    async def send_image(self, file_event):
+        mxc_url = None
+        if file_event.url:
+            url = urlparse(file_event.url)
+            if url.scheme == "mxc":
+                mxc_url = file_event.url
+                extra_info = {}
+
+        if not mxc_url:
+            mxc_url = await self.connection.media_upload(file_event.file_bytes,
+                                                         file_event.mimetype)
+            mxc_url = mxc_url['content_uri']
+
+        if isinstance(file_event, Image):
+            extra_info = self._get_image_info(file_event)
+            msg_type = "m.image"
+        else:
+            extra_info = {}
+            msg_type = "m.file"
+
+        name = file_event.name or "opsdroid_upload"
+        await self.connection.send_content(file_event.target,
+                                           mxc_url,
+                                           name,
+                                           msg_type,
+                                           extra_info)
 
     async def disconnect(self):
         """Close the matrix session."""
