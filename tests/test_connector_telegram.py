@@ -271,6 +271,46 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
             self.assertLogs('_LOGGER', 'debug')
             self.assertTrue(mocked_parse_message.called)
 
+    async def test_delete_webhook(self):
+        response = amock.Mock()
+        response.status = 200
+
+        with amock.patch.object(self.connector.session, 'get') \
+                as mock_request:
+            mock_request.return_value = asyncio.Future()
+            mock_request.return_value.set_result(response)
+
+            await self.connector.delete_webhook()
+            self.assertLogs('_LOGGER', 'debug')
+
+    async def test_get_message_webhook(self):
+        response = amock.Mock()
+        response.status = 409
+
+        with amock.patch.object(self.connector.session, 'get') \
+                as mock_request, \
+                amock.patch.object(self.connector, 'delete_webhook') \
+                as mock_method:
+            mock_request.return_value = asyncio.Future()
+            mock_request.return_value.set_result(response)
+
+            await self.connector._get_messages()
+            self.assertLogs('_LOGGER', 'info')
+            self.assertTrue(mock_method.called)
+
+
+    async def test_delete_webhook_failure(self):
+        response = amock.Mock()
+        response.status = 401
+
+        with amock.patch.object(self.connector.session, 'get') \
+                as mock_request:
+            mock_request.return_value = asyncio.Future()
+            mock_request.return_value.set_result(response)
+
+            await self.connector.delete_webhook()
+            self.assertLogs('_LOGGER', 'debug')
+
     async def test_get_messages_failure(self):
         listen_response = amock.Mock()
         listen_response.status = 401

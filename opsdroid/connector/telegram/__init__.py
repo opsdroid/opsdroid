@@ -93,6 +93,23 @@ class ConnectorTelegram(Connector):
         """
         return "https://api.telegram.org/bot{}/{}".format(self.token, method)
 
+    async def delete_webhook(self):
+        """Delete Telegram webhook.
+
+        The Telegram api will thrown an 409 error when an webhook is
+        active and a call to getUpdates is made. This method will
+        try to request the deletion of the webhook to make the getUpdate
+        request possible.
+
+        """
+        _LOGGER.debug("Sending deleteWebhook request to Telegram...")
+        resp = await self.session.get(self.build_url("deleteWebhook"))
+
+        if resp.status == 200:
+            _LOGGER.debug("Telegram webhook deleted successfully.")
+        else:
+            _LOGGER.debug("Unable to delete webhook.")
+
     async def connect(self):
         """Connect to Telegram.
 
@@ -176,6 +193,12 @@ class ConnectorTelegram(Connector):
         await asyncio.sleep(self.update_interval)
         resp = await self.session.get(self.build_url("getUpdates"),
                                       params=data)
+
+        if resp.status == 409:
+            _LOGGER.info("Can't get updates because previous "
+                         "webhook is still active. Will try to "
+                         "delete webhook.")
+            await self.delete_webhook()
 
         if resp.status != 200:
             _LOGGER.error("Telegram error %s, %s",
