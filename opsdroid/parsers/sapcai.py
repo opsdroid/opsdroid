@@ -5,14 +5,14 @@ import json
 import aiohttp
 
 from opsdroid.const import DEFAULT_LANGUAGE
-from opsdroid.const import RECASTAI_API_ENDPOINT
+from opsdroid.const import SAPCAI_API_ENDPOINT
 
 
 _LOGGER = logging.getLogger(__name__)
 
 
-async def call_recastai(message, config, lang=DEFAULT_LANGUAGE):
-    """Call the recastai api and return the response."""
+async def call_sapcai(message, config, lang=DEFAULT_LANGUAGE):
+    """Call the SAP Conversational AI api and return the response."""
     async with aiohttp.ClientSession() as session:
         payload = {
             "language": lang,
@@ -22,33 +22,37 @@ async def call_recastai(message, config, lang=DEFAULT_LANGUAGE):
             "Authorization": "Token " + config['access-token'],
             "Content-Type": "application/json"
         }
-        resp = await session.post(RECASTAI_API_ENDPOINT,
+        resp = await session.post(SAPCAI_API_ENDPOINT,
                                   data=json.dumps(payload),
                                   headers=headers)
         result = await resp.json()
-        _LOGGER.info(_("Recastai response - %s"), json.dumps(result))
+        _LOGGER.info(_("SAP Conversational AI response - %s"),
+                     json.dumps(result))
 
         return result
 
 
-async def parse_recastai(opsdroid, skills, message, config):
-    """Parse a message against all recastai intents."""
+async def parse_sapcai(opsdroid, skills, message, config):
+    """Parse a message against all SAP Conversational AI intents."""
     matched_skills = []
     if 'access-token' in config:
         try:
-            result = await call_recastai(message, config,
-                                         opsdroid.config.get('lang',
-                                                             DEFAULT_LANGUAGE))
+            result = await call_sapcai(message, config,
+                                       opsdroid.config.get('lang',
+                                                           DEFAULT_LANGUAGE))
         except aiohttp.ClientOSError:
-            _LOGGER.error(_("No response from Recast.AI, check your network."))
+            _LOGGER.error(_("No response from SAP Conversational.AI, "
+                            "check your network."))
             return matched_skills
 
         if result['results'] is None:
-            _LOGGER.error(_("Recast.AI error - %s"), result["message"])
+            _LOGGER.error(_("SAP Conversational AI error - %s"),
+                          result["message"])
             return matched_skills
 
         if not result["results"]["intents"]:
-            _LOGGER.error(_("Recast.AI error - No intent found "
+            _LOGGER.error(_("SAP Conversational AI error - "
+                            "No intent found "
                             "for the message %s"), str(message.text))
             return matched_skills
 
@@ -56,16 +60,17 @@ async def parse_recastai(opsdroid, skills, message, config):
 
         if "min-score" in config and \
                 confidence < config["min-score"]:
-            _LOGGER.debug(_("Recast.AI score lower than min-score"))
+            _LOGGER.debug(_("SAP Conversational AI score lower "
+                            "than min-score"))
             return matched_skills
 
         if result:
             for skill in skills:
                 for matcher in skill.matchers:
-                    if "recastai_intent" in matcher:
-                        if (matcher["recastai_intent"] in
+                    if "sapcai_intent" in matcher:
+                        if (matcher["sapcai_intent"] in
                                 result["results"]["intents"][0]["slug"]):
-                            message.recastai = result
+                            message.sapcai = result
                             _LOGGER.debug(_("Matched against skill %s"),
                                           skill.config["name"])
 

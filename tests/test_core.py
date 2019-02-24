@@ -13,7 +13,7 @@ from opsdroid.connector import Connector
 from opsdroid.database import Database
 from opsdroid.web import Web
 from opsdroid.matchers import (match_regex, match_dialogflow_action,
-                               match_luisai_intent, match_recastai,
+                               match_luisai_intent, match_sapcai,
                                match_rasanlu, match_witai)
 
 
@@ -374,15 +374,15 @@ class TestCoreAsync(asynctest.TestCase):
                 for task in tasks:
                     await task
 
-    async def test_parse_recastai(self):
+    async def test_parse_sapcai(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config["parsers"] = [{"name": "recastai"}]
-            recastai_intent = ""
+            opsdroid.config["parsers"] = [{"name": "sapcai"}]
+            sapcai_intent = ""
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
-            match_recastai(recastai_intent)(skill)
+            match_sapcai(sapcai_intent)(skill)
             message = Message("user", "default", mock_connector, "Hello")
-            with amock.patch('opsdroid.parsers.recastai.parse_recastai'):
+            with amock.patch('opsdroid.parsers.sapcai.parse_sapcai'):
                 tasks = await opsdroid.parse(message)
                 self.assertEqual(len(tasks), 1)
                 for task in tasks:

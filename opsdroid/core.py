@@ -21,7 +21,7 @@ from opsdroid.parsers.always import parse_always
 from opsdroid.parsers.regex import parse_regex
 from opsdroid.parsers.dialogflow import parse_dialogflow
 from opsdroid.parsers.luisai import parse_luisai
-from opsdroid.parsers.recastai import parse_recastai
+from opsdroid.parsers.sapcai import parse_sapcai
 from opsdroid.parsers.witai import parse_witai
 from opsdroid.parsers.rasanlu import parse_rasanlu, train_rasanlu
 from opsdroid.parsers.crontab import parse_crontab
@@ -362,14 +362,14 @@ class OpsDroid():
                     await parse_luisai(self, skills,
                                        message, luisai[0])
 
-            recastai = [p for p in parsers if p["name"] == "recastai"]
-            if len(recastai) == 1 and \
-                    ("enabled" not in recastai[0] or
-                     recastai[0]["enabled"] is not False):
+            sapcai = [p for p in parsers if p["name"] == "sapcai"]
+            if len(sapcai) == 1 and \
+                    ("enabled" not in sapcai[0] or
+                     sapcai[0]["enabled"] is not False):
                 _LOGGER.debug(_("Checking Recast.AI..."))
                 ranked_skills += \
-                    await parse_recastai(self, skills,
-                                         message, recastai[0])
+                    await parse_sapcai(self, skills,
+                                       message, sapcai[0])
 
             witai = [p for p in parsers if p["name"] == "witai"]
             if len(witai) == 1 and \
