@@ -14,6 +14,6 @@ multidict==4.5.2
 nbconvert==5.4.1
 nbformat==4.4.0
 pycron==1.0.0
-pyyaml==4.2b1
+pyyaml==5.1b1
 setuptools==40.8.0
 websockets==7.0
