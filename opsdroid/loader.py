@@ -241,7 +241,7 @@ class Loader:
                                          loader.construct_scalar(node))
 
             with open(included_yaml, 'r') as included:
-                return yaml.load(included, Loader=yaml.FullLoader)
+                return yaml.full_load(included)
 
         yaml.add_constructor('!envvar', envvar_constructor)
         yaml.add_constructor('!include', include_constructor)
@@ -249,7 +249,7 @@ class Loader:
         try:
             with open(config_path, 'r') as stream:
                 _LOGGER.info(_("Loaded config from %s."), config_path)
-                return yaml.load(stream, Loader=yaml.FullLoader)
+                return yaml.full_load(stream)
         except yaml.YAMLError as error:
             _LOGGER.critical(error)
             sys.exit(1)
