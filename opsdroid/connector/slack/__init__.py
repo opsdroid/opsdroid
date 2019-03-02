@@ -58,6 +58,9 @@ class ConnectorSlack(Connector):
             _LOGGER.error(error)
             _LOGGER.error("Failed to connect to Slack, retrying in 10")
             await self.reconnect(10)
+        except slacker.Error as error:
+            _LOGGER.error("Unable to connect to Slack due to %s - "
+                          "The Slack Connector will not be available.", error)
         except Exception:
             await self.disconnect()
             raise
@@ -79,7 +82,10 @@ class ConnectorSlack(Connector):
     async def listen(self):
         """Listen for and parse new messages."""
         while self.listening:
-            await self.receive_from_websocket()
+            try:
+                await self.receive_from_websocket()
+            except AttributeError:
+                break
 
     async def receive_from_websocket(self):
         """Get the next message from the websocket."""

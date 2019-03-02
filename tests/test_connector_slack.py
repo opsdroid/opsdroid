@@ -5,6 +5,7 @@ import unittest
 import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock
+import slacker
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector.slack import ConnectorSlack
@@ -72,6 +73,16 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         self.assertTrue(mocked_websocket_connect.called)
         self.assertTrue(connector.keepalive_websocket.called)
 
+    async def test_connect_auth_fail(self):
+        connector = ConnectorSlack({"api-token": "abc123"}, opsdroid=OpsDroid())
+        opsdroid = amock.CoroutineMock()
+        opsdroid.eventloop = self.loop
+        connector.slacker.rtm.start = amock.CoroutineMock()
+        connector.slacker.rtm.start.side_effect = slacker.Error()
+
+        await connector.connect()
+        self.assertLogs('_LOGGER', 'error')
+
     async def test_reconnect_on_error(self):
         import aiohttp
         connector = ConnectorSlack({"api-token": "abc123"}, opsdroid=OpsDroid())
@@ -99,6 +110,14 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         connector.receive_from_websocket.side_effect = Exception()
         with self.assertRaises(Exception):
             await connector.listen()
+        self.assertTrue(connector.receive_from_websocket.called)
+
+    async def test_listen_break_loop(self):
+        """Test that listening consumes from the socket."""
+        connector = ConnectorSlack({"api-token": "abc123"}, opsdroid=OpsDroid())
+        connector.receive_from_websocket = amock.CoroutineMock()
+        connector.receive_from_websocket.side_effect = AttributeError
+        await connector.listen()
         self.assertTrue(connector.receive_from_websocket.called)
 
     async def test_receive_from_websocket(self):
