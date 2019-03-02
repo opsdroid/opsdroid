@@ -30,14 +30,11 @@ connectors:
 ## Usage
 
 To talk with Opsdroid you will have to start a new private chat by searching for the name of your bot
-in the search bar.
+in the search bar. The telegram API doesn't include the name of a user when they send a message to a channel, 
+so the connector is unable to trigger any commands sent from a channel.
 
-For example, if you named your bot: `MyAwesome_Bot` you can just search for that name and wait for the 
-result to show up, then click on the name of your bot and a new chat window will start. You can now talk 
-with your bot and give him commands.
+For example, if you named your bot: `MyAwesome_Bot` you can just search for that name and wait for the result to show up, then click on the name of your bot and a new chat window will start. You can now talk with your bot and give him commands.
 
-_Note: To avoid unauthorized users to interact with your bot you should specify a list of whitelisted users
-in your `config.yaml`._
 
 ```
 [6:13:11 PM] Fabio:
@@ -65,4 +62,38 @@ Bye FabioRosado
 ```
 
 To avoid this from happening, you should only contact the bot when opsdroid is running. The bot should reply immediately.
-If it doesn't, check that the bot is running before attempting to send another command - or try with a risk free one like `hello`.
+If it doesn't, check that the bot is running before attempting to send another command - or try with a risk-free one like `hello`.
+
+## White listing users
+
+This is an optional config option that you can include on your `config.yaml` to prevent unauthorized users to interact with your bot.
+Currently, you can specify a user `nickname` or a `userID`. Using the `userID` method is preferable as it will increase the security 
+of the connector since users can't change this ID.
+
+Here is how you can whitelist a user:
+```yaml
+  - name: Telegram
+    token: <your bot token>
+    whitelisted-users:
+      - user1
+      - 124324234 # this is a userID
+```
+
+Finding your `userID` is not straight forward. This value is sent by Telegram when a user sends a private message to someone (the bot in this case) or when someone calls the `getUpdate` from the API.
+To find a `userID` by a private message, set the `logging` level to `debug` and start a new private message to the bot. You will see the API response on your console - it will look similar to this:
+
+```json
+{
+  'update_id': 539026743, 
+  'message': {
+    'message_id': 109, 
+    'from': {
+      'id': 4532189818, 
+      'is_bot': False, 
+      'first_name': 'user', 
+      'language_code': 'en'},
+    'chat': {}
+ }}
+```
+
+Use the `id` value from the `message["from"]` field and add it to your `whitelisted-users` config option.

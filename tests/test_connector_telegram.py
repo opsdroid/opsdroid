@@ -1,11 +1,10 @@
 """Tests for the ConnectorTelegram class."""
 import asyncio
+import contextlib
 import unittest
-import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock
 
-from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.connector.telegram import ConnectorTelegram
 from opsdroid.events import Message
@@ -42,8 +41,10 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
         self.connector = ConnectorTelegram({
                 'name': 'telegram',
                 'token': 'bot:765test',
-                'whitelisted-users': ['user', 'test']
+                'whitelisted-users': ['user', 'test', 'AnUser']
             }, opsdroid=OpsDroid())
+        with amock.patch('aiohttp.ClientSession') as mocked_session:
+            self.connector.session = mocked_session
 
     async def test_connect(self):
         connect_response = amock.Mock()
@@ -59,8 +60,8 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
             }
         }
 
-        with OpsDroid() as opsdroid, \
-            amock.patch('aiohttp.ClientSession.get') as patched_request:
+        with amock.patch('aiohttp.ClientSession.get')\
+                as patched_request:
 
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(connect_response)
@@ -73,8 +74,8 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
         result = amock.MagicMock()
         result.status = 401
 
-        with OpsDroid() as opsdroid, \
-            amock.patch('aiohttp.ClientSession.get') as patched_request:
+        with amock.patch('aiohttp.ClientSession.get')\
+                as patched_request:
 
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
@@ -82,8 +83,8 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
             await self.connector.connect()
             self.assertLogs('_LOGGER', 'error')
 
-    async def test_parse_message(self):
-        response = { 'result': [{
+    async def test_parse_message_username(self):
+        response = {'result': [{
             "update_id": 427647860,
             "message": {
                 "message_id": 12,
@@ -99,7 +100,7 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
                     "id": 649671308,
                     "first_name": "A",
                     "last_name": "User",
-                    "username": "a_user",
+                    "username": "user",
                     "type": "private"
                 },
                 "date": 1538756863,
@@ -107,14 +108,91 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
             }
         }]}
 
-        with OpsDroid() as opsdroid, \
-                amock.patch('opsdroid.core.OpsDroid.parse') as mocked_parse:
+        with amock.patch('opsdroid.core.OpsDroid.parse') as mocked_parse:
             await self.connector._parse_message(response)
             self.assertTrue(mocked_parse.called)
 
+    async def test_parse_message_channel(self):
+        response = {'result': [{
+            "update_id": 427647860,
+            "message": {
+                "message_id": 12,
+                "from": {
+                    "id": 649671308,
+                    "is_bot": False,
+                    "first_name": "A",
+                    "last_name": "User",
+                    "username": "user",
+                    "language_code": "en-GB"
+                },
+                "chat": {
+                    "id": 649671308,
+                    "first_name": "A",
+                    "last_name": "User",
+                    "username": "user",
+                    "type": "channel"
+                },
+                "date": 1538756863,
+                "text": "Hello"
+            }
+        }]}
+
+        with amock.patch('opsdroid.core.OpsDroid.parse') as mocked_parse:
+            await self.connector._parse_message(response)
+            self.assertLogs('_LOGGER', 'debug')
+
+    async def test_parse_message_first_name(self):
+        response = { 'result': [{
+            "update_id": 427647860,
+            "message": {
+                "message_id": 12,
+                "from": {
+                    "id": 649671308,
+                    "is_bot": False,
+                    "first_name": "AnUser",
+                    "type": "private",
+                    "language_code": "en-GB"
+                },
+                "chat": {
+                    "id": 649671308,
+                    "first_name": "AnUser",
+                    "type": "private"
+                },
+                "date": 1538756863,
+                "text": "Hello"
+            }
+        }]}
+
+        with amock.patch('opsdroid.core.OpsDroid.parse') as mocked_parse:
+            await self.connector._parse_message(response)
+            self.assertTrue(mocked_parse.called)
+
+    async def test_parse_message_bad_result(self):
+        response = {'result': [{
+            "update_id": 427647860,
+            "message": {
+                "message_id": 12,
+                "from": {
+                    "id": 649671308,
+                    "is_bot": False,
+                    "first_name": "test",
+                    "language_code": "en-GB"
+                },
+                "chat": {
+                    "id": 649671308,
+                    "first_name": "test",
+                    "type": "private"
+                },
+                "date": 1538756863,
+            }
+        }]}
+
+        await self.connector._parse_message(response)
+        self.assertLogs('error', '_LOGGER')
+
     async def test_parse_message_unauthorized(self):
         self.connector.config['whitelisted-users'] = ['user', 'test']
-        response = { 'result': [{
+        response = {'result': [{
             "update_id": 427647860,
             "message": {
                 "message_id": 12,
@@ -143,8 +221,7 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
 
         message_text = "Sorry, you're not allowed to speak with this bot."
 
-        with OpsDroid() as opsdroid, \
-                amock.patch.object(self.connector, 'respond') \
+        with amock.patch.object(self.connector, 'respond') \
                 as mocked_respond:
             await self.connector._parse_message(response)
             self.assertTrue(mocked_respond.called)
@@ -180,9 +257,9 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
             }
         ]}
 
-        with OpsDroid() as opsdroid, \
-            amock.patch('aiohttp.ClientSession.get') as patched_request,\
-            amock.patch.object(self.connector, '_parse_message') \
+        with amock.patch.object(self.connector.session, 'get') \
+                as patched_request,\
+                amock.patch.object(self.connector, '_parse_message') \
                 as mocked_parse_message:
 
             self.connector.latest_update = 54
@@ -194,29 +271,71 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
             self.assertLogs('_LOGGER', 'debug')
             self.assertTrue(mocked_parse_message.called)
 
+    async def test_delete_webhook(self):
+        response = amock.Mock()
+        response.status = 200
+
+        with amock.patch.object(self.connector.session, 'get') \
+                as mock_request:
+            mock_request.return_value = asyncio.Future()
+            mock_request.return_value.set_result(response)
+
+            await self.connector.delete_webhook()
+            self.assertLogs('_LOGGER', 'debug')
+
+    async def test_get_message_webhook(self):
+        response = amock.Mock()
+        response.status = 409
+
+        with amock.patch.object(self.connector.session, 'get') \
+                as mock_request, \
+                amock.patch.object(self.connector, 'delete_webhook') \
+                as mock_method:
+            mock_request.return_value = asyncio.Future()
+            mock_request.return_value.set_result(response)
+
+            await self.connector._get_messages()
+            self.assertLogs('_LOGGER', 'info')
+            self.assertTrue(mock_method.called)
+
+
+    async def test_delete_webhook_failure(self):
+        response = amock.Mock()
+        response.status = 401
+
+        with amock.patch.object(self.connector.session, 'get') \
+                as mock_request:
+            mock_request.return_value = asyncio.Future()
+            mock_request.return_value.set_result(response)
+
+            await self.connector.delete_webhook()
+            self.assertLogs('_LOGGER', 'debug')
+
     async def test_get_messages_failure(self):
         listen_response = amock.Mock()
         listen_response.status = 401
 
-        with OpsDroid() as opsdroid, \
-            amock.patch('aiohttp.ClientSession.get') as patched_request:
+        with amock.patch.object(self.connector.session, 'get') \
+                as patched_request:
 
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(listen_response)
             await self.connector._get_messages()
             self.assertLogs('_LOGGER', 'error')
 
-    async def test_listen(self):
-        self.connector.listening = amock.CoroutineMock()
-        self.connector.listening.side_effect = Exception()
-        await self.connector.listen()
+    async def test_get_messages_loop(self):
+        self.connector._get_messages = amock.CoroutineMock()
+        self.connector._get_messages.side_effect = Exception()
+        with contextlib.suppress(Exception):
+            await self.connector.get_messages_loop()
 
     async def test_respond(self):
         post_response = amock.Mock()
         post_response.status = 200
 
         with OpsDroid() as opsdroid, \
-            amock.patch('aiohttp.ClientSession.post') as patched_request:
+                amock.patch.object(self.connector.session, 'post')\
+                as patched_request:
 
             self.assertTrue(opsdroid.__class__.instances)
             test_message = Message(text="This is a test",
@@ -235,7 +354,8 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
         post_response.status = 401
 
         with OpsDroid() as opsdroid, \
-            amock.patch('aiohttp.ClientSession.post') as patched_request:
+                amock.patch.object(self.connector.session, 'post')\
+                as patched_request:
 
             self.assertTrue(opsdroid.__class__.instances)
             test_message = Message(text="This is a test",
@@ -247,3 +367,26 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
             patched_request.return_value.set_result(post_response)
             await test_message.respond("Response")
             self.assertLogs('_LOGGER', 'debug')
+
+    async def test_listen(self):
+        with amock.patch.object(self.connector.loop, 'create_task') \
+                as mocked_task, \
+                amock.patch.object(self.connector._closing, 'wait') as\
+                        mocked_event:
+            mocked_event.return_value = asyncio.Future()
+            mocked_event.return_value.set_result(True)
+            mocked_task.return_value = asyncio.Future()
+            await self.connector.listen()
+
+            self.assertTrue(mocked_event.called)
+            self.assertTrue(mocked_task.called)
+
+    async def test_disconnect(self):
+            with amock.patch.object(self.connector.session, 'close') as mocked_close:
+                mocked_close.return_value = asyncio.Future()
+                mocked_close.return_value.set_result(True)
+
+                await self.connector.disconnect()
+                self.assertFalse(self.connector.listening)
+                self.assertTrue(self.connector.session.closed())
+                self.assertEqual(self.connector._closing.set(), None)
