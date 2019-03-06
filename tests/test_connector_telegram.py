@@ -112,6 +112,35 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
             await self.connector._parse_message(response)
             self.assertTrue(mocked_parse.called)
 
+    async def test_parse_edited_message(self):
+        response = {'result': [{
+            'update_id': 246644499,
+            'edited_message': {
+                'message_id': 150,
+                'from': {
+                    'id': 245245245,
+                    'is_bot': False,
+                    'first_name': 'IOBreaker',
+                    'language_code': 'en'},
+                'chat': {
+                    'id': 245245245,
+                    'first_name': 'IOBreaker',
+                    'type': 'private'},
+                'date': 1551797346,
+                'edit_date': 1551797365,
+                'text': 'hello2'}}]}
+        response_copy = list(response)
+        mocked_status = amock.CoroutineMock()
+        mocked_status.status = 200
+        with amock.patch('opsdroid.core.OpsDroid.parse') as mocked_parse, \
+                amock.patch.object(self.connector.session, 'post') \
+                as patched_request:
+            patched_request.return_value = asyncio.Future()
+            patched_request.return_value.set_result(mocked_status)
+            self.assertTrue(response['result'][0].get('edited_message'))
+            await self.connector._parse_message(response)
+
+
     async def test_parse_message_channel(self):
         response = {'result': [{
             "update_id": 427647860,
@@ -137,12 +166,12 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
             }
         }]}
 
-        with amock.patch('opsdroid.core.OpsDroid.parse') as mocked_parse:
+        with amock.patch('opsdroid.core.OpsDroid.parse'):
             await self.connector._parse_message(response)
             self.assertLogs('_LOGGER', 'debug')
 
     async def test_parse_message_first_name(self):
-        response = { 'result': [{
+        response = {'result': [{
             "update_id": 427647860,
             "message": {
                 "message_id": 12,
@@ -162,7 +191,6 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
                 "text": "Hello"
             }
         }]}
-
         with amock.patch('opsdroid.core.OpsDroid.parse') as mocked_parse:
             await self.connector._parse_message(response)
             self.assertTrue(mocked_parse.called)
