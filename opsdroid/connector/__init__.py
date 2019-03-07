@@ -167,7 +167,7 @@ class Connector:
         """
         warnings.warn(
             "Connector.react is deprecated. Use "
-            "Connector.respond(events.Reaction(emoji)) instead.",
+            "Connector.send(events.Reaction(emoji)) instead.",
             DeprecationWarning)
 
         return await message.respond(Reaction(emoji))

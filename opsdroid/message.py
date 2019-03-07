@@ -1,13 +1,13 @@
 """Support for deprecated opsdroid.message.Message."""
 
-from warnings import warn
+import warnings
 
 from opsdroid.events import Message as NewMessage
 
 
-warn("opsdroid.message.Message is deprecated. "
-     "Please use opsdroid.events.Message instead.",
-     DeprecationWarning)
+warnings.warn("opsdroid.message.Message is deprecated. "
+              "Please use opsdroid.events.Message instead.",
+              DeprecationWarning)
 
 
 # pylint: disable=C0103
@@ -26,7 +26,7 @@ class Message(NewMessage):
     @property
     def room(self):  # noqa: D401
         """The room the message was sent into."""
-        warn(
+        warnings.warn(
             "Message.room is deprecated. Use "
             "Message.target instead.",
             DeprecationWarning)
@@ -35,7 +35,7 @@ class Message(NewMessage):
 
     @room.setter
     def room(self, value):
-        warn(
+        warnings.warn(
             "Message.room is deprecated. Use "
             "Message.target instead.",
             DeprecationWarning)
@@ -45,7 +45,7 @@ class Message(NewMessage):
     @property
     def raw_message(self):  # noqa: D401
         """The raw contents of the message."""
-        warn(
+        warnings.warn(
             "Message.raw_message is deprecated. Use "
             "Message.raw_event instead.",
             DeprecationWarning)
@@ -54,7 +54,7 @@ class Message(NewMessage):
 
     @raw_message.setter
     def raw_message(self, value):
-        warn(
+        warnings.warn(
             "Message.raw_message is deprecated. Use "
             "Message.raw_event instead.",
             DeprecationWarning)
