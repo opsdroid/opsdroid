@@ -152,6 +152,8 @@ class ConnectorTelegram(Connector):
         """
         for result in response["result"]:
             _LOGGER.debug(result)
+            if result.get('edited_message', None):
+                result['message'] = result.pop('edited_message')
             if "channel" in result["message"]["chat"]["type"]:
                 _LOGGER.debug("Channel message parsing not supported "
                               "- Ignoring message")
