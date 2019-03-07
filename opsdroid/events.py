@@ -2,9 +2,10 @@
 
 import asyncio
 from abc import ABC
-import urllib.request
 from random import randrange
 from datetime import datetime
+
+import aiohttp
 
 from opsdroid.helper import get_opsdroid
 
@@ -211,26 +212,15 @@ class File(Event):
         self._file_bytes = file_bytes
         self.url = url
 
-    @property
-    def file_bytes(self):  # noqa: D401
-        """The `bytes` representation of this file."""
+    async def get_file_bytes(self):  # noqa: D401
+        """Return the bytes representation of this file."""
         if not self._file_bytes and self.url:
-            with urllib.request.urlopen(self.url) as response:
-                self._file_bytes = response.read()
-                return self._file_bytes
+            async with aiohttp.ClientSession() as session:
+                async with session.get(self.url) as resp:
+                    self._file_bytes = await resp.read()
 
         return self._file_bytes
 
 
 class Image(File):
     """Event class specifically for image files."""
-
-    def __init__(self, image_bytes=None, image_url=None,
-                 *args, **kwargs):  # noqa: D107
-        super().__init__(file_bytes=image_bytes, url=image_url,
-                         *args, **kwargs)
-
-    @property
-    def image_bytes(self):  # noqa: D401
-        """The `bytes` representation of this image."""
-        return self.file_bytes

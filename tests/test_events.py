@@ -1,3 +1,4 @@
+import asyncio
 from unittest import mock
 
 import asynctest
@@ -203,7 +204,8 @@ class TestFile(asynctest.TestCase):
 
         self.assertEqual(event.user, "user")
         self.assertEqual(event.target, "default")
-        self.assertEqual(event.file_bytes.decode(), "some file contents")
+        self.assertEqual((await event.get_file_bytes()).decode(),
+                         "some file contents")
 
     def test_error_on_construct(self):
         with self.assertRaises(ValueError):
@@ -212,22 +214,22 @@ class TestFile(asynctest.TestCase):
         with self.assertRaises(ValueError):
             events.File(b"a", "https://localhost")
 
-    def test_file_bytes(self):
+    @amock.patch('aiohttp.ClientSession.get')
+    async def test_repeat_file_bytes(self, mock_get):
         f = events.File(url="http://spam.eggs/monty.jpg")
-        with mock.patch("urllib.request.urlopen") as patch_urlopen:
-            response = mock.Mock()
-            response.__enter__ = mock.Mock(return_value=response)
-            response.__exit__ = mock.Mock(return_value=False)
-            response.read = mock.Mock()
-            response.read.return_value = b"bob"
-            patch_urlopen.return_value = response
 
-            assert f.file_bytes == b"bob"
-            assert patch_urlopen.call_count == 1
+        fut = asyncio.Future()
+        fut.set_result(b"bob")
 
-            # Now test we don't re-download the url
-            assert f.file_bytes == b"bob"
-            assert patch_urlopen.call_count == 1
+        mock_get.return_value.__aenter__.return_value.read = \
+            amock.CoroutineMock(return_value=fut)
+
+        assert await f.get_file_bytes() == b"bob"
+        assert mock_get.call_count == 1
+
+        # Now test we don't re-download the url
+        assert await f.get_file_bytes() == b"bob"
+        assert mock_get.call_count == 1
 
 
 class TestImage(asynctest.TestCase):
@@ -247,4 +249,5 @@ class TestImage(asynctest.TestCase):
 
         self.assertEqual(event.user, "user")
         self.assertEqual(event.target, "default")
-        self.assertEqual(event.image_bytes.decode(), "some image contents")
+        self.assertEqual((await event.get_file_bytes()).decode(),
+                         "some image contents")
