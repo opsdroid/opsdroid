@@ -8,7 +8,7 @@ import aiohttp
 from matrix_api_async.api_asyncio import AsyncHTTPAPI
 from matrix_client.errors import MatrixRequestError
 
-from opsdroid.connector import Connector
+from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
 
 from .html_cleaner import clean
@@ -27,12 +27,11 @@ class ConnectorMatrix(Connector):
         super().__init__(config, opsdroid=opsdroid)
 
         self.name = "ConnectorMatrix"  # The name of your connector
-        self.config = config  # The config dictionary to be accessed later
         self.rooms = config.get('rooms', None)
         if not self.rooms:
             self.rooms = {'main': config['room']}
         self.room_ids = {}
-        self.default_room = self.rooms['main']
+        self.default_target = self.rooms['main']
         self.mxid = config['mxid']
         self.nick = config.get('nick', None)
         self.homeserver = config.get('homeserver', "https://matrix.org")
@@ -123,9 +122,11 @@ class ConnectorMatrix(Connector):
                     if event['content']['msgtype'] == 'm.text':
                         if event['sender'] != self.mxid:
                             return Message(
-                                await self._get_nick(roomid, event['sender']),
-                                roomid, self,
                                 event['content']['body'],
+                                await self._get_nick(roomid, event['sender']),
+                                roomid,
+                                self,
+                                event_id=event['event_id'],
                                 raw_event=event)
 
     async def listen(self):  # pragma: no cover
@@ -191,14 +192,13 @@ class ConnectorMatrix(Connector):
             "formatted_body": clean_html
             }
 
-    async def respond(self, message, room=None):
+    @register_event(Message)
+    async def send_message(self, message):
         """Send `message.text` back to the chat service."""
-        if not room:
-            # Connector responds in the same room it received the original
-            # message
-            room_id = message.room
+        if not message.target.startswith(("!", "#")):
+            room_id = self.rooms[message.target]
         else:
-            room_id = self.rooms[room]
+            room_id = message.target
 
         # Ensure we have a room id not alias
         if not room_id.startswith('!'):

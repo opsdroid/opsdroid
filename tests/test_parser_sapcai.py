@@ -33,8 +33,8 @@ class TestParserRecastAi(asynctest.TestCase):
     async def test_call_sapcai(self):
         opsdroid = amock.CoroutineMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
-        message = Message("user", "default", mock_connector, "Hello")
-        config = {'name': 'sapcai', 'access-token': 'test'}
+        message = Message("Hello" "user", "default", mock_connector)
+        config = {'name': 'recastai', 'access-token': 'test'}
         result = amock.Mock()
         result.json = amock.CoroutineMock()
         result.json.return_value = {
@@ -78,7 +78,7 @@ class TestParserRecastAi(asynctest.TestCase):
             opsdroid.skills.append(match_sapcai('greetings')(mock_skill))
 
             mock_connector = amock.CoroutineMock()
-            message = Message("user", "default", mock_connector, "Hello")
+            message = Message("Hello" "user", "default", mock_connector)
 
             with amock.patch.object(sapcai, 'call_sapcai') as \
                     mocked_call_sapcai:
@@ -120,8 +120,8 @@ class TestParserRecastAi(asynctest.TestCase):
             opsdroid.skills.append(match_sapcai('greetings')(mock_skill))
 
             mock_connector = amock.MagicMock()
-            mock_connector.respond = amock.CoroutineMock()
-            message = Message("user", "default", mock_connector, "Hello")
+            mock_connector.send = amock.CoroutineMock()
+            message = Message("Hello", "user", "default", mock_connector)
 
             with amock.patch.object(sapcai, 'call_sapcai') as \
                     mocked_call_sapcai:
@@ -168,7 +168,7 @@ class TestParserRecastAi(asynctest.TestCase):
             opsdroid.skills.append(match_sapcai('greetings')(mock_skill))
 
             mock_connector = amock.CoroutineMock()
-            message = Message("user", "default", mock_connector, "")
+            message = Message("", "user", "default", mock_connector)
 
             with amock.patch.object(sapcai, 'call_sapcai') as \
                     mocked_call_sapcai:
@@ -193,10 +193,10 @@ class TestParserRecastAi(asynctest.TestCase):
 
             mock_connector = amock.CoroutineMock()
             message = Message(
+                "kdjiruetosakdg",
                 "user",
                 "default",
-                mock_connector,
-                "kdjiruetosakdg")
+                mock_connector)
 
             with amock.patch.object(sapcai, 'call_sapcai') as \
                     mocked_call_sapcai:
@@ -237,7 +237,7 @@ class TestParserRecastAi(asynctest.TestCase):
             opsdroid.skills.append(match_sapcai('intent')(mock_skill))
 
             mock_connector = amock.CoroutineMock()
-            message = Message("user", "default", mock_connector, "Hello")
+            message = Message("Hello", "user", "default", mock_connector)
 
             with amock.patch.object(sapcai, 'call_sapcai') as \
                     mocked_call_sapcai:
@@ -281,7 +281,7 @@ class TestParserRecastAi(asynctest.TestCase):
             opsdroid.skills.append(match_sapcai('greetings')(mock_skill))
 
             mock_connector = amock.CoroutineMock()
-            message = Message("user", "default", mock_connector, "Hello")
+            message = Message("Hello", "user", "default", mock_connector)
 
             with amock.patch.object(sapcai, 'call_sapcai') \
                     as mocked_call:

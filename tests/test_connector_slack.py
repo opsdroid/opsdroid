@@ -9,7 +9,7 @@ import slacker
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector.slack import ConnectorSlack
-from opsdroid.events import Message
+from opsdroid.events import Message, Reaction
 from opsdroid.__main__ import configure_lang
 
 
@@ -23,7 +23,7 @@ class TestConnectorSlack(unittest.TestCase):
     def test_init(self):
         """Test that the connector is initialised properly."""
         connector = ConnectorSlack({"api-token": "abc123"}, opsdroid=OpsDroid())
-        self.assertEqual("#general", connector.default_room)
+        self.assertEqual("#general", connector.default_target)
         self.assertEqual("slack", connector.name)
 
     def test_missing_api_key(self):
@@ -39,7 +39,7 @@ class TestConnectorSlack(unittest.TestCase):
     # def test_respond(self):
     #     connector = ConnectorSlack({})
     #     with self.assertRaises(NotImplementedError):
-    #         self.loop.run_until_complete(connector.respond({}))
+    #         self.loop.run_until_complete(connector.send({}))
 
     # def test_react(self):
     #     connector = ConnectorSlack({})
@@ -226,13 +226,15 @@ class TestConnectorSlackAsync(asynctest.TestCase):
     async def test_respond(self):
         connector = ConnectorSlack({"api-token": "abc123"}, opsdroid=OpsDroid())
         connector.slacker.chat.post_message = amock.CoroutineMock()
-        await connector.respond(Message("test", "user", "room", connector))
+        await connector.send(Message("test", "user", "room", connector))
         self.assertTrue(connector.slacker.chat.post_message.called)
 
     async def test_react(self):
         connector = ConnectorSlack({"api-token": "abc123"})
         connector.slacker.reactions.post = amock.CoroutineMock()
-        await connector.react(Message("test", "user", "room", connector, {'ts': 0}), "😀")
+        prev_message = Message("test", "user", "room", connector, raw_event={'ts': 0})
+        with OpsDroid() as opsdroid:
+            await prev_message.respond(Reaction("😀"))
         self.assertTrue(connector.slacker.reactions.post)
         self.assertEqual(
             connector.slacker.reactions.post.call_args[1]['data']['name'],
@@ -242,15 +244,18 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         import slacker
         connector = ConnectorSlack({"api-token": "abc123"})
         connector.slacker.reactions.post = amock.CoroutineMock(side_effect=slacker.Error('invalid_name'))
-        await connector.react(Message("test", "user", "room", connector, {'ts': 0}), "😀")
+        prev_message = Message("test", "user", "room", connector, raw_event={'ts': 0})
+        with OpsDroid() as opsdroid:
+            await prev_message.respond(Reaction("😀"))
         self.assertLogs('_LOGGER', 'warning')
 
     async def test_react_unknown_error(self):
         import slacker
         connector = ConnectorSlack({"api-token": "abc123"})
         connector.slacker.reactions.post = amock.CoroutineMock(side_effect=slacker.Error('unknown'))
-        with self.assertRaises(slacker.Error):
-            await connector.react(Message("test", "user", "room", connector, {'ts': 0}), "😀")
+        with self.assertRaises(slacker.Error), OpsDroid() as opsdroid:
+            prev_message = Message("test", "user", "room", connector, raw_event={'ts': 0})
+            await prev_message.respond(Reaction("😀"))
 
     async def test_reconnect(self):
         connector = ConnectorSlack({"api-token": "abc123"}, opsdroid=OpsDroid())

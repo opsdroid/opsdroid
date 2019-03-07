@@ -8,7 +8,7 @@ import aiohttp
 import aiohttp.web
 from aiohttp import WSCloseCode
 
-from opsdroid.connector import Connector
+from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
 
 
@@ -23,8 +23,6 @@ class ConnectorWebsocket(Connector):
         super().__init__(config, opsdroid=opsdroid)
         _LOGGER.debug("Starting Websocket connector")
         self.name = "websocket"
-        self.config = config
-        self.default_room = None
         self.max_connections = self.config.get("max-connections", 10)
         self.connection_timeout = self.config.get("connection-timeout", 60)
         self.accepting_connections = True
@@ -106,13 +104,15 @@ class ConnectorWebsocket(Connector):
 
         """
 
-    async def respond(self, message, room=None):
+    @register_event(Message)
+    async def send_message(self, message):
         """Respond with a message."""
         try:
-            if message.room is None:
-                message.room = next(iter(self.active_connections))
+            if message.target is None:
+                message.target = next(iter(self.active_connections))
             _LOGGER.debug("Responding with: '" + message.text +
-                          "' in room " + message.room)
-            await self.active_connections[message.room].send_str(message.text)
+                          "' in target " + message.target)
+            await self.active_connections[message.target].send_str(
+                message.text)
         except KeyError:
-            _LOGGER.error("No active socket for room %s", message.room)
+            _LOGGER.error("No active socket for target %s", message.target)

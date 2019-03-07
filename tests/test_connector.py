@@ -6,7 +6,8 @@ import asynctest.mock as amock
 
 from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
-from opsdroid.connector import Connector
+from opsdroid.connector import Connector, register_event
+from opsdroid.events import Event, Message, Reaction
 from opsdroid.__main__ import configure_lang
 
 
@@ -20,7 +21,7 @@ class TestConnectorBaseClass(unittest.TestCase):
     def test_init(self):
         config = {"example_item": "test"}
         connector = Connector(config, opsdroid=OpsDroid())
-        self.assertEqual(None, connector.default_room)
+        self.assertEqual(None, connector.default_target)
         self.assertEqual("", connector.name)
         self.assertEqual("test", connector.config["example_item"])
 
@@ -41,20 +42,25 @@ class TestConnectorBaseClass(unittest.TestCase):
 
     def test_respond(self):
         connector = Connector({}, opsdroid=OpsDroid())
-        with self.assertRaises(NotImplementedError):
-            self.loop.run_until_complete(connector.respond({}))
+        with self.assertRaises(TypeError):
+            self.loop.run_until_complete(connector.send(Message("")))
 
-    def test_react(self):
+    def test_unsupported_event(self):
         connector = Connector({}, opsdroid=OpsDroid())
-        reacted = self.loop.run_until_complete(connector.react({}, 'emoji'))
-        self.assertFalse(reacted)
+        with self.assertRaises(TypeError):
+            self.loop.run_until_complete(connector.send(Reaction("emoji")))
 
-    def test_user_typing(self):
-        opsdroid = 'opsdroid'
-        connector = Connector({}, opsdroid=OpsDroid())
-        user_typing = self.loop.run_until_complete(
-            connector.user_typing(trigger=True))
-        assert user_typing is None
+    def test_incorrect_event(self):
+        class NotanEvent:
+            pass
+
+        class MyConnector(Connector):
+            @register_event(NotanEvent)
+            def send_my_event(self, event):
+                pass
+
+        with self.assertRaises(TypeError):
+            MyConnector()
 
 
 class TestConnectorAsync(asynctest.TestCase):
@@ -66,3 +72,36 @@ class TestConnectorAsync(asynctest.TestCase):
         connector = Connector({}, opsdroid=OpsDroid())
         res = await connector.disconnect()
         assert res is None
+
+    async def test_send_incorrect_event(self):
+        connector = Connector({"name": "shell"})
+        with self.assertRaises(TypeError):
+            await connector.send(object())
+
+    async def test_dep_respond(self):
+        connector = Connector({"name": "shell"})
+        with amock.patch("opsdroid.connector.Connector.send") as patched_send:
+            with self.assertWarns(DeprecationWarning):
+                await connector.respond("hello", room="bob")
+
+            patched_send.call_count == 1
+
+    async def test_dep_react(self):
+        connector = Connector({"name": "shell"})
+        with amock.patch("opsdroid.events.Message.respond") as patched_respond:
+            with self.assertWarns(DeprecationWarning):
+                await connector.react(Message("ori"), "hello")
+
+            patched_respond.call_count == 1
+
+    async def test_depreacted_properties(self):
+        connector = Connector({"name": "shell"})
+
+        connector.default_target = "spam"
+        with self.assertWarns(DeprecationWarning):
+            assert connector.default_room == "spam"
+
+        with self.assertWarns(DeprecationWarning):
+            connector.default_room = "eggs"
+
+        assert connector.default_target == "eggs"
