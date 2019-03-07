@@ -228,13 +228,13 @@ class ConnectorMatrix(Connector):
                 "m.room.message",
                 self._get_formatted_message_body(message.text))
 
-    def _get_image_info(self, image):
-        w, h = image.dimensions
+    async def _get_image_info(self, image):
+        w, h = await image.get_dimensions()
         return {
             "w": w,
             "h": h,
-            "mimetype": image.mimetype,
-            "size": len(image.file_bytes)
+            "mimetype": await image.get_mimetype(),
+            "size": len(await image.get_file_bytes())
         }
 
     @register_event(File)
@@ -248,12 +248,14 @@ class ConnectorMatrix(Connector):
                 extra_info = {}
 
         if not mxc_url:
-            mxc_url = await self.connection.media_upload(file_event.file_bytes,
-                                                         file_event.mimetype)
+            mxc_url = await self.connection.media_upload(
+                await file_event.get_file_bytes(),
+                await file_event.get_mimetype())
+
             mxc_url = mxc_url['content_uri']
 
         if isinstance(file_event, Image):
-            extra_info = self._get_image_info(file_event)
+            extra_info = await self._get_image_info(file_event)
             msg_type = "m.image"
         else:
             extra_info = {}

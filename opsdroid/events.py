@@ -12,6 +12,7 @@ from opsdroid.helper import get_opsdroid
 from get_image_size import get_image_size_from_bytesio  # noqa
 
 
+# pylint: disable=bad-mcs-classmethod-argument,arguments-differ
 class EventMetaClass(ABCMeta):
     """Metaclass for Event.
 
@@ -242,7 +243,7 @@ class File(Event):
         self._file_bytes = file_bytes
         self.url = url
 
-    async def get_file_bytes(self):  # noqa: D401
+    async def get_file_bytes(self):
         """Return the bytes representation of this file."""
         if not self._file_bytes and self.url:
             async with aiohttp.ClientSession() as session:
@@ -251,13 +252,13 @@ class File(Event):
 
         return self._file_bytes
 
-    @property
-    def mimetype(self):
+    async def get_mimetype(self):
+        """Return the mimetype for the file."""
         if self._mimetype:
             return self._mimetype
 
         try:
-            results = puremagic.magic_string(file_bytes)
+            results = puremagic.magic_string(await self.get_file_bytes())
         except puremagic.PureError:
             # If no results return none
             return ''
@@ -281,3 +282,8 @@ class File(Event):
 
 class Image(File):
     """Event class specifically for image files."""
+
+    async def get_dimensions(self):
+        """Returns image dimensions `(w,h)`."""
+        fbytes = await self.get_file_bytes()
+        return get_image_size_from_bytesio(io.BytesIO(fbytes), len(fbytes))
