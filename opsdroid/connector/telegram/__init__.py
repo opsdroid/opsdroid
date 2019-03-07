@@ -4,7 +4,7 @@ import logging
 import aiohttp
 
 
-from opsdroid.connector import Connector
+from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
 
 
@@ -27,7 +27,7 @@ class ConnectorTelegram(Connector):
         self.name = "telegram"
         self.opsdroid = opsdroid
         self.latest_update = None
-        self.default_room = None
+        self.default_target = None
         self.listening = True
         self.default_user = config.get("default-user", None)
         self.whitelisted_users = config.get("whitelisted-users", None)
@@ -160,10 +160,10 @@ class ConnectorTelegram(Connector):
             elif "message" in result and "text" in result["message"]:
                 user = self.get_user(result)
                 message = Message(
+                    result["message"]["text"],
                     user,
                     result["message"]["chat"],
-                    self,
-                    result["message"]["text"])
+                    self)
 
                 if self.handle_user_permission(result, user):
                     await self.opsdroid.parse(message)
@@ -252,7 +252,7 @@ class ConnectorTelegram(Connector):
         _LOGGER.debug("Responding with: %s", message.text)
 
         data = dict()
-        data["chat_id"] = message.room["id"]
+        data["chat_id"] = message.target["id"]
         data["text"] = message.text
         resp = await self.session.post(self.build_url("sendMessage"),
                                        data=data)

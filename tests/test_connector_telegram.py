@@ -368,7 +368,7 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
             self.assertTrue(opsdroid.__class__.instances)
             test_message = Message(text="This is a test",
                                    user="opsdroid",
-                                   room={"id": 12404},
+                                   target={"id": 12404},
                                    connector=self.connector)
 
             patched_request.return_value = asyncio.Future()
@@ -388,7 +388,7 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
             self.assertTrue(opsdroid.__class__.instances)
             test_message = Message(text="This is a test",
                                    user="opsdroid",
-                                   room={"id": 12404},
+                                   target={"id": 12404},
                                    connector=self.connector)
 
             patched_request.return_value = asyncio.Future()
