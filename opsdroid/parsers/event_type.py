@@ -10,7 +10,6 @@ _LOGGER = logging.getLogger(__name__)
 
 async def parse_event_type(opsdroid, event):
     """Parse an event if it's of a certain type."""
-
     matched_skills = []
     for skill in opsdroid.skills:
         for matcher in skill.matchers:

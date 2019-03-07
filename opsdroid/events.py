@@ -284,6 +284,6 @@ class Image(File):
     """Event class specifically for image files."""
 
     async def get_dimensions(self):
-        """Returns image dimensions `(w,h)`."""
+        """Return the image dimensions `(w,h)`."""
         fbytes = await self.get_file_bytes()
         return get_image_size_from_bytesio(io.BytesIO(fbytes), len(fbytes))

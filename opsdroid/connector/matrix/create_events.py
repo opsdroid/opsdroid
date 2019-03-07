@@ -1,3 +1,4 @@
+"""A helper module to create opsdroid events from matrix events."""
 from collections import defaultdict
 from opsdroid import events
 
@@ -9,6 +10,7 @@ class MatrixEventCreator:
     """Create opsdroid events from matrix ones."""
 
     def __init__(self, connector):
+        """Initialise the event creator."""
         self.connector = connector
 
         self.event_types = defaultdict(lambda x: self.skip)
@@ -50,7 +52,8 @@ class MatrixEventCreator:
             raw_event=event)
 
     async def _file_kwargs(self, event, roomid):
-        url = self.connector.connection.get_download_url(event['content']['url'])
+        url = self.connector.connection.get_download_url(
+            event['content']['url'])
         return dict(
             url=url,
             name=event['content']['body'],

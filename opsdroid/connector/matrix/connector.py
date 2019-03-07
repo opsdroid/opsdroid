@@ -203,7 +203,7 @@ class ConnectorMatrix(Connector):
         }
 
     @register_event(Message)
-    async def send_message(self, message):
+    async def _send_message(self, message):
         """Send `message.text` back to the chat service."""
         if not message.target.startswith(("!", "#")):
             room_id = self.rooms[message.target]
@@ -239,7 +239,7 @@ class ConnectorMatrix(Connector):
 
     @register_event(File)
     @register_event(Image)
-    async def send_image(self, file_event):
+    async def _send_image(self, file_event):
         mxc_url = None
         if file_event.url:
             url = urlparse(file_event.url)
