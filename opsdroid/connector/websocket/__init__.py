@@ -82,10 +82,9 @@ class ConnectorWebsocket(Connector):
         await websocket.prepare(request)
 
         self.active_connections[socket] = websocket
-
         async for msg in websocket:
             if msg.type == aiohttp.WSMsgType.TEXT:
-                message = Message(None, socket, self, msg.data)
+                message = Message(msg.data, None, None, self)
                 await self.opsdroid.parse(message)
             elif msg.type == aiohttp.WSMsgType.ERROR:
                 _LOGGER.error('Websocket connection closed with exception %s',
