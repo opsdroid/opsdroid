@@ -2,6 +2,7 @@
 
 import logging
 import re
+import copy
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -27,12 +28,13 @@ async def parse_regex(opsdroid, skills, message):
                     regex = re.search(opts["expression"],
                                       message.text, re.IGNORECASE)
                 if regex:
-                    message.regex = regex
+                    messageInstance = copy.copy(message)
+                    messageInstance.regex = regex
                     matched_skills.append({
                         "score": await calculate_score(
                             opts["expression"], opts["score_factor"]),
                         "skill": skill,
                         "config": skill.config,
-                        "message": message
+                        "message": messageInstance
                     })
     return matched_skills
