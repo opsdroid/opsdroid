@@ -448,7 +448,7 @@ class OpsDroid():
                         self.eventloop.create_task(
                             self.run_skill(ranked_skills[0]["skill"],
                                            ranked_skills[0]["config"],
-                                           message)))
+                                           ranked_skills[0]["message"])))
 
         return tasks
 
