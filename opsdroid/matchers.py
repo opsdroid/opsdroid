@@ -9,8 +9,8 @@ from opsdroid.helper import add_skill_attributes
 _LOGGER = logging.getLogger(__name__)
 
 
-def match_regex(regex, case_sensitive=True, 
-    matching_condition="search", score_factor=None):
+def match_regex(regex, case_sensitive=True, matching_condition="search",
+                score_factor=None):
     """Return regex match decorator."""
     def matcher(func):
         """Add decorated function to skills list for regex matching."""
