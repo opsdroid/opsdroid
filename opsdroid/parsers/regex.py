@@ -15,20 +15,19 @@ async def calculate_score(regex, score_factor):
 
 
 async def match_regex(text, opts):
-    """Return False if matching does not
-    need to be case sensitive
-    """
+    """Return False if matching does not need to be case sensitive."""
     def is_case_sensitive():
         if opts["case_sensitive"]:
-            return False  
+            return False
         return re.IGNORECASE
 
     if opts["matching_condition"].lower() == "match":
-        return re.match(opts["expression"], text, is_case_sensitive())
+        regex = re.match(opts["expression"], text, is_case_sensitive())
     elif opts["matching_condition"].lower() == "fullmatch":
-        return re.fullmatch(opts["expression"], text, is_case_sensitive())
+        regex = re.fullmatch(opts["expression"], text, is_case_sensitive())
     else:
-        return re.search(opts["expression"], text, is_case_sensitive())
+        regex = re.search(opts["expression"], text, is_case_sensitive())
+    return regex
 
 
 async def parse_regex(opsdroid, skills, message):
