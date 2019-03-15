@@ -14,6 +14,27 @@ async def calculate_score(regex, score_factor):
     return (1 - (1 / ((len(regex) + 1) ** 2))) * score_factor
 
 
+async def match_regex(text, opts):
+
+    def is_case_sensitive():
+        if opts["case_sensitive"] == True:
+            return False
+        else:    
+            return re.IGNORECASE
+
+    params = {"matching_condition": opts["matching_condition"].lower(), "case_sensitive": is_case_sensitive(),
+        "score_factor": opts["score_factor"], "expression": opts["expression"]}
+    
+    _LOGGER.debug("matching parameters : {}".format(params))
+    if opts["matching_condition"].lower() == "match":
+        return re.match(opts["expression"], text, is_case_sensitive())
+    elif opts["matching_condition"].lower() == "fullmatch":
+        return re.fullmatch(opts["expression"], text, is_case_sensitive())
+    else:
+        return re.search(opts["expression"], text, is_case_sensitive())
+
+
+
 async def parse_regex(opsdroid, skills, message):
     """Parse a message against all regex skills."""
     matched_skills = []
@@ -21,12 +42,8 @@ async def parse_regex(opsdroid, skills, message):
         for matcher in skill.matchers:
             if "regex" in matcher:
                 opts = matcher["regex"]
-                if opts["case_sensitive"]:
-                    regex = re.search(opts["expression"],
-                                      message.text)
-                else:
-                    regex = re.search(opts["expression"],
-                                      message.text, re.IGNORECASE)
+                _LOGGER.debug("matching against {} skill ".format( str(skill.config["name"])))
+                regex = await match_regex(message.text, opts)
                 if regex:
                     new_message = copy.copy(message)
                     new_message.regex = regex
