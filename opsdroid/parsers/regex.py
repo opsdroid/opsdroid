@@ -21,12 +21,12 @@ async def match_regex(text, opts):
             return False
         return re.IGNORECASE
 
-    if opts["matching_condition"].lower() == "match":
-        regex = re.match(opts["expression"], text, is_case_sensitive())
+    if opts["matching_condition"].lower() == "search":
+        regex = re.search(opts["expression"], text, is_case_sensitive())
     elif opts["matching_condition"].lower() == "fullmatch":
         regex = re.fullmatch(opts["expression"], text, is_case_sensitive())
     else:
-        regex = re.search(opts["expression"], text, is_case_sensitive())
+        regex = re.match(opts["expression"], text, is_case_sensitive())
     return regex
 
 
