@@ -9,7 +9,7 @@ from opsdroid.helper import add_skill_attributes
 _LOGGER = logging.getLogger(__name__)
 
 
-def match_regex(regex, case_sensitive=True, matching_condition="search",
+def match_regex(regex, case_sensitive=True, matching_condition="match",
                 score_factor=None):
     """Return regex match decorator."""
     def matcher(func):
