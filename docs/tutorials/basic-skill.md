@@ -94,8 +94,8 @@ Open your `configuration.yaml` file and under the skills add the name and path o
 
 ```yaml
 skills:
-  name: how-are-you
-  path: /Users/username/documents/skill-howareyou
+  - name: how-are-you
+    path: /Users/username/documents/skill-howareyou
 ```
 
 As mentioned in the [introduction](introduction.md/), the indentation and the use of spaces instead of tabs is very important. If you have any issues when running opsdroid check both of this things, it might be a problem with a space.
