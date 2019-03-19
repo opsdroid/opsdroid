@@ -7,7 +7,7 @@ import asynctest.mock as amock
 from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.connector.facebook import ConnectorFacebook
-from opsdroid.message import Message
+from opsdroid.events import Message
 from opsdroid.__main__ import configure_lang
 
 
@@ -21,7 +21,7 @@ class TestConnectorFacebook(unittest.TestCase):
     def test_init(self):
         opsdroid = amock.CoroutineMock()
         connector = ConnectorFacebook({}, opsdroid=opsdroid)
-        self.assertEqual(None, connector.default_room)
+        self.assertEqual(None, connector.default_target)
         self.assertEqual("facebook", connector.name)
 
     def test_property(self):
@@ -149,7 +149,7 @@ class TestConnectorFacebookAsync(asynctest.TestCase):
             room = "a146f52c-548a-11e8-a7d1-28cfe949e12d"
             test_message = Message(text="Hello world",
                                    user="Alice",
-                                   room=room,
+                                   target=room,
                                    connector=connector)
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(post_response)
@@ -171,7 +171,7 @@ class TestConnectorFacebookAsync(asynctest.TestCase):
             room = "a146f52c-548a-11e8-a7d1-28cfe949e12d"
             test_message = Message(text="Hello world",
                                    user="Alice",
-                                   room=room,
+                                   target=room,
                                    connector=connector)
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(post_response)

@@ -9,7 +9,8 @@ from opsdroid.helper import add_skill_attributes
 _LOGGER = logging.getLogger(__name__)
 
 
-def match_regex(regex, case_sensitive=True, score_factor=None):
+def match_regex(regex, case_sensitive=True, matching_condition="match",
+                score_factor=None):
     """Return regex match decorator."""
     def matcher(func):
         """Add decorated function to skills list for regex matching."""
@@ -18,6 +19,7 @@ def match_regex(regex, case_sensitive=True, score_factor=None):
             {"regex": {
                 "expression": regex,
                 "case_sensitive": case_sensitive,
+                "matching_condition": matching_condition,
                 "score_factor": score_factor or REGEX_SCORE_FACTOR,
             }}
         )
@@ -109,7 +111,22 @@ def match_recastai(intent):
         """Add decorated function to skills list for recastai matching."""
         func = add_skill_attributes(func)
         func.matchers.append(
-            {"recastai_intent": intent}
+            {"sapcai_intent": intent}
+        )
+        return func
+    _LOGGER.warning(_("Recast.AI is now called SAP Conversational AI, "
+                      "this matcher  will stop working in the future. "
+                      "Use match_sapcai instead."))
+    return matcher
+
+
+def match_sapcai(intent):
+    """Return SAP Conversational AI intent match decorator."""
+    def matcher(func):
+        """Add decorated function to skills list for SAPCAI matching."""
+        func = add_skill_attributes(func)
+        func.matchers.append(
+            {"sapcai_intent": intent}
         )
         return func
     return matcher

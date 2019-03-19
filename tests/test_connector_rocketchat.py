@@ -8,7 +8,7 @@ import asynctest.mock as amock
 from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.connector.rocketchat import RocketChat
-from opsdroid.message import Message
+from opsdroid.events import Message
 from opsdroid.__main__ import configure_lang
 
 
@@ -26,7 +26,7 @@ class TestRocketChat(unittest.TestCase):
             'access-token': 'test',
             'user-id': 'userID'
         }, opsdroid=OpsDroid())
-        self.assertEqual("general", connector.default_room)
+        self.assertEqual("general", connector.default_target)
         self.assertEqual("rocket.chat", connector.name)
 
     def test_missing_token(self):
@@ -45,7 +45,7 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
                 'name': 'rocket.chat',
                 'token': 'test',
                 'user-id': 'userID',
-                'default_room': "test"
+                'default_target': "test"
             }, opsdroid=OpsDroid())
 
         self.connector.latest_update = '2018-10-08T12:57:37.126Z'
@@ -210,7 +210,7 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
             self.assertTrue(opsdroid.__class__.instances)
             test_message = Message(text="This is a test",
                                    user="opsdroid",
-                                   room="test",
+                                   target="test",
                                    connector=self.connector)
 
             patched_request.return_value = asyncio.Future()
@@ -229,7 +229,7 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
             self.assertTrue(opsdroid.__class__.instances)
             test_message = Message(text="This is a test",
                                    user="opsdroid",
-                                   room="test",
+                                   target="test",
                                    connector=self.connector)
 
             patched_request.return_value = asyncio.Future()

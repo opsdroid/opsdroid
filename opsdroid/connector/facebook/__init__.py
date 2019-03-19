@@ -4,8 +4,8 @@ import logging
 
 import aiohttp
 
-from opsdroid.connector import Connector
-from opsdroid.message import Message
+from opsdroid.connector import Connector, register_event
+from opsdroid.events import Message
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -25,7 +25,7 @@ class ConnectorFacebook(Connector):
             `configuration.yaml` file.
         name: String name of the connector.
         opsdroid: opsdroid instance.
-        default_room: String name of default room for chat messages.
+        default_target: String name of default room for chat messages.
         bot_name: String name for bot.
 
     """
@@ -34,9 +34,7 @@ class ConnectorFacebook(Connector):
         """Connector Setup."""
         super().__init__(config, opsdroid=opsdroid)
         _LOGGER.debug("Starting facebook connector")
-        self.config = config
         self.name = self.config.get("name", "facebook")
-        self.default_room = None
         self.bot_name = config.get("bot-name", 'opsdroid')
 
     async def connect(self):
@@ -69,10 +67,10 @@ class ConnectorFacebook(Connector):
                 for fb_msg in entry["messaging"]:
                     _LOGGER.debug(fb_msg)
                     try:
-                        message = Message(fb_msg["message"]["text"],
+                        message = Message(fb_msg["sender"]["id"],
                                           fb_msg["sender"]["id"],
-                                          fb_msg["sender"]["id"],
-                                          self)
+                                          self,
+                                          fb_msg["message"]["text"])
                         await self.opsdroid.parse(message)
                     except KeyError as error:
                         _LOGGER.error(error)
@@ -102,14 +100,15 @@ class ConnectorFacebook(Connector):
 
         """
 
-    async def respond(self, message, room=None):
+    @register_event(Message)
+    async def send_message(self, message):
         """Respond with a message."""
         _LOGGER.debug("Responding to facebook")
         url = _FACEBOOK_SEND_URL.format(self.config.get('page-access-token'))
         headers = {'content-type': 'application/json'}
         payload = {
             "recipient": {
-                "id": message.room
+                "id": message.target
             },
             "message": {
                 "text": message.text

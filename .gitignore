@@ -29,6 +29,8 @@ var/
 .installed.cfg
 *.egg
 .pytest_cache
+pipfile
+pipfile.lock
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -99,3 +101,4 @@ ENV/
 
 .vscode/
 .idea/
+site/

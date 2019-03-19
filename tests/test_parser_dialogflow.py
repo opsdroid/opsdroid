@@ -8,7 +8,7 @@ from aiohttp import ClientOSError
 from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.matchers import match_dialogflow_action
-from opsdroid.message import Message
+from opsdroid.events import Message
 from opsdroid.parsers import dialogflow
 from opsdroid.connector import Connector
 
@@ -97,7 +97,7 @@ class TestParserDialogflow(asynctest.TestCase):
             opsdroid.skills.append(match_dialogflow_action('myaction')(mock_skill))
 
             mock_connector = amock.MagicMock()
-            mock_connector.respond = amock.CoroutineMock()
+            mock_connector.send = amock.CoroutineMock()
             message = Message("Hello world", "user", "default", mock_connector)
 
             with amock.patch.object(dialogflow, 'call_dialogflow') as \

@@ -16,14 +16,27 @@ Connectors are a class which extends the base opsdroid Connector. The class has 
 #### user_typing
 *user_typing* triggers the event message *user is typing* if the connector allows it. This method uses a parameter `trigger` that takes in a boolean value to trigger the event on/off.
 
-#### respond
-*respond* will take a Message object and return the contents to the chat service.
-
-#### react
-*react* will take a Message object and an emoji name and add this emoji as a Message reaction (if the chat service supports this feature).
-
 #### disconnect
 *disconnect* there is also an optional disconnect method that will be called upon shutdown of opsdroid. This can be used to perform any disconnect operations for the connector.
+
+
+### Handling Events
+
+Opsdroid supports different types of events, which can both be sent and received via connectors, for more information on the different types of events see the [events documentation](/events.md).
+
+
+Connectors can implement support for sending different types of events using the `opsdroid.connector.register_event` decorator.
+This decorator is used to define a method (coroutine) on the connector class for each different event type the connector supports, for instance to add support for `Message` events you may define a method like this:
+
+```python
+
+@register_event(Message)
+async def send_message(self, message):
+    await myservice.send(message.text)
+    
+```
+
+This method will be called when `Connector.send` is called with a `Message` object as its first argument. Methods such as this can be defined for all event types supported by the connector.
 
 ```python
 
@@ -34,8 +47,8 @@ import time
 import chatlibrary
 
 # Import opsdroid dependencies
-from opsdroid.connector import Connector
-from opsdroid.message import Message
+from opsdroid.connector import Connector, register_event
+from opsdroid.events import Message
 
 
 class MyConnector(Connector):
@@ -44,7 +57,7 @@ class MyConnector(Connector):
     # Init the config for the connector
     self.name = "MyConnector" # The name of your connector
     self.config = config # The config dictionary to be accessed later
-    self.default_room = "MyDefaultRoom" # The default room for messages to go
+    self.default_target = "MyDefaultRoom" # The default room for messages to go
 
   async def connect(self, opsdroid):
     # Create connection object with chat library
@@ -66,10 +79,11 @@ class MyConnector(Connector):
       # Parse the message with opsdroid
       await opsdroid.parse(message)
 
-  async def respond(self, message):
+  @register_event(Message)
+  async def send_message(self, message):
     # Send message.text back to the chat service
-    await self.connection.send(raw_message.text, raw_message.user,
-                               raw_message.room)
+    await self.connection.send(message.text, message.user,
+                               message.target)
 
   async def disconnect(self, opsdroid):
     # Disconnect from the chat service

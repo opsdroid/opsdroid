@@ -11,7 +11,7 @@ import asynctest.mock as amock
 from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.connector.github import ConnectorGitHub
-from opsdroid.message import Message
+from opsdroid.events import Message
 
 
 class TestConnectorGitHub(unittest.TestCase):
@@ -26,7 +26,7 @@ class TestConnectorGitHub(unittest.TestCase):
             'name': 'github',
             'token': 'test'
         })
-        self.assertEqual(None, connector.default_room)
+        self.assertEqual(None, connector.default_target)
         self.assertEqual("github", connector.name)
 
     def test_missing_token(self):
@@ -90,7 +90,7 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
             message = self.connector.opsdroid.parse.call_args[0][0]
             self.assertEqual(message.connector.name, 'github')
             self.assertEqual(message.text, 'hello')
-            self.assertEqual(message.room, 'opsdroid/opsdroid#237')
+            self.assertEqual(message.target, 'opsdroid/opsdroid#237')
             self.assertTrue(self.connector.opsdroid.parse.called)
 
     async def test_get_pr(self):
@@ -108,7 +108,7 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
             message = self.connector.opsdroid.parse.call_args[0][0]
             self.assertEqual(message.connector.name, 'github')
             self.assertEqual(message.text, 'hello world')
-            self.assertEqual(message.room, 'opsdroid/opsdroid-audio#175')
+            self.assertEqual(message.target, 'opsdroid/opsdroid-audio#175')
             self.assertTrue(self.connector.opsdroid.parse.called)
 
     async def test_get_issue(self):
@@ -126,7 +126,7 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
             message = self.connector.opsdroid.parse.call_args[0][0]
             self.assertEqual(message.connector.name, 'github')
             self.assertEqual(message.text, 'test')
-            self.assertEqual(message.room, 'opsdroid/opsdroid#740')
+            self.assertEqual(message.target, 'opsdroid/opsdroid#740')
             self.assertTrue(self.connector.opsdroid.parse.called)
 
     async def test_get_label(self):
@@ -173,9 +173,9 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
             mockresponse.status = 201
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(mockresponse)
-            resp = await self.connector.respond(
-                Message('test', 'jacobtomlinson',
-                        'opsdroid/opsdroid#1', self.connector))
+            resp = await self.connector.send(
+                Message("test", 'jacobtomlinson', 'opsdroid/opsdroid#1',
+                        self.connector))
             self.assertTrue(patched_request.called)
             self.assertTrue(resp)
 
@@ -186,9 +186,9 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(mockresponse)
             self.connector.github_username = 'opsdroid-bot'
-            resp = await self.connector.respond(
-                Message('test', 'opsdroid-bot',
-                        'opsdroid/opsdroid#1', self.connector))
+            resp = await self.connector.send(
+                Message('test', 'opsdroid-bot', 'opsdroid/opsdroid#1',
+                        self.connector))
             self.assertFalse(patched_request.called)
             self.assertTrue(resp)
 
@@ -201,8 +201,8 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
             })
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(mockresponse)
-            resp = await self.connector.respond(
-                Message('test', 'opsdroid-bot',
-                        'opsdroid/opsdroid#1', self.connector))
+            resp = await self.connector.send(
+                Message('test', 'opsdroid-bot', 'opsdroid/opsdroid#1',
+                        self.connector))
             self.assertTrue(patched_request.called)
             self.assertFalse(resp)

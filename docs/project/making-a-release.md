@@ -32,7 +32,7 @@ As opsdroid follows [SemVer 2.0](http://semver.org/) (`major.minor.patch`) the v
 - If the release includes new features then the `minor` will be incremented and the `patch` will be reverted to `0`.
 - If the release includes changes which break backward compatibility then the `major` will be incremented with the `minor` and `patch` being reverted to `0`. However this only applies once opsdroid is above `v1.0.0`.
 
-To increment the version create a new PR which updates `__version__` in the `const.py` file. When you are ready to cut the release then you can merge this PR.
+Keep a note of what the new version will be as it will be needed later.
 
 ### Generate release text
 

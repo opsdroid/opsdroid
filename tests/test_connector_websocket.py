@@ -7,7 +7,7 @@ import asynctest.mock as amock
 from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.connector.websocket import ConnectorWebsocket
-from opsdroid.message import Message
+from opsdroid.events import Message
 from opsdroid.__main__ import configure_lang
 
 
@@ -20,7 +20,7 @@ class TestConnectorWebsocket(unittest.TestCase):
 
     def test_init(self):
         connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
-        self.assertEqual(None, connector.default_room)
+        self.assertEqual(None, connector.default_target)
         self.assertEqual("websocket", connector.name)
 
     def test_property(self):
@@ -74,12 +74,12 @@ class TestConnectorWebsocketAsync(asynctest.TestCase):
         connector.max_connections = 1
         self.assertEqual(len(connector.available_connections), 0)
 
-        response = await connector.new_websocket_handler()
+        response = await connector.new_websocket_handler(None)
         self.assertTrue(isinstance(response, aiohttp.web.Response))
         self.assertEqual(len(connector.available_connections), 1)
         self.assertEqual(response.status, 200)
 
-        fail_response = await connector.new_websocket_handler()
+        fail_response = await connector.new_websocket_handler(None)
         self.assertTrue(isinstance(fail_response, aiohttp.web.Response))
         self.assertEqual(fail_response.status, 429)
 
@@ -103,19 +103,19 @@ class TestConnectorWebsocketAsync(asynctest.TestCase):
             connector.active_connections[room].send_str = amock.CoroutineMock()
             test_message = Message(text="Hello world",
                                    user="Alice",
-                                   room=room,
+                                   target=room,
                                    connector=connector)
             await test_message.respond("Response")
             self.assertTrue(connector.active_connections[room].send_str.called)
 
             connector.active_connections[room].send_str.reset_mock()
-            test_message.room = None
+            test_message.target = None
             await test_message.respond("Response")
             self.assertTrue(
                 connector.active_connections[room].send_str.called)
 
             connector.active_connections[room].send_str.reset_mock()
-            test_message.room = "Invalid Room"
+            test_message.target = "Invalid Room"
             await test_message.respond("Response")
             self.assertFalse(
                 connector.active_connections[room].send_str.called)

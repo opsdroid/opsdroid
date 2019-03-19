@@ -4,8 +4,8 @@ import logging
 
 import aiohttp
 
-from opsdroid.connector import Connector
-from opsdroid.message import Message
+from opsdroid.connector import Connector, register_event
+from opsdroid.events import Message
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -19,14 +19,12 @@ class ConnectorGitHub(Connector):
         """Create the connector."""
         super().__init__(config, opsdroid=opsdroid)
         logging.debug("Loaded GitHub connector")
-        self.config = config
         try:
             self.github_token = config["token"]
         except KeyError:
             _LOGGER.error("Missing auth token!"
                           "You must set 'token' in your config")
         self.name = self.config.get("name", "github")
-        self.default_room = None
         self.opsdroid = opsdroid
         self.github_username = None
 
@@ -86,7 +84,8 @@ class ConnectorGitHub(Connector):
             message = Message(body,
                               payload["sender"]["login"],
                               issue,
-                              self)
+                              self,
+                              raw_event=payload)
             await self.opsdroid.parse(message)
         except KeyError as error:
             _LOGGER.error("Key %s not found in payload", error)
@@ -94,13 +93,14 @@ class ConnectorGitHub(Connector):
         return aiohttp.web.Response(
             text=json.dumps("Received"), status=201)
 
-    async def respond(self, message, room=None):
+    @register_event(Message)
+    async def send_message(self, message):
         """Respond with a message."""
         # stop immediately if the message is from the bot itself.
         if message.user == self.github_username:
             return True
         _LOGGER.debug("Responding via GitHub")
-        repo, issue = message.room.split('#')
+        repo, issue = message.target.split('#')
         url = "{}/repos/{}/issues/{}/comments".format(
             GITHUB_API_URL, repo, issue)
         headers = {'Authorization': ' token {}'.format(self.github_token)}
