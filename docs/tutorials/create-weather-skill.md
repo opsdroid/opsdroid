@@ -99,7 +99,7 @@ async def get_weather(config):
 
     async with aiohttp.ClientSession() as session:
         response = await session.get(api_url + parameters)
-    return response.json()
+    return await response.json()
 ```
 Now when we call our `get_weather` function, aiohttp will get all the data from the OpenWeatherMap API and return it to us in a json format.
 
@@ -180,7 +180,7 @@ async def get_weather(config):
 
     async with aiohttp.ClientSession() as session:
         response = await session.get(api_url + parameters)
-    return response.json()
+    return await response.json()
 
 
 class WeatherSkill(Skill):
@@ -252,7 +252,7 @@ class WeatherSkill(Skill):
 
         async with aiohttp.ClientSession() as session:
             response = await session.get(api_url + parameters)
-        return response.json()
+        return await response.json()
 
     @match_regex("How's the weather?")
     async def tell_weather(self, message):
