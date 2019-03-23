@@ -44,17 +44,20 @@ class MySkill(Skill):
         await message.respond("Hello there!")
 ```
 
-Intents file (`intents.md`).
-```markdown
-## intent:greetings
-- Hey
-- Hello
-- Hi
-- Hiya
-- hey
-- whats up
-- wazzup
-- heya
+Intents file (`intents.yml`).
+```yaml
+language: "en"
+pipeline: "spacy_sklearn"
+data: |
+  ## intent:greetings
+  - Hey
+  - Hello
+  - Hi
+  - Hiya
+  - hey
+  - whats up
+  - wazzup
+  - heya
 ```
 
 > **Note** - Rasa NLU requires an intent to have at least three training examples in the list. There must also be a minimum of two intents in your file for Rasa to train.
@@ -75,15 +78,18 @@ class MySkill(Skill):
         await message.respond('What do you call a bear with no teeth? -- A gummy bear!')
 ```
 
-Intents file (`intents.md`).
-```markdown
-## intent:ask-joke
-- Tell me a joke
-- Say something funny
-- Do you know any jokes?
-- Tell me something funny
-- Can you tell jokes?
-- Do you know jokes?
+Intents file (`intents.yml`).
+```yaml
+language: "en"
+pipeline: "spacy_sklearn"
+data: |
+  ## intent:ask-joke
+  - Tell me a joke
+  - Say something funny
+  - Do you know any jokes?
+  - Tell me something funny
+  - Can you tell jokes?
+  - Do you know jokes?
 ```
 
 The above skill would be called on any intent which has a name of `'ask-joke'`.
