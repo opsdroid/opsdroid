@@ -2,6 +2,7 @@
 
 import re
 import logging
+from concurrent.futures import CancelledError
 
 import aiohttp
 
@@ -141,6 +142,8 @@ class ConnectorMatrix(Connector):
                 message = await self._parse_sync_response(response)
                 await self.opsdroid.parse(message)
 
+            except CancelledError:
+                raise
             except Exception:  # pylint: disable=W0703
                 _LOGGER.exception('Matrix Sync Error')
 
