@@ -346,9 +346,9 @@ class TestParserRasaNLU(asynctest.TestCase):
             await self.getMockSkill(),
             await self.getMockSkill()
         ]
-        skills[0].matchers = [{"intents": "Hello"}]
-        skills[1].matchers = [{"intents": None}]
-        skills[2].matchers = [{"intents": "World"}]
+        skills[0] = {"intents": "Hello"}
+        skills[1] = {"intents": None}
+        skills[2] = {"intents": "World"}
         intents = await rasanlu._get_all_intents(skills)
         self.assertEqual(type(intents), type(b""))
         self.assertEqual(intents, b"Hello\n\nWorld")
