@@ -18,6 +18,7 @@ connectors:
     bot-name: "mybot" # default "opsdroid"
     default-room: "#random" # default "#general"
     icon-emoji: ":smile:" # default ":robot_face:"
+    connect-timeout: 10 # default 10 seconds
 ```
 
 ## Usage

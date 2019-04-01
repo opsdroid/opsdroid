@@ -25,6 +25,7 @@ class TestConnectorSlack(unittest.TestCase):
         connector = ConnectorSlack({"api-token": "abc123"}, opsdroid=OpsDroid())
         self.assertEqual("#general", connector.default_target)
         self.assertEqual("slack", connector.name)
+        self.assertEqual(10, connector.timeout)
 
     def test_missing_api_key(self):
         """Test that creating without an API key raises an error."""

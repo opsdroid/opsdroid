@@ -28,7 +28,8 @@ class ConnectorSlack(Connector):
         self.default_target = config.get("default-room", "#general")
         self.icon_emoji = config.get("icon-emoji", ':robot_face:')
         self.token = config["api-token"]
-        self.slacker = Slacker(self.token)
+        self.timeout = config.get("connect-timeout", 10)
+        self.slacker = Slacker(token=self.token, timeout=self.timeout)
         self.websocket = None
         self.bot_name = config.get("bot-name", 'opsdroid')
         self.known_users = {}
