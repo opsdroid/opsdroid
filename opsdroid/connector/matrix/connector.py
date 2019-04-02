@@ -142,6 +142,14 @@ class ConnectorMatrix(Connector):
                 message = await self._parse_sync_response(response)
                 await self.opsdroid.parse(message)
 
+            except MatrixRequestError as mre:
+                # We can safely ignore timeout errors. The non-standard error
+                # codes are returned by Cloudflare.
+                if mre.code in [504, 522, 524]:
+                    _LOGGER.info('Matrix Sync Timeout (code: %d)', mre.code)
+                    continue
+
+                _LOGGER.exception('Matrix Sync Error')
             except CancelledError:
                 raise
             except Exception:  # pylint: disable=W0703
