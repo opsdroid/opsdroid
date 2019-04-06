@@ -1,5 +1,5 @@
 PyGithub==1.43.6
-Jinja2==2.10
+Jinja2==2.10.1
 Pygments==2.3.1
 docutils==0.14
 mock==2.0.0
