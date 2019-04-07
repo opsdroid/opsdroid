@@ -15,5 +15,5 @@ nbconvert==5.4.1
 nbformat==4.4.0
 pycron==1.0.0
 pyyaml==4.2b1
-setuptools==40.9.0
+setuptools==41.0.0
 websockets==7.0
