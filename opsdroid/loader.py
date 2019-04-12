@@ -105,7 +105,7 @@ class Loader:
             return importlib.util.find_spec(
                 'opsdroid.{module_type}.{module_name}'.format(
                     module_type=config["type"],
-                    module_name=config["name"]
+                    module_name=config["name"].lower()
                 )
             )
         except ImportError:
@@ -116,7 +116,7 @@ class Loader:
         """Generate the module import path from name and type."""
         if config["is_builtin"]:
             return "opsdroid" + "." + config["type"] + \
-                "." + config["name"]
+                "." + config["name"].lower()
         return MODULES_DIRECTORY + "." + config["type"] + \
             "." + config["name"]
 
