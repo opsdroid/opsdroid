@@ -1,4 +1,4 @@
-PyGithub==1.43.6
+PyGithub==1.43.7
 Jinja2==2.10.1
 Pygments==2.3.1
 docutils==0.14
