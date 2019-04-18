@@ -16,6 +16,7 @@ pages:
       - 'Adding skills': 'extending/skills.md'
       - 'Adding connectors': 'extending/connectors.md'
       - 'Adding databases': 'extending/databases.md'
+      - 'Using Events': 'extending/events.md'
       - 'Extension packaging': 'extending/packaging.md'
   - 'Connectors':
       - 'Slack': 'connectors/slack.md'
@@ -34,7 +35,7 @@ pages:
       - 'Rasa NLU (local)': 'matchers/rasanlu.md'
       - 'Dialogflow (Api.ai)': 'matchers/dialogflow.md'
       - 'LUIS.AI': 'matchers/luis.ai.md'
-      - 'Recast.AI': 'matchers/recast.ai.md'
+      - 'Recast.AI (SAPCAI)': 'matchers/sapcai.md'
       - 'wit.ai': 'matchers/wit.ai.md'
       - 'Crontab': 'matchers/crontab.md'
       - 'Webhook': 'matchers/webhook.md'

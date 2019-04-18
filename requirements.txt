@@ -1,13 +1,13 @@
 aiohttp==3.5.4
 aioslacker==0.0.11
-aiosqlite==0.9.0
+aiosqlite==0.10.0
 appdirs==1.4.3
 arrow==0.13.1
 asyncio_redis==0.15.1
 Babel==2.6.0
 bleach==3.1.0
 click==7.0
-emoji==0.5.1
+emoji==0.5.2
 matrix-api-async==0.1.0
 motor==2.0.0
 multidict==4.5.2
@@ -15,5 +15,5 @@ nbconvert==5.4.1
 nbformat==4.4.0
 pycron==1.0.0
 pyyaml==4.2b1
-setuptools==40.8.0
+setuptools==41.0.0
 websockets==7.0

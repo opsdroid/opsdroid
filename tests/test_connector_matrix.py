@@ -182,7 +182,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
 
             assert returned_message.text == 'LOUD NOISES'
             assert returned_message.user == 'SomeUsersName'
-            assert returned_message.room == '!aroomid:localhost'
+            assert returned_message.target == '!aroomid:localhost'
             assert returned_message.connector == self.connector
             raw_message = self.sync_return['rooms']['join']['!aroomid:localhost']['timeline']['events'][0]
             assert returned_message.raw_event == raw_message
@@ -237,20 +237,20 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
         with amock.patch(api_string.format("send_message_event")) as patched_send:
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result(None)
-            await self.connector.respond(message)
+            await self.connector.send(message)
 
             message_obj = self.connector._get_formatted_message_body(message.text)
-            assert patched_send.called_once_with(message.room,
+            assert patched_send.called_once_with(message.target,
                                                  "m.room.message",
                                                  message_obj)
 
             patched_send.side_effect = [aiohttp.client_exceptions.ServerDisconnectedError(),
                                         patched_send.return_value]
 
-            await self.connector.respond(message)
+            await self.connector.send(message)
 
             message_obj = self.connector._get_formatted_message_body(message.text)
-            assert patched_send.called_once_with(message.room,
+            assert patched_send.called_once_with(message.target,
                                                  "m.room.message",
                                                  message_obj)
 
@@ -263,12 +263,13 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             patched_send.return_value.set_result(None)
 
             patched_room_id.return_value = asyncio.Future()
-            patched_room_id.return_value.set_result(message.room)
+            patched_room_id.return_value.set_result(message.target)
 
-            await self.connector.respond(message, room="main")
+            message.target = "main"
+            await self.connector.send(message)
 
             message_obj = self.connector._get_formatted_message_body(message.text)
-            assert patched_send.called_once_with(message.room,
+            assert patched_send.called_once_with(message.target,
                                                  "m.room.message",
                                                  message_obj)
 

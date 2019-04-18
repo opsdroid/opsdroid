@@ -20,7 +20,7 @@ class TestConnectorWebsocket(unittest.TestCase):
 
     def test_init(self):
         connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
-        self.assertEqual(None, connector.default_room)
+        self.assertEqual(None, connector.default_target)
         self.assertEqual("websocket", connector.name)
 
     def test_property(self):
@@ -103,19 +103,19 @@ class TestConnectorWebsocketAsync(asynctest.TestCase):
             connector.active_connections[room].send_str = amock.CoroutineMock()
             test_message = Message(text="Hello world",
                                    user="Alice",
-                                   room=room,
+                                   target=room,
                                    connector=connector)
             await test_message.respond("Response")
             self.assertTrue(connector.active_connections[room].send_str.called)
 
             connector.active_connections[room].send_str.reset_mock()
-            test_message.room = None
+            test_message.target = None
             await test_message.respond("Response")
             self.assertTrue(
                 connector.active_connections[room].send_str.called)
 
             connector.active_connections[room].send_str.reset_mock()
-            test_message.room = "Invalid Room"
+            test_message.target = "Invalid Room"
             await test_message.respond("Response")
             self.assertFalse(
                 connector.active_connections[room].send_str.called)

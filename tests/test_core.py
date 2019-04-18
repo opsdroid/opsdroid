@@ -13,7 +13,7 @@ from opsdroid.connector import Connector
 from opsdroid.database import Database
 from opsdroid.web import Web
 from opsdroid.matchers import (match_regex, match_dialogflow_action,
-                               match_luisai_intent, match_recastai,
+                               match_luisai_intent, match_sapcai,
                                match_rasanlu, match_witai)
 
 
@@ -198,10 +198,10 @@ class TestCore(unittest.TestCase):
             self.assertEqual(opsdroid.default_connector,
                              mock_default_connector)
 
-    def test_default_room(self):
+    def test_default_target(self):
         with OpsDroid() as opsdroid:
             mock_connector = Connector({}, opsdroid=opsdroid)
-            self.assertEqual(None, mock_connector.default_room)
+            self.assertEqual(None, mock_connector.default_target)
 
     def test_train_rasanlu(self):
         with OpsDroid() as opsdroid:
@@ -210,6 +210,21 @@ class TestCore(unittest.TestCase):
             with amock.patch('opsdroid.parsers.rasanlu.train_rasanlu'):
                 opsdroid.train_parsers({})
                 opsdroid.eventloop.close()
+
+    def test_connector_names(self):
+        with OpsDroid() as opsdroid:
+            with self.assertRaises(ValueError):
+                opsdroid._connector_names
+
+            # Ensure names are always unique
+            c1 = Connector({"name": "spam"}, opsdroid=opsdroid)
+            c2 = Connector({"name": "spam"}, opsdroid=opsdroid)
+
+            opsdroid.connectors = [c1, c2]
+
+            names = opsdroid._connector_names
+            assert "spam" in names
+            assert "spam_1" in names
 
 
 class TestCoreAsync(asynctest.TestCase):
@@ -290,40 +305,40 @@ class TestCoreAsync(asynctest.TestCase):
         with OpsDroid() as opsdroid:
             regex = r"Hello .*"
             mock_connector = Connector({}, opsdroid=opsdroid)
-            mock_connector.respond = amock.CoroutineMock()
+            mock_connector.send = amock.CoroutineMock()
             skill = await self.getMockSkill()
             opsdroid.skills.append(match_regex(regex)(skill))
-            message = Message("user", "default", mock_connector, "Hello world")
+            message = Message("Hello World", "user", "default", mock_connector)
             tasks = await opsdroid.parse(message)
             for task in tasks:
                 await task
-            self.assertTrue(mock_connector.respond.called)
+            self.assertTrue(mock_connector.send.called)
 
     async def test_parse_regex_method_skill(self):
         with OpsDroid() as opsdroid:
             regex = r"Hello .*"
             mock_connector = Connector({}, opsdroid=opsdroid)
-            mock_connector.respond = amock.CoroutineMock()
+            mock_connector.send = amock.CoroutineMock()
             skill = await self.getMockMethodSkill()
             opsdroid.skills.append(match_regex(regex)(skill))
-            message = Message("user", "default", mock_connector, "Hello world")
+            message = Message("Hello world", "user", "default", mock_connector)
             tasks = await opsdroid.parse(message)
             for task in tasks:
                 await task
-            self.assertTrue(mock_connector.respond.called)
+            self.assertTrue(mock_connector.send.called)
 
     async def test_parse_regex_insensitive(self):
         with OpsDroid() as opsdroid:
             regex = r"Hello .*"
             mock_connector = Connector({}, opsdroid=opsdroid)
-            mock_connector.respond = amock.CoroutineMock()
+            mock_connector.send = amock.CoroutineMock()
             skill = await self.getMockSkill()
             opsdroid.skills.append(match_regex(regex, case_sensitive=False)(skill))
-            message = Message("user", "default", mock_connector, "HELLO world")
+            message = Message("HELLO world", "user", "default", mock_connector)
             tasks = await opsdroid.parse(message)
             for task in tasks:
                 await task
-            self.assertTrue(mock_connector.respond.called)
+            self.assertTrue(mock_connector.send.called)
 
     async def test_parse_dialogflow(self):
         with OpsDroid() as opsdroid:
@@ -332,7 +347,7 @@ class TestCoreAsync(asynctest.TestCase):
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
             match_dialogflow_action(dialogflow_action)(skill)
-            message = Message("user", "default", mock_connector, "Hello world")
+            message = Message("Hello world", "user", "default", mock_connector)
             with amock.patch('opsdroid.parsers.dialogflow.parse_dialogflow'):
                 tasks = await opsdroid.parse(message)
                 self.assertEqual(len(tasks), 1)
@@ -353,7 +368,7 @@ class TestCoreAsync(asynctest.TestCase):
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
             match_luisai_intent(luisai_intent)(skill)
-            message = Message("user", "default", mock_connector, "Hello world")
+            message = Message("Hello world", "user", "default", mock_connector)
             with amock.patch('opsdroid.parsers.luisai.parse_luisai'):
                 tasks = await opsdroid.parse(message)
                 self.assertEqual(len(tasks), 1)
@@ -367,22 +382,22 @@ class TestCoreAsync(asynctest.TestCase):
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
             match_rasanlu(rasanlu_intent)(skill)
-            message = Message("user", "default", mock_connector, "Hello")
+            message = Message("Hello", "user", "default", mock_connector)
             with amock.patch('opsdroid.parsers.rasanlu.parse_rasanlu'):
                 tasks = await opsdroid.parse(message)
                 self.assertEqual(len(tasks), 1)
                 for task in tasks:
                     await task
 
-    async def test_parse_recastai(self):
+    async def test_parse_sapcai(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config["parsers"] = [{"name": "recastai"}]
-            recastai_intent = ""
+            opsdroid.config["parsers"] = [{"name": "sapcai"}]
+            sapcai_intent = ""
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
-            match_recastai(recastai_intent)(skill)
-            message = Message("user", "default", mock_connector, "Hello")
-            with amock.patch('opsdroid.parsers.recastai.parse_recastai'):
+            match_sapcai(sapcai_intent)(skill)
+            message = Message("Hello", "user", "default", mock_connector)
+            with amock.patch('opsdroid.parsers.sapcai.parse_sapcai'):
                 tasks = await opsdroid.parse(message)
                 self.assertEqual(len(tasks), 1)
                 for task in tasks:
@@ -395,9 +410,59 @@ class TestCoreAsync(asynctest.TestCase):
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
             match_witai(witai_intent)(skill)
-            message = Message("user", "default", mock_connector, "Hello world")
+            message = Message("Hello world", "user", "default", mock_connector)
             with amock.patch('opsdroid.parsers.witai.parse_witai'):
                 tasks = await opsdroid.parse(message)
                 self.assertEqual(len(tasks), 1)
                 for task in tasks:
                     await task
+
+    async def test_send_default_one(self):
+        with OpsDroid() as opsdroid, \
+             amock.patch("opsdroid.connector.Connector.send") as patched_send:
+            connector = Connector({"name": "shell"})
+            patched_send.return_value = asyncio.Future()
+            patched_send.return_value.set_result("")
+
+            opsdroid.connectors = [connector]
+
+            input_message = Message("Test")
+            await opsdroid.send(input_message)
+
+            message = patched_send.call_args[0][0]
+
+            assert message is input_message
+
+    async def test_send_default_explicit(self):
+        with OpsDroid() as opsdroid, \
+             amock.patch("opsdroid.connector.Connector.send") as patched_send:
+            connector = Connector({"name": "shell", "default": True})
+            connector2 = Connector({"name": "matrix"})
+            patched_send.return_value = asyncio.Future()
+            patched_send.return_value.set_result("")
+
+            opsdroid.connectors = [connector, connector2]
+
+            input_message = Message("Test")
+            await opsdroid.send(input_message)
+
+            message = patched_send.call_args[0][0]
+
+            assert message is input_message
+
+    async def test_send_name(self):
+        with OpsDroid() as opsdroid, \
+             amock.patch("opsdroid.connector.Connector.send") as patched_send:
+            connector = Connector({"name": "shell"})
+            connector2 = Connector({"name": "matrix"})
+            patched_send.return_value = asyncio.Future()
+            patched_send.return_value.set_result("")
+
+            opsdroid.connectors = [connector, connector2]
+
+            input_message = Message("Test", connector="shell")
+            await opsdroid.send(input_message)
+
+            message = patched_send.call_args[0][0]
+
+            assert message is input_message

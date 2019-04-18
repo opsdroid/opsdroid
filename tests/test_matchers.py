@@ -96,6 +96,16 @@ class TestMatchers(asynctest.TestCase):
             self.assertEqual(opsdroid.skills[0].matchers[0]["rasanlu_intent"], intent)
             self.assertTrue(asyncio.iscoroutinefunction(opsdroid.skills[0]))
 
+    async def test_match_recastai(self):
+        with OpsDroid() as opsdroid:
+            intent = "myIntent"
+            decorator = matchers.match_recastai(intent)
+            opsdroid.skills.append(decorator(await self.getMockSkill()))
+            self.assertEqual(len(opsdroid.skills), 1)
+            self.assertEqual(opsdroid.skills[0].matchers[0]["sapcai_intent"], intent)
+            self.assertTrue(asyncio.iscoroutinefunction(opsdroid.skills[0]))
+            self.assertLogs("Warning", "_LOGGER")
+
     async def test_match_crontab(self):
         with OpsDroid() as opsdroid:
             crontab = "* * * * *"

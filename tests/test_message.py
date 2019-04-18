@@ -1,6 +1,6 @@
 import asynctest
-import asynctest.mock as amock
 
+from opsdroid.core import OpsDroid
 from opsdroid.message import Message
 from opsdroid.connector import Connector
 from opsdroid.__main__ import configure_lang
@@ -12,28 +12,49 @@ class TestMessage(asynctest.TestCase):
         configure_lang({})
 
     async def test_message(self):
-        opsdroid = amock.CoroutineMock()
-        mock_connector = Connector({}, opsdroid=opsdroid)
-        raw_message = {
-            'text': 'Hello world',
-            'user': 'user',
-            'room': 'default',
-            'timestamp': '01/01/2000 19:23:00',
-            'messageId': '101'
-        }
-        message = Message(
-            "Hello world",
-            "user",
-            "default",
-            mock_connector,
-            raw_message)
+        with OpsDroid() as opsdroid:
+            mock_connector = Connector({}, opsdroid=opsdroid)
+            raw_message = {
+                'text': 'Hello world',
+                'user': 'user',
+                'room': 'default',
+                'timestamp': '01/01/2000 19:23:00',
+                'messageId': '101'
+            }
+            message = Message(
+                "Hello world",
+                "user",
+                "default",
+                mock_connector,
+                raw_message=raw_message)
 
-        self.assertEqual(message.text, "Hello world")
-        self.assertEqual(message.user, "user")
-        self.assertEqual(message.room, "default")
-        self.assertEqual(
-            message.raw_event['timestamp'], '01/01/2000 19:23:00'
-            )
-        self.assertEqual(message.raw_event['messageId'], '101')
-        with self.assertRaises(NotImplementedError):
-            await message.respond("Goodbye world")
+            self.assertEqual(message.text, "Hello world")
+            self.assertEqual(message.user, "user")
+            self.assertEqual(message.target, "default")
+            self.assertEqual(
+                message.raw_event['timestamp'], '01/01/2000 19:23:00'
+                )
+            self.assertEqual(message.raw_event['messageId'], '101')
+            with self.assertRaises(TypeError):
+                await message.respond("Goodbye world")
+
+    def test_depreacted_properties(self):
+        message = Message("hello", "user", "", "")
+
+        message.target = "spam"
+        with self.assertWarns(DeprecationWarning):
+            assert message.room == "spam"
+
+        with self.assertWarns(DeprecationWarning):
+            message.room = "eggs"
+
+        assert message.room == "eggs"
+
+        message.raw_event = "spam"
+        with self.assertWarns(DeprecationWarning):
+            assert message.raw_message == "spam"
+
+        with self.assertWarns(DeprecationWarning):
+            message.raw_message = "eggs"
+
+        assert message.raw_event == "eggs"

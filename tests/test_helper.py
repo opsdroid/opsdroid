@@ -6,7 +6,7 @@ import unittest.mock as mock
 
 from opsdroid.helper import (
     del_rw, move_config_to_appdir, file_is_ipython_notebook,
-    convert_ipynb_to_script, extract_gist_id)
+    convert_ipynb_to_script, extract_gist_id, get_opsdroid)
 
 
 class TestHelper(unittest.TestCase):
@@ -57,3 +57,7 @@ class TestHelper(unittest.TestCase):
         self.assertEqual(
             extract_gist_id("c9852fa17d3463acc14dca1217d911f6"),
             "c9852fa17d3463acc14dca1217d911f6")
+
+    def test_opsdroid(self):
+        # Test that get_opsdroid returns None if no instances exist
+        assert get_opsdroid() is None

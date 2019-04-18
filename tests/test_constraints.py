@@ -30,7 +30,7 @@ class TestConstraints(asynctest.TestCase):
             opsdroid.skills.append(skill)
 
             tasks = await opsdroid.parse(
-                Message('user', '#random', None, 'Hello')
+                Message('Hello', 'user', '#random', None)
             )
             self.assertEqual(len(tasks), 1) # Just match_always
 
@@ -43,7 +43,7 @@ class TestConstraints(asynctest.TestCase):
             opsdroid.skills.append(skill)
 
             tasks = await opsdroid.parse(
-                Message('user', '#general', None, 'Hello')
+                Message('Hello', 'user', '#general', None)
             )
             self.assertEqual(len(tasks), 2) # match_always and the skill
 
@@ -57,7 +57,7 @@ class TestConstraints(asynctest.TestCase):
             opsdroid.skills.append(skill)
 
             tasks = await opsdroid.parse(
-                Message('otheruser', '#general', None, 'Hello')
+                Message('Hello', 'otheruser', '#general', None)
             )
             self.assertEqual(len(tasks), 1) # Just match_always
 
@@ -70,7 +70,7 @@ class TestConstraints(asynctest.TestCase):
             opsdroid.skills.append(skill)
 
             tasks = await opsdroid.parse(
-                Message('user', '#general', None, 'Hello')
+                Message('Hello', 'user', '#general', None)
             )
             self.assertEqual(len(tasks), 2) # match_always and the skill
 
@@ -85,7 +85,7 @@ class TestConstraints(asynctest.TestCase):
             connector.configure_mock(name='twitter')
 
             tasks = await opsdroid.parse(
-                Message('user', '#random', connector, 'Hello')
+                Message('Hello', 'user', '#random', connector)
             )
             self.assertEqual(len(tasks), 1) # Just match_always
 
@@ -100,6 +100,6 @@ class TestConstraints(asynctest.TestCase):
             connector.configure_mock(name='slack')
 
             tasks = await opsdroid.parse(
-                Message('user', '#general', connector, 'Hello')
+                Message('Hello', 'user', '#general', connector)
             )
             self.assertEqual(len(tasks), 2) # match_always and the skill

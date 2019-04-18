@@ -21,7 +21,7 @@ from opsdroid.parsers.always import parse_always
 from opsdroid.parsers.regex import parse_regex
 from opsdroid.parsers.dialogflow import parse_dialogflow
 from opsdroid.parsers.luisai import parse_luisai
-from opsdroid.parsers.recastai import parse_recastai
+from opsdroid.parsers.sapcai import parse_sapcai
 from opsdroid.parsers.witai import parse_witai
 from opsdroid.parsers.rasanlu import parse_rasanlu, train_rasanlu
 from opsdroid.parsers.crontab import parse_crontab
@@ -291,6 +291,25 @@ class OpsDroid():
         else:
             self.critical("All connectors failed to load", 1)
 
+    # pylint: disable=W0640
+    @property
+    def _connector_names(self):  # noqa: D401
+        """Mapping of names to connector instances."""
+        if not self.connectors:
+            raise ValueError("No connectors have been started")
+
+        names = {}
+        for connector in self.connectors:
+            name = connector.config.get("name", connector.name)
+            # Deduplicate any names
+            if name in names:
+                # Calculate the number of keys in names which start with name.
+                n_key = len(list(filter(lambda x: x.startswith(name), names)))
+                name += "_{}".format(n_key)
+            names[name] = connector
+
+        return names
+
     def start_databases(self, databases):
         """Start the databases."""
         if not databases:
@@ -362,14 +381,14 @@ class OpsDroid():
                     await parse_luisai(self, skills,
                                        message, luisai[0])
 
-            recastai = [p for p in parsers if p["name"] == "recastai"]
-            if len(recastai) == 1 and \
-                    ("enabled" not in recastai[0] or
-                     recastai[0]["enabled"] is not False):
+            sapcai = [p for p in parsers if p["name"] == "sapcai"]
+            if len(sapcai) == 1 and \
+                    ("enabled" not in sapcai[0] or
+                     sapcai[0]["enabled"] is not False):
                 _LOGGER.debug(_("Checking Recast.AI..."))
                 ranked_skills += \
-                    await parse_recastai(self, skills,
-                                         message, recastai[0])
+                    await parse_sapcai(self, skills,
+                                       message, sapcai[0])
 
             witai = [p for p in parsers if p["name"] == "witai"]
             if len(witai) == 1 and \
@@ -413,21 +432,42 @@ class OpsDroid():
         """Parse a string against all skills."""
         self.stats["messages_parsed"] = self.stats["messages_parsed"] + 1
         tasks = []
-        if message is not None and message.text.strip() != "":
-            _LOGGER.debug(_("Parsing input: %s"), message.text)
+        if message is not None:
+            if str(message.text).strip():
+                _LOGGER.debug(_("Parsing input: %s"), message.text)
 
-            tasks.append(
-                self.eventloop.create_task(parse_always(self, message)))
-
-            unconstrained_skills = await self._constrain_skills(
-                self.skills, message)
-            ranked_skills = await self.get_ranked_skills(
-                unconstrained_skills, message)
-            if ranked_skills:
                 tasks.append(
-                    self.eventloop.create_task(
-                        self.run_skill(ranked_skills[0]["skill"],
-                                       ranked_skills[0]["config"],
-                                       message)))
+                    self.eventloop.create_task(parse_always(self, message)))
+
+                unconstrained_skills = await self._constrain_skills(
+                    self.skills, message)
+                ranked_skills = await self.get_ranked_skills(
+                    unconstrained_skills, message)
+                if ranked_skills:
+                    tasks.append(
+                        self.eventloop.create_task(
+                            self.run_skill(ranked_skills[0]["skill"],
+                                           ranked_skills[0]["config"],
+                                           ranked_skills[0]["message"])))
 
         return tasks
+
+    async def send(self, event):
+        """Send an event.
+
+        If ``event.connector`` is not set this method will use
+        `OpsDroid.default_connector`. If ``event.connector`` is a string, it
+        will be resolved to the name of the connectors configured in this
+        instance.
+
+        Args:
+            event (opsdroid.events.Event): The event to send.
+
+        """
+        if isinstance(event.connector, str):
+            event.connector = self._connector_names[event.connector]
+
+        if not event.connector:
+            event.connector = self.default_connector
+
+        return await event.connector.send(event)

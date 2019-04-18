@@ -18,7 +18,7 @@ def constrain_rooms(rooms):
         """Add room constraint to skill."""
         def constraint_callback(message, rooms=rooms):
             """Check if the room is correct."""
-            return message.room in rooms
+            return message.target in rooms
         func = add_skill_attributes(func)
         func.constraints.append(constraint_callback)
         return func

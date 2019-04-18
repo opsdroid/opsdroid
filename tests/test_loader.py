@@ -217,7 +217,7 @@ class TestLoader(unittest.TestCase):
             self._tmp_dir, os.path.normpath("test/module/test"))
         os.makedirs(config['install_path'], mode=0o777)
         intent_contents = "Hello world"
-        intents_file = os.path.join(config['install_path'], "intents.md")
+        intents_file = os.path.join(config['install_path'], "intents.yml")
         with open(intents_file, 'w') as intents:
             intents.write(intent_contents)
         loaded_intents = ld.Loader._load_intents(config)

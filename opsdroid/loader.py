@@ -105,7 +105,7 @@ class Loader:
             return importlib.util.find_spec(
                 'opsdroid.{module_type}.{module_name}'.format(
                     module_type=config["type"],
-                    module_name=config["name"]
+                    module_name=config["name"].lower()
                 )
             )
         except ImportError:
@@ -116,7 +116,7 @@ class Loader:
         """Generate the module import path from name and type."""
         if config["is_builtin"]:
             return "opsdroid" + "." + config["type"] + \
-                "." + config["name"]
+                "." + config["name"].lower()
         return MODULES_DIRECTORY + "." + config["type"] + \
             "." + config["name"]
 
@@ -188,7 +188,7 @@ class Loader:
 
     @staticmethod
     def _load_intents(config):
-        intent_file = os.path.join(config["install_path"], "intents.md")
+        intent_file = os.path.join(config["install_path"], "intents.yml")
         if os.path.isfile(intent_file):
             with open(intent_file, 'r') as intent_file_handle:
                 intents = intent_file_handle.read()

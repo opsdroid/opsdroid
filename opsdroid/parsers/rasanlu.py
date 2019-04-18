@@ -16,9 +16,8 @@ _LOGGER = logging.getLogger(__name__)
 
 async def _get_all_intents(skills):
     """Get all skill intents and concatenate into a single markdown string."""
-    matchers = [matcher for skill in skills for matcher in skill.matchers]
-    intents = [matcher["intents"] for matcher in matchers
-               if matcher["intents"] is not None]
+    intents = [skill["intents"] for skill in skills
+               if skill["intents"] is not None]
     if not intents:
         return None
     intents = "\n\n".join(intents)
@@ -100,9 +99,16 @@ async def train_rasanlu(config, skills):
 
         url = await _build_training_url(config)
 
+        # https://github.com/RasaHQ/rasa_nlu/blob/master/docs/http.rst#post-train
+        # Note : The request should always be sent as
+        # application/x-yml regardless of wether you use
+        # json or md for the data format. Do not send json as
+        # application/json for example.+
+        headers = {'content-type': 'application/x-yml'}
+
         try:
             training_start = arrow.now()
-            resp = await session.post(url, data=intents)
+            resp = await session.post(url, data=intents, headers=headers)
         except aiohttp.client_exceptions.ClientConnectorError:
             _LOGGER.error(_("Unable to connect to Rasa NLU, training failed."))
             return False
