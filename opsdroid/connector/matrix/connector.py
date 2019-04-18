@@ -40,15 +40,8 @@ class ConnectorMatrix(Connector):
         self.session = None
         self.filter_id = None
         self.connection = None
-        try:
-            self.token = config['access_token']
-            self.password = None
-        else:
-            self.password = config['password']
-            self.token = None
-        except (KeyError, AttributeError):
-            _LOGGER.error("Unable to login: Config error"
-                          "Matrix connector will not be available.")
+        self.token = config.get("token", None)
+        self.password = config.get("password", None)
 
 
     @property
