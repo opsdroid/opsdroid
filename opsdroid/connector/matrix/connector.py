@@ -43,7 +43,6 @@ class ConnectorMatrix(Connector):
         self.token = config.get("token", None)
         self.password = config.get("password", None)
 
-
     @property
     def filter_json(self):
         """Define JSON filter to apply to incoming events."""
