@@ -97,7 +97,6 @@ class ConnectorMatrix(Connector):
             login_response = await mapi.login(
                 "m.login.password", user=self.mxid, password=self.password)
             mapi.token = login_response['access_token']
-        
         mapi.sync_token = None
 
         for roomname, room in self.rooms.items():
