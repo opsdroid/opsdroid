@@ -16,7 +16,7 @@ connectors:
     # Required
     mxid: "@username:matrix.org"
     password: "mypassword"
-    token: "user-access-token" #If token is desired, remove password else password will be used.
+    token: "user-access-token"
     # Name of a single room to connect to
     room: "#matrix:matrix.org"
     # Alternatively, a dictionary of multiple rooms
