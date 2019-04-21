@@ -1,10 +1,11 @@
 <p align=center>
 <img src="https://github.com/opsdroid/style-guidelines/raw/master/logos/logo-wide-light.png"/>
 <p>
- 
+<br>
 <h4 align=center>An open source chat-ops bot framework</h4>
 
-<p align=center><a href="https://pypi.python.org/pypi"><img src="https://img.shields.io/pypi/v/opsdroid.svg" alt="Current version of pypi" /></a>
+<p align=center>
+<a href="https://pypi.python.org/pypi"><img src="https://img.shields.io/pypi/v/opsdroid.svg" alt="Current version of pypi" /></a>
 <a href="https://travis-ci.org/opsdroid/opsdroid"><img src="https://img.shields.io/travis/opsdroid/opsdroid/master.svg?logo=travis" alt="Build Status" /></a>
 <a href="https://ci.appveyor.com/project/opsdroid/opsdroid/branch/master"><img src="https://img.shields.io/appveyor/ci/opsdroid/opsdroid/master.svg?logo=appveyor" alt="Build status" /></a>
 <a href="https://codecov.io/gh/opsdroid/opsdroid"><img src="https://img.shields.io/codecov/c/github/opsdroid/opsdroid.svg" alt="codecov" /></a>
@@ -18,7 +19,8 @@
 <a href="https://gitter.im/opsdroid"><img src="https://img.shields.io/badge/gitter-join%20chat-4fb896.svg" alt="Gitter Badge" /></a>
 <a href="#backers"><img src="https://opencollective.com/opsdroid/backers/badge.svg" alt="Backers on Open Collective" /></a>
 <a href="#sponsors"><img src="https://opencollective.com/opsdroid/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-<a href="https://www.codetriage.com/opsdroid/opsdroid"><img src="https://www.codetriage.com/opsdroid/opsdroid/badges/users.svg" alt="Open Source Helpers" /></a></p>
+<a href="https://www.codetriage.com/opsdroid/opsdroid"><img src="https://www.codetriage.com/opsdroid/opsdroid/badges/users.svg" alt="Open Source Helpers" /></a>
+</p>
 
 
 <p align="center">
@@ -33,6 +35,7 @@
 </p>
 
 An open source chat bot framework written in Python. It is designed to be extendable, scalable and simple.
+
 
 This application is designed to take messages from chat services and execute Python functions (skills) based on their contents. Those functions can be anything you like, from simple conversational responses to running complex tasks. The true power of this project is to act as a glue library to bring the multitude of natural language APIs, chat services and third party APIs together.
 
