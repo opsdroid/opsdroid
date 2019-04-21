@@ -18,9 +18,9 @@
 [![Sponsors on Open Collective](https://opencollective.com/opsdroid/sponsors/badge.svg)](#sponsors)
 [![Open Source Helpers](https://www.codetriage.com/opsdroid/opsdroid/badges/users.svg)](https://www.codetriage.com/opsdroid/opsdroid)
 
-An open source chat bot framework written in python. It is designed to be extendable, scalable and simple.
+An open source chat bot framework written in Python. It is designed to be extendable, scalable and simple.
 
-This application is designed to take messages from chat services and execute python functions (skills) based on their contents. Those functions can be anything you like, from simple conversational responses to running complex tasks. The true power of this project is to act as a glue library to bring the multitude of natural language APIs, chat services and third party APIs together.
+This application is designed to take messages from chat services and execute Python functions (skills) based on their contents. Those functions can be anything you like, from simple conversational responses to running complex tasks. The true power of this project is to act as a glue library to bring the multitude of natural language APIs, chat services and third party APIs together.
 
 Help support opsdroid in one click by pressing [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Check%20out%20opsdroid,%20an%20awesome%20open%20source%20chatbot%20framework%20written%20in%20Python.&url=https://opsdroid.github.io/&via=opsdroid&hashtags=chatbots,chatops,devops,automation,opensource)
 
@@ -33,7 +33,7 @@ In this new frontier of DevOps, it is becoming more and more popular to interact
 
  * It's open source
  * Simple to modify and extend
- * Add your own skills in under 10 lines of python
+ * Add your own skills in under 10 lines of Python
  * Easy to install
  * Designed with Docker in mind for simple deployment
  * Configurable with a single YAML file
@@ -77,7 +77,7 @@ $ docker service create --name opsdroid --config source=OpsdroidConfig,target=/r
 # Update apt-get
 $ sudo apt-get update
 
-# Install pip for python3 and locales
+# Install pip for Python3 and locales
 $ sudo apt-get install python3-pip language-pack-en git
 
 # Ensure pip is up-to-date
@@ -100,7 +100,7 @@ For information on arguments that you can pass to opsdroid run `opsdroid --help`
 $ opsdroid --help
 Usage: opsdroid [OPTIONS]
 
-  Opsdroid is a chat bot framework written in python.
+  Opsdroid is a chat bot framework written in Python.
 
   It is designed to be extendable, scalable and simple. See
   https://opsdroid.github.io/ for more information.
@@ -122,7 +122,7 @@ Contributing to the opsdroid ecosystem is strongly encouraged and every little b
   - Write [skills](http://opsdroid.readthedocs.io/en/latest/extending/skills/), [connectors](http://opsdroid.readthedocs.io/en/latest/extending/connectors/) or [database](http://opsdroid.readthedocs.io/en/latest/extending/databases/) modules
   - Contribute to the [opsdroid home page](https://github.com/opsdroid/opsdroid.github.io) (it’s a Jekyll website)
   - Post about your experience using opsdroid on your own blog
-  - Contribute to [opsdroid audio](https://github.com/opsdroid/opsdroid-audio) (python voice client for opsdroid)
+  - Contribute to [opsdroid audio](https://github.com/opsdroid/opsdroid-audio) (Python voice client for opsdroid)
   - Submit lots of useful issues (5–10 good ones is probably sticker worthy)
   - Create [logo variations and banners](https://github.com/opsdroid/style-guidelines) for promotion
   - Contribute to [opsdroid desktop](https://github.com/opsdroid/opsdroid-desktop) (electron and react app)
