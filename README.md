@@ -1,5 +1,7 @@
- ![opsdroid](https://github.com/opsdroid/style-guidelines/raw/master/logos/logo-wide-light.png)
-
+<p align=center>
+<img src="https://github.com/opsdroid/style-guidelines/raw/master/logos/logo-wide-light.png"/>
+<p>
+ 
 [![Current version of pypi](https://img.shields.io/pypi/v/opsdroid.svg)](https://pypi.python.org/pypi)
 [![Build Status](https://img.shields.io/travis/opsdroid/opsdroid/master.svg?logo=travis)](https://travis-ci.org/opsdroid/opsdroid)
 [![Build status](https://img.shields.io/appveyor/ci/opsdroid/opsdroid/master.svg?logo=appveyor)](https://ci.appveyor.com/project/opsdroid/opsdroid/branch/master)
@@ -41,8 +43,8 @@ In this new frontier of DevOps, it is becoming more and more popular to interact
 ## Quick start
 
 ```bash
-pip3 install opsdroid
-opsdroid
+$ pip3 install opsdroid
+$ opsdroid
 ```
 
 ## Installation Guide
@@ -53,39 +55,39 @@ Check out the [Getting Started](https://www.youtube.com/watch?v=7wyIi_cpodE&list
 
 ```bash
 # Pull the container image
-docker pull opsdroid/opsdroid:latest
+$ docker pull opsdroid/opsdroid:latest
 
 # Run the container
-docker run --rm -it -v /path/to/config_folder:/root/.config/opsdroid opsdroid/opsdroid:latest
+$ docker run --rm -it -v /path/to/config_folder:/root/.config/opsdroid opsdroid/opsdroid:latest
 ```
 
 ### Docker Service
 
 ```bash
 # Create the opsdroid config file
-docker config create OpsdroidConfig /path/to/configuration.yaml
+$ docker config create OpsdroidConfig /path/to/configuration.yaml
 
 # Create the service
-docker service create --name opsdroid --config source=OpsdroidConfig,target=/root/.config/opsdroid/configuration.yaml --mount 'type=volume,src=OpsdroidData,dst=/root/.config/opsdroid' opsdroid/opsdroid:latest
+$ docker service create --name opsdroid --config source=OpsdroidConfig,target=/root/.config/opsdroid/configuration.yaml --mount 'type=volume,src=OpsdroidData,dst=/root/.config/opsdroid' opsdroid/opsdroid:latest
 ```
 
 ### Ubuntu 16.04 LTS
 
 ```bash
 # Update apt-get
-sudo apt-get update
+$ sudo apt-get update
 
 # Install pip for python3 and locales
-sudo apt-get install python3-pip language-pack-en git
+$ sudo apt-get install python3-pip language-pack-en git
 
 # Ensure pip is up-to-date
-pip3 install --upgrade pip
+$ pip3 install --upgrade pip
 
 # Install opsdroid
-sudo pip3 install opsdroid
+$ sudo pip3 install opsdroid
 
 # Run opsdroid
-opsdroid
+$ opsdroid
 ```
 
 ## Usage
