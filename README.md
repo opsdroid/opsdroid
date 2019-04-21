@@ -1,7 +1,6 @@
 <p align=center>
 <img src="https://github.com/opsdroid/style-guidelines/raw/master/logos/logo-wide-light.png"/>
 <p>
-<br>
 <h4 align=center>An open source chat-ops bot framework</h4>
 
 <p align=center>
