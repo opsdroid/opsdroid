@@ -1,6 +1,7 @@
-<p align=center>
+<h1 align=center>
 <img src="https://github.com/opsdroid/style-guidelines/raw/master/logos/logo-wide-light.png"/>
-<p>
+</h1>
+
 <h4 align=center>An open source chat-ops bot framework</h4>
 
 <p align=center>
@@ -41,11 +42,14 @@ This application is designed to take messages from chat services and execute Pyt
 Help support opsdroid in one click by pressing [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Check%20out%20opsdroid,%20an%20awesome%20open%20source%20chatbot%20framework%20written%20in%20Python.&url=https://opsdroid.github.io/&via=opsdroid&hashtags=chatbots,chatops,devops,automation,opensource)
 
 ## ChatOps
+[(Back to top)](#)
+
 _"ChatOps is an operational paradigm where work that is already happening in the background today is brought into a common chatroom. By doing this, you are unifying the communication about what work should get done with actual history of the work being done."_ - [StackStorm](https://docs.stackstorm.com/chatops/chatops.html)
 
 In this new frontier of DevOps, it is becoming more and more popular to interact with your automation tools via an instant messenger. Opsdroid is a framework to make creating and extending your ChatOps workflows powerful but simple.
 
 ## Why use opsdroid?
+[(Back to top)](#)
 
  * It's open source
  * Simple to modify and extend
@@ -57,6 +61,7 @@ In this new frontier of DevOps, it is becoming more and more popular to interact
  * No coding necessary if using the official modules
 
 ## Quick start
+[(Back to top)](#)
 
 ```bash
 $ pip3 install opsdroid
@@ -64,6 +69,7 @@ $ opsdroid
 ```
 
 ## Installation Guide
+[(Back to top)](#)
 
 Check out the [Getting Started](https://www.youtube.com/watch?v=7wyIi_cpodE&list=PLViQCHlMbEq5nZL6VNrUxu--Of1uCpflq) video series on YouTube. The video series demonstrates how to install and configure opsdroid and opsdroid desktop on Ubuntu 16.04. It also demonstrates how to create your own skill in opsdroid
 
@@ -107,6 +113,7 @@ $ opsdroid
 ```
 
 ## Usage
+[(Back to top)](#)
 
 When running the `opsdroid` command with no arguments the bot framework will start using the configuration in `~/.opsdroid/configuration.yaml`. Beginners should check out the [introduction tutorial](http://opsdroid.readthedocs.io/en/stable/tutorials/introduction/) for information on how to configure opsdroid.
 
@@ -130,6 +137,7 @@ Options:
 ```
 
 ## Contributing
+[(Back to top)](#)
 
 Contributing to the opsdroid ecosystem is strongly encouraged and every little bit counts! We even send [sticker packs](https://medium.com/opsdroid/contributor-sticker-packs-738058ceda59) to our contributors to say thank you! There are so many ways to contribute to opsdroid:
 
@@ -159,6 +167,7 @@ This project exists thanks to all the people who contribute. [[Contribute](/docs
 
 
 ## Backers
+[(Back to top)](#)
 
 Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/opsdroid#backer)]
 
@@ -166,6 +175,7 @@ Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com
 
 
 ## Sponsors
+[(Back to top)](#)
 
 Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/opsdroid#sponsor)]
 
