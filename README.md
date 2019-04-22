@@ -22,6 +22,7 @@
 <a href="https://www.codetriage.com/opsdroid/opsdroid"><img src="https://www.codetriage.com/opsdroid/opsdroid/badges/users.svg" alt="Open Source Helpers" /></a>
 </p>
 
+---
 
 <p align="center">
   <a href="#chatops">ChatOps</a> •
@@ -33,6 +34,8 @@
   <a href="#backers">Backers</a> •
   <a href="#sponsors">Sponsers</a>
 </p>
+
+---
 
 An open source chat bot framework written in Python. It is designed to be extendable, scalable and simple.
 
