@@ -1,5 +1,5 @@
 <h6 align=center>
-<img src="https://github.com/opsdroid/style-guidelines/raw/master/logos/logo-wide-light.png"/>
+<img src="https://github.com/opsdroid/style-guidelines/raw/master/logos/logo-wide-light.png" alt="Opsdroid Logo"/>
 </h6>
 
 <h4 align=center>An open source chat-ops bot framework</h4>
