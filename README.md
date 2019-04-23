@@ -51,7 +51,6 @@ _"ChatOps is an operational paradigm where work that is already happening in the
 In this new frontier of DevOps, it is becoming more and more popular to interact with your automation tools via an instant messenger. Opsdroid is a framework to make creating and extending your ChatOps workflows powerful but simple.
 
 ## Why use opsdroid?
-[(Back to top)](#)
 
  * It's open source
  * Simple to modify and extend
