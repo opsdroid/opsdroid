@@ -28,7 +28,7 @@ Before creating the release do some final local testing:
 
 As opsdroid follows [SemVer 2.0](http://semver.org/) (`major.minor.patch`) the version number increase will depend on what has changed since the previous release.
 
-- If the release includes only bug fixes then only the `patch` will be incremented.
+- If the release includes only bug fixes then only the `patch` will be incremented. (See [Backports](#Backports) section for making patches)
 - If the release includes new features then the `minor` will be incremented and the `patch` will be reverted to `0`.
 - If the release includes changes which break backward compatibility then the `major` will be incremented with the `minor` and `patch` being reverted to `0`. However this only applies once opsdroid is above `v1.0.0`.
 
@@ -50,6 +50,33 @@ python scripts/release_notes/release_notes.py
 This will print a list of all the commits in the history since the last release, which due to the "squash and merge" feature in GitHub will be correctly formatted into one commit per PR with the title and number.
 
 _You will need to add markdown bullets, sort into sections, tidy up the names and remove anything which is not relevant to the application itself (e.g changes to the GitHub PR and Issue templates). This can be done when drafting the release._
+
+### Backports
+
+As opsdroid releases are infrequent they often include many differen't PRs, which usually results in a `minor` release as at least one PR will introduce a new feature.
+
+In the mean time there may be bug fixes merged into master which we want to release on a shorter timescale, these should be backported into the current minor version.
+
+Steps
+
+```console
+# Pull down all tags
+$ git pull upstream master --tags
+
+# Checkout the latest tag
+$ git checkout x.x.x
+
+# Create a new dev branch for this minor version (e.g dev-0.14.x for the 0.14 minor release)
+$ git checkout -b dev-x.x.x
+
+# Cherry pick the bug fix from master
+$ git cherry-pick -x <COMMIT HASH>
+
+# Push branch to your fork and open a PR to the upstream branch
+$ git push origin dev-x.x.x
+```
+
+Once tests have passed and you merge the patch into the dev branch you can perform a new release which targets the dev branch following the rest of this guide.
 
 ### Draft the release
 
