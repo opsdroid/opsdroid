@@ -103,3 +103,26 @@ class TestConstraints(asynctest.TestCase):
                 Message('user', '#general', connector, 'Hello')
             )
             self.assertEqual(len(tasks), 2) # match_always and the skill
+
+    async def test_constraint_can_be_called_after_skip(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.eventloop = mock.CoroutineMock()
+            skill = await self.getMockSkill()
+            skill = match_regex(r'.*')(skill)
+            skill = constraints.constrain_users(['user'])(skill)
+            opsdroid.skills.append(skill)
+
+            tasks = await opsdroid.parse(
+                Message('user', '#general', None, 'Hello')
+            )
+            self.assertEqual(len(tasks), 2) # match_always and the skill
+
+            tasks = await opsdroid.parse(
+                Message('otheruser', '#general', None, 'Hello')
+            )
+            self.assertEqual(len(tasks), 1) # Just match_always
+
+            tasks = await opsdroid.parse(
+                Message('user', '#general', None, 'Hello')
+            )
+            self.assertEqual(len(tasks), 2)  # match_always and the skill

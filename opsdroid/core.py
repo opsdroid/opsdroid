@@ -403,11 +403,12 @@ class OpsDroid():
             list: A list of the skills which were not constrained.
 
         """
-        for skill in skills:
-            for constraint in skill.constraints:
-                if not constraint(message):
-                    skills.remove(skill)
-        return skills
+        return [
+            skill for skill in skills if all(
+                constraint(message)
+                for constraint in skill.constraints
+            )
+        ]
 
     async def parse(self, message):
         """Parse a string against all skills."""
