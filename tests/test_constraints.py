@@ -118,7 +118,7 @@ class TestConstraints(asynctest.TestCase):
             self.assertEqual(len(tasks), 2) # match_always and the skill
 
             tasks = await opsdroid.parse(
-                Message('Hello', 'otheruser', '#general', None)
+                Message('otheruser', '#general', None, 'Hello')
             )
             self.assertEqual(len(tasks), 1) # Just match_always
 
