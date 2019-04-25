@@ -13,6 +13,9 @@ from opsdroid.events import Message
 
 
 _LOGGER = logging.getLogger(__name__)
+HEADERS = {
+    "Access-Control-Allow-Origin": "*"
+}
 
 
 class ConnectorWebsocket(Connector):
@@ -58,9 +61,13 @@ class ConnectorWebsocket(Connector):
             socket = {"id": str(uuid.uuid1()), "date": datetime.now()}
             self.available_connections.append(socket)
             return aiohttp.web.Response(
-                text=json.dumps({"socket": socket["id"]}), status=200)
+                text=json.dumps({"socket": socket["id"]}),
+                headers=HEADERS,
+                status=200)
         return aiohttp.web.Response(
-            text=json.dumps("No connections available"), status=429)
+            text=json.dumps("No connections available"),
+            headers=HEADERS,
+            status=429)
 
     async def websocket_handler(self, request):
         """Handle for aiohttp handling websocket connections."""
@@ -69,12 +76,16 @@ class ConnectorWebsocket(Connector):
                      if item["id"] == socket]
         if len(available) != 1:
             return aiohttp.web.Response(
-                text=json.dumps("Please request a socket first"), status=400)
+                text=json.dumps("Please request a socket first"),
+                headers=HEADERS,
+                status=400)
         if (datetime.now() - available[0]["date"]).total_seconds() \
                 > self.connection_timeout:
             self.available_connections.remove(available[0])
             return aiohttp.web.Response(
-                text=json.dumps("Socket request timed out"), status=408)
+                text=json.dumps("Socket request timed out"),
+                headers=HEADERS,
+                status=408)
         self.available_connections.remove(available[0])
         _LOGGER.debug("User connected to %s", socket)
 
