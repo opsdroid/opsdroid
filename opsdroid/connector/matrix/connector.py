@@ -140,7 +140,8 @@ class ConnectorMatrix(Connector):
                     filter=self.filter_id)
                 _LOGGER.debug("matrix sync request returned")
                 message = await self._parse_sync_response(response)
-                await self.opsdroid.parse(message)
+                if message:
+                    await self.opsdroid.parse(message)
 
             except MatrixRequestError as mre:
                 # We can safely ignore timeout errors. The non-standard error
@@ -201,7 +202,7 @@ class ConnectorMatrix(Connector):
             "msgtype": msgtype,
             "format": "org.matrix.custom.html",
             "formatted_body": clean_html
-            }
+        }
 
     @register_event(Message)
     async def send_message(self, message):
