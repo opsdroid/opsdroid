@@ -82,7 +82,23 @@ def configure_logging(config):
 
 
 def get_logging_level(logging_level):
-    """Get the logger level based on the user configuration."""
+    """Get the logger level based on the user configuration.
+
+    Args:
+        logging_level: logging level from config file
+
+    Returns:
+        logging LEVEL ->
+            CRITICAL = 50
+            FATAL = CRITICAL
+            ERROR = 40
+            WARNING = 30
+            WARN = WARNING
+            INFO = 20
+            DEBUG = 10
+            NOTSET = 0
+
+    """
     if logging_level == 'critical':
         return logging.CRITICAL
 
@@ -141,7 +157,15 @@ def edit_files(ctx, param, value):
 
 
 def welcome_message(config):
-    """Add welcome message if set to true in configuration."""
+    """Add welcome message if set to true in configuration.
+
+    Args:
+        config: config loaded by Loader
+
+    Raises:
+        KeyError: If 'welcome-message' key is not found in configuration file
+
+    """
     try:
         if config['welcome-message']:
             _LOGGER.info("=" * 40)
