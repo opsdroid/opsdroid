@@ -162,7 +162,7 @@ See [module options](#module-options) for installing custom databases.
 
 ### Welcome-message
 
-Configure a welcome message.
+Configure the welcome message.
 
 If set to true then a welcome message is printed in the log at startup. It defaults to true.
 
