@@ -36,9 +36,9 @@ For configuration, opsdroid uses a single YAML file named `configuration.yaml`. 
 
 _Note: If no file named `configuration.yaml` can be found on one of these folders one will be created for you taken from the [example configuration file](../opsdroid/configuration/example_configuration.yaml)_
 
-If you are using one of the default locations you can run the command `opsdroid -e` or `opsdroid --edit-config` to open the configuration with your favourite editor(taken from the environment variable `EDITOR`) or the default editor [vim](tutorials/introduction-vim.md).
+If you are using one of the default locations you can run the command `opsdroid -e` or `opsdroid --edit-config` to open the configuration with your favorite editor(taken from the environment variable `EDITOR`) or the default editor [vim](tutorials/introduction-vim.md).
 
-The opsdroid project itself is very simple and requires modules to give it functionality. In your configuration file, you must specify the connector, skill and database* modules you wish to use and any options they may require.
+The opsdroid project itself is very simple and requires modules to give it functionality. In your configuration file, you must specify the connector, skill, and database* modules you wish to use and any options they may require.
 
 **Connectors** are modules for connecting opsdroid to your specific chat service.
 
@@ -58,7 +58,7 @@ skills:
 
 This tells opsdroid to use the [shell connector](https://github.com/opsdroid/connector-shell) and [hello skill](https://github.com/opsdroid/skill-hello) from the official module library.
 
-In opsdroid all modules are git repositories which will be cloned locally the first time they are used. By default, if you do not specify a repository opsdroid will look at `https://github.com/opsdroid/<moduletype>-<modulename>.git` for the repository. Therefore in the above configuration, the `connector-shell` and `skill-hello` repositories were pulled from the opsdroid organisation on GitHub.
+In opsdroid all modules are git repositories which will be cloned locally the first time they are used. By default, if you do not specify a repository opsdroid will look at `https://github.com/opsdroid/<moduletype>-<modulename>.git` for the repository. Therefore in the above configuration, the `connector-shell` and `skill-hello` repositories were pulled from the opsdroid organization on GitHub.
 
 You are of course encouraged to write your own modules and make them available on GitHub or any other repository host which is accessible by your opsdroid installation.
 
@@ -82,7 +82,7 @@ skills:
     repo: "https://github.com/username/myawesomeskill.git"
 ```
 
-In this configuration we are using the [slack connector](/connectors/slack.md) with a slack [auth token](https://api.slack.com/tokens) supplied, a built-in mongo database connection for persisting data, `hello` and `seen` skills from the official repos and finally a custom skill hosted on GitHub.
+In this configuration, we are using the [slack connector](/connectors/slack.md) with a slack [auth token](https://api.slack.com/tokens) supplied, a built-in mongo database connection for persisting data, `hello` and `seen` skills from the official repos and finally a custom skill hosted on GitHub.
 
 Configuration options such as the `token` in the slack connector or the `host`, `port` and `database` options in the mongo database are specific to those modules. Ensure you check each module's required configuration items before you use them.
 
@@ -162,7 +162,7 @@ See [module options](#module-options) for installing custom databases.
 
 ### Welcome-message
 
-Configure welcome message.
+Configure the welcome message.
 
 If set to true then a welcome message is printed in the log at startup. It defaults to true.
 
@@ -188,7 +188,7 @@ The default locations for the logs are:
 - Linux: `/home/<User>/.cache/opsdroid/log`
 - Windows: `C:\Users\<User>\AppData\Local\opsdroid\Logs\`
 
-If you are using one of the default paths for your log you can run the command `opsdroid -l` or `opsdroid --view-log` to open the logs with your favourite editor(taken from the environment variable `EDITOR`) or the default editor [vim](tutorials/introduction-vim.md).
+If you are using one of the default paths for your log you can run the command `opsdroid -l` or `opsdroid --view-log` to open the logs with your favorite editor(taken from the environment variable `EDITOR`) or the default editor [vim](tutorials/introduction-vim.md).
 
 ```yaml
 logging:
@@ -282,7 +282,7 @@ lang: <ISO 639-1 code -  example: 'en'>
 
 Configure the REST API in opsdroid.
 
-By default, opsdroid will start a web server accessible only to localhost on port `8080` (or `8443` if ssl details are provided). For more information see the [REST API docs](rest-api).
+By default, opsdroid will start a web server accessible only to localhost on port `8080` (or `8443` if SSL details are provided). For more information see the [REST API docs](rest-api).
 
 ```yaml
 web:
@@ -343,7 +343,7 @@ skills:
 
 #### GitHub Gist
 
-A gist url to download and install the module from. This downloads the gist
+A gist URL to download and install the module from. This downloads the gist
 to a temporary file and then uses the single file local installer above. Therefore
 Notebooks are also supported.
 
