@@ -21,7 +21,7 @@ DEFAULT_LANGUAGE = 'en'
 LOCALE_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'locale')
 EXAMPLE_CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                    "configuration/example_configuration.yaml")
-REGEX_SCORE_FACTOR = 0.6
+REGEX_PARSE_SCORE_FACTOR = 0.6
 
 RASANLU_DEFAULT_URL = "http://localhost:5000"
 RASANLU_DEFAULT_PROJECT = "opsdroid"

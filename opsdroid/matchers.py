@@ -2,9 +2,8 @@
 
 import logging
 
-from opsdroid.const import REGEX_SCORE_FACTOR
+from opsdroid.const import REGEX_PARSE_SCORE_FACTOR
 from opsdroid.helper import add_skill_attributes
-
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -20,7 +19,25 @@ def match_regex(regex, case_sensitive=True, matching_condition="match",
                 "expression": regex,
                 "case_sensitive": case_sensitive,
                 "matching_condition": matching_condition,
-                "score_factor": score_factor or REGEX_SCORE_FACTOR,
+                "score_factor": score_factor or REGEX_PARSE_SCORE_FACTOR,
+            }}
+        )
+        return func
+    return matcher
+
+
+def match_parse(format_str, case_sensitive=True, matching_condition="match",
+                score_factor=None):
+    """Return parse match decorator."""
+    def matcher(func):
+        """Add decorated function to skills list for parse matching."""
+        func = add_skill_attributes(func)
+        func.matchers.append(
+            {"parse_format": {
+                "expression": format_str,
+                "case_sensitive": case_sensitive,
+                "matching_condition": matching_condition,
+                "score_factor": score_factor or REGEX_PARSE_SCORE_FACTOR,
             }}
         )
         return func
