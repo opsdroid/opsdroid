@@ -17,6 +17,9 @@ class Message(NewMessage):
     Deprecated. Use ``opsdroid.events.Message`` instead.
     """
 
+    # Skip registering this class with Event
+    _no_register = True
+
     def __init__(self, text, user, room, connector,
                  raw_message=None):  # noqa: D401
         """Deprecated opsdroid.message.Message object."""

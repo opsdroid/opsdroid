@@ -1,17 +1,45 @@
 """Classes to describe different kinds of possible event."""
-
+import io
 import asyncio
-from abc import ABC
+from abc import ABCMeta
 from random import randrange
 from datetime import datetime
 
 import aiohttp
+import puremagic
+from get_image_size import get_image_size_from_bytesio
 
 from opsdroid.helper import get_opsdroid
 
 
+# pylint: disable=bad-mcs-classmethod-argument,arguments-differ
+class EventMetaClass(ABCMeta):
+    """Metaclass for Event.
+
+    This metaclass keeps a mapping of event name to event class.
+    """
+
+    event_registry = {}
+
+    def __new__(mcls, name, bases, members):  # noqa: D102
+        cls = super().__new__(mcls, name, bases, members)
+
+        # Skip registration for old message.Message class.
+        if "_no_register" in members:
+            return cls
+
+        if name in mcls.event_registry:
+            raise NameError("An event subclass named {name} has already been "
+                            "defined. Event subclass names must be globally "
+                            "unique.".format(name=name))
+
+        mcls.event_registry[name] = cls
+
+        return cls
+
+
 # pylint: disable=too-few-public-methods,keyword-arg-before-vararg
-class Event(ABC):
+class Event(metaclass=EventMetaClass):
     """A generic event type.
 
     Initiates an Event object with the most basic information about its
@@ -143,7 +171,7 @@ class Message(Event):
         # TODO: Add support for sending typing events here
         await asyncio.sleep(char_count*seconds)
 
-    async def respond(self, event):
+    async def respond(self, response_event):
         """Respond to this message using the connector it was created by.
 
         Creates copy of this message with updated text as response.
@@ -151,10 +179,10 @@ class Message(Event):
         Updates responded_to attribute to True if False.
         Logs response and response time in OpsDroid object stats.
         """
-        if isinstance(event, str):
-            response = Message(event)
+        if isinstance(response_event, str):
+            response = Message(response_event)
         else:
-            response = event
+            response = response_event
 
         if 'thinking-delay' in self.connector.configuration or \
            'typing-delay' in self.connector.configuration:
@@ -162,7 +190,7 @@ class Message(Event):
             if isinstance(response, Message):
                 await self._typing_delay(response.text)
 
-        await super().respond(response)
+        return await super().respond(response)
 
 
 class Typing(Event):  # pragma: nocover
@@ -203,16 +231,19 @@ class File(Event):
     """Event class to represent arbitrary files as bytes."""
 
     def __init__(self, file_bytes=None, url=None,
+                 name=None, mimetype=None,
                  *args, **kwargs):  # noqa: D107
         if not (file_bytes or url) or (file_bytes and url):
             raise ValueError("Either file_bytes or url must be specified")
 
         super().__init__(*args, **kwargs)
 
+        self.name = name
+        self._mimetype = mimetype
         self._file_bytes = file_bytes
         self.url = url
 
-    async def get_file_bytes(self):  # noqa: D401
+    async def get_file_bytes(self):
         """Return the bytes representation of this file."""
         if not self._file_bytes and self.url:
             async with aiohttp.ClientSession() as session:
@@ -221,6 +252,37 @@ class File(Event):
 
         return self._file_bytes
 
+    async def get_mimetype(self):
+        """Return the mimetype for the file."""
+        if self._mimetype:
+            return self._mimetype
+
+        try:
+            results = puremagic.magic_string(await self.get_file_bytes())
+        except puremagic.PureError:
+            # If no results return none
+            return ''
+
+        # If for some reason we get a len 0 list
+        if not results:  # pragma: nocover
+            return ''
+
+        # If we only have one result use it.
+        if len(results) == 1:  # pragma: nocover
+            return results[0].mime_type
+
+        # If we have multiple matches with the same confidence, pick one that
+        # actually has a mime_type.
+        confidence = results[0].confidence
+        results = filter(lambda x: x.confidence == confidence, results)
+        results = list(filter(lambda x: bool(x.mime_type), results))
+        return results[0].mime_type
+
 
 class Image(File):
     """Event class specifically for image files."""
+
+    async def get_dimensions(self):
+        """Return the image dimensions `(w,h)`."""
+        fbytes = await self.get_file_bytes()
+        return get_image_size_from_bytesio(io.BytesIO(fbytes), len(fbytes))

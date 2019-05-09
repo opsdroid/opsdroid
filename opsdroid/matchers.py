@@ -8,6 +8,18 @@ from opsdroid.helper import add_skill_attributes
 _LOGGER = logging.getLogger(__name__)
 
 
+def match_event(event_type):
+    """Return event type matcher."""
+    def matcher(func):
+        """Add decorated function to list for event matching."""
+        func = add_skill_attributes(func)
+        func.matchers.append(
+            {"event_type": {
+                "type": event_type}})
+        return func
+    return matcher
+
+
 def match_regex(regex, case_sensitive=True, matching_condition="match",
                 score_factor=None):
     """Return regex match decorator."""

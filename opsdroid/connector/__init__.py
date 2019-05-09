@@ -22,7 +22,10 @@ def register_event(event_type):
         event (Event): The event class this method can handle.
     """
     def decorator(func):
-        func.__opsdroid_event__ = event_type
+        if hasattr(func, "__opsdroid_events__"):
+            func.__opsdroid_events__.append(event_type)
+        else:
+            func.__opsdroid_events__ = [event_type]
         return func
     return decorator
 
@@ -45,7 +48,7 @@ class Connector:
         functions = inspect.getmembers(cls, predicate=inspect.isfunction)
 
         # Filter out anything that's not got the attribute __opsdroid_event__
-        event_methods = filter(lambda f: hasattr(f, "__opsdroid_event__"),
+        event_methods = filter(lambda f: hasattr(f, "__opsdroid_events__"),
                                # Just extract the function objects
                                map(lambda t: t[1], functions))
 
@@ -53,13 +56,12 @@ class Connector:
         cls.events = collections.defaultdict(lambda: cls._unknown_event)
 
         for event_method in event_methods:
-            event_type = event_method.__opsdroid_event__
-
-            if not issubclass(event_type, Event):
-                err_msg = ("The event type {event_type} is "
-                           "not a valid OpsDroid event type")
-                raise TypeError(err_msg.format(event_type=event_type))
-            cls.events[event_type] = event_method
+            for event_type in event_method.__opsdroid_events__:
+                if not issubclass(event_type, Event):
+                    err_msg = ("The event type {event_type} is "
+                               "not a valid OpsDroid event type")
+                    raise TypeError(err_msg.format(event_type=event_type))
+                cls.events[event_type] = event_method
 
         return super().__new__(cls)
 
