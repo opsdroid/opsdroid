@@ -264,17 +264,18 @@ class File(Event):
             return ''
 
         # If for some reason we get a len 0 list
-        if not len(results):
+        if not len(results):  # pragma: nocover
             return ''
 
         # If we only have one result use it.
-        if len(results) == 1:
+        if len(results) == 1:  # pragma: nocover
             return results[0].mime_type
             return ''
 
         # If we have multiple matches with the same confidence, pick one that
         # actually has a mime_type.
         confidence = results[0].confidence
+        print(results)
         results = filter(lambda x: x.confidence == confidence, results)
         results = list(filter(lambda x: bool(x.mime_type), results))
         return results[0].mime_type

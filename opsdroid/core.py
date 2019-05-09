@@ -116,9 +116,9 @@ class OpsDroid():
     def handle_async_exception(loop, context):
         """Handle exceptions from async coroutines."""
         if "future" in context:
-            try:
+            try:  # pragma: nocover
                 context['future'].result()
-            except Exception:
+            except Exception:  # pragma: nocover
                 _LOGGER.exception(_("Caught exception"))
         else:
             _LOGGER.error(_("Caught exception"))

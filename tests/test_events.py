@@ -244,6 +244,9 @@ class TestFile(asynctest.TestCase):
 class TestImage(asynctest.TestCase):
     """Test the opsdroid image class"""
 
+    gif_bytes = (b"GIF89a\x01\x00\x01\x00\x00\xff\x00,"
+                 b"\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00;")
+
     async def setup(self):
         configure_lang({})
 
@@ -251,12 +254,36 @@ class TestImage(asynctest.TestCase):
         opsdroid = amock.CoroutineMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
         event = events.Image(
-            bytes("some image contents", "utf-8"),
+            self.gif_bytes,
             user="user",
             target="default",
             connector=mock_connector)
 
         self.assertEqual(event.user, "user")
         self.assertEqual(event.target, "default")
-        self.assertEqual((await event.get_file_bytes()).decode(),
-                         "some image contents")
+        self.assertEqual(await event.get_file_bytes(), self.gif_bytes)
+        self.assertEqual(await event.get_mimetype(), "image/gif")
+        self.assertEqual(await event.get_dimensions(), (1, 1))
+
+    async def test_explicit_mime_type(self):
+        opsdroid = amock.CoroutineMock()
+        mock_connector = Connector({}, opsdroid=opsdroid)
+        event = events.Image(
+            self.gif_bytes,
+            user="user",
+            target="default",
+            mimetype="image/jpeg",
+            connector=mock_connector)
+
+        self.assertEqual(await event.get_mimetype(), "image/jpeg")
+
+    async def test_no_mime_type(self):
+        opsdroid = amock.CoroutineMock()
+        mock_connector = Connector({}, opsdroid=opsdroid)
+        event = events.Image(
+            b"aslkdjsalkdjlaj",
+            user="user",
+            target="default",
+            connector=mock_connector)
+
+        self.assertEqual(await event.get_mimetype(), "")
