@@ -14,6 +14,6 @@ from opsdroid.events import Image, Message
 
 class ShoutyImagesSkill(Skill):
     @match_event(Image)
-    async def loudimage(opsdroid, config, event):
+    async def loudimage(event):
         await event.respond(Message("THAT'S A PRETTY PICTURE"))
 ```

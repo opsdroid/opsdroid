@@ -19,4 +19,4 @@ pyyaml==4.2b1
 setuptools==41.0.1
 websockets==7.0
 puremagic==1.5
-opsdroid-get-image-size
+opsdroid-get-image-size==0.2.2
