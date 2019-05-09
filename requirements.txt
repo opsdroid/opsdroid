@@ -13,10 +13,10 @@ motor==2.0.0
 multidict==4.5.2
 nbconvert==5.5.0
 nbformat==4.4.0
+opsdroid-get-image-size==0.2.2
 parse==1.12.0
+puremagic==1.5
 pycron==1.0.0
 pyyaml==4.2b1
 setuptools==41.0.1
 websockets==7.0
-puremagic==1.5
-opsdroid-get-image-size==0.2.2
