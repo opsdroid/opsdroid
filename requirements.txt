@@ -18,4 +18,5 @@ pycron==1.0.0
 pyyaml==4.2b1
 setuptools==41.0.1
 websockets==7.0
-python-magic
+puremagic
+opsdroid-get-image-size
