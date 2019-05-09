@@ -9,8 +9,9 @@ from matrix_api_async import AsyncHTTPAPI
 from matrix_client.errors import MatrixRequestError
 
 from opsdroid.core import OpsDroid
-from opsdroid.events import Image, File
+from opsdroid.events import Image, File, Message
 from opsdroid.connector.matrix import ConnectorMatrix
+from opsdroid.connector.matrix.create_events import MatrixEventCreator
 from opsdroid.__main__ import configure_lang  # noqa
 
 api_string = 'matrix_api_async.AsyncHTTPAPI.{}'
@@ -345,3 +346,139 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             patched_send.assert_called_once_with(
                 '#test:localhost', 'mxc://aurl', 'opsdroid_upload',
                 'm.file', {})
+
+
+class TestEventCreatorAsync(asynctest.TestCase):
+    @property
+    def message_json(self):
+        return {
+            "content": {
+                "body": "I just did it manually.",
+                "msgtype": "m.text"
+            },
+            "event_id": "$15573463541827394vczPd:matrix.org",
+            "origin_server_ts": 1557346354253,
+            "room_id": "!MeRdFpEonLoCwhoHeT:matrix.org",
+            "sender": "@neo:matrix.org",
+            "type": "m.room.message",
+            "unsigned": {
+                "age": 48926251
+            },
+            "user_id": "@nso:matrix.org",
+            "age": 48926251
+        }
+
+    @property
+    def file_json(self):
+        return {
+            "origin_server_ts": 1534013434328,
+            "sender": "@neo:matrix.org",
+            "event_id": "$1534013434516721kIgMV:matrix.org",
+            "content": {
+                "body": "stereo_reproject.py",
+                "info": {
+                    "mimetype": "text/x-python",
+                    "size": 1239
+                },
+                "msgtype": "m.file",
+                "url": "mxc://matrix.org/vtgAIrGtuYJQCXNKRGhVfSMX"
+            },
+            "room_id": "!MeRdFpEonLoCwhoHeT:matrix.org",
+            "type": "m.room.message",
+            "unsigned": {
+                "age": 23394532373
+            },
+            "user_id": "@neo:matrix.org",
+            "age": 23394532373
+        }
+
+    @property
+    def image_json(self):
+        return {
+            "content": {
+                "body": "index.png",
+                "info": {
+                    "h": 1149,
+                    "mimetype": "image/png",
+                    "size": 1949708,
+                    "thumbnail_info": {
+                        "h": 600,
+                        "mimetype": "image/png",
+                        "size": 568798,
+                        "w": 612
+                    },
+                    "thumbnail_url": "mxc://matrix.org/HjHqeJDDxcnOEGydCQlJZQwC",
+                    "w": 1172
+                },
+                "msgtype": "m.image",
+                "url": "mxc://matrix.org/iDHKYJSQZZrrhOxAkMBMOaeo"
+            },
+            "event_id": "$15548652221495790FYlHC:matrix.org",
+            "origin_server_ts": 1554865222742,
+            "room_id": "!MeRdFpEonLoCwhoHeT:matrix.org",
+            "sender": "@neo:matrix.org",
+            "type": "m.room.message",
+            "unsigned": {
+                "age": 2542608318
+            },
+            "user_id": "@neo:matrix.org",
+            "age": 2542608318
+        }
+
+    @property
+    def event_creator(self):
+        connector = amock.MagicMock()
+        patched_get_nick = amock.MagicMock()
+        patched_get_nick.return_value = asyncio.Future()
+        patched_get_nick.return_value.set_result("Rabbit Hole")
+        connector.get_nick = patched_get_nick
+
+        patched_get_download_url = mock.Mock()
+        patched_get_download_url.return_value = "mxc://aurl"
+        connector.connection.get_download_url = patched_get_download_url
+
+        return MatrixEventCreator(connector)
+
+    async def test_create_message(self):
+        event = await self.event_creator.create_event(self.message_json,
+                                                      "hello")
+        assert isinstance(event, Message)
+        assert event.text == "I just did it manually."
+        assert event.user == "Rabbit Hole"
+        assert event.target == "hello"
+        assert event.event_id == "$15573463541827394vczPd:matrix.org"
+        assert event.raw_event == self.message_json
+
+    async def test_create_file(self):
+        event = await self.event_creator.create_event(self.file_json,
+                                                      "hello")
+        assert isinstance(event, File)
+        assert event.url == "mxc://aurl"
+        assert event.user == "Rabbit Hole"
+        assert event.target == "hello"
+        assert event.event_id == "$1534013434516721kIgMV:matrix.org"
+        assert event.raw_event == self.file_json
+
+    async def test_create_image(self):
+        event = await self.event_creator.create_event(self.image_json,
+                                                      "hello")
+        assert isinstance(event, Image)
+        assert event.url == "mxc://aurl"
+        assert event.user == "Rabbit Hole"
+        assert event.target == "hello"
+        assert event.event_id == "$15548652221495790FYlHC:matrix.org"
+        assert event.raw_event == self.image_json
+
+    async def test_unsupported_type(self):
+        json = self.message_json
+        json['type'] = "wibble"
+        event = await self.event_creator.create_event(json,
+                                                      "hello")
+        assert event is None
+
+    async def test_unsupported_message_type(self):
+        json = self.message_json
+        json['content']['msgtype'] = "wibble"
+        event = await self.event_creator.create_event(json,
+                                                      "hello")
+        assert event is None

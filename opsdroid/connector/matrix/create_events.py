@@ -13,10 +13,10 @@ class MatrixEventCreator:
         """Initialise the event creator."""
         self.connector = connector
 
-        self.event_types = defaultdict(lambda x: self.skip)
+        self.event_types = defaultdict(lambda: self.skip)
         self.event_types['m.room.message'] = self.create_room_message
 
-        self.message_events = defaultdict(lambda x: self.skip)
+        self.message_events = defaultdict(lambda: self.skip)
         self.message_events.update({
             'm.text': self.create_message,
             'm.image': self.create_image,
@@ -38,7 +38,7 @@ class MatrixEventCreator:
         return await self.message_events[msgtype](event, roomid)
 
     @staticmethod
-    def skip(event, roomid):
+    async def skip(event, roomid):
         """Do not handle this event type."""
         return None
 
