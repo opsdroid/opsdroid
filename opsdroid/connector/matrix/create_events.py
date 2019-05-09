@@ -65,7 +65,7 @@ class MatrixEventCreator:
             raw_event=event)
 
     async def create_file(self, event, roomid):
-        """Send a Image event."""
+        """Send a File event."""
         kwargs = await self._file_kwargs(event, roomid)
         return events.File(**kwargs)
 

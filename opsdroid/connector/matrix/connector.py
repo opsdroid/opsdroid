@@ -239,7 +239,7 @@ class ConnectorMatrix(Connector):
 
     @register_event(File)
     @register_event(Image)
-    async def _send_image(self, file_event):
+    async def _send_file(self, file_event):
         mxc_url = None
         if file_event.url:
             url = urlparse(file_event.url)
