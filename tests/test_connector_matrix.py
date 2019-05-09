@@ -9,6 +9,7 @@ from matrix_api_async import AsyncHTTPAPI
 from matrix_client.errors import MatrixRequestError
 
 from opsdroid.core import OpsDroid
+from opsdroid.events import Image, File
 from opsdroid.connector.matrix import ConnectorMatrix
 from opsdroid.__main__ import configure_lang  # noqa
 
@@ -168,7 +169,8 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             await self.connector.connect()
 
             assert patched_get_nick.called
-            assert patch_set_nick.called_once_with("@morpheus:matrix.org", "Rabbit Hole")
+            patch_set_nick.assert_called_once_with("@morpheus:matrix.org",
+                                                   "Rabbit Hole")
 
     async def test_parse_sync_response(self):
         self.connector.room_ids = {'main': '!aroomid:localhost'}
@@ -240,7 +242,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             await self.connector.send(message)
 
             message_obj = self.connector._get_formatted_message_body(message.text)
-            assert patched_send.called_once_with(message.target,
+            patched_send.assert_called_once_with(message.target,
                                                  "m.room.message",
                                                  message_obj)
 
@@ -250,9 +252,9 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             await self.connector.send(message)
 
             message_obj = self.connector._get_formatted_message_body(message.text)
-            assert patched_send.called_once_with(message.target,
-                                                 "m.room.message",
-                                                 message_obj)
+            patched_send.assert_called_with(message.target,
+                                            "m.room.message",
+                                            message_obj)
 
     async def test_respond_room(self):
         message = await self._get_message()
@@ -269,7 +271,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             await self.connector.send(message)
 
             message_obj = self.connector._get_formatted_message_body(message.text)
-            assert patched_send.called_once_with(message.target,
+            patched_send.assert_called_once_with('!aroomid:localhost',
                                                  "m.room.message",
                                                  message_obj)
 
@@ -289,3 +291,57 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
         assert self.connector.get_roomname('#thisroom:localhost') == '#thisroom:localhost'
         assert self.connector.get_roomname('!anotherroomid:localhost') == '#thisroom:localhost'
         assert self.connector.get_roomname('someroom') == 'someroom'
+
+    async def test_respond_image(self):
+        gif_bytes = (b"GIF89a\x01\x00\x01\x00\x00\xff\x00,"
+                     b"\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00;")
+
+        image = Image(file_bytes=gif_bytes)
+        with amock.patch(api_string.format("send_content")) as patched_send, \
+             amock.patch(api_string.format("media_upload")) as patched_upload:
+
+            patched_upload.return_value = asyncio.Future()
+            patched_upload.return_value.set_result({'content_uri': 'mxc://aurl'})
+
+            patched_send.return_value = asyncio.Future()
+            patched_send.return_value.set_result(None)
+            await self.connector.send(image)
+
+            patched_send.assert_called_once_with(
+                '#test:localhost', 'mxc://aurl', 'opsdroid_upload', 'm.image',
+                {'w': 1, 'h': 1, 'mimetype': 'image/gif', 'size': 26})
+
+    async def test_respond_mxc(self):
+        gif_bytes = (b"GIF89a\x01\x00\x01\x00\x00\xff\x00,"
+                     b"\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00;")
+
+        image = Image(url="mxc://aurl")
+        with amock.patch(api_string.format("send_content")) as patched_send, \
+             amock.patch("opsdroid.events.Image.get_file_bytes") as patched_bytes:
+
+            patched_bytes.return_value = asyncio.Future()
+            patched_bytes.return_value.set_result(gif_bytes)
+
+            patched_send.return_value = asyncio.Future()
+            patched_send.return_value.set_result(None)
+            await self.connector.send(image)
+
+            patched_send.assert_called_once_with(
+                '#test:localhost', 'mxc://aurl', 'opsdroid_upload', 'm.image',
+                {'w': 1, 'h': 1, 'mimetype': 'image/gif', 'size': 26})
+
+    async def test_respond_file(self):
+        file_event = File(file_bytes=b"aslkdjlaksdjlkajdlk")
+        with amock.patch(api_string.format("send_content")) as patched_send, \
+             amock.patch(api_string.format("media_upload")) as patched_upload:
+
+            patched_upload.return_value = asyncio.Future()
+            patched_upload.return_value.set_result({'content_uri': 'mxc://aurl'})
+
+            patched_send.return_value = asyncio.Future()
+            patched_send.return_value.set_result(None)
+            await self.connector.send(file_event)
+
+            patched_send.assert_called_once_with(
+                '#test:localhost', 'mxc://aurl', 'opsdroid_upload',
+                'm.file', {})
