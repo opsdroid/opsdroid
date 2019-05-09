@@ -118,6 +118,7 @@ class OpsDroid():
         if "future" in context:
             try:  # pragma: nocover
                 context['future'].result()
+            # pylint: disable=broad-except
             except Exception:  # pragma: nocover
                 _LOGGER.exception(_("Caught exception"))
         else:

@@ -37,7 +37,8 @@ class MatrixEventCreator:
         msgtype = event['content']['msgtype']
         return await self.message_events[msgtype](event, roomid)
 
-    def skip(self, event, roomid):
+    @staticmethod
+    def skip(event, roomid):
         """Do not handle this event type."""
         return None
 
@@ -45,7 +46,7 @@ class MatrixEventCreator:
         """Send a Message event."""
         return events.Message(
             event['content']['body'],
-            await self.connector._get_nick(roomid, event['sender']),
+            await self.connector.get_nick(roomid, event['sender']),
             roomid,
             self.connector,
             event_id=event['event_id'],
@@ -57,7 +58,7 @@ class MatrixEventCreator:
         return dict(
             url=url,
             name=event['content']['body'],
-            user=await self.connector._get_nick(roomid, event['sender']),
+            user=await self.connector.get_nick(roomid, event['sender']),
             target=roomid,
             connector=self.connector,
             event_id=event['event_id'],

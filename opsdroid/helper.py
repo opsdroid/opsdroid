@@ -12,6 +12,7 @@ from nbconvert import PythonExporter
 _LOGGER = logging.getLogger(__name__)
 
 
+# pylint: disable=inconsistent-return-statements
 def get_opsdroid():
     """Return the running opsdroid instance.
 

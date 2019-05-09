@@ -154,7 +154,7 @@ class ConnectorMatrix(Connector):
             except Exception:  # pylint: disable=W0703
                 _LOGGER.exception('Matrix Sync Error')
 
-    async def _get_nick(self, roomid, mxid):
+    async def get_nick(self, roomid, mxid):
         """
         Get nickname from user ID.
 
@@ -229,10 +229,10 @@ class ConnectorMatrix(Connector):
                 self._get_formatted_message_body(message.text))
 
     async def _get_image_info(self, image):
-        w, h = await image.get_dimensions()
+        width, height = await image.get_dimensions()
         return {
-            "w": w,
-            "h": h,
+            "w": width,
+            "h": height,
             "mimetype": await image.get_mimetype(),
             "size": len(await image.get_file_bytes())
         }

@@ -196,18 +196,18 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             patched_roomname.return_value.set_result('')
 
             mxid = '@notaperson:matrix.org'
-            assert await self.connector._get_nick('#notaroom:localhost', mxid) == ''
+            assert await self.connector.get_nick('#notaroom:localhost', mxid) == ''
             # Test if a room displayname couldn't be found
             patched_roomname.side_effect = Exception()
 
             # Test if that leads to a global displayname being returned
             patched_globname.return_value = asyncio.Future()
             patched_globname.return_value.set_result('@notaperson')
-            assert await self.connector._get_nick('#notaroom:localhost', mxid) == '@notaperson'
+            assert await self.connector.get_nick('#notaroom:localhost', mxid) == '@notaperson'
 
             # Test that failed nickname lookup returns the mxid
             patched_globname.side_effect = MatrixRequestError()
-            assert await self.connector._get_nick('#notaroom:localhost', mxid) == mxid
+            assert await self.connector.get_nick('#notaroom:localhost', mxid) == mxid
 
     async def test_get_formatted_message_body(self):
         original_html = "<p><h3><no>Hello World</no></h3></p>"
@@ -224,7 +224,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
     async def _get_message(self):
         self.connector.room_ids = {'main': '!aroomid:localhost'}
         self.connector.filter_id = 'arbitrary string'
-        m = 'opsdroid.connector.matrix.ConnectorMatrix._get_nick'
+        m = 'opsdroid.connector.matrix.ConnectorMatrix.get_nick'
 
         with amock.patch(m) as patched_nick:
             patched_nick.return_value = asyncio.Future()
