@@ -1,13 +1,15 @@
 """Tests for the ConnectorTelegram class."""
 import asyncio
+import aiohttp
 import contextlib
 import unittest
 import asynctest
 import asynctest.mock as amock
 
+from opsdroid import events
 from opsdroid.core import OpsDroid
 from opsdroid.connector.telegram import ConnectorTelegram
-from opsdroid.events import Message
+from opsdroid.events import Message, Image
 from opsdroid.__main__ import configure_lang
 
 
@@ -139,7 +141,6 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
             patched_request.return_value.set_result(mocked_status)
             self.assertTrue(response['result'][0].get('edited_message'))
             await self.connector._parse_message(response)
-
 
     async def test_parse_message_channel(self):
         response = {'result': [{
@@ -326,7 +327,6 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
             self.assertLogs('_LOGGER', 'info')
             self.assertTrue(mock_method.called)
 
-
     async def test_delete_webhook_failure(self):
         response = amock.Mock()
         response.status = 401
@@ -376,6 +376,25 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
             await test_message.respond("Response")
             self.assertTrue(patched_request.called)
             self.assertLogs("_LOGGER", "debug")
+
+    async def test_respond_image(self):
+        post_response = amock.Mock()
+        post_response.status = 200
+
+        image = amock.Mock()
+        image.file_bytes.return_value.set_result(
+            (b"GIF89a\x01\x00\x01\x00\x00\xff\x00,"
+             b"\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00;"))
+        image.target = {'id': '123'}
+
+        with amock.patch.object(self.connector.session, 'post') \
+                as patched_request:
+
+            patched_request.return_value = asyncio.Future()
+            patched_request.return_value.set_result(None)
+
+            await self.connector.send_image(image)
+            self.assertTrue(patched_request.called)
 
     async def test_respond_failure(self):
         post_response = amock.Mock()
