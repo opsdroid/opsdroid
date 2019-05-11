@@ -279,11 +279,11 @@ class ConnectorTelegram(Connector):
         resp = await self.session.post(self.build_url("sendPhoto"),
                                        data=data)
         if resp.status == 200:
-            _LOGGER.debug("Sent {} image "
-                          "successfully".format(file_event.name))
+            _LOGGER.debug("Sent %s image "
+                          "successfully", file_event.name)
         else:
             _LOGGER.debug("Unable to send image - "
-                          "Status Code {}".format(resp.status))
+                          "Status Code %s", resp.status)
 
     async def disconnect(self):
         """Disconnect from Telegram.
