@@ -377,25 +377,6 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
             self.assertTrue(patched_request.called)
             self.assertLogs("_LOGGER", "debug")
 
-    async def test_respond_image(self):
-        post_response = amock.Mock()
-        post_response.status = 200
-
-        gif_bytes = (b"GIF89a\x01\x00\x01\x00\x00\xff\x00,"
-                     b"\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00;")
-
-        image = Image(file_bytes=gif_bytes)
-        image.target = {'id': '123'}
-
-        with amock.patch.object(self.connector.session, 'post') \
-                as patched_request:
-
-            patched_request.return_value = asyncio.Future()
-            patched_request.return_value.set_result(post_response)
-
-            await self.connector.send_image(image)
-            self.assertTrue(patched_request.called)
-
     async def test_respond_failure(self):
         post_response = amock.Mock()
         post_response.status = 401
@@ -414,6 +395,42 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
             patched_request.return_value.set_result(post_response)
             await test_message.respond("Response")
             self.assertLogs('_LOGGER', 'debug')
+
+    async def test_respond_image(self):
+        post_response = amock.Mock()
+        post_response.status = 200
+
+        gif_bytes = (b"GIF89a\x01\x00\x01\x00\x00\xff\x00,"
+                     b"\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00;")
+
+        image = Image(file_bytes=gif_bytes, target={"id": '123'})
+
+        with amock.patch.object(self.connector.session, 'post') \
+                as patched_request:
+
+            patched_request.return_value = asyncio.Future()
+            patched_request.return_value.set_result(post_response)
+
+            await self.connector.send_image(image)
+            self.assertTrue(patched_request.called)
+
+    async def test_respond_image_failure(self):
+        post_response = amock.Mock()
+        post_response.status = 400
+
+        gif_bytes = (b"GIF89a\x01\x00\x01\x00\x00\xff\x00,"
+                     b"\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00;")
+
+        image = Image(file_bytes=gif_bytes, target={"id": '123'})
+
+        with amock.patch.object(self.connector.session, 'post') \
+                as patched_request:
+
+            patched_request.return_value = asyncio.Future()
+            patched_request.return_value.set_result(post_response)
+
+            await self.connector.send_image(image)
+            self.assertLogs("_LOOGER", "debug")
 
     async def test_listen(self):
         with amock.patch.object(self.connector.loop, 'create_task') \
