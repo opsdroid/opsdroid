@@ -2,6 +2,7 @@
 import io
 import asyncio
 from abc import ABCMeta
+import logging
 from random import randrange
 from datetime import datetime
 
@@ -10,6 +11,9 @@ import puremagic
 from get_image_size import get_image_size_from_bytesio
 
 from opsdroid.helper import get_opsdroid
+
+
+_LOGGER = logging.getLogger(__name__)
 
 
 # pylint: disable=bad-mcs-classmethod-argument,arguments-differ
@@ -230,7 +234,7 @@ class Reaction(Event):
 class File(Event):
     """Event class to represent arbitrary files as bytes."""
 
-    def __init__(self, file_bytes=None, url=None,
+    def __init__(self, file_bytes=None, url=None, url_headers=None,
                  name=None, mimetype=None,
                  *args, **kwargs):  # noqa: D107
         if not (file_bytes or url) or (file_bytes and url):
@@ -241,13 +245,16 @@ class File(Event):
         self.name = name
         self._mimetype = mimetype
         self._file_bytes = file_bytes
+        self._url_headers = url_headers
         self.url = url
 
     async def get_file_bytes(self):
         """Return the bytes representation of this file."""
         if not self._file_bytes and self.url:
             async with aiohttp.ClientSession() as session:
-                async with session.get(self.url) as resp:
+                _LOGGER.debug(self._url_headers)
+                async with session.get(self.url,
+                                       headers=self._url_headers) as resp:
                     self._file_bytes = await resp.read()
 
         return self._file_bytes

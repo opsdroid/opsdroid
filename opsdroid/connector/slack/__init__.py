@@ -11,7 +11,7 @@ from aioslacker import Slacker
 from emoji import demojize
 
 from opsdroid.connector import Connector, register_event
-from opsdroid.events import Message, Reaction
+from opsdroid.events import Message, Reaction, File, Image
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -91,15 +91,19 @@ class ConnectorSlack(Connector):
         """Get the next message from the websocket."""
         try:
             content = await self.websocket.recv()
-            await self.process_message(json.loads(content))
+            await self.triage_event(json.loads(content))
         except websockets.exceptions.ConnectionClosed:
             _LOGGER.info("Slack websocket closed, reconnecting...")
             await self.reconnect(5)
 
+    async def triage_event(self, event):
+        """Inspect an event and trigger the correct processing method."""
+        if "type" in event and event["type"] == "message":
+            await self.process_message(event)
+
     async def process_message(self, message):
         """Process a raw message and pass it to the parser."""
-        if "type" in message and message["type"] == "message" and \
-                "user" in message:
+        if "user" in message:
 
             # Ignore bot messages
             if "subtype" in message and \
@@ -123,6 +127,31 @@ class ConnectorSlack(Connector):
                                               message["channel"],
                                               self,
                                               raw_event=message))
+
+            # Process any files included in the message
+            if 'files' in message and message['files']:
+                for file_to_process in message['files']:
+                    await self.process_shared_file(message,
+                                                   file_to_process,
+                                                   user_info)
+
+    async def process_shared_file(self, message, file_to_process, user_info):
+        """Process a shared file and parse."""
+        kwargs = dict(url=file_to_process['url_private_download'],
+                      url_headers={
+                          "Authorization": "Bearer: {}".format(self.token)
+                      },
+                      mimetype=file_to_process['mimetype'],
+                      name=file_to_process['name'],
+                      user=user_info["name"],
+                      target=message["channel"],
+                      connector=self,
+                      event_id=message['event_ts'],
+                      raw_event=file_to_process)
+        if 'image' in file_to_process['mimetype']:
+            await self.opsdroid.parse(Image(**kwargs))
+        else:
+            await self.opsdroid.parse(File(**kwargs))
 
     @register_event(Message)
     async def send_message(self, message):
