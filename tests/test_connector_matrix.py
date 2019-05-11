@@ -9,7 +9,9 @@ from matrix_api_async import AsyncHTTPAPI
 from matrix_client.errors import MatrixRequestError
 
 from opsdroid.core import OpsDroid
+from opsdroid.events import Image, File, Message
 from opsdroid.connector.matrix import ConnectorMatrix
+from opsdroid.connector.matrix.create_events import MatrixEventCreator
 from opsdroid.__main__ import configure_lang  # noqa
 
 api_string = 'matrix_api_async.AsyncHTTPAPI.{}'
@@ -168,7 +170,8 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             await self.connector.connect()
 
             assert patched_get_nick.called
-            assert patch_set_nick.called_once_with("@morpheus:matrix.org", "Rabbit Hole")
+            patch_set_nick.assert_called_once_with("@morpheus:matrix.org",
+                                                   "Rabbit Hole")
 
     async def test_parse_sync_response(self):
         self.connector.room_ids = {'main': '!aroomid:localhost'}
@@ -196,18 +199,18 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             patched_roomname.return_value.set_result('')
 
             mxid = '@notaperson:matrix.org'
-            assert await self.connector._get_nick('#notaroom:localhost', mxid) == ''
+            assert await self.connector.get_nick('#notaroom:localhost', mxid) == ''
             # Test if a room displayname couldn't be found
             patched_roomname.side_effect = Exception()
 
             # Test if that leads to a global displayname being returned
             patched_globname.return_value = asyncio.Future()
             patched_globname.return_value.set_result('@notaperson')
-            assert await self.connector._get_nick('#notaroom:localhost', mxid) == '@notaperson'
+            assert await self.connector.get_nick('#notaroom:localhost', mxid) == '@notaperson'
 
             # Test that failed nickname lookup returns the mxid
             patched_globname.side_effect = MatrixRequestError()
-            assert await self.connector._get_nick('#notaroom:localhost', mxid) == mxid
+            assert await self.connector.get_nick('#notaroom:localhost', mxid) == mxid
 
     async def test_get_formatted_message_body(self):
         original_html = "<p><h3><no>Hello World</no></h3></p>"
@@ -224,7 +227,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
     async def _get_message(self):
         self.connector.room_ids = {'main': '!aroomid:localhost'}
         self.connector.filter_id = 'arbitrary string'
-        m = 'opsdroid.connector.matrix.ConnectorMatrix._get_nick'
+        m = 'opsdroid.connector.matrix.ConnectorMatrix.get_nick'
 
         with amock.patch(m) as patched_nick:
             patched_nick.return_value = asyncio.Future()
@@ -240,7 +243,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             await self.connector.send(message)
 
             message_obj = self.connector._get_formatted_message_body(message.text)
-            assert patched_send.called_once_with(message.target,
+            patched_send.assert_called_once_with(message.target,
                                                  "m.room.message",
                                                  message_obj)
 
@@ -250,9 +253,9 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             await self.connector.send(message)
 
             message_obj = self.connector._get_formatted_message_body(message.text)
-            assert patched_send.called_once_with(message.target,
-                                                 "m.room.message",
-                                                 message_obj)
+            patched_send.assert_called_with(message.target,
+                                            "m.room.message",
+                                            message_obj)
 
     async def test_respond_room(self):
         message = await self._get_message()
@@ -269,7 +272,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             await self.connector.send(message)
 
             message_obj = self.connector._get_formatted_message_body(message.text)
-            assert patched_send.called_once_with(message.target,
+            patched_send.assert_called_once_with('!aroomid:localhost',
                                                  "m.room.message",
                                                  message_obj)
 
@@ -289,3 +292,193 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
         assert self.connector.get_roomname('#thisroom:localhost') == '#thisroom:localhost'
         assert self.connector.get_roomname('!anotherroomid:localhost') == '#thisroom:localhost'
         assert self.connector.get_roomname('someroom') == 'someroom'
+
+    async def test_respond_image(self):
+        gif_bytes = (b"GIF89a\x01\x00\x01\x00\x00\xff\x00,"
+                     b"\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00;")
+
+        image = Image(file_bytes=gif_bytes)
+        with amock.patch(api_string.format("send_content")) as patched_send, \
+             amock.patch(api_string.format("media_upload")) as patched_upload:
+
+            patched_upload.return_value = asyncio.Future()
+            patched_upload.return_value.set_result({'content_uri': 'mxc://aurl'})
+
+            patched_send.return_value = asyncio.Future()
+            patched_send.return_value.set_result(None)
+            await self.connector.send(image)
+
+            patched_send.assert_called_once_with(
+                '#test:localhost', 'mxc://aurl', 'opsdroid_upload', 'm.image',
+                {'w': 1, 'h': 1, 'mimetype': 'image/gif', 'size': 26})
+
+    async def test_respond_mxc(self):
+        gif_bytes = (b"GIF89a\x01\x00\x01\x00\x00\xff\x00,"
+                     b"\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00;")
+
+        image = Image(url="mxc://aurl")
+        with amock.patch(api_string.format("send_content")) as patched_send, \
+             amock.patch("opsdroid.events.Image.get_file_bytes") as patched_bytes:
+
+            patched_bytes.return_value = asyncio.Future()
+            patched_bytes.return_value.set_result(gif_bytes)
+
+            patched_send.return_value = asyncio.Future()
+            patched_send.return_value.set_result(None)
+            await self.connector.send(image)
+
+            patched_send.assert_called_once_with(
+                '#test:localhost', 'mxc://aurl', 'opsdroid_upload', 'm.image',
+                {'w': 1, 'h': 1, 'mimetype': 'image/gif', 'size': 26})
+
+    async def test_respond_file(self):
+        file_event = File(file_bytes=b"aslkdjlaksdjlkajdlk")
+        with amock.patch(api_string.format("send_content")) as patched_send, \
+             amock.patch(api_string.format("media_upload")) as patched_upload:
+
+            patched_upload.return_value = asyncio.Future()
+            patched_upload.return_value.set_result({'content_uri': 'mxc://aurl'})
+
+            patched_send.return_value = asyncio.Future()
+            patched_send.return_value.set_result(None)
+            await self.connector.send(file_event)
+
+            patched_send.assert_called_once_with(
+                '#test:localhost', 'mxc://aurl', 'opsdroid_upload',
+                'm.file', {})
+
+
+class TestEventCreatorAsync(asynctest.TestCase):
+    @property
+    def message_json(self):
+        return {
+            "content": {
+                "body": "I just did it manually.",
+                "msgtype": "m.text"
+            },
+            "event_id": "$15573463541827394vczPd:matrix.org",
+            "origin_server_ts": 1557346354253,
+            "room_id": "!MeRdFpEonLoCwhoHeT:matrix.org",
+            "sender": "@neo:matrix.org",
+            "type": "m.room.message",
+            "unsigned": {
+                "age": 48926251
+            },
+            "user_id": "@nso:matrix.org",
+            "age": 48926251
+        }
+
+    @property
+    def file_json(self):
+        return {
+            "origin_server_ts": 1534013434328,
+            "sender": "@neo:matrix.org",
+            "event_id": "$1534013434516721kIgMV:matrix.org",
+            "content": {
+                "body": "stereo_reproject.py",
+                "info": {
+                    "mimetype": "text/x-python",
+                    "size": 1239
+                },
+                "msgtype": "m.file",
+                "url": "mxc://matrix.org/vtgAIrGtuYJQCXNKRGhVfSMX"
+            },
+            "room_id": "!MeRdFpEonLoCwhoHeT:matrix.org",
+            "type": "m.room.message",
+            "unsigned": {
+                "age": 23394532373
+            },
+            "user_id": "@neo:matrix.org",
+            "age": 23394532373
+        }
+
+    @property
+    def image_json(self):
+        return {
+            "content": {
+                "body": "index.png",
+                "info": {
+                    "h": 1149,
+                    "mimetype": "image/png",
+                    "size": 1949708,
+                    "thumbnail_info": {
+                        "h": 600,
+                        "mimetype": "image/png",
+                        "size": 568798,
+                        "w": 612
+                    },
+                    "thumbnail_url": "mxc://matrix.org/HjHqeJDDxcnOEGydCQlJZQwC",
+                    "w": 1172
+                },
+                "msgtype": "m.image",
+                "url": "mxc://matrix.org/iDHKYJSQZZrrhOxAkMBMOaeo"
+            },
+            "event_id": "$15548652221495790FYlHC:matrix.org",
+            "origin_server_ts": 1554865222742,
+            "room_id": "!MeRdFpEonLoCwhoHeT:matrix.org",
+            "sender": "@neo:matrix.org",
+            "type": "m.room.message",
+            "unsigned": {
+                "age": 2542608318
+            },
+            "user_id": "@neo:matrix.org",
+            "age": 2542608318
+        }
+
+    @property
+    def event_creator(self):
+        connector = amock.MagicMock()
+        patched_get_nick = amock.MagicMock()
+        patched_get_nick.return_value = asyncio.Future()
+        patched_get_nick.return_value.set_result("Rabbit Hole")
+        connector.get_nick = patched_get_nick
+
+        patched_get_download_url = mock.Mock()
+        patched_get_download_url.return_value = "mxc://aurl"
+        connector.connection.get_download_url = patched_get_download_url
+
+        return MatrixEventCreator(connector)
+
+    async def test_create_message(self):
+        event = await self.event_creator.create_event(self.message_json,
+                                                      "hello")
+        assert isinstance(event, Message)
+        assert event.text == "I just did it manually."
+        assert event.user == "Rabbit Hole"
+        assert event.target == "hello"
+        assert event.event_id == "$15573463541827394vczPd:matrix.org"
+        assert event.raw_event == self.message_json
+
+    async def test_create_file(self):
+        event = await self.event_creator.create_event(self.file_json,
+                                                      "hello")
+        assert isinstance(event, File)
+        assert event.url == "mxc://aurl"
+        assert event.user == "Rabbit Hole"
+        assert event.target == "hello"
+        assert event.event_id == "$1534013434516721kIgMV:matrix.org"
+        assert event.raw_event == self.file_json
+
+    async def test_create_image(self):
+        event = await self.event_creator.create_event(self.image_json,
+                                                      "hello")
+        assert isinstance(event, Image)
+        assert event.url == "mxc://aurl"
+        assert event.user == "Rabbit Hole"
+        assert event.target == "hello"
+        assert event.event_id == "$15548652221495790FYlHC:matrix.org"
+        assert event.raw_event == self.image_json
+
+    async def test_unsupported_type(self):
+        json = self.message_json
+        json['type'] = "wibble"
+        event = await self.event_creator.create_event(json,
+                                                      "hello")
+        assert event is None
+
+    async def test_unsupported_message_type(self):
+        json = self.message_json
+        json['content']['msgtype'] = "wibble"
+        event = await self.event_creator.create_event(json,
+                                                      "hello")
+        assert event is None

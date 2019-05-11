@@ -3,6 +3,7 @@
 import re
 import logging
 from concurrent.futures import CancelledError
+from urllib.parse import urlparse
 
 import aiohttp
 
@@ -10,9 +11,10 @@ from matrix_api_async.api_asyncio import AsyncHTTPAPI
 from matrix_client.errors import MatrixRequestError
 
 from opsdroid.connector import Connector, register_event
-from opsdroid.events import Message
+from opsdroid.events import Message, Image, File
 
 from .html_cleaner import clean
+from .create_events import MatrixEventCreator
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -42,6 +44,8 @@ class ConnectorMatrix(Connector):
         self.connection = None
         self.token = config.get("token", None)
         self.password = config.get("password", None)
+
+        self._event_creator = MatrixEventCreator(self)
 
     @property
     def filter_json(self):
@@ -124,15 +128,9 @@ class ConnectorMatrix(Connector):
             room = response['rooms']['join'].get(roomid, None)
             if room and 'timeline' in room:
                 for event in room['timeline']['events']:
-                    if event['content']['msgtype'] == 'm.text':
-                        if event['sender'] != self.mxid:
-                            return Message(
-                                event['content']['body'],
-                                await self._get_nick(roomid, event['sender']),
-                                roomid,
-                                self,
-                                event_id=event['event_id'],
-                                raw_event=event)
+                    if event['sender'] != self.mxid:
+                        return await self._event_creator.create_event(event,
+                                                                      roomid)
 
     async def listen(self):  # pragma: no cover
         """Listen for new messages from the chat service."""
@@ -140,11 +138,12 @@ class ConnectorMatrix(Connector):
             try:
                 response = await self.connection.sync(
                     self.connection.sync_token,
-                    timeout_ms=int(6 * 60 * 60 * 1e3),  # 6h in ms
+                    timeout_ms=int(5 * 60 * 1e3),  # 5m in ms
                     filter=self.filter_id)
                 _LOGGER.debug("matrix sync request returned")
                 message = await self._parse_sync_response(response)
-                await self.opsdroid.parse(message)
+                if message:
+                    await self.opsdroid.parse(message)
 
             except MatrixRequestError as mre:
                 # We can safely ignore timeout errors. The non-standard error
@@ -159,7 +158,7 @@ class ConnectorMatrix(Connector):
             except Exception:  # pylint: disable=W0703
                 _LOGGER.exception('Matrix Sync Error')
 
-    async def _get_nick(self, roomid, mxid):
+    async def get_nick(self, roomid, mxid):
         """
         Get nickname from user ID.
 
@@ -205,10 +204,10 @@ class ConnectorMatrix(Connector):
             "msgtype": msgtype,
             "format": "org.matrix.custom.html",
             "formatted_body": clean_html
-            }
+        }
 
     @register_event(Message)
-    async def send_message(self, message):
+    async def _send_message(self, message):
         """Send `message.text` back to the chat service."""
         if not message.target.startswith(("!", "#")):
             room_id = self.rooms[message.target]
@@ -232,6 +231,46 @@ class ConnectorMatrix(Connector):
                 room_id,
                 "m.room.message",
                 self._get_formatted_message_body(message.text))
+
+    async def _get_image_info(self, image):
+        width, height = await image.get_dimensions()
+        return {
+            "w": width,
+            "h": height,
+            "mimetype": await image.get_mimetype(),
+            "size": len(await image.get_file_bytes())
+        }
+
+    @register_event(File)
+    @register_event(Image)
+    async def _send_file(self, file_event):
+        mxc_url = None
+        if file_event.url:
+            url = urlparse(file_event.url)
+            if url.scheme == "mxc":
+                mxc_url = file_event.url
+                extra_info = {}
+
+        if not mxc_url:
+            mxc_url = await self.connection.media_upload(
+                await file_event.get_file_bytes(),
+                await file_event.get_mimetype())
+
+            mxc_url = mxc_url['content_uri']
+
+        if isinstance(file_event, Image):
+            extra_info = await self._get_image_info(file_event)
+            msg_type = "m.image"
+        else:
+            extra_info = {}
+            msg_type = "m.file"
+
+        name = file_event.name or "opsdroid_upload"
+        await self.connection.send_content(file_event.target,
+                                           mxc_url,
+                                           name,
+                                           msg_type,
+                                           extra_info)
 
     async def disconnect(self):
         """Close the matrix session."""
