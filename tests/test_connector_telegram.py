@@ -381,17 +381,17 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
         post_response = amock.Mock()
         post_response.status = 200
 
-        image = amock.Mock()
-        image.file_bytes.return_value.set_result(
-            (b"GIF89a\x01\x00\x01\x00\x00\xff\x00,"
-             b"\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00;"))
+        gif_bytes = (b"GIF89a\x01\x00\x01\x00\x00\xff\x00,"
+                     b"\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00;")
+
+        image = Image(file_bytes=gif_bytes)
         image.target = {'id': '123'}
 
         with amock.patch.object(self.connector.session, 'post') \
                 as patched_request:
 
             patched_request.return_value = asyncio.Future()
-            patched_request.return_value.set_result(None)
+            patched_request.return_value.set_result(post_response)
 
             await self.connector.send_image(image)
             self.assertTrue(patched_request.called)
