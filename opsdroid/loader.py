@@ -41,14 +41,32 @@ class Loader:
 
     @staticmethod
     def import_module_from_spec(module_spec):
-        """Import from a given module spec and return imported module."""
+        """Import from a given module spec and return imported module.
+
+        Args:
+            module_spec: ModuleSpec object containing name, loader, origin,
+                submodule_search_locations, cached, and parent
+
+        Returns:
+            Module: Module imported from spec
+
+        """
+
         module = importlib.util.module_from_spec(module_spec)
         module_spec.loader.exec_module(module)
         return module
 
     @staticmethod
     def import_module(config):
-        """Import module namespace as variable and return it."""
+        """Import module namespace as variable and return it.
+
+        Args:
+            config: dict of config information related to the module
+
+        Returns:
+            Module: Module imported from config
+
+        """
         # Try to import the module from various locations, return the first
         # successful import, or None if they all failed
         #
@@ -88,7 +106,12 @@ class Loader:
 
     @staticmethod
     def check_cache(config):
-        """Remove module if 'no-cache' set in config."""
+        """Remove module if 'no-cache' set in config.
+
+        Args:
+            config: dict of config information related to the module
+
+        """
         if "no-cache" in config \
                 and config["no-cache"]:
             _LOGGER.debug(_("'no-cache' set, removing %s"),
@@ -100,7 +123,15 @@ class Loader:
 
     @staticmethod
     def is_builtin_module(config):
-        """Check if a module is a builtin."""
+        """Check if a module is a builtin.
+
+         Args:
+            config: dict of config information related to the module
+
+        Returns:
+            bool: False if the module is not builtin
+
+        """
         try:
             return importlib.util.find_spec(
                 'opsdroid.{module_type}.{module_name}'.format(
@@ -113,7 +144,15 @@ class Loader:
 
     @staticmethod
     def build_module_import_path(config):
-        """Generate the module import path from name and type."""
+        """Generate the module import path from name and type.
+
+        Args:
+            config: dict of config information related to the module
+
+        Returns:
+            string: module import path
+
+        """
         if config["is_builtin"]:
             return "opsdroid" + "." + config["type"] + \
                 "." + config["name"].lower()
@@ -121,7 +160,16 @@ class Loader:
             "." + config["name"]
 
     def build_module_install_path(self, config):
-        """Generate the module install path from name and type."""
+        """Generate the module install path from name and type.
+
+        Args:
+            self: instance method
+            config: dict of config information related to the module
+
+        Returns:
+            string: module install directory
+
+        """
         return os.path.join(self.modules_directory,
                             config["type"],
                             config["name"])
