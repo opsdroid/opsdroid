@@ -176,7 +176,14 @@ class Loader:
 
     @staticmethod
     def git_clone(git_url, install_path, branch):
-        """Clone a git repo to a location and wait for finish."""
+        """Clone a git repo to a location and wait for finish.
+
+        Args:
+            git_url: The url to the git repository
+            install_path: Location where the git repository will be cloned
+            branch: The branch to be cloned
+
+        """
         process = subprocess.Popen(["git", "clone", "-b", branch,
                                     git_url, install_path], shell=False,
                                    stdout=subprocess.PIPE,
@@ -185,7 +192,12 @@ class Loader:
 
     @staticmethod
     def git_pull(repository_path):
-        """Pull the current branch of git repo forcing fast forward."""
+        """Pull the current branch of git repo forcing fast forward.
+
+        Args:
+            repository_path: Path to the module's local repository
+
+        """
         process = subprocess.Popen(["git", "-C", repository_path,
                                     "pull", "--ff-only"],
                                    shell=False,
@@ -195,7 +207,16 @@ class Loader:
 
     @staticmethod
     def pip_install_deps(requirements_path):
-        """Pip install a requirements.txt file and wait for finish."""
+        """Pip install a requirements.txt file and wait for finish.
+
+        Args:
+            requirements_path: string holding the path to the requirements.txt
+                file located in the module's local repository
+
+        Returns:
+            bool: True if the requirements.txt installs successfully
+
+        """
         process = None
         command = ["pip", "install",
                    "--target={}".format(DEFAULT_MODULE_DEPS_PATH),
@@ -246,7 +267,15 @@ class Loader:
 
     @staticmethod
     def create_default_config(config_path):
-        """Create a default config file based on the included example."""
+        """Create a default config file based on the included example.
+
+        Args:
+            config_path: String containing the path to configuration.yaml default install location
+
+        Returns:
+            str: path to configuration.yaml default install location
+
+        """
         _LOGGER.info("Creating %s.", config_path)
         config_dir, _ = os.path.split(config_path)
         if not os.path.isdir(config_dir):
