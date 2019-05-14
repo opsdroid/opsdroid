@@ -285,7 +285,15 @@ class Loader:
 
     @classmethod
     def load_config_file(cls, config_paths):
-        """Load a yaml config file from path."""
+        """Load a yaml config file from path.
+
+        Args:
+            config_paths: List of paths to configuration.yaml files
+
+        Returns:
+            dict: Dict containing config fields
+
+        """
         config_path = ""
         for possible_path in config_paths:
             if not os.path.isfile(possible_path):
@@ -335,7 +343,13 @@ class Loader:
             sys.exit(1)
 
     def setup_modules_directory(self, config):
-        """Create and configure the modules directory."""
+        """Create and configure the modules directory.
+
+        Args:
+            self: instance method
+            config: dict of fields from configuration.yaml
+
+        """
         module_path = config.get("module-path", DEFAULT_MODULES_PATH)
         sys.path.append(module_path)
 
@@ -349,7 +363,16 @@ class Loader:
             os.makedirs(self.modules_directory)
 
     def load_modules_from_config(self, config):
-        """Load all module types based on config."""
+        """Load all module types based on config.
+
+        Args:
+            self: instance method
+            config: dict of fields from configuration.yaml
+
+        Returns:
+            dict: containing connector, database, and skills fields from configuration.yaml
+
+        """
         _LOGGER.debug(_("Loading modules from config..."))
 
         self.setup_modules_directory(config)
@@ -382,7 +405,17 @@ class Loader:
                 "skills": skills}
 
     def _load_modules(self, modules_type, modules):
-        """Install and load modules."""
+        """Install and load modules.
+
+        Args:
+            self: instance method
+            modules_type: str with the type of module being loaded
+            modules: list with module attributes
+
+        Returns:
+            list: modules and their config information
+
+        """
         _LOGGER.debug(_("Loading %s modules..."), modules_type)
         loaded_modules = []
 
@@ -453,11 +486,16 @@ class Loader:
             else:
                 _LOGGER.error(_(
                     "Module %s failed to import."), config["name"])
-
         return loaded_modules
 
     def _install_module(self, config):
-        """Install a module."""
+        """Install a module.
+
+        Args:
+            self: instance method
+            config: dict of module config fields
+
+        """
         _LOGGER.debug(_("Installing %s..."), config["name"])
 
         if self._is_local_module(config):
@@ -476,7 +514,13 @@ class Loader:
         self._install_module_dependencies(config)
 
     def _update_module(self, config):
-        """Update a module."""
+        """Update a module.
+
+        Args:
+            self: instance method
+            config: dict of module config fields
+
+        """
         _LOGGER.debug(_("Updating %s..."), config["name"])
 
         if self._is_local_module(config):
@@ -516,7 +560,13 @@ class Loader:
         return None
 
     def _install_git_module(self, config):
-        """Install a module from a git repository."""
+        """Install a module from a git repository.
+
+        Args:
+            self: instance method
+            config: dict of module config fields
+
+        """
         if config is not None and "repo" in config:
             git_url = config["repo"]
         else:
@@ -541,7 +591,12 @@ class Loader:
 
     @staticmethod
     def _install_local_module(config):
-        """Install a module from a local path."""
+        """Install a module from a local path.
+
+        Args:
+            config: dict of module config fields
+
+        """
         installed = False
         config["path"] = os.path.expanduser(config["path"])
 
