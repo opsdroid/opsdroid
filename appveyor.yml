@@ -12,7 +12,12 @@ environment:
     - PYTHON: "C:\\Python37-x64"
       TOXENV: "py37"
 
+matrix:
+  allow_failures:
+    - TOXENV: "py35"
+
 install:
+  - "%PYTHON%\\python.exe -m pip install --upgrade pip setuptools"
   - "%PYTHON%\\python.exe -m pip install tox"
 
 build: off
