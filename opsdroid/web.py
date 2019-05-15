@@ -64,7 +64,7 @@ class Web:
         try:
             host = self.config["host"]
         except KeyError:
-            host = '127.0.0.1'
+            host = '0.0.0.0'
         return host
 
     @property
