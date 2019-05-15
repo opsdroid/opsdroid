@@ -96,10 +96,10 @@ class RocketChat(Connector):
         """
         if response['messages']:
             message = Message(
+                response['messages'][0]['msg'],
                 response['messages'][0]['u']['username'],
                 response['messages'][0]['rid'],
-                self,
-                response['messages'][0]['msg'])
+                self)
             _LOGGER.debug("Received message from Rocket.Chat %s",
                           response['messages'][0]['msg'])
 
