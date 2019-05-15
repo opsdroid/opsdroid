@@ -1,7 +1,6 @@
 """A helper function for parsing and executing parse_format skills."""
 
 import logging
-import copy
 
 from parse import parse, search
 

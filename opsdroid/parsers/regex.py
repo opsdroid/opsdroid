@@ -2,7 +2,6 @@
 
 import logging
 import re
-import copy
 
 _LOGGER = logging.getLogger(__name__)
 
