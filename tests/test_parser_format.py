@@ -35,6 +35,9 @@ class TestParserParseFormat(asynctest.TestCase):
             message = Message("Hello", "user", "default", mock_connector)
             skills = await parse_format(opsdroid, opsdroid.skills, message)
             self.assertEqual(mock_skill, skills[0]["skill"])
+            assert skills[0]["message"] is message
+            # test that the original object has had a new attribute added
+            assert hasattr(message, "parse_result")
 
     async def test_parse_format_search_condition(self):
         with OpsDroid() as opsdroid:
