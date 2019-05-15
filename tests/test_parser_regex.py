@@ -37,6 +37,7 @@ class TestParserRegex(asynctest.TestCase):
 
             skills = await parse_regex(opsdroid, opsdroid.skills, message)
             self.assertEqual(mock_skill, skills[0]["skill"])
+            assert skills[0]["message"] is message
 
     async def test_parse_regex_priority_low(self):
         with OpsDroid() as opsdroid:
