@@ -3,9 +3,8 @@ import asyncio
 import logging
 import aiohttp
 
-
 from opsdroid.connector import Connector, register_event
-from opsdroid.events import Message
+from opsdroid.events import Message, Image
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -260,6 +259,31 @@ class ConnectorTelegram(Connector):
             _LOGGER.debug("Successfully responded")
         else:
             _LOGGER.error("Unable to respond.")
+
+    @register_event(Image)
+    async def send_image(self, file_event):
+        """Send Image to Telegram.
+
+        Gets the chat id from the channel and then
+        sends the bytes of the image as multipart/form-data.
+
+        """
+        data = aiohttp.FormData()
+        data.add_field('chat_id',
+                       str(file_event.target["id"]),
+                       content_type="multipart/form-data")
+        data.add_field("photo",
+                       await file_event.get_file_bytes(),
+                       content_type="multipart/form-data")
+
+        resp = await self.session.post(self.build_url("sendPhoto"),
+                                       data=data)
+        if resp.status == 200:
+            _LOGGER.debug("Sent %s image "
+                          "successfully", file_event.name)
+        else:
+            _LOGGER.debug("Unable to send image - "
+                          "Status Code %s", resp.status)
 
     async def disconnect(self):
         """Disconnect from Telegram.
