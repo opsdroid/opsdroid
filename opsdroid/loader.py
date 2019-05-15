@@ -269,8 +269,8 @@ class Loader:
         """Create a default config file based on the included example.
 
         Args:
-            config_path: String containing the path to 
-                configuration.yaml default install location
+            config_path: String containing the path to configuration.yaml 
+                default install location
 
         Returns:
             str: path to configuration.yaml default install location
