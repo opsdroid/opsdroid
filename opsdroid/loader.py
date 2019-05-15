@@ -51,7 +51,6 @@ class Loader:
             Module: Module imported from spec
 
         """
-
         module = importlib.util.module_from_spec(module_spec)
         module_spec.loader.exec_module(module)
         return module
@@ -270,7 +269,8 @@ class Loader:
         """Create a default config file based on the included example.
 
         Args:
-            config_path: String containing the path to configuration.yaml default install location
+            config_path: String containing the path to 
+                configuration.yaml default install location
 
         Returns:
             str: path to configuration.yaml default install location
@@ -370,7 +370,8 @@ class Loader:
             config: dict of fields from configuration.yaml
 
         Returns:
-            dict: containing connector, database, and skills fields from configuration.yaml
+            dict: containing connector, database, and skills 
+                fields from configuration.yaml
 
         """
         _LOGGER.debug(_("Loading modules from config..."))
