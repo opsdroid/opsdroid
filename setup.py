@@ -55,6 +55,7 @@ setup(
     author_email='jacob@tom.linson.uk',
     description='An open source ChatOps bot framework.',
     long_description=README,
+    long_description_content_type='text/markdown',
     packages=PACKAGES,
     include_package_data=True,
     zip_safe=False,
