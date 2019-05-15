@@ -26,7 +26,7 @@ class CrontabSkill(Skill):
     async def mycrontabskill(self, message):
 
         # Get the default connector
-        connector = opsdroid.default_connector
+        connector = self.opsdroid.default_connector
 
         # Get the default room for that connector
         room = connector.default_target
