@@ -14,7 +14,7 @@ async def parse_crontab(opsdroid):
     """Parse all crontab skills against the current time."""
     while opsdroid.eventloop.is_running():
         await asyncio.sleep(60 - arrow.now().time().second)
-        _LOGGER.debug(_("Running crontab skills at " + time.asctime()))
+        _LOGGER.debug(_("Running crontab skills at %s "), time.asctime())
         for skill in opsdroid.skills:
             for matcher in skill.matchers:
                 if "crontab" in matcher:
