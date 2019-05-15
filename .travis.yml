@@ -33,7 +33,7 @@ deploy:
   on:
     tags: true
     repo: opsdroid/opsdroid
-    condition: "$TOXENV = py35"
+    condition: "$TOXENV = py36"
 notifications:
   webhooks:
     urls:
