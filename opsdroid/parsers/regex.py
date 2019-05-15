@@ -39,13 +39,12 @@ async def parse_regex(opsdroid, skills, message):
                 opts = matcher["regex"]
                 regex = await match_regex(message.text, opts)
                 if regex:
-                    new_message = copy.copy(message)
-                    new_message.regex = regex
+                    message.regex = regex
                     matched_skills.append({
                         "score": await calculate_score(
                             opts["expression"], opts["score_factor"]),
                         "skill": skill,
                         "config": skill.config,
-                        "message": new_message
+                        "message": message
                     })
     return matched_skills

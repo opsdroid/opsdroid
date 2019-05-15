@@ -31,13 +31,12 @@ async def parse_format(opsdroid, skills, message):
                 opts = matcher["parse_format"]
                 result = await match_format(message.text, opts)
                 if result:
-                    new_message = copy.copy(message)
-                    new_message.parse_result = result
+                    message.parse_result = result
                     matched_skills.append({
                         "score": await calculate_score(
                             opts["expression"], opts["score_factor"]),
                         "skill": skill,
                         "config": skill.config,
-                        "message": new_message
+                        "message": message
                     })
     return matched_skills
