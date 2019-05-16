@@ -1,6 +1,6 @@
 # REST API
 
-There is a RESTful API for opsdroid which by default is only accessible to `localhost` on port `8080`. See the [configuration reference](configuration-reference#web) for config options.
+There is a RESTful API for opsdroid accessible on port `8080`. See the [configuration reference](configuration-reference#web) for config options.
 
 ## Methods
 

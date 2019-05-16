@@ -41,14 +41,31 @@ class Loader:
 
     @staticmethod
     def import_module_from_spec(module_spec):
-        """Import from a given module spec and return imported module."""
+        """Import from a given module spec and return imported module.
+
+        Args:
+            module_spec: ModuleSpec object containing name, loader, origin,
+                submodule_search_locations, cached, and parent
+
+        Returns:
+            Module: Module imported from spec
+
+        """
         module = importlib.util.module_from_spec(module_spec)
         module_spec.loader.exec_module(module)
         return module
 
     @staticmethod
     def import_module(config):
-        """Import module namespace as variable and return it."""
+        """Import module namespace as variable and return it.
+
+        Args:
+            config: dict of config information related to the module
+
+        Returns:
+            Module: Module imported from config
+
+        """
         # Try to import the module from various locations, return the first
         # successful import, or None if they all failed
         #
@@ -88,7 +105,12 @@ class Loader:
 
     @staticmethod
     def check_cache(config):
-        """Remove module if 'no-cache' set in config."""
+        """Remove module if 'no-cache' set in config.
+
+        Args:
+            config: dict of config information related to the module
+
+        """
         if "no-cache" in config \
                 and config["no-cache"]:
             _LOGGER.debug(_("'no-cache' set, removing %s"),
@@ -100,7 +122,15 @@ class Loader:
 
     @staticmethod
     def is_builtin_module(config):
-        """Check if a module is a builtin."""
+        """Check if a module is a builtin.
+
+         Args:
+            config: dict of config information related to the module
+
+        Returns:
+            bool: False if the module is not builtin
+
+        """
         try:
             return importlib.util.find_spec(
                 'opsdroid.{module_type}.{module_name}'.format(
@@ -113,7 +143,15 @@ class Loader:
 
     @staticmethod
     def build_module_import_path(config):
-        """Generate the module import path from name and type."""
+        """Generate the module import path from name and type.
+
+        Args:
+            config: dict of config information related to the module
+
+        Returns:
+            string: module import path
+
+        """
         if config["is_builtin"]:
             return "opsdroid" + "." + config["type"] + \
                 "." + config["name"].lower()
@@ -121,14 +159,30 @@ class Loader:
             "." + config["name"]
 
     def build_module_install_path(self, config):
-        """Generate the module install path from name and type."""
+        """Generate the module install path from name and type.
+
+        Args:
+            self: instance method
+            config: dict of config information related to the module
+
+        Returns:
+            string: module install directory
+
+        """
         return os.path.join(self.modules_directory,
                             config["type"],
                             config["name"])
 
     @staticmethod
     def git_clone(git_url, install_path, branch):
-        """Clone a git repo to a location and wait for finish."""
+        """Clone a git repo to a location and wait for finish.
+
+        Args:
+            git_url: The url to the git repository
+            install_path: Location where the git repository will be cloned
+            branch: The branch to be cloned
+
+        """
         process = subprocess.Popen(["git", "clone", "-b", branch,
                                     git_url, install_path], shell=False,
                                    stdout=subprocess.PIPE,
@@ -137,7 +191,12 @@ class Loader:
 
     @staticmethod
     def git_pull(repository_path):
-        """Pull the current branch of git repo forcing fast forward."""
+        """Pull the current branch of git repo forcing fast forward.
+
+        Args:
+            repository_path: Path to the module's local repository
+
+        """
         process = subprocess.Popen(["git", "-C", repository_path,
                                     "pull", "--ff-only"],
                                    shell=False,
@@ -147,7 +206,16 @@ class Loader:
 
     @staticmethod
     def pip_install_deps(requirements_path):
-        """Pip install a requirements.txt file and wait for finish."""
+        """Pip install a requirements.txt file and wait for finish.
+
+        Args:
+            requirements_path: string holding the path to the requirements.txt
+                file located in the module's local repository
+
+        Returns:
+            bool: True if the requirements.txt installs successfully
+
+        """
         process = None
         command = ["pip", "install",
                    "--target={}".format(DEFAULT_MODULE_DEPS_PATH),
@@ -198,7 +266,16 @@ class Loader:
 
     @staticmethod
     def create_default_config(config_path):
-        """Create a default config file based on the included example."""
+        """Create a default config file based on the included example.
+
+        Args:
+            config_path: String containing the path to configuration.yaml
+                default install location
+
+        Returns:
+            str: path to configuration.yaml default install location
+
+        """
         _LOGGER.info("Creating %s.", config_path)
         config_dir, _ = os.path.split(config_path)
         if not os.path.isdir(config_dir):
@@ -208,7 +285,15 @@ class Loader:
 
     @classmethod
     def load_config_file(cls, config_paths):
-        """Load a yaml config file from path."""
+        """Load a yaml config file from path.
+
+        Args:
+            config_paths: List of paths to configuration.yaml files
+
+        Returns:
+            dict: Dict containing config fields
+
+        """
         config_path = ""
         for possible_path in config_paths:
             if not os.path.isfile(possible_path):
@@ -258,7 +343,13 @@ class Loader:
             sys.exit(1)
 
     def setup_modules_directory(self, config):
-        """Create and configure the modules directory."""
+        """Create and configure the modules directory.
+
+        Args:
+            self: instance method
+            config: dict of fields from configuration.yaml
+
+        """
         module_path = config.get("module-path", DEFAULT_MODULES_PATH)
         sys.path.append(module_path)
 
@@ -272,7 +363,17 @@ class Loader:
             os.makedirs(self.modules_directory)
 
     def load_modules_from_config(self, config):
-        """Load all module types based on config."""
+        """Load all module types based on config.
+
+        Args:
+            self: instance method
+            config: dict of fields from configuration.yaml
+
+        Returns:
+            dict: containing connector, database, and skills
+                fields from configuration.yaml
+
+        """
         _LOGGER.debug(_("Loading modules from config..."))
 
         self.setup_modules_directory(config)
@@ -305,7 +406,17 @@ class Loader:
                 "skills": skills}
 
     def _load_modules(self, modules_type, modules):
-        """Install and load modules."""
+        """Install and load modules.
+
+        Args:
+            self: instance method
+            modules_type: str with the type of module being loaded
+            modules: list with module attributes
+
+        Returns:
+            list: modules and their config information
+
+        """
         _LOGGER.debug(_("Loading %s modules..."), modules_type)
         loaded_modules = []
 
@@ -376,11 +487,16 @@ class Loader:
             else:
                 _LOGGER.error(_(
                     "Module %s failed to import."), config["name"])
-
         return loaded_modules
 
     def _install_module(self, config):
-        """Install a module."""
+        """Install a module.
+
+        Args:
+            self: instance method
+            config: dict of module config fields
+
+        """
         _LOGGER.debug(_("Installing %s..."), config["name"])
 
         if self._is_local_module(config):
@@ -399,7 +515,13 @@ class Loader:
         self._install_module_dependencies(config)
 
     def _update_module(self, config):
-        """Update a module."""
+        """Update a module.
+
+        Args:
+            self: instance method
+            config: dict of module config fields
+
+        """
         _LOGGER.debug(_("Updating %s..."), config["name"])
 
         if self._is_local_module(config):
@@ -439,7 +561,13 @@ class Loader:
         return None
 
     def _install_git_module(self, config):
-        """Install a module from a git repository."""
+        """Install a module from a git repository.
+
+        Args:
+            self: instance method
+            config: dict of module config fields
+
+        """
         if config is not None and "repo" in config:
             git_url = config["repo"]
         else:
@@ -464,7 +592,12 @@ class Loader:
 
     @staticmethod
     def _install_local_module(config):
-        """Install a module from a local path."""
+        """Install a module from a local path.
+
+        Args:
+            config: dict of module config fields
+
+        """
         installed = False
         config["path"] = os.path.expanduser(config["path"])
 
