@@ -78,7 +78,7 @@ def configure_logging(config):
         file_handler.setFormatter(formatter)
         rootlogger.addHandler(file_handler)
     _LOGGER.info("="*40)
-    _LOGGER.info(_("Started application"))
+    _LOGGER.info(_("Started opsdroid %s"), __version__)
 
 
 def get_logging_level(logging_level):

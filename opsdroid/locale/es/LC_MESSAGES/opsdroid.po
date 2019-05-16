@@ -19,7 +19,7 @@ msgstr ""
 "Generated-By: Babel 2.5.3\n"
 
 #: opsdroid/__main__.py:71
-msgid "Started application"
+msgid "Started opsdroid %s"
 msgstr "Aplicación lanzada"
 
 #: opsdroid/__main__.py:99

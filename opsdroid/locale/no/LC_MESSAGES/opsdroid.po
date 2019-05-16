@@ -20,7 +20,7 @@ msgstr ""
 "X-Generator: Poedit 2.0.6\n"
 
 #: opsdroid/__main__.py:71
-msgid "Started application"
+msgid "Started opsdroid %s"
 msgstr "Applikasjon startet"
 
 #: opsdroid/__main__.py:99
