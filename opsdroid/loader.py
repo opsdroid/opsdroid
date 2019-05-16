@@ -370,7 +370,7 @@ class Loader:
             config: dict of fields from configuration.yaml
 
         Returns:
-            dict: containing connector, database, and skills 
+            dict: containing connector, database, and skills
                 fields from configuration.yaml
 
         """
