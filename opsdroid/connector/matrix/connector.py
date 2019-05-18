@@ -285,3 +285,10 @@ class ConnectorMatrix(Connector):
     async def _send_room_creation(self, creation_event):
         return await self.connection.create_room(is_public=creation_event.is_public)
 
+    @register_event(SetRoomAlias)
+    async def _send_room_alias_set(self, alias_event):
+        pass
+
+    @register_event(JoinRoom)
+    async def _send_join_room(self, join_event):
+        return await self.connection.join_room(join_event.room_id)
