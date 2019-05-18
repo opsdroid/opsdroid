@@ -296,3 +296,27 @@ class RoomCreation(Event):
     def __init__(self, public=True, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.is_public = public
+
+
+class SetRoomAlias(Event):
+    def __init__(self, room_alias, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.room_alias = room_alias
+
+
+class SetRoomTopic(Event):
+    def __init__(self, room_topic, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.room_topic = room_topic
+
+
+class SetRoomImage(Event):
+    def __init__(self, room_image, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.room_image = room_image
+
+
+class JoinRoom(Event):
+    def __init__(self, room_id, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.room_id = room_id
