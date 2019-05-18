@@ -11,7 +11,7 @@ from matrix_api_async.api_asyncio import AsyncHTTPAPI
 from matrix_client.errors import MatrixRequestError
 
 from opsdroid.connector import Connector, register_event
-from opsdroid.events import Message, Image, File
+from opsdroid.events import Message, Image, File, RoomCreation, SetRoomAlias, JoinRoom
 
 from .html_cleaner import clean
 from .create_events import MatrixEventCreator
@@ -280,3 +280,15 @@ class ConnectorMatrix(Connector):
                     return connroom
 
         return room
+
+    @register_event(RoomCreation)
+    async def _send_room_creation(self, creation_event):
+        return await self.connection.create_room(is_public=creation_event.is_public)
+
+    @register_event(SetRoomAlias)
+    async def _send_room_alias_set(self, alias_event):
+        pass
+
+    @register_event(JoinRoom)
+    async def _send_join_room(self, join_event):
+        return await self.connection.join_room(join_event.room_id)

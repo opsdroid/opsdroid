@@ -97,7 +97,7 @@ class Event(metaclass=EventMetaClass):
         event.connector = event.connector or self.connector
         event.linked_event = event.linked_event or self
 
-        await opsdroid.send(event)
+        result = await opsdroid.send(event)
 
         if not self.responded_to:
             now = datetime.now()
@@ -107,6 +107,8 @@ class Event(metaclass=EventMetaClass):
                 opsdroid.stats["total_response_time"] + \
                 (now - self.created).total_seconds()
             self.responded_to = True
+
+        return result
 
 
 class Message(Event):
@@ -286,3 +288,35 @@ class Image(File):
         """Return the image dimensions `(w,h)`."""
         fbytes = await self.get_file_bytes()
         return get_image_size_from_bytesio(io.BytesIO(fbytes), len(fbytes))
+
+
+class RoomCreation(Event):
+    """Event class to represent the creation of a new room."""
+
+    def __init__(self, public=True, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.is_public = public
+
+
+class SetRoomAlias(Event):
+    def __init__(self, room_alias, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.room_alias = room_alias
+
+
+class SetRoomTopic(Event):
+    def __init__(self, room_topic, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.room_topic = room_topic
+
+
+class SetRoomImage(Event):
+    def __init__(self, room_image, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.room_image = room_image
+
+
+class JoinRoom(Event):
+    def __init__(self, room_id, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.room_id = room_id
