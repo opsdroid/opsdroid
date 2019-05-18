@@ -11,7 +11,7 @@ from aioslacker import Slacker
 from emoji import demojize
 
 from opsdroid.connector import Connector, register_event
-from opsdroid.events import Message, Reaction
+from opsdroid.events import Message, Reaction, RoomCreation
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -193,3 +193,9 @@ class ConnectorSlack(Connector):
             message = message.replace("<@{userid}>".format(userid=userid),
                                       user_info["name"])
         return message
+
+    @register_event(RoomCreation)
+    async def send_room_creation(self, creation_event):
+        return await self.slacker.channels.create(self.token,
+                                                  creation_event.room_name,
+                                                  validate='true')
