@@ -1,42 +1,58 @@
 
+import logging
+import aiohttp
+
+
+
+
 
 # Import opsdroid dependencies
 from opsdroid.connector import Connector
 from opsdroid.events import Message
 
+_LOGGER = logging.getLogger(__name__)
 
-class MyConnector(Connector):
 
-  def __init__(self, config):
-    # Init the config for the connector
-    self.name = "" # The name of your connector
-    self.config = config # The config dictionary to be accessed later
-    self.default_room = "" # The default room for messages to go
+class ConnectorGitter(Connector):
 
-  async def connect(self, opsdroid):
+  def __init__(self, config, opsdroid=None):
+    """Create the connector."""
+    super().__init__(config, opsdroid=opsdroid)
+    _LOGGER.debug("Starting Gitter connector")
+    self.name = "gitter"
+    self.accepting_connections = True
+    self.session = None
+    self.response = None
+    self.bot_name = self.config.get("bot-name", 'opsdroid')
+
+
+  async def connect(self):
+
     # Create connection object with chat library
-    self.connection = await ""
+    _LOGGER.debug("Connecting with gitter stream")
+    self.session = aiohttp.ClientSession()
+    self.response = await self.session.get("https://stream.gitter.im/v1/rooms/5a572a4dd73408ce4f87910d/chatMessages?access_token=d404d5500ace6a0ad7b2c0cf9cfc586c80529e30")
+    # self.response = yield aiohttp.request('get',"https://stream.gitter.im/v1/rooms/5a572a4dd73408ce4f87910d/chatMessages?access_token=d404d5500ace6a0ad7b2c0cf9cfc586c80529e30")
 
-  async def listen(self, opsdroid):
+  async def read_response(self):
+    _LOGGER.debug("Connecting with gitter stream")
+
+
+
+  async def listen(self):
+    _LOGGER.debug("Connecting with gitter stream")
+    async for line in self.response.content:
+      print(line)
+
     # Listen for new messages from the chat service
-    while True:
-      # Get raw message from chat
-      raw_message = await ""
 
-      # Convert to opsdroid Message object
-      #
-      # Message objects take a pointer to the connector to
-      # allow the skills to call the respond method
-      message = Message(raw_message.text, raw_message.user,
-                        raw_message.room, self)
 
-      # Parse the message with opsdroid
-      await opsdroid.parse(message)
+
 
   async def respond(self, message):
     # Send message.text back to the chat service
     await ""
 
-  async def disconnect(self, opsdroid):
+  async def disconnect(self):
     # Disconnect from the chat service
     await ""
