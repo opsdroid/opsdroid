@@ -286,3 +286,11 @@ class Image(File):
         """Return the image dimensions `(w,h)`."""
         fbytes = await self.get_file_bytes()
         return get_image_size_from_bytesio(io.BytesIO(fbytes), len(fbytes))
+
+
+class RoomCreation(Event):
+    """Event class to represent the creation of a new room."""
+
+    def __init__(self, public=True, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.is_public = public
