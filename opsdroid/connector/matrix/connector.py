@@ -284,9 +284,13 @@ class ConnectorMatrix(Connector):
 
     @register_event(RoomCreation)
     async def _send_room_creation(self, creation_event):
+        params = creation_event.room_params
+        params = params.get('matrix') or params
         return await self.connection.create_room(
-            alias=creation_event.room_name,
-            is_public=creation_event.is_public)
+            params.get('alias'),
+            params.get('name'),
+            params.get('is_public'),
+            params.get('federate'))
 
     @register_event(SetRoomAlias)
     async def _send_room_alias_set(self, alias_event):

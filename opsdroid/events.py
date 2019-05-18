@@ -293,10 +293,9 @@ class Image(File):
 class RoomCreation(Event):
     """Event class to represent the creation of a new room."""
 
-    def __init__(self, name=None, public=True, *args, **kwargs):
+    def __init__(self, params=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.room_name = name
-        self.is_public = public
+        self.room_params = params
 
 
 class SetRoomAlias(Event):
