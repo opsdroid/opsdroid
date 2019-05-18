@@ -97,7 +97,7 @@ class Event(metaclass=EventMetaClass):
         event.connector = event.connector or self.connector
         event.linked_event = event.linked_event or self
 
-        await opsdroid.send(event)
+        result = await opsdroid.send(event)
 
         if not self.responded_to:
             now = datetime.now()
@@ -107,6 +107,8 @@ class Event(metaclass=EventMetaClass):
                 opsdroid.stats["total_response_time"] + \
                 (now - self.created).total_seconds()
             self.responded_to = True
+
+        return result
 
 
 class Message(Event):
