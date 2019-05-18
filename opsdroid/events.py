@@ -317,6 +317,15 @@ class SetRoomImage(Event):
 
 
 class JoinRoom(Event):
+    """Event class to tell opsdroid to join a room"""
     def __init__(self, room_id, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.room_id = room_id
+
+
+class InviteUser(Event):
+    """Event class to invite or add a specific user to a room"""
+    def __init__(self, room_id, user_id, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.room_id = room_id
+        self.invited_user = user_id
