@@ -30,6 +30,7 @@ class ConnectorSlack(Connector):
         self.token = config["api-token"]
         self.timeout = config.get("connect-timeout", 10)
         self.slacker = Slacker(token=self.token, timeout=self.timeout)
+        self.has_files_access = None
         self.websocket = None
         self.bot_name = config.get("bot-name", 'opsdroid')
         self.known_users = {}
@@ -45,6 +46,8 @@ class ConnectorSlack(Connector):
         try:
             connection = await self.slacker.rtm.start()
             self.websocket = await websockets.connect(connection.body['url'])
+
+            self.has_files_access = await self.check_for_files_access()
 
             _LOGGER.debug("Connected as %s", self.bot_name)
             _LOGGER.debug("Using icon %s", self.icon_emoji)
@@ -222,3 +225,11 @@ class ConnectorSlack(Connector):
             message = message.replace("<@{userid}>".format(userid=userid),
                                       user_info["name"])
         return message
+
+    async def check_for_files_access(self):
+        """Check whether bot token has access to Slack files."""
+        try:
+             await self.slacker.files.list()
+        except slacker.Error:
+            return False
+        return True
