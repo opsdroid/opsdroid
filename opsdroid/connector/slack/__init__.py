@@ -229,7 +229,8 @@ class ConnectorSlack(Connector):
     async def check_for_files_access(self):
         """Check whether bot token has access to Slack files."""
         try:
-             await self.slacker.files.list()
-        except slacker.Error:
+            await self.slacker.files.list()
+        except slacker.Error as error:
+            _LOGGER.debug(error)
             return False
         return True
