@@ -70,6 +70,13 @@ class TestParserParseFormat(asynctest.TestCase):
             skills = await parse_format(opsdroid, opsdroid.skills, message)
             self.assertEqual(mock_skill, skills[0]["skill"])
 
-            parse_result = skills[0]["message"].parse_result
-            self.assertEqual(parse_result['text'], 'hello')
-            self.assertEqual(parse_result['num'], 42)
+            parsed_message = skills[0]["message"]
+            self.assertEqual(parsed_message.parse_result['text'], 'hello')
+            self.assertEqual(parsed_message.parse_result['num'], 42)
+
+            self.assertEqual(len(parsed_message.entities.keys()), 2)
+            self.assertTrue('text' in parsed_message.entities.keys())
+            self.assertEqual(parsed_message.entities['text']['value'], 'hello')
+
+
+

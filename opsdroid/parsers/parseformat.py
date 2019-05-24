@@ -5,6 +5,7 @@ import logging
 from parse import parse, search
 
 from opsdroid.parsers.regex import calculate_score
+from opsdroid.const import REGEX_ENTITY_CONFIDENCE
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -31,6 +32,11 @@ async def parse_format(opsdroid, skills, message):
                 result = await match_format(message.text, opts)
                 if result:
                     message.parse_result = result
+                    _LOGGER.debug(result.__dict__)
+                    for group, value in result.named.items():
+                        await message.update_entity(
+                            group, value, REGEX_ENTITY_CONFIDENCE
+                        )
                     matched_skills.append({
                         "score": await calculate_score(
                             opts["expression"], opts["score_factor"]),
