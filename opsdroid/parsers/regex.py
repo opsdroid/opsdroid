@@ -3,6 +3,8 @@
 import logging
 import re
 
+from opsdroid.const import REGEX_ENTITY_CONFIDENCE
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -39,6 +41,10 @@ async def parse_regex(opsdroid, skills, message):
                 regex = await match_regex(message.text, opts)
                 if regex:
                     message.regex = regex
+                    for regroup, value in regex.groupdict().items():
+                        await message.update_entity(
+                            regroup, value, REGEX_ENTITY_CONFIDENCE
+                        )
                     matched_skills.append({
                         "score": await calculate_score(
                             opts["expression"], opts["score_factor"]),
