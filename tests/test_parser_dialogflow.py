@@ -41,6 +41,7 @@ class TestParserDialogflow(asynctest.TestCase):
         result.json.return_value = {
                 "result": {
                     "action": "myaction",
+                    "parameters": {},
                     "score": 0.7
                 },
                 "status": {
@@ -74,6 +75,7 @@ class TestParserDialogflow(asynctest.TestCase):
                 mocked_call_dialogflow.return_value = {
                         "result": {
                             "action": "myaction",
+                            "parameters": {},
                             "score": 0.7
                         },
                         "status": {
@@ -84,6 +86,66 @@ class TestParserDialogflow(asynctest.TestCase):
                 skills = await dialogflow.parse_dialogflow(
                     opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
                 self.assertEqual(mock_skill, skills[0]["skill"])
+
+    async def test_parse_dialogflow_entities(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.config['parsers'] = [
+                    {'name': 'dialogflow', 'access-token': "test"}
+                ]
+            mock_skill = await self.getMockSkill()
+            mock_skill.config = {
+                "name": "greetings"
+            }
+            opsdroid.skills.append(match_dialogflow_action('restaurant.search')(mock_skill))
+
+            mock_connector = amock.CoroutineMock()
+            message = Message("I want some good French food", "user", "default", mock_connector)
+
+            with amock.patch.object(dialogflow, 'call_dialogflow') as \
+                    mocked_call_dialogflow:
+                mocked_call_dialogflow.return_value = {
+                    "id": "aab19d9e-3a85-4d44-95ac-2eda162c9663",
+                    "timestamp": "2019-05-24T16:44:06.972Z",
+                    "lang": "en",
+                    "result": {
+                        "source": "agent",
+                        "resolvedQuery": "I want some good French food",
+                        "action": "restaurant.search",
+                        "actionIncomplete": False,
+                        "parameters": {
+                            "Cuisine": "French"
+                        },
+                        "contexts": [],
+                        "metadata": {
+                            "intentId": "4e6ce594-6be3-461d-8d5b-418343cfbda6",
+                            "webhookUsed": "false",
+                            "webhookForSlotFillingUsed": "false",
+                            "isFallbackIntent": "false",
+                            "intentName": "restaurant.search"
+                        },
+                        "fulfillment": {
+                            "speech": "",
+                            "messages": [
+                                {
+                                "type": 0,
+                                "speech": ""
+                                }
+                            ]
+                        },
+                        "score": 0.8299999833106995
+                    },
+                    "status": {
+                        "code": 200,
+                        "errorType": "success"
+                    },
+                    "sessionId": "30ad1a2f-e760-d62f-5a21-e8aafc1eaa35"
+                    }
+                [skill] = await dialogflow.parse_dialogflow(
+                    opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
+                self.assertEqual(len(skill['message'].entities.keys()), 1)
+                self.assertTrue('Cuisine' in skill['message'].entities.keys())
+                self.assertEqual(skill['message'].entities['Cuisine']['value'],
+                                'French')
 
     async def test_parse_dialogflow_raises(self):
         with OpsDroid() as opsdroid:
@@ -105,6 +167,7 @@ class TestParserDialogflow(asynctest.TestCase):
                 mocked_call_dialogflow.return_value = {
                         "result": {
                             "action": "myaction",
+                            "parameters": {},
                             "score": 0.7
                         },
                         "status": {
@@ -137,6 +200,7 @@ class TestParserDialogflow(asynctest.TestCase):
                 mocked_call_dialogflow.return_value = {
                         "result": {
                             "action": "myaction",
+                            "parameters": {},
                             "score": 0.7
                         },
                         "status": {
@@ -168,6 +232,7 @@ class TestParserDialogflow(asynctest.TestCase):
                 mocked_call_dialogflow.return_value = {
                         "result": {
                             "action": "myaction",
+                            "parameters": {},
                             "score": 0.7
                         },
                         "status": {
