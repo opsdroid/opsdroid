@@ -260,3 +260,58 @@ class TestParserLuisai(asynctest.TestCase):
 
             self.assertFalse(mock_skill.called)
             self.assertTrue(mocked_call.called)
+
+    async def test_parse_luisai_with_entities(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.config['parsers'] = [
+                    {'name': 'luisai',
+                     'appid': 'test',
+                     'appkey': 'test',
+                     'verbose': True}
+                ]
+            mock_skill = await self.getMockSkill()
+            mock_skill.config = {
+                "name": "weather"
+            }
+            opsdroid.skills.append(match_luisai_intent('weatherLocation')(mock_skill))
+
+            mock_connector = amock.CoroutineMock()
+            message = Message("whats the weather in london", "user", "default", mock_connector)
+
+            with amock.patch.object(luisai, 'call_luisai') as \
+                    mocked_call_luisai:
+                mocked_call_luisai.return_value = {
+                    "query": "whats the weather in london",
+                    "topScoringIntent": {
+                        "intent": "weatherLocation",
+                        "score": 0.918992
+                    },
+                    "intents": [
+                        {
+                        "intent": "weatherLocation",
+                        "score": 0.918992
+                        },
+                        {
+                        "intent": "None",
+                        "score": 0.03931402
+                        }
+                    ],
+                    "entities": [
+                        {
+                        "entity": "london",
+                        "type": "builtin.geographyV2.city",
+                        "startIndex": 21,
+                        "endIndex": 26,
+                        "role": "location"
+                        }
+                    ],
+                    "sentimentAnalysis": {
+                        "label": "neutral",
+                        "score": 0.5
+                    }
+                    }
+                [skill] = await luisai.parse_luisai(
+                    opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
+                self.assertEqual(len(skill['message'].entities.keys()), 1)
+                self.assertTrue('location' in skill['message'].entities.keys())
+                self.assertEqual(skill['message'].entities['location']['value'], 'london')
