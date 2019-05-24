@@ -238,3 +238,90 @@ class TestParserWitai(asynctest.TestCase):
 
             self.assertFalse(mock_skill.called)
             self.assertTrue(mocked_call.called)
+
+    async def test_parse_witai_entities(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.config['parsers'] = [
+                {'name': 'witai', 'access-token': 'test', 'min-score': 0.3}
+            ]
+            mock_skill = await self.getMockSkill()
+            opsdroid.skills.append(match_witai('get_weather')(mock_skill))
+
+            mock_connector = amock.CoroutineMock()
+            message = Message("what is the weather in london","user", "default",
+                              mock_connector)
+
+            with amock.patch.object(witai, 'call_witai') as mocked_call_witai:
+                mocked_call_witai.return_value = {
+                    'msg_id': '0fI07qSgCwM79NEjs',
+                    '_text': "what is the weather in london",
+                    'entities': {
+                        'intent': [
+                            {
+                                'confidence': 0.99897986426571,
+                                'value': 'get_weather'
+                            }
+                        ],
+                        "location": [
+                        {
+                            "confidence": 0.93009,
+                            "value": "london",
+                            "resolved": {
+                            "values": [
+                                {
+                                    "name": "London",
+                                    "grain": "locality",
+                                    "type": "resolved",
+                                    "timezone": "Europe/London",
+                                    "coords": {
+                                        "lat": 51.508529663086,
+                                        "long": -0.12574000656605
+                                    },
+                                    "external": {
+                                        "geonames": "2643743",
+                                        "wikidata": "Q84",
+                                        "wikipedia": "London"
+                                    }
+                                },
+                                {
+                                    "name": "London",
+                                    "grain": "locality",
+                                    "type": "resolved",
+                                    "timezone": "America/New_York",
+                                    "coords": {
+                                        "lat": 39.886451721191,
+                                        "long": -83.448249816895
+                                    },
+                                    "external": {
+                                        "geonames": "4517009",
+                                        "wikidata": "Q1001456",
+                                        "wikipedia": "London, Ohio"
+                                    }
+                                },
+                                {
+                                    "name": "London",
+                                    "grain": "locality",
+                                    "type": "resolved",
+                                    "timezone": "America/Toronto",
+                                    "coords": {
+                                        "lat": 42.983390808105,
+                                        "long": -81.233039855957
+                                    },
+                                    "external": {
+                                        "geonames": "6058560",
+                                        "wikidata": "Q22647924"
+                                    }
+                                }
+                            ]
+                            }
+                        }
+                        ]
+                    }}
+                [skill] = await witai.parse_witai(
+                    opsdroid, opsdroid.skills,
+                    message, opsdroid.config['parsers'][0])
+
+            self.assertEqual(len(skill['message'].entities.keys()), 1)
+            self.assertTrue('location' in skill['message'].entities.keys())
+            self.assertEqual(skill['message'].entities['location']['value'],
+                             'london')

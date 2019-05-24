@@ -64,6 +64,13 @@ async def parse_witai(opsdroid, skills, message, config):
                                 [i['value'] for i in
                                  result['entities']['intent']]):
                             message.witai = result
+                            for key, entity in result['entities'].items():
+                                if key != 'intent':
+                                    await message.update_entity(
+                                        key,
+                                        entity[0]['value'],
+                                        entity[0]['confidence']
+                                    )
                             matched_skills.append({
                                 "score": confidence,
                                 "skill": skill,
