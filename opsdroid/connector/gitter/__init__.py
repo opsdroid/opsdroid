@@ -2,16 +2,14 @@
 import logging
 import aiohttp
 import asyncio
+import json
+import urllib
 
-
-
-
-
-# Import opsdroid dependencies
-from opsdroid.connector import Connector
+from opsdroid.connector import Connector,register_event
 from opsdroid.events import Message
 
 _LOGGER = logging.getLogger(__name__)
+GITTER_STREAM_API = "https://stream.gitter.im/v1/rooms"
 
 
 class ConnectorGitter(Connector):
@@ -21,21 +19,30 @@ class ConnectorGitter(Connector):
     super().__init__(config, opsdroid=opsdroid)
     _LOGGER.debug("Starting Gitter connector")
     self.name = "gitter"
-    self.accepting_connections = True
     self.session = None
     self.response = None
     self.bot_name = self.config.get("bot-name", 'opsdroid')
-
+    self.room_id = self.config.get("room-id")
+    self.access_token = self.config.get("access-token")
+    self.update_interval = 1
+    self.opsdroid = opsdroid
 
   async def connect(self):
 
     # Create connection object with chat library
     _LOGGER.debug("Connecting with gitter stream")
     self.session = aiohttp.ClientSession()
-    self.response = await self.session.get("https://stream.gitter.im/v1/rooms/5a572a4dd73408ce4f87910d/chatMessages?access_token=d404d5500ace6a0ad7b2c0cf9cfc586c80529e30")
+    gitter_url = self.build_url(GITTER_STREAM_API,self.room_id,"chatMessages", access_token = self.access_token)
+    _LOGGER.debug("Gitter stream url %s",gitter_url )
+    self.response = await self.session.get(gitter_url)
 
-  async def read_response(self):
-    _LOGGER.debug("Connecting with gitter stream")
+  def build_url(self,base_url , *res, **params):
+    url = base_url
+    for r in res:
+        url = '{}/{}'.format(url, r)
+    if params:
+        url = '{}?{}'.format(url, urllib.parse.urlencode(params))
+    return url
 
   async def listen(self):
     _LOGGER.debug("Listening with gitter stream")
@@ -43,18 +50,31 @@ class ConnectorGitter(Connector):
       await asyncio.sleep(self.update_interval)
       async for data in self.response.content.iter_chunked(1024):
         _LOGGER.info(data)
+        try:
+            data = await self.parse_message(data)
+            if data !=None:
+              message = Message(
+              data["text"],
+              data["fromUser"]["id"],
+              self)
+              await self.opsdroid.parse(message)
+        except Exception as err:
+          _LOGGER.error("Unable to parse message %s", data)
+          _LOGGER.error(err.with_traceback())
 
+  async def parse_message(self,message):
+    message = message.decode('utf-8').rstrip("\r\n")
+    if len(message) > 1:
+      message = json.loads(message)
+      return message
 
-
-
-
-
-
-  async def respond(self, message):
+  @register_event(Message)
+  async def send_message(self, message):
     # Send message.text back to the chat service
-    n = ""
+    _LOGGER.debug("Message to be  sent")
+    _LOGGER.debug(message.text)
 
   async def disconnect(self):
     # Disconnect from the chat service
-    self.response
+    await self.session.close()
 

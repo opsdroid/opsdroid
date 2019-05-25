@@ -14,27 +14,27 @@
 ## A default config file to use with opsdroid
 
 ## Set the logging level
-# logging:
-#   level: info
-#   path: opsdroid.log
-#   console: true
+#logging:
+#  level: debug
+#  path: opsdroid.log
+#  console: true
 
 ## Set the location for opsdroid to install modules
 # module-path: "."
 
 ## Show welcome message
-welcome-message: true
+#welcome-message: true
 
-## Configure the web server
-# web:
-#   host: '127.0.0.1'
-#   port: 8080
+# Configure the web server
+#web:
+#  host: '127.0.0.1'
+#  port: 8080
 #   ssl:
 #     cert: /path/to/cert.pem
 #     key: /path/to/key.pem
 
 ## Parsers
-# parsers:
+parsers:
 #
 #  ## Dialogflow (http://opsdroid.readthedocs.io/en/stable/matchers/dialogflow)
 #  - name: dialogflow
@@ -53,9 +53,9 @@ welcome-message: true
 #    access-token: 85769fjoso084jd
 #    min-score: 0.8
 #
-#  ## Regex (http://opsdroid.readthedocs.io/en/stable/matchers/regex)
-#  - name: regex
-#    enabled: true
+  ## Regex (http://opsdroid.readthedocs.io/en/stable/matchers/regex)
+  - name: regex
+    enabled: true
 #
 #  ## Wit.ai (http://opsdroid.readthedocs.io/en/stable/matchers/wit.ai)
 #  - name: witai
@@ -77,12 +77,17 @@ welcome-message: true
 ## Connector modules
 connectors:
 
-  - name: websocket
-    # optional
-    bot-name: "mybot" # default "opsdroid"
-    max-connections: 10 # default is 10 users can be connected at once
-    connection-timeout: 10 # default 10 seconds before requested socket times out
+#  - name: websocket
+#    # optional
+#    bot-name: "mybot" # default "opsdroid"
+#    max-connections: 10 # default is 10 users can be connected at once
+#    connection-timeout: 10 # default 10 seconds before requested socket times out
 
+  - name: gitter
+    # optional
+    bot-name: "mr.boot" # default "opsdroid"
+    room-id: "to be added"
+    access-token: "to be added"
 ### Uncomment the connector(s) that you wish opsdroid to work on
 #
 #  - name: shell
