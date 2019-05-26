@@ -94,10 +94,9 @@ class RedisDatabase(Database):
         """
         for k, value in data.items():
             if isinstance(value, (datetime, date)):
-                value = '::'.join([
-                    type(value).__name__,
-                    '%d' % time.mktime(value.timetuple())
-                ])
+                value = "::".join(
+                    [type(value).__name__, "%d" % time.mktime(value.timetuple())]
+                )
                 data[k] = value
         return data
 
@@ -114,12 +113,12 @@ class RedisDatabase(Database):
 
         """
         for k, value in data.items():
-            value_type = value.split('::', 1)[0]
-            if value_type == 'datetime':
-                timestamp = int(value.split('::', 1)[1])
+            value_type = value.split("::", 1)[0]
+            if value_type == "datetime":
+                timestamp = int(value.split("::", 1)[1])
                 value = datetime.fromtimestamp(timestamp)
-            elif value_type == 'date':
-                timestamp = int(value.split('::', 1)[1])
+            elif value_type == "date":
+                timestamp = int(value.split("::", 1)[1])
                 value = date.fromtimestamp(timestamp)
             data[k] = value
         return data

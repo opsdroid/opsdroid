@@ -38,8 +38,10 @@ class ConnectorTelegram(Connector):
         try:
             self.token = config["token"]
         except (KeyError, AttributeError):
-            _LOGGER.error("Unable to login: Access token is missing. "
-                          "Telegram connector will be unavailable.")
+            _LOGGER.error(
+                "Unable to login: Access token is missing. "
+                "Telegram connector will be unavailable."
+            )
 
     @staticmethod
     def get_user(response):
@@ -73,9 +75,11 @@ class ConnectorTelegram(Connector):
         """
         user_id = response["message"]["from"]["id"]
 
-        if not self.whitelisted_users or \
-            user in self.whitelisted_users or \
-                user_id in self.whitelisted_users:
+        if (
+            not self.whitelisted_users
+            or user in self.whitelisted_users
+            or user_id in self.whitelisted_users
+        ):
             return True
 
         return False
@@ -123,13 +127,11 @@ class ConnectorTelegram(Connector):
 
         if resp.status != 200:
             _LOGGER.error("Unable to connect")
-            _LOGGER.error("Telegram error %s, %s",
-                          resp.status, resp.text)
+            _LOGGER.error("Telegram error %s, %s", resp.status, resp.text)
         else:
             json = await resp.json()
             _LOGGER.debug(json)
-            _LOGGER.debug("Connected to telegram as %s",
-                          json["result"]["username"])
+            _LOGGER.debug("Connected to telegram as %s", json["result"]["username"])
 
     async def _parse_message(self, response):
         """Handle logic to parse a received message.
@@ -151,24 +153,24 @@ class ConnectorTelegram(Connector):
         """
         for result in response["result"]:
             _LOGGER.debug(result)
-            if result.get('edited_message', None):
-                result['message'] = result.pop('edited_message')
+            if result.get("edited_message", None):
+                result["message"] = result.pop("edited_message")
             if "channel" in result["message"]["chat"]["type"]:
-                _LOGGER.debug("Channel message parsing not supported "
-                              "- Ignoring message")
+                _LOGGER.debug(
+                    "Channel message parsing not supported " "- Ignoring message"
+                )
             elif "message" in result and "text" in result["message"]:
                 user = self.get_user(result)
                 message = Message(
-                    result["message"]["text"],
-                    user,
-                    result["message"]["chat"],
-                    self)
+                    result["message"]["text"], user, result["message"]["chat"], self
+                )
 
                 if self.handle_user_permission(result, user):
                     await self.opsdroid.parse(message)
                 else:
-                    message.text = "Sorry, you're not allowed " \
-                                   "to speak with this bot."
+                    message.text = (
+                        "Sorry, you're not allowed " "to speak with this bot."
+                    )
                     await self.send(message)
                 self.latest_update = result["update_id"] + 1
             else:
@@ -192,18 +194,18 @@ class ConnectorTelegram(Connector):
             data["offset"] = self.latest_update
 
         await asyncio.sleep(self.update_interval)
-        resp = await self.session.get(self.build_url("getUpdates"),
-                                      params=data)
+        resp = await self.session.get(self.build_url("getUpdates"), params=data)
 
         if resp.status == 409:
-            _LOGGER.info("Can't get updates because previous "
-                         "webhook is still active. Will try to "
-                         "delete webhook.")
+            _LOGGER.info(
+                "Can't get updates because previous "
+                "webhook is still active. Will try to "
+                "delete webhook."
+            )
             await self.delete_webhook()
 
         if resp.status != 200:
-            _LOGGER.error("Telegram error %s, %s",
-                          resp.status, resp.text)
+            _LOGGER.error("Telegram error %s, %s", resp.status, resp.text)
             self.listening = False
         else:
             json = await resp.json()
@@ -253,8 +255,7 @@ class ConnectorTelegram(Connector):
         data = dict()
         data["chat_id"] = message.target["id"]
         data["text"] = message.text
-        resp = await self.session.post(self.build_url("sendMessage"),
-                                       data=data)
+        resp = await self.session.post(self.build_url("sendMessage"), data=data)
         if resp.status == 200:
             _LOGGER.debug("Successfully responded")
         else:
@@ -269,21 +270,20 @@ class ConnectorTelegram(Connector):
 
         """
         data = aiohttp.FormData()
-        data.add_field('chat_id',
-                       str(file_event.target["id"]),
-                       content_type="multipart/form-data")
-        data.add_field("photo",
-                       await file_event.get_file_bytes(),
-                       content_type="multipart/form-data")
+        data.add_field(
+            "chat_id", str(file_event.target["id"]), content_type="multipart/form-data"
+        )
+        data.add_field(
+            "photo",
+            await file_event.get_file_bytes(),
+            content_type="multipart/form-data",
+        )
 
-        resp = await self.session.post(self.build_url("sendPhoto"),
-                                       data=data)
+        resp = await self.session.post(self.build_url("sendPhoto"), data=data)
         if resp.status == 200:
-            _LOGGER.debug("Sent %s image "
-                          "successfully", file_event.name)
+            _LOGGER.debug("Sent %s image " "successfully", file_event.name)
         else:
-            _LOGGER.debug("Unable to send image - "
-                          "Status Code %s", resp.status)
+            _LOGGER.debug("Unable to send image - " "Status Code %s", resp.status)
 
     async def disconnect(self):
         """Disconnect from Telegram.

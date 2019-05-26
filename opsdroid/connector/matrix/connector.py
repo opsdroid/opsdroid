@@ -19,7 +19,7 @@ from .create_events import MatrixEventCreator
 
 _LOGGER = logging.getLogger(__name__)
 
-__all__ = ['ConnectorMatrix']
+__all__ = ["ConnectorMatrix"]
 
 
 class ConnectorMatrix(Connector):
@@ -30,15 +30,15 @@ class ConnectorMatrix(Connector):
         super().__init__(config, opsdroid=opsdroid)
 
         self.name = "ConnectorMatrix"  # The name of your connector
-        self.rooms = config.get('rooms', None)
+        self.rooms = config.get("rooms", None)
         if not self.rooms:
-            self.rooms = {'main': config['room']}
+            self.rooms = {"main": config["room"]}
         self.room_ids = {}
-        self.default_target = self.rooms['main']
-        self.mxid = config['mxid']
-        self.nick = config.get('nick', None)
-        self.homeserver = config.get('homeserver', "https://matrix.org")
-        self.password = config['password']
+        self.default_target = self.rooms["main"]
+        self.mxid = config["mxid"]
+        self.nick = config.get("nick", None)
+        self.homeserver = config.get("homeserver", "https://matrix.org")
+        self.password = config["password"]
         self.room_specific_nicks = config.get("room_specific_nicks", False)
         self.session = None
         self.filter_id = None
@@ -51,41 +51,26 @@ class ConnectorMatrix(Connector):
         """Define JSON filter to apply to incoming events."""
         return {
             "event_format": "client",
-            "account_data": {
-                "limit": 0,
-                "types": []
-            },
-            "presence": {
-                "limit": 0,
-                "types": []
-            },
+            "account_data": {"limit": 0, "types": []},
+            "presence": {"limit": 0, "types": []},
             "room": {
                 "rooms": [],
-                "account_data": {
-                    "types": []
-                },
-                "timeline": {
-                    "types": ["m.room.message"]
-                },
-                "ephemeral": {
-                    "types": []
-                },
-                "state": {
-                    "types": []
-                }
-            }
+                "account_data": {"types": []},
+                "timeline": {"types": ["m.room.message"]},
+                "ephemeral": {"types": []},
+                "state": {"types": []},
+            },
         }
 
     async def make_filter(self, api, room_ids):
         """Make a filter on the server for future syncs."""
         fjson = self.filter_json
         for room_id in room_ids:
-            fjson['room']['rooms'].append(room_id)
+            fjson["room"]["rooms"].append(room_id)
 
-        resp = await api.create_filter(
-            user_id=self.mxid, filter_params=fjson)
+        resp = await api.create_filter(user_id=self.mxid, filter_params=fjson)
 
-        return resp['filter_id']
+        return resp["filter_id"]
 
     async def connect(self):
         """Create connection object with chat library."""
@@ -94,13 +79,14 @@ class ConnectorMatrix(Connector):
 
         self.session = session
         login_response = await mapi.login(
-            "m.login.password", user=self.mxid, password=self.password)
-        mapi.token = login_response['access_token']
+            "m.login.password", user=self.mxid, password=self.password
+        )
+        mapi.token = login_response["access_token"]
         mapi.sync_token = None
 
         for roomname, room in self.rooms.items():
             response = await mapi.join_room(room)
-            self.room_ids[roomname] = response['room_id']
+            self.room_ids[roomname] = response["room_id"]
         self.connection = mapi
 
         # Create a filter now, saves time on each later sync
@@ -110,7 +96,8 @@ class ConnectorMatrix(Connector):
         response = await self.connection.sync(
             timeout_ms=3000,
             filter='{ "room": { "timeline" : { "limit" : 1 } } }',
-            set_presence="online")
+            set_presence="online",
+        )
         self.connection.sync_token = response["next_batch"]
 
         if self.nick:
@@ -121,12 +108,11 @@ class ConnectorMatrix(Connector):
     async def _parse_sync_response(self, response):
         self.connection.sync_token = response["next_batch"]
         for roomid in self.room_ids.values():
-            room = response['rooms']['join'].get(roomid, None)
-            if room and 'timeline' in room:
-                for event in room['timeline']['events']:
-                    if event['sender'] != self.mxid:
-                        return await self._event_creator.create_event(event,
-                                                                      roomid)
+            room = response["rooms"]["join"].get(roomid, None)
+            if room and "timeline" in room:
+                for event in room["timeline"]["events"]:
+                    if event["sender"] != self.mxid:
+                        return await self._event_creator.create_event(event, roomid)
 
     async def listen(self):  # pragma: no cover
         """Listen for new messages from the chat service."""
@@ -135,7 +121,8 @@ class ConnectorMatrix(Connector):
                 response = await self.connection.sync(
                     self.connection.sync_token,
                     timeout_ms=int(5 * 60 * 1e3),  # 5m in ms
-                    filter=self.filter_id)
+                    filter=self.filter_id,
+                )
                 _LOGGER.debug("matrix sync request returned")
                 message = await self._parse_sync_response(response)
                 if message:
@@ -145,14 +132,14 @@ class ConnectorMatrix(Connector):
                 # We can safely ignore timeout errors. The non-standard error
                 # codes are returned by Cloudflare.
                 if mre.code in [504, 522, 524]:
-                    _LOGGER.info('Matrix Sync Timeout (code: %d)', mre.code)
+                    _LOGGER.info("Matrix Sync Timeout (code: %d)", mre.code)
                     continue
 
-                _LOGGER.exception('Matrix Sync Error')
+                _LOGGER.exception("Matrix Sync Error")
             except CancelledError:
                 raise
             except Exception:  # pylint: disable=W0703
-                _LOGGER.exception('Matrix Sync Error')
+                _LOGGER.exception("Matrix Sync Error")
 
     async def get_nick(self, roomid, mxid):
         """
@@ -166,8 +153,7 @@ class ConnectorMatrix(Connector):
                 return await self.connection.get_room_displayname(roomid, mxid)
             except Exception:  # pylint: disable=W0703
                 # Fallback to the non-room specific one
-                logging.exception(
-                    "Failed to lookup room specific nick for %s", mxid)
+                logging.exception("Failed to lookup room specific nick for %s", mxid)
 
         try:
             return await self.connection.get_display_name(mxid)
@@ -187,19 +173,19 @@ class ConnectorMatrix(Connector):
         """
         # Markdown leaves a <p></p> around standard messages that we want to
         # strip:
-        if message.startswith('<p>'):
+        if message.startswith("<p>"):
             message = message[3:]
-            if message.endswith('</p>'):
+            if message.endswith("</p>"):
                 message = message[:-4]
 
         clean_html = clean(message)
 
         return {
             # Strip out any tags from the markdown to make the body
-            "body": body if body else re.sub('<[^<]+?>', '', clean_html),
+            "body": body if body else re.sub("<[^<]+?>", "", clean_html),
             "msgtype": msgtype,
             "format": "org.matrix.custom.html",
-            "formatted_body": clean_html
+            "formatted_body": clean_html,
         }
 
     @register_event(Message)
@@ -211,7 +197,7 @@ class ConnectorMatrix(Connector):
             room_id = message.target
 
         # Ensure we have a room id not alias
-        if not room_id.startswith('!'):
+        if not room_id.startswith("!"):
             room_id = await self.connection.get_room_id(room_id)
         else:
             room_id = room_id
@@ -220,13 +206,15 @@ class ConnectorMatrix(Connector):
             await self.connection.send_message_event(
                 room_id,
                 "m.room.message",
-                self._get_formatted_message_body(message.text))
+                self._get_formatted_message_body(message.text),
+            )
         except aiohttp.client_exceptions.ServerDisconnectedError:
             _LOGGER.debug("Server had disconnected, retrying send.")
             await self.connection.send_message_event(
                 room_id,
                 "m.room.message",
-                self._get_formatted_message_body(message.text))
+                self._get_formatted_message_body(message.text),
+            )
 
     async def _get_image_info(self, image):
         width, height = await image.get_dimensions()
@@ -234,7 +222,7 @@ class ConnectorMatrix(Connector):
             "w": width,
             "h": height,
             "mimetype": await image.get_mimetype(),
-            "size": len(await image.get_file_bytes())
+            "size": len(await image.get_file_bytes()),
         }
 
     @register_event(File)
@@ -249,10 +237,10 @@ class ConnectorMatrix(Connector):
 
         if not mxc_url:
             mxc_url = await self.connection.media_upload(
-                await file_event.get_file_bytes(),
-                await file_event.get_mimetype())
+                await file_event.get_file_bytes(), await file_event.get_mimetype()
+            )
 
-            mxc_url = mxc_url['content_uri']
+            mxc_url = mxc_url["content_uri"]
 
         if isinstance(file_event, Image):
             extra_info = await self._get_image_info(file_event)
@@ -262,11 +250,9 @@ class ConnectorMatrix(Connector):
             msg_type = "m.file"
 
         name = file_event.name or "opsdroid_upload"
-        await self.connection.send_content(file_event.target,
-                                           mxc_url,
-                                           name,
-                                           msg_type,
-                                           extra_info)
+        await self.connection.send_content(
+            file_event.target, mxc_url, name, msg_type, extra_info
+        )
 
     async def disconnect(self):
         """Close the matrix session."""
@@ -274,7 +260,7 @@ class ConnectorMatrix(Connector):
 
     def get_roomname(self, room):
         """Get the name of a room from alias or room ID."""
-        if room.startswith(('#', '!')):
+        if room.startswith(("#", "!")):
             for connroom in self.rooms:
                 if room in (connroom, self.room_ids[connroom]):
                     return connroom

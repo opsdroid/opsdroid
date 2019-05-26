@@ -35,8 +35,7 @@ class DatabaseMongo(Database):
         """Connect to the database."""
         host = self.config["host"] if "host" in self.config else "localhost"
         port = self.config["port"] if "port" in self.config else "27017"
-        database = self.config["database"] \
-            if "database" in self.config else "opsdroid"
+        database = self.config["database"] if "database" in self.config else "opsdroid"
         path = "mongodb://" + host + ":" + port
         self.client = AsyncIOMotorClient(path)
         self.database = self.client[database]
@@ -51,8 +50,7 @@ class DatabaseMongo(Database):
         """
         logging.debug("Putting %s into mongo", key)
         if "_id" in data:
-            await self.database[key].update_one({"_id": data["_id"]},
-                                                {"$set": data})
+            await self.database[key].update_one({"_id": data["_id"]}, {"$set": data})
         else:
             await self.database[key].insert_one(data)
 
@@ -65,4 +63,4 @@ class DatabaseMongo(Database):
         logging.debug("Getting %s from mongo", key)
         return await self.database[key].find_one(
             {"$query": {}, "$orderby": {"$natural": -1}}
-            )
+        )
