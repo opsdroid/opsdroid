@@ -1,4 +1,3 @@
-
 import asyncio
 import asynctest
 import asynctest.mock as amock
@@ -22,12 +21,14 @@ class TestParserDialogflow(asynctest.TestCase):
     async def getMockSkill(self):
         async def mockedskill(opsdroid, config, message):
             pass
+
         mockedskill.config = {}
         return mockedskill
 
     async def getRaisingMockSkill(self):
         async def mockedskill(opsdroid, config, message):
             raise Exception()
+
         mockedskill.config = {}
         return mockedskill
 
@@ -35,20 +36,14 @@ class TestParserDialogflow(asynctest.TestCase):
         opsdroid = amock.CoroutineMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
         message = Message("Hello world", "user", "default", mock_connector)
-        config = {'name': 'dialogflow', 'access-token': 'test'}
+        config = {"name": "dialogflow", "access-token": "test"}
         result = amock.Mock()
         result.json = amock.CoroutineMock()
         result.json.return_value = {
-                "result": {
-                    "action": "myaction",
-                    "score": 0.7
-                },
-                "status": {
-                    "code": 200,
-                    "errorType": "success"
-                }
-            }
-        with amock.patch('aiohttp.ClientSession.post') as patched_request:
+            "result": {"action": "myaction", "score": 0.7},
+            "status": {"code": 200, "errorType": "success"},
+        }
+        with amock.patch("aiohttp.ClientSession.post") as patched_request:
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
 
@@ -57,148 +52,119 @@ class TestParserDialogflow(asynctest.TestCase):
 
     async def test_parse_dialogflow(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config['parsers'] = [
-                    {'name': 'dialogflow', 'access-token': "test"}
-                ]
+            opsdroid.config["parsers"] = [
+                {"name": "dialogflow", "access-token": "test"}
+            ]
             mock_skill = await self.getMockSkill()
-            mock_skill.config = {
-                "name": "greetings"
-            }
-            opsdroid.skills.append(match_dialogflow_action('myaction')(mock_skill))
+            mock_skill.config = {"name": "greetings"}
+            opsdroid.skills.append(match_dialogflow_action("myaction")(mock_skill))
 
             mock_connector = amock.CoroutineMock()
             message = Message("Hello world", "user", "default", mock_connector)
 
-            with amock.patch.object(dialogflow, 'call_dialogflow') as \
-                    mocked_call_dialogflow:
+            with amock.patch.object(
+                dialogflow, "call_dialogflow"
+            ) as mocked_call_dialogflow:
                 mocked_call_dialogflow.return_value = {
-                        "result": {
-                            "action": "myaction",
-                            "score": 0.7
-                        },
-                        "status": {
-                            "code": 200,
-                            "errorType": "success"
-                        }
-                    }
+                    "result": {"action": "myaction", "score": 0.7},
+                    "status": {"code": 200, "errorType": "success"},
+                }
                 skills = await dialogflow.parse_dialogflow(
-                    opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
+                    opsdroid, opsdroid.skills, message, opsdroid.config["parsers"][0]
+                )
                 self.assertEqual(mock_skill, skills[0]["skill"])
 
     async def test_parse_dialogflow_raises(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config['parsers'] = [
-                    {'name': 'dialogflow', 'access-token': "test"}
-                ]
+            opsdroid.config["parsers"] = [
+                {"name": "dialogflow", "access-token": "test"}
+            ]
             mock_skill = await self.getRaisingMockSkill()
-            mock_skill.config = {
-                "name": "greetings"
-            }
-            opsdroid.skills.append(match_dialogflow_action('myaction')(mock_skill))
+            mock_skill.config = {"name": "greetings"}
+            opsdroid.skills.append(match_dialogflow_action("myaction")(mock_skill))
 
             mock_connector = amock.MagicMock()
             mock_connector.send = amock.CoroutineMock()
             message = Message("Hello world", "user", "default", mock_connector)
 
-            with amock.patch.object(dialogflow, 'call_dialogflow') as \
-                    mocked_call_dialogflow:
+            with amock.patch.object(
+                dialogflow, "call_dialogflow"
+            ) as mocked_call_dialogflow:
                 mocked_call_dialogflow.return_value = {
-                        "result": {
-                            "action": "myaction",
-                            "score": 0.7
-                        },
-                        "status": {
-                            "code": 200,
-                            "errorType": "success"
-                        }
-                    }
+                    "result": {"action": "myaction", "score": 0.7},
+                    "status": {"code": 200, "errorType": "success"},
+                }
                 skills = await dialogflow.parse_dialogflow(
-                    opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
+                    opsdroid, opsdroid.skills, message, opsdroid.config["parsers"][0]
+                )
                 self.assertEqual(mock_skill, skills[0]["skill"])
 
-            await opsdroid.run_skill(
-                skills[0]["skill"], skills[0]["config"], message
-            )
-            self.assertLogs('_LOGGER', 'exception')
+            await opsdroid.run_skill(skills[0]["skill"], skills[0]["config"], message)
+            self.assertLogs("_LOGGER", "exception")
 
     async def test_parse_dialogflow_failure(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config['parsers'] = [
-                    {'name': 'dialogflow', 'access-token': "test"}
-                ]
+            opsdroid.config["parsers"] = [
+                {"name": "dialogflow", "access-token": "test"}
+            ]
             mock_skill = amock.CoroutineMock()
-            match_dialogflow_action('myaction')(mock_skill)
+            match_dialogflow_action("myaction")(mock_skill)
 
             mock_connector = amock.CoroutineMock()
             message = Message("Hello world", "user", "default", mock_connector)
 
-            with amock.patch.object(dialogflow, 'call_dialogflow') as \
-                    mocked_call_dialogflow:
+            with amock.patch.object(
+                dialogflow, "call_dialogflow"
+            ) as mocked_call_dialogflow:
                 mocked_call_dialogflow.return_value = {
-                        "result": {
-                            "action": "myaction",
-                            "score": 0.7
-                        },
-                        "status": {
-                            "code": 404,
-                            "errorType": "not found"
-                        }
-                    }
+                    "result": {"action": "myaction", "score": 0.7},
+                    "status": {"code": 404, "errorType": "not found"},
+                }
                 skills = await dialogflow.parse_dialogflow(
-                    opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
+                    opsdroid, opsdroid.skills, message, opsdroid.config["parsers"][0]
+                )
                 self.assertFalse(skills)
 
     async def test_parse_dialogflow_low_score(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config['parsers'] = [
-                    {
-                        'name': 'dialogflow',
-                        'access-token': "test",
-                        "min-score": 0.8
-                    }
-                ]
+            opsdroid.config["parsers"] = [
+                {"name": "dialogflow", "access-token": "test", "min-score": 0.8}
+            ]
             mock_skill = amock.CoroutineMock()
-            match_dialogflow_action('myaction')(mock_skill)
+            match_dialogflow_action("myaction")(mock_skill)
 
             mock_connector = amock.CoroutineMock()
             message = Message("Hello world", "user", "default", mock_connector)
 
-            with amock.patch.object(dialogflow, 'call_dialogflow') as \
-                    mocked_call_dialogflow:
+            with amock.patch.object(
+                dialogflow, "call_dialogflow"
+            ) as mocked_call_dialogflow:
                 mocked_call_dialogflow.return_value = {
-                        "result": {
-                            "action": "myaction",
-                            "score": 0.7
-                        },
-                        "status": {
-                            "code": 200,
-                            "errorType": "success"
-                        }
-                    }
+                    "result": {"action": "myaction", "score": 0.7},
+                    "status": {"code": 200, "errorType": "success"},
+                }
                 await dialogflow.parse_dialogflow(
-                    opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
+                    opsdroid, opsdroid.skills, message, opsdroid.config["parsers"][0]
+                )
 
             self.assertFalse(mock_skill.called)
 
     async def test_parse_dialogflow_raise_ClientOSError(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config['parsers'] = [
-                    {
-                        'name': 'dialogflow',
-                        'access-token': "test",
-                        "min-score": 0.8}
-                ]
+            opsdroid.config["parsers"] = [
+                {"name": "dialogflow", "access-token": "test", "min-score": 0.8}
+            ]
             mock_skill = amock.CoroutineMock()
-            match_dialogflow_action('myaction')(mock_skill)
+            match_dialogflow_action("myaction")(mock_skill)
 
             mock_connector = amock.CoroutineMock()
             message = Message("Hello world", "user", "default", mock_connector)
 
-            with amock.patch.object(dialogflow, 'call_dialogflow') \
-                    as mocked_call:
+            with amock.patch.object(dialogflow, "call_dialogflow") as mocked_call:
                 mocked_call.side_effect = ClientOSError()
                 await dialogflow.parse_dialogflow(
-                    opsdroid, opsdroid.skills, message, opsdroid.config['parsers'][0])
+                    opsdroid, opsdroid.skills, message, opsdroid.config["parsers"][0]
+                )
 
             self.assertFalse(mock_skill.called)
             self.assertTrue(mocked_call.called)

@@ -19,6 +19,7 @@ class TestParserEvent(asynctest.TestCase):
     async def getMockSkill(self):
         async def mockedskill(opsdroid, config, message):
             pass
+
         mockedskill.config = {}
         return mockedskill
 
@@ -29,8 +30,7 @@ class TestParserEvent(asynctest.TestCase):
             opsdroid.skills.append(match_event(events.Message)(mock_skill))
 
             mock_connector = amock.CoroutineMock()
-            message = events.Message("Hello World", "user", "default",
-                                     mock_connector)
+            message = events.Message("Hello World", "user", "default", mock_connector)
 
             await opsdroid.parse(message)
             self.assertTrue(opsdroid.run_skill.called)
@@ -42,8 +42,7 @@ class TestParserEvent(asynctest.TestCase):
             opsdroid.skills.append(match_event("Message")(mock_skill))
 
             mock_connector = amock.CoroutineMock()
-            message = events.Message("Hello World", "user", "default",
-                                     mock_connector)
+            message = events.Message("Hello World", "user", "default", mock_connector)
 
             await opsdroid.parse(message)
             self.assertTrue(opsdroid.run_skill.called)
@@ -54,8 +53,7 @@ class TestParserEvent(asynctest.TestCase):
             opsdroid.skills.append(match_event("Message2")(mock_skill))
 
             mock_connector = amock.CoroutineMock()
-            message = events.Message("Hello World", "user", "default",
-                                     mock_connector)
+            message = events.Message("Hello World", "user", "default", mock_connector)
 
             with self.assertRaises(ValueError):
                 await parse_event_type(opsdroid, message)

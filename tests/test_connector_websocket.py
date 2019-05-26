@@ -70,6 +70,7 @@ class TestConnectorWebsocketAsync(asynctest.TestCase):
     async def test_new_websocket_handler(self):
         """Test the new websocket handler."""
         import aiohttp.web
+
         connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
         connector.max_connections = 1
         self.assertEqual(len(connector.available_connections), 0)
@@ -101,43 +102,38 @@ class TestConnectorWebsocketAsync(asynctest.TestCase):
             room = "a146f52c-548a-11e8-a7d1-28cfe949e12d"
             connector.active_connections[room] = amock.CoroutineMock()
             connector.active_connections[room].send_str = amock.CoroutineMock()
-            test_message = Message(text="Hello world",
-                                   user="Alice",
-                                   target=room,
-                                   connector=connector)
+            test_message = Message(
+                text="Hello world", user="Alice", target=room, connector=connector
+            )
             await test_message.respond("Response")
             self.assertTrue(connector.active_connections[room].send_str.called)
 
             connector.active_connections[room].send_str.reset_mock()
             test_message.target = None
             await test_message.respond("Response")
-            self.assertTrue(
-                connector.active_connections[room].send_str.called)
+            self.assertTrue(connector.active_connections[room].send_str.called)
 
             connector.active_connections[room].send_str.reset_mock()
             test_message.target = "Invalid Room"
             await test_message.respond("Response")
-            self.assertFalse(
-                connector.active_connections[room].send_str.called)
+            self.assertFalse(connector.active_connections[room].send_str.called)
 
     async def test_websocket_handler(self):
         """Test the websocket handler."""
         import aiohttp
         from datetime import datetime, timedelta
+
         connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
         room = "a146f52c-548a-11e8-a7d1-28cfe949e12d"
         mock_request = amock.Mock()
         mock_request.match_info = amock.Mock()
         mock_request.match_info.get = amock.Mock()
         mock_request.match_info.get.return_value = room
-        connector.available_connections = [{
-            'id': room,
-            "date": datetime.now()
-        }]
+        connector.available_connections = [{"id": room, "date": datetime.now()}]
 
-        with OpsDroid() as opsdroid, \
-            amock.patch('aiohttp.web.WebSocketResponse',
-                        new=asynctest.MagicMock()) as mock_WebSocketResponse:
+        with OpsDroid() as opsdroid, amock.patch(
+            "aiohttp.web.WebSocketResponse", new=asynctest.MagicMock()
+        ) as mock_WebSocketResponse:
             connector.opsdroid = opsdroid
             connector.opsdroid.parse = amock.CoroutineMock()
             mock_socket = asynctest.MagicMock()
@@ -149,8 +145,7 @@ class TestConnectorWebsocketAsync(asynctest.TestCase):
             socket_message_2 = amock.CoroutineMock()
             socket_message_2.type = aiohttp.WSMsgType.ERROR
             socket_message_2.data = "Error!"
-            mock_socket.__aiter__.return_value = [socket_message_1,
-                                                  socket_message_2]
+            mock_socket.__aiter__.return_value = [socket_message_1, socket_message_2]
             mock_WebSocketResponse.return_value = mock_socket
             response = await connector.websocket_handler(mock_request)
             self.assertEqual(response, mock_socket)
@@ -164,10 +159,9 @@ class TestConnectorWebsocketAsync(asynctest.TestCase):
             self.assertEqual(type(response), aiohttp.web.Response)
             self.assertEqual(response.status, 400)
 
-            connector.available_connections = [{
-                'id': room,
-                "date": datetime.now() - timedelta(seconds=120)
-            }]
+            connector.available_connections = [
+                {"id": room, "date": datetime.now() - timedelta(seconds=120)}
+            ]
             response = await connector.websocket_handler(mock_request)
             self.assertEqual(type(response), aiohttp.web.Response)
             self.assertEqual(response.status, 408)

@@ -55,7 +55,7 @@ class TestRedisDatabase(unittest.TestCase):
         serialized_data = {
             "example_date": "date::1538366400",
             "example_datetime": "datetime::1538389815",
-            "example_string": "test"
+            "example_string": "test",
         }
 
         unserialized_data = RedisDatabase.convert_timestamp_to_object(serialized_data)
@@ -74,7 +74,10 @@ class TestRedisDatabaseAsync(asynctest.TestCase):
         opsdroid = amock.CoroutineMock()
         database = RedisDatabase({}, opsdroid=opsdroid)
         import asyncio_redis
-        with amock.patch.object(asyncio_redis.Connection, 'create') as mocked_connection:
+
+        with amock.patch.object(
+            asyncio_redis.Connection, "create"
+        ) as mocked_connection:
             mocked_connection.side_effect = NotImplementedError
 
             with suppress(NotImplementedError):
@@ -114,4 +117,3 @@ class TestRedisDatabaseAsync(asynctest.TestCase):
         result = await db.disconnect()
 
         self.assertTrue(db.client.close.called)
-
