@@ -4,7 +4,7 @@ aiosqlite==0.10.0
 appdirs==1.4.3
 arrow==0.13.2
 asyncio_redis==0.15.1
-Babel==2.6.0
+Babel==2.7.0
 bleach==3.1.0
 click==7.0
 emoji==0.5.2
