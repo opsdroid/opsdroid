@@ -7,8 +7,3 @@ python:
 
 mkdocs:
   configuration: mkdocs.yml
-
-formats: all
-
-install:
-  - requirements: requirements_readthedocs.txt
