@@ -37,7 +37,7 @@ class TestDatabaseSqlite(unittest.TestCase):
         self.assertEqual(None, database.database)
         self.assertEqual(None, database.db_file)
         self.assertEqual(None, database.table)
-        self.assertEqual({'isolation_level': None}, database.conn_args)
+        self.assertEqual({"isolation_level": None}, database.conn_args)
 
 
 class TestDatabaseSqliteAsync(asynctest.TestCase):
@@ -111,16 +111,19 @@ class TestJSONEncoder(unittest.TestCase):
         test_obj = datetime.datetime(2018, 10, 2, 0, 41, 17, 74644)
         encoder = JSONEncoder()
         obj = encoder.default(o=test_obj)
-        self.assertEqual({
-            "__class__": type_cls.__name__,
-            "year": 2018,
-            "month": 10,
-            "day": 2,
-            "hour": 0,
-            "minute": 41,
-            "second": 17,
-            "microsecond": 74644
-        }, obj)
+        self.assertEqual(
+            {
+                "__class__": type_cls.__name__,
+                "year": 2018,
+                "month": 10,
+                "day": 2,
+                "hour": 0,
+                "minute": 41,
+                "second": 17,
+                "microsecond": 74644,
+            },
+            obj,
+        )
 
 
 class TestJSONDecoder(unittest.TestCase):
@@ -148,7 +151,7 @@ class TestJSONDecoder(unittest.TestCase):
             "hour": 0,
             "minute": 41,
             "second": 17,
-            "microsecond": 74644
+            "microsecond": 74644,
         }
         decoder = JSONDecoder()
         obj = decoder(test_obj)

@@ -65,6 +65,7 @@ class TestConnectorBaseClass(unittest.TestCase):
 
 class TestConnectorAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid connector base class."""
+
     async def setup(self):
         configure_lang({})
 

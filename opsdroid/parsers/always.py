@@ -11,6 +11,4 @@ async def parse_always(opsdroid, message):
     for skill in opsdroid.skills:
         for matcher in skill.matchers:
             if "always" in matcher:
-                await opsdroid.run_skill(skill,
-                                         skill.config,
-                                         message)
+                await opsdroid.run_skill(skill, skill.config, message)

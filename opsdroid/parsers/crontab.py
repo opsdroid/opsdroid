@@ -22,8 +22,5 @@ async def parse_crontab(opsdroid):
                         timezone = matcher["timezone"]
                     else:
                         timezone = opsdroid.config.get("timezone", "UTC")
-                    if pycron.is_now(matcher["crontab"],
-                                     arrow.now(tz=timezone)):
-                        await opsdroid.run_skill(skill,
-                                                 skill.config,
-                                                 None)
+                    if pycron.is_now(matcher["crontab"], arrow.now(tz=timezone)):
+                        await opsdroid.run_skill(skill, skill.config, None)
