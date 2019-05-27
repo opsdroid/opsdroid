@@ -151,7 +151,7 @@ class TestMain(unittest.TestCase):
                 opsdroid.check_dependencies()
 
     def test_check_version_36(self):
-        with mock.patch.object(sys, 'version_info') as version_info:
+        with mock.patch.object(sys, "version_info") as version_info:
             version_info.major = 3
             version_info.minor = 6
             try:
@@ -160,7 +160,7 @@ class TestMain(unittest.TestCase):
                 self.fail("check_dependencies() exited unexpectedly!")
 
     def test_check_version_37(self):
-        with mock.patch.object(sys, 'version_info') as version_info:
+        with mock.patch.object(sys, "version_info") as version_info:
             version_info.major = 3
             version_info.minor = 7
             try:
