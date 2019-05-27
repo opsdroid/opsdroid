@@ -1,11 +1,10 @@
 """Tests for the RocketChat class."""
 import asyncio
 import unittest
-import unittest.mock as mock
+import contextlib
 import asynctest
 import asynctest.mock as amock
 
-from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.connector.rocketchat import RocketChat
 from opsdroid.events import Message
@@ -22,7 +21,12 @@ class TestRocketChat(unittest.TestCase):
     def test_init(self):
         """Test that the connector is initialised properly."""
         connector = RocketChat(
-            {"name": "rocket.chat", "access-token": "test", "user-id": "userID"},
+            {
+                "name": "rocket.chat",
+                "access-token": "test",
+                "user-id": "userID",
+                "update-interval": 0.1,
+            },
             opsdroid=OpsDroid(),
         )
         self.assertEqual("general", connector.default_target)
@@ -51,6 +55,9 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
         )
 
         self.connector.latest_update = "2018-10-08T12:57:37.126Z"
+
+        with amock.patch("aiohttp.ClientSession") as mocked_session:
+            self.connector.session = mocked_session
 
     async def test_connect(self):
         connect_response = amock.Mock()
@@ -99,15 +106,7 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
             self.assertLogs("_LOGGER", "error")
 
     async def test_get_message(self):
-        connector_group = RocketChat(
-            {
-                "name": "rocket.chat",
-                "token": "test",
-                "user-id": "userID",
-                "group": "test",
-            },
-            opsdroid=OpsDroid(),
-        )
+        self.connector.group = "test"
         response = amock.Mock()
         response.status = 200
         response.json = amock.CoroutineMock()
@@ -137,19 +136,23 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
             ]
         }
 
-        with OpsDroid() as opsdroid, amock.patch(
-            "aiohttp.ClientSession.get"
+        with OpsDroid() as opsdroid, amock.patch.object(
+            self.connector.session, "get"
         ) as patched_request, amock.patch.object(
-            connector_group, "_parse_message"
-        ) as mocked_parse_message:
+            self.connector, "_parse_message"
+        ) as mocked_parse_message, amock.patch(
+            "asyncio.sleep"
+        ) as mocked_sleep:
 
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(response)
 
-            await connector_group._get_message()
+            await self.connector._get_message()
 
             self.assertTrue(patched_request.called)
             self.assertTrue(mocked_parse_message.called)
+            self.assertTrue(mocked_sleep.called)
+            self.assertLogs("_LOGGER", "debug")
 
     async def test_parse_message(self):
         response = {
@@ -187,15 +190,25 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
             self.assertEqual("2018-05-11T16:05:41.047Z", self.connector.latest_update)
 
     async def test_listen(self):
-        self.connector.side_effect = Exception()
-        await self.connector.listen()
+        with amock.patch.object(
+            self.connector.loop, "create_task"
+        ) as mocked_task, amock.patch.object(
+            self.connector._closing, "wait"
+        ) as mocked_event:
+            mocked_event.return_value = asyncio.Future()
+            mocked_event.return_value.set_result(True)
+            mocked_task.return_value = asyncio.Future()
+            await self.connector.listen()
+
+            self.assertTrue(mocked_event.called)
+            self.assertTrue(mocked_task.called)
 
     async def test_get_message_failure(self):
         listen_response = amock.Mock()
         listen_response.status = 401
 
-        with OpsDroid() as opsdroid, amock.patch(
-            "aiohttp.ClientSession.get"
+        with OpsDroid() as opsdroid, amock.patch.object(
+            self.connector.session, "get"
         ) as patched_request:
 
             patched_request.return_value = asyncio.Future()
@@ -204,12 +217,18 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
             self.assertLogs("_LOGGER", "error")
             self.assertEqual(False, self.connector.listening)
 
+    async def test_get_messages_loop(self):
+        self.connector._get_messages = amock.CoroutineMock()
+        self.connector._get_messages.side_effect = Exception()
+        with contextlib.suppress(Exception):
+            await self.connector.get_messages_loop()
+
     async def test_respond(self):
         post_response = amock.Mock()
         post_response.status = 200
 
-        with OpsDroid() as opsdroid, amock.patch(
-            "aiohttp.ClientSession.post"
+        with OpsDroid() as opsdroid, amock.patch.object(
+            self.connector.session, "post"
         ) as patched_request:
 
             self.assertTrue(opsdroid.__class__.instances)
@@ -230,8 +249,8 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
         post_response = amock.Mock()
         post_response.status = 401
 
-        with OpsDroid() as opsdroid, amock.patch(
-            "aiohttp.ClientSession.post"
+        with OpsDroid() as opsdroid, amock.patch.object(
+            self.connector.session, "post"
         ) as patched_request:
 
             self.assertTrue(opsdroid.__class__.instances)
@@ -246,3 +265,13 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
             patched_request.return_value.set_result(post_response)
             await test_message.respond("Response")
             self.assertLogs("_LOGGER", "debug")
+
+    async def test_disconnect(self):
+        with amock.patch.object(self.connector.session, "close") as mocked_close:
+            mocked_close.return_value = asyncio.Future()
+            mocked_close.return_value.set_result(True)
+
+            await self.connector.disconnect()
+            self.assertFalse(self.connector.listening)
+            self.assertTrue(self.connector.session.closed())
+            self.assertEqual(self.connector._closing.set(), None)
