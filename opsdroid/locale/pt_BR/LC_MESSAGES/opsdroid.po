@@ -24,8 +24,8 @@ msgid "Started opsdroid %s"
 msgstr "A aplicacão iniciou"
 
 #: opsdroid/__main__.py:103
-msgid "Whoops! opsdroid requires python 3.5 or above."
-msgstr "Whoops! opsdroid precisa que a tua versão de python seja 3.5 ou superior."
+msgid "Whoops! opsdroid requires python 3.6 or above."
+msgstr "Whoops! opsdroid precisa que a tua versão de python seja 3.6 ou superior."
 
 #: opsdroid/__main__.py:148
 msgid "You can customise your opsdroid by modifying your configuration.yaml"
