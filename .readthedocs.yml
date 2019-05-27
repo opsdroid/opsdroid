@@ -4,3 +4,11 @@ version: 2
 
 python:
   version: 3.7
+
+mkdocs:
+  configuration: mkdocs.yml
+
+formats: all
+
+install:
+  - requirements: requirements_readthedocs.txt
