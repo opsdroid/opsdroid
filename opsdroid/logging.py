@@ -16,11 +16,27 @@ class ParsingFilter(logging.Filter):
         """Create object to implement filtering."""
         super(ParsingFilter, self).__init__()
         self.config = config["logging"]
-        self.parse_list = parse_list[0].get("whitelist") or parse_list[0].get(
-            "blacklist"
-        )
+        print(parse_list[0]["whitelist"])
+        try:
+            if (
+                self.config["filter"]["whitelist"]
+                and self.config["filter"]["blacklist"]
+            ):
+                _LOGGER.warning(
+                    "Both whitelist and blacklist "
+                    "filters found in configuration. "
+                    "Only one can be used at a time - "
+                    "only the whitelist filter will be used."
+                )
+                self.parse_list = [
+                    logging.Filter(name) for name in parse_list[0]["whitelist"]
+                ]
+        except KeyError:
+            self.parse_list = parse_list[0].get("whitelist") or parse_list[0].get(
+                "blacklist"
+            )
 
-        self.parse_list = [logging.Filter(name) for name in self.parse_list]
+            self.parse_list = [logging.Filter(name) for name in self.parse_list]
 
     def filter(self, record):
         """Apply filter to the log message.
@@ -38,6 +54,7 @@ class ParsingFilter(logging.Filter):
             Boolean: If True - pass the log to handler.
 
         """
+
         if self.config["filter"].get("whitelist"):
             return any(name.filter(record) for name in self.parse_list)
         return not any(name.filter(record) for name in self.parse_list)

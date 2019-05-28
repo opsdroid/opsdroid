@@ -292,6 +292,39 @@ INFO opsdroid.web: Started web server on http://0.0.0.0:8080
 
 _Note: You can also use the extended mode to filter out logs - this should allow you to have even more flexibility while dealing with your logs._
 
+##### Using both whitelist and blacklist filter
+You are only able to filter either with the whitelist filter or the blacklist filter. If you add both in your configuration file, you will get a warning 
+and only the whitelist filter will be used. This behavior was done because setting two filters causes an RuntimeError exception to be raised(_maximum recursion depth exceeded_).
+
+```yaml
+logging:
+  level: info
+  path: ~/.opsdroid/output.log
+  console: true
+  filter: 
+    whitelist:
+      - "opsdroid.core"
+      - "opsdroid.logging"
+      - "opsdroid.web"
+    blacklist:
+      - "opsdroid.loader"
+      - "aiosqlite"
+```
+
+*example:*
+
+```shell
+WARNING opsdroid.logging: Both whitelist and blacklist filters found in configuration. Only one can be used at a time - only the whitelist filter will be used.
+INFO opsdroid.logging: ========================================
+INFO opsdroid.logging: Started opsdroid v0.14.1+103.g122e010.dirty
+DEBUG opsdroid.core: Loaded 5 skills
+DEBUG root: Loaded hello module
+WARNING opsdroid.core: <skill module>.setup() is deprecated and will be removed in a future release. Please use class-based skills instead.
+DEBUG opsdroid.core: Adding database: DatabaseSqlite
+INFO opsdroid.core: Opsdroid is now running, press ctrl+c to exit.
+INFO opsdroid.web: Started web server on http://0.0.0.0:8080
+```
+
 ### Installation Path
 
 Set the path for opsdroid to use when installing skills. Defaults to the current working directory.

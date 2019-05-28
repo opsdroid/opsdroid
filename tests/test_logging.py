@@ -80,7 +80,6 @@ class TestLogging(unittest.TestCase):
                 }
             }
             opsdroid.configure_logging(config)
-            # self.assertEqual(os.path.isfile(config['logging']['path']), True)
 
     def test_configure_console_logging(self):
         config = {"logging": {"path": False, "level": "error", "console": True}}
@@ -146,3 +145,23 @@ class TestLogging(unittest.TestCase):
         self.assertEqual(logging.FileHandler, type(rootlogger.handlers[1]))
         self.assertEqual(rootlogger.handlers[1].level, logging.INFO)
         self.assertLogs("_LOGGER", "info")
+
+
+class TestWhiteAndBlackFilter(unittest.TestCase):
+    def setUp(self):
+        self.config = {
+            "logging": {
+                "path": False,
+                "level": "info",
+                "console": True,
+                "filter": {"whitelist": ["opsdroid"], "blacklist": ["opsdroid.core"]},
+            }
+        }
+
+    def tearDown(self):
+        self.config = {}
+        opsdroid.configure_logging(self.config)
+
+    def test_configure_whitelist_and_blacklist(self):
+        opsdroid.configure_logging(self.config)
+        self.assertLogs("_LOGGER", "warning")
