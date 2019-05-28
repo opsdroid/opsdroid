@@ -95,7 +95,7 @@ class TestLogging(unittest.TestCase):
                 "path": False,
                 "level": "error",
                 "console": True,
-                "filter": {"blacklist": "opsdroid.logging"},
+                "filter": {"blacklist": "opsdroid"},
             }
         }
         opsdroid.configure_logging(config)

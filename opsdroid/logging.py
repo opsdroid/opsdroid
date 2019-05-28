@@ -16,7 +16,6 @@ class ParsingFilter(logging.Filter):
         """Create object to implement filtering."""
         super(ParsingFilter, self).__init__()
         self.config = config["logging"]
-        print(parse_list[0]["whitelist"])
         try:
             if (
                 self.config["filter"]["whitelist"]
