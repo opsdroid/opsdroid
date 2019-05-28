@@ -25,10 +25,6 @@ from opsdroid.const import (
 gettext.install("opsdroid")
 _LOGGER = logging.getLogger("opsdroid")
 
-# class NoParsingFilter(logging.Filter):
-#     def filter(self, record):
-#         return not record.getMessage()
-
 
 def configure_lang(config):
     """Configure app language based on user config.
