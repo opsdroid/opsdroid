@@ -197,7 +197,7 @@ class ConnectorSlack(Connector):
     @register_event(RoomCreation)
     async def send_room_creation(self, creation_event):
         params = creation_event.room_params
-        params = params.get('slack') or params
+        params = params.get('slack', params)
         return await self.slacker.channels.create(
             self.token,
             params['name'],

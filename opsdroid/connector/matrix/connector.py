@@ -285,7 +285,7 @@ class ConnectorMatrix(Connector):
     @register_event(RoomCreation)
     async def _send_room_creation(self, creation_event):
         params = creation_event.room_params
-        params = params.get('matrix') or params
+        params = params.get('matrix', params)
         return await self.connection.create_room(
             params.get('alias'),
             params.get('name'),
