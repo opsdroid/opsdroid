@@ -2,24 +2,11 @@ import unittest
 import unittest.mock as mock
 import logging
 import os
-import sys
 import tempfile
-import gettext
 import contextlib
 
-import click
-from click.testing import CliRunner
-
 import opsdroid.logging as opsdroid
-
-# from opsdroid.logging import get_logging_level
-
-import opsdroid.web as web
-from opsdroid.const import __version__
 from opsdroid.__main__ import configure_lang
-
-# from opsdroid.core import OpsDroid
-from opsdroid.helper import del_rw
 
 
 class TestLogging(unittest.TestCase):

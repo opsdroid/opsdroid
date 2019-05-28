@@ -6,7 +6,6 @@ import sys
 import logging
 import gettext
 import time
-import contextlib
 
 import click
 
