@@ -1,3 +1,5 @@
+"""Class for Filter logs and logging logic."""
+
 import os
 import logging
 import contextlib
@@ -8,7 +10,11 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class ParsingFilter(logging.Filter):
+    """Class that filters logs."""
+
     def __init__(self, config, *parse_list):
+        """Create object to implement filtering."""
+        super(ParsingFilter, self).__init__()
         self.config = config["logging"]
         self.parse_list = parse_list[0].get("whitelist") or parse_list[0].get(
             "blacklist"
@@ -17,7 +23,22 @@ class ParsingFilter(logging.Filter):
         self.parse_list = [logging.Filter(name) for name in self.parse_list]
 
     def filter(self, record):
-        if self.config["filter"].get("whitelist", None):
+        """Apply filter to the log message.
+
+        This is a subset of Logger.filter, this method applies the logger
+        filters and returns a bool. If the value is true the record will
+        be passed to the handlers and the log shown. If the value is
+        false it will be ignored.
+
+        Args:
+            record: a log record containing the log message and the
+                name of the log - example: opsdroid.core.
+
+        Returns:
+            Boolean: If True - pass the log to handler.
+
+        """
+        if self.config["filter"].get("whitelist"):
             return any(name.filter(record) for name in self.parse_list)
         return not any(name.filter(record) for name in self.parse_list)
 
@@ -43,19 +64,23 @@ def configure_logging(config):
 
     rootlogger.setLevel(log_level)
 
-    if config["logging"].get("extended"):
-        formatter = logging.Formatter(
-            "%(levelname)s %(name)s.%(funcName)s(): %(message)s"
-        )
-    else:
+    try:
+        if config["logging"]["extended"]:
+            formatter = logging.Formatter(
+                "%(levelname)s %(name)s.%(funcName)s(): %(message)s"
+            )
+    except KeyError:
         formatter = logging.Formatter("%(levelname)s %(name)s: %(message)s")
 
     console_handler = logging.StreamHandler()
     console_handler.setLevel(log_level)
     console_handler.setFormatter(formatter)
 
-    if config["logging"].get("filter", None):
-        console_handler.addFilter(ParsingFilter(config, config["logging"]["filter"]))
+    with contextlib.suppress(KeyError):
+        if config["logging"]["filter"]:
+            console_handler.addFilter(
+                ParsingFilter(config, config["logging"]["filter"])
+            )
 
     rootlogger.addHandler(console_handler)
 
@@ -71,13 +96,15 @@ def configure_logging(config):
         file_handler.setLevel(log_level)
         file_handler.setFormatter(formatter)
 
-        if config["logging"].get("filter", None):
-            file_handler.addFilter(ParsingFilter(config, config["logging"]["filter"]))
+        with contextlib.suppress(KeyError):
+            if config["logging"]["filter"]:
+                file_handler.addFilter(
+                    ParsingFilter(config, config["logging"]["filter"])
+                )
 
         rootlogger.addHandler(file_handler)
     _LOGGER.info("=" * 40)
     _LOGGER.info(_("Started opsdroid %s"), __version__)
-    _LOGGER.info(config["logging"])
 
 
 def get_logging_level(logging_level):
