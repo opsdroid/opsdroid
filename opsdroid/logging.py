@@ -93,10 +93,7 @@ def configure_logging(config):
     console_handler.setFormatter(formatter)
 
     with contextlib.suppress(KeyError):
-        if config["logging"]["filter"]:
-            console_handler.addFilter(
-                ParsingFilter(config, config["logging"]["filter"])
-            )
+        console_handler.addFilter(ParsingFilter(config, config["logging"]["filter"]))
 
     rootlogger.addHandler(console_handler)
 
@@ -113,10 +110,7 @@ def configure_logging(config):
         file_handler.setFormatter(formatter)
 
         with contextlib.suppress(KeyError):
-            if config["logging"]["filter"]:
-                file_handler.addFilter(
-                    ParsingFilter(config, config["logging"]["filter"])
-                )
+            file_handler.addFilter(ParsingFilter(config, config["logging"]["filter"]))
 
         rootlogger.addHandler(file_handler)
     _LOGGER.info("=" * 40)
