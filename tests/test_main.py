@@ -1,6 +1,5 @@
 import unittest
 import unittest.mock as mock
-import logging
 import os
 import sys
 import shutil
@@ -53,71 +52,6 @@ class TestMain(unittest.TestCase):
         with mock.patch.object(gettext, "translation") as translation:
             opsdroid.configure_lang({"lang": "es"})
             self.assertTrue(translation.return_value.install.called)
-
-    def test_set_logging_level(self):
-        self.assertEqual(logging.DEBUG, opsdroid.get_logging_level("debug"))
-        self.assertEqual(logging.INFO, opsdroid.get_logging_level("info"))
-        self.assertEqual(logging.WARNING, opsdroid.get_logging_level("warning"))
-        self.assertEqual(logging.ERROR, opsdroid.get_logging_level("error"))
-        self.assertEqual(logging.CRITICAL, opsdroid.get_logging_level("critical"))
-        self.assertEqual(logging.INFO, opsdroid.get_logging_level(""))
-
-    def test_configure_no_logging(self):
-        config = {"logging": {"path": False, "console": False}}
-        opsdroid.configure_logging(config)
-        rootlogger = logging.getLogger()
-        self.assertEqual(len(rootlogger.handlers), 1)
-        self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
-        self.assertEqual(rootlogger.handlers[0].level, logging.CRITICAL)
-
-    def test_configure_file_logging(self):
-        config = {
-            "logging": {
-                "path": os.path.join(self._tmp_dir, "output.log"),
-                "console": False,
-            }
-        }
-        opsdroid.configure_logging(config)
-        rootlogger = logging.getLogger()
-        self.assertEqual(len(rootlogger.handlers), 2)
-        self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
-        self.assertEqual(rootlogger.handlers[0].level, logging.CRITICAL)
-        self.assertEqual(logging.FileHandler, type(rootlogger.handlers[1]))
-        self.assertEqual(rootlogger.handlers[1].level, logging.INFO)
-
-    def test_configure_file_logging_directory_not_exists(self):
-        with mock.patch("logging.getLogger") as logmock:
-            mocklogger = mock.MagicMock()
-            mocklogger.handlers = [True]
-            logmock.return_value = mocklogger
-            config = {
-                "logging": {
-                    "path": os.path.join(
-                        self._tmp_dir, "mynonexistingdirectory", "output.log"
-                    ),
-                    "console": False,
-                }
-            }
-            opsdroid.configure_logging(config)
-            # self.assertEqual(os.path.isfile(config['logging']['path']), True)
-
-    def test_configure_console_logging(self):
-        config = {"logging": {"path": False, "level": "error", "console": True}}
-        opsdroid.configure_logging(config)
-        rootlogger = logging.getLogger()
-        self.assertEqual(len(rootlogger.handlers), 1)
-        self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
-        self.assertEqual(rootlogger.handlers[0].level, logging.ERROR)
-
-    def test_configure_default_logging(self):
-        config = {}
-        opsdroid.configure_logging(config)
-        rootlogger = logging.getLogger()
-        self.assertEqual(len(rootlogger.handlers), 2)
-        self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
-        self.assertEqual(rootlogger.handlers[0].level, logging.INFO)
-        self.assertEqual(logging.FileHandler, type(rootlogger.handlers[1]))
-        self.assertEqual(rootlogger.handlers[1].level, logging.INFO)
 
     def test_welcome_message(self):
         config = {"welcome-message": True}
