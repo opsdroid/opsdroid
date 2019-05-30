@@ -12,6 +12,7 @@ from emoji import demojize
 
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message, Reaction
+from opsdroid.connector.slack.events import Blocks
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -139,6 +140,20 @@ class ConnectorSlack(Connector):
             as_user=False,
             username=self.bot_name,
             icon_emoji=self.icon_emoji,
+        )
+
+    @register_event(Blocks)
+    async def send_blocks(self, blocks):
+        """Respond with structured blocks."""
+        _LOGGER.debug("Responding with interactive blocks in room  %s", blocks.target)
+        await self.slacker.chat.post(
+            "chat.postMessage",
+            data={
+                "channel": blocks.target,
+                "username": self.bot_name,
+                "blocks": blocks.blocks,
+                "icon_emoji": self.icon_emoji,
+            },
         )
 
     @register_event(Reaction)
