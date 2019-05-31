@@ -120,7 +120,7 @@ class ConnectorMatrix(Connector):
             try:
                 response = await self.connection.sync(
                     self.connection.sync_token,
-                    timeout_ms=int(5 * 60 * 1e3),  # 5m in ms
+                    timeout_ms=int(60 * 1e3),  # 1m in ms
                     filter=self.filter_id,
                 )
                 _LOGGER.debug("matrix sync request returned")
