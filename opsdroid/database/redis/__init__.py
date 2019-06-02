@@ -5,7 +5,6 @@ import time
 
 import aioredis
 from aioredis import parser
-import asyncio_redis
 
 from opsdroid.database import Database
 
