@@ -9,6 +9,7 @@ import slacker
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector.slack import ConnectorSlack
+from opsdroid.connector.slack.events import Blocks
 from opsdroid.events import Message, Reaction
 from opsdroid.__main__ import configure_lang
 
@@ -231,6 +232,19 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         connector.slacker.chat.post_message = amock.CoroutineMock()
         await connector.send(Message("test", "user", "room", connector))
         self.assertTrue(connector.slacker.chat.post_message.called)
+
+    async def test_send_blocks(self):
+        connector = ConnectorSlack({"api-token": "abc123"}, opsdroid=OpsDroid())
+        connector.slacker.chat.post = amock.CoroutineMock()
+        await connector.send(
+            Blocks(
+                [{"type": "section", "text": {"type": "mrkdwn", "text": "*Test*"}}],
+                "user",
+                "room",
+                connector,
+            )
+        )
+        self.assertTrue(connector.slacker.chat.post.called)
 
     async def test_react(self):
         connector = ConnectorSlack({"api-token": "abc123"})

@@ -78,7 +78,9 @@ async def parse_dialogflow(opsdroid, skills, message, config):
                         ):
                             message.dialogflow = result
                             message.apiai = message.dialogflow
-                            for key, entity in result["result"]["parameters"].items():
+                            for key, entity in (
+                                result["result"].get("parameters", {}).items()
+                            ):
                                 await message.update_entity(key, entity, None)
                             _LOGGER.debug(
                                 _("Matched against skill %s"), skill.config["name"]

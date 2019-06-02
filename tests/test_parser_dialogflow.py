@@ -40,7 +40,7 @@ class TestParserDialogflow(asynctest.TestCase):
         result = amock.Mock()
         result.json = amock.CoroutineMock()
         result.json.return_value = {
-            "result": {"action": "myaction", "parameters": {}, "score": 0.7},
+            "result": {"action": "myaction", "score": 0.7},
             "status": {"code": 200, "errorType": "success"},
         }
         with amock.patch("aiohttp.ClientSession.post") as patched_request:
@@ -66,7 +66,7 @@ class TestParserDialogflow(asynctest.TestCase):
                 dialogflow, "call_dialogflow"
             ) as mocked_call_dialogflow:
                 mocked_call_dialogflow.return_value = {
-                    "result": {"action": "myaction", "parameters": {}, "score": 0.7},
+                    "result": {"action": "myaction", "score": 0.7},
                     "status": {"code": 200, "errorType": "success"},
                 }
                 skills = await dialogflow.parse_dialogflow(
@@ -146,7 +146,7 @@ class TestParserDialogflow(asynctest.TestCase):
                 dialogflow, "call_dialogflow"
             ) as mocked_call_dialogflow:
                 mocked_call_dialogflow.return_value = {
-                    "result": {"action": "myaction", "parameters": {}, "score": 0.7},
+                    "result": {"action": "myaction", "score": 0.7},
                     "status": {"code": 200, "errorType": "success"},
                 }
                 skills = await dialogflow.parse_dialogflow(
@@ -172,7 +172,7 @@ class TestParserDialogflow(asynctest.TestCase):
                 dialogflow, "call_dialogflow"
             ) as mocked_call_dialogflow:
                 mocked_call_dialogflow.return_value = {
-                    "result": {"action": "myaction", "parameters": {}, "score": 0.7},
+                    "result": {"action": "myaction", "score": 0.7},
                     "status": {"code": 404, "errorType": "not found"},
                 }
                 skills = await dialogflow.parse_dialogflow(
@@ -195,7 +195,7 @@ class TestParserDialogflow(asynctest.TestCase):
                 dialogflow, "call_dialogflow"
             ) as mocked_call_dialogflow:
                 mocked_call_dialogflow.return_value = {
-                    "result": {"action": "myaction", "parameters": {}, "score": 0.7},
+                    "result": {"action": "myaction", "score": 0.7},
                     "status": {"code": 200, "errorType": "success"},
                 }
                 await dialogflow.parse_dialogflow(

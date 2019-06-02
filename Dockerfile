@@ -1,4 +1,4 @@
-FROM python:3.6-alpine
+FROM python:3.7-alpine
 LABEL maintainer="Jacob Tomlinson <jacob@tom.linson.uk>"
 
 RUN mkdir -p /usr/src/app
