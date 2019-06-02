@@ -119,8 +119,15 @@ class Event(metaclass=EventMetaClass):
             )
             self.responded_to = True
 
-    async def update_entity(self, name, value, confidence):
+    async def update_entity(self, name, value, confidence=None):
         """Add or update an entitiy.
+
+        Adds or updates an entitiy entry for an event.
+
+        Args:
+            name (string): String name of entity
+            value (string): String value of entity
+            confidence (float, optional): Confidence that entity is correct
 
         """
         self.entities[name] = {"value": value, "confidence": confidence}
