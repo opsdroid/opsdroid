@@ -12,6 +12,7 @@ from emoji import demojize
 
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message, Reaction
+from opsdroid.connector.slack.events import Blocks
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -26,12 +27,12 @@ class ConnectorSlack(Connector):
         _LOGGER.debug("Starting Slack connector")
         self.name = "slack"
         self.default_target = config.get("default-room", "#general")
-        self.icon_emoji = config.get("icon-emoji", ':robot_face:')
+        self.icon_emoji = config.get("icon-emoji", ":robot_face:")
         self.token = config["api-token"]
         self.timeout = config.get("connect-timeout", 10)
         self.slacker = Slacker(token=self.token, timeout=self.timeout)
         self.websocket = None
-        self.bot_name = config.get("bot-name", 'opsdroid')
+        self.bot_name = config.get("bot-name", "opsdroid")
         self.known_users = {}
         self.keepalive = None
         self.reconnecting = False
@@ -44,7 +45,7 @@ class ConnectorSlack(Connector):
 
         try:
             connection = await self.slacker.rtm.start()
-            self.websocket = await websockets.connect(connection.body['url'])
+            self.websocket = await websockets.connect(connection.body["url"])
 
             _LOGGER.debug("Connected as %s", self.bot_name)
             _LOGGER.debug("Using icon %s", self.icon_emoji)
@@ -53,14 +54,18 @@ class ConnectorSlack(Connector):
 
             if self.keepalive is None or self.keepalive.done():
                 self.keepalive = self.opsdroid.eventloop.create_task(
-                    self.keepalive_websocket())
+                    self.keepalive_websocket()
+                )
         except aiohttp.ClientOSError as error:
             _LOGGER.error(error)
             _LOGGER.error("Failed to connect to Slack, retrying in 10")
             await self.reconnect(10)
         except slacker.Error as error:
-            _LOGGER.error("Unable to connect to Slack due to %s - "
-                          "The Slack Connector will not be available.", error)
+            _LOGGER.error(
+                "Unable to connect to Slack due to %s - "
+                "The Slack Connector will not be available.",
+                error,
+            )
         except Exception:
             await self.disconnect()
             raise
@@ -98,12 +103,10 @@ class ConnectorSlack(Connector):
 
     async def process_message(self, message):
         """Process a raw message and pass it to the parser."""
-        if "type" in message and message["type"] == "message" and \
-                "user" in message:
+        if "type" in message and message["type"] == "message" and "user" in message:
 
             # Ignore bot messages
-            if "subtype" in message and \
-                    message["subtype"] == "bot_message":
+            if "subtype" in message and message["subtype"] == "bot_message":
                 return
 
             # Lookup username
@@ -115,25 +118,43 @@ class ConnectorSlack(Connector):
 
             # Replace usernames in the message
             _LOGGER.debug("Replacing userids in message with usernames")
-            message["text"] = await self.replace_usernames(
-                message["text"])
+            message["text"] = await self.replace_usernames(message["text"])
 
-            await self.opsdroid.parse(Message(message["text"],
-                                              user_info["name"],
-                                              message["channel"],
-                                              self,
-                                              raw_event=message))
+            await self.opsdroid.parse(
+                Message(
+                    message["text"],
+                    user_info["name"],
+                    message["channel"],
+                    self,
+                    raw_event=message,
+                )
+            )
 
     @register_event(Message)
     async def send_message(self, message):
         """Respond with a message."""
-        _LOGGER.debug("Responding with: '%s' in room  %s",
-                      message.text, message.target)
-        await self.slacker.chat.post_message(message.target,
-                                             message.text,
-                                             as_user=False,
-                                             username=self.bot_name,
-                                             icon_emoji=self.icon_emoji)
+        _LOGGER.debug("Responding with: '%s' in room  %s", message.text, message.target)
+        await self.slacker.chat.post_message(
+            message.target,
+            message.text,
+            as_user=False,
+            username=self.bot_name,
+            icon_emoji=self.icon_emoji,
+        )
+
+    @register_event(Blocks)
+    async def send_blocks(self, blocks):
+        """Respond with structured blocks."""
+        _LOGGER.debug("Responding with interactive blocks in room  %s", blocks.target)
+        await self.slacker.chat.post(
+            "chat.postMessage",
+            data={
+                "channel": blocks.target,
+                "username": self.bot_name,
+                "blocks": blocks.blocks,
+                "icon_emoji": self.icon_emoji,
+            },
+        )
 
     @register_event(Reaction)
     async def send_reaction(self, reaction):
@@ -141,14 +162,17 @@ class ConnectorSlack(Connector):
         emoji = demojize(reaction.emoji)
         _LOGGER.debug("Reacting with: %s", emoji)
         try:
-            await self.slacker.reactions.post('reactions.add', data={
-                'name': emoji,
-                'channel': reaction.target,
-                'timestamp': reaction.linked_event.raw_event['ts']
-            })
+            await self.slacker.reactions.post(
+                "reactions.add",
+                data={
+                    "name": emoji,
+                    "channel": reaction.target,
+                    "timestamp": reaction.linked_event.raw_event["ts"],
+                },
+            )
         except slacker.Error as error:
-            if str(error) == 'invalid_name':
-                _LOGGER.warning('Slack does not support the emoji %s', emoji)
+            if str(error) == "invalid_name":
+                _LOGGER.warning("Slack does not support the emoji %s", emoji)
             else:
                 raise
 
@@ -163,11 +187,14 @@ class ConnectorSlack(Connector):
         self._message_id += 1
         try:
             await self.websocket.send(
-                json.dumps({'id': self._message_id, 'type': 'ping'}))
-        except (websockets.exceptions.InvalidState,
-                websockets.exceptions.ConnectionClosed,
-                aiohttp.ClientOSError,
-                TimeoutError):
+                json.dumps({"id": self._message_id, "type": "ping"})
+            )
+        except (
+            websockets.exceptions.InvalidState,
+            websockets.exceptions.ConnectionClosed,
+            aiohttp.ClientOSError,
+            TimeoutError,
+        ):
             _LOGGER.info("Slack websocket closed, reconnecting...")
             if not self.reconnecting:
                 await self.reconnect()
@@ -190,6 +217,7 @@ class ConnectorSlack(Connector):
         userids = re.findall(r"\<\@([A-Z0-9]+)(?:\|.+)?\>", message)
         for userid in userids:
             user_info = await self.lookup_username(userid)
-            message = message.replace("<@{userid}>".format(userid=userid),
-                                      user_info["name"])
+            message = message.replace(
+                "<@{userid}>".format(userid=userid), user_info["name"]
+            )
         return message

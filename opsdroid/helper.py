@@ -21,6 +21,7 @@ def get_opsdroid():
 
     """
     from opsdroid.core import OpsDroid
+
     if len(OpsDroid.instances) == 1:
         return OpsDroid.instances[0]
 
@@ -39,6 +40,7 @@ def del_rw(action, name, exc):
     """
     os.chmod(name, stat.S_IWRITE)
     os.remove(name)
+
 
 # This is meant to provide backwards compatibility for versions
 # prior to  0.12.0 in the future this will probably be deleted
@@ -61,8 +63,7 @@ def move_config_to_appdir(src, dst):
         dst : destination folder to paste the .yaml files '/path/dst/.
 
     """
-    yaml_files = [file for file in os.listdir(src)
-                  if '.yaml' in file[-5:]]
+    yaml_files = [file for file in os.listdir(src) if ".yaml" in file[-5:]]
 
     if not os.path.isdir(dst):
         os.mkdir(dst)
@@ -71,10 +72,16 @@ def move_config_to_appdir(src, dst):
         original_file = os.path.join(src, file)
         copied_file = os.path.join(dst, file)
         shutil.copyfile(original_file, copied_file)
-        _LOGGER.info(_('File %s copied from %s to %s '
-                       'run opsdroid -e to edit the '
-                       'main config file'), file,
-                     src, dst)
+        _LOGGER.info(
+            _(
+                "File %s copied from %s to %s "
+                "run opsdroid -e to edit the "
+                "main config file"
+            ),
+            file,
+            src,
+            dst,
+        )
         if filecmp.cmp(original_file, copied_file):
             os.remove(original_file)
 
@@ -89,7 +96,7 @@ def file_is_ipython_notebook(path):
         path : source path with .ipynb file '/path/src/my_file.ipynb.
 
     """
-    return path.lower().endswith('.ipynb')
+    return path.lower().endswith(".ipynb")
 
 
 def convert_ipynb_to_script(notebook_path, output_path):
@@ -104,11 +111,11 @@ def convert_ipynb_to_script(notebook_path, output_path):
         output_path : destination path with .py file '/path/src/my_file.py.
 
     """
-    with open(notebook_path, 'r') as notebook_path_handle:
+    with open(notebook_path, "r") as notebook_path_handle:
         raw_notebook = notebook_path_handle.read()
         notebook = nbformat.reads(raw_notebook, as_version=4)
         script, _ = PythonExporter().from_notebook_node(notebook)
-        with open(output_path, 'w') as output_path_handle:
+        with open(output_path, "w") as output_path_handle:
             output_path_handle.write(script)
 
 
@@ -140,10 +147,10 @@ def add_skill_attributes(func):
         func: The skill function with the new attributes.
 
     """
-    if not hasattr(func, 'skill'):
+    if not hasattr(func, "skill"):
         func.skill = True
-    if not hasattr(func, 'matchers'):
+    if not hasattr(func, "matchers"):
         func.matchers = []
-    if not hasattr(func, 'constraints'):
+    if not hasattr(func, "constraints"):
         func.constraints = []
     return func

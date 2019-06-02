@@ -1,4 +1,3 @@
-
 import ssl
 
 import asynctest
@@ -38,11 +37,11 @@ class TestWeb(asynctest.TestCase):
         with OpsDroid() as opsdroid:
             opsdroid.config["web"] = {}
             app = web.Web(opsdroid)
-            self.assertEqual(app.get_host, "127.0.0.1")
-
-            opsdroid.config["web"] = {"host": "0.0.0.0"}
-            app = web.Web(opsdroid)
             self.assertEqual(app.get_host, "0.0.0.0")
+
+            opsdroid.config["web"] = {"host": "127.0.0.1"}
+            app = web.Web(opsdroid)
+            self.assertEqual(app.get_host, "127.0.0.1")
 
     async def test_web_get_ssl(self):
         """Check the host getter."""
@@ -51,17 +50,21 @@ class TestWeb(asynctest.TestCase):
             app = web.Web(opsdroid)
             self.assertEqual(app.get_ssl_context, None)
 
-            opsdroid.config["web"] = {"ssl":
-                                      {"cert": "tests/ssl/cert.pem",
-                                       "key": "tests/ssl/key.pem"}}
+            opsdroid.config["web"] = {
+                "ssl": {"cert": "tests/ssl/cert.pem", "key": "tests/ssl/key.pem"}
+            }
             app = web.Web(opsdroid)
-            self.assertEqual(type(app.get_ssl_context),
-                             type(ssl.SSLContext(ssl.PROTOCOL_SSLv23)))
+            self.assertEqual(
+                type(app.get_ssl_context), type(ssl.SSLContext(ssl.PROTOCOL_SSLv23))
+            )
             self.assertEqual(app.get_port, 8443)
 
-            opsdroid.config["web"] = {"ssl":
-                                      {"cert": "/path/to/nonexistant/cert",
-                                       "key": "/path/to/nonexistant/key"}}
+            opsdroid.config["web"] = {
+                "ssl": {
+                    "cert": "/path/to/nonexistant/cert",
+                    "key": "/path/to/nonexistant/key",
+                }
+            }
             app = web.Web(opsdroid)
             self.assertEqual(app.get_ssl_context, None)
 
@@ -80,7 +83,8 @@ class TestWeb(asynctest.TestCase):
             opsdroid.config["web"] = {}
             app = web.Web(opsdroid)
             self.assertEqual(
-                type(await app.web_index_handler(None)), aiohttp.web.Response)
+                type(await app.web_index_handler(None)), aiohttp.web.Response
+            )
 
     async def test_web_stats_handler(self):
         """Check the stats handler."""
@@ -88,14 +92,17 @@ class TestWeb(asynctest.TestCase):
             opsdroid.config["web"] = {}
             app = web.Web(opsdroid)
             self.assertEqual(
-                type(await app.web_stats_handler(None)), aiohttp.web.Response)
+                type(await app.web_stats_handler(None)), aiohttp.web.Response
+            )
 
     async def test_web_start(self):
         """Check the stats handler."""
         with OpsDroid() as opsdroid:
-            with amock.patch('aiohttp.web.AppRunner.setup') as mock_runner, \
-                    amock.patch('aiohttp.web.TCPSite.__init__') as mock_tcpsite, \
-                    amock.patch('aiohttp.web.TCPSite.start') as mock_tcpsite_start:
+            with amock.patch("aiohttp.web.AppRunner.setup") as mock_runner, amock.patch(
+                "aiohttp.web.TCPSite.__init__"
+            ) as mock_tcpsite, amock.patch(
+                "aiohttp.web.TCPSite.start"
+            ) as mock_tcpsite_start:
                 mock_tcpsite.return_value = None
                 app = web.Web(opsdroid)
                 await app.start()

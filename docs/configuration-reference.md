@@ -192,8 +192,8 @@ If you are using one of the default paths for your log you can run the command `
 
 ```yaml
 logging:
-  path: ~/.opsdroid/output.log
   level: info
+  path: ~/.opsdroid/output.log
   console: true
 
 connectors:
@@ -202,6 +202,127 @@ connectors:
 skills:
   - name: hello
   - name: seen
+```
+
+#### Optional logging arguments
+
+You can pass optional arguments to the logging configuration to extend the opsdroid logging.
+
+##### extended mode
+
+The extended mode will include the function or method name of where that log was called.
+
+```yaml
+logging:
+  level: info
+  path: ~/.opsdroid/output.log
+  console: true
+  extended: true
+```
+
+*example:*
+```shell
+INFO opsdroid.logging.configure_logging(): ========================================
+INFO opsdroid.logging.configure_logging(): Started opsdroid v0.14.1
+```
+
+##### Whitelist log names
+
+You can choose which logs should be shown by whitelisting them. If you are interested only in the log files located in the core, you can whitelist `opsdroid.core` and opsdroid will only show you the logs in this file.
+
+```yaml
+logging:
+  level: info
+  path: ~/.opsdroid/output.log
+  console: true
+  filter: 
+    whitelist:
+      - "opsdroid.core"
+      - "opsdroid.logging"
+```
+
+*example:*
+```shell
+DEBUG opsdroid.core: Loaded 5 skills
+DEBUG opsdroid.core: Adding database: DatabaseSqlite
+```
+
+_Note: You can also use the extended mode to filter out logs - this should allow you to have even more flexibility while dealing with your logs._
+
+##### Blacklist log names
+
+If you want to get logs from all the files but one, you can choose a file to blacklist and opsdroid will filter that result from the logs. This is particularly important if you have huge objects inside your database.
+```yaml
+logging:
+  level: info
+  path: ~/.opsdroid/output.log
+  console: true
+  filter: 
+    blacklist:
+      - "opsdroid.loader"
+      - "aiosqlite"
+```
+
+*example:*
+```shell
+INFO opsdroid.logging: ========================================
+INFO opsdroid.logging: Started opsdroid v0.14.1+93.g3513177.dirty
+INFO opsdroid: ========================================
+INFO opsdroid: You can customise your opsdroid by modifying your configuration.yaml
+INFO opsdroid: Read more at: http://opsdroid.readthedocs.io/#configuration
+INFO opsdroid: Watch the Get Started Videos at: http://bit.ly/2fnC0Fh
+INFO opsdroid: Install Opsdroid Desktop at:
+https://github.com/opsdroid/opsdroid-desktop/releases
+INFO opsdroid: ========================================
+DEBUG asyncio: Using selector: KqueueSelector
+DEBUG opsdroid.core: Loaded 5 skills
+DEBUG root: Loaded hello module
+WARNING opsdroid.core: <skill module>.setup() is deprecated and will be removed in a future release. Please use class-based skills instead.
+DEBUG opsdroid.core: Adding database: DatabaseSqlite
+DEBUG opsdroid.database.sqlite: Loaded sqlite database connector
+INFO opsdroid.database.sqlite: Connected to sqlite /Users/fabiorosado/Library/Application Support/opsdroid/sqlite.db
+DEBUG opsdroid-modules.connector.shell: Loaded shell connector
+DEBUG opsdroid.connector.websocket: Starting Websocket connector
+INFO opsdroid.connector.rocketchat: Connecting to Rocket.Chat
+DEBUG opsdroid.connector.rocketchat: Connected to Rocket.Chat as FabioRosado
+INFO opsdroid.core: Opsdroid is now running, press ctrl+c to exit.
+DEBUG opsdroid-modules.connector.shell: Connecting to shell
+INFO opsdroid.web: Started web server on http://0.0.0.0:8080
+```
+
+_Note: You can also use the extended mode to filter out logs - this should allow you to have even more flexibility while dealing with your logs._
+
+##### Using both whitelist and blacklist filter
+You are only able to filter either with the whitelist filter or the blacklist filter. If you add both in your configuration file, you will get a warning 
+and only the whitelist filter will be used. This behavior was done because setting two filters causes an RuntimeError exception to be raised(_maximum recursion depth exceeded_).
+
+```yaml
+logging:
+  level: info
+  path: ~/.opsdroid/output.log
+  console: true
+  filter: 
+    whitelist:
+      - "opsdroid.core"
+      - "opsdroid.logging"
+      - "opsdroid.web"
+    blacklist:
+      - "opsdroid.loader"
+      - "aiosqlite"
+```
+
+*example:*
+
+```shell
+WARNING opsdroid.logging: Both whitelist and blacklist filters found in configuration. Only one can be used at a time - only the whitelist filter will be used.
+INFO opsdroid.logging: ========================================
+INFO opsdroid.logging: Started opsdroid v0.14.1+103.g122e010.dirty
+DEBUG opsdroid.core: Loaded 5 skills
+DEBUG root: Loaded hello module
+WARNING opsdroid.core: <skill module>.setup() is deprecated and will be removed in a future release. Please use class-based skills instead.
+DEBUG opsdroid.core: Adding database: DatabaseSqlite
+INFO opsdroid.core: Opsdroid is now running, press ctrl+c to exit.
+INFO opsdroid.web: Started web server on http://0.0.0.0:8080
 ```
 
 ### Installation Path
@@ -282,11 +403,11 @@ lang: <ISO 639-1 code -  example: 'en'>
 
 Configure the REST API in opsdroid.
 
-By default, opsdroid will start a web server accessible only to localhost on port `8080` (or `8443` if SSL details are provided). For more information see the [REST API docs](rest-api).
+By default, opsdroid will start a web server on port `8080` (or `8443` if SSL details are provided). For more information see the [REST API docs](rest-api).
 
 ```yaml
 web:
-  host: '127.0.0.1'  # set to '0.0.0.0' to allow all traffic
+  host: '0.0.0.0'
   port: 8080
   ssl:
     cert: /path/to/cert.pem

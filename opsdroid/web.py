@@ -25,10 +25,10 @@ class Web:
         self.web_app = web.Application()
         self.runner = web.AppRunner(self.web_app)
         self.site = None
-        self.web_app.router.add_get('/', self.web_index_handler)
-        self.web_app.router.add_get('', self.web_index_handler)
-        self.web_app.router.add_get('/stats', self.web_stats_handler)
-        self.web_app.router.add_get('/stats/', self.web_stats_handler)
+        self.web_app.router.add_get("/", self.web_index_handler)
+        self.web_app.router.add_get("", self.web_index_handler)
+        self.web_app.router.add_get("/stats", self.web_stats_handler)
+        self.web_app.router.add_get("/stats/", self.web_stats_handler)
 
     @property
     def get_port(self):
@@ -64,7 +64,7 @@ class Web:
         try:
             host = self.config["host"]
         except KeyError:
-            host = '127.0.0.1'
+            host = "0.0.0.0"
         return host
 
     @property
@@ -91,16 +91,19 @@ class Web:
 
     async def start(self):
         """Start web servers."""
-        _LOGGER.info(_("Started web server on %s://%s%s"),
-                     "http" if self.get_ssl_context is None else "https",
-                     self.get_host,
-                     ":{}".format(self.get_port)
-                     if self.get_port not in (80, 443) else "")
+        _LOGGER.info(
+            _("Started web server on %s://%s%s"),
+            "http" if self.get_ssl_context is None else "https",
+            self.get_host,
+            ":{}".format(self.get_port) if self.get_port not in (80, 443) else "",
+        )
         await self.runner.setup()
-        self.site = web.TCPSite(self.runner,
-                                host=self.get_host,
-                                port=self.get_port,
-                                ssl_context=self.get_ssl_context)
+        self.site = web.TCPSite(
+            self.runner,
+            host=self.get_host,
+            port=self.get_port,
+            ssl_context=self.get_ssl_context,
+        )
         await self.site.start()
 
     async def stop(self):
@@ -122,29 +125,29 @@ class Web:
 
     def register_skill(self, opsdroid, skill, webhook):
         """Register a new skill in the web app router."""
+
         async def wrapper(req, opsdroid=opsdroid, config=skill.config):
             """Wrap up the aiohttp handler."""
             _LOGGER.info(_("Running skill %s via webhook"), webhook)
-            opsdroid.stats["webhooks_called"] = \
-                opsdroid.stats["webhooks_called"] + 1
+            opsdroid.stats["webhooks_called"] = opsdroid.stats["webhooks_called"] + 1
             resp = await skill(opsdroid, config, req)
             if isinstance(resp, web.Response):
                 return resp
             return Web.build_response(200, {"called_skill": webhook})
 
         self.web_app.router.add_post(
-            "/skill/{}/{}".format(skill.config["name"], webhook), wrapper)
+            "/skill/{}/{}".format(skill.config["name"], webhook), wrapper
+        )
         self.web_app.router.add_post(
-            "/skill/{}/{}/".format(skill.config["name"], webhook), wrapper)
+            "/skill/{}/{}/".format(skill.config["name"], webhook), wrapper
+        )
 
     def setup_webhooks(self, skills):
         """Add the webhooks for the webhook skills to the router."""
         for skill in skills:
             for matcher in skill.matchers:
                 if "webhook" in matcher:
-                    self.register_skill(
-                        self.opsdroid, skill, matcher["webhook"]
-                    )
+                    self.register_skill(self.opsdroid, skill, matcher["webhook"])
 
     async def web_index_handler(self, request):
         """Handle root web request to opsdroid API.
@@ -156,8 +159,7 @@ class Web:
             dict: returns successful status code and greeting for the root page
 
         """
-        return self.build_response(200, {
-            "message": "Welcome to the opsdroid API"})
+        return self.build_response(200, {"message": "Welcome to the opsdroid API"})
 
     async def web_stats_handler(self, request):
         """Handle stats request.
@@ -172,23 +174,27 @@ class Web:
         """
         stats = self.opsdroid.stats
         try:
-            stats["average_response_time"] = \
+            stats["average_response_time"] = (
                 stats["total_response_time"] / stats["total_responses"]
+            )
         except ZeroDivisionError:
             stats["average_response_time"] = 0
 
-        return self.build_response(200, {
-            "version": __version__,
-            "messages": {
-                "total_parsed": stats["messages_parsed"],
-                "webhooks_called": stats["webhooks_called"],
-                "total_response_time": stats["total_response_time"],
-                "total_responses": stats["total_responses"],
-                "average_response_time": stats["average_response_time"]
+        return self.build_response(
+            200,
+            {
+                "version": __version__,
+                "messages": {
+                    "total_parsed": stats["messages_parsed"],
+                    "webhooks_called": stats["webhooks_called"],
+                    "total_response_time": stats["total_response_time"],
+                    "total_responses": stats["total_responses"],
+                    "average_response_time": stats["average_response_time"],
+                },
+                "modules": {
+                    "skills": len(self.opsdroid.skills),
+                    "connectors": len(self.opsdroid.connectors),
+                    "databases": len(self.opsdroid.memory.databases),
+                },
             },
-            "modules": {
-                "skills": len(self.opsdroid.skills),
-                "connectors": len(self.opsdroid.connectors),
-                "databases": len(self.opsdroid.memory.databases)
-            }
-        })
+        )
