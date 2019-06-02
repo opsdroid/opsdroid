@@ -37,11 +37,14 @@ async def parse_format(opsdroid, skills, message):
                         await message.update_entity(
                             group, value, REGEX_ENTITY_CONFIDENCE
                         )
-                    matched_skills.append({
-                        "score": await calculate_score(
-                            opts["expression"], opts["score_factor"]),
-                        "skill": skill,
-                        "config": skill.config,
-                        "message": message
-                    })
+                    matched_skills.append(
+                        {
+                            "score": await calculate_score(
+                                opts["expression"], opts["score_factor"]
+                            ),
+                            "skill": skill,
+                            "config": skill.config,
+                            "message": message,
+                        }
+                    )
     return matched_skills

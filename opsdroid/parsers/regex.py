@@ -17,6 +17,7 @@ async def calculate_score(regex, score_factor):
 
 async def match_regex(text, opts):
     """Return False if matching does not need to be case sensitive."""
+
     def is_case_sensitive():
         if opts["case_sensitive"]:
             return False
@@ -45,11 +46,14 @@ async def parse_regex(opsdroid, skills, message):
                         await message.update_entity(
                             regroup, value, REGEX_ENTITY_CONFIDENCE
                         )
-                    matched_skills.append({
-                        "score": await calculate_score(
-                            opts["expression"], opts["score_factor"]),
-                        "skill": skill,
-                        "config": skill.config,
-                        "message": message
-                    })
+                    matched_skills.append(
+                        {
+                            "score": await calculate_score(
+                                opts["expression"], opts["score_factor"]
+                            ),
+                            "skill": skill,
+                            "config": skill.config,
+                            "message": message,
+                        }
+                    )
     return matched_skills

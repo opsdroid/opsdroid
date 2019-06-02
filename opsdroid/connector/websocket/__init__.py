@@ -13,9 +13,7 @@ from opsdroid.events import Message
 
 
 _LOGGER = logging.getLogger(__name__)
-HEADERS = {
-    "Access-Control-Allow-Origin": "*"
-}
+HEADERS = {"Access-Control-Allow-Origin": "*"}
 
 
 class ConnectorWebsocket(Connector):
@@ -31,19 +29,19 @@ class ConnectorWebsocket(Connector):
         self.accepting_connections = True
         self.active_connections = {}
         self.available_connections = []
-        self.bot_name = self.config.get("bot-name", 'opsdroid')
+        self.bot_name = self.config.get("bot-name", "opsdroid")
 
     async def connect(self):
         """Connect to the chat service."""
         self.accepting_connections = True
 
         self.opsdroid.web_server.web_app.router.add_get(
-            "/connector/websocket/{socket}",
-            self.websocket_handler)
+            "/connector/websocket/{socket}", self.websocket_handler
+        )
 
         self.opsdroid.web_server.web_app.router.add_post(
-            "/connector/websocket",
-            self.new_websocket_handler)
+            "/connector/websocket", self.new_websocket_handler
+        )
 
     async def disconnect(self):
         """Disconnect from current sessions."""
@@ -51,41 +49,44 @@ class ConnectorWebsocket(Connector):
         connections_to_close = self.active_connections.copy()
         for connection in connections_to_close:
             await connections_to_close[connection].close(
-                code=WSCloseCode.GOING_AWAY,
-                message='Server shutdown')
+                code=WSCloseCode.GOING_AWAY, message="Server shutdown"
+            )
 
     async def new_websocket_handler(self, request):
         """Handle for aiohttp creating websocket connections."""
-        if len(self.active_connections) + len(self.available_connections) \
-                < self.max_connections and self.accepting_connections:
+        if (
+            len(self.active_connections) + len(self.available_connections)
+            < self.max_connections
+            and self.accepting_connections
+        ):
             socket = {"id": str(uuid.uuid1()), "date": datetime.now()}
             self.available_connections.append(socket)
             return aiohttp.web.Response(
-                text=json.dumps({"socket": socket["id"]}),
-                headers=HEADERS,
-                status=200)
+                text=json.dumps({"socket": socket["id"]}), headers=HEADERS, status=200
+            )
         return aiohttp.web.Response(
-            text=json.dumps("No connections available"),
-            headers=HEADERS,
-            status=429)
+            text=json.dumps("No connections available"), headers=HEADERS, status=429
+        )
 
     async def websocket_handler(self, request):
         """Handle for aiohttp handling websocket connections."""
-        socket = request.match_info.get('socket')
-        available = [item for item in self.available_connections
-                     if item["id"] == socket]
+        socket = request.match_info.get("socket")
+        available = [
+            item for item in self.available_connections if item["id"] == socket
+        ]
         if len(available) != 1:
             return aiohttp.web.Response(
                 text=json.dumps("Please request a socket first"),
                 headers=HEADERS,
-                status=400)
-        if (datetime.now() - available[0]["date"]).total_seconds() \
-                > self.connection_timeout:
+                status=400,
+            )
+        if (
+            datetime.now() - available[0]["date"]
+        ).total_seconds() > self.connection_timeout:
             self.available_connections.remove(available[0])
             return aiohttp.web.Response(
-                text=json.dumps("Socket request timed out"),
-                headers=HEADERS,
-                status=408)
+                text=json.dumps("Socket request timed out"), headers=HEADERS, status=408
+            )
         self.available_connections.remove(available[0])
         _LOGGER.debug("User connected to %s", socket)
 
@@ -98,10 +99,12 @@ class ConnectorWebsocket(Connector):
                 message = Message(msg.data, None, None, self)
                 await self.opsdroid.parse(message)
             elif msg.type == aiohttp.WSMsgType.ERROR:
-                _LOGGER.error('Websocket connection closed with exception %s',
-                              websocket.exception())
+                _LOGGER.error(
+                    "Websocket connection closed with exception %s",
+                    websocket.exception(),
+                )
 
-        _LOGGER.info('websocket connection closed')
+        _LOGGER.info("websocket connection closed")
         self.active_connections.pop(socket, None)
 
         return websocket
@@ -120,9 +123,9 @@ class ConnectorWebsocket(Connector):
         try:
             if message.target is None:
                 message.target = next(iter(self.active_connections))
-            _LOGGER.debug("Responding with: '" + message.text +
-                          "' in target " + message.target)
-            await self.active_connections[message.target].send_str(
-                message.text)
+            _LOGGER.debug(
+                "Responding with: '" + message.text + "' in target " + message.target
+            )
+            await self.active_connections[message.target].send_str(message.text)
         except KeyError:
             _LOGGER.error("No active socket for target %s", message.target)

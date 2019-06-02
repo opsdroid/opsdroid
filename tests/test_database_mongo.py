@@ -35,7 +35,7 @@ class TestDatabaseBaseMongoClassAsync(asynctest.TestCase):
         """test of mocked method get"""
         database = DatabaseMongo({})
         database.database = {}
-        database.database['test'] = DatabaseMongoTest({})
+        database.database["test"] = DatabaseMongoTest({})
         try:
             await database.get("test")
         except TypeError:
@@ -57,9 +57,9 @@ class TestDatabaseBaseMongoClassAsync(asynctest.TestCase):
         """test of mocked  put"""
         database = DatabaseMongo({})
         database.database = {}
-        database.database['test'] = DatabaseMongoTest({})
+        database.database["test"] = DatabaseMongoTest({})
         try:
-            await database.put("test", {"_id":"0" , "key":"value"})
+            await database.put("test", {"_id": "0", "key": "value"})
         except TypeError:
             try:
                 await database.put("test", {})

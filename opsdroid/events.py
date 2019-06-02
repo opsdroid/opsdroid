@@ -29,9 +29,11 @@ class EventMetaClass(ABCMeta):
             return cls
 
         if name in mcls.event_registry:
-            raise NameError("An event subclass named {name} has already been "
-                            "defined. Event subclass names must be globally "
-                            "unique.".format(name=name))
+            raise NameError(
+                "An event subclass named {name} has already been "
+                "defined. Event subclass names must be globally "
+                "unique.".format(name=name)
+            )
 
         mcls.event_registry[name] = cls
 
@@ -71,8 +73,15 @@ class Event(metaclass=EventMetaClass):
 
     """
 
-    def __init__(self, user=None, target=None, connector=None, raw_event=None,
-                 event_id=None, linked_event=None):  # noqa: D107
+    def __init__(
+        self,
+        user=None,
+        target=None,
+        connector=None,
+        raw_event=None,
+        event_id=None,
+        linked_event=None,
+    ):  # noqa: D107
         self.user = user
         self.target = target
         self.connector = connector
@@ -103,21 +112,18 @@ class Event(metaclass=EventMetaClass):
 
         if not self.responded_to:
             now = datetime.now()
-            opsdroid.stats["total_responses"] = \
-                opsdroid.stats["total_responses"] + 1
-            opsdroid.stats["total_response_time"] = \
-                opsdroid.stats["total_response_time"] + \
-                (now - self.created).total_seconds()
+            opsdroid.stats["total_responses"] = opsdroid.stats["total_responses"] + 1
+            opsdroid.stats["total_response_time"] = (
+                opsdroid.stats["total_response_time"]
+                + (now - self.created).total_seconds()
+            )
             self.responded_to = True
 
     async def update_entity(self, name, value, confidence):
         """Add or update an entitiy.
 
         """
-        self.entities[name] = {
-            'value': value,
-            'confidence': confidence
-        }
+        self.entities[name] = {"value": value, "confidence": confidence}
 
 
 class Message(Event):
@@ -160,7 +166,7 @@ class Message(Event):
 
         Number of seconds defined in YAML config. file, accessed via connector.
         """
-        seconds = self.connector.configuration.get('thinking-delay', 0)
+        seconds = self.connector.configuration.get("thinking-delay", 0)
 
         if isinstance(seconds, list):
             seconds = randrange(seconds[0], seconds[1])
@@ -173,14 +179,14 @@ class Message(Event):
         Seconds to delay equals number of characters in response multiplied by
         number of seconds defined in YAML config. file, accessed via connector.
         """
-        seconds = self.connector.configuration.get('typing-delay', 0)
+        seconds = self.connector.configuration.get("typing-delay", 0)
         char_count = len(text)
 
         if isinstance(seconds, list):
             seconds = randrange(seconds[0], seconds[1])
 
         # TODO: Add support for sending typing events here
-        await asyncio.sleep(char_count*seconds)
+        await asyncio.sleep(char_count * seconds)
 
     async def respond(self, response_event):
         """Respond to this message using the connector it was created by.
@@ -195,8 +201,10 @@ class Message(Event):
         else:
             response = response_event
 
-        if 'thinking-delay' in self.connector.configuration or \
-           'typing-delay' in self.connector.configuration:
+        if (
+            "thinking-delay" in self.connector.configuration
+            or "typing-delay" in self.connector.configuration
+        ):
             await self._thinking_delay()
             if isinstance(response, Message):
                 await self._typing_delay(response.text)
@@ -241,9 +249,9 @@ class Reaction(Event):
 class File(Event):
     """Event class to represent arbitrary files as bytes."""
 
-    def __init__(self, file_bytes=None, url=None,
-                 name=None, mimetype=None,
-                 *args, **kwargs):  # noqa: D107
+    def __init__(
+        self, file_bytes=None, url=None, name=None, mimetype=None, *args, **kwargs
+    ):  # noqa: D107
         if not (file_bytes or url) or (file_bytes and url):
             raise ValueError("Either file_bytes or url must be specified")
 
@@ -272,11 +280,11 @@ class File(Event):
             results = puremagic.magic_string(await self.get_file_bytes())
         except puremagic.PureError:
             # If no results return none
-            return ''
+            return ""
 
         # If for some reason we get a len 0 list
         if not results:  # pragma: nocover
-            return ''
+            return ""
 
         # If we only have one result use it.
         if len(results) == 1:  # pragma: nocover

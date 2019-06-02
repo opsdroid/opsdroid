@@ -1,4 +1,3 @@
-
 import asynctest
 import asynctest.mock as amock
 
@@ -18,12 +17,14 @@ class TestParserRegex(asynctest.TestCase):
     async def getMockSkill(self):
         async def mockedskill(opsdroid, config, message):
             pass
+
         mockedskill.config = {}
         return mockedskill
 
     async def getRaisingMockSkill(self):
         async def mockedskill(opsdroid, config, message):
             raise Exception()
+
         mockedskill.config = {}
         return mockedskill
 
@@ -76,8 +77,7 @@ class TestParserRegex(asynctest.TestCase):
 
             mock_connector = amock.MagicMock()
             mock_connector.send = amock.CoroutineMock()
-            message = Message("Hello world", "user", "default",
-                              mock_connector)
+            message = Message("Hello world", "user", "default", mock_connector)
 
             skills = await parse_regex(opsdroid, opsdroid.skills, message)
             self.assertEqual(mock_skill, skills[0]["skill"])
@@ -87,7 +87,11 @@ class TestParserRegex(asynctest.TestCase):
             regex = r"(.*)"
 
             mock_skill_matching_search = await self.getMockSkill()
-            opsdroid.skills.append(match_regex(regex, matching_condition="search")(mock_skill_matching_search))
+            opsdroid.skills.append(
+                match_regex(regex, matching_condition="search")(
+                    mock_skill_matching_search
+                )
+            )
 
             mock_connector = amock.CoroutineMock()
             message = Message("Hello world", "user", "default", mock_connector)
@@ -100,7 +104,11 @@ class TestParserRegex(asynctest.TestCase):
             regex = r"(.*)"
 
             mock_skill_matching_match = await self.getMockSkill()
-            opsdroid.skills.append(match_regex(regex, matching_condition="match")(mock_skill_matching_match))
+            opsdroid.skills.append(
+                match_regex(regex, matching_condition="match")(
+                    mock_skill_matching_match
+                )
+            )
 
             mock_connector = amock.CoroutineMock()
             message = Message("Hello world", "user", "default", mock_connector)
@@ -113,7 +121,11 @@ class TestParserRegex(asynctest.TestCase):
             regex = r"(.*)"
 
             mock_skill_matching_fullmatch = await self.getMockSkill()
-            opsdroid.skills.append(match_regex(regex, matching_condition="fullmatch")(mock_skill_matching_fullmatch))
+            opsdroid.skills.append(
+                match_regex(regex, matching_condition="fullmatch")(
+                    mock_skill_matching_fullmatch
+                )
+            )
 
             mock_connector = amock.CoroutineMock()
             message = Message("Hello world", "user", "default", mock_connector)
@@ -123,7 +135,7 @@ class TestParserRegex(asynctest.TestCase):
 
     async def test_parse_regex_named_groups_entities(self):
         with OpsDroid() as opsdroid:
-            regex = r'Hello (?P<name>.*)'
+            regex = r"Hello (?P<name>.*)"
 
             mock_skill_named_groups = await self.getMockSkill()
             opsdroid.skills.append(match_regex(regex)(mock_skill_named_groups))
@@ -132,7 +144,7 @@ class TestParserRegex(asynctest.TestCase):
             message = Message("Hello opsdroid", "user", "default", mock_connector)
 
             [skill] = await opsdroid.get_ranked_skills(opsdroid.skills, message)
-            parsed_message = skill['message']
+            parsed_message = skill["message"]
             self.assertEqual(len(parsed_message.entities.keys()), 1)
-            self.assertTrue('name' in parsed_message.entities.keys())
-            self.assertEqual(parsed_message.entities['name']['value'], 'opsdroid')
+            self.assertTrue("name" in parsed_message.entities.keys())
+            self.assertEqual(parsed_message.entities["name"]["value"], "opsdroid")

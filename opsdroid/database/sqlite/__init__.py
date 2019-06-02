@@ -36,7 +36,7 @@ class DatabaseSqlite(Database):
         super().__init__(config, opsdroid=opsdroid)
         self.name = "sqlite"
         self.config = config
-        self.conn_args = {'isolation_level': None}
+        self.conn_args = {"isolation_level": None}
         self.db_file = None
         self.table = None
         _LOGGER.debug(_("Loaded sqlite database connector"))
@@ -54,14 +54,14 @@ class DatabaseSqlite(Database):
 
         """
         self.db_file = self.config.get(
-            "file", os.path.join(DEFAULT_ROOT_PATH, "sqlite.db"))
+            "file", os.path.join(DEFAULT_ROOT_PATH, "sqlite.db")
+        )
         self.table = self.config.get("table", "opsdroid")
 
         async with aiosqlite.connect(self.db_file, **self.conn_args) as _db:
             await _db.execute(
                 "CREATE TABLE IF NOT EXISTS {}"
-                "(key text PRIMARY KEY, data text)"
-                .format(self.table)
+                "(key text PRIMARY KEY, data text)".format(self.table)
             )
 
         self.client = _db
@@ -84,11 +84,10 @@ class DatabaseSqlite(Database):
 
         async with aiosqlite.connect(self.db_file, **self.conn_args) as _db:
             cur = await _db.cursor()
+            await cur.execute("DELETE FROM {} WHERE key=?".format(self.table), (key,))
             await cur.execute(
-                "DELETE FROM {} WHERE key=?".format(self.table), (key,))
-            await cur.execute(
-                "INSERT INTO {} VALUES (?, ?)".format(self.table),
-                (key, json_data))
+                "INSERT INTO {} VALUES (?, ?)".format(self.table), (key, json_data)
+            )
 
         self.client = _db
 
@@ -109,8 +108,8 @@ class DatabaseSqlite(Database):
         async with aiosqlite.connect(self.db_file, **self.conn_args) as _db:
             cur = await _db.cursor()
             await cur.execute(
-                "SELECT data FROM {} WHERE key=?".format(self.table),
-                (key,))
+                "SELECT data FROM {} WHERE key=?".format(self.table), (key,)
+            )
             row = await cur.fetchone()
             if row:
                 data = json.loads(row[0], object_hook=JSONDecoder())
@@ -157,8 +156,7 @@ class JSONEncoder(json.JSONEncoder):
                 }
 
         """
-        marshaller = self.serializers.get(
-            type(o), super(JSONEncoder, self).default)
+        marshaller = self.serializers.get(type(o), super(JSONEncoder, self).default)
         return marshaller(o)
 
 
@@ -188,8 +186,8 @@ class JSONDecoder:
                 datetime.datetime(2018, 10, 2, 0, 41, 17, 74644)
 
         """
-        if dct.get('__class__') in self.decoders:
-            return self.decoders[dct['__class__']](dct)
+        if dct.get("__class__") in self.decoders:
+            return self.decoders[dct["__class__"]](dct)
         return dct
 
 
@@ -207,30 +205,35 @@ def register_json_type(type_cls, fields, decode_fn):
     """
     type_name = type_cls.__name__
     JSONEncoder.serializers[type_cls] = lambda obj: dict(
-        __class__=type_name,
-        **{field: getattr(obj, field) for field in fields}
+        __class__=type_name, **{field: getattr(obj, field) for field in fields}
     )
     JSONDecoder.decoders[type_name] = decode_fn
 
 
 register_json_type(
     datetime.datetime,
-    ['year', 'month', 'day', 'hour', 'minute', 'second', 'microsecond'],
+    ["year", "month", "day", "hour", "minute", "second", "microsecond"],
     lambda dct: datetime.datetime(
-        dct['year'], dct['month'], dct['day'],
-        dct['hour'], dct['minute'], dct['second'], dct['microsecond']
-    )
+        dct["year"],
+        dct["month"],
+        dct["day"],
+        dct["hour"],
+        dct["minute"],
+        dct["second"],
+        dct["microsecond"],
+    ),
 )
 
 register_json_type(
     datetime.date,
-    ['year', 'month', 'day'],
-    lambda dct: datetime.date(dct['year'], dct['month'], dct['day'])
+    ["year", "month", "day"],
+    lambda dct: datetime.date(dct["year"], dct["month"], dct["day"]),
 )
 
 register_json_type(
     datetime.time,
-    ['hour', 'minute', 'second', 'microsecond'],
+    ["hour", "minute", "second", "microsecond"],
     lambda dct: datetime.time(
-        dct['hour'], dct['minute'], dct['second'], dct['microsecond'])
+        dct["hour"], dct["minute"], dct["second"], dct["microsecond"]
+    ),
 )

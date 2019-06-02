@@ -42,5 +42,5 @@ class Skill:
             except Exception:
                 continue
 
-            if hasattr(method, 'matchers'):
+            if hasattr(method, "matchers"):
                 setattr(self, name, _skill_decorator(method))
