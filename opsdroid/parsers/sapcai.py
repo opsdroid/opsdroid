@@ -71,6 +71,12 @@ async def parse_sapcai(opsdroid, skills, message, config):
                         if (matcher["sapcai_intent"] in
                                 result["results"]["intents"][0]["slug"]):
                             message.sapcai = result
+                            for key, entity in result['results'].get('entities', {}).items():
+                                await message.update_entity(
+                                    key,
+                                    entity[0]['raw'],
+                                    entity[0]['confidence']
+                                )
                             _LOGGER.debug(_("Matched against skill %s"),
                                           skill.config["name"])
 
