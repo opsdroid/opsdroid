@@ -25,7 +25,6 @@ EXAMPLE_CONFIG_FILE = os.path.join(
     "configuration/example_configuration.yaml",
 )
 REGEX_PARSE_SCORE_FACTOR = 0.6
-REGEX_ENTITY_CONFIDENCE = 0.8
 
 RASANLU_DEFAULT_URL = "http://localhost:5000"
 RASANLU_DEFAULT_PROJECT = "opsdroid"
