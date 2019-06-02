@@ -3,6 +3,8 @@ from datetime import date, datetime
 import json
 import time
 
+import aioredis
+from aioredis import parser
 import asyncio_redis
 
 from opsdroid.database import Database
@@ -30,7 +32,6 @@ class RedisDatabase(Database):
         self.port = self.config.get("port", 6379)
         self.database = self.config.get("database", 0)
         self.password = self.config.get("password", None)
-        self.reconnect = self.config.get("reconnect", False)
 
     async def connect(self):
         """Connect to the database.
@@ -39,12 +40,11 @@ class RedisDatabase(Database):
         connect to Redis on localhost on port 6379
 
         """
-        self.client = await asyncio_redis.Connection.create(
-            host=self.host,
-            port=self.port,
+        self.client = await aioredis.create_pool(
+            address=(self.host, int(self.port)),
             db=self.database,
-            auto_reconnect=self.reconnect,
             password=self.password,
+            parser=parser.PyReader,
         )
 
     async def put(self, key, data):
@@ -56,7 +56,7 @@ class RedisDatabase(Database):
 
         """
         data = self.convert_object_to_timestamp(data)
-        await self.client.set(key, json.dumps(data))
+        await self.client.execute("SET", key, json.dumps(data))
 
     async def get(self, key):
         """Get data from Redis for a given key.
@@ -69,7 +69,8 @@ class RedisDatabase(Database):
                             object found for that key.
 
         """
-        data = await self.client.get(key)
+        # data = await self.client.get(key)
+        data = await self.client.execute("GET", key)
 
         if data:
             return self.convert_timestamp_to_object(json.loads(data))
