@@ -156,7 +156,7 @@ class ConnectorSlack(Connector):
             },
         )
 
-    @register_event(Reaction)
+    @register_event(events.Reaction)
     async def send_reaction(self, reaction):
         """React to a message."""
         emoji = demojize(reaction.emoji)
