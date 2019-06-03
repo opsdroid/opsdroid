@@ -1,12 +1,14 @@
 """Module for storing data within Redis."""
-from datetime import date, datetime
 import json
-import time
+import logging
 
 import aioredis
 from aioredis import parser
 
 from opsdroid.database import Database
+from opsdroid.helper import JSONEncoder, JSONDecoder
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class RedisDatabase(Database):
@@ -31,6 +33,7 @@ class RedisDatabase(Database):
         self.port = self.config.get("port", 6379)
         self.database = self.config.get("database", 0)
         self.password = self.config.get("password", None)
+        _LOGGER.debug(_("Loaded redis database connector."))
 
     async def connect(self):
         """Connect to the database.
@@ -46,6 +49,13 @@ class RedisDatabase(Database):
             parser=parser.PyReader,
         )
 
+        _LOGGER.info(
+            _("Connected to redis database %s from %s on port %s"),
+            self.database,
+            self.host,
+            self.port,
+        )
+
     async def put(self, key, data):
         """Store the data object in Redis against the key.
 
@@ -54,8 +64,8 @@ class RedisDatabase(Database):
             data (object): The data object to store.
 
         """
-        data = self.convert_object_to_timestamp(data)
-        await self.client.execute("SET", key, json.dumps(data))
+        _LOGGER.debug(_("Putting %s into redis"), key)
+        await self.client.execute("SET", key, json.dumps(data, cls=JSONEncoder))
 
     async def get(self, key):
         """Get data from Redis for a given key.
@@ -68,57 +78,14 @@ class RedisDatabase(Database):
                             object found for that key.
 
         """
-        # data = await self.client.get(key)
+        _LOGGER.debug(_("Getting %s from redis"), key)
         data = await self.client.execute("GET", key)
 
         if data:
-            return self.convert_timestamp_to_object(json.loads(data))
+            return json.loads(data, encoding=JSONDecoder)
 
         return None
 
     async def disconnect(self):
         """Disconnect from the database."""
         self.client.close()
-
-    @staticmethod
-    def convert_object_to_timestamp(data):
-        """
-        Serialize dict before storing into Redis.
-
-        Args:
-            dict: Dict to serialize
-
-        Returns:
-            dict: Dict from redis to unserialize
-
-        """
-        for k, value in data.items():
-            if isinstance(value, (datetime, date)):
-                value = "::".join(
-                    [type(value).__name__, "%d" % time.mktime(value.timetuple())]
-                )
-                data[k] = value
-        return data
-
-    @staticmethod
-    def convert_timestamp_to_object(data):
-        """
-        Unserialize data from Redis.
-
-        Args:
-            dict: Dict from redis to unserialize
-
-        Returns:
-            dict: Dict to serialize
-
-        """
-        for k, value in data.items():
-            value_type = value.split("::", 1)[0]
-            if value_type == "datetime":
-                timestamp = int(value.split("::", 1)[1])
-                value = datetime.fromtimestamp(timestamp)
-            elif value_type == "date":
-                timestamp = int(value.split("::", 1)[1])
-                value = date.fromtimestamp(timestamp)
-            data[k] = value
-        return data
