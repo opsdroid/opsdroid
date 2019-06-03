@@ -1,4 +1,3 @@
-
 import asynctest
 import asynctest.mock as mock
 
@@ -20,11 +19,13 @@ class TestMatchers(asynctest.TestCase):
     async def getMockSkill(self):
         async def mockedskill(opsdroid, config, message):
             pass
+
         return mockedskill
 
     async def getMockWebSkill(self):
         async def mockedwebskill(opsdroid, config, message):
-            return aiohttp.web.Response(body=b'custom response', status=200)
+            return aiohttp.web.Response(body=b"custom response", status=200)
+
         return mockedwebskill
 
     async def test_match_regex(self):
@@ -33,7 +34,9 @@ class TestMatchers(asynctest.TestCase):
             decorator = matchers.match_regex(regex)
             opsdroid.skills.append(decorator(await self.getMockSkill()))
             self.assertEqual(len(opsdroid.skills), 1)
-            self.assertEqual(opsdroid.skills[0].matchers[0]["regex"]["expression"], regex)
+            self.assertEqual(
+                opsdroid.skills[0].matchers[0]["regex"]["expression"], regex
+            )
             self.assertTrue(asyncio.iscoroutinefunction(opsdroid.skills[0]))
 
     async def test_match_apiai(self):
@@ -42,17 +45,21 @@ class TestMatchers(asynctest.TestCase):
             decorator = matchers.match_apiai_action(action)
             opsdroid.skills.append(decorator(await self.getMockSkill()))
             self.assertEqual(len(opsdroid.skills), 1)
-            self.assertEqual(opsdroid.skills[0].matchers[0]["dialogflow_action"], action)
+            self.assertEqual(
+                opsdroid.skills[0].matchers[0]["dialogflow_action"], action
+            )
             self.assertTrue(asyncio.iscoroutinefunction(opsdroid.skills[0]))
             intent = "myIntent"
             decorator = matchers.match_apiai_intent(intent)
             opsdroid.skills.append(decorator(await self.getMockSkill()))
             self.assertEqual(len(opsdroid.skills), 2)
-            self.assertEqual(opsdroid.skills[1].matchers[0]["dialogflow_intent"], intent)
+            self.assertEqual(
+                opsdroid.skills[1].matchers[0]["dialogflow_intent"], intent
+            )
             self.assertTrue(asyncio.iscoroutinefunction(opsdroid.skills[1]))
             decorator = matchers.match_apiai_intent(intent)
             opsdroid.skills.append(decorator(await self.getMockSkill()))
-            self.assertLogs('_LOGGER', 'warning')
+            self.assertLogs("_LOGGER", "warning")
 
     async def test_match_dialogflow(self):
         with OpsDroid() as opsdroid:
@@ -60,13 +67,17 @@ class TestMatchers(asynctest.TestCase):
             decorator = matchers.match_dialogflow_action(action)
             opsdroid.skills.append(decorator(await self.getMockSkill()))
             self.assertEqual(len(opsdroid.skills), 1)
-            self.assertEqual(opsdroid.skills[0].matchers[0]["dialogflow_action"], action)
+            self.assertEqual(
+                opsdroid.skills[0].matchers[0]["dialogflow_action"], action
+            )
             self.assertTrue(asyncio.iscoroutinefunction(opsdroid.skills[0]))
             intent = "myIntent"
             decorator = matchers.match_dialogflow_intent(intent)
             opsdroid.skills.append(decorator(await self.getMockSkill()))
             self.assertEqual(len(opsdroid.skills), 2)
-            self.assertEqual(opsdroid.skills[1].matchers[0]["dialogflow_intent"], intent)
+            self.assertEqual(
+                opsdroid.skills[1].matchers[0]["dialogflow_intent"], intent
+            )
             self.assertTrue(asyncio.iscoroutinefunction(opsdroid.skills[1]))
 
     async def test_match_luisai(self):
@@ -128,8 +139,7 @@ class TestMatchers(asynctest.TestCase):
             self.assertEqual(len(opsdroid.skills), 1)
             self.assertEqual(opsdroid.skills[0].matchers[0]["webhook"], webhook)
             self.assertTrue(asyncio.iscoroutinefunction(opsdroid.skills[0]))
-            self.assertEqual(
-                opsdroid.web_server.web_app.router.add_post.call_count, 2)
+            self.assertEqual(opsdroid.web_server.web_app.router.add_post.call_count, 2)
 
     async def test_match_webhook_response(self):
         with OpsDroid() as opsdroid:
@@ -141,8 +151,7 @@ class TestMatchers(asynctest.TestCase):
             opsdroid.skills.append(decorator(await self.getMockSkill()))
             opsdroid.skills[0].config = {"name": "mockedskill"}
             opsdroid.web_server.setup_webhooks(opsdroid.skills)
-            postcalls, _ = \
-                opsdroid.web_server.web_app.router.add_post.call_args_list[0]
+            postcalls, _ = opsdroid.web_server.web_app.router.add_post.call_args_list[0]
             wrapperfunc = postcalls[1]
             webhookresponse = await wrapperfunc(None)
             self.assertEqual(type(webhookresponse), aiohttp.web.Response)
@@ -157,9 +166,8 @@ class TestMatchers(asynctest.TestCase):
             opsdroid.skills.append(decorator(await self.getMockWebSkill()))
             opsdroid.skills[0].config = {"name": "mockedskill"}
             opsdroid.web_server.setup_webhooks(opsdroid.skills)
-            postcalls, _ = \
-                opsdroid.web_server.web_app.router.add_post.call_args_list[0]
+            postcalls, _ = opsdroid.web_server.web_app.router.add_post.call_args_list[0]
             wrapperfunc = postcalls[1]
             webhookresponse = await wrapperfunc(None)
             self.assertEqual(type(webhookresponse), aiohttp.web.Response)
-            self.assertEqual(webhookresponse.body, b'custom response')
+            self.assertEqual(webhookresponse.body, b"custom response")

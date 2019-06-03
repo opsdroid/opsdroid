@@ -1,4 +1,3 @@
-
 import asyncio
 import unittest
 import unittest.mock as mock
@@ -12,9 +11,14 @@ from opsdroid.events import Message
 from opsdroid.connector import Connector
 from opsdroid.database import Database
 from opsdroid.web import Web
-from opsdroid.matchers import (match_regex, match_dialogflow_action,
-                               match_luisai_intent, match_sapcai,
-                               match_rasanlu, match_witai)
+from opsdroid.matchers import (
+    match_regex,
+    match_dialogflow_action,
+    match_luisai_intent,
+    match_sapcai,
+    match_rasanlu,
+    match_witai,
+)
 
 
 class TestCore(unittest.TestCase):
@@ -52,8 +56,11 @@ class TestCore(unittest.TestCase):
     def test_load_modules(self):
         with OpsDroid() as opsdroid:
             opsdroid.loader.load_modules_from_config = mock.Mock()
-            opsdroid.loader.load_modules_from_config.return_value = \
-                {"skills": [], "databases": [], "connectors": []}
+            opsdroid.loader.load_modules_from_config.return_value = {
+                "skills": [],
+                "databases": [],
+                "connectors": [],
+            }
             with self.assertRaises(SystemExit):
                 opsdroid.load()
             self.assertTrue(opsdroid.loader.load_modules_from_config.called)
@@ -64,7 +71,7 @@ class TestCore(unittest.TestCase):
             opsdroid.eventloop = mock.MagicMock()
             opsdroid.eventloop.run_until_complete = mock.Mock()
 
-            with mock.patch('sys.exit') as mock_sysexit:
+            with mock.patch("sys.exit") as mock_sysexit:
                 opsdroid.run()
 
             self.assertTrue(opsdroid.eventloop.run_until_complete.called)
@@ -74,9 +81,11 @@ class TestCore(unittest.TestCase):
         with OpsDroid() as opsdroid:
             opsdroid.is_running = amock.Mock(side_effect=[False, True, False])
             opsdroid.eventloop = mock.MagicMock()
-            opsdroid.eventloop.run_until_complete = mock.Mock(side_effect=asyncio.CancelledError)
+            opsdroid.eventloop.run_until_complete = mock.Mock(
+                side_effect=asyncio.CancelledError
+            )
 
-            with mock.patch('sys.exit') as mock_sysexit:
+            with mock.patch("sys.exit") as mock_sysexit:
                 opsdroid.run()
 
             self.assertTrue(opsdroid.eventloop.run_until_complete.called)
@@ -86,24 +95,29 @@ class TestCore(unittest.TestCase):
         with OpsDroid() as opsdroid:
             opsdroid._running = True
             opsdroid.eventloop = mock.MagicMock()
-            opsdroid.eventloop.run_until_complete = mock.Mock(side_effect=asyncio.CancelledError)
+            opsdroid.eventloop.run_until_complete = mock.Mock(
+                side_effect=asyncio.CancelledError
+            )
 
-            with mock.patch('sys.exit') as mock_sysexit:
+            with mock.patch("sys.exit") as mock_sysexit:
                 opsdroid.run()
 
             self.assertFalse(opsdroid.eventloop.run_until_complete.called)
             self.assertFalse(mock_sysexit.called)
 
-    @asynctest.patch('opsdroid.core.parse_crontab')
+    @asynctest.patch("opsdroid.core.parse_crontab")
     def test_load(self, mocked_parse_crontab):
         with OpsDroid() as opsdroid:
-            mockconfig = {"skills": [],
-                          "databases": [{"name": "mockdb"}],
-                          "connectors": []}
+            mockconfig = {
+                "skills": [],
+                "databases": [{"name": "mockdb"}],
+                "connectors": [],
+            }
             opsdroid.web_server = mock.Mock()
             opsdroid.loader = mock.Mock()
-            opsdroid.loader.load_modules_from_config = \
-                mock.Mock(return_value=mockconfig)
+            opsdroid.loader.load_modules_from_config = mock.Mock(
+                return_value=mockconfig
+            )
             opsdroid.start_databases = mock.Mock()
             opsdroid.setup_skills = mock.Mock()
             opsdroid.start_connectors = mock.Mock()
@@ -119,7 +133,8 @@ class TestCore(unittest.TestCase):
             module = {}
             module["config"] = {}
             module["module"] = importlib.import_module(
-                "tests.mockmodules.databases.database")
+                "tests.mockmodules.databases.database"
+            )
             with self.assertRaises(NotImplementedError):
                 opsdroid.start_databases([module])
                 self.assertEqual(1, len(opsdroid.memory.databases))
@@ -131,7 +146,8 @@ class TestCore(unittest.TestCase):
             module = {}
             module["config"] = {}
             module["module"] = importlib.import_module(
-                "tests.mockmodules.connectors.connector_mocked")
+                "tests.mockmodules.connectors.connector_mocked"
+            )
 
             try:
                 opsdroid.start_connectors([module])
@@ -139,7 +155,7 @@ class TestCore(unittest.TestCase):
                 self.fail("Connector raised NotImplementedError.")
             self.assertEqual(len(opsdroid.connectors), 1)
 
-            with mock.patch.object(opsdroid.eventloop, 'is_running', return_value=True):
+            with mock.patch.object(opsdroid.eventloop, "is_running", return_value=True):
                 opsdroid.start_connectors([module])
                 self.assertEqual(len(opsdroid.connectors), 2)
 
@@ -150,7 +166,8 @@ class TestCore(unittest.TestCase):
             module = {}
             module["config"] = {}
             module["module"] = importlib.import_module(
-                "tests.mockmodules.connectors.connector_bare")
+                "tests.mockmodules.connectors.connector_bare"
+            )
 
             with self.assertRaises(NotImplementedError):
                 opsdroid.start_connectors([module])
@@ -176,13 +193,14 @@ class TestCore(unittest.TestCase):
             example_modules = [{"module": mockmodule, "config": {}}]
             opsdroid.setup_skills(example_modules)
             self.assertEqual(len(mockmodule.setup.mock_calls), 1)
-            self.assertEqual(mockmodule.method_calls[0][0], 'setup')
+            self.assertEqual(mockmodule.method_calls[0][0], "setup")
             self.assertEqual(len(mockmodule.method_calls[0][1]), 2)
             self.assertEqual(mockmodule.method_calls[0][1][1], {})
             self.assertEqual(len(opsdroid.skills), 2)
 
             mockclassmodule = importlib.import_module(
-                "tests.mockmodules.skills.skill.skilltest")
+                "tests.mockmodules.skills.skill.skilltest"
+            )
             example_modules = [{"module": mockclassmodule, "config": {}}]
             opsdroid.setup_skills(example_modules)
             self.assertEqual(len(opsdroid.skills), 3)
@@ -195,8 +213,7 @@ class TestCore(unittest.TestCase):
 
             mock_default_connector = Connector({"default": True}, opsdroid=opsdroid)
             opsdroid.connectors.append(mock_default_connector)
-            self.assertEqual(opsdroid.default_connector,
-                             mock_default_connector)
+            self.assertEqual(opsdroid.default_connector, mock_default_connector)
 
     def test_default_target(self):
         with OpsDroid() as opsdroid:
@@ -207,7 +224,7 @@ class TestCore(unittest.TestCase):
         with OpsDroid() as opsdroid:
             opsdroid.eventloop = asyncio.new_event_loop()
             opsdroid.config["parsers"] = [{"name": "rasanlu"}]
-            with amock.patch('opsdroid.parsers.rasanlu.train_rasanlu'):
+            with amock.patch("opsdroid.parsers.rasanlu.train_rasanlu"):
                 opsdroid.train_parsers({})
                 opsdroid.eventloop.close()
 
@@ -236,12 +253,14 @@ class TestCoreAsync(asynctest.TestCase):
     async def getMockSkill(self):
         async def mockedskill(opsdroid, config, message):
             await message.respond("Test")
+
         mockedskill.config = {}
         return mockedskill
 
     async def getMockMethodSkill(self):
         async def mockedskill(message):
             await message.respond("Test")
+
         mockedskill.config = {}
         return mockedskill
 
@@ -276,7 +295,7 @@ class TestCoreAsync(asynctest.TestCase):
             mock_cron_task = opsdroid.cron_task
 
             async def task():
-                await asyncio.sleep(.5)
+                await asyncio.sleep(0.5)
 
             t = asyncio.Task(task(), loop=self.loop)
 
@@ -348,14 +367,14 @@ class TestCoreAsync(asynctest.TestCase):
             mock_connector = Connector({}, opsdroid=opsdroid)
             match_dialogflow_action(dialogflow_action)(skill)
             message = Message("Hello world", "user", "default", mock_connector)
-            with amock.patch('opsdroid.parsers.dialogflow.parse_dialogflow'):
+            with amock.patch("opsdroid.parsers.dialogflow.parse_dialogflow"):
                 tasks = await opsdroid.parse(message)
                 self.assertEqual(len(tasks), 1)
 
                 # Once apiai parser stops working, remove this test!
                 opsdroid.config["parsers"] = [{"name": "apiai"}]
                 tasks = await opsdroid.parse(message)
-                self.assertLogs('_LOGGER', 'warning')
+                self.assertLogs("_LOGGER", "warning")
 
                 # But leave this bit
                 for task in tasks:
@@ -369,7 +388,7 @@ class TestCoreAsync(asynctest.TestCase):
             mock_connector = Connector({}, opsdroid=opsdroid)
             match_luisai_intent(luisai_intent)(skill)
             message = Message("Hello world", "user", "default", mock_connector)
-            with amock.patch('opsdroid.parsers.luisai.parse_luisai'):
+            with amock.patch("opsdroid.parsers.luisai.parse_luisai"):
                 tasks = await opsdroid.parse(message)
                 self.assertEqual(len(tasks), 1)
                 for task in tasks:
@@ -383,7 +402,7 @@ class TestCoreAsync(asynctest.TestCase):
             mock_connector = Connector({}, opsdroid=opsdroid)
             match_rasanlu(rasanlu_intent)(skill)
             message = Message("Hello", "user", "default", mock_connector)
-            with amock.patch('opsdroid.parsers.rasanlu.parse_rasanlu'):
+            with amock.patch("opsdroid.parsers.rasanlu.parse_rasanlu"):
                 tasks = await opsdroid.parse(message)
                 self.assertEqual(len(tasks), 1)
                 for task in tasks:
@@ -397,7 +416,7 @@ class TestCoreAsync(asynctest.TestCase):
             mock_connector = Connector({}, opsdroid=opsdroid)
             match_sapcai(sapcai_intent)(skill)
             message = Message("Hello", "user", "default", mock_connector)
-            with amock.patch('opsdroid.parsers.sapcai.parse_sapcai'):
+            with amock.patch("opsdroid.parsers.sapcai.parse_sapcai"):
                 tasks = await opsdroid.parse(message)
                 self.assertEqual(len(tasks), 1)
                 for task in tasks:
@@ -411,15 +430,16 @@ class TestCoreAsync(asynctest.TestCase):
             mock_connector = Connector({}, opsdroid=opsdroid)
             match_witai(witai_intent)(skill)
             message = Message("Hello world", "user", "default", mock_connector)
-            with amock.patch('opsdroid.parsers.witai.parse_witai'):
+            with amock.patch("opsdroid.parsers.witai.parse_witai"):
                 tasks = await opsdroid.parse(message)
                 self.assertEqual(len(tasks), 1)
                 for task in tasks:
                     await task
 
     async def test_send_default_one(self):
-        with OpsDroid() as opsdroid, \
-             amock.patch("opsdroid.connector.Connector.send") as patched_send:
+        with OpsDroid() as opsdroid, amock.patch(
+            "opsdroid.connector.Connector.send"
+        ) as patched_send:
             connector = Connector({"name": "shell"})
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result("")
@@ -434,8 +454,9 @@ class TestCoreAsync(asynctest.TestCase):
             assert message is input_message
 
     async def test_send_default_explicit(self):
-        with OpsDroid() as opsdroid, \
-             amock.patch("opsdroid.connector.Connector.send") as patched_send:
+        with OpsDroid() as opsdroid, amock.patch(
+            "opsdroid.connector.Connector.send"
+        ) as patched_send:
             connector = Connector({"name": "shell", "default": True})
             connector2 = Connector({"name": "matrix"})
             patched_send.return_value = asyncio.Future()
@@ -451,8 +472,9 @@ class TestCoreAsync(asynctest.TestCase):
             assert message is input_message
 
     async def test_send_name(self):
-        with OpsDroid() as opsdroid, \
-             amock.patch("opsdroid.connector.Connector.send") as patched_send:
+        with OpsDroid() as opsdroid, amock.patch(
+            "opsdroid.connector.Connector.send"
+        ) as patched_send:
             connector = Connector({"name": "shell"})
             connector2 = Connector({"name": "matrix"})
             patched_send.return_value = asyncio.Future()

@@ -11,7 +11,7 @@ from opsdroid.events import Event, Reaction, Message
 _LOGGER = logging.getLogger(__name__)
 
 
-__all__ = ['Connector', 'register_event']
+__all__ = ["Connector", "register_event"]
 
 
 def register_event(event_type, include_subclasses=False):
@@ -21,6 +21,7 @@ def register_event(event_type, include_subclasses=False):
     Args:
         event (Event): The event class this method can handle.
     """
+
     def decorator(func):
         if hasattr(func, "__opsdroid_events__"):
             func.__opsdroid_events__.append(event_type)
@@ -29,6 +30,7 @@ def register_event(event_type, include_subclasses=False):
 
         func.__opsdroid_match_subclasses__ = include_subclasses
         return func
+
     return decorator
 
 
@@ -50,9 +52,11 @@ class Connector:
         functions = inspect.getmembers(cls, predicate=inspect.isfunction)
 
         # Filter out anything that's not got the attribute __opsdroid_event__
-        event_methods = filter(lambda f: hasattr(f, "__opsdroid_events__"),
-                               # Just extract the function objects
-                               map(lambda t: t[1], functions))
+        event_methods = filter(
+            lambda f: hasattr(f, "__opsdroid_events__"),
+            # Just extract the function objects
+            map(lambda t: t[1], functions),
+        )
 
         # If we don't have the event call the unknown event coroutine
         cls.events = collections.defaultdict(lambda: cls._unknown_event)
@@ -60,8 +64,10 @@ class Connector:
         for event_method in event_methods:
             for event_type in event_method.__opsdroid_events__:
                 if not issubclass(event_type, Event):
-                    err_msg = ("The event type {event_type} is "
-                               "not a valid OpsDroid event type")
+                    err_msg = (
+                        "The event type {event_type} is "
+                        "not a valid OpsDroid event type"
+                    )
                     raise TypeError(err_msg.format(event_type=event_type))
 
                 if event_method.__opsdroid_match_subclasses__:
@@ -124,8 +130,10 @@ class Connector:
         """Fallback for when the subclass can not handle the event type."""
         raise TypeError(
             "Connector {stype} can not handle the"
-            " '{eventt.__name__}' event type.".format(stype=type(self),
-                                                      eventt=type(event)))
+            " '{eventt.__name__}' event type.".format(
+                stype=type(self), eventt=type(event)
+            )
+        )
 
     async def respond(self, message, room=None):
         """Send a message back to the chat service.
@@ -143,9 +151,9 @@ class Connector:
 
         """
         warnings.warn(
-            "Connector.respond is deprecated. Use "
-            "Connector.send instead.",
-            DeprecationWarning)
+            "Connector.respond is deprecated. Use " "Connector.send instead.",
+            DeprecationWarning,
+        )
 
         if isinstance(message, str):
             message = Message(message)
@@ -180,7 +188,8 @@ class Connector:
         warnings.warn(
             "Connector.react is deprecated. Use "
             "Connector.send(events.Reaction(emoji)) instead.",
-            DeprecationWarning)
+            DeprecationWarning,
+        )
 
         return await message.respond(Reaction(emoji))
 
@@ -198,7 +207,8 @@ class Connector:
         """
         if not isinstance(event, Event):
             raise TypeError(
-                "The event argument to send must be an opsdroid Event object")
+                "The event argument to send must be an opsdroid Event object"
+            )
 
         # If the event does not have a target, use the default.
         event.target = event.target or self.default_target
@@ -211,7 +221,8 @@ class Connector:
         warnings.warn(
             "Connector.default_room is deprecated. Use "
             "Connector.default_target instead.",
-            DeprecationWarning)
+            DeprecationWarning,
+        )
 
         return self.default_target
 
@@ -220,6 +231,7 @@ class Connector:
         warnings.warn(
             "Connector.default_room is deprecated. Use "
             "Connector.default_target instead.",
-            DeprecationWarning)
+            DeprecationWarning,
+        )
 
         self.default_target = value
