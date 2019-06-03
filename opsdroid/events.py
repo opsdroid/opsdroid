@@ -146,6 +146,9 @@ class Message(Event):
         self.text = text
         self.raw_match = None
 
+    def __repr__(self):
+        return f"<opsdroid.events.Message(text={self.text})>"
+
     async def _thinking_delay(self):
         """Make opsdroid wait x-seconds before responding.
 
@@ -290,7 +293,7 @@ class Image(File):
         return get_image_size_from_bytesio(io.BytesIO(fbytes), len(fbytes))
 
 
-class RoomCreation(Event):
+class NewRoom(Event):
     """Event class to represent the creation of a new room."""
 
     def __init__(self, params=None, *args, **kwargs):
@@ -299,33 +302,40 @@ class RoomCreation(Event):
 
 
 class RoomName(Event):
-    def __init__(self, params=None, *args, **kwargs):
+    def __init__(self, name, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.room_params = params or {}
+        self.name = name
 
 
-class RoomTopic(Event):
-    def __init__(self, room_topic, *args, **kwargs):
+class RoomAddress(Event):
+    def __init__(self, address, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.room_topic = room_topic
+        self.address = address
 
 
 class RoomImage(Event):
     def __init__(self, room_image, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if not isinstance(room_image, Image):
+            raise TypeError("Room image must be an opsdroid.events.Image instance")
         self.room_image = room_image
+
+
+class RoomDescription(Event):
+    def __init__(self, description, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.description = description
 
 
 class JoinRoom(Event):
     """Event class to tell opsdroid to join a room"""
-    def __init__(self, room_id, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.room_id = room_id
 
 
-class InviteUser(Event):
+class UserInvite(Event):
     """Event class to invite or add a specific user to a room"""
-    def __init__(self, room_id, user_id, *args, **kwargs):
+
+
+class UserRole(Event):
+    def __init__(self, role, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.room_id = room_id
-        self.invited_user = user_id
+        self.role = role

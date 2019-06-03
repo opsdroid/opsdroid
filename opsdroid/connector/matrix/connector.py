@@ -11,8 +11,7 @@ from matrix_api_async.api_asyncio import AsyncHTTPAPI
 from matrix_client.errors import MatrixRequestError
 
 from opsdroid.connector import Connector, register_event
-from opsdroid.events import Message, Image, File, \
-    RoomCreation, SetRoomName, JoinRoom
+from opsdroid import events
 
 from .html_cleaner import clean
 from .create_events import MatrixEventCreator
@@ -203,7 +202,7 @@ class ConnectorMatrix(Connector):
             "formatted_body": clean_html
         }
 
-    @register_event(Message)
+    @register_event(events.Message)
     async def _send_message(self, message):
         """Send `message.text` back to the chat service."""
         if not message.target.startswith(("!", "#")):
@@ -238,15 +237,16 @@ class ConnectorMatrix(Connector):
             "size": len(await image.get_file_bytes())
         }
 
-    @register_event(File)
-    @register_event(Image)
-    async def _send_file(self, file_event):
+    async def _file_to_mxc_url(self, file_event):
+        """
+        Given a file event return the mxc url.
+        """
+        uploaded = False
         mxc_url = None
         if file_event.url:
             url = urlparse(file_event.url)
             if url.scheme == "mxc":
                 mxc_url = file_event.url
-                extra_info = {}
 
         if not mxc_url:
             mxc_url = await self.connection.media_upload(
@@ -254,9 +254,20 @@ class ConnectorMatrix(Connector):
                 await file_event.get_mimetype())
 
             mxc_url = mxc_url['content_uri']
+            uploaded = True
 
-        if isinstance(file_event, Image):
-            extra_info = await self._get_image_info(file_event)
+        return mxc_url, uploaded
+
+    @register_event(events.File)
+    @register_event(events.Image)
+    async def _send_file(self, file_event):
+        mxc_url, uploaded = self._file_to_mxc_url(file_event)
+
+        if isinstance(file_event, events.Image):
+            if uploaded:
+                extra_info = await self._get_image_info(file_event)
+            else:
+                extra_info = {}
             msg_type = "m.image"
         else:
             extra_info = {}
@@ -282,33 +293,59 @@ class ConnectorMatrix(Connector):
 
         return room
 
-    @register_event(RoomCreation)
+    @register_event(events.NewRoom)
     async def _send_room_creation(self, creation_event):
         params = creation_event.room_params
         params = params.get('matrix', params)
-        return await self.connection.create_room(
-            params.get('alias'),
-            params.get('name'),
-            params.get('is_public'),
-            params.get('federate'))
+        response = await self.connection.create_room(**params)
+        return response['room_id']
 
-    @register_event(RoomName)
+    @register_event(events.RoomName)
     async def _send_room_name_set(self, name_event):
-        params = name_event.room_params
-        params = params.get('matrix', params)
-        room_id = name_event.target
-        name = params.get('name')
-        alias = params.get('alias')
-        if name:
-            await self.connection.set_room_name(room_id, params['name'])
-        if alias:
-            await self.connection.set_room_alias(room_id, params['alias'])
+        await self.connection.set_room_name(name_event.target, name_event.name)
 
-    @register_event(RoomTopic)
-    async def _send_rom_topic_set(self, topic_event):
-        await self.connection.set_room_topic(topic_event.target, topic_event.topic)
+    @register_event(events.RoomAddress)
+    async def _send_room_address(self, address_event):
+        await self.connection.set_room_alias(address_event.target,
+                                             address_event.address)
 
-    @register_event(JoinRoom)
+    @register_event(events.JoinRoom)
     async def _send_join_room(self, join_event):
         return await self.connection.join_room(join_event.room_id)
 
+    @register_event(events.UserInvite)
+    async def _send_user_invitation(self, invite_event):
+        return await self.connection.invite_user(invite_event.target,
+                                                 invite_event.user)
+
+    @register_event(events.RoomDescription)
+    async def _send_room_desciption(self, desc_event):
+        return await self.connection.set_room_topic(desc_event.target,
+                                                    desc_event.description)
+
+    @register_event(events.RoomImage)
+    async def _send_room_image(self, image_event):
+        mxc_url, _ = await self._file_to_mxc_url(image_event.room_image)
+
+        return await self.connection.send_state_event(image_event.target,
+                                                      "m.room.avatar",
+                                                      {"url": mxc_url})
+
+    @register_event(events.UserRole)
+    async def _set_user_role(self, role_event):
+        role = role_event.role
+        room_id = role_event.target
+        if role.lower() in ["mod", "moderator"]:
+            power_level = 50
+        elif role.lower() in ["admin", "administrator"]:
+            power_level = 100
+        else:
+            try:
+                power_level = int(role)
+            except ValueError:
+                raise ValueError("Role must be one of 'mod', 'admin', or an integer")
+
+        power_levels = await self.connection.get_power_levels(room_id)
+        power_levels['users'][role_event.user] = power_level
+
+        return await self.connection.set_power_levels(room_id, power_levels)
