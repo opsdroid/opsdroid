@@ -121,7 +121,7 @@ class ConnectorSlack(Connector):
             message["text"] = await self.replace_usernames(message["text"])
 
             await self.opsdroid.parse(
-                Message(
+                events.Message(
                     message["text"],
                     user_info["name"],
                     message["channel"],
@@ -130,7 +130,7 @@ class ConnectorSlack(Connector):
                 )
             )
 
-    @register_event(Message)
+    @register_event(events.Message)
     async def _send_message(self, message):
         """Respond with a message."""
         _LOGGER.debug("Responding with: '%s' in room  %s", message.text, message.target)
