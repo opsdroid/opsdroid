@@ -11,7 +11,7 @@ from aioslacker import Slacker
 from emoji import demojize
 
 from opsdroid.connector import Connector, register_event
-from opsdroid.events import Message, Reaction, RoomCreation
+from opsdroid import events
 from opsdroid.connector.slack.events import Blocks
 
 
@@ -131,7 +131,7 @@ class ConnectorSlack(Connector):
             )
 
     @register_event(Message)
-    async def send_message(self, message):
+    async def _send_message(self, message):
         """Respond with a message."""
         _LOGGER.debug("Responding with: '%s' in room  %s", message.text, message.target)
         await self.slacker.chat.post_message(
@@ -143,7 +143,7 @@ class ConnectorSlack(Connector):
         )
 
     @register_event(Blocks)
-    async def send_blocks(self, blocks):
+    async def _send_blocks(self, blocks):
         """Respond with structured blocks."""
         _LOGGER.debug("Responding with interactive blocks in room  %s", blocks.target)
         await self.slacker.chat.post(
@@ -222,11 +222,32 @@ class ConnectorSlack(Connector):
             )
         return message
 
-    @register_event(RoomCreation)
-    async def send_room_creation(self, creation_event):
+    @register_event(events.NewRoom)
+    async def _send_room_creation(self, creation_event):
         params = creation_event.room_params
         params = params.get('slack', params)
         return await self.slacker.channels.create(
             self.token,
             params['name'],
             validate=params.get('validate', 'true'))
+
+    @register_event(events.RoomName)
+    async def _send_room_name_set(self, name_event):
+        return await self.slacker.channels.rename(self.token, name_event.target,
+                                                  name_event.name, 'true')
+
+    @register_event(events.JoinRoom)
+    async def _send_join_room(self, join_event):
+        return await self.slacker.channels.join(self.token, join_event.target, 'true')
+
+    @register_event(events.UserInvite)
+    async def _send_user_invitation(self, invite_event):
+        return await self.slacker.channels.invite(self.token,
+                                                  invite_event.target,
+                                                  invite_event.user)
+
+    @register_event(events.RoomDescription)
+    async def _send_room_desciption(self, desc_event):
+        return await self.slacker.channels.setTopic(self.token,
+                                                    desc_event.target,
+                                                    desc_event.description)
