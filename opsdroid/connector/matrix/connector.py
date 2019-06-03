@@ -12,7 +12,7 @@ from matrix_client.errors import MatrixRequestError
 
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message, Image, File, \
-    RoomCreation, SetRoomAlias, JoinRoom
+    RoomCreation, SetRoomName, JoinRoom
 
 from .html_cleaner import clean
 from .create_events import MatrixEventCreator
@@ -292,10 +292,23 @@ class ConnectorMatrix(Connector):
             params.get('is_public'),
             params.get('federate'))
 
-    @register_event(SetRoomAlias)
-    async def _send_room_alias_set(self, alias_event):
-        pass
+    @register_event(RoomName)
+    async def _send_room_name_set(self, name_event):
+        params = name_event.room_params
+        params = params.get('matrix', params)
+        room_id = name_event.target
+        name = params.get('name')
+        alias = params.get('alias')
+        if name:
+            await self.connection.set_room_name(room_id, params['name'])
+        if alias:
+            await self.connection.set_room_alias(room_id, params['alias'])
+
+    @register_event(RoomTopic)
+    async def _send_rom_topic_set(self, topic_event):
+        await self.connection.set_room_topic(topic_event.target, topic_event.topic)
 
     @register_event(JoinRoom)
     async def _send_join_room(self, join_event):
         return await self.connection.join_room(join_event.room_id)
+

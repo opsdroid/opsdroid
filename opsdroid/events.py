@@ -295,22 +295,22 @@ class RoomCreation(Event):
 
     def __init__(self, params=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.room_params = params
+        self.room_params = params or {}
 
 
-class SetRoomAlias(Event):
-    def __init__(self, room_alias, *args, **kwargs):
+class RoomName(Event):
+    def __init__(self, params=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.room_alias = room_alias
+        self.room_params = params or {}
 
 
-class SetRoomTopic(Event):
+class RoomTopic(Event):
     def __init__(self, room_topic, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.room_topic = room_topic
 
 
-class SetRoomImage(Event):
+class RoomImage(Event):
     def __init__(self, room_image, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.room_image = room_image
