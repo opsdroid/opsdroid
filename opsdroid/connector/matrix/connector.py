@@ -15,6 +15,7 @@ from opsdroid import events
 
 from .html_cleaner import clean
 from .create_events import MatrixEventCreator
+from . import events as matrixevents
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -302,12 +303,13 @@ class ConnectorMatrix(Connector):
 
     @register_event(events.RoomName)
     async def _send_room_name_set(self, name_event):
-        await self.connection.set_room_name(name_event.target, name_event.name)
+        return await self.connection.set_room_name(name_event.target,
+                                                   name_event.name)
 
     @register_event(events.RoomAddress)
     async def _send_room_address(self, address_event):
-        await self.connection.set_room_alias(address_event.target,
-                                             address_event.address)
+        return await self.connection.set_room_alias(address_event.target,
+                                                    address_event.address)
 
     @register_event(events.JoinRoom)
     async def _send_join_room(self, join_event):
@@ -326,10 +328,7 @@ class ConnectorMatrix(Connector):
     @register_event(events.RoomImage)
     async def _send_room_image(self, image_event):
         mxc_url, _ = await self._file_to_mxc_url(image_event.room_image)
-
-        return await self.connection.send_state_event(image_event.target,
-                                                      "m.room.avatar",
-                                                      {"url": mxc_url})
+        return await image_event.respond(matrixevents.MatrixRoomAvatar(mxc_url))
 
     @register_event(events.UserRole)
     async def _set_user_role(self, role_event):
@@ -348,4 +347,11 @@ class ConnectorMatrix(Connector):
         power_levels = await self.connection.get_power_levels(room_id)
         power_levels['users'][role_event.user] = power_level
 
-        return await self.connection.set_power_levels(room_id, power_levels)
+        return await role_event.respond(matrixevents.MatrixPowerLevels(power_levels))
+
+    @register_event(matrixevents.MatrixStateEvent, include_subclasses=True)
+    async def _send_state_event(self, state_event):
+        _LOGGER.debug(f"Sending State Event {state_event}")
+        return await self.connection.send_state_event(state_event.target,
+                                                      state_event.key,
+                                                      state_event.content)
