@@ -53,6 +53,17 @@ class TestRedisDatabaseAsync(asynctest.TestCase):
                 self.assertTrue(mocked_connection.called)
                 self.assertLogs("_LOGGER", "info")
 
+    async def test_connect_failure(self):
+        opsdroid = amock.CoroutineMock()
+        database = RedisDatabase({}, opsdroid=opsdroid)
+
+        with amock.patch.object(aioredis, "create_pool") as mocked_connection:
+            mocked_connection.side_effect = OSError()
+
+            with suppress(OSError):
+                await database.connect()
+                self.assertLogs("_LOGGER", "warning")
+
     async def test_connect_logging(self):
         opsdroid = amock.CoroutineMock()
         database = RedisDatabase({}, opsdroid=opsdroid)

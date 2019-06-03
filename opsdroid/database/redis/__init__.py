@@ -42,19 +42,26 @@ class RedisDatabase(Database):
         connect to Redis on localhost on port 6379
 
         """
-        self.client = await aioredis.create_pool(
-            address=(self.host, int(self.port)),
-            db=self.database,
-            password=self.password,
-            parser=parser.PyReader,
-        )
+        try:
+            self.client = await aioredis.create_pool(
+                address=(self.host, int(self.port)),
+                db=self.database,
+                password=self.password,
+                parser=parser.PyReader,
+            )
 
-        _LOGGER.info(
-            _("Connected to redis database %s from %s on port %s"),
-            self.database,
-            self.host,
-            self.port,
-        )
+            _LOGGER.info(
+                _("Connected to redis database %s from %s on port %s"),
+                self.database,
+                self.host,
+                self.port,
+            )
+        except OSError:
+            _LOGGER.warning(
+                _("Unable to connect to redis database on address: %s port: %s"),
+                self.host,
+                self.port,
+            )
 
     async def put(self, key, data):
         """Store the data object in Redis against the key.
@@ -64,8 +71,9 @@ class RedisDatabase(Database):
             data (object): The data object to store.
 
         """
-        _LOGGER.debug(_("Putting %s into redis"), key)
-        await self.client.execute("SET", key, json.dumps(data, cls=JSONEncoder))
+        if self.client:
+            _LOGGER.debug(_("Putting %s into redis"), key)
+            await self.client.execute("SET", key, json.dumps(data, cls=JSONEncoder))
 
     async def get(self, key):
         """Get data from Redis for a given key.
@@ -78,14 +86,16 @@ class RedisDatabase(Database):
                             object found for that key.
 
         """
-        _LOGGER.debug(_("Getting %s from redis"), key)
-        data = await self.client.execute("GET", key)
+        if self.client:
+            _LOGGER.debug(_("Getting %s from redis"), key)
+            data = await self.client.execute("GET", key)
 
-        if data:
-            return json.loads(data, encoding=JSONDecoder)
+            if data:
+                return json.loads(data, encoding=JSONDecoder)
 
-        return None
+            return None
 
     async def disconnect(self):
         """Disconnect from the database."""
-        self.client.close()
+        if self.client:
+            self.client.close()
