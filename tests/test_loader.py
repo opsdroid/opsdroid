@@ -464,7 +464,7 @@ class TestLoader(unittest.TestCase):
         ) as mockclone:
             loader._install_module(config)
             mockclone.assert_called_with(
-                config["repo"], config["install_path"], config["branch"]
+                config["repo"], config["install_path"], config["branch"], None
             )
 
     def test_install_specific_local_git_module(self):
