@@ -114,16 +114,34 @@ async def train_rasanlu(config, skills):
             return False
 
         if resp.status == 200:
-            result = await resp.json()
-            if "info" in result and "new model trained" in result["info"]:
-                time_taken = (arrow.now() - training_start).total_seconds()
-                _LOGGER.info(
-                    _("Rasa NLU training completed in %s seconds."), int(time_taken)
-                )
-                await _init_model(config)
-                return True
+            if resp.content_type == "application/json":
+                result = await resp.json()
+                if "info" in result and "new model trained" in result["info"]:
+                    time_taken = (arrow.now() - training_start).total_seconds()
+                    _LOGGER.info(_("Rasa NLU training completed in %s seconds."),
+                                 int(time_taken))
+                    await _init_model(config)
+                    return True
 
-            _LOGGER.debug(result)
+                    _LOGGER.debug(result)
+            if resp.content_type == "application/zip" and resp.content_disposition.type == "attachment":
+                time_taken = (arrow.now() - training_start).total_seconds()
+                _LOGGER.info(_("Rasa NLU training completed in %s seconds."),
+                            int(time_taken))
+                await _init_model(config)
+                
+                 # As inditated in the issue #886, returned zip file is ignored, this can be changed
+                # This can be changed in future release if needed
+                # Saving model.zip file example :
+                # try:
+                #     output_file = open("/target/directory/model.zip","wb")
+                #     data = await resp.read()
+                #     output_file.write(data)
+                #     output_file.close()
+                #     _LOGGER.debug("Rasa taining model file saved to /target/directory/model.zip")
+                # except:
+                #     _LOGGER.error("Cannot save rasa taining model file to /target/directory/model.zip")
+                return True
 
         _LOGGER.error(_("Bad Rasa NLU response - %s"), await resp.text())
         _LOGGER.error(_("Rasa NLU training failed."))
