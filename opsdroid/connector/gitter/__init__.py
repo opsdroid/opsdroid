@@ -34,7 +34,7 @@ class ConnectorGitter(Connector):
     _LOGGER.debug("Connecting with gitter stream")
     self.session = aiohttp.ClientSession()
     gitter_url = self.build_url(GITTER_STREAM_API,self.room_id,"chatMessages", access_token = self.access_token)
-    self.response = await self.session.get(gitter_url)
+    self.response = await self.session.get(gitter_url,timeout=None)
 
   def build_url(self,base_url , *res, **params):
     url = base_url
@@ -64,7 +64,7 @@ class ConnectorGitter(Connector):
             message["fromUser"]["username"],
             self.room_id,
             self)
-      except Exception as err:
+      except KeyError as err:
         _LOGGER.error("Unable to parse message %s", message)
         _LOGGER.debug(err.with_traceback())
 
