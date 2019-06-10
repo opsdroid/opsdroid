@@ -9,7 +9,8 @@ from opsdroid.connector import Connector,register_event
 from opsdroid.events import Message
 
 _LOGGER = logging.getLogger(__name__)
-GITTER_STREAM_API = "https://stream.gitter.im/v1/rooms"
+GITTER_STREAM_API       = "https://stream.gitter.im/v1/rooms"
+GITTER_MESSAGE_BASE_API = "https://api.gitter.im/v1/rooms"
 
 
 class ConnectorGitter(Connector):
@@ -55,7 +56,8 @@ class ConnectorGitter(Connector):
             if data !=None:
               message = Message(
               data["text"],
-              data["fromUser"]["id"],
+              data["fromUser"]["username"],
+              self.room_id,
               self)
               await self.opsdroid.parse(message)
         except Exception as err:
@@ -71,8 +73,14 @@ class ConnectorGitter(Connector):
   @register_event(Message)
   async def send_message(self, message):
     # Send message.text back to the chat service
-    _LOGGER.debug("Message to be  sent")
-    _LOGGER.debug(message.text)
+    url = self.build_url(GITTER_MESSAGE_BASE_API,message.target,"chatMessages")
+    headers = {'Authorization': 'Bearer ' + self.access_token, 'Content-Type':'application/json', 'Accept':'application/json'}
+    payload = {'text':message.text}
+    resp = await self.session.post(url, json=payload, headers=headers)
+    if resp.status == 200:
+      _LOGGER.debug("Successfully responded")
+    else:
+      _LOGGER.error("Unable to respond.")
 
   async def disconnect(self):
     # Disconnect from the chat service
