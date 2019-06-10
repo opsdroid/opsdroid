@@ -126,11 +126,10 @@ async def train_rasanlu(config, skills):
                     _LOGGER.debug(result)
             if resp.content_type == "application/zip" and resp.content_disposition.type == "attachment":
                 time_taken = (arrow.now() - training_start).total_seconds()
-                _LOGGER.info(_("Rasa NLU training completed in %s seconds."),
-                            int(time_taken))
+                _LOGGER.info(_("Rasa NLU training completed in %s seconds."), int(time_taken))
                 await _init_model(config)
-                
-                 # As inditated in the issue #886, returned zip file is ignored, this can be changed
+
+                # As inditated in the issue #886, returned zip file is ignored, this can be changed
                 # This can be changed in future release if needed
                 # Saving model.zip file example :
                 # try:

@@ -462,12 +462,38 @@ class TestParserRasaNLU(asynctest.TestCase):
             patched_request.return_value.set_result(result)
             self.assertEqual(await rasanlu.train_rasanlu({}, {}), False)
 
-            result.status = 200
-            patched_request.return_value = asyncio.Future()
-            patched_request.return_value.set_result(result)
-            self.assertEqual(await rasanlu.train_rasanlu({}, {}), True)
-
             result.json.return_value = {"info": "error"}
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
             self.assertEqual(await rasanlu.train_rasanlu({}, {}), False)
+
+
+            result = amock.Mock()
+            result.status = 200
+            result.text = amock.CoroutineMock()
+            result.json = amock.CoroutineMock()
+            mock_gai.return_value = "Hello World"
+            mock_gem.return_value = ["abc123"]
+            mock_gif.return_value = "abc123"
+
+            result.json.return_value = {"info": "new model trained: abc123"}
+            result.content_type == "application/json"
+            patched_request.return_value = asyncio.Future()
+            patched_request.return_value.set_result(result)
+            self.assertEqual(await rasanlu.train_rasanlu({}, {}), True)
+
+            result = amock.Mock()
+            result.status = 200
+            result.text = amock.CoroutineMock()
+            result.json = amock.CoroutineMock()
+            mock_gai.return_value = "Hello World"
+            mock_gem.return_value = ["abc123"]
+            mock_gif.return_value = "abc123"
+            
+            result.content_type == "application/zip"
+            result.content_disposition == "attachment"
+            result.json.return_value = {'Content-Type': 'application/zip', 'Content-Disposition': 'attachment'}
+            patched_request.return_value = asyncio.Future()
+            patched_request.return_value.set_result(result)
+            self.assertEqual(await rasanlu.train_rasanlu({}, {}), True)
+
