@@ -17,6 +17,6 @@ opsdroid-get-image-size==0.2.2
 parse==1.12.0
 puremagic==1.5
 pycron==1.0.0
-pyyaml==4.2b1
+pyyaml==5.1.1
 setuptools==41.0.1
 websockets==7.0
