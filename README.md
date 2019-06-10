@@ -92,6 +92,51 @@ $ docker config create OpsdroidConfig /path/to/configuration.yaml
 $ docker service create --name opsdroid --config source=OpsdroidConfig,target=/root/.config/opsdroid/configuration.yaml --mount 'type=volume,src=OpsdroidData,dst=/root/.config/opsdroid' opsdroid/opsdroid:latest
 ```
 
+### Docker Swarm ###
+```bash
+# Create Directory Structure
+├── config
+│   ├── configuration.yaml
+└── docker-compose.yml
+```
+```yaml
+# docker-compose.yml
+version: "3.5"
+
+services:
+
+  opsdroid:
+    image: opsdroid/opsdroid:latest
+    networks:
+      - opsdroid
+    volumes:
+      -  opsdroid:/root/.config/opsdroid
+    configs:
+      -  source: opsdroid_conf
+         target: /root/.config/opsdroid/configuration.yaml
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 10s
+        max_attempts: 20
+        window: 60s
+
+networks:
+  opsdroid:
+    driver: overlay
+
+configs:
+  opsdroid_conf:
+    file: ./config/configuration.yaml
+
+volumes:
+  opsdroid:
+```
+```bash
+# Deploy to swarm
+docker stack deploy --compose-file docker-compose.yml opsdroid
+```
+
 ### Ubuntu 16.04 LTS
 
 ```bash
