@@ -1,7 +1,5 @@
-
 import unittest
 import unittest.mock as mock
-import logging
 import os
 import sys
 import shutil
@@ -52,87 +50,13 @@ class TestMain(unittest.TestCase):
 
     def test_configure_lang(self):
         with mock.patch.object(gettext, "translation") as translation:
-            opsdroid.configure_lang({'lang': 'es'})
+            opsdroid.configure_lang({"lang": "es"})
             self.assertTrue(translation.return_value.install.called)
-
-    def test_set_logging_level(self):
-        self.assertEqual(logging.DEBUG,
-                         opsdroid.get_logging_level('debug'))
-        self.assertEqual(logging.INFO,
-                         opsdroid.get_logging_level('info'))
-        self.assertEqual(logging.WARNING,
-                         opsdroid.get_logging_level('warning'))
-        self.assertEqual(logging.ERROR,
-                         opsdroid.get_logging_level('error'))
-        self.assertEqual(logging.CRITICAL,
-                         opsdroid.get_logging_level('critical'))
-        self.assertEqual(logging.INFO,
-                         opsdroid.get_logging_level(''))
-
-    def test_configure_no_logging(self):
-        config = {"logging": {
-                    "path": False,
-                    "console": False,
-        }}
-        opsdroid.configure_logging(config)
-        rootlogger = logging.getLogger()
-        self.assertEqual(len(rootlogger.handlers), 1)
-        self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
-        self.assertEqual(rootlogger.handlers[0].level, logging.CRITICAL)
-
-    def test_configure_file_logging(self):
-        config = {"logging": {
-            "path": os.path.join(self._tmp_dir, "output.log"),
-            "console": False,
-        }}
-        opsdroid.configure_logging(config)
-        rootlogger = logging.getLogger()
-        self.assertEqual(len(rootlogger.handlers), 2)
-        self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
-        self.assertEqual(rootlogger.handlers[0].level, logging.CRITICAL)
-        self.assertEqual(logging.FileHandler, type(rootlogger.handlers[1]))
-        self.assertEqual(rootlogger.handlers[1].level, logging.INFO)
-
-    def test_configure_file_logging_directory_not_exists(self):
-        with mock.patch('logging.getLogger') as logmock:
-            mocklogger = mock.MagicMock()
-            mocklogger.handlers = [True]
-            logmock.return_value = mocklogger
-            config = {"logging": {
-                "path": os.path.join(self._tmp_dir,
-                                     'mynonexistingdirectory',
-                                     "output.log"),
-                "console": False,
-            }}
-            opsdroid.configure_logging(config)
-            # self.assertEqual(os.path.isfile(config['logging']['path']), True)
-
-    def test_configure_console_logging(self):
-        config = {"logging": {
-            "path": False,
-            "level": "error",
-            "console": True,
-        }}
-        opsdroid.configure_logging(config)
-        rootlogger = logging.getLogger()
-        self.assertEqual(len(rootlogger.handlers), 1)
-        self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
-        self.assertEqual(rootlogger.handlers[0].level, logging.ERROR)
-
-    def test_configure_default_logging(self):
-        config = {}
-        opsdroid.configure_logging(config)
-        rootlogger = logging.getLogger()
-        self.assertEqual(len(rootlogger.handlers), 2)
-        self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
-        self.assertEqual(rootlogger.handlers[0].level, logging.INFO)
-        self.assertEqual(logging.FileHandler, type(rootlogger.handlers[1]))
-        self.assertEqual(rootlogger.handlers[1].level, logging.INFO)
 
     def test_welcome_message(self):
         config = {"welcome-message": True}
         opsdroid.welcome_message(config)
-        self.assertLogs('_LOGGER', 'info')
+        self.assertLogs("_LOGGER", "info")
 
     def test_welcome_exception(self):
         config = {}
@@ -140,73 +64,99 @@ class TestMain(unittest.TestCase):
         self.assertIsNone(response)
 
     def test_check_version_27(self):
-        with mock.patch.object(sys, 'version_info') as version_info:
+        with mock.patch.object(sys, "version_info") as version_info:
             version_info.major = 2
             version_info.minor = 7
             with self.assertRaises(SystemExit):
                 opsdroid.check_dependencies()
 
     def test_check_version_34(self):
-        with mock.patch.object(sys, 'version_info') as version_info:
+        with mock.patch.object(sys, "version_info") as version_info:
             version_info.major = 3
             version_info.minor = 4
             with self.assertRaises(SystemExit):
                 opsdroid.check_dependencies()
 
     def test_check_version_35(self):
-        with mock.patch.object(sys, 'version_info') as version_info:
+        with mock.patch.object(sys, "version_info") as version_info:
             version_info.major = 3
             version_info.minor = 5
+            with self.assertRaises(SystemExit):
+                opsdroid.check_dependencies()
+
+    def test_check_version_36(self):
+        with mock.patch.object(sys, "version_info") as version_info:
+            version_info.major = 3
+            version_info.minor = 6
+            try:
+                opsdroid.check_dependencies()
+            except SystemExit:
+                self.fail("check_dependencies() exited unexpectedly!")
+
+    def test_check_version_37(self):
+        with mock.patch.object(sys, "version_info") as version_info:
+            version_info.major = 3
+            version_info.minor = 7
             try:
                 opsdroid.check_dependencies()
             except SystemExit:
                 self.fail("check_dependencies() exited unexpectedly!")
 
     def test_gen_config(self):
-        with mock.patch.object(click, 'echo') as click_echo,\
-                mock.patch('opsdroid.core.OpsDroid.load') as opsdroid_load:
+        with mock.patch.object(click, "echo") as click_echo, mock.patch(
+            "opsdroid.core.OpsDroid.load"
+        ) as opsdroid_load:
             runner = CliRunner()
-            result = runner.invoke(opsdroid.main, ['--gen-config'])
+            result = runner.invoke(opsdroid.main, ["--gen-config"])
             self.assertTrue(click_echo.called)
             self.assertFalse(opsdroid_load.called)
             self.assertEqual(result.exit_code, 0)
 
     def test_print_version(self):
-        with mock.patch.object(click, 'echo') as click_echo,\
-                mock.patch('opsdroid.core.OpsDroid.load') as opsdroid_load:
+        with mock.patch.object(click, "echo") as click_echo, mock.patch(
+            "opsdroid.core.OpsDroid.load"
+        ) as opsdroid_load:
             runner = CliRunner()
-            result = runner.invoke(opsdroid.main, ['--version'])
+            result = runner.invoke(opsdroid.main, ["--version"])
             self.assertTrue(click_echo.called)
             self.assertFalse(opsdroid_load.called)
             self.assertTrue(__version__ in click_echo.call_args[0][0])
             self.assertEqual(result.exit_code, 0)
 
     def test_edit_files_config(self):
-        with mock.patch.object(click, 'echo') as click_echo, \
-                mock.patch('subprocess.run') as editor:
+        with mock.patch.object(click, "echo") as click_echo, mock.patch(
+            "subprocess.run"
+        ) as editor:
             runner = CliRunner()
-            result = runner.invoke(opsdroid.main, ['--edit-config'], input='y')
+            result = runner.invoke(opsdroid.main, ["--edit-config"], input="y")
             self.assertTrue(click_echo.called)
             self.assertTrue(editor.called)
             self.assertEqual(result.exit_code, 0)
 
     def test_edit_files_log(self):
-        with mock.patch.object(click, 'echo') as click_echo, \
-                mock.patch('subprocess.run') as editor:
+        with mock.patch.object(click, "echo") as click_echo, mock.patch(
+            "subprocess.run"
+        ) as editor:
             runner = CliRunner()
-            result = runner.invoke(opsdroid.main, ['--view-log'])
+            result = runner.invoke(opsdroid.main, ["--view-log"])
             self.assertTrue(click_echo.called)
             self.assertTrue(editor.called)
             self.assertEqual(result.exit_code, 0)
 
     def test_main(self):
-        with mock.patch.object(sys, 'argv', ["opsdroid"]), \
-                mock.patch.object(opsdroid, 'check_dependencies') as mock_cd, \
-                mock.patch.object(opsdroid, 'configure_logging') as mock_cl, \
-                mock.patch.object(opsdroid, 'welcome_message') as mock_wm, \
-                mock.patch.object(OpsDroid, 'load') as mock_load, \
-                mock.patch.object(web, 'Web'), \
-                mock.patch.object(OpsDroid, 'run') as mock_loop:
+        with mock.patch.object(sys, "argv", ["opsdroid"]), mock.patch.object(
+            opsdroid, "check_dependencies"
+        ) as mock_cd, mock.patch.object(
+            opsdroid, "configure_logging"
+        ) as mock_cl, mock.patch.object(
+            opsdroid, "welcome_message"
+        ) as mock_wm, mock.patch.object(
+            OpsDroid, "load"
+        ) as mock_load, mock.patch.object(
+            web, "Web"
+        ), mock.patch.object(
+            OpsDroid, "run"
+        ) as mock_loop:
             runner = CliRunner()
             runner.invoke(opsdroid.main, [])
             self.assertTrue(mock_cd.called)

@@ -22,21 +22,18 @@ class ConnectorGitHub(Connector):
         try:
             self.github_token = config["token"]
         except KeyError:
-            _LOGGER.error("Missing auth token!"
-                          "You must set 'token' in your config")
+            _LOGGER.error("Missing auth token!" "You must set 'token' in your config")
         self.name = self.config.get("name", "github")
         self.opsdroid = opsdroid
         self.github_username = None
 
     async def connect(self):
         """Connect to GitHub."""
-        url = '{}/user?access_token={}'.format(
-            GITHUB_API_URL, self.github_token)
+        url = "{}/user?access_token={}".format(GITHUB_API_URL, self.github_token)
         async with aiohttp.ClientSession() as session:
             response = await session.get(url)
             if response.status >= 300:
-                _LOGGER.error("Error connecting to github: %s",
-                              response.text())
+                _LOGGER.error("Error connecting to github: %s", response.text())
                 return False
             _LOGGER.debug("Reading bot information...")
             bot_data = await response.json()
@@ -44,8 +41,8 @@ class ConnectorGitHub(Connector):
         self.github_username = bot_data["login"]
 
         self.opsdroid.web_server.web_app.router.add_post(
-            "/connector/{}".format(self.name),
-            self.github_message_handler)
+            "/connector/{}".format(self.name), self.github_message_handler
+        )
 
     async def disconnect(self):
         """Disconnect from GitHub."""
@@ -75,23 +72,22 @@ class ConnectorGitHub(Connector):
                 _LOGGER.debug("No message to respond to.")
                 _LOGGER.debug(payload)
                 return aiohttp.web.Response(
-                    text=json.dumps("No message to respond to."),
-                    status=200)
+                    text=json.dumps("No message to respond to."), status=200
+                )
 
-            issue = "{}/{}#{}".format(payload["repository"]["owner"]["login"],
-                                      payload["repository"]["name"],
-                                      issue_number)
-            message = Message(body,
-                              payload["sender"]["login"],
-                              issue,
-                              self,
-                              raw_event=payload)
+            issue = "{}/{}#{}".format(
+                payload["repository"]["owner"]["login"],
+                payload["repository"]["name"],
+                issue_number,
+            )
+            message = Message(
+                body, payload["sender"]["login"], issue, self, raw_event=payload
+            )
             await self.opsdroid.parse(message)
         except KeyError as error:
             _LOGGER.error("Key %s not found in payload", error)
             _LOGGER.debug(payload)
-        return aiohttp.web.Response(
-            text=json.dumps("Received"), status=201)
+        return aiohttp.web.Response(text=json.dumps("Received"), status=201)
 
     @register_event(Message)
     async def send_message(self, message):
@@ -100,14 +96,11 @@ class ConnectorGitHub(Connector):
         if message.user == self.github_username:
             return True
         _LOGGER.debug("Responding via GitHub")
-        repo, issue = message.target.split('#')
-        url = "{}/repos/{}/issues/{}/comments".format(
-            GITHUB_API_URL, repo, issue)
-        headers = {'Authorization': ' token {}'.format(self.github_token)}
+        repo, issue = message.target.split("#")
+        url = "{}/repos/{}/issues/{}/comments".format(GITHUB_API_URL, repo, issue)
+        headers = {"Authorization": " token {}".format(self.github_token)}
         async with aiohttp.ClientSession() as session:
-            resp = await session.post(url,
-                                      json={"body": message.text},
-                                      headers=headers)
+            resp = await session.post(url, json={"body": message.text}, headers=headers)
             if resp.status == 201:
                 _LOGGER.info("Message sent.")
                 return True

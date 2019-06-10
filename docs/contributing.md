@@ -9,7 +9,7 @@ Things you can help with:
  - [Issues](#issues)
      - [Squashing bugs](#quick-links)
      - [Enhance opsdroid](#quick-links)
- 
+
 *If you need help or if you are unsure about something join our* [gitter channel](https://gitter.im/opsdroid/) *and ask away! We are more than happy to help you.*
 
 ## Workflow
@@ -39,6 +39,12 @@ python -m opsdroid
 Running the tests
 
 ```shell
+# install pre-commit hooks
+pip install -U pre-commit
+
+# set up pre-commit hooks (only needs to be done once)
+pre-commit install
+
 # install test runner
 pip install -U tox
 
@@ -70,7 +76,7 @@ docker run --rm -ti -v $(pwd):/usr/src/app opsdroid/opsdroid:myfeature tox
 More documentation is always appreciated and it's something that you can contribute to from the GitHub web interface.  This might be a great start point if you are new to Open Source and GitHub!
 
 Things that we need help with:
- 
+
  - More documentation. Something that you think is unclear?
  - More examples on how to use opsdroid
  - More Tutorials
@@ -113,14 +119,14 @@ Then you can translate it in `locale/eo/LC_MESSAGES/opsdroid.po`, then compile i
 
 ## Creating New Modules
 Opsdroid is an open source chatbot framework. It is designed to be extendable, scalable and simple. It comes with a few official modules that can be found in the [Opsdroid  GitHub account](https://github.com/opsdroid).
- 
+
  If you love a particular platform and wish to use opsdroid with it or if you want opsdroid to interact with something in a certain way you can create your own modules and extend the functionality of opsdroid.
- 
+
  If you don't know where to start, make sure to check the [tutorials](tutorials) and read the [documentation](http://opsdroid.readthedocs.io/en/latest/?badge=latest).  Remember that you can also ask for help in our [gitter channel](https://gitter.im/opsdroid/)
 
 
 ## Issues
-You can help us by reporting new issues or by fixing existing issues. 
+You can help us by reporting new issues or by fixing existing issues.
 
 If you find any part of opsdroid that's acting odd it would be great if you take the time to create a new issue. That will help us keep opsdroid free of any bugs.
 
@@ -135,10 +141,10 @@ We try to tackle issues as fast as possible, but help would be greatly appreciat
  - [Squash Bugs](https://github.com/opsdroid/opsdroid/issues?q=is:issue+is:open+label:bug)
  - [Documentation](https://github.com/opsdroid/opsdroid/issues?q=is:issue+is:open+label:documentation)
  - [Enhancements](https://github.com/opsdroid/opsdroid/issues?q=is:issue+is:open+label:enhancement)
- 
+
  Don't forget, you can always help with the modules found in [opsdroid repository](https://github.com/opsdroid).
- 
- 
+
+
 ## Credits
 
 ### Contributors
