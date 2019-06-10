@@ -27,14 +27,13 @@ class ConnectorGitter(Connector):
     self.access_token = self.config.get("access-token")
     self.update_interval = 1
     self.opsdroid = opsdroid
+    self.listening = True
 
   async def connect(self):
-
     # Create connection object with chat library
     _LOGGER.debug("Connecting with gitter stream")
     self.session = aiohttp.ClientSession()
     gitter_url = self.build_url(GITTER_STREAM_API,self.room_id,"chatMessages", access_token = self.access_token)
-    _LOGGER.debug("Gitter stream url %s",gitter_url )
     self.response = await self.session.get(gitter_url)
 
   def build_url(self,base_url , *res, **params):
@@ -47,28 +46,28 @@ class ConnectorGitter(Connector):
 
   async def listen(self):
     _LOGGER.debug("Listening with gitter stream")
-    while True:
+    while self.listening:
       await asyncio.sleep(self.update_interval)
       async for data in self.response.content.iter_chunked(1024):
-        _LOGGER.info(data)
-        try:
-            data = await self.parse_message(data)
-            if data !=None:
-              message = Message(
-              data["text"],
-              data["fromUser"]["username"],
-              self.room_id,
-              self)
-              await self.opsdroid.parse(message)
-        except Exception as err:
-          _LOGGER.error("Unable to parse message %s", data)
-          _LOGGER.error(err.with_traceback())
+        message = await self.parse_message(data)
+        if message !=None:
+          await self.opsdroid.parse(message)
 
   async def parse_message(self,message):
     message = message.decode('utf-8').rstrip("\r\n")
     if len(message) > 1:
       message = json.loads(message)
-      return message
+      _LOGGER.debug(message)
+      try:
+        return Message(
+            message["text"],
+            message["fromUser"]["username"],
+            self.room_id,
+            self)
+      except Exception as err:
+        _LOGGER.error("Unable to parse message %s", message)
+        _LOGGER.debug(err.with_traceback())
+
 
   @register_event(Message)
   async def send_message(self, message):
@@ -84,5 +83,6 @@ class ConnectorGitter(Connector):
 
   async def disconnect(self):
     # Disconnect from the chat service
+    self.listening = False
     await self.session.close()
 
