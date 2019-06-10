@@ -467,7 +467,6 @@ class TestParserRasaNLU(asynctest.TestCase):
             patched_request.return_value.set_result(result)
             self.assertEqual(await rasanlu.train_rasanlu({}, {}), False)
 
-
             result = amock.Mock()
             result.status = 200
             result.text = amock.CoroutineMock()
