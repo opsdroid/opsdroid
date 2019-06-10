@@ -2,6 +2,7 @@ import ssl
 
 import asynctest
 import asynctest.mock as amock
+import asyncssh
 
 from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
@@ -102,13 +103,17 @@ class TestWeb(asynctest.TestCase):
                 "aiohttp.web.TCPSite.__init__"
             ) as mock_tcpsite, amock.patch(
                 "aiohttp.web.TCPSite.start"
-            ) as mock_tcpsite_start:
+            ) as mock_tcpsite_start, amock.patch(
+                "opsdroid.web.Web.expose"
+            ) as mock_expose:
                 mock_tcpsite.return_value = None
+                opsdroid.config = {"web": {"expose": True}}
                 app = web.Web(opsdroid)
                 await app.start()
                 self.assertTrue(mock_runner.called)
                 self.assertTrue(mock_tcpsite.called)
                 self.assertTrue(mock_tcpsite_start.called)
+                self.assertTrue(mock_expose.called)
 
     async def test_web_stop(self):
         """Check the stats handler."""
@@ -118,3 +123,32 @@ class TestWeb(asynctest.TestCase):
             app.runner.cleanup = amock.CoroutineMock()
             await app.stop()
             self.assertTrue(app.runner.cleanup.called)
+
+    async def test_web_exposed(self):
+        """Test that the web server gets exposed."""
+        with OpsDroid() as opsdroid:
+            with amock.patch(
+                "asyncssh.connect", new=amock.CoroutineMock()
+            ) as mock_connection, amock.patch(
+                "asyncssh.connection.SSHClientConnection.forward_remote_port",
+                new=amock.CoroutineMock(),
+            ) as mock_forward_remote_port:
+                mock_connection.return_value = amock.CoroutineMock()
+                app = web.Web(opsdroid)
+                await app.expose()
+                self.assertEqual(mock_connection, app.serveo_connection)
+                self.assertTrue(mock_connection.called)
+                self.assertTrue(mock_forward_remote_port.called)
+
+    async def test_web_exposed_cannot_connect(self):
+        """Test that the web server fails to be exposed."""
+        import socket
+
+        with OpsDroid() as opsdroid:
+            with amock.patch(
+                "asyncssh.connect", new=amock.CoroutineMock()
+            ) as mock_connection:
+                mock_connection.side_effect = socket.gaierror
+                app = web.Web(opsdroid)
+                with self.assertRaises(socket.gaierror):
+                    await app.expose()

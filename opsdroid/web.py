@@ -2,8 +2,11 @@
 
 import json
 import logging
+import socket
 import ssl
+import uuid
 
+import asyncssh
 from aiohttp import web
 
 from opsdroid import __version__
@@ -24,6 +27,8 @@ class Web:
             self.config = {}
         self.web_app = web.Application()
         self.runner = web.AppRunner(self.web_app)
+        self.serveo_connection = None
+        self.serveo_listener = None
         self.site = None
         self.web_app.router.add_get("/", self.web_index_handler)
         self.web_app.router.add_get("", self.web_index_handler)
@@ -106,9 +111,40 @@ class Web:
         )
         await self.site.start()
 
+        if self.config.get("expose", False):
+            await self.expose()
+
     async def stop(self):
         """Stop the web server."""
+        if self.serveo_connection:
+            _LOGGER.info("Stopping connection to Serveo.")
+            self.serveo_connection.close()
+            await self.serveo_listener.wait_closed()
+            _LOGGER.info("Stopped connection to Serveo.")
         await self.runner.cleanup()
+
+    async def expose(self):
+        """Expose the web server using serveo."""
+        unique_id = await self._get_exposed_id()
+        try:
+            self.serveo_connection = await asyncssh.connect(
+                "serveo.net", known_hosts=None, username=unique_id, password=unique_id
+            )
+        except socket.gaierror:
+            _LOGGER.error("Unable to connect to serveo.net. Exposing failed.")
+            return
+        ssh_config = (unique_id, 80, "localhost", self.get_port)
+        _LOGGER.debug(ssh_config)
+        self.serveo_listener = await self.serveo_connection.forward_remote_port(
+            *ssh_config
+        )
+        _LOGGER.info(
+            f"Exposing your opsdroid instance at https://{unique_id}.serveo.net. Thanks Serveo!"
+        )
+
+    async def _get_exposed_id(self):
+        """Get a uuid for serveo to use when exposing either from config or by generating it."""
+        return self.config.get("serveo", f"opsdroid-{str(uuid.uuid1())[:8]}")
 
     @staticmethod
     def build_response(status, result):
