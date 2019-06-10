@@ -329,7 +329,7 @@ class Loader:
             config_path = cls.create_default_config(DEFAULT_CONFIG_PATH)
 
         env_var_pattern = re.compile(r"^\$([A-Z_]*)$")
-        yaml.add_implicit_resolver("!envvar", env_var_pattern)
+        yaml.SafeLoader.add_implicit_resolver("!envvar", env_var_pattern, first="$")
 
         def envvar_constructor(loader, node):
             """Yaml parser for env vars."""
@@ -345,13 +345,13 @@ class Loader:
             with open(included_yaml, "r") as included:
                 return yaml.safe_load(included)
 
-        yaml.add_constructor("!envvar", envvar_constructor)
-        yaml.add_constructor("!include", include_constructor)
+        yaml.SafeLoader.add_constructor("!envvar", envvar_constructor)
+        yaml.SafeLoader.add_constructor("!include", include_constructor)
 
         try:
             with open(config_path, "r") as stream:
                 _LOGGER.info(_("Loaded config from %s."), config_path)
-                return yaml.load(stream, Loader=yaml.SafeLoader)
+                return yaml.safe_load(stream)
         except yaml.YAMLError as error:
             _LOGGER.critical(error)
             sys.exit(1)
