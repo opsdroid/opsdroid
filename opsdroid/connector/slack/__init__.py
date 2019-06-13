@@ -159,13 +159,13 @@ class ConnectorSlack(Connector):
     @register_event(Reaction)
     async def send_reaction(self, reaction):
         """React to a message."""
-        emoji = demojize(reaction.emoji)
+        emoji = demojize(reaction.emoji).replace(":", "")
         _LOGGER.debug("Reacting with: %s", emoji)
         try:
             await self.slacker.reactions.post(
                 "reactions.add",
                 data={
-                    "name": emoji.replace(":", ""),
+                    "name": emoji,
                     "channel": reaction.target,
                     "timestamp": reaction.linked_event.raw_event["ts"],
                 },
