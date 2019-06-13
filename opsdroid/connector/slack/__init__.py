@@ -165,7 +165,7 @@ class ConnectorSlack(Connector):
             await self.slacker.reactions.post(
                 "reactions.add",
                 data={
-                    "name": emoji,
+                    "name": emoji.replace(":", ""),
                     "channel": reaction.target,
                     "timestamp": reaction.linked_event.raw_event["ts"],
                 },
