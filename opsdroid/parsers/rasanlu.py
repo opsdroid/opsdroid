@@ -124,7 +124,7 @@ async def train_rasanlu(config, skills):
                     await _init_model(config)
                     return True
 
-                    _LOGGER.debug(result)
+                _LOGGER.debug(result)
             if (
                 resp.content_type == "application/zip"
                 and resp.content_disposition.type == "attachment"

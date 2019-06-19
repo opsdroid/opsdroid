@@ -419,7 +419,7 @@ class TestParserRasaNLU(asynctest.TestCase):
             models = await rasanlu._get_existing_models({})
             self.assertEqual(models, [])
 
-    async def test_train_rasanlu(self):
+    async def test_train_rasanlu_fails(self):
         result = amock.Mock()
         result.status = 404
         result.text = amock.CoroutineMock()
@@ -464,37 +464,53 @@ class TestParserRasaNLU(asynctest.TestCase):
 
             result.json.return_value = {"info": "error"}
             patched_request.return_value = asyncio.Future()
+            patched_request.side_effect = None
             patched_request.return_value.set_result(result)
             self.assertEqual(await rasanlu.train_rasanlu({}, {}), False)
 
-            result = amock.Mock()
-            result.status = 200
-            result.text = amock.CoroutineMock()
-            result.json = amock.CoroutineMock()
-            mock_gai.return_value = "Hello World"
-            mock_gem.return_value = ["abc123"]
-            mock_gif.return_value = "abc123"
+    async def test_train_rasanlu_succeeded(self):
+        result = amock.Mock()
+        result.text = amock.CoroutineMock()
+        result.json = amock.CoroutineMock()
+        result.status = 200
+        result.json.return_value = {"info": "new model trained: abc1234"}
 
-            result.json.return_value = {"info": "new model trained: abc123"}
-            result.content_type == "application/json"
+        with amock.patch(
+            "aiohttp.ClientSession.post"
+        ) as patched_request, amock.patch.object(
+            rasanlu, "_get_all_intents"
+        ) as mock_gai, amock.patch.object(
+            rasanlu, "_init_model"
+        ) as mock_im, amock.patch.object(
+            rasanlu, "_build_training_url"
+        ) as mock_btu, amock.patch.object(
+            rasanlu, "_get_existing_models"
+        ) as mock_gem, amock.patch.object(
+            rasanlu, "_get_intents_fingerprint"
+        ) as mock_gif:
+
+            mock_gem.return_value = ["abc123"]
+            mock_btu.return_value = "http://example.com"
+            mock_gai.return_value = "Hello World"
+            mock_gif.return_value = "abc1234"
+            result.content_type = "application/json"
+
+            patched_request.side_effect = None
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
             self.assertEqual(await rasanlu.train_rasanlu({}, {}), True)
 
-            result = amock.Mock()
-            result.status = 200
-            result.text = amock.CoroutineMock()
-            result.json = amock.CoroutineMock()
-            mock_gai.return_value = "Hello World"
-            mock_gem.return_value = ["abc123"]
-            mock_gif.return_value = "abc123"
+            result.json.return_value = {}
+            patched_request.side_effect = None
+            patched_request.return_value = asyncio.Future()
+            patched_request.return_value.set_result(result)
+            self.assertEqual(await rasanlu.train_rasanlu({}, {}), False)
 
-            result.content_type == "application/zip"
-            result.content_disposition == "attachment"
-            result.json.return_value = {
-                "Content-Type": "application/zip",
-                "Content-Disposition": "attachment",
-            }
+            result.content_type = "application/zip"
+            result.content_disposition.type = "attachment"
+            result.json.return_value = {"info": "new model trained: abc1234"}
+
+            patched_request.side_effect = None
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
             self.assertEqual(await rasanlu.train_rasanlu({}, {}), True)
