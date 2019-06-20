@@ -255,7 +255,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         self.assertTrue(connector.slacker.reactions.post)
         self.assertEqual(
             connector.slacker.reactions.post.call_args[1]["data"]["name"],
-            ":grinning_face:",
+            "grinning_face",
         )
 
     async def test_react_invalid_name(self):
