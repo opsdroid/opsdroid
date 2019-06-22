@@ -130,27 +130,36 @@ connectors:
     connection-timeout: int(required=False)
 
 
-
 ## Database modules (optional)
 
-databases:
-
   ## Mongo (https://github.com/opsdroid/database-mongo)
-  - name: str(required=False)
-    host: str(required=False)
-    port:  str(required=False)
-    database: str (required=False)
+databases: list(str(),include('bases'),include('sqlite'))
+---
+bases:
+  name: str()
+  host: str()
+  port:  str()
+  database: str()
 
-  ## Redis (https://github.com/opsdroid/database-redis)
-  - name: str(required=False)
-    host:  str (required=False)
-    port:   str(required=False)
-    database: str (required=False)
+sqlite:
+    name: str()
+    file: str()
+    table: str()
 
-  ## Sqlite (https://github.com/opsdroid/database-sqlite)
-  - name: str( required=False)
-    file: str(required=False)
-    table: str(required=False)
+
+#list_with_two_types: list(str(), include('variant'))
+#questions: list(include('question'))
+#---
+#variant:
+#  rsid: str()
+#  name: str()
+
+
+
+
+
+
+
 
 
 
