@@ -133,7 +133,7 @@ connectors:
 ## Database modules (optional)
 
   ## Mongo (https://github.com/opsdroid/database-mongo)
-databases: list(str(),include('bases'),include('sqlite'))
+databases: list(str(),include('bases', required=False),include('sqlite', required=False))
 ---
 bases:
   name: str()
@@ -145,24 +145,6 @@ sqlite:
     name: str()
     file: str()
     table: str()
-
-
-#list_with_two_types: list(str(), include('variant'))
-#questions: list(include('question'))
-#---
-#variant:
-#  rsid: str()
-#  name: str()
-
-
-
-
-
-
-
-
-
-
 
 
 
