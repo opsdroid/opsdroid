@@ -143,7 +143,7 @@ mongo:
 
 
 redis:
-  name: str(required=False)
+  name: regex('^redis$')
   host: str(required=False)
   port: str(required=False)
   database: str(required=False)
