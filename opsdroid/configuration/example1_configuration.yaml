@@ -152,7 +152,7 @@ databases:
   ## Mongo (https://github.com/opsdroid/database-mongo)
   - name: mongo
     host:       "my host"     # (optional) default "localhost"
-    port:       "12345"       # (optional) default "27017"
+    port:       "12345"      # (optional) default "27017"
     database:   "mydatabase"  # (optional) default "opsdroid"
 
   ## Redis (https://github.com/opsdroid/database-redis)

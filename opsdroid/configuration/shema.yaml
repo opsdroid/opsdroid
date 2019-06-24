@@ -133,28 +133,28 @@ connectors:
 ## Database modules (optional)
 
   ## Mongo (https://github.com/opsdroid/database-mongo)
-databases: list(include('mongo', required=False),include('redis', required=False),include('sqlite', required=False))
+databases: list(include('mongo', required=False), include('redis', required=False), include('sqlite', required=False))
 ---
 mongo:
   name: regex('^mongo$')
   host: str(required=False)
-  port: str(required=False)
+  port: regex('(^\d+$)',required=False)
   database: str(required=False)
 
 
 redis:
   name: regex('^redis$')
   host: str(required=False)
-  port: str(required=False)
-  database: str(required=False)
+  port: regex('(^\d+$)',required=False)
+  database: regex('(^\d+$)',required=False)
   password: str(required=False)
   reconnect: bool(required=False)
 
 
 sqlite:
-    name: regex('^sqlite$')
-    file: regex('(\\\\?([^\\/]*[\\/])*)([^\\/]+)$')
-    table: regex('(^[a-z_]+[0-9a-z]*$)')
+    name: regex('^sqlite$',required=False)
+    file: regex('(^\\\\?([^\\/]*[\\/])*)([^\\/]+)$',required=False)
+    table: str(required=False)
 
 
 
