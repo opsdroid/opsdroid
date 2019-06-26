@@ -21,20 +21,14 @@ parsers:
     access-token: 85769fjoso084jd
     min-score: 0.8
 
-
-
     ## Regex (http://opsdroid.readthedocs.io/en/stable/matchers/regex)
   - name: regex
     enabled: true
-
-
 
     # Wit.ai (http://opsdroid.readthedocs.io/en/stable/matchers/wit.ai)
   - name: witai
     access-token: XJF475SKGITJ98KHFO
     min-score: 0.6
-
-
 
     ## Luis.ai (http://opsdroid.readthedocs.io/en/stable/matchers/luis.ai)
   - name: luisai
@@ -46,8 +40,6 @@ parsers:
     ## Crontab (http://opsdroid.readthedocs.io/en/stable/matchers/crontab)
   - name: crontab
     enabled: true
-
-
 
 
 

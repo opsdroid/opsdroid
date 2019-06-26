@@ -1,52 +1,17 @@
 welcome-message: bool()
 
-parsers:
-  ## Dialogflow (http://opsdroid.readthedocs.io/en/stable/matchers/dialogflow)
-  - name: str()
-    access-token: str()
-    min-score: num()
-  ## Rasanlu (http://opsdroid.readthedocs.io/en/stable/matchers/rasanlu)
-  - name: str()
-    project: str()
-    token: str()
-    min-score: num()
-  #  ## Recast.ai (http://opsdroid.readthedocs.io/en/stable/matchers/recast.ai)
-  - name: str()
-    access-token: str()
-    min-score: num()
-
-    ## Regex (http://opsdroid.readthedocs.io/en/stable/matchers/regex)
-  - name: str()
-    enabled: bool()
-
-  # Wit.ai (http://opsdroid.readthedocs.io/en/stable/matchers/wit.ai)
-  - name: str()
-    access-token: str()
-    min-score: num()
-
-  ## Luis.ai (http://opsdroid.readthedocs.io/en/stable/matchers/luis.ai)
-  - name: str()
-    appid: str()
-    appkey: str()
-    verbose: bool()
-    min-score: num()
-
-  ## Crontab (http://opsdroid.readthedocs.io/en/stable/matchers/crontab)
-  - name: str()
-    enabled: bool()
 
 connectors: list(include('websocket', required=False),include('shell', required=False), include('ciscospark',required=False),include('facebook',required=False),
   include('github',required=False),include('matrix',required=False),include('slack',required=False),include('telegram',required=False),include('twitter',required=False))
 
 
-## Database modules (optional)
 databases: list(include('mongo', required=False), include('redis', required=False), include('sqlite', required=False))
 
 
 skills: list(include('base_skills',required=False),include('cloudhealth',required=False),include('dialogflow',required=False),include('food',required=False),
   include('google it',required=False),include('skills_2',required=False),include('iss',required=False),include('vault',required=False), include('weather',required=False))
 
-
+parsers: list(include('parsers_1',required=False))
 ---
 mongo:
   name: regex('^mongo$')
@@ -192,4 +157,14 @@ weather:
    unit: str()
    api-key: str()
 
-
+---
+parsers_1:
+    name: str()
+    access-token: str(required=False)
+    min-score: num(required=False)
+    project: str(required=False)
+    token: str(required=False)
+    enabled: bool(required=False)
+    appid: str(required=False)
+    appkey: str(required=False)
+    verbose: bool(required=False)
