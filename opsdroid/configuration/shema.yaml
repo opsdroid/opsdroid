@@ -1,6 +1,5 @@
 welcome-message: bool()
 
-
 parsers:
   ## Dialogflow (http://opsdroid.readthedocs.io/en/stable/matchers/dialogflow)
   - name: str()
@@ -36,127 +35,12 @@ parsers:
   - name: str()
     enabled: bool()
 
-connectors:
-  # websocket
-  - name: str(required=False)
-    # optional
-    bot-name: str(required=False)
-    max-connections: int(required=False)
-    connection-timeout: int(required=False)
-
-  ## Uncomment the connector(s) that you wish opsdroid to work on
-  #  shell
-  - name: str(required=False)
-    # optional
-    bot-name: str(required=False)
-
-  ## Ciscospark (https://github.com/opsdroid/connector-ciscospark)
-  - name: str(required=False)
-    # required
-    webhook-url:  str()   #???? #http(s)://<host>:<port>  # Url for Spark to connect to your bot
-    access-token: str()
-
-  ## Facebook (https://github.com/opsdroid/connector-facebook)
-  - name: str(required=False)
-    # required
-    verify-token: str()
-    page-access-token: str()
-    # optional
-    bot-name: str(required=False)
-
-  ## Github (https://github.com/opsdroid/connector-github)
-  - name: str(required=False)
-    # required
-    github-token: str()
-
-  ## Matrix (https://github.com/opsdroid/connector-matrix)
-  - name: str(required=False)
-    # Required
-    mxid: str()
-    password: str()
-    # Name of a single room to connect to
-    room: str()
-    # Alternatively, a dictionary of multiple rooms
-    # One of these should be named 'main'
-    rooms:
-      'main': str()
-      'other': str()
-    # Optional
-    homeserver: str(required=False)
-    nick: str(required=False)
-
-  ## Shell (https://github.com/opsdroid/connector-shell)
-  - name: str(required=False)
-    # optional
-    bot-name: str(required=False)
-
-  ## Slack (https://github.com/opsdroid/connector-slack)
-  - name: str(required=False)
-    # required
-    api-token: str()
-    # optional
-    bot-name: str(required=False)
-    default-room: str(required=False)
-    icon-emoji: str(required=False)
-    connect-timeout: int(required=False)
-
-  ## Telegram (https://github.com/opsdroid/connector-telegram)
-  - name: str() #telegram
-    # required
-    token: str() #"123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ-ZYXWVUT"  # Telegraf bot token
-    # optional
-    update_interval: num(required=False)     #0.5  # Interval between checking for messages
-    default_user: str(required=False) #user1  # Default user to send messages to (overrides default room in connector)
-    whitelisted_users: list() # List of users who can speak to the bot, if not set anyone can speak
-
-
-
-  ## Twitter (https://github.com/opsdroid/connector-twitter)
-  - name: str(required=False)
-    # required
-    consumer_key: str()
-    consumer_secret: str()
-    oauth_token: str()
-    oauth_token_secret: str()
-    # optional
-    enable_dms: bool(required=False)
-    enable_tweets: bool(required=False)
-
-  ## Websocket (https://github.com/opsdroid/connector-websocket)
-  - name: str(required=False)
-    # optional
-    bot-name: str(required=False)
-    max-connections: int(required=False)
-    connection-timeout: int(required=False)
+connectors: list(include('websocket', required=False),include('shell', required=False), include('ciscospark',required=False),include('facebook',required=False),
+  include('github',required=False),include('matrix',required=False),include('slack',required=False),include('telegram',required=False),include('twitter',required=False))
 
 
 ## Database modules (optional)
-
-  ## Mongo (https://github.com/opsdroid/database-mongo)
 databases: list(include('mongo', required=False), include('redis', required=False), include('sqlite', required=False))
----
-mongo:
-  name: regex('^mongo$')
-  host: str(required=False)
-  port: regex('(^\d+$)',required=False)
-  database: str(required=False)
-
-
-redis:
-  name: regex('^redis$')
-  host: str(required=False)
-  port: regex('(^\d+$)',required=False)
-  database: regex('(^\d+$)',required=False)
-  password: str(required=False)
-  reconnect: bool(required=False)
-
-
-sqlite:
-    name: regex('^sqlite$',required=False)
-    file: regex('(^\\\\?([^\\/]*[\\/])*)([^\\/]+)$',required=False)
-    table: str(required=False)
-
-
 
 skills:
   ## Dance (https://github.com/opsdroid/skill-dance)
@@ -276,5 +160,93 @@ skills:
   ## Words (https://github.com/opsdroid/skill-words)
   - name: str()
 
+---
+mongo:
+  name: regex('^mongo$')
+  host: str(required=False)
+  port: regex('(^\d+$)',required=False)
+  database: str(required=False)
+---
+redis:
+  name: regex('^redis$')
+  host: str(required=False)
+  port: regex('(^\d+$)',required=False)
+  database: regex('(^\d+$)',required=False)
+  password: str(required=False)
+  reconnect: bool(required=False)
+---
+sqlite:
+    name: regex('^sqlite$')
+    file: regex('(^\\\\?([^\\/]*[\\/])*)([^\\/]+)$',required=False)
+    table: str(required=False)
+---
+websocket:
+  name: regex('^websocket$')
+  bot-name: str(required=False)
+  max-connections: int(required=False)
+  connection-timeout: int(required=False)
+---
+shell:
+  name: regex('^shell$')
+  bot-name: str(required=False)
+
+---
+ciscospark:
+    name: regex('^ciscospark$')
+    webhook-url:  str()
+    access-token: str()
+---
+facebook:
+    name: regex('^facebook$')
+    verify-token: str()
+    page-access-token: str()
+    bot-name: str(required=False)
+---
+github:
+    name: regex('^github$')
+    github-token: str(required=False)
+---
+matrix:
+    name: regex('^matrix$')
+    mxid: regex('^\@[a-zA-Z]*:matrix.org$')
+    password: str()
+    room: str()
+    rooms: (include('room1'))
+    homeserver: regex('^https://matrix.org$')
+    nick: str(required=False)
+    room_specific_nicks: bool(required=False)
+    send_m_notice: bool(required=False)
+
+---
+room1:
+  'main': regex('^#matrix:matrix.org')
+  'other': regex('^#riot:matrix.org$')
+
+---
+ slack:
+   name: regex('^slack$')
+   api-token: str()
+   bot-name: str(required=False)
+   default-room: str(required=False)
+   icon-emoji: str(required=False)
+   connect-timeout: int(required=False)
+
+---
+telegram:
+    name: regex('^telegram$')
+    token: str()
+    update_interval: num(required=False)
+    default_user: str(required=False)
+    whitelisted_users: list(str(),str())
+
+---
+twitter :
+    name: regex('^twitter$')
+    consumer_key: str()
+    consumer_secret: str()
+    oauth_token: str()
+    oauth_token_secret: str()
+    enable_dms: bool(required=False)
+    enable_tweets: bool(required=False)
 
 

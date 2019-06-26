@@ -1,3 +1,5 @@
+
+
 # Import Yamale and make a schema object, make sure ruamel.yaml is installed already.
 import yamale
 schema = yamale.make_schema('shema.yaml')

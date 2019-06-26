@@ -48,6 +48,9 @@ parsers:
     enabled: true
 
 
+
+
+
 connectors:
 
   - name: websocket
@@ -62,11 +65,14 @@ connectors:
     # optional
     bot-name: "mybot" # default "opsdroid"
 
+
   ## Ciscospark (https://github.com/opsdroid/connector-ciscospark)
   - name: ciscospark
     # required
     webhook-url: http(s)://<host>:<port>  # Url for Spark to connect to your bot
     access-token: <your bot access token>  # Your access token
+
+
 
   ## Facebook (https://github.com/opsdroid/connector-facebook)
   - name: facebook
@@ -97,10 +103,8 @@ connectors:
     homeserver: "https://matrix.org"
     nick: "Botty McBotface"  # The nick will be set on startup
 
-  ## Shell (https://github.com/opsdroid/connector-shell)
-  - name: shell
-    # optional
-    bot-name: "mybot" # default "opsdroid"
+
+
 
   ## Slack (https://github.com/opsdroid/connector-slack)
   - name: slack
@@ -133,15 +137,6 @@ connectors:
     # optional
     enable_dms: true  # Should the bot respond to Direct Messages
     enable_tweets: true  # Should the bot respond to tweets
-
-  ## Websocket (https://github.com/opsdroid/connector-websocket)
-  - name: websocket
-    # optional
-    bot-name: "mybot" # default "opsdroid"
-    max-connections: 10 # default is 10 users can be connected at once
-    connection-timeout: 10 # default 10 seconds before requested socket times out
-
-
 
 
 
