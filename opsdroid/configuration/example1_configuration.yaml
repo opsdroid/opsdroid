@@ -3,7 +3,6 @@ welcome-message: true
 
 
 
-
 parsers:
   ## Dialogflow (http://opsdroid.readthedocs.io/en/stable/matchers/dialogflow)
   - name: dialogflow
@@ -96,8 +95,6 @@ connectors:
     nick: "Botty McBotface"  # The nick will be set on startup
 
 
-
-
   ## Slack (https://github.com/opsdroid/connector-slack)
   - name: slack
     # required
@@ -131,7 +128,6 @@ connectors:
     enable_tweets: true  # Should the bot respond to tweets
 
 
-
 ## Database modules (optional)
 
 databases:
@@ -154,7 +150,6 @@ databases:
     table: "my_table"  # (optional) default "opsdroid"
 
 
-
 skills:
   ## Dance (https://github.com/opsdroid/skill-dance)
   - name: dance
@@ -168,14 +163,11 @@ skills:
   ## Devtools (https://github.com/opsdroid/skill-devtools)
   - name: devtools
 
-
   ## Github (https://github.com/opsdroid/skill-github)
   - name: github
 
-
   ## Hacktoberfest (https://github.com/opsdroid/skill-hacktoberfest)
   - name: hacktoberfest
-
 
   ## Loudnoises (https://github.com/opsdroid/skill-loudnoises)
   - name: loudnoises
@@ -186,7 +178,6 @@ skills:
   ## Random (https://github.com/opsdroid/skill-random)
   - name: random
 
-
   ## Speakingclock (https://github.com/opsdroid/skill-speakingclock)
   - name: speakingclock
 
@@ -195,10 +186,6 @@ skills:
 
   ## Words (https://github.com/opsdroid/skill-words)
   - name: words
-
-
-
-
 
   # Configurations for other skills uncomment desired skill to activate it.
 
@@ -210,7 +197,6 @@ skills:
     room: "#monitoring"  # Room to send alert to
     daily-billing-alerts: true  # Announce the previous day's bill each morning
     monthly-billing-alerts: true  # Announce the previous month's bill each month
-
 
 
   ## Dialogflow (https://github.com/opsdroid/skill-dialogflow)
@@ -228,6 +214,8 @@ skills:
   - name: google-it
     # Use Google search engine (Default)
     engine-url: https://www.google.co.uk/
+
+
 #    query-arg: search?q=
 #    # Other search engines that can be used (keep only one uncommented at a time)
 #    # Use Bing search engine
@@ -254,22 +242,18 @@ skills:
   - name: grafana
     room: "#monitoring"  # (Optional) room to send alert to
 
-
   ## Homeassistant (https://github.com/opsdroid/skill-homeassistant)
   - name: homeassistant
     room: "#homeassistant"  # (Optional) room to send notifications to
-
 
   ## Magpi (https://github.com/opsdroid/skill-magpi)
   - name: magpi
     room: "#raspberrypi"  # (Optional) room to send notifications to
 
-
   ## Travis (https://github.com/opsdroid/skill-travis)
   - name: travis
     room: "#monitoring"  # (Optional) room to send alert to
     travis_endpoint: "org"  # (Optional) endpoint for travis, change to "com" if using enterprise Travis CI
-
 
 
   ## Iss (https://github.com/opsdroid/skill-iss)
@@ -280,7 +264,6 @@ skills:
     zoom: "5"
     map-size: "1024x768"
     map-type: "hybrid" # hybrid, satellite or roadmap
-
 
 
   ## Vault (https://github.com/opsdroid/skill-vault)

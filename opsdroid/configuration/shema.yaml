@@ -1,23 +1,37 @@
 welcome-message: bool()
 
 
-connectors: list(include('websocket', required=False),include('shell', required=False), include('ciscospark',required=False),include('facebook',required=False),
-  include('github',required=False),include('matrix',required=False),include('slack',required=False),include('telegram',required=False),include('twitter',required=False))
+connectors:
+  list(include('websocket', required=False),
+  include('shell', required=False),
+  include('ciscospark',required=False),
+  include('facebook',required=False),
+  include('github',required=False),
+  include('matrix',required=False),
+  include('slack',required=False),
+  include('telegram',required=False),
+  include('twitter',required=False))
 
 
-databases: list(include('mongo', required=False), include('redis', required=False), include('sqlite', required=False))
+
+databases:
+  list(include('mongo', required=False),
+  include('redis', required=False),
+  include('sqlite', required=False))
 
 
-skills: list(include('base_skills',required=False),include('cloudhealth',required=False),include('dialogflow',required=False),include('food',required=False),
-  include('google it',required=False),include('skills_2',required=False),include('iss',required=False),include('vault',required=False), include('weather',required=False))
+skills: list(include('skill',required=False))
 
-parsers: list(include('parsers_1',required=False))
+
+parsers: list(include('parser',required=False))
+
 ---
 mongo:
   name: regex('^mongo$')
   host: str(required=False)
   port: regex('(^\d+$)',required=False)
   database: str(required=False)
+
 ---
 redis:
   name: regex('^redis$')
@@ -102,63 +116,10 @@ twitter :
     enable_tweets: bool(required=False)
 
 ---
-base_skills:
+skill:
     name : str()
-
 ---
-cloudhealth:
-    name: regex('^aws-billing$')
-    chapi-key: str()
-    room: str( required=False)
-    daily-billing-alerts: bool(required=False)
-    monthly-billing-alerts: bool(required=False)
----
-
-dialogflow:
-     name: regex('^dialogflow$')
-     include: list(str())
-     exclude: list(str())
-
-
----
-food:
-    name: regex('^food$')
-    api-key: str(required=False)
----
-google it:
-   name: regex('^google it$')
-   engine-url: str(required=False)
-   query-arg: str(required=False)
----
-skills_2:
-      name: str()
-      room: str(required=False)
-      travis_endpoint: str(required=False)
----
-iss:
-    name: regex('^iss$')
-    api-key: str()
-    zoom: regex('^\d+$',required=False)
-    map-size: regex('^\d+x\d+$',required=False)
-    map-type: str(required=False)
-
----
-vault:
-    name: regex('^vault$')
-    vault-url: str()
-    vault-token: str()
-    announce-on-seal: bool(required=False)
-    announce-sealed: bool(required=False)
-    announce-unsealed: bool(required=False)
----
-weather:
-   name: str()
-   city: str()
-   unit: str()
-   api-key: str()
-
----
-parsers_1:
+parser:
     name: str()
     access-token: str(required=False)
     min-score: num(required=False)
