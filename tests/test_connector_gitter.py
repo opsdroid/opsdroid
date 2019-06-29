@@ -35,19 +35,62 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
         self.connector = ConnectorGitter(
             {"bot-name": "github", "room-id": "test-id", "access-token":"test-token"}, opsdroid=opsdroid
         )
+        with amock.patch("aiohttp.ClientSession") as mocked_session:
+            self.connector.session = mocked_session
 
     async def test_connect(self):
         with amock.patch("aiohttp.ClientSession.get") as patched_request:
             mockresponse = amock.CoroutineMock()
             mockresponse.status = 200
             mockresponse.json = amock.CoroutineMock(return_value={"login": "opsdroid"})
+            patched_request.return_value = asyncio.Future()
+            patched_request.return_value.set_result(mockresponse)
             await self.connector.connect()
 
     def test_build_url(self):
-        self.assertEqua("test/api/test-id/chatMessage/token",self.connector.build_url("test/api", "test-id", "chatMessages", access_token= "token"))
+        self.assertEqual("test/api/test-id/chatMessages?access_token=token",self.connector.build_url("test/api", "test-id", "chatMessages", access_token= "token"))
+
+
+    async def test_parse_message(self):
+        self.connector.parse_message("{'text':'hello', 'fromUser':{'username':'testUSer'}}")
+        #self.assertEqual(message.text,'hello')
+
+    async def test_send_message_success(self):
+        post_response = amock.Mock()
+        post_response.status = 200
+
+        with OpsDroid() as opsdroid, amock.patch.object(
+                self.connector.session, "post"
+        ) as patched_request:
+            patched_request.return_value = asyncio.Future()
+            patched_request.return_value.set_result(post_response)
+            await self.connector.send_message(Message("","","",self.connector))
+
+    async def test_send_message_not_success(self):
+        post_response = amock.Mock()
+        post_response.status = 400
+
+        with OpsDroid() as opsdroid, amock.patch.object(
+                self.connector.session, "post"
+        ) as patched_request:
+            patched_request.return_value = asyncio.Future()
+            patched_request.return_value.set_result(post_response)
+            await self.connector.send_message(Message("","","",self.connector))
+
 
     async def test_disconnect(self):
-        self.assertEqual(await self.connector.disconnect(), None)
+        post_response = amock.Mock()
+        with OpsDroid() as opsdroid, amock.patch.object(
+                self.connector.session, "close"
+        ) as patched_request:
+            patched_request.return_value = asyncio.Future()
+            patched_request.return_value.set_result(post_response)
+            await self.connector.disconnect()
+
+
+
+
+
 
 
 

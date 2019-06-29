@@ -33,7 +33,7 @@ class ConnectorGitter(Connector):
     # Create connection object with chat library
     _LOGGER.debug("Connecting with gitter stream")
     self.session = aiohttp.ClientSession()
-    gitter_url = self.build_url(GITTER_STREAM_API,self.room_id,"chatMessages", access_token = self.access_token)
+    gitter_url   = self.build_url(GITTER_STREAM_API,self.room_id,"chatMessages", access_token = self.access_token)
     self.response = await self.session.get(gitter_url,timeout=None)
 
   def build_url(self,base_url , *res, **params):
@@ -77,7 +77,7 @@ class ConnectorGitter(Connector):
     payload = {'text':message.text}
     resp = await self.session.post(url, json=payload, headers=headers)
     if resp.status == 200:
-      _LOGGER.debug("Successfully responded")
+      _LOGGER.info("Successfully responded")
     else:
       _LOGGER.error("Unable to respond.")
 
