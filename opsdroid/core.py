@@ -1,4 +1,4 @@
-"""Core components of OpsDroid."""
+="""Core components of OpsDroid."""
 
 import copy
 import logging
@@ -34,7 +34,8 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class OpsDroid:
-    """Root object for opsdroid."""
+    """Root object for opsdroid.
+    """
 
     # pylint: disable=too-many-instance-attributes
     # All are reasonable in this case.
