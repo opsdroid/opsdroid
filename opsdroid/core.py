@@ -35,6 +35,7 @@ _LOGGER = logging.getLogger(__name__)
 
 class OpsDroid:
     """Root object for opsdroid.
+
     """
 
     # pylint: disable=too-many-instance-attributes
@@ -43,7 +44,9 @@ class OpsDroid:
     instances = []
 
     def __init__(self, config=None):
-        """Start opsdroid."""
+        """Start opsdroid.
+
+        """
         self.bot_name = "opsdroid"
         self._running = False
         self.sys_status = 0
@@ -75,7 +78,9 @@ class OpsDroid:
         self.stored_path = []
 
     def __enter__(self):
-        """Add self to existing instances."""
+        """Add self to existing instances.
+        
+        """
         self.stored_path = copy.copy(sys.path)
         if not self.__class__.instances:
             self.__class__.instances.append(weakref.proxy(self))
@@ -84,14 +89,18 @@ class OpsDroid:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        """Remove self from existing instances."""
+        """Remove self from existing instances.
+        
+        """
         sys.path = self.stored_path
         self.__class__.instances = []
         asyncio.set_event_loop(asyncio.new_event_loop())
 
     @property
     def default_connector(self):
-        """Return the default connector."""
+        """Return the default connector.
+        
+        """
         default_connector = None
         for connector in self.connectors:
             if "default" in connector.config and connector.config["default"]:
@@ -102,19 +111,25 @@ class OpsDroid:
         return default_connector
 
     def exit(self):
-        """Exit application."""
+        """Exit application.
+        
+        """
         _LOGGER.info(_("Exiting application with return code %s"), str(self.sys_status))
         sys.exit(self.sys_status)
 
     def critical(self, error, code):
-        """Exit due to unrecoverable error."""
+        """Exit due to unrecoverable error.
+        
+        """
         self.sys_status = code
         _LOGGER.critical(error)
         self.exit()
 
     @staticmethod
     def handle_async_exception(loop, context):
-        """Handle exceptions from async coroutines."""
+        """Handle exceptions from async coroutines.
+        
+        """
         if "future" in context:
             try:  # pragma: nocover
                 context["future"].result()
@@ -126,16 +141,22 @@ class OpsDroid:
         _LOGGER.error(context)
 
     def is_running(self):
-        """Check whether opsdroid is running."""
+        """Check whether opsdroid is running.
+        
+        """
         return self._running
 
     async def handle_signal(self):
-        """Handle signals."""
+        """Handle signals.
+        
+        """
         self._running = False
         await self.unload()
 
     def run(self):
-        """Start the event loop."""
+        """Start the event loop.
+        
+        """
         _LOGGER.info(_("Opsdroid is now running, press ctrl+c to exit."))
         if not self.is_running():
             self._running = True
@@ -153,7 +174,9 @@ class OpsDroid:
             _LOGGER.error(_("Oops! Opsdroid is already running."))
 
     def load(self):
-        """Load modules."""
+        """Load modules.
+        
+        """
         self.modules = self.loader.load_modules_from_config(self.config)
         _LOGGER.debug(_("Loaded %i skills"), len(self.modules["skills"]))
         self.setup_skills(self.modules["skills"])
@@ -167,7 +190,9 @@ class OpsDroid:
         self.eventloop.create_task(self.web_server.start())
 
     async def unload(self, future=None):
-        """Stop the event loop."""
+        """Stop the event loop.
+        
+        """
         _LOGGER.info(_("Received stop signal, exiting."))
 
         _LOGGER.info(_("Removing skills..."))
@@ -205,7 +230,9 @@ class OpsDroid:
         _LOGGER.info(_("Stopped pending tasks"))
 
     async def reload(self):
-        """Reload opsdroid."""
+        """Reload opsdroid.
+        
+        """
         await self.unload()
         self.config = Loader.load_config_file(
             [
@@ -272,7 +299,9 @@ class OpsDroid:
                 )
 
     def train_parsers(self, skills):
-        """Train the parsers."""
+        """Train the parsers.
+        
+        """
         if "parsers" in self.config:
             parsers = self.config["parsers"] or []
             tasks = []
@@ -290,7 +319,9 @@ class OpsDroid:
             )
 
     def start_connectors(self, connectors):
-        """Start the connectors."""
+        """Start the connectors.
+        
+        """
         for connector_module in connectors:
             for _, cls in connector_module["module"].__dict__.items():
                 if (
@@ -316,7 +347,9 @@ class OpsDroid:
     # pylint: disable=W0640
     @property
     def _connector_names(self):  # noqa: D401
-        """Mapping of names to connector instances."""
+        """Mapping of names to connector instances.
+        
+        """
         if not self.connectors:
             raise ValueError("No connectors have been started")
 
@@ -333,7 +366,9 @@ class OpsDroid:
         return names
 
     def start_databases(self, databases):
-        """Start the databases."""
+        """Start the databases.
+        
+        """
         if not databases:
             _LOGGER.debug(databases)
             _LOGGER.warning(_("All databases failed to load"))
@@ -350,7 +385,9 @@ class OpsDroid:
                     self.eventloop.run_until_complete(database.connect())
 
     async def run_skill(self, skill, config, message):
-        """Execute a skill."""
+        """Execute a skill.
+        
+        """
         # pylint: disable=broad-except
         # We want to catch all exceptions coming from a skill module and not
         # halt the application. If a skill throws an exception it just doesn't
@@ -372,7 +409,9 @@ class OpsDroid:
             )
 
     async def get_ranked_skills(self, skills, message):
-        """Take a message and return a ranked list of matching skills."""
+        """Take a message and return a ranked list of matching skills.
+        
+        """
         ranked_skills = []
         if isinstance(message, events.Message):
             ranked_skills += await parse_regex(self, skills, message)
