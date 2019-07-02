@@ -2,10 +2,10 @@
 
 import json
 
-from opsdroid.events import Message
+from opsdroid import events
 
 
-class Blocks(Message):
+class Blocks(events.Message):
     """A blocks object.
 
     Slack uses blocks to add advenced interactivity and formatting to messages.
