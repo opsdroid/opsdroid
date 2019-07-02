@@ -36,16 +36,12 @@ class TestLoader(unittest.TestCase):
 
     def test_load_config_file(self):
         opsdroid, loader = self.setup()
-        config = loader.load_config_file(
-            [os.path.abspath("tests/configs/minimal.yaml")]
-        )
+        config = loader.load_config_file([os.path.abspath("configs/minimal.yaml")])
         self.assertIsNotNone(config)
 
     def test_load_config_file_2(self):
         opsdroid, loader = self.setup()
-        config = loader.load_config_file(
-            [os.path.abspath("tests/configs/minimal_2.yaml")]
-        )
+        config = loader.load_config_file([os.path.abspath("configs/minimal_2.yaml")])
         self.assertIsNotNone(config)
 
     def test_load_exploit(self):
@@ -61,7 +57,7 @@ class TestLoader(unittest.TestCase):
         opsdroid, loader = self.setup()
         with self.assertRaises(SystemExit):
             config = loader.load_config_file(
-                [os.path.abspath("tests/configs/include_exploit.yaml")]
+                [os.path.abspath("configs/include_exploit.yaml")]
             )
             self.assertLogs("_LOGGER", "critical")
             self.assertRaises(YAMLError)
@@ -81,7 +77,7 @@ class TestLoader(unittest.TestCase):
     def test_yaml_load_exploit(self):
         with mock.patch("sys.exit"):
             config = Loader.load_config_file(
-                [os.path.abspath("tests/configs/include_exploit.yaml")]
+                [os.path.abspath("configs/include_exploit.yaml")]
             )
             self.assertIsNone(config)
             # If the command in exploit.yaml is echoed it will return 0
@@ -91,7 +87,7 @@ class TestLoader(unittest.TestCase):
         opsdroid, loader = self.setup()
         os.environ["ENVVAR"] = "test"
         config = loader.load_config_file(
-            [os.path.abspath("tests/configs/minimal_with_envs.yaml")]
+            [os.path.abspath("configs/minimal_with_envs.yaml")]
         )
         self.assertEqual(config["test"], os.environ["ENVVAR"])
 
@@ -110,7 +106,7 @@ class TestLoader(unittest.TestCase):
     def test_generate_config_if_none_exist(self):
         cdf_backup = Loader.create_default_config
         Loader.create_default_config = mock.Mock(
-            return_value=os.path.abspath("tests/configs/minimal.yaml")
+            return_value=os.path.abspath("configs/minimal.yaml")
         )
         Loader.load_config_file(["file_which_does_not_exist"])
         self.assertTrue(Loader.create_default_config.called)
@@ -129,7 +125,7 @@ class TestLoader(unittest.TestCase):
 
     def test_load_broken_config_file(self):
         with mock.patch("sys.exit") as patched_sysexit:
-            Loader.load_config_file([os.path.abspath("tests/configs/broken.yaml")])
+            Loader.load_config_file([os.path.abspath("configs/broken.yaml")])
             self.assertTrue(patched_sysexit.called)
 
     def test_git_clone(self):
@@ -581,7 +577,7 @@ class TestLoader(unittest.TestCase):
             "name": "slack",
             "type": "connector",
             "install_path": os.path.join(self._tmp_dir, "test_local_module_file"),
-            "path": os.path.abspath("tests/mockmodules/skills/test_notebook.ipynb"),
+            "path": os.path.abspath("mockmodules/skills/test_notebook.ipynb"),
         }
         directory, _ = os.path.split(config["path"])
         os.makedirs(directory, exist_ok=True, mode=0o777)
@@ -644,9 +640,7 @@ class TestLoader(unittest.TestCase):
             "6dd35e0f62d6b779d3d0d140f338d3e5",
         }
         with mock.patch("urllib.request.urlopen") as mock_urlopen:
-            with open(
-                os.path.abspath("tests/responses/gist_module_file.json"), "rb"
-            ) as fh:
+            with open(os.path.abspath("responses/gist_module_file.json"), "rb") as fh:
                 mock_urlopen.return_value = fh
                 loader._install_gist_module(config)
                 self.assertTrue(
@@ -665,7 +659,7 @@ class TestLoader(unittest.TestCase):
         }
         with mock.patch("urllib.request.urlopen") as mock_urlopen:
             with open(
-                os.path.abspath("tests/responses/gist_module_notebook.json"), "rb"
+                os.path.abspath("responses/gist_module_notebook.json"), "rb"
             ) as fh:
                 mock_urlopen.return_value = fh
                 loader._install_gist_module(config)
