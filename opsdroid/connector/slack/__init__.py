@@ -230,7 +230,7 @@ class ConnectorSlack(Connector):
         params = params.get('slack', params)
         return await self.slacker.channels.create(
             self.token,
-            params['name'],
+            creation_event.name,
             validate=params.get('validate', 'true'))
 
     @register_event(events.RoomName)

@@ -307,8 +307,9 @@ class Image(File):
 class NewRoom(Event):
     """Event class to represent the creation of a new room."""
 
-    def __init__(self, params=None, *args, **kwargs):
+    def __init__(self, name, params=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.name = name
         self.room_params = params or {}
 
 
