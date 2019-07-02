@@ -2,6 +2,8 @@
 
 # pylint: disable=too-many-branches
 
+import yamale
+
 import importlib
 import importlib.util
 import json
@@ -670,3 +672,18 @@ class Loader:
 
             # Run local install
             self._install_local_module(config)
+
+
+    @staticmethod
+    def valid(path,schema):
+      try:
+           schema = yamale.make_schema(schema)
+
+           data = yamale.make_data(path)
+
+           yamale.validate(schema, data)
+           return ('ok')
+
+      except Exception as err:
+          return err
+

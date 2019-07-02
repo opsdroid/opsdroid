@@ -3,42 +3,42 @@ welcome-message: true
 
 
 
-parsers:
-  ## Dialogflow (http://opsdroid.readthedocs.io/en/stable/matchers/dialogflow)
-  - name: dialogflow
-    access-token: "exampleaccesstoken123"
-    min-score: 0.6
-    ## Rasanlu (http://opsdroid.readthedocs.io/en/stable/matchers/rasanlu)
-
-  - name: rasanlu
-    #    url: http://localhost:5000
-    project: opsdroid
-    token: 85769fjoso084jd
-    min-score: 0.8
-  #  ## Recast.ai (http://opsdroid.readthedocs.io/en/stable/matchers/recast.ai)
-  - name: recastai
-    access-token: 85769fjoso084jd
-    min-score: 0.8
-
-    ## Regex (http://opsdroid.readthedocs.io/en/stable/matchers/regex)
-  - name: regex
-    enabled: true
-
-    # Wit.ai (http://opsdroid.readthedocs.io/en/stable/matchers/wit.ai)
-  - name: witai
-    access-token: XJF475SKGITJ98KHFO
-    min-score: 0.6
-
-    ## Luis.ai (http://opsdroid.readthedocs.io/en/stable/matchers/luis.ai)
-  - name: luisai
-    appid: "<application-id>"
-    appkey: "<subscription-key>"
-    verbose: True
-    min-score: 0.6
-
-    ## Crontab (http://opsdroid.readthedocs.io/en/stable/matchers/crontab)
-  - name: crontab
-    enabled: true
+#parsers:
+#  ## Dialogflow (http://opsdroid.readthedocs.io/en/stable/matchers/dialogflow)
+#  - name: dialogflow
+#    access-token: "exampleaccesstoken123"
+#    min-score: 0.6
+#    ## Rasanlu (http://opsdroid.readthedocs.io/en/stable/matchers/rasanlu)
+#
+#  - name: rasanlu
+#    #    url: http://localhost:5000
+#    project: opsdroid
+#    token: 85769fjoso084jd
+#    min-score: 0.8
+#  #  ## Recast.ai (http://opsdroid.readthedocs.io/en/stable/matchers/recast.ai)
+#  - name: recastai
+#    access-token: 85769fjoso084jd
+#    min-score: 0.8
+#
+#    ## Regex (http://opsdroid.readthedocs.io/en/stable/matchers/regex)
+#  - name: regex
+#    enabled: true
+#
+#    # Wit.ai (http://opsdroid.readthedocs.io/en/stable/matchers/wit.ai)
+#  - name: witai
+#    access-token: XJF475SKGITJ98KHFO
+#    min-score: 0.6
+#
+#    ## Luis.ai (http://opsdroid.readthedocs.io/en/stable/matchers/luis.ai)
+#  - name: luisai
+#    appid: "<application-id>"
+#    appkey: "<subscription-key>"
+#    verbose: True
+#    min-score: 0.6
+#
+#    ## Crontab (http://opsdroid.readthedocs.io/en/stable/matchers/crontab)
+#  - name: crontab
+#    enabled: true
 
 
 
@@ -98,7 +98,7 @@ connectors:
   ## Slack (https://github.com/opsdroid/connector-slack)
   - name: slack
     # required
-    api-token: "zyxw-abdcefghi-12345"
+#    api-token: "zyxw-abdcefghi-12345"
     # optional
     bot-name: "mybot" # default "opsdroid"
     default-room: "#random" # default "#general"

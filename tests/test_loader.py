@@ -1,3 +1,6 @@
+
+
+
 import sys
 import os
 import shutil
@@ -48,6 +51,7 @@ class TestLoader(unittest.TestCase):
         )
         self.assertIsNotNone(config)
 
+
     def test_load_exploit(self):
         """This will test if you can run python code from
         config.yaml. The expected result should be:
@@ -61,7 +65,7 @@ class TestLoader(unittest.TestCase):
         opsdroid, loader = self.setup()
         with self.assertRaises(SystemExit):
             config = loader.load_config_file(
-                [os.path.abspath("tests/configs/include_exploit.yaml")]
+                [os.path.abspath("./configs/include_exploit.yaml")]          #edited directory
             )
             self.assertLogs("_LOGGER", "critical")
             self.assertRaises(YAMLError)
@@ -70,10 +74,10 @@ class TestLoader(unittest.TestCase):
     def test_load_config_file_with_include(self):
         opsdroid, loader = self.setup()
         config = loader.load_config_file(
-            [os.path.abspath("tests/configs/minimal_with_include.yaml")]
+            [os.path.abspath("./configs/minimal_with_include.yaml")]
         )
         config2 = loader.load_config_file(
-            [os.path.abspath("tests/configs/minimal.yaml")]
+            [os.path.abspath("./configs/minimal.yaml")]
         )
         self.assertIsNotNone(config)
         self.assertEqual(config, config2)
@@ -81,7 +85,7 @@ class TestLoader(unittest.TestCase):
     def test_yaml_load_exploit(self):
         with mock.patch("sys.exit"):
             config = Loader.load_config_file(
-                [os.path.abspath("tests/configs/include_exploit.yaml")]
+                [os.path.abspath("./configs/include_exploit.yaml")]
             )
             self.assertIsNone(config)
             # If the command in exploit.yaml is echoed it will return 0
@@ -91,7 +95,7 @@ class TestLoader(unittest.TestCase):
         opsdroid, loader = self.setup()
         os.environ["ENVVAR"] = "test"
         config = loader.load_config_file(
-            [os.path.abspath("tests/configs/minimal_with_envs.yaml")]
+            [os.path.abspath("./configs/minimal_with_envs.yaml")]
         )
         self.assertEqual(config["test"], os.environ["ENVVAR"])
 
@@ -110,7 +114,7 @@ class TestLoader(unittest.TestCase):
     def test_generate_config_if_none_exist(self):
         cdf_backup = Loader.create_default_config
         Loader.create_default_config = mock.Mock(
-            return_value=os.path.abspath("tests/configs/minimal.yaml")
+            return_value=os.path.abspath("./configs/minimal.yaml")
         )
         Loader.load_config_file(["file_which_does_not_exist"])
         self.assertTrue(Loader.create_default_config.called)
@@ -129,7 +133,7 @@ class TestLoader(unittest.TestCase):
 
     def test_load_broken_config_file(self):
         with mock.patch("sys.exit") as patched_sysexit:
-            Loader.load_config_file([os.path.abspath("tests/configs/broken.yaml")])
+            Loader.load_config_file([os.path.abspath("./configs/broken.yaml")])
             self.assertTrue(patched_sysexit.called)
 
     def test_git_clone(self):
@@ -384,7 +388,7 @@ class TestLoader(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmp_dep_path:
             with mock.patch.object(
-                loader, "_install_module"
+                    loader, "_install_module"
             ) as mockinstall, mock.patch(
                 "opsdroid.loader.DEFAULT_MODULE_DEPS_PATH",
                 os.path.join(tmp_dep_path, "site-packages"),
@@ -403,7 +407,7 @@ class TestLoader(unittest.TestCase):
         modules = [{"name": "testmodule"}]
 
         with mock.patch.object(
-            loader, "_install_module"
+                loader, "_install_module"
         ) as mockinstall, mock.patch.object(
             loader, "import_module", return_value=None
         ) as mockimport:
@@ -424,7 +428,7 @@ class TestLoader(unittest.TestCase):
 
         os.mkdir(install_path)
         with mock.patch.object(
-            loader, "_update_module"
+                loader, "_update_module"
         ) as mockupdate, mock.patch.object(
             loader, "import_module", mockedmodule
         ) as mockimport, mock.patch.object(
@@ -460,7 +464,7 @@ class TestLoader(unittest.TestCase):
             "branch": "master",
         }
         with mock.patch("opsdroid.loader._LOGGER.debug"), mock.patch.object(
-            loader, "git_clone"
+                loader, "git_clone"
         ) as mockclone:
             loader._install_module(config)
             mockclone.assert_called_with(
@@ -482,7 +486,7 @@ class TestLoader(unittest.TestCase):
             self._tmp_dir, "test_specific_local_module"
         )
         with mock.patch("opsdroid.loader._LOGGER.debug"), mock.patch.object(
-            loader, "git_clone"
+                loader, "git_clone"
         ) as mockclone:
             loader._install_module(config)
             mockclone.assert_called_with(
@@ -497,7 +501,7 @@ class TestLoader(unittest.TestCase):
             "type": "skill",
             "install_path": os.path.join(self._tmp_dir, "test_gist_module_file"),
             "gist": "https://gist.github.com/jacobtomlinson/"
-            "c9852fa17d3463acc14dca1217d911f6",
+                    "c9852fa17d3463acc14dca1217d911f6",
         }
 
         with mock.patch.object(loader, "_install_gist_module") as mockgist:
@@ -519,7 +523,7 @@ class TestLoader(unittest.TestCase):
             self._tmp_dir, "test_specific_local_module"
         )
         with mock.patch("opsdroid.loader._LOGGER.debug"), mock.patch.object(
-            loader, "_install_local_module"
+                loader, "_install_local_module"
         ) as mockclone:
             loader._install_module(config)
             mockclone.assert_called_with(config)
@@ -581,7 +585,7 @@ class TestLoader(unittest.TestCase):
             "name": "slack",
             "type": "connector",
             "install_path": os.path.join(self._tmp_dir, "test_local_module_file"),
-            "path": os.path.abspath("tests/mockmodules/skills/test_notebook.ipynb"),
+            "path": os.path.abspath("./mockmodules/skills/test_notebook.ipynb"),      # edited path
         }
         directory, _ = os.path.split(config["path"])
         os.makedirs(directory, exist_ok=True, mode=0o777)
@@ -641,11 +645,11 @@ class TestLoader(unittest.TestCase):
             "type": "skill",
             "install_path": os.path.join(self._tmp_dir, "test_gist_module_file"),
             "gist": "https://gist.github.com/jacobtomlinson/"
-            "6dd35e0f62d6b779d3d0d140f338d3e5",
+                    "6dd35e0f62d6b779d3d0d140f338d3e5",
         }
         with mock.patch("urllib.request.urlopen") as mock_urlopen:
             with open(
-                os.path.abspath("tests/responses/gist_module_file.json"), "rb"
+                    os.path.abspath("./responses/gist_module_file.json"), "rb"      #edit path
             ) as fh:
                 mock_urlopen.return_value = fh
                 loader._install_gist_module(config)
@@ -661,11 +665,11 @@ class TestLoader(unittest.TestCase):
             "type": "skill",
             "install_path": os.path.join(self._tmp_dir, "test_gist_module_file"),
             "gist": "https://gist.github.com/jacobtomlinson/"
-            "c9852fa17d3463acc14dca1217d911f6",
+                    "c9852fa17d3463acc14dca1217d911f6",
         }
         with mock.patch("urllib.request.urlopen") as mock_urlopen:
             with open(
-                os.path.abspath("tests/responses/gist_module_notebook.json"), "rb"
+                    os.path.abspath("./responses/gist_module_notebook.json"), "rb"       #edited path
             ) as fh:
                 mock_urlopen.return_value = fh
                 loader._install_gist_module(config)
@@ -673,3 +677,22 @@ class TestLoader(unittest.TestCase):
                     os.path.isfile(os.path.join(config["install_path"], "__init__.py"))
                 )
                 shutil.rmtree(config["install_path"], onerror=del_rw)
+
+
+
+
+    def test_valid_config(self):
+
+        configure_lang({})
+        opsdroid = mock.MagicMock()
+        loader = ld.Loader(opsdroid)
+        status_valid = loader.valid('../opsdroid/configuration/example_configuration.yaml', '../opsdroid/configuration/schema.yaml')
+        status_invalid = loader.valid('../test/configs/example_configuration_isBroken.yaml', '../opsdroid/configuration/schema.yaml')
+
+        status_valid_ok = 'ok'
+        self.assertEqual(status_valid, status_valid_ok)
+        self.assertNotEqual(status_invalid, status_valid_ok)
+
+
+if __name__ == '__main__':
+    unittest.main()

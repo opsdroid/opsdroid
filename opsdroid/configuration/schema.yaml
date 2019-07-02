@@ -17,13 +17,13 @@ connectors:
 databases:
   list(include('mongo', required=False),
   include('redis', required=False),
-  include('sqlite', required=False))
+  include('sqlite', required=False),required=False)
 
 
 skills: list(include('skill',required=False))
 
 
-parsers: list(include('parser',required=False))
+parsers: list(include('parser',required=False),required=False)
 
 ---
 mongo:
