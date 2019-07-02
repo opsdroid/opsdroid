@@ -42,3 +42,46 @@ class Blocks(events.Message):
         self.blocks = blocks
         if isinstance(self.blocks, list):
             self.blocks = json.dumps(self.blocks)
+
+
+class SlackEventCreator:
+    """Create opsdroid events from Slack ones."""
+
+    def __init__(self, connector):
+        """Initialise the event creator"""
+        self.connector = connector
+
+        self.event_types = defaultdict(lambda: self.skip)
+        self.event_types['message'] = self.create_room_message
+
+        self.message_events = defaultdict(lambda: self.skip)
+        self.message_events.update(
+            {
+                "message": self.create_message,
+            }
+        )
+
+    async def create_event(self, event, channel):
+        """Dispatch any Slack event."""
+        return await self.event_types[event["type"]](event, channel)
+
+    async def create_room_message(self, event, channel):
+        """Dispatch a message event of arbitrary subtype."""
+        msgtype = event['subtype'] if 'subtype' in event.keys() else 'message'
+        return await self.message_events[msgtype](event, channel)
+
+    @staticmethod
+    async def skip(event, roomid):
+        """Do not handle this event type"""
+        return None
+
+    async def create_message(self, event, channel):
+        """Send a Message event."""
+        return events.Message(
+            event['text'],
+            event['user'],
+            channel,
+            self.connector,
+            event_id=event["ts"]
+            raw_event=event,
+        )
