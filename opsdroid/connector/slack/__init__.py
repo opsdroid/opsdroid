@@ -12,7 +12,7 @@ from emoji import demojize
 
 from opsdroid.connector import Connector, register_event
 from opsdroid import events
-from opsdroid.connector.slack.events import Blocks
+from opsdroid.connector.slack.events import Blocks, SlackEventCreator
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -38,6 +38,8 @@ class ConnectorSlack(Connector):
         self.reconnecting = False
         self.listening = True
         self._message_id = 0
+
+        self._event_creator = SlackEventCreator(self)
 
     async def connect(self):
         """Connect to the chat service."""
