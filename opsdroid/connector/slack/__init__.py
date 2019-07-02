@@ -122,15 +122,18 @@ class ConnectorSlack(Connector):
             _LOGGER.debug("Replacing userids in message with usernames")
             message["text"] = await self.replace_usernames(message["text"])
 
-            await self.opsdroid.parse(
-                events.Message(
-                    message["text"],
-                    user_info["name"],
-                    message["channel"],
-                    self,
-                    raw_event=message,
-                )
-            )
+            event = await self._event_creator.create_event(event, message['channel'])
+            await self.opsdroiid.parse(event)
+
+            # await self.opsdroid.parse(
+            #     events.Message(
+            #         message["text"],
+            #         user_info["name"],
+            #         message["channel"],
+            #         self,
+            #         raw_event=message,
+            #     )
+            # )
 
     @register_event(events.Message)
     async def _send_message(self, message):
