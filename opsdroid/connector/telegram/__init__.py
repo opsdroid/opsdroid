@@ -30,7 +30,7 @@ class ConnectorTelegram(Connector):
         self.listening = True
         self.default_user = config.get("default-user", None)
         self.whitelisted_users = config.get("whitelisted-users", None)
-        self.update_interval = config.get("update_interval", 1)
+        self.update_interval = config.get("update-interval", 1)
         self.session = None
         self._closing = asyncio.Event()
         self.loop = asyncio.get_event_loop()
