@@ -35,7 +35,9 @@ class TestHelper(unittest.TestCase):
 
             mock_isdir.return_value = False
 
-            move_config_to_appdir(os.path.abspath("configs/"), tempfile.gettempdir())
+            move_config_to_appdir(
+                os.path.abspath("tests/configs/"), tempfile.gettempdir()
+            )
 
             self.assertTrue(mock_mkdir.called)
             self.assertLogs("_LOGGER", "info")
@@ -46,7 +48,7 @@ class TestHelper(unittest.TestCase):
         self.assertFalse(file_is_ipython_notebook("test.py"))
 
     def test_convert_ipynb_to_script(self):
-        notebook_path = os.path.abspath("mockmodules/skills/test_notebook.ipynb")
+        notebook_path = os.path.abspath("tests/mockmodules/skills/test_notebook.ipynb")
 
         with tempfile.NamedTemporaryFile(mode="w", delete=False) as output_file:
             convert_ipynb_to_script(notebook_path, output_file.name)

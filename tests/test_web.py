@@ -51,7 +51,7 @@ class TestWeb(asynctest.TestCase):
             self.assertEqual(app.get_ssl_context, None)
 
             opsdroid.config["web"] = {
-                "ssl": {"cert": "ssl/cert.pem", "key": "ssl/key.pem"}
+                "ssl": {"cert": "tests/ssl/cert.pem", "key": "tests/ssl/key.pem"}
             }
             app = web.Web(opsdroid)
             self.assertEqual(
