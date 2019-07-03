@@ -21,7 +21,7 @@ class EventCreator:
 
         self.event_types = defaultdict(lambda: self.skip)
 
-    def create_event(self, event, roomid):
+    async def create_event(self, event, roomid):
         """Dispatch any event type"""
         return await self.event_types[event["type"]](event, roomid)
 

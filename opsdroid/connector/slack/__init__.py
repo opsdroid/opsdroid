@@ -122,7 +122,7 @@ class ConnectorSlack(Connector):
             _LOGGER.debug("Replacing userids in message with usernames")
             message["text"] = await self.replace_usernames(message["text"])
 
-            event = await self._event_creator.create_event(event, message['channel'])
+            event = await self._event_creator.create_event(message, message['channel'])
             await self.opsdroiid.parse(event)
 
             # await self.opsdroid.parse(
@@ -236,21 +236,19 @@ class ConnectorSlack(Connector):
 
     @register_event(events.RoomName)
     async def _send_room_name_set(self, name_event):
-        return await self.slacker.channels.rename(self.token, name_event.target,
+        return await self.slacker.channels.rename(name_event.target,
                                                   name_event.name, 'true')
 
     @register_event(events.JoinRoom)
     async def _send_join_room(self, join_event):
-        return await self.slacker.channels.join(self.token, join_event.target, 'true')
+        return await self.slacker.channels.join(join_event.target, 'true')
 
     @register_event(events.UserInvite)
     async def _send_user_invitation(self, invite_event):
-        return await self.slacker.channels.invite(self.token,
-                                                  invite_event.target,
+        return await self.slacker.channels.invite(invite_event.target,
                                                   invite_event.user)
 
     @register_event(events.RoomDescription)
     async def _send_room_desciption(self, desc_event):
-        return await self.slacker.channels.setTopic(self.token,
-                                                    desc_event.target,
-                                                    desc_event.description)
+        return await self.slacker.channels.set_topic(desc_event.target,
+                                                     desc_event.description)
