@@ -49,6 +49,8 @@ class ConnectorSlack(Connector):
             connection = await self.slacker.rtm.start()
             self.websocket = await websockets.connect(connection.body["url"])
 
+            self.has_files_access = await self.check_for_files_access()
+
             _LOGGER.debug("Connected as %s", self.bot_name)
             _LOGGER.debug("Using icon %s", self.icon_emoji)
             _LOGGER.debug("Default room is %s", self.default_target)

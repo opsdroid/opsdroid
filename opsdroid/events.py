@@ -2,6 +2,7 @@
 import io
 import asyncio
 from abc import ABCMeta
+import logging
 from random import randrange
 from datetime import datetime
 from collections import defaultdict
@@ -12,6 +13,8 @@ from get_image_size import get_image_size_from_bytesio
 
 from opsdroid.helper import get_opsdroid
 
+
+_LOGGER = logging.getLogger(__name__)
 
 class EventCreator:
     """Create opsdroid events from events detected by a connector."""
@@ -265,9 +268,9 @@ class Reaction(Event):
 class File(Event):
     """Event class to represent arbitrary files as bytes."""
 
-    def __init__(
-        self, file_bytes=None, url=None, name=None, mimetype=None, *args, **kwargs
-    ):  # noqa: D107
+    def __init__(self, file_bytes=None, url=None, url_headers=None,
+                 name=None, mimetype=None,
+                 *args, **kwargs):  # noqa: D107
         if not (file_bytes or url) or (file_bytes and url):
             raise ValueError("Either file_bytes or url must be specified")
 
@@ -282,7 +285,9 @@ class File(Event):
         """Return the bytes representation of this file."""
         if not self._file_bytes and self.url:
             async with aiohttp.ClientSession() as session:
-                async with session.get(self.url) as resp:
+                _LOGGER.debug(self._url_headers)
+                async with session.get(self.url,
+                                       headers=self._url_headers) as resp:
                     self._file_bytes = await resp.read()
 
         return self._file_bytes
@@ -321,52 +326,3 @@ class Image(File):
         """Return the image dimensions `(w,h)`."""
         fbytes = await self.get_file_bytes()
         return get_image_size_from_bytesio(io.BytesIO(fbytes), len(fbytes))
-
-
-class NewRoom(Event):
-    """Event class to represent the creation of a new room."""
-
-    def __init__(self, name=None, params=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.name = name
-        self.room_params = params or {}
-
-
-class RoomName(Event):
-    def __init__(self, name, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.name = name
-
-
-class RoomAddress(Event):
-    def __init__(self, address, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.address = address
-
-
-class RoomImage(Event):
-    def __init__(self, room_image, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if not isinstance(room_image, Image):
-            raise TypeError("Room image must be an opsdroid.events.Image instance")
-        self.room_image = room_image
-
-
-class RoomDescription(Event):
-    def __init__(self, description, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.description = description
-
-
-class JoinRoom(Event):
-    """Event class to tell opsdroid to join a room"""
-
-
-class UserInvite(Event):
-    """Event class to invite or add a specific user to a room"""
-
-
-class UserRole(Event):
-    def __init__(self, role, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.role = role
