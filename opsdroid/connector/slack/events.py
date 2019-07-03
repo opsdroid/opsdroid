@@ -82,6 +82,6 @@ class SlackEventCreator:
             event['user'],
             channel,
             self.connector,
-            event_id=event["ts"]
-            raw_event=event,
+            event_id=event["ts"],
+            raw_event=event
         )
