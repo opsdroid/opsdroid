@@ -1,6 +1,7 @@
 """Classes to describe different kinds of Slack specific event."""
 
 import json
+from collections import defaultdict
 
 from opsdroid import events
 
