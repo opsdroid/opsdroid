@@ -4,12 +4,31 @@ import asyncio
 from abc import ABCMeta
 from random import randrange
 from datetime import datetime
+from collections import defaultdict
 
 import aiohttp
 import puremagic
 from get_image_size import get_image_size_from_bytesio
 
 from opsdroid.helper import get_opsdroid
+
+
+class EventCreator:
+    """Create opsdroid events from events detected by a connector."""
+    def __init__(self, connector):
+        """Initialise the event creator"""
+        self.connector = connector
+
+        self.event_types = defaultdict(lambda: self.skip)
+
+    def create_event(self, event, roomid):
+        """Dispatch any event type"""
+        return await self.event_types[event["type"]](event, roomid)
+
+    @staticmethod
+    async def skip(event, roomid):
+        """Do not handle this event type."""
+        return None
 
 
 # pylint: disable=bad-mcs-classmethod-argument,arguments-differ

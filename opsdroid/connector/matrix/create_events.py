@@ -6,14 +6,13 @@ from opsdroid import events
 __all__ = ["MatrixEventCreator"]
 
 
-class MatrixEventCreator:
+class MatrixEventCreator(events.EventCreator):
     """Create opsdroid events from matrix ones."""
 
-    def __init__(self, connector):
+    def __init__(self, connector, *args, **kwargs):
         """Initialise the event creator."""
-        self.connector = connector
+        super().__init__(connector, *args, **kwargs)
 
-        self.event_types = defaultdict(lambda: self.skip)
         self.event_types["m.room.message"] = self.create_room_message
 
         self.message_events = defaultdict(lambda: self.skip)
@@ -30,19 +29,10 @@ class MatrixEventCreator:
             }
         )
 
-    async def create_event(self, event, roomid):
-        """Dispatch any matrix event."""
-        return await self.event_types[event["type"]](event, roomid)
-
     async def create_room_message(self, event, roomid):
         """Dispatch a m.room.message event."""
         msgtype = event["content"]["msgtype"]
         return await self.message_events[msgtype](event, roomid)
-
-    @staticmethod
-    async def skip(event, roomid):
-        """Do not handle this event type."""
-        return None
 
     async def create_message(self, event, roomid):
         """Send a Message event."""
