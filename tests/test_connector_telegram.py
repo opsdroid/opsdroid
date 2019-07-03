@@ -23,12 +23,12 @@ class TestConnectorTelegram(unittest.TestCase):
     def test_init(self):
         """Test that the connector is initialised properly."""
         connector = ConnectorTelegram(
-            {"name": "telegram", "token": "test", "update-interval": 10},
+            {"name": "telegram", "token": "test", "update-interval": 0.2},
             opsdroid=OpsDroid(),
         )
         self.assertEqual(None, connector.default_target)
         self.assertEqual("telegram", connector.name)
-        self.assertEqual(10, connector.update_interval)
+        self.assertEqual(0.2, connector.update_interval)
 
     def test_missing_token(self):
         """Test that attempt to connect without info raises an error."""
