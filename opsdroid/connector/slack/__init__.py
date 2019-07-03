@@ -228,3 +228,31 @@ class ConnectorSlack(Connector):
                 "<@{userid}>".format(userid=userid), user_info["name"]
             )
         return message
+
+    @register_event(events.NewRoom)
+    async def _send_room_creation(self, creation_event):
+        params = creation_event.room_params
+        params = params.get('slack', params)
+        resp = await self.slacker.channels.create(creation_event.name)
+        return resp.body['channel']['id']
+
+    @register_event(events.RoomName)
+    async def _send_room_name_set(self, name_event):
+        return await self.slacker.channels.rename(self.token, name_event.target,
+                                                  name_event.name, 'true')
+
+    @register_event(events.JoinRoom)
+    async def _send_join_room(self, join_event):
+        return await self.slacker.channels.join(self.token, join_event.target, 'true')
+
+    @register_event(events.UserInvite)
+    async def _send_user_invitation(self, invite_event):
+        return await self.slacker.channels.invite(self.token,
+                                                  invite_event.target,
+                                                  invite_event.user)
+
+    @register_event(events.RoomDescription)
+    async def _send_room_desciption(self, desc_event):
+        return await self.slacker.channels.setTopic(self.token,
+                                                    desc_event.target,
+                                                    desc_event.description)
