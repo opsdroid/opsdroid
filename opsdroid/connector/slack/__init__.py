@@ -49,6 +49,8 @@ class ConnectorSlack(Connector):
             connection = await self.slacker.rtm.start()
             self.websocket = await websockets.connect(connection.body["url"])
 
+            self.has_files_access = await self.check_for_files_access()
+
             _LOGGER.debug("Connected as %s", self.bot_name)
             _LOGGER.debug("Using icon %s", self.icon_emoji)
             _LOGGER.debug("Default room is %s", self.default_target)
@@ -226,33 +228,3 @@ class ConnectorSlack(Connector):
                 "<@{userid}>".format(userid=userid), user_info["name"]
             )
         return message
-
-    @register_event(events.NewRoom)
-    async def _send_room_creation(self, creation_event):
-        params = creation_event.room_params
-        params = params.get('slack', params)
-        return await self.slacker.channels.create(
-            self.token,
-            creation_event.name,
-            validate=params.get('validate', 'true'))
-
-    @register_event(events.RoomName)
-    async def _send_room_name_set(self, name_event):
-        return await self.slacker.channels.rename(self.token, name_event.target,
-                                                  name_event.name, 'true')
-
-    @register_event(events.JoinRoom)
-    async def _send_join_room(self, join_event):
-        return await self.slacker.channels.join(self.token, join_event.target, 'true')
-
-    @register_event(events.UserInvite)
-    async def _send_user_invitation(self, invite_event):
-        return await self.slacker.channels.invite(self.token,
-                                                  invite_event.target,
-                                                  invite_event.user)
-
-    @register_event(events.RoomDescription)
-    async def _send_room_desciption(self, desc_event):
-        return await self.slacker.channels.setTopic(self.token,
-                                                    desc_event.target,
-                                                    desc_event.description)
