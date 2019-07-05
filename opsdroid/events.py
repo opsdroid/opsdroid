@@ -16,6 +16,7 @@ from opsdroid.helper import get_opsdroid
 
 _LOGGER = logging.getLogger(__name__)
 
+
 class EventCreator:
     """Create opsdroid events from events detected by a connector."""
     def __init__(self, connector):
