@@ -1,6 +1,7 @@
 """Connector for Matrix (https://matrix.org)."""
 
 import re
+import json
 import logging
 from concurrent.futures import CancelledError
 from urllib.parse import urlparse
@@ -55,7 +56,6 @@ class ConnectorMatrix(Connector):
             "account_data": {"limit": 0, "types": []},
             "presence": {"limit": 0, "types": []},
             "room": {
-                "rooms": [],
                 "account_data": {"types": []},
                 "timeline": {"types": ["m.room.message"]},
                 "ephemeral": {"types": []},
@@ -63,14 +63,10 @@ class ConnectorMatrix(Connector):
             },
         }
 
-    async def make_filter(self, api, room_ids):
+    async def make_filter(self, api):
         """Make a filter on the server for future syncs."""
         fjson = self.filter_json
-        for room_id in room_ids:
-            fjson["room"]["rooms"].append(room_id)
-
         resp = await api.create_filter(user_id=self.mxid, filter_params=fjson)
-
         return resp["filter_id"]
 
     async def connect(self):
@@ -91,7 +87,7 @@ class ConnectorMatrix(Connector):
         self.connection = mapi
 
         # Create a filter now, saves time on each later sync
-        self.filter_id = await self.make_filter(mapi, self.room_ids.values())
+        self.filter_id = await self.make_filter(mapi)
 
         # Do initial sync so we don't get old messages later.
         response = await self.connection.sync(
@@ -108,9 +104,8 @@ class ConnectorMatrix(Connector):
 
     async def _parse_sync_response(self, response):
         self.connection.sync_token = response["next_batch"]
-        for roomid in self.room_ids.values():
-            room = response["rooms"]["join"].get(roomid, None)
-            if room and "timeline" in room:
+        for roomid, room in response["rooms"]["join"].items():
+            if "timeline" in room:
                 for event in room["timeline"]["events"]:
                     if event["sender"] != self.mxid:
                         return await self._event_creator.create_event(event, roomid)
