@@ -298,8 +298,13 @@ class ConnectorMatrix(Connector):
 
     @register_event(events.RoomAddress)
     async def _send_room_address(self, address_event):
-        return await self.connection.set_room_alias(address_event.target,
-                                                    address_event.address)
+        try:
+            return await self.connection.set_room_alias(address_event.target,
+                                                        address_event.address)
+        except MatrixRequestError as err:
+            if err.code == 409:
+                pass
+            # err["error"] = "Room alias #picard_general:localhost already exists."
 
     @register_event(events.JoinRoom)
     async def _send_join_room(self, join_event):
@@ -307,8 +312,14 @@ class ConnectorMatrix(Connector):
 
     @register_event(events.UserInvite)
     async def _send_user_invitation(self, invite_event):
-        return await self.connection.invite_user(invite_event.target,
-                                                 invite_event.user)
+        try:
+            return await self.connection.invite_user(invite_event.target,
+                                                     invite_event.user)
+        except MatrixRequestError as err:
+            content = json.loads(err.content)
+            if (err.code == 403 and
+                "is already in the room" in content["error"]):
+                pass
 
     @register_event(events.RoomDescription)
     async def _send_room_desciption(self, desc_event):
