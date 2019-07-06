@@ -515,7 +515,7 @@ class TestLoader(unittest.TestCase):
             "repo": "https://github.com/rmccue/test-repository.git",
             "branch": "master",
         }
-        loader._install_module(config)  # Clone remote repo for testing with
+        os.makedirs(config["install_path"])
         config["path"] = config["install_path"]
         config["install_path"] = os.path.join(
             self._tmp_dir, "test_specific_local_module"
