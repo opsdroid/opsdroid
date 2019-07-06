@@ -15,6 +15,9 @@ from opsdroid import loader as ld
 from opsdroid.loader import Loader
 from opsdroid.helper import del_rw
 
+from opsdroid.const import (
+    DEFAULT_GIT_URL
+)
 
 class TestLoader(unittest.TestCase):
     """Test the opsdroid loader class."""
@@ -180,7 +183,6 @@ class TestLoader(unittest.TestCase):
         loader.modules_directory = ""
         self.assertIn("test.test", ld.Loader.build_module_import_path(config))
         self.assertIn("test", ld.Loader.build_module_install_path(loader, config))
-
         config["is_builtin"] = True
         self.assertIn("opsdroid.test.test", ld.Loader.build_module_import_path(config))
         self.assertIn("test", ld.Loader.build_module_install_path(loader, config))
@@ -533,14 +535,21 @@ class TestLoader(unittest.TestCase):
             "install_path": os.path.join(self._tmp_dir, "test_default_remote_module"),
             "branch": "master",
         }
-        with mock.patch.object(loader, "pip_install_deps") as mockdeps:
+        with mock.patch.object(loader, "pip_install_deps") as mockdeps, mock.patch(
+                "opsdroid.loader.Loader.git_clone"
+        ) as mockclone:
+            os.makedirs(config["install_path"])
+            mockclone.side_effect = shutil.copy("tests/mockmodules/connectors/requirements.txt", config["install_path"])
             loader._install_module(config)
             self.assertLogs("_LOGGER", "debug")
             mockdeps.assert_called_with(
                 os.path.join(config["install_path"], "requirements.txt")
             )
-
-        shutil.rmtree(config["install_path"], onerror=del_rw)
+            mockclone.assert_called_with(
+                DEFAULT_GIT_URL + config["type"] + "-" + config["name"] + ".git", config["install_path"],
+                config["branch"]
+            )
+            shutil.rmtree(config["install_path"], onerror=del_rw)
 
     def test_install_local_module_dir(self):
         opsdroid, loader = self.setup()
