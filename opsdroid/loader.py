@@ -362,12 +362,16 @@ class Loader:
             with open(config_path, "r") as stream:
                 _LOGGER.info(_("Loaded config from %s."), config_path)
                 return yaml.safe_load(stream)
+        except ValueError as err:
+            return (err, 1)
+
         except yaml.YAMLError as error:
             _LOGGER.critical(error)
             sys.exit(1)
         except FileNotFoundError as error:
             _LOGGER.critical(error)
             sys.exit(1)
+
 
     def setup_modules_directory(self, config):
         """Create and configure the modules directory.
@@ -680,18 +684,4 @@ class Loader:
 
             # Run local install
             self._install_local_module(config)
-
-
-    @staticmethod
-    def valid(path,schema):
-      try:
-           schema = yamale.make_schema(schema)
-
-           data = yamale.make_data(path)
-
-           yamale.validate(schema, data)
-           return ('ok')
-
-      except Exception as err:
-          return err
 

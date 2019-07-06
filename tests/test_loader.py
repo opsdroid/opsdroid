@@ -37,23 +37,49 @@ class TestLoader(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self._tmp_dir, onerror=del_rw)
 
-    def test_load_config_file(self):
+
+    def test_load_example_config_file(self):
         opsdroid, loader = self.setup()
-        # config = loader.load_config_file(
-        #     [os.path.abspath("tests/configs/minimal.yaml")]
-        # )
+
         config = loader.load_config_file(
-            [os.path.abspath("opsdroid/configuration/example_1.yaml")]
+            [os.path.abspath("opsdroid/configuration/example_configuration.yaml")]
         )
-      
         self.assertIsNotNone(config)
-    #
+        assert type(config) is not tuple
+
+
+
+
+
+    def test_load_example_config_broken(self):
+        opsdroid, loader = self.setup()
+
+        config = loader.load_config_file(
+            [os.path.abspath("tests/configs/example_configuration_isBroken.yaml")]
+        )
+
+
+        assert(type(config) is tuple)
+        self.assertEqual(1, config[1])
+
+
+    def test_load_config_minimal(self):
+        opsdroid, loader = self.setup()
+        config = loader.load_config_file(
+            [os.path.abspath("tests/configs/minimal.yaml")]
+        )
+
+        self.assertEqual(1, config[1])
+
+
+
+
     # def test_load_config_file_2(self):
     #     opsdroid, loader = self.setup()
     #     config = loader.load_config_file(
     #         [os.path.abspath("tests/configs/minimal_2.yaml")]
     #     )
-    #     self.assertIsNotNone(config)
+    #    self.assertIsNotNone(config)
 
 
     # def test_load_exploit(self):
@@ -682,19 +708,5 @@ class TestLoader(unittest.TestCase):
                 )
                 shutil.rmtree(config["install_path"], onerror=del_rw)
 
-
-
-
-    def test_valid_config(self):
-
-        configure_lang({})
-        opsdroid = mock.MagicMock()
-        loader = ld.Loader(opsdroid)
-        status_valid = loader.valid('opsdroid/configuration/example_configuration.yaml', 'opsdroid/configuration/schema.yaml')
-        status_invalid = loader.valid('test/configs/example_configuration_isBroken.yaml', 'opsdroid/configuration/schema.yaml')
-
-        status_valid_ok = 'ok'
-        self.assertEqual(status_valid, status_valid_ok)
-        self.assertNotEqual(status_invalid, status_valid_ok)
 
 
