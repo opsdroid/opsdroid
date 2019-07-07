@@ -448,7 +448,7 @@ class TestLoader(unittest.TestCase):
 
         os.mkdir(install_path)
         with mock.patch.object(
-                loader, "_update_module"
+            loader, "_update_module"
         ) as mockupdate, mock.patch.object(
             loader, "import_module", mockedmodule
         ) as mockimport, mock.patch.object(
@@ -484,7 +484,7 @@ class TestLoader(unittest.TestCase):
             "branch": "master",
         }
         with mock.patch("opsdroid.loader._LOGGER.debug"), mock.patch.object(
-                loader, "git_clone"
+            loader, "git_clone"
         ) as mockclone:
             loader._install_module(config)
             mockclone.assert_called_with(
@@ -506,7 +506,7 @@ class TestLoader(unittest.TestCase):
             self._tmp_dir, "test_specific_local_module"
         )
         with mock.patch("opsdroid.loader._LOGGER.debug"), mock.patch.object(
-                loader, "git_clone"
+            loader, "git_clone"
         ) as mockclone:
             loader._install_module(config)
             mockclone.assert_called_with(
@@ -521,7 +521,7 @@ class TestLoader(unittest.TestCase):
             "type": "skill",
             "install_path": os.path.join(self._tmp_dir, "test_gist_module_file"),
             "gist": "https://gist.github.com/jacobtomlinson/"
-                    "c9852fa17d3463acc14dca1217d911f6",
+            "c9852fa17d3463acc14dca1217d911f6",
         }
 
         with mock.patch.object(loader, "_install_gist_module") as mockgist:
@@ -543,7 +543,7 @@ class TestLoader(unittest.TestCase):
             self._tmp_dir, "test_specific_local_module"
         )
         with mock.patch("opsdroid.loader._LOGGER.debug"), mock.patch.object(
-                loader, "_install_local_module"
+            loader, "_install_local_module"
         ) as mockclone:
             loader._install_module(config)
             mockclone.assert_called_with(config)
@@ -665,11 +665,11 @@ class TestLoader(unittest.TestCase):
             "type": "skill",
             "install_path": os.path.join(self._tmp_dir, "test_gist_module_file"),
             "gist": "https://gist.github.com/jacobtomlinson/"
-                    "6dd35e0f62d6b779d3d0d140f338d3e5",
+            "6dd35e0f62d6b779d3d0d140f338d3e5",
         }
         with mock.patch("urllib.request.urlopen") as mock_urlopen:
             with open(
-                    os.path.abspath("tests/responses/gist_module_file.json"), "rb"
+                os.path.abspath("tests/responses/gist_module_file.json"), "rb"
             ) as fh:
                 mock_urlopen.return_value = fh
                 loader._install_gist_module(config)
@@ -685,7 +685,7 @@ class TestLoader(unittest.TestCase):
             "type": "skill",
             "install_path": os.path.join(self._tmp_dir, "test_gist_module_file"),
             "gist": "https://gist.github.com/jacobtomlinson/"
-                "c9852fa17d3463acc14dca1217d911f6",
+            "c9852fa17d3463acc14dca1217d911f6",
         }
         with mock.patch("urllib.request.urlopen") as mock_urlopen:
             with open(
