@@ -52,10 +52,11 @@ class TestLoader(unittest.TestCase):
     def test_load_config_broken(self):
         opsdroid, loader = self.setup()
 
-        config = loader.load_config_file(
-            [os.path.abspath("tests/configs/full_broken.yaml")]
-        )
-        self.assertIsNotNone(config)
+        with self.assertRaises(SystemExit) as cm:
+            config = loader.load_config_file(
+                [os.path.abspath("tests/configs/full_broken.yaml")]
+            )
+        self.assertEqual(cm.exception.code, 1)
 
 
     @unittest.skip("old config type fails validation #770")
