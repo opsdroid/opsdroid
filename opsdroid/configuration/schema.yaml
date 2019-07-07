@@ -1,6 +1,5 @@
 welcome-message: bool()
 
-
 connectors:
   list(include('websocket', required=False),
   include('shell', required=False),
@@ -12,26 +11,20 @@ connectors:
   include('telegram',required=False),
   include('twitter',required=False))
 
-
-
 databases:
   list(include('mongo', required=False),
   include('redis', required=False),
   include('sqlite', required=False),required=False)
 
-
 skills: list(include('skill',required=False))
 
-
 parsers: list(include('parser',required=False),required=False)
-
 ---
 mongo:
   name: regex('^mongo$')
   host: str(required=False)
   port: regex('(^\d+$)',required=False)
   database: str(required=False)
-
 ---
 redis:
   name: regex('^redis$')
@@ -82,12 +75,10 @@ matrix:
     nick: str(required=False)
     room_specific_nicks: bool(required=False)
     send_m_notice: bool(required=False)
-
 ---
 room1:
   'main': regex('^#matrix:matrix.org')
   'other': regex('^#riot:matrix.org$')
-
 ---
  slack:
    name: regex('^slack$')
@@ -96,7 +87,6 @@ room1:
    default-room: str(required=False)
    icon-emoji: str(required=False)
    connect-timeout: int(required=False)
-
 ---
 telegram:
     name: regex('^telegram$')
@@ -104,7 +94,6 @@ telegram:
     update_interval: num(required=False)
     default_user: str(required=False)
     whitelisted_users: list(str(),str())
-
 ---
 twitter :
     name: regex('^twitter$')
@@ -114,7 +103,6 @@ twitter :
     oauth_token_secret: str()
     enable_dms: bool(required=False)
     enable_tweets: bool(required=False)
-
 ---
 skill:
     name : str()

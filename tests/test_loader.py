@@ -221,7 +221,7 @@ class TestLoader(unittest.TestCase):
         ld.Loader.check_cache(config)
         self.assertFalse(os.path.isdir(config["install_path"]))
 
-   @unittest.skip("old config type fails validation #770")
+    @unittest.skip("old config type fails validation #770")
     def test_check_cache_removes_file(self):
         config = {}
         config["no-cache"] = True
