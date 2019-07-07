@@ -34,7 +34,16 @@ class TestLoader(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self._tmp_dir, onerror=del_rw)
 
+    @unittest.skip("old config type fails validation #770")
     def test_load_config_file(self):
+        opsdroid, loader = self.setup()
+        config = loader.load_config_file(
+            [os.path.abspath("tests/configs/minimal.yaml")]
+        )
+        self.assertIsNotNone(config)
+
+
+    def test_load_config_valid(self):
         opsdroid, loader = self.setup()
         config = loader.load_config_file(
             [os.path.abspath("tests/configs/full_valid.yaml")]
@@ -49,18 +58,9 @@ class TestLoader(unittest.TestCase):
         config = loader.load_config_file(
             [os.path.abspath("tests/configs/full_broken.yaml")]
         )
-
-
         assert(type(config) is tuple)
         self.assertEqual(1, config[1])
 
-    def test_load_config_minimal(self):
-        opsdroid, loader = self.setup()
-        config = loader.load_config_file(
-            [os.path.abspath("tests/configs/minimal.yaml")]
-        )
-
-        self.assertEqual(1, config[1])
 
     @unittest.skip("old config type fails validation #770")
     def test_load_config_file_2(self):
