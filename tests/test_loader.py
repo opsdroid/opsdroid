@@ -58,7 +58,6 @@ class TestLoader(unittest.TestCase):
             )
         self.assertEqual(cm.exception.code, 1)
 
-
     @unittest.skip("old config type fails validation #770")
     def test_load_config_file_2(self):
         opsdroid, loader = self.setup()
