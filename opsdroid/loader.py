@@ -3,7 +3,6 @@
 # pylint: disable=too-many-branches
 
 import yamale
-
 import importlib
 import importlib.util
 import json
@@ -350,14 +349,10 @@ class Loader:
         yaml.SafeLoader.add_constructor("!envvar", envvar_constructor)
         yaml.SafeLoader.add_constructor("!include", include_constructor)
 
-
-
         try:
             schema_path = os.path.abspath("opsdroid/configuration/schema.yaml")
             schema = yamale.make_schema(schema_path)
-
             data = yamale.make_data(config_path)
-
             yamale.validate(schema, data)
             with open(config_path, "r") as stream:
                 _LOGGER.info(_("Loaded config from %s."), config_path)
@@ -371,7 +366,6 @@ class Loader:
         except FileNotFoundError as error:
             _LOGGER.critical(error)
             sys.exit(1)
-
 
     def setup_modules_directory(self, config):
         """Create and configure the modules directory.
@@ -684,4 +678,3 @@ class Loader:
 
             # Run local install
             self._install_local_module(config)
-
