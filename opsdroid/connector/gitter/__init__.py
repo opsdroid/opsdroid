@@ -51,14 +51,17 @@ class ConnectorGitter(Connector):
 
     async def listen(self):
         """Keep listing to the gitter channel."""
-
         _LOGGER.debug("Listening with gitter stream")
         while self.listening:
-            await asyncio.sleep(self.update_interval)
-            async for data in self.response.content.iter_chunked(1024):
-                message = await self.parse_message(data)
-                if message is not None:
-                    await self.opsdroid.parse(message)
+            self._get_messages()
+
+    async def _get_messages(self):
+        """Message listener."""
+        await asyncio.sleep(self.update_interval)
+        async for data in self.response.content.iter_chunked(1024):
+            message = await self.parse_message(data)
+            if message is not None:
+                await self.opsdroid.parse(message)
 
     async def parse_message(self, message):
         """Parse response from gitter to send message."""

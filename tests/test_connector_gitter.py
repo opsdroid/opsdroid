@@ -53,7 +53,20 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
 
     async def test_parse_message(self):
         self.connector.parse_message("{'text':'hello', 'fromUser':{'username':'testUSer'}}")
-        #self.assertEqual(message.text,'hello')
+
+    async def test_listen(self):
+        with amock.patch.object(
+                self.connector.loop, "create_task"
+        ) as mocked_task, amock.patch.object(
+            self.connector._closing, "wait"
+        ) as mocked_event:
+            mocked_event.return_value = asyncio.Future()
+            mocked_event.return_value.set_result(True)
+            mocked_task.return_value = asyncio.Future()
+            await self.connector.listen()
+
+            self.assertTrue(mocked_event.called)
+            self.assertTrue(mocked_task.called)
 
     async def test_send_message_success(self):
         post_response = amock.Mock()
