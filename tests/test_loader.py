@@ -1,6 +1,3 @@
-
-
-
 import sys
 import os
 import shutil
@@ -48,9 +45,6 @@ class TestLoader(unittest.TestCase):
         assert type(config) is not tuple
 
 
-
-
-
     def test_load_example_config_broken(self):
         opsdroid, loader = self.setup()
 
@@ -62,7 +56,6 @@ class TestLoader(unittest.TestCase):
         assert(type(config) is tuple)
         self.assertEqual(1, config[1])
 
-
     def test_load_config_minimal(self):
         opsdroid, loader = self.setup()
         config = loader.load_config_file(
@@ -70,9 +63,6 @@ class TestLoader(unittest.TestCase):
         )
 
         self.assertEqual(1, config[1])
-
-
-
 
     # def test_load_config_file_2(self):
     #     opsdroid, loader = self.setup()
@@ -418,7 +408,7 @@ class TestLoader(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmp_dep_path:
             with mock.patch.object(
-                    loader, "_install_module"
+                loader, "_install_module"
             ) as mockinstall, mock.patch(
                 "opsdroid.loader.DEFAULT_MODULE_DEPS_PATH",
                 os.path.join(tmp_dep_path, "site-packages"),
@@ -437,7 +427,7 @@ class TestLoader(unittest.TestCase):
         modules = [{"name": "testmodule"}]
 
         with mock.patch.object(
-                loader, "_install_module"
+            loader, "_install_module"
         ) as mockinstall, mock.patch.object(
             loader, "import_module", return_value=None
         ) as mockimport:
@@ -695,11 +685,11 @@ class TestLoader(unittest.TestCase):
             "type": "skill",
             "install_path": os.path.join(self._tmp_dir, "test_gist_module_file"),
             "gist": "https://gist.github.com/jacobtomlinson/"
-                    "c9852fa17d3463acc14dca1217d911f6",
+                "c9852fa17d3463acc14dca1217d911f6",
         }
         with mock.patch("urllib.request.urlopen") as mock_urlopen:
             with open(
-                    os.path.abspath("tests/responses/gist_module_notebook.json"), "rb"
+                os.path.abspath("tests/responses/gist_module_notebook.json"), "rb"
             ) as fh:
                 mock_urlopen.return_value = fh
                 loader._install_gist_module(config)
@@ -707,6 +697,3 @@ class TestLoader(unittest.TestCase):
                     os.path.isfile(os.path.join(config["install_path"], "__init__.py"))
                 )
                 shutil.rmtree(config["install_path"], onerror=del_rw)
-
-
-
