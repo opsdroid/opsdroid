@@ -48,7 +48,6 @@ websocket:
 shell:
   name: regex('^shell$')
   bot-name: str(required=False)
-
 ---
 ciscospark:
     name: regex('^ciscospark$')
