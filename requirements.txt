@@ -20,3 +20,4 @@ pycron==1.0.0
 pyyaml==5.1.1
 setuptools==41.0.1
 websockets==7.0
+yamale==1.10.0
