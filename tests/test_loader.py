@@ -37,7 +37,7 @@ class TestLoader(unittest.TestCase):
     def test_load_config_file(self):
         opsdroid, loader = self.setup()
         config = loader.load_config_file(
-            [os.path.abspath("opsdroid/configuration/example_configuration.yaml")]
+            [os.path.abspath("test/configs/full_valid.yaml")]
         )
         self.assertIsNotNone(config)
         assert type(config) is not tuple
