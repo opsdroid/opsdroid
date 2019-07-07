@@ -6,21 +6,6 @@ connectors:
     max-connections: 10 # default is 10 users can be connected at once
     connection-timeout: 10 # default 10 seconds before requested socket times out
 
-  ## Uncomment the connector(s) that you wish opsdroid to work on
-
-  - name:
-    # optional
-    bot-name: "mybot" # default "opsdroid"
-
-
-  ## Ciscospark (https://github.com/opsdroid/connector-ciscospark)
-  - name: ciscospark
-    # required
-    webhook-url: http(s)://<host>:<port>  # Url for Spark to connect to your bot
-    access-token: <your bot access token>  # Your access token
-
-
-
   ## Facebook (https://github.com/opsdroid/connector-facebook)
   - name: facebook
     # required
@@ -33,58 +18,6 @@ connectors:
   - name: github
     # required
     github-token: aaabbbcccdddeee111222333444
-
-  ## Matrix (https://github.com/opsdroid/connector-matrix)
-  - name: matrix
-    # Required
-    mxid: "@username:matrix.org"
-    password: "mypassword"
-    # Name of a single room to connect to
-    room: "#matrix:matrix.org"
-    # Alternatively, a dictionary of multiple rooms
-    # One of these should be named 'main'
-    rooms:
-      'main': '#matrix:matrix.org'
-      'other': '#riot:matrix.org'
-    # Optional
-    homeserver: "https://matrix.org"
-    nick: "Botty McBotface"  # The nick will be set on startup
-
-
-  ## Slack (https://github.com/opsdroid/connector-slack)
-  - name: slack
-    # required
-#    api-token: "zyxw-abdcefghi-12345"
-    # optional
-    bot-name: "mybot" # default "opsdroid"
-    default-room: "#random" # default "#general"
-    icon-emoji: ":smile:" # default ":robot_face:"
-    connect-timeout: 10 # default 10 seconds
-
-  ## Telegram (https://github.com/opsdroid/connector-telegram)
-  - name: telegram
-    # required
-    token: "123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ-ZYXWVUT"  # Telegraf bot token
-    # optional
-    update_interval: 0.5  # Interval between checking for messages
-    default_user: user1  # Default user to send messages to (overrides default room in connector)
-    whitelisted_users:  # List of users who can speak to the bot, if not set anyone can speak
-      - user1
-      - user2
-
-  ## Twitter (https://github.com/opsdroid/connector-twitter)
-  - name: twitter
-    # required
-    consumer_key: "zyxw-abdcefghi-12345"
-    consumer_secret: "zyxw-abdcefghi-12345-zyxw-abdcefghi-12345"
-    oauth_token: "zyxw-abdcefghi-12345-zyxw-abdcefghi-12345"
-    oauth_token_secret: "zyxw-abdcefghi-12345-zyxw-abdcefghi-12345"
-    # optional
-    enable_dms: true  # Should the bot respond to Direct Messages
-    enable_tweets: true  # Should the bot respond to tweets
-
-
-## Database modules (optional)
 
 databases:
 
@@ -105,7 +38,6 @@ databases:
     file: "my_file.db"  # (optional) default "~/.opsdroid/sqlite.db"
     table: "my_table"  # (optional) default "opsdroid"
 
-
 skills:
   ## Dance (https://github.com/opsdroid/skill-dance)
   - name: dance
@@ -115,58 +47,3 @@ skills:
   - name: loudnoises
   ## Seen (https://github.com/opsdroid/skill-seen)
   - name: seen
-
-  ## Devtools (https://github.com/opsdroid/skill-devtools)
-  - name: devtools
-
-  ## Github (https://github.com/opsdroid/skill-github)
-  - name: github
-
-  ## Hacktoberfest (https://github.com/opsdroid/skill-hacktoberfest)
-  - name: hacktoberfest
-
-  ## Loudnoises (https://github.com/opsdroid/skill-loudnoises)
-  - name: loudnoises
-
-  ## Please stand by (https://github.com/opsdroid/skill-please-stand-by)
-  - name: please-stand-by
-
-  ## Random (https://github.com/opsdroid/skill-random)
-  - name: random
-
-  ## Speakingclock (https://github.com/opsdroid/skill-speakingclock)
-  - name: speakingclock
-
-  ## Word of the day (https://github.com/opsdroid/skill-word-of-the-day)
-  - name: word-of-the-day
-
-  ## Words (https://github.com/opsdroid/skill-words)
-  - name: words
-
-  # Configurations for other skills uncomment desired skill to activate it.
-
-  ## Cloudhealth (https://github.com/opsdroid/skill-cloudhealth)
-  - name: aws-billing
-    # Required
-    chapi-key: ABCDEF123456789  # Cloud Health API key for billing alerts
-    # Optional
-    room: "#monitoring"  # Room to send alert to
-    daily-billing-alerts: true  # Announce the previous day's bill each morning
-    monthly-billing-alerts: true  # Announce the previous month's bill each month
-
-
-  ## Dialogflow (https://github.com/opsdroid/skill-dialogflow)
-  - name: dialogflow
-    include:
-      - smalltalk
-    exclude:
-      - smalltalk.agent
-
-  ## Food (https://github.com/opsdroid/skill-food)
-  - name: food
-    api-key: "myapikeyfromfood2fork"  # Required
-
-  ## Google it (https://github.com/opsdroid/skill-google-it)
-  - name: google-it
-    # Use Google search engine (Default)
-    engine-url: https://www.google.co.uk/
