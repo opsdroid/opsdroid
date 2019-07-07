@@ -47,7 +47,7 @@ class TestLoader(unittest.TestCase):
         opsdroid, loader = self.setup()
 
         config = loader.load_config_file(
-            [os.path.abspath("tests/configs/example_configuration_isBroken.yaml")]
+            [os.path.abspath("tests/configs/full_broken.yaml")]
         )
 
 
