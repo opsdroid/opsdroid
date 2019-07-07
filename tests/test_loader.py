@@ -490,7 +490,7 @@ class TestLoader(unittest.TestCase):
             mockclone.assert_called_with(
                 config["repo"], config["install_path"], config["branch"]
             )
-            shutil.rmtree(repo_path, onerror=del_rw)
+        shutil.rmtree(repo_path, onerror=del_rw)
 
     def test_install_gist_module(self):
         opsdroid, loader = self.setup()
@@ -549,7 +549,7 @@ class TestLoader(unittest.TestCase):
                 DEFAULT_GIT_URL + config["type"] + "-" + config["name"] + ".git", config["install_path"],
                 config["branch"]
             )
-            shutil.rmtree(config["install_path"], onerror=del_rw)
+        shutil.rmtree(config["install_path"], onerror=del_rw)
 
     def test_install_local_module_dir(self):
         opsdroid, loader = self.setup()
