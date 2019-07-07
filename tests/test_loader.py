@@ -35,7 +35,7 @@ class TestLoader(unittest.TestCase):
         shutil.rmtree(self._tmp_dir, onerror=del_rw)
 
 
-    def test_load_example_config_file(self):
+    def test_load_config_file(self):
         opsdroid, loader = self.setup()
         config = loader.load_config_file(
             [os.path.abspath("opsdroid/configuration/example_configuration.yaml")]
