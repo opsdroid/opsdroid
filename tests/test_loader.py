@@ -183,6 +183,7 @@ class TestLoader(unittest.TestCase):
         loader.modules_directory = ""
         self.assertIn("test.test", ld.Loader.build_module_import_path(config))
         self.assertIn("test", ld.Loader.build_module_install_path(loader, config))
+
         config["is_builtin"] = True
         self.assertIn("opsdroid.test.test", ld.Loader.build_module_import_path(config))
         self.assertIn("test", ld.Loader.build_module_install_path(loader, config))
