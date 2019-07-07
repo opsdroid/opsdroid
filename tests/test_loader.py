@@ -42,7 +42,6 @@ class TestLoader(unittest.TestCase):
         )
         self.assertIsNotNone(config)
 
-
     def test_load_config_valid(self):
         opsdroid, loader = self.setup()
         config = loader.load_config_file(
@@ -50,7 +49,6 @@ class TestLoader(unittest.TestCase):
         )
         self.assertIsNotNone(config)
         assert type(config) is not tuple
-
 
     def test_load_config_broken(self):
         opsdroid, loader = self.setup()
@@ -60,7 +58,6 @@ class TestLoader(unittest.TestCase):
         )
         assert(type(config) is tuple)
         self.assertEqual(1, config[1])
-
 
     @unittest.skip("old config type fails validation #770")
     def test_load_config_file_2(self):
