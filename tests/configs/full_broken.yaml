@@ -1,3 +1,5 @@
+# the file does not pass validation because there is no welcome-message
+
 connectors:
 
   - name:
