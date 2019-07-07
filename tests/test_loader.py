@@ -34,7 +34,6 @@ class TestLoader(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self._tmp_dir, onerror=del_rw)
 
-
     def test_load_config_file(self):
         opsdroid, loader = self.setup()
         config = loader.load_config_file(
@@ -44,7 +43,7 @@ class TestLoader(unittest.TestCase):
         assert type(config) is not tuple
 
 
-    def test_load_example_config_broken(self):
+    def test_load_config_broken(self):
         opsdroid, loader = self.setup()
 
         config = loader.load_config_file(
