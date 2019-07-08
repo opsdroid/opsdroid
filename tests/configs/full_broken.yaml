@@ -1,4 +1,4 @@
-# the file does not pass validation because there is no welcome-message
+# the file does not pass validation because the name field is missing in the websocket connector
 
 connectors:
 
