@@ -49,10 +49,10 @@ class TestLoader(unittest.TestCase):
         )
         self.assertIsNotNone(config)
 
-    def test_load_config_valid_2(self):
+    def test_load_config_valid_without_wellcome_message(self):
         opsdroid, loader = self.setup()
         config = loader.load_config_file(
-            [os.path.abspath("tests/configs/example_valid.yaml")]
+            [os.path.abspath("tests/configs/valid_without_wellcome_message.yaml")]
         )
         self.assertIsNotNone(config)
 

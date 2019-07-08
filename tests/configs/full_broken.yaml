@@ -1,51 +1,36 @@
-# the file does not pass validation because the name field is missing in the websocket connector
-
 connectors:
 
-  - name:
-    # optional
-    bot-name: "mybot" # default "opsdroid"
-    max-connections: 10 # default is 10 users can be connected at once
-    connection-timeout: 10 # default 10 seconds before requested socket times out
+  - name: # WRONG CONFIG: the name field is missing
 
-  ## Facebook (https://github.com/opsdroid/connector-facebook)
+    bot-name: "mybot"
+    max-connections: 10
+    connection-timeout: 10
+
   - name: facebook
-    # required
     verify-token: aabbccddee
     page-access-token: aabbccddee112233445566
-    # optional
-    bot-name: "mybot" # default "opsdroid"
+    bot-name: "mybot"
 
-  ## Github (https://github.com/opsdroid/connector-github)
   - name: github
-    # required
     github-token: aaabbbcccdddeee111222333444
 
 databases:
-
-  ## Mongo (https://github.com/opsdroid/database-mongo)
   - name: mongo
-    host:       "my host"     # (optional) default "localhost"
-    port:       "12345"      # (optional) default "27017"
-    database:   "mydatabase"  # (optional) default "opsdroid"
+    host:       "my host"
+    port:       "12345"
+    database:   "mydatabase"
 
-  ## Redis (https://github.com/opsdroid/database-redis)
   - name: redis
-    host:       "my host"     # (optional) default "localhost"
-    port:       "12345"       # (optional) default "6379"
-    database:   "7"           # (optional) default "0"
+    host:       "my host"
+    port:       "12345"
+    database:   "7"
 
-  ## Sqlite (https://github.com/opsdroid/database-sqlite)
   - name: sqlite
-    file: "my_file.db"  # (optional) default "~/.opsdroid/sqlite.db"
-    table: "my_table"  # (optional) default "opsdroid"
+    file: "my_file.db"
+    table: "my_table"
 
 skills:
-  ## Dance (https://github.com/opsdroid/skill-dance)
   - name: dance
-  ## Hello (https://github.com/opsdroid/skill-hello)
   - name: hello
-  ## Loudnoises (https://github.com/opsdroid/skill-loudnoises)
   - name: loudnoises
-  ## Seen (https://github.com/opsdroid/skill-seen)
   - name: seen
