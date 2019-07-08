@@ -476,11 +476,11 @@ class TestLoader(unittest.TestCase):
             "repo": "https://github.com/rmccue/test-repository.git",
             "branch": "master",
         }
-        loader._install_module(config)  # Clone remote repo for testing with
-        config["repo"] = os.path.join(config["install_path"], ".git")
+        config["repo"] = repo_path
         config["install_path"] = os.path.join(
             self._tmp_dir, "test_specific_local_module"
         )
+        os.makedirs(repo_path)
         with mock.patch("opsdroid.loader._LOGGER.debug"), mock.patch.object(
             loader, "git_clone"
         ) as mockclone:
@@ -513,7 +513,7 @@ class TestLoader(unittest.TestCase):
             "repo": "https://github.com/rmccue/test-repository.git",
             "branch": "master",
         }
-        loader._install_module(config)  # Clone remote repo for testing with
+        os.makedirs(config["install_path"])
         config["path"] = config["install_path"]
         config["install_path"] = os.path.join(
             self._tmp_dir, "test_specific_local_module"
