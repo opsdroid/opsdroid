@@ -1,4 +1,4 @@
-welcome-message: true
+# CORRECT CONFIG : the file is being checked despite the absence of a welcome message
 
 connectors:
 
@@ -19,6 +19,7 @@ parsers:
   - name: dialogflow
     access-token: "exampleaccesstoken123"
     min-score: 0.6
+
 
 skills:
 
