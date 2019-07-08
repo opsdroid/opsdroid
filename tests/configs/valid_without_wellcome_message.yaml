@@ -14,7 +14,7 @@ databases:
     port:  "12345"
     database:  "mydatabase"
 
- parsers:
+parsers:
 
   - name: dialogflow
     access-token: "exampleaccesstoken123"
