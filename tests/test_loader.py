@@ -56,8 +56,7 @@ class TestLoader(unittest.TestCase):
         )
         self.assertIsNotNone(config)
 
-<<<<<<< HEAD
-=======
+
     def test_load_config_valid_without_db_and_parsers(self):
         opsdroid, loader = self.setup()
         config = loader.load_config_file(
@@ -65,7 +64,6 @@ class TestLoader(unittest.TestCase):
         )
         self.assertIsNotNone(config)
 
->>>>>>> edit_config
     def test_load_config_broken(self):
         opsdroid, loader = self.setup()
 
