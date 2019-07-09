@@ -8,6 +8,7 @@ import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock
 
+
 from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.connector.gitter import ConnectorGitter
@@ -54,19 +55,17 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
     async def test_parse_message(self):
         self.connector.parse_message("{'text':'hello', 'fromUser':{'username':'testUSer'}}")
 
-    async def test_listen(self):
-        with amock.patch.object(
-                self.connector.loop, "create_task"
-        ) as mocked_task, amock.patch.object(
-            self.connector._closing, "wait"
-        ) as mocked_event:
-            mocked_event.return_value = asyncio.Future()
-            mocked_event.return_value.set_result(True)
-            mocked_task.return_value = asyncio.Future()
-            await self.connector.listen()
+    async def test_listen_loop(self):
+        """Test that listening consumes from the socket."""
+        connector = ConnectorGitter(
+            {"bot-name": "github", "room-id": "test-id", "access-token": "test-token"}, opsdroid=OpsDroid()
+        )
+        connector._get_messages = amock.CoroutineMock()
+        connector._get_messages.side_effect = Exception()
+        with self.assertRaises(Exception):
+            await connector.listen()
+        self.assertTrue(connector._get_messages.called)
 
-            self.assertTrue(mocked_event.called)
-            self.assertTrue(mocked_task.called)
 
     async def test_send_message_success(self):
         post_response = amock.Mock()
