@@ -1,3 +1,5 @@
+#CORRECT CONFIG :  the databases and parser are optional
+
 welcome-message: true
 
 connectors:

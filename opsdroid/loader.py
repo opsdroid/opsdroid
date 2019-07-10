@@ -18,6 +18,7 @@ from collections.abc import Mapping
 from pkg_resources import iter_entry_points
 import yaml
 
+
 from opsdroid.helper import (
     move_config_to_appdir,
     file_is_ipython_notebook,
