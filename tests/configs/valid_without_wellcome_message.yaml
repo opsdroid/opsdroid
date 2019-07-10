@@ -1,4 +1,4 @@
-# CORRECT CONFIG : the file is being checked despite the absence of a welcome message
+# CORRECT CONFIG: the file is being checked despite the absence of a welcome message
 
 connectors:
 

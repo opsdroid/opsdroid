@@ -1,0 +1,21 @@
+# CORRECT CONFIG: the databases and parsers are optional
+
+welcome-message: true
+
+connectors:
+
+  - name: websocket
+    bot-name: "mybot"
+    max-connections: 10
+    connection-timeout: 10
+
+
+skills:
+
+  - name: dance
+
+  - name: hello
+
+  - name: loudnoises
+
+  - name: seen
