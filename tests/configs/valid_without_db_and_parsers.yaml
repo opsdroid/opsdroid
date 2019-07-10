@@ -1,4 +1,4 @@
-#CORRECT CONFIG: the databases and parser are optional
+# CORRECT CONFIG: the databases and parser are optional
 
 welcome-message: true
 
