@@ -173,6 +173,13 @@ class ConnectorTelegram(Connector):
                     )
                     await self.send(message)
                 self.latest_update = result["update_id"] + 1
+            elif (
+                "message" in result
+                and "sticker" in result["message"]
+                and "emoji" in result["message"]["sticker"]
+            ):
+                self.latest_update = result["update_id"] + 1
+                _LOGGER.debug("Emoji message parsing not supported " "- Ignoring message")
             else:
                 _LOGGER.error("Unable to parse the message.")
 
