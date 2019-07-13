@@ -2,7 +2,7 @@
 We will create a basic skill that makes opsdroid answer the text "how are you". This skill will be very similar to the [hello skill](docs/extending/skills/#hello-world) found in the documentation.
 The video tutorial for creating your own skill is also available [here](https://www.youtube.com/watch?v=gk7JN4e5l_4&index=3&list=PLViQCHlMbEq5nZL6VNrUxu--Of1uCpflq)
 
-*If you need help or if you are unsure about something join our* [gitter channel](https://gitter.im/opsdroid/) *and ask away! We are more than happy to help you.*
+*If you need help or if you are unsure about something join our* [gitter](https://gitter.im/opsdroid/) *and ask away! We are more than happy to help you.*
 
 ## The Skill folder
 Opsdroid skills are located inside a folder with the name `skill-<skillname>`. Inside this folder you should have at least these files:
