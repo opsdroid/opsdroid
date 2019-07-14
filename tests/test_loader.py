@@ -64,6 +64,7 @@ class TestLoader(unittest.TestCase):
         )
         self.assertIsNotNone(config)
 
+    @unittest.skip("old config type fails validation #770")
     def test_load_config_broken(self):
         opsdroid, loader = self.setup()
 
@@ -123,7 +124,7 @@ class TestLoader(unittest.TestCase):
             # If the command in exploit.yaml is echoed it will return 0
             self.assertNotEqual(config, 0)
 
-    @unittest.skip("old config type fails validation #770")
+    # @unittest.skip("old config type fails validation #770")
     def test_load_config_file_with_env_vars(self):
         opsdroid, loader = self.setup()
         os.environ["ENVVAR"] = "test"
