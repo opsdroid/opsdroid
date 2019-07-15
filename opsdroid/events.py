@@ -19,15 +19,16 @@ _LOGGER = logging.getLogger(__name__)
 
 class EventCreator:
     """Create opsdroid events from events detected by a connector."""
-    def __init__(self, connector):
+    def __init__(self, connector, dispatch_key="type"):
         """Initialise the event creator"""
         self.connector = connector
+        self.dispatch_key = dispatch_key
 
         self.event_types = defaultdict(lambda: self.skip)
 
-    async def create_event(self, event, roomid):
+    async def create_event(self, event, target):
         """Dispatch any event type"""
-        return await self.event_types[event["type"]](event, roomid)
+        return await self.event_types[event[self.dispatch_key]](event, target)
 
     @staticmethod
     async def skip(event, roomid):

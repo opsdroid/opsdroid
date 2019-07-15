@@ -107,35 +107,24 @@ class ConnectorSlack(Connector):
 
     async def process_message(self, message):
         """Process a raw message and pass it to the parser."""
-        if "type" in message and message["type"] == "message" and "user" in message:
-
-            # Ignore bot messages
-            if "subtype" in message and message["subtype"] == "bot_message":
-                return
-
-            # Lookup username
-            _LOGGER.debug("Looking up sender username")
-            try:
-                user_info = await self.lookup_username(message["user"])
-            except ValueError:
-                return
+        if "type" in message:
+            if "user" in message:
+                # Lookup username
+                _LOGGER.debug("Looking up sender username")
+                try:
+                    user_info = await self.lookup_username(message["user"])
+                except ValueError:
+                    return
+                message["user"] = user_info["name"]
 
             # Replace usernames in the message
-            _LOGGER.debug("Replacing userids in message with usernames")
-            message["text"] = await self.replace_usernames(message["text"])
+            if "text" in message:
+                _LOGGER.debug("Replacing userids in message with usernames")
+                message["text"] = await self.replace_usernames(message["text"])
 
-            event = await self._event_creator.create_event(message, message['channel'])
-            await self.opsdroiid.parse(event)
-
-            # await self.opsdroid.parse(
-            #     events.Message(
-            #         message["text"],
-            #         user_info["name"],
-            #         message["channel"],
-            #         self,
-            #         raw_event=message,
-            #     )
-            # )
+            _LOGGER.debug(f"Processing event with content {message}")
+            event = await self._event_creator.create_event(message, message.get('channel'))
+            await self.opsdroid.parse(event)
 
     @register_event(events.Message)
     async def _send_message(self, message):

@@ -55,6 +55,7 @@ class SlackEventCreator(events.EventCreator):
 
         # Things for managing various types of message
         self.event_types['message'] = self.create_room_message
+        self.event_types['channel_created'] = self.create_newroom
 
         self.message_events = defaultdict(lambda: self.skip)
         self.message_events.update(
@@ -84,4 +85,9 @@ class SlackEventCreator(events.EventCreator):
 
     async def create_newroom(self, event, channel):
         """Send a NewRoom event"""
-        return events.NewRoom(name=events['channel'].pop('name'))
+        return events.NewRoom(name=event['channel'].pop('name'),
+                              params=None,
+                              target=channel,
+                              connector=self.connector,
+                              event_id=event['event_ts'],
+                              raw_event=event)
