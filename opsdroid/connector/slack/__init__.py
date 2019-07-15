@@ -38,8 +38,18 @@ class ConnectorSlack(Connector):
         self.reconnecting = False
         self.listening = True
         self._message_id = 0
+        self._user_id = None
 
         self._event_creator = SlackEventCreator(self)
+
+    async def get_user_id(self):
+        if self._user_id:
+            return self._user_id
+
+        auth = await self.slacker.auth.test()
+        self._user_id = auth.body['user_id']
+
+        return self._user_id
 
     async def connect(self):
         """Connect to the chat service."""
@@ -109,6 +119,11 @@ class ConnectorSlack(Connector):
         """Process a raw message and pass it to the parser."""
         if "type" in message:
             if "user" in message:
+                # Ignore messages that come from us
+                self_id = await self.get_user_id()
+                if message["user"] == self_id:
+                    return
+
                 # Lookup username
                 _LOGGER.debug("Looking up sender username")
                 try:
