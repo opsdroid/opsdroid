@@ -63,6 +63,7 @@ class ConnectorGitter(Connector):
         """Message listener."""
         await asyncio.sleep(self.update_interval)
         async for data in self.response.content.iter_chunked(1024):
+            print(data)
             message = await self.parse_message(data)
             if message is not None:
                 await self.opsdroid.parse(message)

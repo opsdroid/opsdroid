@@ -67,6 +67,20 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
         self.assertTrue(connector._get_messages.called)
 
 
+    async def test_get_message(self):
+        """Test that listening consumes from the socket."""
+
+        self.connector.parse_message  = amock.CoroutineMock()
+        self.connector.opsdroid.parse = amock.CoroutineMock()
+        parse_message = amock.patch("opsdroid.connector.gitter.ConnectorGitter.parse_message")
+        patch_iter                   =  amock.patch("aiohttp.ClientSession.get")
+        patch_iter.return_value      =  bytes("[{'message':'hi'},{'message':'hi'}]", 'utf-8')
+        parse_message.return_value   =   "hi"
+        self.connector._get_messages()
+        self.assertTrue(self.connector.parse_message.called)
+        self.assertTrue(self.connector.opsdroid.parse.called)
+
+
     async def test_send_message_success(self):
         post_response = amock.Mock()
         post_response.status = 200
