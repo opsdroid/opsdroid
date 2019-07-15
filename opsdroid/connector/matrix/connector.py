@@ -303,7 +303,7 @@ class ConnectorMatrix(Connector):
 
     @register_event(events.JoinRoom)
     async def _send_join_room(self, join_event):
-        return await self.connection.join_room(join_event.room_id)
+        return await self.connection.join_room(join_event.target)
 
     @register_event(events.UserInvite)
     async def _send_user_invitation(self, invite_event):

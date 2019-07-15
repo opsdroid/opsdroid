@@ -87,7 +87,7 @@ class SlackEventCreator(events.EventCreator):
         """Send a NewRoom event"""
         return events.NewRoom(name=event['channel'].pop('name'),
                               params=None,
-                              target=channel,
+                              target=channel['id'],
                               connector=self.connector,
                               event_id=event['event_ts'],
                               raw_event=event)
