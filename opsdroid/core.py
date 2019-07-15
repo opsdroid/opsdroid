@@ -360,15 +360,14 @@ class OpsDroid:
             else:
                 await skill(message)
         except Exception:
+            _LOGGER.exception(
+                _("Exception when running skill '%s' "), str(config["name"])
+            )
             if message:
                 await message.respond(
                     events.Message(_("Whoops there has been an error"))
                 )
                 await message.respond(events.Message(_("Check the log for details")))
-
-            _LOGGER.exception(
-                _("Exception when running skill '%s' "), str(config["name"])
-            )
 
     async def get_ranked_skills(self, skills, message):
         """Take a message and return a ranked list of matching skills."""
