@@ -350,4 +350,5 @@ class ConnectorMatrix(Connector):
         _LOGGER.debug(f"Sending State Event {state_event}")
         return await self.connection.send_state_event(state_event.target,
                                                       state_event.key,
-                                                      state_event.content)
+                                                      state_event.content
+                                                      state_key=state_event.state_key)

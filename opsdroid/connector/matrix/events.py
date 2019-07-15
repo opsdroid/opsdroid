@@ -6,10 +6,11 @@ from opsdroid.events import Event
 class MatrixStateEvent(Event):
     """A Generic matrix state event."""
 
-    def __init__(self, key, content, *args, **kwargs):
+    def __init__(self, key, content, *args, state_key=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.key = key
         self.content = content
+        self.state_key = state_key
 
     def __repr__(self):
         return f"<MatrixStateEvent(room_id={self.target}, key={self.key}, content={self.content})>"
