@@ -124,19 +124,6 @@ class ConnectorSlack(Connector):
                 if message["user"] == self_id:
                     return
 
-                # Lookup username
-                _LOGGER.debug("Looking up sender username")
-                try:
-                    user_info = await self.lookup_username(message["user"])
-                except ValueError:
-                    return
-                message["user"] = user_info["name"]
-
-            # Replace usernames in the message
-            if "text" in message:
-                _LOGGER.debug("Replacing userids in message with usernames")
-                message["text"] = await self.replace_usernames(message["text"])
-
             _LOGGER.debug(f"Processing event with content {message}")
             event = await self._event_creator.create_event(message, message.get('channel'))
             await self.opsdroid.parse(event)

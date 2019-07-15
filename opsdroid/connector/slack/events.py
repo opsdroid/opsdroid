@@ -1,9 +1,12 @@
 """Classes to describe different kinds of Slack specific event."""
 
 import json
+import logging
 from collections import defaultdict
 
 from opsdroid import events
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class Blocks(events.Message):
@@ -75,9 +78,22 @@ class SlackEventCreator(events.EventCreator):
 
     async def create_message(self, event, channel):
         """Send a Message event."""
+
+        # Lookup username
+        _LOGGER.debug("Looking up sender username")
+        user_name = event["user"]
+        try:
+            user_info = await self.connector.lookup_username(user_name)
+            user_name = user_info["name"]
+        except ValueError:
+            pass
+
+        _LOGGER.debug("Replacing userids in message with usernames")
+        text = await self.connector.replace_usernames(event["text"])
+
         return events.Message(
-            event['text'],
-            event['user'],
+            text,
+            user_info["name"],
             channel,
             self.connector,
             event_id=event["ts"],
