@@ -61,6 +61,7 @@ class SlackEventCreator(events.EventCreator):
         self.message_events.update(
             {
                 "message": self.create_message,
+                "channel_topic": self.topic_changed
             }
         )
 
@@ -91,3 +92,11 @@ class SlackEventCreator(events.EventCreator):
                               connector=self.connector,
                               event_id=event['event_ts'],
                               raw_event=event)
+
+    async def topic_changed(self, event, channel):
+        """Send a RoomDescription event"""
+        return events.RoomDescription(description=event['topic'],
+                                      target=channel,
+                                      connector=self.connector,
+                                      event_id=event['ts'],
+                                      raw_event=event)

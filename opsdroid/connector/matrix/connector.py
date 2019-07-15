@@ -57,7 +57,6 @@ class ConnectorMatrix(Connector):
             "presence": {"limit": 0, "types": []},
             "room": {
                 "account_data": {"types": []},
-                "timeline": {"types": ["m.room.message"]},
                 "ephemeral": {"types": []},
                 "state": {"types": []},
             },

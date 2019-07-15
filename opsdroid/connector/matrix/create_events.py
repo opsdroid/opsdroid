@@ -14,6 +14,7 @@ class MatrixEventCreator(events.EventCreator):
         super().__init__(connector, *args, **kwargs)
 
         self.event_types["m.room.message"] = self.create_room_message
+        self.event_types["m.room.topic"] = self.create_room_description
 
         self.message_events = defaultdict(lambda: self.skip)
         self.message_events.update(
@@ -66,3 +67,13 @@ class MatrixEventCreator(events.EventCreator):
         """Send a Image event."""
         kwargs = await self._file_kwargs(event, roomid)
         return events.Image(**kwargs)
+
+    async def create_room_description(self, event, roomid):
+        """Send a RoomDescriptionEvent."""
+        return events.RoomDescription(
+            description=event['content']['topic'],
+            user=await self.connector.get_nick(roomid, event['sender']),
+            target=roomid,
+            connector=self.connector,
+            event_id=event["event_id"],
+            raw_event=event)
