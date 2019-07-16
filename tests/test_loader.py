@@ -102,7 +102,7 @@ class TestLoader(unittest.TestCase):
             self.assertRaises(YAMLError)
             unittest.main(exit=False)
 
-    @unittest.skip("old config type fails validation #770")
+    # @unittest.skip("old config type fails validation #770")
     def test_load_config_file_with_include(self):
         opsdroid, loader = self.setup()
         config = loader.load_config_file(
