@@ -56,7 +56,6 @@ class TestLoader(unittest.TestCase):
         )
         self.assertIsNotNone(config)
 
-
     def test_load_config_valid_without_db_and_parsers(self):
         opsdroid, loader = self.setup()
         config = loader.load_config_file(

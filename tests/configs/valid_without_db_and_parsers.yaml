@@ -9,7 +9,6 @@ connectors:
     max-connections: 10
     connection-timeout: 10
 
-
 skills:
 
   - name: dance
