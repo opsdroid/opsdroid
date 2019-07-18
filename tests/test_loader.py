@@ -521,11 +521,11 @@ class TestLoader(unittest.TestCase):
             "repo": "https://github.com/rmccue/test-repository.git",
             "branch": "master",
         }
-        loader._install_module(config)  # Clone remote repo for testing with
-        config["repo"] = os.path.join(config["install_path"], ".git")
+        config["repo"] = repo_path
         config["install_path"] = os.path.join(
             self._tmp_dir, "test_specific_local_module"
         )
+        os.makedirs(repo_path)
         with mock.patch("opsdroid.loader._LOGGER.debug"), mock.patch.object(
             loader, "git_clone"
         ) as mockclone:
@@ -558,7 +558,7 @@ class TestLoader(unittest.TestCase):
             "repo": "https://github.com/rmccue/test-repository.git",
             "branch": "master",
         }
-        loader._install_module(config)  # Clone remote repo for testing with
+        os.makedirs(config["install_path"])
         config["path"] = config["install_path"]
         config["install_path"] = os.path.join(
             self._tmp_dir, "test_specific_local_module"
@@ -578,13 +578,27 @@ class TestLoader(unittest.TestCase):
             "install_path": os.path.join(self._tmp_dir, "test_default_remote_module"),
             "branch": "master",
         }
-        with mock.patch.object(loader, "pip_install_deps") as mockdeps:
-            loader._install_module(config)
-            self.assertLogs("_LOGGER", "debug")
-            mockdeps.assert_called_with(
-                os.path.join(config["install_path"], "requirements.txt")
-            )
 
+        with mock.patch("opsdroid.loader.Loader.git_clone") as mockclone:
+            with mock.patch.object(loader, "pip_install_deps") as mockdeps:
+                os.makedirs(config["install_path"])
+                mockclone.side_effect = shutil.copy(
+                    "requirements.txt", config["install_path"]
+                )
+                loader._install_module(config)
+                self.assertLogs("_LOGGER", "debug")
+                mockdeps.assert_called_with(
+                    os.path.join(config["install_path"], "requirements.txt")
+                )
+                mockclone.assert_called_with(
+                    "https://github.com/opsdroid/"
+                    + config["type"]
+                    + "-"
+                    + config["name"]
+                    + ".git",
+                    config["install_path"],
+                    config["branch"],
+                )
         shutil.rmtree(config["install_path"], onerror=del_rw)
 
     def test_install_local_module_dir(self):
