@@ -165,6 +165,8 @@ class OpsDroid:
         self.cron_task = self.eventloop.create_task(parse_crontab(self))
         self.eventloop.create_task(self.web_server.start())
 
+        await self.send(OpsdroidStarted())
+
     async def unload(self, future=None):
         """Stop the event loop."""
         _LOGGER.info(_("Received stop signal, exiting."))

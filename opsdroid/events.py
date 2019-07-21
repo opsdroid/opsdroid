@@ -144,6 +144,10 @@ class Event(metaclass=EventMetaClass):
         return result
 
 
+class OpsdroidStarted(Event):
+    """An event to indicate that Opsdroid has loaded"""
+
+
 class Message(Event):
     """A message object.
 
