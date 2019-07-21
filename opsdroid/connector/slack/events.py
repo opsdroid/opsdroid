@@ -63,6 +63,7 @@ class SlackEventCreator(events.EventCreator):
         # Things for managing various types of message
         self.event_types['message'] = self.create_room_message
         self.event_types['channel_created'] = self.create_newroom
+        self.event_types['channel_archive'] = self.archive_room
 
         self.message_events = defaultdict(lambda: self.skip)
         self.message_events.update(
@@ -113,6 +114,13 @@ class SlackEventCreator(events.EventCreator):
                               connector=self.connector,
                               event_id=event['event_ts'],
                               raw_event=event)
+
+    async def archive_room(self, event, channel):
+        """Send a ChannelArchived event"""
+        return events.ChannelArchived(target=channel['id'],
+                                      connector=self.connector,
+                                      event_id=event['event_ts'],
+                                      raw_event=event)
 
     async def topic_changed(self, event, channel):
         """Send a RoomDescription event"""
