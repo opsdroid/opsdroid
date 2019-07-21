@@ -48,6 +48,10 @@ class Blocks(events.Message):
             self.blocks = json.dumps(self.blocks)
 
 
+class ChannelArchived(Event):
+    """Event for when a slack channel is archived."""
+
+
 class SlackEventCreator(events.EventCreator):
     """Create opsdroid events from Slack ones."""
 
