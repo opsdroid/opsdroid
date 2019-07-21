@@ -23,10 +23,12 @@ class TestConnectorTelegram(unittest.TestCase):
     def test_init(self):
         """Test that the connector is initialised properly."""
         connector = ConnectorTelegram(
-            {"name": "telegram", "token": "test"}, opsdroid=OpsDroid()
+            {"name": "telegram", "token": "test", "update-interval": 0.2},
+            opsdroid=OpsDroid(),
         )
         self.assertEqual(None, connector.default_target)
         self.assertEqual("telegram", connector.name)
+        self.assertEqual(0.2, connector.update_interval)
 
     def test_missing_token(self):
         """Test that attempt to connect without info raises an error."""
@@ -283,6 +285,52 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
             await self.connector._parse_message(response)
             self.assertTrue(mocked_respond.called)
             self.assertTrue(mocked_respond.called_with(message_text))
+
+    async def test_parse_message_emoji(self):
+        response = {
+            "result": [
+                {
+                    "update_id": 427647860,
+                    "message": {
+                        "message_id": 12,
+                        "from": {
+                            "id": 649671308,
+                            "is_bot": False,
+                            "first_name": "A",
+                            "last_name": "User",
+                            "username": "user",
+                            "language_code": "en-GB",
+                        },
+                        "chat": {
+                            "id": 649671308,
+                            "first_name": "A",
+                            "last_name": "User",
+                            "username": "user",
+                            "type": "private",
+                        },
+                        "date": 1538756863,
+                        "sticker": {
+                            "width": 512,
+                            "height": 512,
+                            "emoji": "😔",
+                            "set_name": "YourALF",
+                            "thumb": {
+                                "file_id": "AAQCABODB_MOAARYC8yRaPPoIIZBAAIC",
+                                "file_size": 8582,
+                                "width": 128,
+                                "height": 128,
+                            },
+                            "file_id": "CAADAgAD3QMAAsSraAu37DAtdiNpAgI",
+                            "file_size": 64720,
+                        },
+                    },
+                }
+            ]
+        }
+
+        with amock.patch("opsdroid.core.OpsDroid.parse"):
+            await self.connector._parse_message(response)
+            self.assertLogs("_LOGGER", "debug")
 
     async def test_get_messages(self):
         listen_response = amock.Mock()
