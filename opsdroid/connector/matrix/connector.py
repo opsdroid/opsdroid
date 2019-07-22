@@ -31,7 +31,7 @@ class ConnectorMatrix(Connector):
         """Init the config for the connector."""
         super().__init__(config, opsdroid=opsdroid)
 
-        self.name = "ConnectorMatrix"  # The name of your connector
+        self.name = "matrix"  # The name of your connector
         self.rooms = config.get("rooms", None)
         if not self.rooms:
             self.rooms = {"main": config["room"]}
