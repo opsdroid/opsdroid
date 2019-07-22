@@ -48,7 +48,7 @@ class Blocks(events.Message):
             self.blocks = json.dumps(self.blocks)
 
 
-class ChannelArchived(Event):
+class ChannelArchived(events.Event):
     """Event for when a slack channel is archived."""
 
 
