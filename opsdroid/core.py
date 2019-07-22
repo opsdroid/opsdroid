@@ -348,7 +348,7 @@ class OpsDroid:
                     _LOGGER.debug(_("Adding database: %s"), name)
                     database = cls(database_module["config"])
                     self.memory.databases.append(database)
-                    self.eventloop.run_until_complete(database.connect())
+                    self.eventloop.run_until_complete(database.connect(self))
 
     async def run_skill(self, skill, config, message):
         """Execute a skill."""
