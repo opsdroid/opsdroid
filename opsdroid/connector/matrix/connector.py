@@ -103,6 +103,19 @@ class ConnectorMatrix(Connector):
 
     async def _parse_sync_response(self, response):
         self.connection.sync_token = response["next_batch"]
+
+        # Emit Invite events for every room in the invite list.
+        for roomid, room in response["rooms"]["invite"].items():
+            # Process the invite list to extract the person who invited us.
+            invite_event = [e for e in room['invite_state']['events']
+                            if "invite" == e.get("content", {}).get("membership")][0]
+            sender = await self.get_nick(None, invite_event['sender'])
+
+            await self.opsdroid.parse(events.UserInvite(target=roomid,
+                                                        user=sender,
+                                                        connector=self,
+                                                        raw_event=room))
+
         for roomid, room in response["rooms"]["join"].items():
             if "timeline" in room:
                 for event in room["timeline"]["events"]:
