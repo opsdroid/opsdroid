@@ -381,3 +381,11 @@ class UserRole(Event):
     def __init__(self, role, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.role = role
+
+
+class JoinGroup(Event):
+    """
+    Event to represent joining a group (not a room).
+
+    The group could be a slack team or a matrix community.
+    """
