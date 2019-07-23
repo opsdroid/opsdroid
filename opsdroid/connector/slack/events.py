@@ -87,9 +87,7 @@ class SlackEventCreator(events.EventCreator):
         msgtype = event['subtype'] if 'subtype' in event.keys() else 'message'
         return await self.message_events[msgtype](event, channel)
 
-    async def create_message(self, event, channel):
-        """Send a Message event."""
-
+    async def get_username(self, event):
         # Lookup username
         _LOGGER.debug("Looking up sender username")
         user_name = event["user"]
@@ -99,12 +97,18 @@ class SlackEventCreator(events.EventCreator):
         except ValueError:
             pass
 
+        return user_name
+
+    async def create_message(self, event, channel):
+        """Send a Message event."""
+        user_name = await self.get_username(event)
+
         _LOGGER.debug("Replacing userids in message with usernames")
         text = await self.connector.replace_usernames(event["text"])
 
         return events.Message(
             text,
-            user_info["name"],
+            user_name,
             channel,
             self.connector,
             event_id=event["ts"],
@@ -113,8 +117,10 @@ class SlackEventCreator(events.EventCreator):
 
     async def create_newroom(self, event, channel):
         """Send a NewRoom event"""
+        user_name = await self.get_username(event)
         return events.NewRoom(name=event['channel'].pop('name'),
                               params=None,
+                              user=user_name,
                               target=channel['id'],
                               connector=self.connector,
                               event_id=event['event_ts'],
