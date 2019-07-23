@@ -52,7 +52,7 @@ class ChannelArchived(events.Event):
     """Event for when a slack channel is archived."""
 
 
-class ChannelUnArchived(events.Event):
+class ChannelUnarchived(events.Event):
     """Event for when a slack channel is unarchived."""
 
 
@@ -122,17 +122,17 @@ class SlackEventCreator(events.EventCreator):
 
     async def archive_room(self, event, channel):
         """Send a ChannelArchived event"""
-        return events.ChannelArchived(target=channel['id'],
-                                      connector=self.connector,
-                                      event_id=event['event_ts'],
-                                      raw_event=event)
+        return ChannelArchived(target=event['channel'],
+                               connector=self.connector,
+                               event_id=event['event_ts'],
+                               raw_event=event)
 
     async def unarchive_room(self, event, channel):
         """Send a ChannelArchived event"""
-        return events.ChannelUnarchived(target=channel['id'],
-                                        connector=self.connector,
-                                        event_id=event['event_ts'],
-                                        raw_event=event)
+        return ChannelUnarchived(target=event['channel'],
+                                 connector=self.connector,
+                                 event_id=event['event_ts'],
+                                 raw_event=event)
 
     async def topic_changed(self, event, channel):
         """Send a RoomDescription event"""
