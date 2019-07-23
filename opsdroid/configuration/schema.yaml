@@ -16,18 +16,18 @@ databases:
   include('redis', required=False),
   include('sqlite', required=False),required=False)
 
-skills: list(include('skill',required=False))
+skills: list(include('skill'))
 
 parsers: list(include('parser',required=False),required=False)
 ---
 mongo:
-  name: regex('^mongo$')
+  name: regex('^(?i)mongo$')
   host: str(required=False)
   port: regex('(^\d+$)',required=False)
   database: str(required=False)
 ---
 redis:
-  name: regex('^redis$')
+  name: regex('^(?i)redis$')
   host: str(required=False)
   port: regex('(^\d+$)',required=False)
   database: regex('(^\d+$)',required=False)
@@ -35,37 +35,37 @@ redis:
   reconnect: bool(required=False)
 ---
 sqlite:
-    name: regex('^sqlite$')
+    name: regex('^(?i)sqlite$')
     file: regex('(^\\\\?([^\\/]*[\\/])*)([^\\/]+)$',required=False)
     table: str(required=False)
 ---
 websocket:
-  name: regex('^websocket$')
+  name: regex('^(?i)websocket$')
   bot-name: str(required=False)
   max-connections: int(required=False)
   connection-timeout: int(required=False)
 ---
 shell:
-  name: regex('^shell$')
+  name: regex('^(?i)shell$')
   bot-name: str(required=False)
 ---
 ciscospark:
-    name: regex('^ciscospark$')
+    name: regex('^(?i)ciscospark$')
     webhook-url:  str()
     access-token: str()
 ---
 facebook:
-    name: regex('^facebook$')
+    name: regex('^(?i)facebook$')
     verify-token: str()
     page-access-token: str()
     bot-name: str(required=False)
 ---
 github:
-    name: regex('^github$')
+    name: regex('^(?i)github$')
     github-token: str(required=False)
 ---
 matrix:
-    name: regex('^matrix$')
+    name: regex('^(?i)matrix$')
     mxid: regex('^\@[a-zA-Z]*:matrix.org$')
     password: str()
     room: str()
@@ -80,7 +80,7 @@ room1:
   'other': regex('^#riot:matrix.org$')
 ---
  slack:
-   name: regex('^slack$')
+   name: regex('^(?i)slack$')
    api-token: str()
    bot-name: str(required=False)
    default-room: str(required=False)
@@ -88,14 +88,14 @@ room1:
    connect-timeout: int(required=False)
 ---
 telegram:
-    name: regex('^telegram$')
+    name: regex('^(?i)telegram$')
     token: str()
     update_interval: num(required=False)
     default_user: str(required=False)
     whitelisted_users: list(str(),str())
 ---
 twitter :
-    name: regex('^twitter$')
+    name: regex('^(?i)twitter$')
     consumer_key: str()
     consumer_secret: str()
     oauth_token: str()

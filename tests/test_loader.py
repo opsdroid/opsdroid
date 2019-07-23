@@ -62,6 +62,21 @@ class TestLoader(unittest.TestCase):
         )
         self.assertIsNotNone(config)
 
+    def test_load_config_broken_without_connectors(self):
+        opsdroid, loader = self.setup()
+        with self.assertRaises(SystemExit) as cm:
+            config = loader.load_config_file(
+                [os.path.abspath("tests/configs/broken_without_connectors.yaml")]
+            )
+        self.assertEqual(cm.exception.code, 1)
+
+    def test_load_config_valid_case_sensitivity(self):
+        opsdroid, loader = self.setup()
+        config = loader.load_config_file(
+            [os.path.abspath("tests/configs/valid_case_sensitivity.yaml")]
+        )
+        self.assertIsNotNone(config)
+
     def test_load_config_broken(self):
         opsdroid, loader = self.setup()
 
