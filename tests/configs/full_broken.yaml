@@ -15,14 +15,14 @@ connectors:
 
 databases:
   - name: mongo
-    host:       "my host"
-    port:       "12345"
-    database:   "mydatabase"
+    host: "my host"
+    port:  "12345"
+    database: "mydatabase"
 
   - name: redis
-    host:       "my host"
-    port:       "12345"
-    database:   "7"
+    host: "my host"
+    port:  "12345"
+    database: "7"
 
   - name: sqlite
     file: "my_file.db"

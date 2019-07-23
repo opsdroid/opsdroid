@@ -350,13 +350,14 @@ class Loader:
         yaml.SafeLoader.add_constructor("!include", include_constructor)
 
         try:
-            schema_path = os.path.abspath("opsdroid/configuration/schema.yaml")
-            schema = yamale.make_schema(schema_path)
-            data = yamale.make_data(config_path)
-            yamale.validate(schema, data)
             with open(config_path, "r") as stream:
                 _LOGGER.info(_("Loaded config from %s."), config_path)
+                schema_path = os.path.abspath("opsdroid/configuration/schema.yaml")
+                schema = yamale.make_schema(schema_path)
+                data = yamale.make_data(config_path)
+                yamale.validate(schema, data)
                 return yaml.safe_load(stream)
+
         except ValueError as error:
             _LOGGER.critical(error)
             sys.exit(1)
