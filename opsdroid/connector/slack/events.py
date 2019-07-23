@@ -74,13 +74,13 @@ class SlackEventCreator(events.EventCreator):
         self.message_events.update(
             {
                 "message": self.create_message,
-                "channel_topic": self.topic_changed
+                "channel_topic": self.topic_changed,
+                "channel_name": self.channel_name_changed
             }
         )
 
         # Things for managing room-level events
         self.event_types['channel_created'] = self.create_newroom
-        self.event_types['channel_rename'] = self.channel_name_changed
 
     async def create_room_message(self, event, channel):
         """Dispatch a message event of arbitrary subtype."""
@@ -144,8 +144,8 @@ class SlackEventCreator(events.EventCreator):
 
     async def channel_name_changed(self, event, channel):
         """Send a RoomName event"""
-        return events.RoomName(name=event['channel']['name'],
-                               target=channel['id'],
+        return events.RoomName(name=event['name'],
+                               target=channel,
                                connector=self.connector,
                                event_id=event['event_ts'],
                                raw_event=event)
