@@ -114,15 +114,14 @@ class OpsDroid:
     @staticmethod
     def handle_async_exception(loop, context):
         """Handle exceptions from async coroutines."""
+        print("ERROR: Unhandled exception in opsdroid, exiting...")
         if "future" in context:
             try:  # pragma: nocover
                 context["future"].result()
             # pylint: disable=broad-except
             except Exception:  # pragma: nocover
-                _LOGGER.exception(_("Caught exception"))
-        else:
-            _LOGGER.error(_("Caught exception"))
-        _LOGGER.error(context)
+                print("Caught exception")
+                print(context)
 
     def is_running(self):
         """Check whether opsdroid is running."""
