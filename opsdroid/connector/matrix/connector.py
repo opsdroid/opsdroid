@@ -114,7 +114,7 @@ class ConnectorMatrix(Connector):
             await self.opsdroid.parse(events.UserInvite(target=roomid,
                                                         user=sender,
                                                         connector=self,
-                                                        raw_event=room))
+                                                        raw_event=invite_event))
 
         for roomid, room in response["rooms"]["join"].items():
             if "timeline" in room:
