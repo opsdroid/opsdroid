@@ -15,7 +15,7 @@ class DatabaseMongo(Database):
         Set some basic properties from the database config such as the name
         of this database.
 
-        Args:
+        Attributes:
             config (dict): The config for this database specified in the
                            `configuration.yaml` file.
 
