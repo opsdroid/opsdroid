@@ -1,7 +1,7 @@
 PyGithub==1.43.8
 Jinja2==2.10.1
 Pygments==2.4.2
-docutils==0.15
+docutils==0.15.2
 mock==3.0.5
 pillow==6.1.0
 alabaster==0.7.12
