@@ -19,4 +19,4 @@ puremagic==1.5
 pycron==1.0.0
 pyyaml==5.1.2
 setuptools==41.0.1
-websockets==7.0
+websockets==8.0.2
