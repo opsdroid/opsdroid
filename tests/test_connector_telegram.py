@@ -286,6 +286,52 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
             self.assertTrue(mocked_respond.called)
             self.assertTrue(mocked_respond.called_with(message_text))
 
+    async def test_parse_message_emoji(self):
+        response = {
+            "result": [
+                {
+                    "update_id": 427647860,
+                    "message": {
+                        "message_id": 12,
+                        "from": {
+                            "id": 649671308,
+                            "is_bot": False,
+                            "first_name": "A",
+                            "last_name": "User",
+                            "username": "user",
+                            "language_code": "en-GB",
+                        },
+                        "chat": {
+                            "id": 649671308,
+                            "first_name": "A",
+                            "last_name": "User",
+                            "username": "user",
+                            "type": "private",
+                        },
+                        "date": 1538756863,
+                        "sticker": {
+                            "width": 512,
+                            "height": 512,
+                            "emoji": "😔",
+                            "set_name": "YourALF",
+                            "thumb": {
+                                "file_id": "AAQCABODB_MOAARYC8yRaPPoIIZBAAIC",
+                                "file_size": 8582,
+                                "width": 128,
+                                "height": 128,
+                            },
+                            "file_id": "CAADAgAD3QMAAsSraAu37DAtdiNpAgI",
+                            "file_size": 64720,
+                        },
+                    },
+                }
+            ]
+        }
+
+        with amock.patch("opsdroid.core.OpsDroid.parse"):
+            await self.connector._parse_message(response)
+            self.assertLogs("_LOGGER", "debug")
+
     async def test_get_messages(self):
         listen_response = amock.Mock()
         listen_response.status = 200
