@@ -7,6 +7,10 @@ import unittest
 import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock
+from aiohttp.helpers import TimerNoop
+from aiohttp.client_reqrep import ClientResponse, RequestInfo
+from yarl import URL
+
 
 
 from opsdroid.__main__ import configure_lang
@@ -53,7 +57,10 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
 
 
     async def test_parse_message(self):
-        self.connector.parse_message("{'text':'hello', 'fromUser':{'username':'testUSer'}}")
+        await self.connector.parse_message(b'{"text":"hello", "fromUser":{"username":"testUSer"}}')
+
+    async def test_parse_message_key_error(self):
+        await self.connector.parse_message(b'{"fromUser":{"username":"testUSer"}}')
 
     async def test_listen_loop(self):
         """Test that listening consumes from the socket."""
@@ -66,19 +73,25 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
             await connector.listen()
         self.assertTrue(connector._get_messages.called)
 
-
     async def test_get_message(self):
         """Test that listening consumes from the socket."""
+        async def iter_chuncked1(n=None):
+            response = [{'message':'hi'},{'message':'hi'}]
+            for doc in response:
+                yield doc
 
-        self.connector.parse_message  = amock.CoroutineMock()
-        self.connector.opsdroid.parse = amock.CoroutineMock()
-        parse_message = amock.patch("opsdroid.connector.gitter.ConnectorGitter.parse_message")
-        patch_iter                   =  amock.patch("aiohttp.ClientSession.get")
-        patch_iter.return_value      =  bytes("[{'message':'hi'},{'message':'hi'}]", 'utf-8')
-        parse_message.return_value   =   "hi"
-        self.connector._get_messages()
-        self.assertTrue(self.connector.parse_message.called)
-        self.assertTrue(self.connector.opsdroid.parse.called)
+        response1 = amock.CoroutineMock()
+        response1.content.iter_chunked = iter_chuncked1
+
+        connector = ConnectorGitter(
+            {"bot-name": "github", "room-id": "test-id", "access-token": "test-token"}, opsdroid=OpsDroid()
+        )
+        connector.parse_message  = amock.CoroutineMock()
+        connector.opsdroid.parse = amock.CoroutineMock()
+        connector.response = response1
+        assert await connector._get_messages() is None
+        self.assertTrue(connector.parse_message.called)
+        self.assertTrue(connector.opsdroid.parse.called)
 
 
     async def test_send_message_success(self):

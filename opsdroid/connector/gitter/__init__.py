@@ -58,19 +58,16 @@ class ConnectorGitter(Connector):
             except AttributeError:
                 break
 
-
     async def _get_messages(self):
         """Message listener."""
         await asyncio.sleep(self.update_interval)
         async for data in self.response.content.iter_chunked(1024):
-            print(data)
             message = await self.parse_message(data)
             if message is not None:
                 await self.opsdroid.parse(message)
 
     async def parse_message(self, message):
         """Parse response from gitter to send message."""
-
         message = message.decode('utf-8').rstrip("\r\n")
         if len(message) > 1:
             message = json.loads(message)
