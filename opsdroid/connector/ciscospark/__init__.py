@@ -1,3 +1,4 @@
+"""A connector for Cisco Spark."""
 import json
 import logging
 import uuid
@@ -14,8 +15,10 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class ConnectorCiscoSpark(Connector):
+    """A connector for Cisco Spark."""
+
     def __init__(self, config):
-        """Setup the connector."""
+        """Create a connector."""
         _LOGGER.debug("Starting cisco spark connector")
         self.name = "ciscospark"
         self.config = config
