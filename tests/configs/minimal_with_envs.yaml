@@ -1,1 +1,6 @@
-test: $ENVVAR
+
+connectors:
+  - name: $ENVVAR
+
+skills:
+  - name: hello
