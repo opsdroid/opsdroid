@@ -60,7 +60,8 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
         await self.connector.parse_message(b'{"text":"hello", "fromUser":{"username":"testUSer"}}')
 
     async def test_parse_message_key_error(self):
-        await self.connector.parse_message(b'{"fromUser":{"username":"testUSer"}}')
+        with self.assertRaises(KeyError) as raises:
+            await self.connector.parse_message(b'{"fromUser":{"username":"testUSer"}}')
 
     async def test_listen_loop(self):
         """Test that listening consumes from the socket."""
