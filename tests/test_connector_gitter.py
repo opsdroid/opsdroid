@@ -31,7 +31,7 @@ class TestConnectorGitter(unittest.TestCase):
         self.assertEqual("gitter", connector.name)
 
 
-class TestConnectorGitHubAsync(asynctest.TestCase):
+class TestConnectorGitterAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid github connector class."""
 
     def setUp(self):
