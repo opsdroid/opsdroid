@@ -131,7 +131,7 @@ class Loader:
     def is_builtin_module(config):
         """Check if a module is a builtin.
 
-         Args:
+        Args:
             config: dict of config information related to the module
 
         Returns:

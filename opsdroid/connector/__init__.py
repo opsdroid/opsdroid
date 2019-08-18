@@ -19,7 +19,8 @@ def register_event(event_type, include_subclasses=False):
     Register a method to handle a specific `opsdroid.events.Event` object.
 
     Args:
-        event (Event): The event class this method can handle.
+        event_type (Event): The event class this method can handle.
+
     """
 
     def decorator(func):
