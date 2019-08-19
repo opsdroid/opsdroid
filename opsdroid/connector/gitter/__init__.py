@@ -23,7 +23,7 @@ class ConnectorGitter(Connector):
         self.name = "gitter"
         self.session = None
         self.response = None
-        self.bot_name = self.config.get("bot-name", 'opsdroid')
+        self.bot_name = self.config.get("bot-name", "opsdroid")
         self.room_id = self.config.get("room-id")
         self.access_token = self.config.get("access-token")
         self.update_interval = 1
@@ -36,7 +36,12 @@ class ConnectorGitter(Connector):
         # Create connection object with chat library
         _LOGGER.debug("Connecting with gitter stream")
         self.session = aiohttp.ClientSession()
-        gitter_url = self.build_url(GITTER_STREAM_API, self.room_id, "chatMessages", access_token=self.access_token)
+        gitter_url = self.build_url(
+            GITTER_STREAM_API,
+            self.room_id,
+            "chatMessages",
+            access_token=self.access_token,
+        )
         self.response = await self.session.get(gitter_url, timeout=None)
 
     def build_url(self, base_url, *res, **params):
@@ -44,9 +49,9 @@ class ConnectorGitter(Connector):
 
         url = base_url
         for r in res:
-            url = '{}/{}'.format(url, r)
+            url = "{}/{}".format(url, r)
         if params:
-            url = '{}?{}'.format(url, urllib.parse.urlencode(params))
+            url = "{}?{}".format(url, urllib.parse.urlencode(params))
         return url
 
     async def listen(self):
@@ -68,16 +73,14 @@ class ConnectorGitter(Connector):
 
     async def parse_message(self, message):
         """Parse response from gitter to send message."""
-        message = message.decode('utf-8').rstrip("\r\n")
+        message = message.decode("utf-8").rstrip("\r\n")
         if len(message) > 1:
             message = json.loads(message)
             _LOGGER.debug(message)
             try:
                 return Message(
-                    message["text"],
-                    message["fromUser"]["username"],
-                    self.room_id,
-                    self)
+                    message["text"], message["fromUser"]["username"], self.room_id, self
+                )
             except KeyError as err:
                 _LOGGER.error("Unable to parse message %s", message)
                 _LOGGER.debug(err.with_traceback())
@@ -87,9 +90,12 @@ class ConnectorGitter(Connector):
         """Recived parsed message and send it back to gitter room."""
         # Send message.text back to the chat service
         url = self.build_url(GITTER_MESSAGE_BASE_API, message.target, "chatMessages")
-        headers = {'Authorization': 'Bearer ' + self.access_token, 'Content-Type': 'application/json',
-                   'Accept': 'application/json'}
-        payload = {'text': message.text}
+        headers = {
+            "Authorization": "Bearer " + self.access_token,
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        }
+        payload = {"text": message.text}
         resp = await self.session.post(url, json=payload, headers=headers)
         if resp.status == 200:
             _LOGGER.info("Successfully responded")
