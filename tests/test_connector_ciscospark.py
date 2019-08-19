@@ -31,6 +31,7 @@ class TestConnectorCiscoSpark(unittest.TestCase):
         with self.assertRaises(TypeError):
             ConnectorCiscoSpark()
 
+
 class TestConnectorCiscoSparkAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid Cisco Spark connector class."""
 
@@ -54,3 +55,43 @@ class TestConnectorCiscoSparkAsync(asynctest.TestCase):
         self.assertTrue(connector.clean_up_webhooks.called)
         self.assertTrue(connector.subscribe_to_rooms.called)
         self.assertTrue(connector.set_own_id.called)
+
+    async def test_connect_fail_keyerror(self):
+        connector = ConnectorCiscoSpark({})
+        connector.clean_up_webhooks = amock.CoroutineMock()
+        connector.subscribe_to_rooms = amock.CoroutineMock()
+        connector.set_own_id = amock.CoroutineMock()
+        await connector.connect(opsdroid=OpsDroid())
+        self.assertLogs("_LOGGER", "error")
+
+    async def test_respond(self):
+        connector = ConnectorCiscoSpark({"access-token": "abc123"})
+        connector.api = amock.CoroutineMock()
+        connector.api.messages.create = amock.CoroutineMock()
+        message = amock.CoroutineMock()
+        message.room.return_value = {"id": "3vABZrQgDzfcz7LZi"}
+        message.text.return_value = "Hello"
+        await connector.respond(message)
+        self.assertTrue(connector.api.messages.create.called)
+
+    async def test_get_person(self):
+        connector = ConnectorCiscoSpark({"access-token": "abc123"})
+        connector.api = amock.CoroutineMock()
+        connector.api.messages.create = amock.CoroutineMock()
+        connector.api.people.get = amock.CoroutineMock()
+        connector.api.people.get.return_value = "Himanshu"
+        self.assertEqual(len(connector.people), 0)
+        await connector.get_person("3vABZrQgDzfcz7LZi")
+        self.assertEqual(len(connector.people), 1)
+
+    async def test_subscribe_to_rooms(self):
+        connector = ConnectorCiscoSpark(
+            {"access-token": "abc123", "webhook-url": "http:\\127.0.0.1"}
+        )
+        connector.api = amock.CoroutineMock()
+        connector.opsdroid = amock.CoroutineMock()
+        connector.opsdroid.web_server.web_app.router.add_post = amock.CoroutineMock()
+        connector.api.webhooks.create = amock.CoroutineMock()
+        await connector.subscribe_to_rooms()
+        self.assertTrue(connector.api.webhooks.create.called)
+        self.assertTrue(connector.opsdroid.web_server.web_app.router.add_post.called)
