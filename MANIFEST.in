@@ -7,3 +7,4 @@ include opsdroid/configuration/example_configuration.yaml
 recursive-exclude * *.py[co]
 include versioneer.py
 include opsdroid/_version.py
+include opsdroid/configuration/schema.yaml
