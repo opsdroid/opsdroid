@@ -56,6 +56,43 @@ class TestConnectorCiscoSparkAsync(asynctest.TestCase):
         self.assertTrue(connector.subscribe_to_rooms.called)
         self.assertTrue(connector.set_own_id.called)
 
+    async def test_message_handler(self):
+        connector = ConnectorCiscoSpark({"access-token": "abc123"})
+        connector.opsdroid = OpsDroid()
+        connector.bot_spark_id = "spark123"
+        connector.api = amock.CoroutineMock()
+        request = amock.Mock()
+        request.json = amock.CoroutineMock()
+        request.json.return_value = {
+            "data": {"id": "3vABZrQgDzfcz7LZi", "personId": "21ABZrQgDzfcz7Lsi"}
+        }
+        message = amock.Mock()
+        connector.api.messages.get = amock.Mock()
+        message.text = "Hello"
+        message.roomId = "90ABCrWgrzfcz7LZi"
+        message.roomType = "general"
+        connector.api.messages.get.return_value = message
+        connector.get_person = amock.CoroutineMock()
+        person = amock.CoroutineMock()
+        person.displayName = "Himanshu"
+        connector.get_person.return_value = person
+
+        response = await connector.ciscospark_message_handler(request)
+        self.assertLogs("_LOGGER", "debug")
+        self.assertEqual(201, response.status)
+        self.assertEqual('"Received"', response.text)
+        self.assertTrue(connector.api.messages.get.called)
+        self.assertTrue(connector.get_person.called)
+
+        connector.opsdroid = amock.CoroutineMock()
+
+        def error(connector):
+            raise KeyError
+
+        connector.opsdroid.parse = error
+        await connector.ciscospark_message_handler(request)
+        self.assertLogs("_LOGGER", "error")
+
     async def test_connect_fail_keyerror(self):
         connector = ConnectorCiscoSpark({})
         connector.clean_up_webhooks = amock.CoroutineMock()
@@ -63,6 +100,17 @@ class TestConnectorCiscoSparkAsync(asynctest.TestCase):
         connector.set_own_id = amock.CoroutineMock()
         await connector.connect(opsdroid=OpsDroid())
         self.assertLogs("_LOGGER", "error")
+
+    async def test_listen(self):
+        """Test the listen method.
+
+        The Ciscospark connector listens using an API endoint and so the listen
+        method should just pass and do nothing. We just need to test that it
+        does not block.
+
+        """
+        connector = ConnectorCiscoSpark({})
+        self.assertEqual(await connector.listen(opsdroid=OpsDroid()), None)
 
     async def test_respond(self):
         connector = ConnectorCiscoSpark({"access-token": "abc123"})
@@ -95,3 +143,22 @@ class TestConnectorCiscoSparkAsync(asynctest.TestCase):
         await connector.subscribe_to_rooms()
         self.assertTrue(connector.api.webhooks.create.called)
         self.assertTrue(connector.opsdroid.web_server.web_app.router.add_post.called)
+
+    async def test_clean_up_webhooks(self):
+        connector = ConnectorCiscoSpark({"access-token": "abc123"})
+        connector.api = amock.CoroutineMock()
+        x = amock.CoroutineMock()
+        x.id = amock.CoroutineMock()
+        connector.api.webhooks.list = amock.Mock()
+        connector.api.webhooks.list.return_value = [x, x]
+        connector.api.webhooks.delete = amock.Mock()
+        await connector.clean_up_webhooks()
+        self.assertTrue(connector.api.webhooks.list.called)
+        self.assertTrue(connector.api.webhooks.delete.called)
+
+    async def test_set_own_id(self):
+        connector = ConnectorCiscoSpark({"access-token": "abc123"})
+        connector.api = amock.CoroutineMock()
+        connector.api.people.me().id = "3vABZrQgDzfcz7LZi"
+        await connector.set_own_id()
+        self.assertTrue(connector.bot_spark_id, "3vABZrQgDzfcz7LZi")
