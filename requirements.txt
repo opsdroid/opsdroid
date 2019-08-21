@@ -21,5 +21,4 @@ pyyaml==5.1.2
 setuptools==41.2.0
 websockets==8.0.2
 yamale==2.0
-yamale==1.10.0
 ciscosparkapi==0.7
