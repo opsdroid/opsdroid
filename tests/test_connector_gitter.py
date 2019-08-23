@@ -83,6 +83,17 @@ class TestConnectorGitterAsync(asynctest.TestCase):
             await connector.listen()
         self.assertTrue(connector._get_messages.called)
 
+    async def test_listen_break_loop(self):
+        """Test that listening consumes from the socket."""
+        connector = connector = ConnectorGitter(
+            {"bot-name": "github", "room-id": "test-id", "access-token": "test-token"},
+            opsdroid=OpsDroid(),
+        )
+        connector._get_messages = amock.CoroutineMock()
+        connector._get_messages.side_effect = AttributeError
+        await connector.listen()
+        self.assertTrue(connector._get_messages.called)
+
     async def test_get_message(self):
         """Test that listening consumes from the socket."""
 
