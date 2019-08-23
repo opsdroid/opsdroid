@@ -71,7 +71,6 @@ class TestConnectorGitterAsync(asynctest.TestCase):
         await self.connector.parse_message(b'{"text":"hello"}')
         self.assertLogs("_LOGGER", level="ERROR")
 
-
     async def test_listen_loop(self):
         """Test that listening consumes from the socket."""
         connector = ConnectorGitter(
