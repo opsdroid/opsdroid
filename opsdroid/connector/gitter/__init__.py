@@ -82,8 +82,8 @@ class ConnectorGitter(Connector):
                     message["text"], message["fromUser"]["username"], self.room_id, self
                 )
             except KeyError as err:
-                _LOGGER.error("Unable to parse message %s", message)
-                _LOGGER.debug(err.with_traceback())
+                _LOGGER.error("Unable to parse message %s", err)
+                _LOGGER.error(err)
 
     @register_event(Message)
     async def send_message(self, message):
