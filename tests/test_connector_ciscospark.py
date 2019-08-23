@@ -85,11 +85,8 @@ class TestConnectorCiscoSparkAsync(asynctest.TestCase):
         self.assertTrue(connector.get_person.called)
 
         connector.opsdroid = amock.CoroutineMock()
-
-        def error(connector):
-            raise KeyError
-
-        connector.opsdroid.parse = error
+        connector.opsdroid.parse = amock.CoroutineMock()
+        connector.opsdroid.parse.side_effect = KeyError
         await connector.ciscospark_message_handler(request)
         self.assertLogs("_LOGGER", "error")
 
