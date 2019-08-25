@@ -14,10 +14,10 @@
 ## A default config file to use with opsdroid
 
 ## Set the logging level
-#logging:
-#  level: debug
-#  path: opsdroid.log
-#  console: true
+# logging:
+#   level: info
+#   path: opsdroid.log
+#   console: true
 
 ## Set the location for opsdroid to install modules
 # module-path: "."
@@ -25,16 +25,16 @@
 ## Show welcome message
 welcome-message: true
 
-# Configure the web server
-#web:
-#  host: '127.0.0.1'
-#  port: 8080
+## Configure the web server
+# web:
+#   host: '127.0.0.1'
+#   port: 8080
 #   ssl:
 #     cert: /path/to/cert.pem
 #     key: /path/to/key.pem
 
 ## Parsers
-#parsers:
+# parsers:
 #
 #  ## Dialogflow (http://opsdroid.readthedocs.io/en/stable/matchers/dialogflow)
 #  - name: dialogflow
@@ -53,7 +53,7 @@ welcome-message: true
 #    access-token: 85769fjoso084jd
 #    min-score: 0.8
 #
-  ## Regex (http://opsdroid.readthedocs.io/en/stable/matchers/regex)
+#  ## Regex (http://opsdroid.readthedocs.io/en/stable/matchers/regex)
 #  - name: regex
 #    enabled: true
 #
