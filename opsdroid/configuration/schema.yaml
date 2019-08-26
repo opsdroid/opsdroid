@@ -9,7 +9,8 @@ connectors:
   include('matrix',required=False),
   include('slack',required=False),
   include('telegram',required=False),
-  include('twitter',required=False))
+  include('twitter',required=False),
+  include('gitter',required=False))
 
 databases:
   list(include('mongo', required=False),
@@ -102,6 +103,12 @@ twitter :
     oauth_token_secret: str()
     enable_dms: bool(required=False)
     enable_tweets: bool(required=False)
+---
+gitter :
+    name: regex('^(?i)gitter')
+    bot-name: str(required=False)
+    room-id: str()
+    access-token: str()
 ---
 skill:
     name : str()
