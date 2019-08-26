@@ -86,6 +86,12 @@ pip install black
 
 _Note: You need to be running Python 3.6.0+ to have Black running._
 
+You also need to install [pre-commit](https://pre-commit.com) to have Black check your code and work on each git commit.
+
+```shell
+pip install pre-commit
+```
+
 ### Using Black
 
 Black will be triggered when you commit changes with the command `git commit`. You then can check your terminal and check what sort of message you get from Black - either all is good or some files would be formatted.
