@@ -83,6 +83,11 @@ connectors:
     max-connections: 10 # default is 10 users can be connected at once
     connection-timeout: 10 # default 10 seconds before requested socket times out
 
+#  - name: gitter
+#    # optional
+#    bot-name: "mr.boot" # default "opsdroid"
+#    room-id: "to be added"
+#    access-token: "to be added"
 ### Uncomment the connector(s) that you wish opsdroid to work on
 #
 #  - name: shell

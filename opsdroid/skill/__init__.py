@@ -25,6 +25,7 @@ class Skill:
             opsdroid (OpsDroid): The running opsdroid instance pointer.
             config (dict): The config for this database specified in the
                            `configuration.yaml` file.
+
         """
         super().__init__()
 

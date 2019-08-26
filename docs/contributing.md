@@ -72,6 +72,63 @@ Running the tests
 docker run --rm -ti -v $(pwd):/usr/src/app opsdroid/opsdroid:myfeature tox
 ```
 
+## Automatic Linting with Black
+
+Opsdroid is running black to deal with linting issues and it will be triggered when Travis runs our tests automatically. You can install back on your machine and have it correct any linting issues that you might have.
+
+### Install Black
+
+Run the following command to install black on your machine.
+
+```shell
+pip install black
+```
+
+_Note: You need to be running Python 3.6.0+ to have Black running._
+
+You also need to have [pre-commit](https://pre-commit.com) installed and set up to have Black check your code and work on each git commit. If you followed the instructions on running the tests earlier on on [Developing](#developing), you should have pre-commit set up already, if not please do it now.
+
+
+### Using Black
+
+Black will be triggered when you commit changes with the command `git commit`. You then can check your terminal and check what sort of message you get from Black - either all is good or some files would be formatted.
+
+*Example of issues with linting*
+
+Let's imagine that you have added your files to stating and did `git commit -m 'my awesome feature` black will run on your terminal and show you something like this:
+
+```bash
+lint run-test-pre: PYTHONHASHSEED='4023478313'
+lint run-test: commands[0] | flake8 --builtins=_ opsdroid
+lint run-test: commands[1] | pydocstyle opsdroid tests
+lint run-test: commands[2] | black --check opsdroid tests scripts setup.py versioneer.py
+would reformat /home/travis/build/opsdroid/opsdroid/tests/test_connector_ciscospark.py
+All done! 💥 💔 💥
+1 file would be reformatted, 87 files would be left unchanged.
+ERROR: InvocationError for command /home/travis/build/opsdroid/opsdroid/.tox/lint/bin/black --check opsdroid tests scripts setup.py versioneer.py (exited with code 1)
+```
+
+As you can see black tells you that found some issues with linting on 1 file and since it reformats your code to fix the linting issues, it tells you that the file would be reformatted.
+
+Black will change your file and if you go `git status` you will see that your file was modified. You just need to add the files to stating again and commit them with the previous commit message. Afterwards, you can push the changes to your repository/PR.
+
+*Example of good linting*
+If your linting is good when you commit your changes you will see the following message:
+
+```bash
+lint run-test-pre: PYTHONHASHSEED='3517441289'
+lint run-test: commands[0] | flake8 --builtins=_ opsdroid
+lint run-test: commands[1] | pydocstyle opsdroid tests
+lint run-test: commands[2] | black --check opsdroid tests scripts setup.py versioneer.py
+All done! ✨ 🍰 ✨
+88 files would be left unchanged.
+___________________________________ summary ____________________________________
+lint: commands succeeded
+congratulations :)
+```
+
+This tells you that your linting is good and you can push these changes to Github.
+
 ## Documentation
 More documentation is always appreciated and it's something that you can contribute to from the GitHub web interface.  This might be a great start point if you are new to Open Source and GitHub!
 

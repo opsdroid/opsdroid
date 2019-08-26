@@ -102,3 +102,5 @@ ENV/
 .vscode/
 .idea/
 site/
+Pipfile
+Pipfile.lock
