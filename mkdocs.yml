@@ -26,7 +26,7 @@ pages:
       - 'Telegram': 'connectors/telegram.md'
       - 'Rocket.Chat': 'connectors/rocketchat.md'
       - 'Matrix': 'connectors/matrix.md'
-      - 'CiscoSpark': 'connectors/ciscospark.md'
+      - 'WebexTeams': 'connectors/webexteams.md'
   - 'Databases':
       - 'MongoDB': 'databases/mongo.md'
       - 'SQLite': 'databases/sqlite.md'
