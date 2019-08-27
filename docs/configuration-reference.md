@@ -101,7 +101,7 @@ The built-in connectors are:
 - [Slack](/connectors/slack.md)
 - [Telegram](/connectors/telegram.md)
 - [Websockets](/connectors/websocket.md)
-- [WebexTeams](/connectors/webexteams.md)
+- [Webex Teams](/connectors/webexteams.md)
 
 _Note: More connectors will be added as built-in connectors into the opsdroid over time._
 

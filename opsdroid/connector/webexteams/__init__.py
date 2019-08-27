@@ -25,7 +25,7 @@ class ConnectorWebexTeams(Connector):
         self.opsdroid = None
         self.default_room = None
         self.bot_name = config.get("bot-name", "opsdroid")
-        self.bot_spark_id = None
+        self.bot_webex_id = None
         self.secret = uuid.uuid4().hex
         self.people = {}
 
@@ -43,7 +43,7 @@ class ConnectorWebexTeams(Connector):
         await self.set_own_id()
 
     async def webexteams_message_handler(self, request):
-        """Handle webhooks from the Cisco api."""
+        """Handle webhooks from the Webex Teams api."""
         _LOGGER.debug("Handling message from Webex Teams")
         req_data = await request.json()
 
@@ -75,7 +75,7 @@ class ConnectorWebexTeams(Connector):
     async def subscribe_to_rooms(self):
         """Create webhooks for all rooms."""
         _LOGGER.debug("Creating Webex Teams webhook")
-        webhook_endpoint = "/connector/ciscospark"
+        webhook_endpoint = "/connector/webexteams"
         self.opsdroid.web_server.web_app.router.add_post(
             webhook_endpoint, self.webexteams_message_handler
         )
@@ -96,7 +96,7 @@ class ConnectorWebexTeams(Connector):
 
     async def set_own_id(self):
         """Get the bot id and set it in the class."""
-        self.bot_spark_id = self.api.people.me().id
+        self.bot_webex_id = self.api.people.me().id
 
     async def listen(self, opsdroid):
         """Listen for and parse new messages."""

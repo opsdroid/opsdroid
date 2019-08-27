@@ -1,4 +1,4 @@
-"""Tests for the ConnectorWebexTeams class."""
+"""Tests for the Connector Webex Teams class."""
 import asyncio
 
 import unittest
@@ -131,7 +131,7 @@ class TestConnectorCiscoSparkAsync(asynctest.TestCase):
 
     async def test_subscribe_to_rooms(self):
         connector = ConnectorWebexTeams(
-            {"access-token": "abc123", "webhook-url": "http:\\127.0.0.1"}
+            {"access-token": "abc123", "webhook-url": "http://127.0.0.1"}
         )
         connector.api = amock.CoroutineMock()
         connector.opsdroid = amock.CoroutineMock()
@@ -158,4 +158,4 @@ class TestConnectorCiscoSparkAsync(asynctest.TestCase):
         connector.api = amock.CoroutineMock()
         connector.api.people.me().id = "3vABZrQgDzfcz7LZi"
         await connector.set_own_id()
-        self.assertTrue(connector.bot_spark_id, "3vABZrQgDzfcz7LZi")
+        self.assertTrue(connector.bot_webex_id, "3vABZrQgDzfcz7LZi")
