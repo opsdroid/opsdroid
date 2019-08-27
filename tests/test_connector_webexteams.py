@@ -1,4 +1,4 @@
-"""Tests for the ConnectorSlack class."""
+"""Tests for the ConnectorWebexTeams class."""
 import asyncio
 
 import unittest
@@ -77,7 +77,7 @@ class TestConnectorCiscoSparkAsync(asynctest.TestCase):
         person.displayName = "Himanshu"
         connector.get_person.return_value = person
 
-        response = await connector.ciscospark_message_handler(request)
+        response = await connector.webexteams_message_handler(request)
         self.assertLogs("_LOGGER", "debug")
         self.assertEqual(201, response.status)
         self.assertEqual('"Received"', response.text)
@@ -87,7 +87,7 @@ class TestConnectorCiscoSparkAsync(asynctest.TestCase):
         connector.opsdroid = amock.CoroutineMock()
         connector.opsdroid.parse = amock.CoroutineMock()
         connector.opsdroid.parse.side_effect = KeyError
-        await connector.ciscospark_message_handler(request)
+        await connector.webexteams_message_handler(request)
         self.assertLogs("_LOGGER", "error")
 
     async def test_connect_fail_keyerror(self):

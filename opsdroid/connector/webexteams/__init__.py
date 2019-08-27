@@ -1,4 +1,4 @@
-"""A connector for Cisco Spark."""
+"""A connector for Webex Teams."""
 import json
 import logging
 import uuid
@@ -15,11 +15,11 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class ConnectorWebexTeams(Connector):
-    """A connector for Cisco Spark."""
+    """A connector for Webex Teams."""
 
     def __init__(self, config):
         """Create a connector."""
-        _LOGGER.debug("Starting cisco spark connector")
+        _LOGGER.debug("Starting webex teams connector")
         self.name = "webexteams"
         self.config = config
         self.opsdroid = None
@@ -35,16 +35,16 @@ class ConnectorWebexTeams(Connector):
         try:
             self.api = CiscoSparkAPI(access_token=self.config["access-token"])
         except KeyError:
-            _LOGGER.error("Must set accesst-token for cisco spark connector!")
+            _LOGGER.error("Must set accesst-token for webex teams connector!")
             return
 
         await self.clean_up_webhooks()
         await self.subscribe_to_rooms()
         await self.set_own_id()
 
-    async def ciscospark_message_handler(self, request):
+    async def webexteams_message_handler(self, request):
         """Handle webhooks from the Cisco api."""
-        _LOGGER.debug("Handling message from Cisco Spark")
+        _LOGGER.debug("Handling message from Webex Teams")
         req_data = await request.json()
 
         _LOGGER.debug(req_data)
@@ -77,7 +77,7 @@ class ConnectorWebexTeams(Connector):
         _LOGGER.debug("Creating Webex Teams webhook")
         webhook_endpoint = "/connector/ciscospark"
         self.opsdroid.web_server.web_app.router.add_post(
-            webhook_endpoint, self.ciscospark_message_handler
+            webhook_endpoint, self.webexteams_message_handler
         )
 
         self.api.webhooks.create(
