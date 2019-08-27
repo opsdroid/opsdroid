@@ -14,13 +14,13 @@ from opsdroid.message import Message
 _LOGGER = logging.getLogger(__name__)
 
 
-class ConnectorCiscoSpark(Connector):
+class ConnectorWebexTeams(Connector):
     """A connector for Cisco Spark."""
 
     def __init__(self, config):
         """Create a connector."""
         _LOGGER.debug("Starting cisco spark connector")
-        self.name = "ciscospark"
+        self.name = "webexteams"
         self.config = config
         self.opsdroid = None
         self.default_room = None
@@ -74,7 +74,7 @@ class ConnectorCiscoSpark(Connector):
 
     async def subscribe_to_rooms(self):
         """Create webhooks for all rooms."""
-        _LOGGER.debug("Creating Cisco Spark webhook")
+        _LOGGER.debug("Creating Webex Teams webhook")
         webhook_endpoint = "/connector/ciscospark"
         self.opsdroid.web_server.web_app.router.add_post(
             webhook_endpoint, self.ciscospark_message_handler

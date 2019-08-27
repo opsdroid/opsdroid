@@ -1,12 +1,12 @@
-# opsdroid connector cisco spark
+# opsdroid connector webex teams
 
-A connector for [opsdroid](https://github.com/opsdroid/opsdroid) to interact with [Cisco Spark](https://www.ciscospark.com/).
-
+A connector for [opsdroid](https://github.com/opsdroid/opsdroid) to interact with [Webex Teams](https://www.webex.com/team-collaboration.html).
+##### Note: Webex Teams was used to be called cisco spark. We changed cisco spark connector to webex teams connector 
 ## Usage
 
 **This connector requires that the opsdroid web server is internet facing.**
 
- - Visit https://developer.ciscospark.com and log in
+ - Visit https://developer.webex.com/ and log in
  - Go to "My Apps"
  - Click the plus button to create a new app and select "Create a Bot"
  - Fill in the details and click "Add Bot"
@@ -16,7 +16,7 @@ A connector for [opsdroid](https://github.com/opsdroid/opsdroid) to interact wit
 
 ```yaml
 connectors:
-  - name: ciscospark
+  - name: webexteams
     # required
     webhook-url: http(s)://<host>:<port>  # Url for Spark to connect to your bot
     access-token: <your bot access token>  # Your access token
