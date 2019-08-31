@@ -1,4 +1,4 @@
-# Dialogflow Matcher (previously Api.ai)
+# Dialogflow Matcher
 
 ## Configuring opsdroid
 
