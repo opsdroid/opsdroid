@@ -371,8 +371,6 @@ class TestCoreAsync(asynctest.TestCase):
                 tasks = await opsdroid.parse(message)
                 self.assertEqual(len(tasks), 1)
 
-                # Once apiai parser stops working, remove this test!
-                opsdroid.config["parsers"] = [{"name": "apiai"}]
                 tasks = await opsdroid.parse(message)
                 self.assertLogs("_LOGGER", "warning")
 
