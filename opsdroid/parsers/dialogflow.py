@@ -1,9 +1,7 @@
 """A helper function for parsing and executing Dialogflow skills."""
 
 import logging
-import json
 
-import aiohttp
 import dialogflow
 
 from opsdroid.const import DEFAULT_LANGUAGE
@@ -30,7 +28,6 @@ async def parse_dialogflow(opsdroid, skills, message, config):
     """Parse a message against all Dialogflow skills."""
     try:
         result = await call_dialogflow(message.text, config)
-        _LOGGER.info(dict(result))
 
         matched_skills = []
         if (
