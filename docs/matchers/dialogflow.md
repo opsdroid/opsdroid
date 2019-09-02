@@ -8,7 +8,7 @@ Once you have your JSON file, you will need to place this file somewhere safe an
 
 ## Configuring opsdroid
 
-To use Dialogflow with opsdroid, you need to add it to your parsers list and set the correct authentication method as mentioned above.
+To use Dialogflow with opsdroid, you need to add it to your parsers list along with your project-id and set the correct authentication method as mentioned above.
 
 You can also set a `min-score` option to tell opsdroid to ignore any matches which score less than a given number between 0 and 1. The default for this is 0 which will match all messages.
 
@@ -16,6 +16,7 @@ You can also set a `min-score` option to tell opsdroid to ignore any matches whi
 
 parsers:
   - name: dialogflow
+    project-id: <your project id>  # Required
     min-score: 0.6 # optional
 ```
 
