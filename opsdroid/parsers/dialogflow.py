@@ -13,7 +13,7 @@ _LOGGER = logging.getLogger(__name__)
 async def call_dialogflow(text, config):
     """Call the Dialogflow api and return the response."""
 
-    if os.environ["GOOGLE_APPLICATION_CREDENTIALS"]:
+    if os.environ["GOOGLE_APPLICATION_CREDENTIALS"] and config.get("project-id"):
         session_client = dialogflow.SessionsClient()
         project_id = config.get("project-id")
 
