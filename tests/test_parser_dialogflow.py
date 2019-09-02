@@ -42,23 +42,21 @@ class TestParserDialogflow(asynctest.TestCase):
 
         result = amock.Mock()
         result.json = amock.CoroutineMock()
-        result.json.return_value = (
-            {
-                "query_result": {
-                    "query_text": "what is up",
-                    "action": "smalltalk.greetings.whatsup",
-                    "parameters": {},
-                    "all_required_params_present": True,
-                    "fulfillment_text": "Not much. What's new with you?",
-                    "fulfillment_messages": {
-                        "text": {"text": "Not much. What's new with you?"}
-                    },
-                    "intent": {},
-                    "intent_detection_confidence": 1.0,
-                    "language_code": "en",
-                }
-            },
-        )
+        result.json.return_value = {
+            "query_result": {
+                "query_text": "what is up",
+                "action": "smalltalk.greetings.whatsup",
+                "parameters": {},
+                "all_required_params_present": True,
+                "fulfillment_text": "Not much. What's new with you?",
+                "fulfillment_messages": {
+                    "text": {"text": "Not much. What's new with you?"}
+                },
+                "intent": {},
+                "intent_detection_confidence": 1.0,
+                "language_code": "en",
+            }
+        }
         with amock.patch("dialogflow.SessionsClient") as patched_request, amock.patch(
             "dialogflow.types.TextInput"
         ) as mocked_input, amock.patch(
@@ -99,23 +97,21 @@ class TestParserDialogflow(asynctest.TestCase):
             with amock.patch.object(
                 dialogflow, "call_dialogflow"
             ) as mocked_call_dialogflow:
-                mocked_call_dialogflow.return_value = (
-                    {
-                        "query_result": {
-                            "query_text": "what is up",
-                            "action": "smalltalk.greetings.whatsup",
-                            "parameters": {},
-                            "all_required_params_present": True,
-                            "fulfillment_text": "Not much. What's new with you?",
-                            "fulfillment_messages": {
-                                "text": {"text": "Not much. What's new with you?"}
-                            },
-                            "intent": {},
-                            "intent_detection_confidence": 1.0,
-                            "language_code": "en",
-                        }
-                    },
-                )
+                mocked_call_dialogflow.return_value = {
+                    "query_result": {
+                        "query_text": "what is up",
+                        "action": "smalltalk.greetings.whatsup",
+                        "parameters": {},
+                        "all_required_params_present": True,
+                        "fulfillment_text": "Not much. What's new with you?",
+                        "fulfillment_messages": {
+                            "text": {"text": "Not much. What's new with you?"}
+                        },
+                        "intent": {},
+                        "intent_detection_confidence": 1.0,
+                        "language_code": "en",
+                    }
+                }
                 skills = await dialogflow.parse_dialogflow(
                     opsdroid, opsdroid.skills, message, opsdroid.config["parsers"][0]
                 )
@@ -137,23 +133,21 @@ class TestParserDialogflow(asynctest.TestCase):
             with amock.patch.object(
                 dialogflow, "call_dialogflow"
             ) as mocked_call_dialogflow:
-                mocked_call_dialogflow.return_value = (
-                    {
-                        "query_result": {
-                            "query_text": "what is up",
-                            "action": "smalltalk.greetings.whatsup",
-                            "parameters": {},
-                            "all_required_params_present": True,
-                            "fulfillment_text": "Not much. What's new with you?",
-                            "fulfillment_messages": {
-                                "text": {"text": "Not much. What's new with you?"}
-                            },
-                            "intent": {},
-                            "intent_detection_confidence": 0.5,
-                            "language_code": "en",
-                        }
-                    },
-                )
+                mocked_call_dialogflow.return_value = {
+                    "query_result": {
+                        "query_text": "what is up",
+                        "action": "smalltalk.greetings.whatsup",
+                        "parameters": {},
+                        "all_required_params_present": True,
+                        "fulfillment_text": "Not much. What's new with you?",
+                        "fulfillment_messages": {
+                            "text": {"text": "Not much. What's new with you?"}
+                        },
+                        "intent": {},
+                        "intent_detection_confidence": 0.5,
+                        "language_code": "en",
+                    }
+                }
                 await dialogflow.parse_dialogflow(
                     opsdroid, opsdroid.skills, message, opsdroid.config["parsers"][0]
                 )
