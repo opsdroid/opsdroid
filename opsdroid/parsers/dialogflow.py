@@ -47,7 +47,6 @@ async def parse_dialogflow(opsdroid, skills, message, config):
             return matched_skills
 
         if result:
-
             for skill in skills:
                 for matcher in skill.matchers:
 

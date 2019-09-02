@@ -361,7 +361,7 @@ class TestCoreAsync(asynctest.TestCase):
 
     async def test_parse_dialogflow(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config["parsers"] = [{"name": "dialogflow"}]
+            opsdroid.config["parsers"] = [{"name": "dialogflow", "project-id": "test"}]
             dialogflow_action = ""
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
