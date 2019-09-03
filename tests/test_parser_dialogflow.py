@@ -2,8 +2,7 @@ import os
 import asyncio
 import asynctest
 import asynctest.mock as amock
-
-import dialogflow
+from unittest import mock
 
 from opsdroid.__main__ import configure_lang
 from opsdroid.core import OpsDroid
@@ -89,7 +88,9 @@ class TestParserDialogflow(asynctest.TestCase):
             opsdroid.config["parsers"] = [{"name": "dialogflow", "project-id": "test"}]
             mock_skill = await self.getMockSkill()
             mock_skill.config = {"name": "greetings"}
-            opsdroid.skills.append(match_dialogflow_action("myaction")(mock_skill))
+            opsdroid.skills.append(
+                match_dialogflow_action("smalltalk.greetings.whatsup")(mock_skill)
+            )
 
             mock_connector = amock.CoroutineMock()
             message = Message("Hello world", "user", "default", mock_connector)
@@ -97,29 +98,22 @@ class TestParserDialogflow(asynctest.TestCase):
             with amock.patch.object(
                 dialogflow, "call_dialogflow"
             ) as mocked_call_dialogflow:
-                mocked_call_dialogflow.return_value = {
-                    "query_result": {
-                        "query_text": "what is up",
-                        "action": "smalltalk.greetings.whatsup",
-                        "parameters": {},
-                        "all_required_params_present": True,
-                        "fulfillment_text": "Not much. What's new with you?",
-                        "fulfillment_messages": {
-                            "text": {"text": "Not much. What's new with you?"}
-                        },
-                        "intent": {},
-                        "intent_detection_confidence": 1.0,
-                        "language_code": "en",
-                    }
-                }
+                mocked_call_dialogflow.query_result.intent_detection_confidence.return_value = (
+                    1.0
+                )
+                mocked_call_dialogflow.query_result.action.return_value = (
+                    "smalltalk.greetings.whatsup"
+                )
+
                 skills = await dialogflow.parse_dialogflow(
                     opsdroid, opsdroid.skills, message, opsdroid.config["parsers"][0]
                 )
-                self.assertEqual(mock_skill, skills[0]["skill"])
+                self.assertEqual(mock_skill, skills)
                 self.assertLogs("_LOGGERS", "debug")
                 self.assertEqual(message.dialogflow, mocked_call_dialogflow)
 
     async def test_parse_dialogflow_low_score(self):
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "path/test.json"
         with OpsDroid() as opsdroid:
             opsdroid.config["parsers"] = [
                 {"name": "dialogflow", "project-id": "test", "min-score": 0.8}
@@ -133,21 +127,9 @@ class TestParserDialogflow(asynctest.TestCase):
             with amock.patch.object(
                 dialogflow, "call_dialogflow"
             ) as mocked_call_dialogflow:
-                mocked_call_dialogflow.return_value = {
-                    "query_result": {
-                        "query_text": "what is up",
-                        "action": "smalltalk.greetings.whatsup",
-                        "parameters": {},
-                        "all_required_params_present": True,
-                        "fulfillment_text": "Not much. What's new with you?",
-                        "fulfillment_messages": {
-                            "text": {"text": "Not much. What's new with you?"}
-                        },
-                        "intent": {},
-                        "intent_detection_confidence": 0.5,
-                        "language_code": "en",
-                    }
-                }
+                mocked_call_dialogflow.query_result.intent_detection_confidence.return_value = (
+                    0.5
+                )
                 await dialogflow.parse_dialogflow(
                     opsdroid, opsdroid.skills, message, opsdroid.config["parsers"][0]
                 )

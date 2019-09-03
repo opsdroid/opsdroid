@@ -52,13 +52,11 @@ async def parse_dialogflow(opsdroid, skills, message, config):
 
                     if "dialogflow_action" in matcher or "dialogflow_intent" in matcher:
                         if (
-                            "action" in result.query_result
-                            and matcher["dialogflow_action"]
-                            in result.query_result.action
+                            matcher.get("dialogflow_action")
+                            == result.query_result.action
                         ) or (
-                            "intentName" in result.query_result
-                            and matcher["dialogflow_intent"]
-                            in result.query_result.intent.display_name
+                            matcher.get("dialogflow_intent")
+                            == result.query_result.intent.display_name
                         ):
                             message.dialogflow = result.query_result
 
