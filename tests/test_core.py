@@ -1,3 +1,4 @@
+import os
 import asyncio
 import unittest
 import unittest.mock as mock
@@ -360,6 +361,7 @@ class TestCoreAsync(asynctest.TestCase):
             self.assertTrue(mock_connector.send.called)
 
     async def test_parse_dialogflow(self):
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "path/test.json"
         with OpsDroid() as opsdroid:
             opsdroid.config["parsers"] = [{"name": "dialogflow", "project-id": "test"}]
             dialogflow_action = ""
