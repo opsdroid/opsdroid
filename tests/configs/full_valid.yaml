@@ -7,6 +7,9 @@ connectors:
     max-connections: 10
     connection-timeout: 10
 
+  - name: telegram
+    token: "123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ-ZYXWVUT"  # Telegram bot token
+
 databases:
 
   - name: mongo

@@ -3,55 +3,55 @@ welcome-message: bool(required=False)
 connectors:
   list(include('websocket', required=False),
   include('shell', required=False),
-  include('ciscospark',required=False),
-  include('facebook',required=False),
-  include('github',required=False),
-  include('matrix',required=False),
-  include('slack',required=False),
-  include('telegram',required=False),
-  include('twitter',required=False))
+  include('ciscospark', required=False),
+  include('facebook', required=False),
+  include('github', required=False),
+  include('matrix', required=False),
+  include('slack', required=False),
+  include('telegram', required=False),
+  include('twitter', required=False))
 
 databases:
   list(include('mongo', required=False),
   include('redis', required=False),
-  include('sqlite', required=False),required=False)
+  include('sqlite', required=False), required=False)
 
 skills: list(include('skill'))
 
-parsers: list(include('parser',required=False),required=False)
+parsers: list(include('parser',required=False), required=False)
 ---
 mongo:
-  name: regex('^(?i)mongo$')
-  host: str(required=False)
-  port: regex('(^\d+$)',required=False)
-  database: str(required=False)
+    name: regex('^(?i)mongo$')
+    host: str(required=False)
+    port: regex('(^\d+$)', required=False)
+    database: str(required=False)
 ---
 redis:
-  name: regex('^(?i)redis$')
-  host: str(required=False)
-  port: regex('(^\d+$)',required=False)
-  database: regex('(^\d+$)',required=False)
-  password: str(required=False)
-  reconnect: bool(required=False)
+    name: regex('^(?i)redis$')
+    host: str(required=False)
+    port: regex('(^\d+$)', required=False)
+    database: regex('(^\d+$)', required=False)
+    password: str(required=False)
+    reconnect: bool(required=False)
 ---
 sqlite:
     name: regex('^(?i)sqlite$')
-    file: regex('(^\\\\?([^\\/]*[\\/])*)([^\\/]+)$',required=False)
+    file: regex('(^\\\\?([^\\/]*[\\/])*)([^\\/]+)$', required=False)
     table: str(required=False)
 ---
 websocket:
-  name: regex('^(?i)websocket$')
-  bot-name: str(required=False)
-  max-connections: int(required=False)
-  connection-timeout: int(required=False)
+    name: regex('^(?i)websocket$')
+    bot-name: str(required=False)
+    max-connections: int(required=False)
+    connection-timeout: int(required=False)
 ---
 shell:
-  name: regex('^(?i)shell$')
-  bot-name: str(required=False)
+    name: regex('^(?i)shell$')
+    bot-name: str(required=False)
 ---
 ciscospark:
     name: regex('^(?i)ciscospark$')
-    webhook-url:  str()
+    webhook-url: str()
     access-token: str()
 ---
 facebook:
@@ -76,43 +76,43 @@ matrix:
     send_m_notice: bool(required=False)
 ---
 room1:
-  'main': regex('^#matrix:matrix.org')
-  'other': regex('^#riot:matrix.org$')
+    'main': regex('^#matrix:matrix.org')
+    'other': regex('^#riot:matrix.org$')
 ---
- slack:
-   name: regex('^(?i)slack$')
-   api-token: str()
-   bot-name: str(required=False)
-   default-room: str(required=False)
-   icon-emoji: str(required=False)
-   connect-timeout: int(required=False)
+slack:
+     name: regex('^(?i)slack$')
+     api-token: str()
+     bot-name: str(required=False)
+     default-room: str(required=False)
+     icon-emoji: str(required=False)
+     connect-timeout: int(required=False)
 ---
 telegram:
-    name: regex('^(?i)telegram$')
-    token: str()
-    update_interval: num(required=False)
-    default_user: str(required=False)
-    whitelisted_users: list(str(),str())
+      name: regex('^(?i)telegram$')
+      token: str()
+      update_interval: num(required=False)
+      default_user: str(required=False)
+      whitelisted_users: list(str(), required=False)
 ---
-twitter :
-    name: regex('^(?i)twitter$')
-    consumer_key: str()
-    consumer_secret: str()
-    oauth_token: str()
-    oauth_token_secret: str()
-    enable_dms: bool(required=False)
-    enable_tweets: bool(required=False)
+twitter:
+      name: regex('^(?i)twitter$')
+      consumer_key: str()
+      consumer_secret: str()
+      oauth_token: str()
+      oauth_token_secret: str()
+      enable_dms: bool(required=False)
+      enable_tweets: bool(required=False)
 ---
 skill:
-    name : str()
+      name : str()
 ---
 parser:
-    name: str()
-    access-token: str(required=False)
-    min-score: num(required=False)
-    project: str(required=False)
-    token: str(required=False)
-    enabled: bool(required=False)
-    appid: str(required=False)
-    appkey: str(required=False)
-    verbose: bool(required=False)
+      name: str()
+      access-token: str(required=False)
+      min-score: num(required=False)
+      project: str(required=False)
+      token: str(required=False)
+      enabled: bool(required=False)
+      appid: str(required=False)
+      appkey: str(required=False)
+      verbose: bool(required=False)

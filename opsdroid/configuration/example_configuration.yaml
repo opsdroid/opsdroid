@@ -142,7 +142,7 @@ connectors:
 #  ## Telegram (https://github.com/opsdroid/connector-telegram)
 #  - name: telegram
 #    # required
-#    token: "123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ-ZYXWVUT"  # Telegraf bot token
+#    token: "123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ-ZYXWVUT"  # Telegram bot token
 #    # optional
 #    update_interval: 0.5  # Interval between checking for messages
 #    default_user: user1  # Default user to send messages to (overrides default room in connector)
