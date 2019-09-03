@@ -43,13 +43,12 @@ async def parse_dialogflow(opsdroid, skills, message, config):
             "min-score" in config
             and result.query_result.intent_detection_confidence < config["min-score"]
         ):
-            _LOGGER.debug(_("Dialogflow score lower than min-score"))
+            _LOGGER.debug(_("Dialogflow confidence lower than min-score"))
             return matched_skills
 
         if result:
             for skill in skills:
                 for matcher in skill.matchers:
-
                     if "dialogflow_action" in matcher or "dialogflow_intent" in matcher:
                         if (
                             matcher.get("dialogflow_action")
