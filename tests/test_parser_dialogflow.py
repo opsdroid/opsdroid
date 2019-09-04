@@ -135,35 +135,30 @@ class TestParserDialogflow(asynctest.TestCase):
                 self.assertEqual(mock_skill, skills[0]["skill"])
                 self.assertLogs("_LOGGERS", "debug")
 
-    # async def test_parse_dialogflow(self):
-    #     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "path/test.json"
-    #     with OpsDroid() as opsdroid:
-    #         opsdroid.config["parsers"] = [{"name": "dialogflow", "project-id": "test"}]
-    #         mock_skill = await self.getMockSkill()
-    #         mock_skill.config = {"name": "greetings"}
-    #         opsdroid.skills.append(
-    #             match_dialogflow_action("smalltalk.greetings.whatsup")(mock_skill)
-    #         )
-    #
-    #         mock_connector = amock.CoroutineMock()
-    #         message = Message("Hello world", "user", "default", mock_connector)
-    #
-    #         with amock.patch.object(
-    #             dialogflow, "call_dialogflow"
-    #         ) as mocked_call_dialogflow:
-    #             mocked_call_dialogflow.query_result.intent_detection_confidence.return_value = (
-    #                 1.0
-    #             )
-    #             mocked_call_dialogflow.query_result.action.return_value = (
-    #                 "smalltalk.greetings.whatsup"
-    #             )
-    #
-    #             skills = await dialogflow.parse_dialogflow(
-    #                 opsdroid, opsdroid.skills, message, opsdroid.config["parsers"][0]
-    #             )
-    #             self.assertEqual(mock_skill, skills)
-    #             self.assertLogs("_LOGGERS", "debug")
-    #             self.assertEqual(message.dialogflow, mocked_call_dialogflow)
+    async def test_parse_dialogflow_failure(self):
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "path/test.json"
+
+        with OpsDroid() as opsdroid:
+            opsdroid.config["parsers"] = [{"name": "dialogflow", "project-id": "test"}]
+            mock_skill = await self.getMockSkill()
+            mock_skill.config = {"name": "greetings"}
+            opsdroid.skills.append(
+                match_dialogflow_action("smalltalk.greetings.whatsup")(mock_skill)
+            )
+
+            mock_connector = amock.CoroutineMock()
+            message = Message("Hello world", "user", "default", mock_connector)
+
+            with amock.patch.object(
+                dialogflow, "call_dialogflow"
+            ) as mocked_call_dialogflow:
+                mocked_call_dialogflow.side_effect = Exception()
+
+                skills = await dialogflow.parse_dialogflow(
+                    opsdroid, opsdroid.skills, message, opsdroid.config["parsers"][0]
+                )
+                self.assertEqual(mock_skill, skills[0]["skill"])
+                self.assertLogs("_LOGGERS", "debug")
 
     async def test_parse_dialogflow_low_score(self):
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "path/test.json"
@@ -197,9 +192,7 @@ class TestParserDialogflow(asynctest.TestCase):
             with amock.patch.object(
                 dialogflow, "call_dialogflow"
             ) as mocked_call_dialogflow:
-                mocked_call_dialogflow.query_result.intent_detection_confidence.return_value = (
-                    dialogflow_response
-                )
+                mocked_call_dialogflow.return_value = dialogflow_response
                 await dialogflow.parse_dialogflow(
                     opsdroid, opsdroid.skills, message, opsdroid.config["parsers"][0]
                 )
