@@ -157,7 +157,7 @@ class TestParserDialogflow(asynctest.TestCase):
                 skills = await dialogflow.parse_dialogflow(
                     opsdroid, opsdroid.skills, message, opsdroid.config["parsers"][0]
                 )
-                self.assertEqual(skills[0]["skill"], None)
+                self.assertEqual(skills, None)
                 self.assertLogs("_LOGGERS", "debug")
 
     async def test_parse_dialogflow_low_score(self):
