@@ -195,8 +195,8 @@ class TestCore(unittest.TestCase):
             opsdroid.setup_skills(example_modules)
             self.assertEqual(len(mockmodule.setup.mock_calls), 1)
             self.assertEqual(mockmodule.method_calls[0][0], "setup")
-            self.assertEqual(len(mockmodule.method_calls[0][1]), 1)
-            self.assertEqual(mockmodule.method_calls[0][1][0], {})
+            self.assertEqual(len(mockmodule.method_calls[0][1]), 2)
+            self.assertEqual(mockmodule.method_calls[0][1][1], {})
             self.assertEqual(len(opsdroid.skills), 2)
 
             mockclassmodule = importlib.import_module(
