@@ -514,6 +514,24 @@ class TestLoader(unittest.TestCase):
                 config["repo"], config["install_path"], config["branch"], None
             )
 
+    def test_install_specific_remote_module_ssl(self):
+        opsdroid, loader = self.setup()
+        config = {
+            "name": "testmodule",
+            "install_path": os.path.join(self._tmp_dir, "test_specific_remote_module"),
+            "repo": "https://github.com/rmccue/test-repository.git",
+            "branch": "master",
+            "key_path": "/usr/src/app/opsdroid/configuration/github-key",
+        }
+        with mock.patch("opsdroid.loader._LOGGER.debug"), mock.patch.object(
+            loader, "git_clone"
+        ) as mockclone:
+            loader._install_module(config)
+            mockclone.assert_called_with(
+                config["repo"], config["install_path"], config["branch"], config["key_path"], None
+            )
+
+
     def test_install_specific_local_git_module(self):
         opsdroid, loader = self.setup()
         repo_path = os.path.join(self._tmp_dir, "testrepo")
