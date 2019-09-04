@@ -30,7 +30,7 @@ async def call_dialogflow(text, config):
         return response
     else:
         raise Warning(
-            "Authentication file not found, dialogflow parser will not be available"
+            "Authentication file not found or 'project-id' not in configuration, dialogflow parser will not be available"
         )
 
 
@@ -74,5 +74,5 @@ async def parse_dialogflow(opsdroid, skills, message, config):
 
     except Exception as error:
         _LOGGER.error(
-            "Oops, there was an error while connecting to dialogflow - {}".format(error)
+            "There was an error while parsing to dialogflow - {}".format(error)
         )
