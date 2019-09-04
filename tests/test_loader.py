@@ -621,6 +621,7 @@ class TestLoader(unittest.TestCase):
                     + ".git",
                     config["install_path"],
                     config["branch"],
+                    None
                 )
         shutil.rmtree(config["install_path"], onerror=del_rw)
 
