@@ -7,11 +7,7 @@ from opsdroid.database import Database
 
 
 class DatabaseMongo(Database):
-    """A module for opsdroid to allow memory to persist in a mongo database.
-
-    Attributes:
-
-    """
+    """A module for opsdroid to allow memory to persist in a mongo database."""
 
     def __init__(self, config, opsdroid=None):
         """Create the connection.
@@ -19,7 +15,7 @@ class DatabaseMongo(Database):
         Set some basic properties from the database config such as the name
         of this database.
 
-        Args:
+        Attributes:
             config (dict): The config for this database specified in the
                            `configuration.yaml` file.
 
@@ -47,6 +43,7 @@ class DatabaseMongo(Database):
         Args:
             key (str): the key is the databasename
             data (object): the data to be inserted or replaced
+
         """
         logging.debug("Putting %s into mongo", key)
         if "_id" in data:
@@ -58,7 +55,8 @@ class DatabaseMongo(Database):
         """Get a document from the database (key).
 
         Args:
-            key (str): the key is the databasename.
+            key (str): the key is the database name.
+
         """
         logging.debug("Getting %s from mongo", key)
         return await self.database[key].find_one(

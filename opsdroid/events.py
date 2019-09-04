@@ -231,6 +231,7 @@ class Reaction(Event):
                                          given chat service
         raw_event (dict, optional): Raw message as provided by chat service.
                                     None by default
+
     """
 
     def __init__(self, emoji, *args, **kwargs):  # noqa: D107

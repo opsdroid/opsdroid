@@ -30,7 +30,7 @@ class ConnectorTelegram(Connector):
         self.listening = True
         self.default_user = config.get("default-user", None)
         self.whitelisted_users = config.get("whitelisted-users", None)
-        self.update_interval = config.get("update_interval", 1)
+        self.update_interval = config.get("update-interval", 1)
         self.session = None
         self._closing = asyncio.Event()
         self.loop = asyncio.get_event_loop()
@@ -173,6 +173,15 @@ class ConnectorTelegram(Connector):
                     )
                     await self.send(message)
                 self.latest_update = result["update_id"] + 1
+            elif (
+                "message" in result
+                and "sticker" in result["message"]
+                and "emoji" in result["message"]["sticker"]
+            ):
+                self.latest_update = result["update_id"] + 1
+                _LOGGER.debug(
+                    "Emoji message parsing not supported " "- Ignoring message"
+                )
             else:
                 _LOGGER.error("Unable to parse the message.")
 

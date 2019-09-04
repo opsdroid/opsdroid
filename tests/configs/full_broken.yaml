@@ -1,0 +1,35 @@
+connectors:
+
+  - name: # WRONG CONFIG: the name field is missing
+    bot-name: "mybot"
+    max-connections: 10
+    connection-timeout: 10
+
+  - name: facebook
+    verify-token: aabbccddee
+    page-access-token: aabbccddee112233445566
+    bot-name: "mybot"
+
+  - name: github
+    github-token: aaabbbcccdddeee111222333444
+
+databases:
+  - name: mongo
+    host: "my host"
+    port:  "12345"
+    database: "mydatabase"
+
+  - name: redis
+    host: "my host"
+    port:  "12345"
+    database: "7"
+
+  - name: sqlite
+    file: "my_file.db"
+    table: "my_table"
+
+skills:
+  - name: dance
+  - name: hello
+  - name: loudnoises
+  - name: seen
