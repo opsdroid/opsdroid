@@ -364,12 +364,14 @@ class TestCoreAsync(asynctest.TestCase):
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "path/test.json"
         with OpsDroid() as opsdroid:
             opsdroid.config["parsers"] = [{"name": "dialogflow", "project-id": "test"}]
-            dialogflow_action = ""
+            dialogflow_action = "smalltalk.greetings.whatsup"
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
             match_dialogflow_action(dialogflow_action)(skill)
             message = Message("Hello world", "user", "default", mock_connector)
-            with amock.patch("opsdroid.parsers.dialogflow.parse_dialogflow"):
+            with amock.patch(
+                "opsdroid.parsers.dialogflow.parse_dialogflow"
+            ), amock.patch("opsdroid.parsers.dialogflow.call_dialogflow"):
                 tasks = await opsdroid.parse(message)
                 self.assertEqual(len(tasks), 1)
 
