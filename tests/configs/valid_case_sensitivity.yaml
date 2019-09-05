@@ -1,0 +1,31 @@
+welcome-message: true
+
+connectors:
+
+  - name: Websocket
+    bot-name: "mybot"
+    max-connections: 10
+    connection-timeout: 10
+
+databases:
+
+  - name: Mongo
+    host: "my host"
+    port:  "12345"
+    database:  "mydatabase"
+
+parsers:
+
+  - name: Dialogflow
+    access-token: "exampleaccesstoken123"
+    min-score: 0.6
+
+skills:
+
+  - name: dance
+
+  - name: hello
+
+  - name: loudnoises
+
+  - name: seen
