@@ -28,6 +28,8 @@ The base `Event` class has the following attributes and methods:
 
 * `responded_to`: A boolean (True/False) flag indicating if this event has already had its `respond` method called.
 
+* `entities`: A dictionary mapping of entities created by parsers. These could be values extracted form sentences like locations, times, people, etc.
+
 
 #### Methods
 * `respond(event)`: A method which takes another `Event` object responds using any attributes of the event which are not overridden in the response `event`. i.e. if the `target` attribute on the `event` argument is `None` then the `target` of the event being responded to will be used.

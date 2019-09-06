@@ -31,6 +31,9 @@ async def parse_format(opsdroid, skills, message):
                 result = await match_format(message.text, opts)
                 if result:
                     message.parse_result = result
+                    _LOGGER.debug(result.__dict__)
+                    for group, value in result.named.items():
+                        await message.update_entity(group, value, None)
                     matched_skills.append(
                         {
                             "score": await calculate_score(
