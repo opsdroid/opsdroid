@@ -38,7 +38,7 @@ class TestConnectorCiscoSparkAsync(asynctest.TestCase):
         configure_lang({})
 
     async def test_connect(self):
-        connector = ConnectorWebexTeams({"access-token": "abc123"})
+        connector = ConnectorWebexTeams({"access-token": "abc123"}, opsdroid=OpsDroid())
 
         opsdroid = amock.CoroutineMock()
         opsdroid.eventloop = self.loop
@@ -49,7 +49,7 @@ class TestConnectorCiscoSparkAsync(asynctest.TestCase):
         with amock.patch(
             "websockets.connect", new=amock.CoroutineMock()
         ) as mocked_websocket_connect:
-            await connector.connect(opsdroid=OpsDroid())
+            await connector.connect()
 
         self.assertTrue(connector.clean_up_webhooks.called)
         self.assertTrue(connector.subscribe_to_rooms.called)
@@ -90,11 +90,11 @@ class TestConnectorCiscoSparkAsync(asynctest.TestCase):
         self.assertLogs("_LOGGER", "error")
 
     async def test_connect_fail_keyerror(self):
-        connector = ConnectorWebexTeams({})
+        connector = ConnectorWebexTeams({}, opsdroid=OpsDroid())
         connector.clean_up_webhooks = amock.CoroutineMock()
         connector.subscribe_to_rooms = amock.CoroutineMock()
         connector.set_own_id = amock.CoroutineMock()
-        await connector.connect(opsdroid=OpsDroid())
+        await connector.connect()
         self.assertLogs("_LOGGER", "error")
 
     async def test_listen(self):
@@ -105,16 +105,19 @@ class TestConnectorCiscoSparkAsync(asynctest.TestCase):
         does not block.
 
         """
-        connector = ConnectorWebexTeams({})
-        self.assertEqual(await connector.listen(opsdroid=OpsDroid()), None)
+        connector = ConnectorWebexTeams({}, opsdroid=OpsDroid())
+        self.assertEqual(await connector.listen(), None)
 
     async def test_respond(self):
         connector = ConnectorWebexTeams({"access-token": "abc123"})
         connector.api = amock.CoroutineMock()
         connector.api.messages.create = amock.CoroutineMock()
-        message = amock.CoroutineMock()
-        message.room.return_value = {"id": "3vABZrQgDzfcz7LZi"}
-        message.text.return_value = "Hello"
+        message = Message(
+            text="Hello",
+            user="opsdroid",
+            target={"id": "3vABZrQgDzfcz7LZi"},
+            connector=None,
+        )
         await connector.respond(message)
         self.assertTrue(connector.api.messages.create.called)
 
