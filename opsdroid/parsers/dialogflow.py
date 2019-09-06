@@ -27,6 +27,7 @@ async def call_dialogflow(text, config):
     Raises:
         Warning: if Google credentials are not found in environmental
         variables or 'project-id' is not in config.
+
     """
 
     if os.environ["GOOGLE_APPLICATION_CREDENTIALS"] and config.get("project-id"):
