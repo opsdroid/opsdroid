@@ -5,10 +5,10 @@ import uuid
 
 import aiohttp
 
-from ciscosparkapi import CiscoSparkAPI
+from webexteamssdk import WebexTeamsAPI
 
-from opsdroid.connector import Connector
-from opsdroid.message import Message
+from opsdroid.connector import Connector, register_event
+from opsdroid.events import Message
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -17,23 +17,23 @@ _LOGGER = logging.getLogger(__name__)
 class ConnectorWebexTeams(Connector):
     """A connector for Webex Teams."""
 
-    def __init__(self, config):
+    def __init__(self, config, opsdroid=None):
         """Create a connector."""
-        _LOGGER.debug("Starting webex teams connector")
+        _LOGGER.debug("Loaded webex teams connector")
+        super().__init__(config, opsdroid=opsdroid)
         self.name = "webexteams"
         self.config = config
-        self.opsdroid = None
+        self.opsdroid = opsdroid
         self.default_room = None
         self.bot_name = config.get("bot-name", "opsdroid")
         self.bot_webex_id = None
         self.secret = uuid.uuid4().hex
         self.people = {}
 
-    async def connect(self, opsdroid):
+    async def connect(self):
         """Connect to the chat service."""
-        self.opsdroid = opsdroid
         try:
-            self.api = CiscoSparkAPI(access_token=self.config["access-token"])
+            self.api = WebexTeamsAPI(access_token=self.config["access-token"])
         except KeyError:
             _LOGGER.error("Must set accesst-token for webex teams connector!")
             return
@@ -51,7 +51,7 @@ class ConnectorWebexTeams(Connector):
 
         msg = self.api.messages.get(req_data["data"]["id"])
 
-        if req_data["data"]["personId"] != self.bot_spark_id:
+        if req_data["data"]["personId"] != self.bot_webex_id:
             person = await self.get_person(req_data["data"]["personId"])
 
             try:
@@ -98,10 +98,11 @@ class ConnectorWebexTeams(Connector):
         """Get the bot id and set it in the class."""
         self.bot_webex_id = self.api.people.me().id
 
-    async def listen(self, opsdroid):
+    async def listen(self):
         """Listen for and parse new messages."""
         pass  # Listening is handled by the aiohttp web server
 
-    async def respond(self, message, room=None):
+    @register_event(Message)
+    async def send_message(self, message):
         """Respond with a message."""
-        self.api.messages.create(message.room["id"], text=message.text)
+        self.api.messages.create(message.target["id"], text=message.text)

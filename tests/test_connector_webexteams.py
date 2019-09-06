@@ -5,7 +5,6 @@ import unittest
 import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock
-from ciscosparkapi import CiscoSparkAPI
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector.webexteams import ConnectorWebexTeams
