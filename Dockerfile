@@ -1,7 +1,7 @@
 FROM python:3.7-alpine
 LABEL maintainer="Jacob Tomlinson <jacob@tom.linson.uk>"
 
-RUN apk add --no-cache gcc musl-dev alpine-sdk
+RUN apk add --no-cache gcc musl-dev libstdc++
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
@@ -17,7 +17,7 @@ COPY MANIFEST.in MANIFEST.in
 RUN apk update && apk add git
 RUN pip3 install --upgrade pip
 RUN pip3 install --no-cache-dir --no-use-pep517 .
-RUN apk del gcc musl-dev alpine-sdk
+RUN apk del gcc musl-dev
 
 EXPOSE 8080
 
