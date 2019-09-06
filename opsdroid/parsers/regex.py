@@ -40,6 +40,8 @@ async def parse_regex(opsdroid, skills, message):
                 regex = await match_regex(message.text, opts)
                 if regex:
                     message.regex = regex
+                    for regroup, value in regex.groupdict().items():
+                        await message.update_entity(regroup, value, None)
                     matched_skills.append(
                         {
                             "score": await calculate_score(

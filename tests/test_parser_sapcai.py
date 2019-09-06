@@ -235,3 +235,61 @@ class TestParserRecastAi(asynctest.TestCase):
                 )
 
             self.assertTrue(mocked_call.called)
+
+    async def test_parse_sapcai_with_entities(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.config["parsers"] = [{"name": "sapcai", "access-token": "test"}]
+            mock_skill = await self.getMockSkill()
+            mock_skill.config = {"name": "greetings"}
+            opsdroid.skills.append(match_sapcai("weather")(mock_skill))
+
+            mock_connector = amock.CoroutineMock()
+            message = Message(
+                "whats the weather in london" "user", "default", mock_connector
+            )
+
+            with amock.patch.object(sapcai, "call_sapcai") as mocked_call_sapcai:
+                mocked_call_sapcai.return_value = {
+                    "results": {
+                        "uuid": "f058ad85-d089-40e1-a910-a76990d36180",
+                        "intents": [
+                            {
+                                "slug": "weather",
+                                "confidence": 0.97,
+                                "description": "weather",
+                            }
+                        ],
+                        "entities": {
+                            "location": [
+                                {
+                                    "formatted": "London, UK",
+                                    "lat": 51.5073509,
+                                    "lng": -0.1277583,
+                                    "type": "locality",
+                                    "place": "ChIJdd4hrwug2EcRmSrV3Vo6llI",
+                                    "raw": "london",
+                                    "confidence": 0.99,
+                                    "country": "gb",
+                                }
+                            ]
+                        },
+                        "language": "en",
+                        "processing_language": "en",
+                        "version": "1903.6.2",
+                        "timestamp": "2019-06-02T12:22:57.216286+00:00",
+                        "status": 200,
+                        "source": "whats the weather in london",
+                        "act": "wh-query",
+                        "type": "desc:desc",
+                        "sentiment": "neutral",
+                    },
+                    "message": "Requests rendered with success",
+                }
+
+                [skill] = await sapcai.parse_sapcai(
+                    opsdroid, opsdroid.skills, message, opsdroid.config["parsers"][0]
+                )
+
+            self.assertEqual(len(skill["message"].entities.keys()), 1)
+            self.assertTrue("location" in skill["message"].entities.keys())
+            self.assertEqual(skill["message"].entities["location"]["value"], "london")
