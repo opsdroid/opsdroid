@@ -1,4 +1,4 @@
-aiohttp==3.5.4
+aiohttp==3.6.0
 aioredis==1.2.0
 aioslacker==0.0.11
 aiosqlite==0.10.0
@@ -22,3 +22,4 @@ pyyaml==5.1.2
 setuptools==41.2.0
 websockets==8.0.2
 yamale==2.0
+webexteamssdk==1.1.1
