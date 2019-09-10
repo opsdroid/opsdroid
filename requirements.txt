@@ -20,5 +20,5 @@ pycron==1.0.0
 pyyaml==5.1.2
 setuptools==41.2.0
 websockets==8.0.2
-yamale==2.0
+yamale==2.0.1
 webexteamssdk==1.1.1
