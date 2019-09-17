@@ -514,8 +514,6 @@ class TestLoader(unittest.TestCase):
                 config["repo"], config["install_path"], config["branch"], None
             )
 
-
-
     def test_install_specific_remote_module_ssl(self):
         opsdroid, loader = self.setup()
         config = {
@@ -532,7 +530,10 @@ class TestLoader(unittest.TestCase):
         ) as mockclone:
             loader._install_module(config)
             mockclone.assert_called_with(
-                config["repo"], config["install_path"], config["branch"], config["key_path"]
+                config["repo"],
+                config["install_path"],
+                config["branch"],
+                config["key_path"],
             )
 
     def test_install_specific_local_git_module(self):
@@ -621,7 +622,7 @@ class TestLoader(unittest.TestCase):
                     + ".git",
                     config["install_path"],
                     config["branch"],
-                    None
+                    None,
                 )
         shutil.rmtree(config["install_path"], onerror=del_rw)
 
