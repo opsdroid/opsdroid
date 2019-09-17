@@ -1,13 +1,13 @@
-aiohttp==3.5.4
+aiohttp==3.6.0
 aioredis==1.2.0
 aioslacker==0.0.11
 aiosqlite==0.10.0
 appdirs==1.4.3
-arrow==0.14.6
+arrow==0.15.2
 Babel==2.7.0
 bleach==3.1.0
 click==7.0
-emoji==0.5.3
+emoji==0.5.4
 matrix-api-async==0.1.0
 motor==2.0.0
 multidict==4.5.2
@@ -20,4 +20,5 @@ pycron==1.0.0
 pyyaml==5.1.2
 setuptools==41.2.0
 websockets==8.0.2
-yamale==2.0
+yamale==2.0.1
+webexteamssdk==1.1.1
