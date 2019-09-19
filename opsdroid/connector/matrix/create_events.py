@@ -6,15 +6,16 @@ from opsdroid import events
 __all__ = ["MatrixEventCreator"]
 
 
-class MatrixEventCreator:
+class MatrixEventCreator(events.EventCreator):
     """Create opsdroid events from matrix ones."""
 
-    def __init__(self, connector):
+    def __init__(self, connector, *args, **kwargs):
         """Initialise the event creator."""
-        self.connector = connector
+        super().__init__(connector, *args, **kwargs)
 
-        self.event_types = defaultdict(lambda: self.skip)
         self.event_types["m.room.message"] = self.create_room_message
+        self.event_types["m.room.topic"] = self.create_room_description
+        self.event_types["m.room.name"] = self.create_room_name
 
         self.message_events = defaultdict(lambda: self.skip)
         self.message_events.update(
@@ -30,19 +31,10 @@ class MatrixEventCreator:
             }
         )
 
-    async def create_event(self, event, roomid):
-        """Dispatch any matrix event."""
-        return await self.event_types[event["type"]](event, roomid)
-
     async def create_room_message(self, event, roomid):
         """Dispatch a m.room.message event."""
         msgtype = event["content"]["msgtype"]
         return await self.message_events[msgtype](event, roomid)
-
-    @staticmethod
-    async def skip(event, roomid):
-        """Do not handle this event type."""
-        return None
 
     async def create_message(self, event, roomid):
         """Send a Message event."""
@@ -78,3 +70,23 @@ class MatrixEventCreator:
         """Send a Image event."""
         kwargs = await self._file_kwargs(event, roomid)
         return events.Image(**kwargs)
+
+    async def create_room_description(self, event, roomid):
+        """Send a RoomDescriptionEvent."""
+        return events.RoomDescription(
+            description=event['content']['topic'],
+            user=await self.connector.get_nick(roomid, event['sender']),
+            target=roomid,
+            connector=self.connector,
+            event_id=event["event_id"],
+            raw_event=event)
+
+    async def create_room_name(self, event, roomid):
+        """Send a RoomDescriptionEvent."""
+        return events.RoomName(
+            name=event['content']['name'],
+            user=await self.connector.get_nick(roomid, event['sender']),
+            target=roomid,
+            connector=self.connector,
+            event_id=event["event_id"],
+            raw_event=event)

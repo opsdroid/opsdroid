@@ -1,6 +1,7 @@
 """Connector for Matrix (https://matrix.org)."""
 
 import re
+import json
 import logging
 from concurrent.futures import CancelledError
 from urllib.parse import urlparse
@@ -12,10 +13,11 @@ from matrix_client.errors import MatrixRequestError
 from voluptuous import Required
 
 from opsdroid.connector import Connector, register_event
-from opsdroid.events import Message, Image, File
+from opsdroid import events
 
 from .html_cleaner import clean
 from .create_events import MatrixEventCreator
+from . import events as matrixevents
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -38,7 +40,7 @@ class ConnectorMatrix(Connector):
         """Init the config for the connector."""
         super().__init__(config, opsdroid=opsdroid)
 
-        self.name = "ConnectorMatrix"  # The name of your connector
+        self.name = "matrix"  # The name of your connector
         self.rooms = config["rooms"]
         self.room_ids = {}
         self.default_target = self.rooms["main"]
@@ -61,22 +63,16 @@ class ConnectorMatrix(Connector):
             "account_data": {"limit": 0, "types": []},
             "presence": {"limit": 0, "types": []},
             "room": {
-                "rooms": [],
                 "account_data": {"types": []},
-                "timeline": {"types": ["m.room.message"]},
                 "ephemeral": {"types": []},
                 "state": {"types": []},
             },
         }
 
-    async def make_filter(self, api, room_ids):
+    async def make_filter(self, api):
         """Make a filter on the server for future syncs."""
         fjson = self.filter_json
-        for room_id in room_ids:
-            fjson["room"]["rooms"].append(room_id)
-
         resp = await api.create_filter(user_id=self.mxid, filter_params=fjson)
-
         return resp["filter_id"]
 
     async def connect(self):
@@ -97,7 +93,7 @@ class ConnectorMatrix(Connector):
         self.connection = mapi
 
         # Create a filter now, saves time on each later sync
-        self.filter_id = await self.make_filter(mapi, self.room_ids.values())
+        self.filter_id = await self.make_filter(mapi)
 
         # Do initial sync so we don't get old messages later.
         response = await self.connection.sync(
@@ -114,9 +110,21 @@ class ConnectorMatrix(Connector):
 
     async def _parse_sync_response(self, response):
         self.connection.sync_token = response["next_batch"]
-        for roomid in self.room_ids.values():
-            room = response["rooms"]["join"].get(roomid, None)
-            if room and "timeline" in room:
+
+        # Emit Invite events for every room in the invite list.
+        for roomid, room in response["rooms"]["invite"].items():
+            # Process the invite list to extract the person who invited us.
+            invite_event = [e for e in room['invite_state']['events']
+                            if "invite" == e.get("content", {}).get("membership")][0]
+            sender = await self.get_nick(None, invite_event['sender'])
+
+            await self.opsdroid.parse(events.UserInvite(target=roomid,
+                                                        user=sender,
+                                                        connector=self,
+                                                        raw_event=invite_event))
+
+        for roomid, room in response["rooms"]["join"].items():
+            if "timeline" in room:
                 for event in room["timeline"]["events"]:
                     if event["sender"] != self.mxid:
                         return await self._event_creator.create_event(event, roomid)
@@ -195,7 +203,7 @@ class ConnectorMatrix(Connector):
             "formatted_body": clean_html,
         }
 
-    @register_event(Message)
+    @register_event(events.Message)
     async def _send_message(self, message):
         """Send `message.text` back to the chat service."""
         if not message.target.startswith(("!", "#")):
@@ -232,25 +240,37 @@ class ConnectorMatrix(Connector):
             "size": len(await image.get_file_bytes()),
         }
 
-    @register_event(File)
-    @register_event(Image)
-    async def _send_file(self, file_event):
+    async def _file_to_mxc_url(self, file_event):
+        """
+        Given a file event return the mxc url.
+        """
+        uploaded = False
         mxc_url = None
         if file_event.url:
             url = urlparse(file_event.url)
             if url.scheme == "mxc":
                 mxc_url = file_event.url
-                extra_info = {}
 
         if not mxc_url:
             mxc_url = await self.connection.media_upload(
                 await file_event.get_file_bytes(), await file_event.get_mimetype()
             )
 
-            mxc_url = mxc_url["content_uri"]
+            mxc_url = mxc_url['content_uri']
+            uploaded = True
 
-        if isinstance(file_event, Image):
-            extra_info = await self._get_image_info(file_event)
+        return mxc_url, uploaded
+
+    @register_event(events.File)
+    @register_event(events.Image)
+    async def _send_file(self, file_event):
+        mxc_url, uploaded = self._file_to_mxc_url(file_event)
+
+        if isinstance(file_event, events.Image):
+            if uploaded:
+                extra_info = await self._get_image_info(file_event)
+            else:
+                extra_info = {}
             msg_type = "m.image"
         else:
             extra_info = {}
@@ -273,3 +293,81 @@ class ConnectorMatrix(Connector):
                     return connroom
 
         return room
+
+    @register_event(events.NewRoom)
+    async def _send_room_creation(self, creation_event):
+        params = creation_event.room_params
+        params = params.get('matrix', params)
+        response = await self.connection.create_room(**params)
+        room_id = response['room_id']
+        if creation_event.name is not None:
+            await self._send_room_name_set(events.RoomName(creation_event.name,
+                                                           target=room_id))
+        return room_id
+
+    @register_event(events.RoomName)
+    async def _send_room_name_set(self, name_event):
+        return await self.connection.set_room_name(name_event.target,
+                                                   name_event.name)
+
+    @register_event(events.RoomAddress)
+    async def _send_room_address(self, address_event):
+        try:
+            return await self.connection.set_room_alias(address_event.target,
+                                                        address_event.address)
+        except MatrixRequestError as err:
+            if err.code == 409:
+                pass
+            # err["error"] = "Room alias #picard_general:localhost already exists."
+
+    @register_event(events.JoinRoom)
+    async def _send_join_room(self, join_event):
+        return await self.connection.join_room(join_event.target)
+
+    @register_event(events.UserInvite)
+    async def _send_user_invitation(self, invite_event):
+        try:
+            return await self.connection.invite_user(invite_event.target,
+                                                     invite_event.user)
+        except MatrixRequestError as err:
+            content = json.loads(err.content)
+            if (err.code == 403 and
+                "is already in the room" in content["error"]):
+                pass
+
+    @register_event(events.RoomDescription)
+    async def _send_room_desciption(self, desc_event):
+        return await self.connection.set_room_topic(desc_event.target,
+                                                    desc_event.description)
+
+    @register_event(events.RoomImage)
+    async def _send_room_image(self, image_event):
+        mxc_url, _ = await self._file_to_mxc_url(image_event.room_image)
+        return await image_event.respond(matrixevents.MatrixRoomAvatar(mxc_url))
+
+    @register_event(events.UserRole)
+    async def _set_user_role(self, role_event):
+        role = role_event.role
+        room_id = role_event.target
+        if role.lower() in ["mod", "moderator"]:
+            power_level = 50
+        elif role.lower() in ["admin", "administrator"]:
+            power_level = 100
+        else:
+            try:
+                power_level = int(role)
+            except ValueError:
+                raise ValueError("Role must be one of 'mod', 'admin', or an integer")
+
+        power_levels = await self.connection.get_power_levels(room_id)
+        power_levels['users'][role_event.user] = power_level
+
+        return await role_event.respond(matrixevents.MatrixPowerLevels(power_levels))
+
+    @register_event(matrixevents.MatrixStateEvent, include_subclasses=True)
+    async def _send_state_event(self, state_event):
+        _LOGGER.debug(f"Sending State Event {state_event}")
+        return await self.connection.send_state_event(state_event.target,
+                                                      state_event.key,
+                                                      state_event.content,
+                                                      state_key=state_event.state_key)
