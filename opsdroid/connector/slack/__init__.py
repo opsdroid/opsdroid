@@ -11,8 +11,8 @@ from aioslacker import Slacker
 from emoji import demojize
 
 from opsdroid.connector import Connector, register_event
-from opsdroid.events import Message, Reaction
-from opsdroid.connector.slack.events import Blocks
+import opsdroid.events
+from opsdroid.connector.slack.events import Blocks, SlackEventCreator
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -38,6 +38,18 @@ class ConnectorSlack(Connector):
         self.reconnecting = False
         self.listening = True
         self._message_id = 0
+        self._user_id = None
+
+        self._event_creator = SlackEventCreator(self)
+
+    async def get_user_id(self):
+        if self._user_id:
+            return self._user_id
+
+        auth = await self.slacker.auth.test()
+        self._user_id = auth.body['user_id']
+
+        return self._user_id
 
     async def connect(self):
         """Connect to the chat service."""
@@ -46,6 +58,8 @@ class ConnectorSlack(Connector):
         try:
             connection = await self.slacker.rtm.start()
             self.websocket = await websockets.connect(connection.body["url"])
+
+            # self.has_files_access = await self.check_for_files_access()
 
             _LOGGER.debug("Connected as %s", self.bot_name)
             _LOGGER.debug("Using icon %s", self.icon_emoji)
@@ -103,35 +117,19 @@ class ConnectorSlack(Connector):
 
     async def process_message(self, message):
         """Process a raw message and pass it to the parser."""
-        if "type" in message and message["type"] == "message" and "user" in message:
+        if "type" in message:
+            if "user" in message:
+                # Ignore messages that come from us
+                self_id = await self.get_user_id()
+                if message["user"] == self_id:
+                    return
 
-            # Ignore bot messages
-            if "subtype" in message and message["subtype"] == "bot_message":
-                return
+            _LOGGER.debug(f"Processing event with content {message}")
+            event = await self._event_creator.create_event(message, message.get('channel'))
+            await self.opsdroid.parse(event)
 
-            # Lookup username
-            _LOGGER.debug("Looking up sender username")
-            try:
-                user_info = await self.lookup_username(message["user"])
-            except ValueError:
-                return
-
-            # Replace usernames in the message
-            _LOGGER.debug("Replacing userids in message with usernames")
-            message["text"] = await self.replace_usernames(message["text"])
-
-            await self.opsdroid.parse(
-                Message(
-                    message["text"],
-                    user_info["name"],
-                    message["channel"],
-                    self,
-                    raw_event=message,
-                )
-            )
-
-    @register_event(Message)
-    async def send_message(self, message):
+    @register_event(opsdroid.events.Message)
+    async def _send_message(self, message):
         """Respond with a message."""
         _LOGGER.debug("Responding with: '%s' in room  %s", message.text, message.target)
         await self.slacker.chat.post_message(
@@ -143,7 +141,7 @@ class ConnectorSlack(Connector):
         )
 
     @register_event(Blocks)
-    async def send_blocks(self, blocks):
+    async def _send_blocks(self, blocks):
         """Respond with structured blocks."""
         _LOGGER.debug("Responding with interactive blocks in room  %s", blocks.target)
         await self.slacker.chat.post(
@@ -156,7 +154,7 @@ class ConnectorSlack(Connector):
             },
         )
 
-    @register_event(Reaction)
+    @register_event(opsdroid.events.Reaction)
     async def send_reaction(self, reaction):
         """React to a message."""
         emoji = demojize(reaction.emoji).replace(":", "")
@@ -221,3 +219,29 @@ class ConnectorSlack(Connector):
                 "<@{userid}>".format(userid=userid), user_info["name"]
             )
         return message
+
+    @register_event(opsdroid.events.NewRoom)
+    async def _send_room_creation(self, creation_event):
+        params = creation_event.room_params
+        params = params.get('slack', params)
+        resp = await self.slacker.channels.create(creation_event.name)
+        return resp.body['channel']['id']
+
+    @register_event(opsdroid.events.RoomName)
+    async def _send_room_name_set(self, name_event):
+        return await self.slacker.channels.rename(name_event.target,
+                                                  name_event.name, 'true')
+
+    @register_event(opsdroid.events.JoinRoom)
+    async def _send_join_room(self, join_event):
+        return await self.slacker.channels.join(join_event.target, 'true')
+
+    @register_event(opsdroid.events.UserInvite)
+    async def _send_user_invitation(self, invite_event):
+        return await self.slacker.channels.invite(invite_event.target,
+                                                  invite_event.user)
+
+    @register_event(opsdroid.events.RoomDescription)
+    async def _send_room_desciption(self, desc_event):
+        return await self.slacker.channels.set_topic(desc_event.target,
+                                                     desc_event.description)
