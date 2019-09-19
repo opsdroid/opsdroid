@@ -301,6 +301,7 @@ class File(Event):
         self._mimetype = mimetype
         self._file_bytes = file_bytes
         self.url = url
+        self._url_headers = url_headers
 
     async def get_file_bytes(self):
         """Return the bytes representation of this file."""
