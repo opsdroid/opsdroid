@@ -93,6 +93,7 @@ class Event(metaclass=EventMetaClass):
         raw_event: Raw event provided by chat service
         responded_to: Boolean initialized as False. True if event has been
             responded to
+        entities: Dictionary mapping of entities created by parsers
 
     """
 
@@ -114,6 +115,7 @@ class Event(metaclass=EventMetaClass):
         self.event_id = event_id
         self.raw_event = raw_event
         self.responded_to = False
+        self.entities = {}
 
     async def respond(self, event):
         """Respond to this event with another event.
