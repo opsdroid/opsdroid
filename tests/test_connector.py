@@ -71,7 +71,8 @@ class TestConnectorBaseClass(unittest.TestCase):
             def send_my_event(self, event):
                 pass
 
-        MyConnector({})
+        c = MyConnector({})
+        assert MyEvent in c.events
 
 
 class TestConnectorAsync(asynctest.TestCase):
