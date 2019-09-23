@@ -75,6 +75,7 @@ class TestConnectorBaseClass(unittest.TestCase):
         assert MyEvent in c.events
 
 
+
 class TestConnectorAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid connector base class."""
 

@@ -30,7 +30,7 @@ class TestEventCreator(asynctest.TestCase):
     async def test_create_event(self):
         creator = events.EventCreator(Connector({}))
 
-        self.assertEqual(None, await creator.create_event({'type': "NotAnEvent"}, ""))
+        self.assertEqual(None, await creator.create_event({"type": "NotAnEvent"}, ""))
 
 
 class TestEvent(asynctest.TestCase):
