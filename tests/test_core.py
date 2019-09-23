@@ -62,7 +62,7 @@ class TestCore(unittest.TestCase):
                 "connectors": [],
             }
             with self.assertRaises(SystemExit):
-                opsdroid.load()
+                opsdroid.eventloop.run_until_complete(opsdroid.load())
             self.assertTrue(opsdroid.loader.load_modules_from_config.called)
 
     def test_run(self):
@@ -84,6 +84,7 @@ class TestCore(unittest.TestCase):
             opsdroid.eventloop.run_until_complete = mock.Mock(
                 side_effect=asyncio.CancelledError
             )
+            opsdroid.sync_load = mock.MagicMock()
 
             with mock.patch("sys.exit") as mock_sysexit:
                 opsdroid.run()
@@ -98,6 +99,7 @@ class TestCore(unittest.TestCase):
             opsdroid.eventloop.run_until_complete = mock.Mock(
                 side_effect=asyncio.CancelledError
             )
+            opsdroid.sync_load = mock.MagicMock()
 
             with mock.patch("sys.exit") as mock_sysexit:
                 opsdroid.run()
@@ -120,9 +122,9 @@ class TestCore(unittest.TestCase):
             )
             opsdroid.start_databases = mock.Mock()
             opsdroid.setup_skills = mock.Mock()
-            opsdroid.start_connectors = mock.Mock()
+            opsdroid.start_connectors = amock.CoroutineMock()
 
-            opsdroid.load()
+            opsdroid.eventloop.run_until_complete(opsdroid.load())
 
             self.assertTrue(opsdroid.start_databases.called)
             self.assertTrue(opsdroid.start_connectors.called)
@@ -138,44 +140,6 @@ class TestCore(unittest.TestCase):
             with self.assertRaises(NotImplementedError):
                 opsdroid.start_databases([module])
                 self.assertEqual(1, len(opsdroid.memory.databases))
-
-    def test_start_connectors(self):
-        with OpsDroid() as opsdroid:
-            opsdroid.start_connectors([])
-
-            module = {}
-            module["config"] = {}
-            module["module"] = importlib.import_module(
-                "tests.mockmodules.connectors.connector_mocked"
-            )
-
-            try:
-                opsdroid.start_connectors([module])
-            except NotImplementedError:
-                self.fail("Connector raised NotImplementedError.")
-            self.assertEqual(len(opsdroid.connectors), 1)
-
-            with mock.patch.object(opsdroid.eventloop, "is_running", return_value=True):
-                opsdroid.start_connectors([module])
-                self.assertEqual(len(opsdroid.connectors), 2)
-
-    def test_start_connectors_not_implemented(self):
-        with OpsDroid() as opsdroid:
-            opsdroid.start_connectors([])
-
-            module = {}
-            module["config"] = {}
-            module["module"] = importlib.import_module(
-                "tests.mockmodules.connectors.connector_bare"
-            )
-
-            with self.assertRaises(NotImplementedError):
-                opsdroid.start_connectors([module])
-                self.assertEqual(1, len(opsdroid.connectors))
-
-            with self.assertRaises(NotImplementedError):
-                opsdroid.start_connectors([module, module])
-                self.assertEqual(3, len(opsdroid.connectors))
 
     def test_multiple_opsdroids(self):
         with OpsDroid() as opsdroid:
@@ -488,3 +452,41 @@ class TestCoreAsync(asynctest.TestCase):
             message = patched_send.call_args[0][0]
 
             assert message is input_message
+
+    async def test_start_connectors(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.start_connectors([])
+
+            module = {}
+            module["config"] = {}
+            module["module"] = importlib.import_module(
+                "tests.mockmodules.connectors.connector_mocked"
+            )
+
+            try:
+                await opsdroid.start_connectors([module])
+            except NotImplementedError:
+                self.fail("Connector raised NotImplementedError.")
+            self.assertEqual(len(opsdroid.connectors), 1)
+
+            with mock.patch.object(opsdroid.eventloop, "is_running", return_value=True):
+                await opsdroid.start_connectors([module])
+                self.assertEqual(len(opsdroid.connectors), 2)
+
+    async def test_start_connectors_not_implemented(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.start_connectors([])
+
+            module = {}
+            module["config"] = {}
+            module["module"] = importlib.import_module(
+                "tests.mockmodules.connectors.connector_bare"
+            )
+
+            with self.assertRaises(NotImplementedError):
+                await opsdroid.start_connectors([module])
+                self.assertEqual(1, len(opsdroid.connectors))
+
+            with self.assertRaises(NotImplementedError):
+                await opsdroid.start_connectors([module, module])
+                self.assertEqual(3, len(opsdroid.connectors))

@@ -68,7 +68,7 @@ def print_example_config(ctx, param, value):
 def edit_files(ctx, param, value):
     """Open config/log file with favourite editor."""
     if value == "config":
-        file = DEFAULT_CONFIG_PATH
+        file = f'"{DEFAULT_CONFIG_PATH}"'
     elif value == "log":
         file = DEFAULT_LOG_FILENAME
     else:
@@ -178,7 +178,6 @@ def main():
     welcome_message(config)
 
     with OpsDroid(config=config) as opsdroid:
-        opsdroid.load()
         opsdroid.run()
 
 
