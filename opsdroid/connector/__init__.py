@@ -20,6 +20,8 @@ def register_event(event_type, include_subclasses=False):
 
     Args:
         event_type (Event): The event class this method can handle.
+        include_subclasses (bool): Allow the function to trigger on subclasses of the registered
+            event. Defaults to False.
 
     """
 

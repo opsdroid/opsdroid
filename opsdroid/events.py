@@ -19,15 +19,16 @@ _LOGGER = logging.getLogger(__name__)
 
 class EventCreator:
     """Create opsdroid events from events detected by a connector."""
+
     def __init__(self, connector, dispatch_key="type"):
-        """Initialise the event creator"""
+        """Initialise the event creator."""
         self.connector = connector
         self.dispatch_key = dispatch_key
 
         self.event_types = defaultdict(lambda: self.skip)
 
     async def create_event(self, event, target):
-        """Dispatch any event type"""
+        """Dispatch any event type."""
         return await self.event_types[event[self.dispatch_key]](event, target)
 
     @staticmethod
@@ -158,8 +159,9 @@ class Event(metaclass=EventMetaClass):
         """
         self.entities[name] = {"value": value, "confidence": confidence}
 
+
 class OpsdroidStarted(Event):
-    """An event to indicate that Opsdroid has loaded"""
+    """An event to indicate that Opsdroid has loaded."""
 
 
 class Message(Event):
@@ -198,6 +200,7 @@ class Message(Event):
         self.raw_match = None
 
     def __repr__(self):
+        """Override Message's representation so you can see the text when you print it."""
         return f"<opsdroid.events.Message(text={self.text})>"
 
     async def _thinking_delay(self):
@@ -289,9 +292,16 @@ class Reaction(Event):
 class File(Event):
     """Event class to represent arbitrary files as bytes."""
 
-    def __init__(self, file_bytes=None, url=None, url_headers=None,
-                 name=None, mimetype=None,
-                 *args, **kwargs):  # noqa: D107
+    def __init__(
+        self,
+        file_bytes=None,
+        url=None,
+        url_headers=None,
+        name=None,
+        mimetype=None,
+        *args,
+        **kwargs,
+    ):  # noqa: D107
         if not (file_bytes or url) or (file_bytes and url):
             raise ValueError("Either file_bytes or url must be specified")
 
@@ -308,8 +318,7 @@ class File(Event):
         if not self._file_bytes and self.url:
             async with aiohttp.ClientSession() as session:
                 _LOGGER.debug(self._url_headers)
-                async with session.get(self.url,
-                                       headers=self._url_headers) as resp:
+                async with session.get(self.url, headers=self._url_headers) as resp:
                     self._file_bytes = await resp.read()
 
         return self._file_bytes

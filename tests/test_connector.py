@@ -73,6 +73,7 @@ class TestConnectorBaseClass(unittest.TestCase):
 
         MyConnector({})
 
+
 class TestConnectorAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid connector base class."""
 
