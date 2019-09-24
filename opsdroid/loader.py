@@ -177,20 +177,28 @@ class Loader:
         return os.path.join(self.modules_directory, config["type"], config["name"])
 
     @staticmethod
-    def git_clone(git_url, install_path, branch):
+    def git_clone(git_url, install_path, branch, key_path=None):
         """Clone a git repo to a location and wait for finish.
 
         Args:
             git_url: The url to the git repository
             install_path: Location where the git repository will be cloned
             branch: The branch to be cloned
+            key_path: SSH Key for git repository
 
         """
+        git_env = os.environ.copy()
+        if key_path:
+            git_env[
+                "GIT_SSH_COMMAND"
+            ] = f"ssh -i {key_path} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+
         process = subprocess.Popen(
             ["git", "clone", "-b", branch, git_url, install_path],
             shell=False,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
+            env=git_env,
         )
         Loader._communicate_process(process)
 
@@ -607,11 +615,12 @@ class Loader:
         else:
             git_url = DEFAULT_GIT_URL + config["type"] + "-" + config["name"] + ".git"
 
-        if any(prefix in git_url for prefix in ["http", "https", "ssh"]):
+        if any(prefix in git_url for prefix in ["http", "https", "ssh", "git@"]):
             # TODO Test if url or ssh path exists
             # TODO Handle github authentication
             _LOGGER.info(_("Cloning %s from remote repository"), config["name"])
-            self.git_clone(git_url, config["install_path"], config["branch"])
+            key_path = config.get("key_path", None)
+            self.git_clone(git_url, config["install_path"], config["branch"], key_path)
         else:
             if os.path.isdir(git_url):
                 _LOGGER.debug(_("Cloning %s from local repository"), config["name"])
