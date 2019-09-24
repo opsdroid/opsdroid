@@ -68,7 +68,7 @@ def print_example_config(ctx, param, value):
 def edit_files(ctx, param, value):
     """Open config/log file with favourite editor."""
     if value == "config":
-        file = f'"{DEFAULT_CONFIG_PATH}"'
+        file = DEFAULT_CONFIG_PATH
     elif value == "log":
         file = DEFAULT_LOG_FILENAME
     else:
