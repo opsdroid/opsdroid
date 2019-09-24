@@ -6,6 +6,7 @@ import sys
 import logging
 import gettext
 import time
+import warnings
 
 import click
 
@@ -49,7 +50,7 @@ def check_dependencies():
 
 
 def print_version(ctx, param, value):
-    """Print out the version of opsdroid that is installed."""
+    """[Deprecated] Print out the version of opsdroid that is installed."""
     if not value or ctx.resilient_parsing:
         return
     click.echo("opsdroid {version}".format(version=__version__))
@@ -57,9 +58,13 @@ def print_version(ctx, param, value):
 
 
 def print_example_config(ctx, param, value):
-    """Print out the example config."""
+    """[Deprecated] Print out the example config."""
     if not value or ctx.resilient_parsing:
         return
+    warn_deprecated_cli_option(
+        "The flas --gen-config has been deprecated. "
+        "Please run `opsdroid config gen` instead."
+    )
     with open(EXAMPLE_CONFIG_FILE, "r") as conf:
         click.echo(conf.read())
     ctx.exit(0)
@@ -84,6 +89,11 @@ def edit_files(ctx, param, value):
 
     subprocess.run([editor, file])
     ctx.exit(0)
+
+
+def warn_deprecated_cli_option(text):
+    print(f"Warning: {text}")
+    warnings.warn(text, DeprecationWarning)
 
 
 def welcome_message(config):
@@ -123,14 +133,15 @@ def welcome_message(config):
         )
 
 
-@click.command()
+@click.group(invoke_without_command=True)
+@click.pass_context
 @click.option(
     "--gen-config",
     is_flag=True,
     callback=print_example_config,
     expose_value=False,
     default=False,
-    help="Print an example config and exit.",
+    help="[Deprecated] Print an example config and exit.",
 )
 @click.option(
     "--version",
@@ -140,7 +151,7 @@ def welcome_message(config):
     expose_value=False,
     default=False,
     is_eager=True,
-    help="Print the version and exit.",
+    help="[Deprecated] Print the version and exit.",
 )
 @click.option(
     "--edit-config",
@@ -150,7 +161,7 @@ def welcome_message(config):
     default=False,
     flag_value="config",
     expose_value=False,
-    help="Opens configuration.yaml with your favorite editor" " and exits.",
+    help="[Deprecated] Opens configuration.yaml with your favorite editor and exits.",
 )
 @click.option(
     "--view-log",
@@ -160,14 +171,25 @@ def welcome_message(config):
     default=False,
     flag_value="log",
     expose_value=False,
-    help="Opens opsdroid logs with your favorite editor" " and exits.",
+    help="[Deprecated] Opens opsdroid logs with your favorite editor and exits.",
 )
-def main():
+def cli(ctx):
     """Opsdroid is a chat bot framework written in Python.
 
     It is designed to be extendable, scalable and simple.
     See https://opsdroid.github.io/ for more information.
     """
+    if ctx.invoked_subcommand is None:
+        warn_deprecated_cli_option(
+            "Running `opsdroid` without a subcommand is now deprecated. "
+            "Please run `opsdroid start` instead."
+        )
+        start()
+
+
+@cli.command()
+def start():
+    """Start the opsdroid bot."""
     check_dependencies()
 
     config = Loader.load_config_file(
@@ -181,10 +203,44 @@ def main():
         opsdroid.run()
 
 
+@cli.command()
+@click.pass_context
+def version(ctx):
+    """Print the version and exit."""
+    print_version(ctx, None, True)
+
+
+@cli.group()
+def config():
+    """Subcommands related to opsdroid configuration."""
+    pass
+
+
+@config.command()
+@click.pass_context
+def gen(ctx):
+    """Print out the example config."""
+    print_example_config(ctx, None, True)
+
+
+@config.command()
+@click.pass_context
+def edit(ctx):
+    """Print out the example config."""
+    edit_files(ctx, None, "config")
+
+
+@cli.command()
+@click.pass_context
+def logs(ctx):
+    """Opens opsdroid logs with your favorite editor and exits."""
+    edit_files(ctx, None, "log")
+
+
 def init():
     """Enter the application."""
     if __name__ == "__main__":
-        main()
+        cli()
 
 
 init()
