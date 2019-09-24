@@ -153,6 +153,7 @@ class OpsDroid:
             _LOGGER.error(_("Oops! Opsdroid is already running."))
 
     def sync_load(self):
+        """Run the load modules method synchronously."""
         self.eventloop.run_until_complete(self.load())
 
     async def load(self):
