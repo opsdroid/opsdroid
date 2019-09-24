@@ -1,4 +1,3 @@
-import sys
 import os
 import shutil
 import subprocess
@@ -65,7 +64,7 @@ class TestLoader(unittest.TestCase):
     def test_load_config_broken_without_connectors(self):
         opsdroid, loader = self.setup()
         with self.assertRaises(SystemExit) as cm:
-            config = loader.load_config_file(
+            _ = loader.load_config_file(
                 [os.path.abspath("tests/configs/broken_without_connectors.yaml")]
             )
         self.assertEqual(cm.exception.code, 1)
@@ -81,7 +80,7 @@ class TestLoader(unittest.TestCase):
         opsdroid, loader = self.setup()
 
         with self.assertRaises(SystemExit) as cm:
-            config = loader.load_config_file(
+            _ = loader.load_config_file(
                 [os.path.abspath("tests/configs/full_broken.yaml")]
             )
         self.assertEqual(cm.exception.code, 1)
@@ -105,7 +104,7 @@ class TestLoader(unittest.TestCase):
         """
         opsdroid, loader = self.setup()
         with self.assertRaises(SystemExit):
-            config = loader.load_config_file(
+            _ = loader.load_config_file(
                 [os.path.abspath("tests/configs/include_exploit.yaml")]
             )
             self.assertLogs("_LOGGER", "critical")
@@ -182,12 +181,16 @@ class TestLoader(unittest.TestCase):
     def test_git_clone(self):
         with mock.patch.object(subprocess, "Popen") as mock_subproc_popen:
             opsdroid, loader = self.setup()
+            myrsa = "/path/to/my/id_rsa"
             loader.git_clone(
                 "https://github.com/rmccue/test-repository.git",
                 os.path.join(self._tmp_dir, "/test"),
                 "master",
+                myrsa,
             )
             self.assertTrue(mock_subproc_popen.called)
+            _, mock_subproc_popen_kwargs = mock_subproc_popen.call_args
+            assert myrsa in mock_subproc_popen_kwargs["env"]["GIT_SSH_COMMAND"]
 
     def test_git_pull(self):
         with mock.patch.object(subprocess, "Popen") as mock_subproc_popen:
