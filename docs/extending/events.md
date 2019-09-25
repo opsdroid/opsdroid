@@ -34,6 +34,11 @@ The base `Event` class has the following attributes and methods:
 #### Methods
 * `respond(event)`: A method which takes another `Event` object responds using any attributes of the event which are not overridden in the response `event`. i.e. if the `target` attribute on the `event` argument is `None` then the `target` of the event being responded to will be used.
 
+### OpsdroidStarted
+
+The `OpsdroidStarted` event is triggered once Opsdroid's loader has completed.
+Skills can respond to this in order to perform startup actions which require connectors, databases, etc. to be available first.
+
 ### `Message`
 
 The `Message` object is the most common event type, it represents textual events, and has the following attributes in addition to the base `Event` attributes.
