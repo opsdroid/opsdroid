@@ -178,7 +178,6 @@ def main():
     welcome_message(config)
 
     with OpsDroid(config=config) as opsdroid:
-        opsdroid.load()
         opsdroid.run()
 
 

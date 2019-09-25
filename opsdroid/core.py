@@ -134,6 +134,7 @@ class OpsDroid:
 
     def run(self):
         """Start the event loop."""
+        self.sync_load()
         _LOGGER.info(_("Opsdroid is now running, press ctrl+c to exit."))
         if not self.is_running():
             self._running = True
@@ -150,7 +151,11 @@ class OpsDroid:
         else:
             _LOGGER.error(_("Oops! Opsdroid is already running."))
 
-    def load(self):
+    def sync_load(self):
+        """Run the load modules method synchronously."""
+        self.eventloop.run_until_complete(self.load())
+
+    async def load(self):
         """Load modules."""
         self.modules = self.loader.load_modules_from_config(self.config)
         _LOGGER.debug(_("Loaded %i skills"), len(self.modules["skills"]))
@@ -160,7 +165,7 @@ class OpsDroid:
         self.train_parsers(self.modules["skills"])
         if self.modules["databases"] is not None:
             self.start_databases(self.modules["databases"])
-        self.start_connectors(self.modules["connectors"])
+        await self.start_connectors(self.modules["connectors"])
         self.cron_task = self.eventloop.create_task(parse_crontab(self))
         self.eventloop.create_task(self.web_server.start())
 
@@ -289,7 +294,7 @@ class OpsDroid:
                 asyncio.gather(*tasks, loop=self.eventloop)
             )
 
-    def start_connectors(self, connectors):
+    async def start_connectors(self, connectors):
         """Start the connectors."""
         for connector_module in connectors:
             for _, cls in connector_module["module"].__dict__.items():
@@ -303,10 +308,8 @@ class OpsDroid:
 
         if connectors:
             for connector in self.connectors:
-                if self.eventloop.is_running():
-                    asyncio.wait(self.eventloop.create_task(connector.connect()))
-                else:
-                    self.eventloop.run_until_complete(connector.connect())
+                await asyncio.wait(self.eventloop.create_task(connector.connect()))
+
             for connector in self.connectors:
                 task = self.eventloop.create_task(connector.listen())
                 self.connector_tasks.append(task)
