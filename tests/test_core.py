@@ -174,14 +174,6 @@ class TestCore(unittest.TestCase):
             mock_connector = Connector({}, opsdroid=opsdroid)
             self.assertEqual(None, mock_connector.default_target)
 
-    def test_train_rasanlu(self):
-        with OpsDroid() as opsdroid:
-            opsdroid.eventloop = asyncio.new_event_loop()
-            opsdroid.config["parsers"] = [{"name": "rasanlu"}]
-            with amock.patch("opsdroid.parsers.rasanlu.train_rasanlu"):
-                opsdroid.train_parsers({})
-                opsdroid.eventloop.close()
-
     def test_connector_names(self):
         with OpsDroid() as opsdroid:
             with self.assertRaises(ValueError):
@@ -492,3 +484,9 @@ class TestCoreAsync(asynctest.TestCase):
             with self.assertRaises(NotImplementedError):
                 await opsdroid.start_databases([module])
                 self.assertEqual(1, len(opsdroid.memory.databases))
+
+    async def test_train_rasanlu(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.config["parsers"] = [{"name": "rasanlu"}]
+            with amock.patch("opsdroid.parsers.rasanlu.train_rasanlu"):
+                await opsdroid.train_parsers({})
