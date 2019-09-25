@@ -10,6 +10,18 @@ from opsdroid.connector import Connector
 from opsdroid.__main__ import configure_lang
 
 
+class TestEventCreator(asynctest.TestCase):
+    """Test the opsdroid event creation class"""
+
+    async def setup(self):
+        pass
+
+    async def test_create_event(self):
+        creator = events.EventCreator(Connector({}))
+
+        self.assertEqual(None, await creator.create_event({"type": "NotAnEvent"}, ""))
+
+
 class TestEvent(asynctest.TestCase):
     """Test the opsdroid event class."""
 

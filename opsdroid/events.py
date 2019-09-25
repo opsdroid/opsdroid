@@ -2,14 +2,39 @@
 import io
 import asyncio
 from abc import ABCMeta
+import logging
 from random import randrange
 from datetime import datetime
+from collections import defaultdict
 
 import aiohttp
 import puremagic
 from get_image_size import get_image_size_from_bytesio
 
 from opsdroid.helper import get_opsdroid
+
+
+_LOGGER = logging.getLogger(__name__)
+
+
+class EventCreator:
+    """Create opsdroid events from events detected by a connector."""
+
+    def __init__(self, connector, dispatch_key="type"):
+        """Initialise the event creator."""
+        self.connector = connector
+        self.dispatch_key = dispatch_key
+
+        self.event_types = defaultdict(lambda: self.skip)
+
+    async def create_event(self, event, target):
+        """Dispatch any event type."""
+        return await self.event_types[event[self.dispatch_key]](event, target)
+
+    @staticmethod
+    async def skip(event, roomid):
+        """Do not handle this event type."""
+        return None
 
 
 # pylint: disable=bad-mcs-classmethod-argument,arguments-differ
@@ -108,7 +133,7 @@ class Event(metaclass=EventMetaClass):
         event.connector = event.connector or self.connector
         event.linked_event = event.linked_event or self
 
-        await opsdroid.send(event)
+        result = await opsdroid.send(event)
 
         if not self.responded_to:
             now = datetime.now()
@@ -118,6 +143,8 @@ class Event(metaclass=EventMetaClass):
                 + (now - self.created).total_seconds()
             )
             self.responded_to = True
+
+        return result
 
     async def update_entity(self, name, value, confidence=None):
         """Add or update an entitiy.
@@ -131,6 +158,10 @@ class Event(metaclass=EventMetaClass):
 
         """
         self.entities[name] = {"value": value, "confidence": confidence}
+
+
+class OpsdroidStarted(Event):
+    """An event to indicate that Opsdroid has loaded."""
 
 
 class Message(Event):
@@ -167,6 +198,10 @@ class Message(Event):
         super().__init__(*args, **kwargs)
         self.text = text
         self.raw_match = None
+
+    def __repr__(self):
+        """Override Message's representation so you can see the text when you print it."""
+        return f"<opsdroid.events.Message(text={self.text})>"
 
     async def _thinking_delay(self):
         """Make opsdroid wait x-seconds before responding.
@@ -258,7 +293,14 @@ class File(Event):
     """Event class to represent arbitrary files as bytes."""
 
     def __init__(
-        self, file_bytes=None, url=None, name=None, mimetype=None, *args, **kwargs
+        self,
+        file_bytes=None,
+        url=None,
+        url_headers=None,
+        name=None,
+        mimetype=None,
+        *args,
+        **kwargs,
     ):  # noqa: D107
         if not (file_bytes or url) or (file_bytes and url):
             raise ValueError("Either file_bytes or url must be specified")
@@ -269,12 +311,14 @@ class File(Event):
         self._mimetype = mimetype
         self._file_bytes = file_bytes
         self.url = url
+        self._url_headers = url_headers
 
     async def get_file_bytes(self):
         """Return the bytes representation of this file."""
         if not self._file_bytes and self.url:
             async with aiohttp.ClientSession() as session:
-                async with session.get(self.url) as resp:
+                _LOGGER.debug(self._url_headers)
+                async with session.get(self.url, headers=self._url_headers) as resp:
                     self._file_bytes = await resp.read()
 
         return self._file_bytes

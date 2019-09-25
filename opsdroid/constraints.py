@@ -54,9 +54,7 @@ def constrain_connectors(connectors):
 
         def constraint_callback(message, connectors=connectors):
             """Check if the connectors is correct."""
-            print(message.connector.name)
-            print(connectors)
-            return message.connector.name in connectors
+            return message.connector and (message.connector.name in connectors)
 
         func = add_skill_attributes(func)
         func.constraints.append(constraint_callback)

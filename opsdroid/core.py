@@ -114,15 +114,14 @@ class OpsDroid:
     @staticmethod
     def handle_async_exception(loop, context):
         """Handle exceptions from async coroutines."""
+        print("ERROR: Unhandled exception in opsdroid, exiting...")
         if "future" in context:
             try:  # pragma: nocover
                 context["future"].result()
             # pylint: disable=broad-except
             except Exception:  # pragma: nocover
-                _LOGGER.exception(_("Caught exception"))
-        else:
-            _LOGGER.error(_("Caught exception"))
-        _LOGGER.error(context)
+                print("Caught exception")
+                print(context)
 
     def is_running(self):
         """Check whether opsdroid is running."""
@@ -163,12 +162,14 @@ class OpsDroid:
         self.setup_skills(self.modules["skills"])
         self.web_server = Web(self)
         self.web_server.setup_webhooks(self.skills)
-        self.train_parsers(self.modules["skills"])
+        await self.train_parsers(self.modules["skills"])
         if self.modules["databases"] is not None:
-            self.start_databases(self.modules["databases"])
+            await self.start_databases(self.modules["databases"])
         await self.start_connectors(self.modules["connectors"])
         self.cron_task = self.eventloop.create_task(parse_crontab(self))
         self.eventloop.create_task(self.web_server.start())
+
+        self.eventloop.create_task(self.parse(events.OpsdroidStarted()))
 
     async def unload(self, future=None):
         """Stop the event loop."""
@@ -275,23 +276,15 @@ class OpsDroid:
                     )
                 )
 
-    def train_parsers(self, skills):
+    async def train_parsers(self, skills):
         """Train the parsers."""
         if "parsers" in self.config:
             parsers = self.config["parsers"] or []
-            tasks = []
             rasanlu = [p for p in parsers if p["name"] == "rasanlu"]
             if len(rasanlu) == 1 and (
                 "enabled" not in rasanlu[0] or rasanlu[0]["enabled"] is not False
             ):
-                tasks.append(
-                    asyncio.ensure_future(
-                        train_rasanlu(rasanlu[0], skills), loop=self.eventloop
-                    )
-                )
-            self.eventloop.run_until_complete(
-                asyncio.gather(*tasks, loop=self.eventloop)
-            )
+                await train_rasanlu(rasanlu[0], skills)
 
     async def start_connectors(self, connectors):
         """Start the connectors."""
@@ -307,7 +300,8 @@ class OpsDroid:
 
         if connectors:
             for connector in self.connectors:
-                await connector.connect()
+                await self.eventloop.create_task(connector.connect())
+
             for connector in self.connectors:
                 task = self.eventloop.create_task(connector.listen())
                 self.connector_tasks.append(task)
@@ -333,7 +327,7 @@ class OpsDroid:
 
         return names
 
-    def start_databases(self, databases):
+    async def start_databases(self, databases):
         """Start the databases."""
         if not databases:
             _LOGGER.debug(databases)
@@ -348,7 +342,7 @@ class OpsDroid:
                     _LOGGER.debug(_("Adding database: %s"), name)
                     database = cls(database_module["config"])
                     self.memory.databases.append(database)
-                    self.eventloop.run_until_complete(database.connect())
+                    await database.connect()
 
     async def run_skill(self, skill, config, message):
         """Execute a skill."""
@@ -362,15 +356,14 @@ class OpsDroid:
             else:
                 await skill(message)
         except Exception:
+            _LOGGER.exception(
+                _("Exception when running skill '%s' "), str(config["name"])
+            )
             if message:
                 await message.respond(
                     events.Message(_("Whoops there has been an error"))
                 )
                 await message.respond(events.Message(_("Check the log for details")))
-
-            _LOGGER.exception(
-                _("Exception when running skill '%s' "), str(config["name"])
-            )
 
     async def get_ranked_skills(self, skills, message):
         """Take a message and return a ranked list of matching skills."""
