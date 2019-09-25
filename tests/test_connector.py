@@ -62,6 +62,18 @@ class TestConnectorBaseClass(unittest.TestCase):
         with self.assertRaises(TypeError):
             MyConnector()
 
+    def test_event_subclasses(self):
+        class MyEvent(Message):
+            pass
+
+        class MyConnector(Connector):
+            @register_event(Message, include_subclasses=True)
+            def send_my_event(self, event):
+                pass
+
+        c = MyConnector({})
+        assert MyEvent in c.events
+
 
 class TestConnectorAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid connector base class."""

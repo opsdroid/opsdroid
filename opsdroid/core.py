@@ -114,15 +114,14 @@ class OpsDroid:
     @staticmethod
     def handle_async_exception(loop, context):
         """Handle exceptions from async coroutines."""
+        print("ERROR: Unhandled exception in opsdroid, exiting...")
         if "future" in context:
             try:  # pragma: nocover
                 context["future"].result()
             # pylint: disable=broad-except
             except Exception:  # pragma: nocover
-                _LOGGER.exception(_("Caught exception"))
-        else:
-            _LOGGER.error(_("Caught exception"))
-        _LOGGER.error(context)
+                print("Caught exception")
+                print(context)
 
     def is_running(self):
         """Check whether opsdroid is running."""
@@ -169,6 +168,8 @@ class OpsDroid:
         await self.start_connectors(self.modules["connectors"])
         self.cron_task = self.eventloop.create_task(parse_crontab(self))
         self.eventloop.create_task(self.web_server.start())
+
+        self.eventloop.create_task(self.parse(events.OpsdroidStarted()))
 
     async def unload(self, future=None):
         """Stop the event loop."""
@@ -299,7 +300,8 @@ class OpsDroid:
 
         if connectors:
             for connector in self.connectors:
-                await connector.connect()
+                await self.eventloop.create_task(connector.connect())
+
             for connector in self.connectors:
                 task = self.eventloop.create_task(connector.listen())
                 self.connector_tasks.append(task)
@@ -354,15 +356,14 @@ class OpsDroid:
             else:
                 await skill(message)
         except Exception:
+            _LOGGER.exception(
+                _("Exception when running skill '%s' "), str(config["name"])
+            )
             if message:
                 await message.respond(
                     events.Message(_("Whoops there has been an error"))
                 )
                 await message.respond(events.Message(_("Check the log for details")))
-
-            _LOGGER.exception(
-                _("Exception when running skill '%s' "), str(config["name"])
-            )
 
     async def get_ranked_skills(self, skills, message):
         """Take a message and return a ranked list of matching skills."""
