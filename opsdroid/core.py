@@ -454,7 +454,7 @@ class OpsDroid:
         """Parse a string against all skills."""
         self.stats["messages_parsed"] = self.stats["messages_parsed"] + 1
         tasks = []
-        if isinstance(event, events.Event):
+        if isinstance(event, events.Message):
             _LOGGER.debug(_("Parsing input: %s"), event)
 
             tasks.append(self.eventloop.create_task(parse_always(self, event)))
