@@ -151,8 +151,6 @@ class TestMain(unittest.TestCase):
         ) as mock_cl, mock.patch.object(
             opsdroid, "welcome_message"
         ) as mock_wm, mock.patch.object(
-            OpsDroid, "load"
-        ) as mock_load, mock.patch.object(
             web, "Web"
         ), mock.patch.object(
             OpsDroid, "run"
@@ -162,5 +160,4 @@ class TestMain(unittest.TestCase):
             self.assertTrue(mock_cd.called)
             self.assertTrue(mock_cl.called)
             self.assertTrue(mock_wm.called)
-            self.assertTrue(mock_load.called)
             self.assertTrue(mock_loop.called)

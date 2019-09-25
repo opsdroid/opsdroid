@@ -14,7 +14,7 @@ COPY requirements.txt requirements.txt
 COPY README.md README.md
 COPY MANIFEST.in MANIFEST.in
 
-RUN apk update && apk add git
+RUN apk update && apk add --no-cache git openssh-client
 RUN pip3 install --upgrade pip
 RUN pip3 install --no-cache-dir --no-use-pep517 .
 RUN apk del gcc musl-dev alpine-sdk
