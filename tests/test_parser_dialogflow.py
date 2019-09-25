@@ -135,6 +135,32 @@ class TestParserDialogflow(asynctest.TestCase):
                 self.assertEqual(mock_skill, skills[0]["skill"])
                 self.assertLogs("_LOGGERS", "debug")
 
+    async def test_call_dialogflow_import_failure(self):
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "path/test.json"
+
+        with OpsDroid() as opsdroid:
+            opsdroid.config["parsers"] = [{"name": "dialogflow", "project-id": "test"}]
+            mock_skill = await self.getMockSkill()
+            mock_skill.config = {"name": "greetings"}
+            opsdroid.skills.append(
+                match_dialogflow_action("smalltalk.greetings.whatsup")(mock_skill)
+            )
+
+            mock_connector = amock.CoroutineMock()
+            message = Message("Hello world", "user", "default", mock_connector)
+
+            with amock.patch.object(
+                dialogflow, "call_dialogflow"
+            ) as mocked_call_dialogflow:
+                mocked_call_dialogflow.side_effect = ImportError()
+
+                skills = await dialogflow.parse_dialogflow(
+                    opsdroid, opsdroid.skills, message, opsdroid.config["parsers"][0]
+                )
+                self.assertEqual(skills, None)
+                self.assertLogs("_LOGGERS", "error")
+                self.assertEqual(opsdroid.config["parsers"], {})
+
     async def test_parse_dialogflow_failure(self):
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "path/test.json"
 

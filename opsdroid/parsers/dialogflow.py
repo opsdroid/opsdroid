@@ -2,8 +2,6 @@
 import os
 import logging
 
-import dialogflow
-
 from opsdroid.const import DEFAULT_LANGUAGE
 
 
@@ -29,26 +27,39 @@ async def call_dialogflow(text, config):
         variables or 'project-id' is not in config.
 
     """
+    try:
+        import dialogflow
 
-    if os.environ["GOOGLE_APPLICATION_CREDENTIALS"] and config.get("project-id"):
-        session_client = dialogflow.SessionsClient()
-        project_id = config.get("project-id")
+        if os.environ.get("GOOGLE_APPLICATION_CREDENTIALS") and config.get(
+            "project-id"
+        ):
+            session_client = dialogflow.SessionsClient()
+            project_id = config.get("project-id")
 
-        session = session_client.session_path(project_id, "opsdroid")
-        text_input = dialogflow.types.TextInput(
-            text=text, language_code=DEFAULT_LANGUAGE
+            session = session_client.session_path(project_id, "opsdroid")
+            text_input = dialogflow.types.TextInput(
+                text=text, language_code=DEFAULT_LANGUAGE
+            )
+            query_input = dialogflow.types.QueryInput(text=text_input)
+
+            response = session_client.detect_intent(
+                session=session, query_input=query_input
+            )
+
+            return response
+        else:
+            raise Warning(
+                _(
+                    "Authentication file not found or 'project-id' not in configuration, dialogflow parser will not be available"
+                )
+            )
+    except ImportError:
+        _LOGGER.error(
+            _(
+                "Unable to find dialogflow dependency. Please install dialogflow with the command pip install dialogflow if you want to use this parser."
+            )
         )
-        query_input = dialogflow.types.QueryInput(text=text_input)
-
-        response = session_client.detect_intent(
-            session=session, query_input=query_input
-        )
-
-        return response
-    else:
-        raise Warning(
-            "Authentication file not found or 'project-id' not in configuration, dialogflow parser will not be available"
-        )
+        config.pop("dialogflow", None)
 
 
 async def parse_dialogflow(opsdroid, skills, message, config):
@@ -114,5 +125,5 @@ async def parse_dialogflow(opsdroid, skills, message, config):
     except Exception as error:
         # TODO: Refactor broad exception
         _LOGGER.error(
-            "There was an error while parsing to dialogflow - {}".format(error)
+            _("There was an error while parsing to dialogflow - {}".format(error))
         )
