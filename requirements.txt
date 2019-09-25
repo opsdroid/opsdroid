@@ -1,5 +1,5 @@
 aiohttp==3.6.1
-aioredis==1.2.0
+aioredis==1.3.0
 aioslacker==0.0.11
 aiosqlite==0.10.0
 appdirs==1.4.3
