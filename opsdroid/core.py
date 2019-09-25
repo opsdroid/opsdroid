@@ -308,7 +308,7 @@ class OpsDroid:
 
         if connectors:
             for connector in self.connectors:
-                await asyncio.wait(self.eventloop.create_task(connector.connect()))
+                await self.eventloop.create_task(connector.connect())
 
             for connector in self.connectors:
                 task = self.eventloop.create_task(connector.listen())
