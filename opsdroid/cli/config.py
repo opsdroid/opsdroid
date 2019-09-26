@@ -10,10 +10,11 @@ def print_example_config(ctx, param, value):
     """[Deprecated] Print out the example config."""
     if not value or ctx.resilient_parsing:
         return
-    warn_deprecated_cli_option(
-        "The flag --gen-config has been deprecated. "
-        "Please run `opsdroid config gen` instead."
-    )
+    if ctx.command.name == "cli":
+        warn_deprecated_cli_option(
+            "The flag --gen-config has been deprecated. "
+            "Please run `opsdroid config gen` instead."
+        )
     with open(EXAMPLE_CONFIG_FILE, "r") as conf:
         click.echo(conf.read())
     ctx.exit(0)
