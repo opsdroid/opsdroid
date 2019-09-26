@@ -120,7 +120,7 @@ class TestCore(unittest.TestCase):
             opsdroid.loader.load_modules_from_config = mock.Mock(
                 return_value=mockconfig
             )
-            opsdroid.start_databases = mock.Mock()
+            opsdroid.start_databases = amock.CoroutineMock()
             opsdroid.setup_skills = mock.Mock()
             opsdroid.start_connectors = amock.CoroutineMock()
 
@@ -128,18 +128,6 @@ class TestCore(unittest.TestCase):
 
             self.assertTrue(opsdroid.start_databases.called)
             self.assertTrue(opsdroid.start_connectors.called)
-
-    def test_start_databases(self):
-        with OpsDroid() as opsdroid:
-            opsdroid.start_databases([])
-            module = {}
-            module["config"] = {}
-            module["module"] = importlib.import_module(
-                "tests.mockmodules.databases.database"
-            )
-            with self.assertRaises(NotImplementedError):
-                opsdroid.start_databases([module])
-                self.assertEqual(1, len(opsdroid.memory.databases))
 
     def test_multiple_opsdroids(self):
         with OpsDroid() as opsdroid:
@@ -151,7 +139,9 @@ class TestCore(unittest.TestCase):
     def test_setup_modules(self):
         with OpsDroid() as opsdroid:
 
-            mockskill = lambda x: x * 2
+            def mockskill(x):
+                return x * 2
+
             mockskill.skill = True
             mockmodule = mock.Mock(setup=mock.MagicMock(), mockskill=mockskill)
             example_modules = [{"module": mockmodule, "config": {}}]
@@ -183,14 +173,6 @@ class TestCore(unittest.TestCase):
         with OpsDroid() as opsdroid:
             mock_connector = Connector({}, opsdroid=opsdroid)
             self.assertEqual(None, mock_connector.default_target)
-
-    def test_train_rasanlu(self):
-        with OpsDroid() as opsdroid:
-            opsdroid.eventloop = asyncio.new_event_loop()
-            opsdroid.config["parsers"] = [{"name": "rasanlu"}]
-            with amock.patch("opsdroid.parsers.rasanlu.train_rasanlu"):
-                opsdroid.train_parsers({})
-                opsdroid.eventloop.close()
 
     def test_connector_names(self):
         with OpsDroid() as opsdroid:
@@ -490,3 +472,21 @@ class TestCoreAsync(asynctest.TestCase):
             with self.assertRaises(NotImplementedError):
                 await opsdroid.start_connectors([module, module])
                 self.assertEqual(3, len(opsdroid.connectors))
+
+    async def test_start_databases(self):
+        with OpsDroid() as opsdroid:
+            await opsdroid.start_databases([])
+            module = {}
+            module["config"] = {}
+            module["module"] = importlib.import_module(
+                "tests.mockmodules.databases.database"
+            )
+            with self.assertRaises(NotImplementedError):
+                await opsdroid.start_databases([module])
+                self.assertEqual(1, len(opsdroid.memory.databases))
+
+    async def test_train_rasanlu(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.config["parsers"] = [{"name": "rasanlu"}]
+            with amock.patch("opsdroid.parsers.rasanlu.train_rasanlu"):
+                await opsdroid.train_parsers({})
