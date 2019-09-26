@@ -182,6 +182,8 @@ def cli(ctx):
     if ctx.invoked_subcommand is None:
         warn_deprecated_cli_option(
             "Running `opsdroid` without a subcommand is now deprecated. "
+            "Please run `opsdroid start` instead. "
+            "You can also run `opsdroid --help` to learn about the other subcommands."
             "Please run `opsdroid start` instead."
         )
         start()
