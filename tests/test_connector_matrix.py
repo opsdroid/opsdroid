@@ -12,7 +12,7 @@ from opsdroid.core import OpsDroid
 from opsdroid.events import Image, File, Message
 from opsdroid.connector.matrix import ConnectorMatrix
 from opsdroid.connector.matrix.create_events import MatrixEventCreator
-from opsdroid.__main__ import configure_lang  # noqa
+from opsdroid.cli.start import configure_lang  # noqa
 
 api_string = "matrix_api_async.AsyncHTTPAPI.{}"
 

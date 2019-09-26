@@ -6,7 +6,7 @@ import asynctest
 import asynctest.mock as amock
 
 from opsdroid.database.sqlite import DatabaseSqlite
-from opsdroid.__main__ import configure_lang
+from opsdroid.cli.start import configure_lang
 
 
 class TestDatabaseSqlite(unittest.TestCase):

@@ -11,16 +11,18 @@ import contextlib
 import click
 from click.testing import CliRunner
 
-import opsdroid.__main__ as opsdroid
-from opsdroid.__main__ import configure_lang
+import opsdroid.__main__
+import opsdroid.cli
+import opsdroid.cli.version
+from opsdroid.cli.start import configure_lang
 import opsdroid.web as web
 from opsdroid.const import __version__
 from opsdroid.core import OpsDroid
 from opsdroid.helper import del_rw
 
 
-class TestMain(unittest.TestCase):
-    """Test the main opsdroid module."""
+class TestCLI(unittest.TestCase):
+    """Test the opsdroid CLI."""
 
     def setUp(self):
         self._tmp_dir = os.path.join(tempfile.gettempdir(), "opsdroid_tests")
@@ -33,35 +35,43 @@ class TestMain(unittest.TestCase):
             shutil.rmtree(self._tmp_dir, onerror=del_rw)
 
     def test_init_runs(self):
-        with mock.patch.object(opsdroid, "cli") as mainfunc:
-            with mock.patch.object(opsdroid, "__name__", "__main__"):
-                opsdroid.init()
+        with mock.patch.object(opsdroid.cli, "cli") as mainfunc:
+            with mock.patch.object(opsdroid.__main__, "__name__", "__main__"):
+                opsdroid.__main__.init()
                 self.assertTrue(mainfunc.called)
 
     def test_init_doesnt_run(self):
-        with mock.patch.object(opsdroid, "cli") as mainfunc:
-            with mock.patch.object(opsdroid, "__name__", "opsdroid"):
-                opsdroid.init()
+        with mock.patch.object(opsdroid.cli, "cli") as mainfunc:
+            with mock.patch.object(opsdroid.__main__, "__name__", "opsdroid"):
+                opsdroid.__main__.init()
                 self.assertFalse(mainfunc.called)
 
     def test_configure_no_lang(self):
         with mock.patch.object(gettext, "translation") as translation:
-            opsdroid.configure_lang({})
+            from opsdroid.cli.start import configure_lang
+
+            configure_lang({})
             self.assertFalse(translation.return_value.install.called)
 
     def test_configure_lang(self):
         with mock.patch.object(gettext, "translation") as translation:
-            opsdroid.configure_lang({"lang": "es"})
+            from opsdroid.cli.utils import configure_lang
+
+            configure_lang({"lang": "es"})
             self.assertTrue(translation.return_value.install.called)
 
     def test_welcome_message(self):
         config = {"welcome-message": True}
-        opsdroid.welcome_message(config)
+        from opsdroid.cli.utils import welcome_message
+
+        welcome_message(config)
         self.assertLogs("_LOGGER", "info")
 
     def test_welcome_exception(self):
         config = {}
-        response = opsdroid.welcome_message(config)
+        from opsdroid.cli.utils import welcome_message
+
+        response = welcome_message(config)
         self.assertIsNone(response)
 
     def test_check_version_27(self):
@@ -69,28 +79,36 @@ class TestMain(unittest.TestCase):
             version_info.major = 2
             version_info.minor = 7
             with self.assertRaises(SystemExit):
-                opsdroid.check_dependencies()
+                from opsdroid.cli.utils import check_dependencies
+
+                check_dependencies()
 
     def test_check_version_34(self):
         with mock.patch.object(sys, "version_info") as version_info:
             version_info.major = 3
             version_info.minor = 4
             with self.assertRaises(SystemExit):
-                opsdroid.check_dependencies()
+                from opsdroid.cli.utils import check_dependencies
+
+                check_dependencies()
 
     def test_check_version_35(self):
         with mock.patch.object(sys, "version_info") as version_info:
             version_info.major = 3
             version_info.minor = 5
             with self.assertRaises(SystemExit):
-                opsdroid.check_dependencies()
+                from opsdroid.cli.utils import check_dependencies
+
+                check_dependencies()
 
     def test_check_version_36(self):
         with mock.patch.object(sys, "version_info") as version_info:
             version_info.major = 3
             version_info.minor = 6
             try:
-                opsdroid.check_dependencies()
+                from opsdroid.cli.utils import check_dependencies
+
+                check_dependencies()
             except SystemExit:
                 self.fail("check_dependencies() exited unexpectedly!")
 
@@ -99,7 +117,9 @@ class TestMain(unittest.TestCase):
             version_info.major = 3
             version_info.minor = 7
             try:
-                opsdroid.check_dependencies()
+                from opsdroid.cli.start import check_dependencies
+
+                check_dependencies()
             except SystemExit:
                 self.fail("check_dependencies() exited unexpectedly!")
 
@@ -108,7 +128,9 @@ class TestMain(unittest.TestCase):
             "opsdroid.core.OpsDroid.load"
         ) as opsdroid_load:
             runner = CliRunner()
-            result = runner.invoke(opsdroid.gen, [])
+            from opsdroid.cli.config import gen
+
+            result = runner.invoke(gen, [])
             self.assertTrue(click_echo.called)
             self.assertFalse(opsdroid_load.called)
             self.assertEqual(result.exit_code, 0)
@@ -119,7 +141,7 @@ class TestMain(unittest.TestCase):
         ) as opsdroid_load:
             runner = CliRunner()
             with pytest.warns(DeprecationWarning, match=".*opsdroid config gen.*"):
-                result = runner.invoke(opsdroid.cli, ["--gen-config"])
+                result = runner.invoke(opsdroid.cli.cli, ["--gen-config"])
             self.assertTrue(click_echo.called)
             self.assertFalse(opsdroid_load.called)
             self.assertEqual(result.exit_code, 0)
@@ -129,7 +151,9 @@ class TestMain(unittest.TestCase):
             "opsdroid.core.OpsDroid.load"
         ) as opsdroid_load:
             runner = CliRunner()
-            result = runner.invoke(opsdroid.version, [])
+            from opsdroid.cli.version import version
+
+            result = runner.invoke(version, [])
             self.assertTrue(click_echo.called)
             self.assertFalse(opsdroid_load.called)
             self.assertTrue(__version__ in click_echo.call_args[0][0])
@@ -141,7 +165,7 @@ class TestMain(unittest.TestCase):
         ) as opsdroid_load:
             runner = CliRunner()
             with pytest.warns(DeprecationWarning, match=".*opsdroid version.*"):
-                result = runner.invoke(opsdroid.cli, ["--version"])
+                result = runner.invoke(opsdroid.cli.cli, ["--version"])
             self.assertTrue(click_echo.called)
             self.assertFalse(opsdroid_load.called)
             self.assertTrue(__version__ in click_echo.call_args[0][0])
@@ -152,7 +176,9 @@ class TestMain(unittest.TestCase):
             "subprocess.run"
         ) as editor:
             runner = CliRunner()
-            result = runner.invoke(opsdroid.edit, [], input="y")
+            from opsdroid.cli.config import edit
+
+            result = runner.invoke(edit, [], input="y")
             self.assertTrue(click_echo.called)
             self.assertTrue(editor.called)
             self.assertEqual(result.exit_code, 0)
@@ -163,7 +189,7 @@ class TestMain(unittest.TestCase):
         ) as editor:
             runner = CliRunner()
             with pytest.warns(DeprecationWarning, match=".*opsdroid config edit.*"):
-                result = runner.invoke(opsdroid.cli, ["--edit-config"], input="y")
+                result = runner.invoke(opsdroid.cli.cli, ["--edit-config"], input="y")
             self.assertTrue(click_echo.called)
             self.assertTrue(editor.called)
             self.assertEqual(result.exit_code, 0)
@@ -173,7 +199,9 @@ class TestMain(unittest.TestCase):
             "subprocess.run"
         ) as editor:
             runner = CliRunner()
-            result = runner.invoke(opsdroid.logs, [])
+            from opsdroid.cli.logs import logs
+
+            result = runner.invoke(logs, [])
             self.assertTrue(click_echo.called)
             self.assertTrue(editor.called)
             self.assertEqual(result.exit_code, 0)
@@ -184,26 +212,14 @@ class TestMain(unittest.TestCase):
         ) as editor:
             runner = CliRunner()
             with pytest.warns(DeprecationWarning, match=".*opsdroid logs.*"):
-                result = runner.invoke(opsdroid.cli, ["--view-log"])
+                result = runner.invoke(opsdroid.cli.cli, ["--view-log"])
             self.assertTrue(click_echo.called)
             self.assertTrue(editor.called)
             self.assertEqual(result.exit_code, 0)
 
     def test_main(self):
-        with mock.patch.object(sys, "argv", ["opsdroid"]), mock.patch.object(
-            opsdroid, "check_dependencies"
-        ) as mock_cd, mock.patch.object(
-            opsdroid, "configure_logging"
-        ) as mock_cl, mock.patch.object(
-            opsdroid, "welcome_message"
-        ) as mock_wm, mock.patch.object(
-            web, "Web"
-        ), mock.patch.object(
-            OpsDroid, "run"
-        ) as mock_loop:
+        with pytest.warns(DeprecationWarning, match=".*opsdroid start.*"):
             runner = CliRunner()
-            runner.invoke(opsdroid.cli, [])
-            self.assertTrue(mock_cd.called)
-            self.assertTrue(mock_cl.called)
-            self.assertTrue(mock_wm.called)
-            self.assertTrue(mock_loop.called)
+            with mock.patch.object(OpsDroid, "run") as mock_run:
+                runner.invoke(opsdroid.cli.cli, [])
+                assert mock_run.called

@@ -5,7 +5,7 @@ import asynctest.mock as amock
 import aiohttp
 from aiohttp import ClientOSError
 
-from opsdroid.__main__ import configure_lang
+from opsdroid.cli.start import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.matchers import match_rasanlu
 from opsdroid.events import Message

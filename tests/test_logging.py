@@ -6,7 +6,7 @@ import tempfile
 import contextlib
 
 import opsdroid.logging as opsdroid
-from opsdroid.__main__ import configure_lang
+from opsdroid.cli.start import configure_lang
 
 
 class TestLogging(unittest.TestCase):

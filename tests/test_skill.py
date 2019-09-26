@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock
 
-from opsdroid.__main__ import configure_lang
+from opsdroid.cli.start import configure_lang
 from opsdroid.matchers import match_regex
 from opsdroid.skill import Skill
 
