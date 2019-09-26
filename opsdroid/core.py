@@ -377,7 +377,7 @@ class OpsDroid:
             _LOGGER.debug(_("Processing parsers..."))
             parsers = self.config["parsers"] or []
 
-            dialogflow = [p for p in parsers if p["name"] == "dialogflow"]
+            dialogflow = [p for p in parsers if p.get("name") == "dialogflow"]
 
             if len(dialogflow) == 1 and (
                 "enabled" not in dialogflow[0] or dialogflow[0]["enabled"] is not False
@@ -387,28 +387,28 @@ class OpsDroid:
                     self, skills, message, dialogflow[0]
                 )
 
-            luisai = [p for p in parsers if p["name"] == "luisai"]
+            luisai = [p for p in parsers if p.get("name") == "luisai"]
             if len(luisai) == 1 and (
                 "enabled" not in luisai[0] or luisai[0]["enabled"] is not False
             ):
                 _LOGGER.debug("Checking luisai...")
                 ranked_skills += await parse_luisai(self, skills, message, luisai[0])
 
-            sapcai = [p for p in parsers if p["name"] == "sapcai"]
+            sapcai = [p for p in parsers if p.get("name") == "sapcai"]
             if len(sapcai) == 1 and (
                 "enabled" not in sapcai[0] or sapcai[0]["enabled"] is not False
             ):
                 _LOGGER.debug(_("Checking Recast.AI..."))
                 ranked_skills += await parse_sapcai(self, skills, message, sapcai[0])
 
-            witai = [p for p in parsers if p["name"] == "witai"]
+            witai = [p for p in parsers if p.get("name") == "witai"]
             if len(witai) == 1 and (
                 "enabled" not in witai[0] or witai[0]["enabled"] is not False
             ):
                 _LOGGER.debug(_("Checking wit.ai..."))
                 ranked_skills += await parse_witai(self, skills, message, witai[0])
 
-            rasanlu = [p for p in parsers if p["name"] == "rasanlu"]
+            rasanlu = [p for p in parsers if p.get("name") == "rasanlu"]
             if len(rasanlu) == 1 and (
                 "enabled" not in rasanlu[0] or rasanlu[0]["enabled"] is not False
             ):
