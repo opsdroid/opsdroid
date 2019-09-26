@@ -59,7 +59,8 @@ async def call_dialogflow(text, config):
                 "Unable to find dialogflow dependency. Please install dialogflow with the command pip install dialogflow if you want to use this parser."
             )
         )
-        config.pop("dialogflow", None)
+        config.pop("name", None)
+        config.pop("project-id", None)
 
 
 async def parse_dialogflow(opsdroid, skills, message, config):
