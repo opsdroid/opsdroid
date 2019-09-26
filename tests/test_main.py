@@ -32,13 +32,13 @@ class TestMain(unittest.TestCase):
             shutil.rmtree(self._tmp_dir, onerror=del_rw)
 
     def test_init_runs(self):
-        with mock.patch.object(opsdroid, "main") as mainfunc:
+        with mock.patch.object(opsdroid, "cli") as mainfunc:
             with mock.patch.object(opsdroid, "__name__", "__main__"):
                 opsdroid.init()
                 self.assertTrue(mainfunc.called)
 
     def test_init_doesnt_run(self):
-        with mock.patch.object(opsdroid, "main") as mainfunc:
+        with mock.patch.object(opsdroid, "cli") as mainfunc:
             with mock.patch.object(opsdroid, "__name__", "opsdroid"):
                 opsdroid.init()
                 self.assertFalse(mainfunc.called)
@@ -107,7 +107,17 @@ class TestMain(unittest.TestCase):
             "opsdroid.core.OpsDroid.load"
         ) as opsdroid_load:
             runner = CliRunner()
-            result = runner.invoke(opsdroid.main, ["--gen-config"])
+            result = runner.invoke(opsdroid.gen, [])
+            self.assertTrue(click_echo.called)
+            self.assertFalse(opsdroid_load.called)
+            self.assertEqual(result.exit_code, 0)
+
+    def test_deprecated_gen_config(self):
+        with mock.patch.object(click, "echo") as click_echo, mock.patch(
+            "opsdroid.core.OpsDroid.load"
+        ) as opsdroid_load:
+            runner = CliRunner()
+            result = runner.invoke(opsdroid.cli, ["--gen-config"])
             self.assertTrue(click_echo.called)
             self.assertFalse(opsdroid_load.called)
             self.assertEqual(result.exit_code, 0)
@@ -117,7 +127,18 @@ class TestMain(unittest.TestCase):
             "opsdroid.core.OpsDroid.load"
         ) as opsdroid_load:
             runner = CliRunner()
-            result = runner.invoke(opsdroid.main, ["--version"])
+            result = runner.invoke(opsdroid.version, [])
+            self.assertTrue(click_echo.called)
+            self.assertFalse(opsdroid_load.called)
+            self.assertTrue(__version__ in click_echo.call_args[0][0])
+            self.assertEqual(result.exit_code, 0)
+
+    def test_deprecated_print_version(self):
+        with mock.patch.object(click, "echo") as click_echo, mock.patch(
+            "opsdroid.core.OpsDroid.load"
+        ) as opsdroid_load:
+            runner = CliRunner()
+            result = runner.invoke(opsdroid.cli, ["--version"])
             self.assertTrue(click_echo.called)
             self.assertFalse(opsdroid_load.called)
             self.assertTrue(__version__ in click_echo.call_args[0][0])
@@ -128,7 +149,17 @@ class TestMain(unittest.TestCase):
             "subprocess.run"
         ) as editor:
             runner = CliRunner()
-            result = runner.invoke(opsdroid.main, ["--edit-config"], input="y")
+            result = runner.invoke(opsdroid.edit, [], input="y")
+            self.assertTrue(click_echo.called)
+            self.assertTrue(editor.called)
+            self.assertEqual(result.exit_code, 0)
+
+    def test_deprecated_edit_files_config(self):
+        with mock.patch.object(click, "echo") as click_echo, mock.patch(
+            "subprocess.run"
+        ) as editor:
+            runner = CliRunner()
+            result = runner.invoke(opsdroid.cli, ["--edit-config"], input="y")
             self.assertTrue(click_echo.called)
             self.assertTrue(editor.called)
             self.assertEqual(result.exit_code, 0)
@@ -138,7 +169,17 @@ class TestMain(unittest.TestCase):
             "subprocess.run"
         ) as editor:
             runner = CliRunner()
-            result = runner.invoke(opsdroid.main, ["--view-log"])
+            result = runner.invoke(opsdroid.logs, [])
+            self.assertTrue(click_echo.called)
+            self.assertTrue(editor.called)
+            self.assertEqual(result.exit_code, 0)
+
+    def test_deprecated_edit_files_log(self):
+        with mock.patch.object(click, "echo") as click_echo, mock.patch(
+            "subprocess.run"
+        ) as editor:
+            runner = CliRunner()
+            result = runner.invoke(opsdroid.cli, ["--view-log"])
             self.assertTrue(click_echo.called)
             self.assertTrue(editor.called)
             self.assertEqual(result.exit_code, 0)
@@ -156,7 +197,7 @@ class TestMain(unittest.TestCase):
             OpsDroid, "run"
         ) as mock_loop:
             runner = CliRunner()
-            runner.invoke(opsdroid.main, [])
+            runner.invoke(opsdroid.cli, [])
             self.assertTrue(mock_cd.called)
             self.assertTrue(mock_cl.called)
             self.assertTrue(mock_wm.called)

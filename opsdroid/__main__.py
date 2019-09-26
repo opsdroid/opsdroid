@@ -92,6 +92,7 @@ def edit_files(ctx, param, value):
 
 
 def warn_deprecated_cli_option(text):
+    """Warn users that the cli option they have used is deprecated."""
     print(f"Warning: {text}")
     warnings.warn(text, DeprecationWarning)
 
@@ -161,7 +162,7 @@ def welcome_message(config):
     default=False,
     flag_value="config",
     expose_value=False,
-    help="[Deprecated] Opens configuration.yaml with your favorite editor and exits.",
+    help="[Deprecated] Open configuration.yaml with your favorite editor and exits.",
 )
 @click.option(
     "--view-log",
@@ -171,7 +172,7 @@ def welcome_message(config):
     default=False,
     flag_value="log",
     expose_value=False,
-    help="[Deprecated] Opens opsdroid logs with your favorite editor and exits.",
+    help="[Deprecated] Open opsdroid logs with your favorite editor and exits.",
 )
 def cli(ctx):
     """Opsdroid is a chat bot framework written in Python.
@@ -213,7 +214,6 @@ def version(ctx):
 @cli.group()
 def config():
     """Subcommands related to opsdroid configuration."""
-    pass
 
 
 @config.command()
@@ -233,7 +233,7 @@ def edit(ctx):
 @cli.command()
 @click.pass_context
 def logs(ctx):
-    """Opens opsdroid logs with your favorite editor and exits."""
+    """Open opsdroid logs with your favorite editor and exits."""
     edit_files(ctx, None, "log")
 
 
