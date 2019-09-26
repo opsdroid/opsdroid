@@ -49,6 +49,8 @@ class ConnectorSlack(Connector):
             # instead. This method also blocks so we need to dispatch it to the loop as a task.
             self.opsdroid.eventloop.create_task(self.slack_rtm._connect_and_read())
 
+            self.auth_info = (await self.slack.api_call("auth.test", json={})).data
+
             _LOGGER.debug("Connected as %s", self.bot_name)
             _LOGGER.debug("Using icon %s", self.icon_emoji)
             _LOGGER.debug("Default room is %s", self.default_target)
@@ -65,8 +67,8 @@ class ConnectorSlack(Connector):
 
     async def disconnect(self):
         """Disconnect from Slack."""
-        self.listening = False
         await self.slack_rtm.stop()
+        self.listening = False
 
     async def listen(self):
         """Listen for and parse new messages."""
@@ -76,7 +78,11 @@ class ConnectorSlack(Connector):
         message = payload["data"]
 
         # Ignore own messages
-        if "bot_id" in message and message["username"] == self.bot_name:
+        if (
+            "subtype" in message
+            and message["subtype"] == "bot_message"
+            and message["username"] == self.bot_name
+        ):
             return
 
         # Lookup username
