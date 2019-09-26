@@ -14,12 +14,14 @@ _LOGGER = logging.getLogger(__name__)
 __all__ = ["Connector", "register_event"]
 
 
-def register_event(event_type):
+def register_event(event_type, include_subclasses=False):
     """
     Register a method to handle a specific `opsdroid.events.Event` object.
 
     Args:
         event_type (Event): The event class this method can handle.
+        include_subclasses (bool): Allow the function to trigger on subclasses of the registered
+            event. Defaults to False.
 
     """
 
@@ -28,6 +30,8 @@ def register_event(event_type):
             func.__opsdroid_events__.append(event_type)
         else:
             func.__opsdroid_events__ = [event_type]
+
+        func.__opsdroid_match_subclasses__ = include_subclasses
         return func
 
     return decorator
@@ -68,7 +72,15 @@ class Connector:
                         "not a valid OpsDroid event type"
                     )
                     raise TypeError(err_msg.format(event_type=event_type))
-                cls.events[event_type] = event_method
+
+                if event_method.__opsdroid_match_subclasses__:
+                    # Register all event types which are a subclass of this
+                    # one.
+                    for event in Event.event_registry.values():
+                        if issubclass(event, event_type):
+                            cls.events[event] = event_method
+                else:
+                    cls.events[event_type] = event_method
 
         return super().__new__(cls)
 
