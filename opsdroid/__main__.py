@@ -184,7 +184,6 @@ def cli(ctx):
             "Running `opsdroid` without a subcommand is now deprecated. "
             "Please run `opsdroid start` instead. "
             "You can also run `opsdroid --help` to learn about the other subcommands."
-            "Please run `opsdroid start` instead."
         )
         start()
 
