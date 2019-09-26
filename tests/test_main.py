@@ -1,5 +1,6 @@
 import unittest
 import unittest.mock as mock
+import pytest
 import os
 import sys
 import shutil
@@ -117,7 +118,8 @@ class TestMain(unittest.TestCase):
             "opsdroid.core.OpsDroid.load"
         ) as opsdroid_load:
             runner = CliRunner()
-            result = runner.invoke(opsdroid.cli, ["--gen-config"])
+            with pytest.warns(DeprecationWarning, match=".*opsdroid config gen.*"):
+                result = runner.invoke(opsdroid.cli, ["--gen-config"])
             self.assertTrue(click_echo.called)
             self.assertFalse(opsdroid_load.called)
             self.assertEqual(result.exit_code, 0)
@@ -138,7 +140,8 @@ class TestMain(unittest.TestCase):
             "opsdroid.core.OpsDroid.load"
         ) as opsdroid_load:
             runner = CliRunner()
-            result = runner.invoke(opsdroid.cli, ["--version"])
+            with pytest.warns(DeprecationWarning, match=".*opsdroid version.*"):
+                result = runner.invoke(opsdroid.cli, ["--version"])
             self.assertTrue(click_echo.called)
             self.assertFalse(opsdroid_load.called)
             self.assertTrue(__version__ in click_echo.call_args[0][0])
@@ -159,7 +162,8 @@ class TestMain(unittest.TestCase):
             "subprocess.run"
         ) as editor:
             runner = CliRunner()
-            result = runner.invoke(opsdroid.cli, ["--edit-config"], input="y")
+            with pytest.warns(DeprecationWarning, match=".*opsdroid config edit.*"):
+                result = runner.invoke(opsdroid.cli, ["--edit-config"], input="y")
             self.assertTrue(click_echo.called)
             self.assertTrue(editor.called)
             self.assertEqual(result.exit_code, 0)
@@ -179,7 +183,8 @@ class TestMain(unittest.TestCase):
             "subprocess.run"
         ) as editor:
             runner = CliRunner()
-            result = runner.invoke(opsdroid.cli, ["--view-log"])
+            with pytest.warns(DeprecationWarning, match=".*opsdroid logs.*"):
+                result = runner.invoke(opsdroid.cli, ["--view-log"])
             self.assertTrue(click_echo.called)
             self.assertTrue(editor.called)
             self.assertEqual(result.exit_code, 0)

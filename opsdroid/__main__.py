@@ -53,6 +53,11 @@ def print_version(ctx, param, value):
     """[Deprecated] Print out the version of opsdroid that is installed."""
     if not value or ctx.resilient_parsing:
         return
+    if ctx.command.name == "cli":
+        warn_deprecated_cli_option(
+            "The flag --version has been deprecated. "
+            "Please run `opsdroid version` instead."
+        )
     click.echo("opsdroid {version}".format(version=__version__))
     ctx.exit(0)
 
@@ -62,7 +67,7 @@ def print_example_config(ctx, param, value):
     if not value or ctx.resilient_parsing:
         return
     warn_deprecated_cli_option(
-        "The flas --gen-config has been deprecated. "
+        "The flag --gen-config has been deprecated. "
         "Please run `opsdroid config gen` instead."
     )
     with open(EXAMPLE_CONFIG_FILE, "r") as conf:
@@ -74,8 +79,18 @@ def edit_files(ctx, param, value):
     """Open config/log file with favourite editor."""
     if value == "config":
         file = DEFAULT_CONFIG_PATH
+        if ctx.command.name == "cli":
+            warn_deprecated_cli_option(
+                "The flag -e/--edit-files has been deprecated. "
+                "Please run `opsdroid config edit` instead."
+            )
     elif value == "log":
         file = DEFAULT_LOG_FILENAME
+        if ctx.command.name == "cli":
+            warn_deprecated_cli_option(
+                "The flag -l/--view-log has been deprecated. "
+                "Please run `opsdroid logs` instead."
+            )
     else:
         return
 
