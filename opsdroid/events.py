@@ -423,7 +423,7 @@ class JoinRoom(Event):
 
 
 class UserInvite(Event):
-    """Event class to represent a user being invited or added to a room."""
+    """Event class to represent a user being invited to a room."""
 
 
 class UserRole(Event):
