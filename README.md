@@ -65,7 +65,7 @@ In this new frontier of DevOps, it is becoming more and more popular to interact
 
 ```bash
 $ pip3 install opsdroid
-$ opsdroid
+$ opsdroid start
 ```
 
 ## Installation Guide
@@ -153,7 +153,7 @@ $ pip3 install --upgrade pip
 $ sudo pip3 install opsdroid
 
 # Run opsdroid
-$ opsdroid
+$ opsdroid start
 ```
 
 ## Usage
@@ -162,9 +162,9 @@ When running the `opsdroid` command with no arguments the bot framework will sta
 
 For information on arguments that you can pass to opsdroid run `opsdroid --help`.
 
-```
+```console
 $ opsdroid --help
-Usage: opsdroid [OPTIONS]
+Usage: opsdroid [OPTIONS] COMMAND [ARGS]...
 
   Opsdroid is a chat bot framework written in Python.
 
@@ -172,11 +172,13 @@ Usage: opsdroid [OPTIONS]
   https://opsdroid.github.io/ for more information.
 
 Options:
-  --gen-config          Print an example config and exit.
-  -v, --version         Print the version and exit.
-  -e, --edit-config     Edit configuration.yaml
-  -l, --view-log        Open opsdroid logs
-  --help                Show this message and exit.
+  --help             Show this message and exit.
+
+Commands:
+  config   Subcommands related to opsdroid configuration.
+  logs     Open opsdroid logs with your favorite editor and exits.
+  start    Start the opsdroid bot.
+  version  Print the version and exit.
 ```
 
 ## Contributing

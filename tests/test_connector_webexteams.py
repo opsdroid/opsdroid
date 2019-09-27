@@ -9,7 +9,7 @@ import asynctest.mock as amock
 from opsdroid.core import OpsDroid
 from opsdroid.connector.webexteams import ConnectorWebexTeams
 from opsdroid.events import Message, Reaction
-from opsdroid.__main__ import configure_lang
+from opsdroid.cli.start import configure_lang
 
 
 class TestConnectorCiscoWebexTeams(unittest.TestCase):

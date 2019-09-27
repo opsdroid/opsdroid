@@ -21,4 +21,4 @@ RUN apk del gcc musl-dev
 
 EXPOSE 8080
 
-CMD ["opsdroid"]
+CMD ["opsdroid", "start"]

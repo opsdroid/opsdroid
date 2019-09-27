@@ -4,11 +4,11 @@ import asyncio
 import asynctest
 import asynctest.mock as amock
 
-from opsdroid.__main__ import configure_lang
+from opsdroid.cli.start import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.connector.websocket import ConnectorWebsocket
 from opsdroid.events import Message
-from opsdroid.__main__ import configure_lang
+from opsdroid.cli.start import configure_lang
 
 
 class TestConnectorWebsocket(unittest.TestCase):
