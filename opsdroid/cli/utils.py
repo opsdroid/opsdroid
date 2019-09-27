@@ -111,5 +111,5 @@ def welcome_message(config):
             _LOGGER.info("=" * 40)
     except KeyError:
         _LOGGER.warning(
-            _("'welcome-message: true/false' is missing in " "configuration.yaml")
+            _("'welcome-message: true/false' is missing in configuration.yaml")
         )
