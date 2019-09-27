@@ -318,7 +318,6 @@ class ConnectorMatrix(Connector):
         except MatrixRequestError as err:
             if err.code == 409:
                 pass
-            # err["error"] = "Room alias #picard_general:localhost already exists."
 
     @register_event(events.JoinRoom)
     async def _send_join_room(self, join_event):
@@ -333,7 +332,7 @@ class ConnectorMatrix(Connector):
             content = json.loads(err.content)
             if (err.code == 403 and
                 "is already in the room" in content["error"]):
-                pass
+                return
 
     @register_event(events.RoomDescription)
     async def _send_room_desciption(self, desc_event):
