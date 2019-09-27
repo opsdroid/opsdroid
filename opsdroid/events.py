@@ -1,18 +1,17 @@
 """Classes to describe different kinds of possible event."""
-import io
 import asyncio
-from abc import ABCMeta
+import io
 import logging
-from random import randrange
-from datetime import datetime
+from abc import ABCMeta
 from collections import defaultdict
+from datetime import datetime
+from random import randrange
 
 import aiohttp
+
 import puremagic
 from get_image_size import get_image_size_from_bytesio
-
 from opsdroid.helper import get_opsdroid
-
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -386,18 +385,24 @@ class NewRoom(Event):
 
 
 class RoomName(Event):
+    """Event class to represent the naming of a room."""
+
     def __init__(self, name, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = name
 
 
 class RoomAddress(Event):
+    """Event class to represent a room's address being changed"""
+
     def __init__(self, address, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.address = address
 
 
 class RoomImage(Event):
+    """Event class to represent a room's display image being changed."""
+
     def __init__(self, room_image, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not isinstance(room_image, Image):
@@ -406,20 +411,24 @@ class RoomImage(Event):
 
 
 class RoomDescription(Event):
+    """Event class to represent a room's description being changed."""
+
     def __init__(self, description, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.description = description
 
 
 class JoinRoom(Event):
-    """Event class to tell opsdroid to join a room"""
+    """Event class to represent a user joining a room."""
 
 
 class UserInvite(Event):
-    """Event class to invite or add a specific user to a room"""
+    """Event class to represent a user being invited or added to a room."""
 
 
 class UserRole(Event):
+    """Event class to represent a user's role or powers in a room being changed."""
+
     def __init__(self, role, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.role = role
