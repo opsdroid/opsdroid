@@ -123,7 +123,7 @@ class ConnectorSlack(Connector):
         _LOGGER.debug("Responding with: '%s' in room  %s", message.text, message.target)
         await self.slack.api_call(
             "chat.postMessage",
-            json={
+            data={
                 "channel": message.target,
                 "text": message.text,
                 "as_user": False,
@@ -138,7 +138,7 @@ class ConnectorSlack(Connector):
         _LOGGER.debug("Responding with interactive blocks in room  %s", blocks.target)
         await self.slack.api_call(
             "chat.postMessage",
-            json={
+            data={
                 "channel": blocks.target,
                 "username": self.bot_name,
                 "blocks": blocks.blocks,
@@ -154,7 +154,7 @@ class ConnectorSlack(Connector):
         try:
             await self.slack.api_call(
                 "reactions.add",
-                json={
+                data={
                     "name": emoji,
                     "channel": reaction.target,
                     "timestamp": reaction.linked_event.raw_event["ts"],

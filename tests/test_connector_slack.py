@@ -185,7 +185,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
             await prev_message.respond(Reaction("😀"))
         self.assertTrue(connector.slack.api_call)
         self.assertEqual(
-            connector.slack.api_call.call_args[1]["json"]["name"], "grinning_face"
+            connector.slack.api_call.call_args[1]["data"]["name"], "grinning_face"
         )
 
     async def test_react_invalid_name(self):
