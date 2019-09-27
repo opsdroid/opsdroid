@@ -4,8 +4,12 @@ A connector for [Slack](https://slack.com/).
 
 ## Requirements
 
- * A Slack account
- * The token from a [custom bot integration](https://my.slack.com/apps/A0F7YS25R-bots)
+* A Slack account
+* The token from a [Slack App bot token](https://api.slack.com/bot-users).
+  * Create a [new Slack App](https://api.slack.com/apps/new) and select the workspace you would like it in.
+  * Navigate to the "Bot Users" section and add a bot giving it a display name and username.
+  * Navigate to the "Install App" section and install the app in your workspace.
+  * Take note of the "Bot User OAuth Access Token" as this will be the `api-token` you need for your configuration.
 
 ## Configuration
 
