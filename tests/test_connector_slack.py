@@ -67,8 +67,10 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         opsdroid = amock.CoroutineMock()
         opsdroid.eventloop = self.loop
         connector.slack_rtm._connect_and_read = amock.CoroutineMock()
+        connector.slack.api_call = amock.CoroutineMock()
         await connector.connect()
         self.assertTrue(connector.slack_rtm._connect_and_read.called)
+        self.assertTrue(connector.slack.api_call.called)
 
     async def test_connect_auth_fail(self):
         connector = ConnectorSlack({"api-token": "abc123"}, opsdroid=OpsDroid())
@@ -119,11 +121,13 @@ class TestConnectorSlackAsync(asynctest.TestCase):
 
         connector.opsdroid.parse.reset_mock()
         message["bot_id"] = "abc"
-        message["username"] = "opsdroid"
+        message["subtype"] = "bot_message"
+        connector.bot_id = message["bot_id"]
         await connector.process_message(data=message)
         self.assertFalse(connector.opsdroid.parse.called)
         del message["bot_id"]
-        del message["username"]
+        del message["subtype"]
+        connector.bot_id = None
 
         connector.opsdroid.parse.reset_mock()
         connector.lookup_username.side_effect = ValueError

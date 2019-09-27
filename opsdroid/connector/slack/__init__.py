@@ -29,6 +29,9 @@ class ConnectorSlack(Connector):
         self.slack_rtm = slack.RTMClient(token=self.token, run_async=True)
         self.websocket = None
         self.bot_name = config.get("bot-name", "opsdroid")
+        self.auth_info = None
+        self.user_info = None
+        self.bot_id = None
         self.known_users = {}
         self.keepalive = None
         self.reconnecting = False
@@ -49,7 +52,15 @@ class ConnectorSlack(Connector):
             # instead. This method also blocks so we need to dispatch it to the loop as a task.
             self.opsdroid.eventloop.create_task(self.slack_rtm._connect_and_read())
 
-            self.auth_info = (await self.slack.api_call("auth.test", json={})).data
+            self.auth_info = (await self.slack.api_call("auth.test")).data
+            self.user_info = (
+                await self.slack.api_call(
+                    "users.info",
+                    http_verb="GET",
+                    params={"user": self.auth_info["user_id"]},
+                )
+            ).data
+            self.bot_id = self.user_info["user"]["profile"]["bot_id"]
 
             _LOGGER.debug("Connected as %s", self.bot_name)
             _LOGGER.debug("Using icon %s", self.icon_emoji)
@@ -81,7 +92,7 @@ class ConnectorSlack(Connector):
         if (
             "subtype" in message
             and message["subtype"] == "bot_message"
-            and message["username"] == self.bot_name
+            and message["bot_id"] == self.bot_id
         ):
             return
 
