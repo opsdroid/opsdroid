@@ -13,8 +13,21 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class Web:
-    """Create class for opsdroid Web server."""
+    """A Web class
 
+    This class will create opsdroid Web server
+
+    Args:
+        opsdroid: opsroid instance
+
+    Attributes:
+        opsdroid: opsroid instance
+        config: web config of opsdroid instance from configuration yaml files
+        web_app: web.Application instance containing web server configurations
+        runner: AppRunner of web_app
+        site: this contains self.runner, host, port, ssl_context
+    """
+    
     def __init__(self, opsdroid):
         """Create web object."""
         self.opsdroid = opsdroid
