@@ -6,7 +6,7 @@ A maintainer should be polite and respectful towards every member of the communi
 - **Responsibilities**
   - Responding to issues and PRs (even just to say thanks and we'll look into it)
   - Reviewing and merging Pull Requests
-  - Providing support on [Matrix](https://riot.im/app/#/room/#opsdroid-general:matrix.org)
+  - Providing support on [matrix](https://riot.im/app/#/room/#opsdroid-general:matrix.org)
   - Engaging in discussions on how to grow and shape opsdroid
   - Promote the project (blogging, tweeting, speaking at events, etc)
   - Make regular contributions and tackle old issues
