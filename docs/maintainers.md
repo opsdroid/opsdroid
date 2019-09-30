@@ -6,7 +6,7 @@ A maintainer should be polite and respectful towards every member of the communi
 - **Responsibilities**
   - Responding to issues and PRs (even just to say thanks and we'll look into it)
   - Reviewing and merging Pull Requests
-  - Providing support on [gitter](https://gitter.im/opsdroid/developers)
+  - Providing support on [Matrix](https://riot.im/app/#/room/#opsdroid-general:matrix.org)
   - Engaging in discussions on how to grow and shape opsdroid
   - Promote the project (blogging, tweeting, speaking at events, etc)
   - Make regular contributions and tackle old issues
@@ -28,7 +28,7 @@ As a maintainer one of the tasks that you have to take on will be reviewing pull
   
 Depending on the pull request, coverage might drop a bit. If that is the case, as a maintainer you should ask that a test is created to bump the coverage back up. You might need to give some guidance as to how to properly test the code in the PR.
 
-If a PR is not related to an open issue, then it's a proposal for the project. Jacob, the creator of opsdroid, and the community should give feedback and discuss the Pull Request either in the PR itself, an issue or in the [gitter](https://gitter.im/opsdroid/developers) channel.
+If a PR is not related to an open issue, then it's a proposal for the project. Jacob, the creator of opsdroid, and the community should give feedback and discuss the Pull Request either in the PR itself, an issue or in the [Matrix](https://riot.im/app/#/room/#opsdroid-general:matrix.org) channel.
 
 When merging a PR into opsdroid main branch you should take a few things into consideration.
 - Use Squash and Merge option when merging a PR into opsdroid's master branch
