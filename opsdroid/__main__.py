@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Starts opsdroid."""
 
 import opsdroid.cli
