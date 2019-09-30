@@ -257,17 +257,6 @@ class OpsDroid:
                     func.config = skill["config"]
                     self.skills.append(func)
 
-        with contextlib.suppress(AttributeError):
-            for skill in skills:
-                skill["module"].setup(self, self.config)
-                _LOGGER.warning(
-                    _(
-                        "<skill module>.setup() is deprecated and "
-                        "will be removed in a future release. "
-                        "Please use class-based skills instead."
-                    )
-                )
-
     async def train_parsers(self, skills):
         """Train the parsers."""
         if "parsers" in self.config:
