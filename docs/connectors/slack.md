@@ -4,8 +4,12 @@ A connector for [Slack](https://slack.com/).
 
 ## Requirements
 
- * A Slack account
- * The token from a [custom bot integration](https://my.slack.com/apps/A0F7YS25R-bots)
+* A Slack account
+* A [Slack App bot token](https://api.slack.com/bot-users).
+  * Create a [new Slack App](https://api.slack.com/apps/new) and select the workspace you would like it in.
+  * Navigate to the "Bot Users" section and add a bot, giving it a display name and username.
+  * Navigate to the "Install App" section and install the app in your workspace.
+  * Take note of the "Bot User OAuth Access Token" as this will be the `api-token` you need for your configuration.
 
 ## Configuration
 
@@ -18,6 +22,7 @@ connectors:
     bot-name: "mybot" # default "opsdroid"
     default-room: "#random" # default "#general"
     icon-emoji: ":smile:" # default ":robot_face:"
+    connect-timeout: 10 # default 10 seconds
 ```
 
 ## Usage
@@ -39,3 +44,55 @@ hi
 opsdroid APP [7:06 PM]
 Hi fabiorosado
 ```
+
+## Rich layouts and blocks
+
+Slack has support for [rich layouts](https://api.slack.com/messaging/composing/layouts) using a concept they call [blocks](https://api.slack.com/reference/messaging/blocks). Blocks are JSON objects which describe a rich element, and a list of them can be passed instead of a message to produce rich content.
+
+To do this you need to respond with an `opsdroid.connector.slack.events.Blocks` event which is constructed with a list of blocks.
+
+### Example
+
+```python
+from opsdroid.skill import Skill
+from opsdroid.matchers import match_regex
+from opsdroid.connector.slack.events import Blocks
+
+
+class BlocksSkill(Skill):
+
+    @match_regex(r"who are you\?")
+    async def who_are_you(self, event):
+        await event.respond(Blocks([
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "Hey! I'm opsdroid.\nI'm a natural language event driven automation bot framework.\n*What a mouthful!*"
+                    },
+                    "accessory": {
+                        "type": "image",
+                        "image_url": "https://raw.githubusercontent.com/opsdroid/style-guidelines/master/logos/logo-light.png",
+                        "alt_text": "opsdroid logo"
+                    }
+                },
+                {
+                    "type": "actions",
+                    "elements": [
+                        {
+                            "type": "button",
+                            "text": {
+                                "type": "plain_text",
+                                "text": "Visit website",
+                                "emoji": True
+                            },
+                            "url": "https://opsdroid.dev"
+                        }
+                    ]
+                }
+            ]
+        ))
+
+```
+
+![](https://user-images.githubusercontent.com/1610850/58658951-ac523300-8319-11e9-8c2a-011469a436d0.png)

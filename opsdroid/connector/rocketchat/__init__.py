@@ -4,11 +4,11 @@ import logging
 import datetime
 import aiohttp
 
-from opsdroid.connector import Connector
+from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
 
 _LOGGER = logging.getLogger(__name__)
-API_PATH = '/api/v1/'
+API_PATH = "/api/v1/"
 
 
 class RocketChat(Connector):
@@ -28,25 +28,26 @@ class RocketChat(Connector):
         """
         super().__init__(config, opsdroid=opsdroid)
         self.name = "rocket.chat"
-        self.config = config
-        self.default_room = config.get("default-room", "general")
+        self.default_target = config.get("default-room", "general")
         self.group = config.get("group", None)
         self.url = config.get("channel-url", "https://open.rocket.chat")
         self.update_interval = config.get("update-interval", 1)
         self.bot_name = config.get("bot-name", "opsdroid")
         self.listening = True
         self.latest_update = datetime.datetime.utcnow().isoformat()
+        self._closing = asyncio.Event()
+        self.loop = asyncio.get_event_loop()
+        self.session = None
 
         try:
-            self.user_id = config['user-id']
-            self.token = config['token']
-            self.headers = {
-                'X-User-Id': self.user_id,
-                "X-Auth-Token": self.token,
-            }
+            self.user_id = config["user-id"]
+            self.token = config["token"]
+            self.headers = {"X-User-Id": self.user_id, "X-Auth-Token": self.token}
         except (KeyError, AttributeError):
-            _LOGGER.error("Unable to login: Access token is missing. "
-                          "Rocket.Chat connector will not be available.")
+            _LOGGER.error(
+                "Unable to login: Access token is missing. "
+                "Rocket.Chat connector will not be available."
+            )
 
     def build_url(self, method):
         """Build the url to connect with api.
@@ -75,18 +76,14 @@ class RocketChat(Connector):
 
         """
         _LOGGER.info("Connecting to Rocket.Chat")
-
-        async with aiohttp.ClientSession() as session:
-            resp = await session.get(self.build_url('me'),
-                                     headers=self.headers)
-            if resp.status != 200:
-                _LOGGER.error("Unable to connect.")
-                _LOGGER.error("Rocket.Chat error %s, %s",
-                              resp.status, resp.text)
-            else:
-                json = await resp.json()
-                _LOGGER.debug("Connected to Rocket.Chat as %s",
-                              json["username"])
+        self.session = aiohttp.ClientSession()
+        resp = await self.session.get(self.build_url("me"), headers=self.headers)
+        if resp.status != 200:
+            _LOGGER.error("Unable to connect.")
+            _LOGGER.error("Rocket.Chat error %s, %s", resp.status, resp.text)
+        else:
+            json = await resp.json()
+            _LOGGER.debug("Connected to Rocket.Chat as %s", json["username"])
 
     async def _parse_message(self, response):
         """Parse the message received.
@@ -95,17 +92,19 @@ class RocketChat(Connector):
             response (dict): Response returned by aiohttp.Client.
 
         """
-        if response['messages']:
+        if response["messages"]:
             message = Message(
-                response['messages'][0]['u']['username'],
-                response['messages'][0]['rid'],
+                response["messages"][0]["msg"],
+                response["messages"][0]["u"]["username"],
+                response["messages"][0]["rid"],
                 self,
-                response['messages'][0]['msg'])
-            _LOGGER.debug("Received message from Rocket.Chat %s",
-                          response['messages'][0]['msg'])
+            )
+            _LOGGER.debug(
+                "Received message from Rocket.Chat %s", response["messages"][0]["msg"]
+            )
 
             await self.opsdroid.parse(message)
-            self.latest_update = response['messages'][0]['ts']
+            self.latest_update = response["messages"][0]["ts"]
 
     async def _get_message(self):
         """Connect to the API and get messages.
@@ -117,29 +116,27 @@ class RocketChat(Connector):
 
         """
         if self.group:
-            url = self.build_url('groups.history?roomName={}'.format(
-                self.group))
-            self.default_room = self.group
+            url = self.build_url("groups.history?roomName={}".format(self.group))
+            self.default_target = self.group
         else:
-            url = self.build_url('channels.history?roomName={}'.format(
-                self.default_room))
+            url = self.build_url(
+                "channels.history?roomName={}".format(self.default_target)
+            )
 
         if self.latest_update:
-            url += '&oldest={}'.format(self.latest_update)
+            url += "&oldest={}".format(self.latest_update)
 
-        async with aiohttp.ClientSession() as session:
-            resp = await session.get(url,
-                                     headers=self.headers)
+            await asyncio.sleep(self.update_interval)
+            resp = await self.session.get(url, headers=self.headers)
 
             if resp.status != 200:
-                _LOGGER.error("Rocket.Chat error %s, %s",
-                              resp.status, resp.text)
+                _LOGGER.error("Rocket.Chat error %s, %s", resp.status, resp.text)
                 self.listening = False
             else:
                 json = await resp.json()
                 await self._parse_message(json)
 
-    async def listen(self):
+    async def get_messages_loop(self):
         """Listen for and parse new messages.
 
         The method will sleep asynchronously at the end of
@@ -153,9 +150,22 @@ class RocketChat(Connector):
         """
         while self.listening:
             await self._get_message()
-            await asyncio.sleep(self.update_interval)
 
-    async def respond(self, message, room=None):
+    async def listen(self):
+        """Listen for and parse new messages.
+
+        Every connector has to implement the listen method. When an
+        infinite loop is running, it becomes hard to cancel this task.
+        So we are creating a task and set it on a variable so we can
+        cancel the task.
+
+        """
+        message_getter = self.loop.create_task(self.get_messages_loop())
+        await self._closing.wait()
+        message_getter.cancel()
+
+    @register_event(Message)
+    async def send_message(self, message):
         """Respond with a message.
 
         The message argument carries both the text to reply with but
@@ -164,22 +174,31 @@ class RocketChat(Connector):
 
         Args:
             message (object): An instance of Message
-            room (string, optional): Name of the room to respond to.
 
         """
         _LOGGER.debug("Responding with: %s", message.text)
-        async with aiohttp.ClientSession() as session:
-            data = {}
-            data['channel'] = message.room
-            data['alias'] = self.bot_name
-            data['text'] = message.text
-            data['avatar'] = ''
-            resp = await session.post(
-                self.build_url('chat.postMessage'),
-                headers=self.headers,
-                data=data)
 
-            if resp.status == 200:
-                _LOGGER.debug('Successfully responded')
-            else:
-                _LOGGER.debug("Error - %s: Unable to respond", resp.status)
+        data = {}
+        data["channel"] = message.target
+        data["alias"] = self.bot_name
+        data["text"] = message.text
+        data["avatar"] = ""
+        resp = await self.session.post(
+            self.build_url("chat.postMessage"), headers=self.headers, data=data
+        )
+
+        if resp.status == 200:
+            _LOGGER.debug("Successfully responded")
+        else:
+            _LOGGER.debug("Error - %s: Unable to respond", resp.status)
+
+    async def disconnect(self):
+        """Disconnect from Rocket.Chat.
+
+        Stops the infinite loop found in self._listen() and closes
+        aiohttp session.
+
+        """
+        self.listening = False
+        self._closing.set()
+        await self.session.close()

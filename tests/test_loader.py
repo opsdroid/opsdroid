@@ -1,4 +1,3 @@
-import sys
 import os
 import shutil
 import subprocess
@@ -10,7 +9,7 @@ from types import ModuleType
 
 import pkg_resources
 from yaml import YAMLError
-from opsdroid.__main__ import configure_lang
+from opsdroid.cli.start import configure_lang
 from opsdroid import loader as ld
 from opsdroid.loader import Loader
 from opsdroid.helper import del_rw
@@ -37,13 +36,60 @@ class TestLoader(unittest.TestCase):
     def test_load_config_file(self):
         opsdroid, loader = self.setup()
         config = loader.load_config_file(
-            [os.path.abspath("tests/configs/minimal.yaml")])
+            [os.path.abspath("tests/configs/minimal.yaml")]
+        )
         self.assertIsNotNone(config)
+
+    def test_load_config_valid(self):
+        opsdroid, loader = self.setup()
+        config = loader.load_config_file(
+            [os.path.abspath("tests/configs/full_valid.yaml")]
+        )
+        self.assertIsNotNone(config)
+
+    def test_load_config_valid_without_wellcome_message(self):
+        opsdroid, loader = self.setup()
+        config = loader.load_config_file(
+            [os.path.abspath("tests/configs/valid_without_wellcome_message.yaml")]
+        )
+        self.assertIsNotNone(config)
+
+    def test_load_config_valid_without_db_and_parsers(self):
+        opsdroid, loader = self.setup()
+        config = loader.load_config_file(
+            [os.path.abspath("tests/configs/valid_without_db_and_parsers.yaml")]
+        )
+        self.assertIsNotNone(config)
+
+    def test_load_config_broken_without_connectors(self):
+        opsdroid, loader = self.setup()
+        with self.assertRaises(SystemExit) as cm:
+            _ = loader.load_config_file(
+                [os.path.abspath("tests/configs/broken_without_connectors.yaml")]
+            )
+        self.assertEqual(cm.exception.code, 1)
+
+    def test_load_config_valid_case_sensitivity(self):
+        opsdroid, loader = self.setup()
+        config = loader.load_config_file(
+            [os.path.abspath("tests/configs/valid_case_sensitivity.yaml")]
+        )
+        self.assertIsNotNone(config)
+
+    def test_load_config_broken(self):
+        opsdroid, loader = self.setup()
+
+        with self.assertRaises(SystemExit) as cm:
+            _ = loader.load_config_file(
+                [os.path.abspath("tests/configs/full_broken.yaml")]
+            )
+        self.assertEqual(cm.exception.code, 1)
 
     def test_load_config_file_2(self):
         opsdroid, loader = self.setup()
         config = loader.load_config_file(
-            [os.path.abspath("tests/configs/minimal_2.yaml")])
+            [os.path.abspath("tests/configs/minimal_2.yaml")]
+        )
         self.assertIsNotNone(config)
 
     def test_load_exploit(self):
@@ -58,50 +104,60 @@ class TestLoader(unittest.TestCase):
         """
         opsdroid, loader = self.setup()
         with self.assertRaises(SystemExit):
-            config = loader.load_config_file(
-                [os.path.abspath("tests/configs/include_exploit.yaml")])
-            self.assertLogs('_LOGGER', 'critical')
+            _ = loader.load_config_file(
+                [os.path.abspath("tests/configs/include_exploit.yaml")]
+            )
+            self.assertLogs("_LOGGER", "critical")
             self.assertRaises(YAMLError)
             unittest.main(exit=False)
 
+    @unittest.skip("old config type fails validation #770")
     def test_load_config_file_with_include(self):
         opsdroid, loader = self.setup()
         config = loader.load_config_file(
-            [os.path.abspath("tests/configs/minimal_with_include.yaml")])
+            [os.path.abspath("tests/configs/minimal_with_include.yaml")]
+        )
         config2 = loader.load_config_file(
-            [os.path.abspath("tests/configs/minimal.yaml")])
+            [os.path.abspath("tests/configs/minimal.yaml")]
+        )
         self.assertIsNotNone(config)
         self.assertEqual(config, config2)
 
     def test_yaml_load_exploit(self):
-        with mock.patch('sys.exit'):
+        with mock.patch("sys.exit"):
             config = Loader.load_config_file(
-                [os.path.abspath("tests/configs/include_exploit.yaml")])
+                [os.path.abspath("tests/configs/include_exploit.yaml")]
+            )
             self.assertIsNone(config)
             # If the command in exploit.yaml is echoed it will return 0
             self.assertNotEqual(config, 0)
 
+    @unittest.skip("old config type fails validation #770")
     def test_load_config_file_with_env_vars(self):
         opsdroid, loader = self.setup()
-        os.environ["ENVVAR"] = 'test'
+        os.environ["ENVVAR"] = "shell"
         config = loader.load_config_file(
-            [os.path.abspath("tests/configs/minimal_with_envs.yaml")])
-        self.assertEqual(config["test"], os.environ["ENVVAR"])
+            [os.path.abspath("tests/configs/minimal_with_envs.yaml")]
+        )
+        self.assertEqual(config["connectors"][0]["name"], os.environ["ENVVAR"])
 
     def test_create_default_config(self):
         test_config_path = os.path.join(
-            tempfile.gettempdir(), "test_config_path/configuration.yaml")
+            tempfile.gettempdir(), "test_config_path/configuration.yaml"
+        )
         opsdroid, loader = self.setup()
 
-        self.assertEqual(loader.create_default_config(test_config_path),
-                         test_config_path)
+        self.assertEqual(
+            loader.create_default_config(test_config_path), test_config_path
+        )
         self.assertTrue(os.path.isfile(test_config_path))
         shutil.rmtree(os.path.split(test_config_path)[0], onerror=del_rw)
 
     def test_generate_config_if_none_exist(self):
         cdf_backup = Loader.create_default_config
         Loader.create_default_config = mock.Mock(
-            return_value=os.path.abspath("tests/configs/minimal.yaml"))
+            return_value=os.path.abspath("tests/configs/minimal.yaml")
+        )
         Loader.load_config_file(["file_which_does_not_exist"])
         self.assertTrue(Loader.create_default_config.called)
         Loader.create_default_config = cdf_backup
@@ -109,45 +165,52 @@ class TestLoader(unittest.TestCase):
     def test_load_non_existant_config_file(self):
         cdf_backup = Loader.create_default_config
         Loader.create_default_config = mock.Mock(
-            return_value=os.path.abspath("/tmp/my_nonexistant_config"))
-        with mock.patch('sys.exit') as mock_sysexit:
+            return_value=os.path.abspath("/tmp/my_nonexistant_config")
+        )
+        with mock.patch("sys.exit") as mock_sysexit:
             Loader.load_config_file(["file_which_does_not_exist"])
             self.assertTrue(Loader.create_default_config.called)
             self.assertTrue(mock_sysexit.called)
         Loader.create_default_config = cdf_backup
 
     def test_load_broken_config_file(self):
-        with mock.patch('sys.exit') as patched_sysexit:
-            Loader.load_config_file(
-                [os.path.abspath("tests/configs/broken.yaml")])
+        with mock.patch("sys.exit") as patched_sysexit:
+            Loader.load_config_file([os.path.abspath("tests/configs/broken.yaml")])
             self.assertTrue(patched_sysexit.called)
 
     def test_git_clone(self):
-        with mock.patch.object(subprocess, 'Popen') as mock_subproc_popen:
+        with mock.patch.object(subprocess, "Popen") as mock_subproc_popen:
             opsdroid, loader = self.setup()
-            loader.git_clone("https://github.com/rmccue/test-repository.git",
-                             os.path.join(self._tmp_dir, "/test"), "master")
+            myrsa = "/path/to/my/id_rsa"
+            loader.git_clone(
+                "https://github.com/rmccue/test-repository.git",
+                os.path.join(self._tmp_dir, "/test"),
+                "master",
+                myrsa,
+            )
             self.assertTrue(mock_subproc_popen.called)
+            _, mock_subproc_popen_kwargs = mock_subproc_popen.call_args
+            assert myrsa in mock_subproc_popen_kwargs["env"]["GIT_SSH_COMMAND"]
 
     def test_git_pull(self):
-        with mock.patch.object(subprocess, 'Popen') as mock_subproc_popen:
+        with mock.patch.object(subprocess, "Popen") as mock_subproc_popen:
             opsdroid, loader = self.setup()
             loader.git_pull(os.path.join(self._tmp_dir, "/test"))
             self.assertTrue(mock_subproc_popen.called)
 
     def test_pip_install_deps(self):
-        with mock.patch.object(subprocess, 'Popen') as mocked_popen:
-            mocked_popen.return_value.communicate.return_value = ['Test\nTest']
+        with mock.patch.object(subprocess, "Popen") as mocked_popen:
+            mocked_popen.return_value.communicate.return_value = ["Test\nTest"]
             opsdroid, loader = self.setup()
             loader.pip_install_deps(os.path.abspath("/path/to/some/file.txt"))
             self.assertTrue(mocked_popen.called)
 
     def test_no_pip_install(self):
         opsdroid, loader = self.setup()
-        with mock.patch.object(loader, 'pip_install_deps') as mock_pip:
+        with mock.patch.object(loader, "pip_install_deps") as mock_pip:
             mock_pip.side_effect = FileNotFoundError()
             with self.assertRaises(FileNotFoundError):
-                mock_pip.return_value.communicate.return_value = ['Test\nTest']
+                mock_pip.return_value.communicate.return_value = ["Test\nTest"]
                 loader.pip_install_deps("/path/to/some/file.txt")
                 self.assertTrue(mock_pip.called)
 
@@ -155,47 +218,42 @@ class TestLoader(unittest.TestCase):
         opsdroid, loader = self.setup()
         loader.pip_install_deps("/path/to/some/file.txt")
 
-        with mock.patch.object(subprocess, 'Popen') as mocked_popen:
-            mocked_popen.side_effect = [
-                FileNotFoundError(), FileNotFoundError()]
+        with mock.patch.object(subprocess, "Popen") as mocked_popen:
+            mocked_popen.side_effect = [FileNotFoundError(), FileNotFoundError()]
             with self.assertRaises(OSError) as error:
                 loader.pip_install_deps("/path/to/some/file.txt")
                 self.assertEqual(error, "Pip and pip3 not found, exiting...")
 
     def test_build_module_path(self):
-        config = {"type": "test",
-                  "name": "test",
-                  "is_builtin": False}
+        config = {"type": "test", "name": "test", "is_builtin": False}
         loader = mock.Mock()
         loader.modules_directory = ""
-        self.assertIn("test.test",
-                      ld.Loader.build_module_import_path(config))
-        self.assertIn("test",
-                      ld.Loader.build_module_install_path(loader, config))
+        self.assertIn("test.test", ld.Loader.build_module_import_path(config))
+        self.assertIn("test", ld.Loader.build_module_install_path(loader, config))
 
         config["is_builtin"] = True
-        self.assertIn("opsdroid.test.test",
-                      ld.Loader.build_module_import_path(config))
-        self.assertIn("test",
-                      ld.Loader.build_module_install_path(loader, config))
+        self.assertIn("opsdroid.test.test", ld.Loader.build_module_import_path(config))
+        self.assertIn("test", ld.Loader.build_module_install_path(loader, config))
 
     def test_check_cache_removes_dir(self):
         config = {}
         config["no-cache"] = True
-        config['install_path'] = os.path.join(
-            self._tmp_dir, os.path.normpath("test/module"))
-        os.makedirs(config['install_path'], mode=0o777)
+        config["install_path"] = os.path.join(
+            self._tmp_dir, os.path.normpath("test/module")
+        )
+        os.makedirs(config["install_path"], mode=0o777)
         ld.Loader.check_cache(config)
         self.assertFalse(os.path.isdir(config["install_path"]))
 
     def test_check_cache_removes_file(self):
         config = {}
         config["no-cache"] = True
-        config['install_path'] = os.path.join(
-            self._tmp_dir, os.path.normpath("test/module/test"))
-        directory, _ = os.path.split(config['install_path'])
+        config["install_path"] = os.path.join(
+            self._tmp_dir, os.path.normpath("test/module/test")
+        )
+        directory, _ = os.path.split(config["install_path"])
         os.makedirs(directory, mode=0o777)
-        open(config['install_path'] + ".py", 'w')
+        open(config["install_path"] + ".py", "w")
         ld.Loader.check_cache(config)
         self.assertFalse(os.path.isfile(config["install_path"] + ".py"))
         shutil.rmtree(directory, onerror=del_rw)
@@ -203,9 +261,10 @@ class TestLoader(unittest.TestCase):
     def test_check_cache_leaves(self):
         config = {}
         config["no-cache"] = False
-        config['install_path'] = os.path.join(
-            self._tmp_dir, os.path.normpath("test/module"))
-        os.makedirs(config['install_path'], mode=0o777)
+        config["install_path"] = os.path.join(
+            self._tmp_dir, os.path.normpath("test/module")
+        )
+        os.makedirs(config["install_path"], mode=0o777)
         ld.Loader.check_cache(config)
         self.assertTrue(os.path.isdir(config["install_path"]))
         shutil.rmtree(config["install_path"], onerror=del_rw)
@@ -213,12 +272,13 @@ class TestLoader(unittest.TestCase):
     def test_loading_intents(self):
         config = {}
         config["no-cache"] = True
-        config['install_path'] = os.path.join(
-            self._tmp_dir, os.path.normpath("test/module/test"))
-        os.makedirs(config['install_path'], mode=0o777)
+        config["install_path"] = os.path.join(
+            self._tmp_dir, os.path.normpath("test/module/test")
+        )
+        os.makedirs(config["install_path"], mode=0o777)
         intent_contents = "Hello world"
-        intents_file = os.path.join(config['install_path'], "intents.md")
-        with open(intents_file, 'w') as intents:
+        intents_file = os.path.join(config["install_path"], "intents.yml")
+        with open(intents_file, "w") as intents:
             intents.write(intent_contents)
         loaded_intents = ld.Loader._load_intents(config)
         self.assertEqual(intent_contents, loaded_intents)
@@ -227,8 +287,9 @@ class TestLoader(unittest.TestCase):
     def test_loading_intents_failed(self):
         config = {}
         config["no-cache"] = True
-        config['install_path'] = os.path.join(
-            self._tmp_dir, os.path.normpath("test/module/test/"))
+        config["install_path"] = os.path.join(
+            self._tmp_dir, os.path.normpath("test/module/test/")
+        )
         loaded_intents = ld.Loader._load_intents(config)
         self.assertEqual(None, loaded_intents)
 
@@ -236,23 +297,22 @@ class TestLoader(unittest.TestCase):
         opsdroid, loader = self.setup()
 
         config = {}
-        config['no-dep'] = True
+        config["no-dep"] = True
 
         loader._install_module_dependencies(config)
-        self.assertLogs('_LOGGER', 'debug')
+        self.assertLogs("_LOGGER", "debug")
         self.assertEqual(loader._install_module_dependencies(config), None)
 
-        with mock.patch.object(loader, '_install_module_dependencies') \
-                as nodep:
-            config['no-dep'] = False
+        with mock.patch.object(loader, "_install_module_dependencies") as nodep:
+            config["no-dep"] = False
             self.assertTrue(nodep)
 
     def test_no_req_in_install_module_dependencies(self):
         opsdroid, loader = self.setup()
         config = {}
-        config['install_path'] = ''
+        config["install_path"] = ""
 
-        with mock.patch('os.path.isfile') as file:
+        with mock.patch("os.path.isfile") as file:
             file.return_value = False
             self.assertEqual(loader._install_module_dependencies(config), None)
 
@@ -322,10 +382,10 @@ class TestLoader(unittest.TestCase):
         loader._load_modules = mock.MagicMock()
         loader._setup_modules = mock.MagicMock()
         config = {}
-        config['databases'] = mock.MagicMock()
-        config['skills'] = mock.MagicMock()
-        config['connectors'] = mock.MagicMock()
-        config['module-path'] = os.path.join(self._tmp_dir, "opsdroid")
+        config["databases"] = mock.MagicMock()
+        config["skills"] = mock.MagicMock()
+        config["connectors"] = mock.MagicMock()
+        config["module-path"] = os.path.join(self._tmp_dir, "opsdroid")
 
         loader.load_modules_from_config(config)
         self.assertEqual(len(loader._load_modules.mock_calls), 3)
@@ -342,7 +402,8 @@ class TestLoader(unittest.TestCase):
     def test_load_minimal_config_file(self):
         opsdroid, loader = self.setup()
         config = Loader.load_config_file(
-            [os.path.abspath("tests/configs/minimal.yaml")])
+            [os.path.abspath("tests/configs/minimal.yaml")]
+        )
         loader._install_module = mock.MagicMock()
         loader.import_module = mock.MagicMock()
         modules = loader.load_modules_from_config(config)
@@ -356,7 +417,8 @@ class TestLoader(unittest.TestCase):
         loader._install_module = mock.MagicMock()
         loader.import_module = mock.MagicMock()
         config = Loader.load_config_file(
-            [os.path.abspath("tests/configs/minimal_2.yaml")])
+            [os.path.abspath("tests/configs/minimal_2.yaml")]
+        )
         modules = loader.load_modules_from_config(config)
         self.assertIsNotNone(modules["connectors"])
         self.assertIsNone(modules["databases"])
@@ -371,13 +433,14 @@ class TestLoader(unittest.TestCase):
         mockedmodule = mock.Mock(return_value={"name": "testmodule"})
 
         with tempfile.TemporaryDirectory() as tmp_dep_path:
-            with mock.patch.object(loader,
-                                   '_install_module') as mockinstall, \
-                    mock.patch('opsdroid.loader.DEFAULT_MODULE_DEPS_PATH',
-                               os.path.join(tmp_dep_path,
-                                            'site-packages')), \
-                    mock.patch.object(loader, 'import_module',
-                                      mockedmodule) as mockimport:
+            with mock.patch.object(
+                loader, "_install_module"
+            ) as mockinstall, mock.patch(
+                "opsdroid.loader.DEFAULT_MODULE_DEPS_PATH",
+                os.path.join(tmp_dep_path, "site-packages"),
+            ), mock.patch.object(
+                loader, "import_module", mockedmodule
+            ) as mockimport:
                 loader.setup_modules_directory({})
                 loader._load_modules(modules_type, modules)
                 self.assertTrue(mockinstall.called)
@@ -389,9 +452,11 @@ class TestLoader(unittest.TestCase):
         modules_type = "test"
         modules = [{"name": "testmodule"}]
 
-        with mock.patch.object(loader, '_install_module') as mockinstall, \
-                mock.patch.object(loader, 'import_module',
-                                  return_value=None) as mockimport:
+        with mock.patch.object(
+            loader, "_install_module"
+        ) as mockinstall, mock.patch.object(
+            loader, "import_module", return_value=None
+        ) as mockimport:
             loader.setup_modules_directory({})
             loaded_modules = loader._load_modules(modules_type, modules)
             self.assertTrue(mockinstall.called)
@@ -403,17 +468,18 @@ class TestLoader(unittest.TestCase):
 
         modules_type = "test"
         modules = [{"name": "testmodule"}]
-        install_path = os.path.join(
-            self._tmp_dir, "test_existing_module")
+        install_path = os.path.join(self._tmp_dir, "test_existing_module")
         mockedmodule = mock.Mock(return_value={"name": "testmodule"})
         mocked_install_path = mock.Mock(return_value=install_path)
 
         os.mkdir(install_path)
-        with mock.patch.object(loader, '_update_module') as mockupdate, \
-                mock.patch.object(loader, 'import_module',
-                                  mockedmodule) as mockimport, \
-                mock.patch.object(loader, 'build_module_install_path',
-                                  mocked_install_path) as mockbuildpath:
+        with mock.patch.object(
+            loader, "_update_module"
+        ) as mockupdate, mock.patch.object(
+            loader, "import_module", mockedmodule
+        ) as mockimport, mock.patch.object(
+            loader, "build_module_install_path", mocked_install_path
+        ) as mockbuildpath:
             loader.setup_modules_directory({})
             loader._load_modules(modules_type, modules)
             self.assertTrue(mockbuildpath.called)
@@ -424,106 +490,154 @@ class TestLoader(unittest.TestCase):
 
     def test_install_missing_local_module(self):
         opsdroid, loader = self.setup()
-        config = {"name": "testmodule",
-                  "install_path": os.path.join(
-                      self._tmp_dir, "test_missing_local_module"),
-                  "repo": os.path.join(self._tmp_dir, "testrepo"),
-                  "branch": "master"}
-        with mock.patch('opsdroid.loader._LOGGER.error') as logmock:
+        config = {
+            "name": "testmodule",
+            "install_path": os.path.join(self._tmp_dir, "test_missing_local_module"),
+            "repo": os.path.join(self._tmp_dir, "testrepo"),
+            "branch": "master",
+        }
+        with mock.patch("opsdroid.loader._LOGGER.error") as logmock:
             loader._install_module(config)
-            logmock.assert_any_call(
-                    "Could not find local git repo %s", config["repo"])
-            logmock.assert_any_call(
-                    "Install of %s failed.", config["name"])
+            logmock.assert_any_call("Could not find local git repo %s", config["repo"])
+            logmock.assert_any_call("Install of %s failed.", config["name"])
 
     def test_install_specific_remote_module(self):
         opsdroid, loader = self.setup()
-        config = {"name": "testmodule",
-                  "install_path":
-                  os.path.join(self._tmp_dir, "test_specific_remote_module"),
-                  "repo": "https://github.com/rmccue/test-repository.git",
-                  "branch": "master"}
-        with mock.patch('opsdroid.loader._LOGGER.debug'), \
-                mock.patch.object(loader, 'git_clone') as mockclone:
+        config = {
+            "name": "testmodule",
+            "install_path": os.path.join(self._tmp_dir, "test_specific_remote_module"),
+            "repo": "https://github.com/rmccue/test-repository.git",
+            "branch": "master",
+        }
+        with mock.patch("opsdroid.loader._LOGGER.debug"), mock.patch.object(
+            loader, "git_clone"
+        ) as mockclone:
             loader._install_module(config)
-            mockclone.assert_called_with(config["repo"],
-                                         config["install_path"],
-                                         config["branch"])
+            mockclone.assert_called_with(
+                config["repo"], config["install_path"], config["branch"], None
+            )
+
+    def test_install_specific_remote_module_ssl(self):
+        opsdroid, loader = self.setup()
+        config = {
+            "name": "testmodule",
+            "install_path": os.path.join(self._tmp_dir, "test_specific_remote_module"),
+            "repo": "https://github.com/rmccue/test-repository.git",
+            "branch": "master",
+            "key_path": os.path.join(
+                self._tmp_dir, os.path.normpath("install/from/here.key")
+            ),
+        }
+        with mock.patch("opsdroid.loader._LOGGER.debug"), mock.patch.object(
+            loader, "git_clone"
+        ) as mockclone:
+            loader._install_module(config)
+            mockclone.assert_called_with(
+                config["repo"],
+                config["install_path"],
+                config["branch"],
+                config["key_path"],
+            )
 
     def test_install_specific_local_git_module(self):
         opsdroid, loader = self.setup()
         repo_path = os.path.join(self._tmp_dir, "testrepo")
-        config = {"name": "testmodule",
-                  "install_path": repo_path,
-                  "repo": "https://github.com/rmccue/test-repository.git",
-                  "branch": "master"}
-        loader._install_module(config)  # Clone remote repo for testing with
-        config["repo"] = os.path.join(config["install_path"], ".git")
+        config = {
+            "name": "testmodule",
+            "install_path": repo_path,
+            "repo": "https://github.com/rmccue/test-repository.git",
+            "branch": "master",
+        }
+        config["repo"] = repo_path
         config["install_path"] = os.path.join(
-            self._tmp_dir, "test_specific_local_module")
-        with mock.patch('opsdroid.loader._LOGGER.debug'), \
-                mock.patch.object(loader, 'git_clone') as mockclone:
+            self._tmp_dir, "test_specific_local_module"
+        )
+        os.makedirs(repo_path)
+        with mock.patch("opsdroid.loader._LOGGER.debug"), mock.patch.object(
+            loader, "git_clone"
+        ) as mockclone:
             loader._install_module(config)
-            mockclone.assert_called_with(config["repo"],
-                                         config["install_path"],
-                                         config["branch"])
+            mockclone.assert_called_with(
+                config["repo"], config["install_path"], config["branch"]
+            )
         shutil.rmtree(repo_path, onerror=del_rw)
 
     def test_install_gist_module(self):
         opsdroid, loader = self.setup()
-        config = {"name": "ping",
-                  "type": "skill",
-                  "install_path": os.path.join(
-                      self._tmp_dir, "test_gist_module_file"),
-                  "gist": "https://gist.github.com/jacobtomlinson/"
-                          "c9852fa17d3463acc14dca1217d911f6"}
+        config = {
+            "name": "ping",
+            "type": "skill",
+            "install_path": os.path.join(self._tmp_dir, "test_gist_module_file"),
+            "gist": "https://gist.github.com/jacobtomlinson/"
+            "c9852fa17d3463acc14dca1217d911f6",
+        }
 
-        with mock.patch.object(loader, '_install_gist_module') as mockgist:
+        with mock.patch.object(loader, "_install_gist_module") as mockgist:
             loader._install_module(config)
             self.assertTrue(mockgist.called)
 
     def test_install_specific_local_path_module(self):
         opsdroid, loader = self.setup()
         repo_path = os.path.join(self._tmp_dir, "testrepo")
-        config = {"name": "testmodule",
-                  "install_path": repo_path,
-                  "repo": "https://github.com/rmccue/test-repository.git",
-                  "branch": "master"}
-        loader._install_module(config)  # Clone remote repo for testing with
+        config = {
+            "name": "testmodule",
+            "install_path": repo_path,
+            "repo": "https://github.com/rmccue/test-repository.git",
+            "branch": "master",
+        }
+        os.makedirs(config["install_path"])
         config["path"] = config["install_path"]
         config["install_path"] = os.path.join(
-            self._tmp_dir, "test_specific_local_module")
-        with mock.patch('opsdroid.loader._LOGGER.debug'), \
-                mock.patch.object(loader, '_install_local_module') \
-                as mockclone:
+            self._tmp_dir, "test_specific_local_module"
+        )
+        with mock.patch("opsdroid.loader._LOGGER.debug"), mock.patch.object(
+            loader, "_install_local_module"
+        ) as mockclone:
             loader._install_module(config)
             mockclone.assert_called_with(config)
         shutil.rmtree(repo_path, onerror=del_rw)
 
     def test_install_default_remote_module(self):
         opsdroid, loader = self.setup()
-        config = {"name": "slack",
-                  "type": "connector",
-                  "install_path":
-                  os.path.join(self._tmp_dir, "test_default_remote_module"),
-                  "branch": "master"}
-        with mock.patch.object(loader, 'pip_install_deps') as mockdeps:
-            loader._install_module(config)
-            self.assertLogs('_LOGGER', 'debug')
-            mockdeps.assert_called_with(
-                    os.path.join(config["install_path"], "requirements.txt"))
+        config = {
+            "name": "slack",
+            "type": "connector",
+            "install_path": os.path.join(self._tmp_dir, "test_default_remote_module"),
+            "branch": "master",
+        }
 
+        with mock.patch("opsdroid.loader.Loader.git_clone") as mockclone:
+            with mock.patch.object(loader, "pip_install_deps") as mockdeps:
+                os.makedirs(config["install_path"])
+                mockclone.side_effect = shutil.copy(
+                    "requirements.txt", config["install_path"]
+                )
+                loader._install_module(config)
+                self.assertLogs("_LOGGER", "debug")
+                mockdeps.assert_called_with(
+                    os.path.join(config["install_path"], "requirements.txt")
+                )
+                mockclone.assert_called_with(
+                    "https://github.com/opsdroid/"
+                    + config["type"]
+                    + "-"
+                    + config["name"]
+                    + ".git",
+                    config["install_path"],
+                    config["branch"],
+                    None,
+                )
         shutil.rmtree(config["install_path"], onerror=del_rw)
 
     def test_install_local_module_dir(self):
         opsdroid, loader = self.setup()
         base_path = os.path.join(self._tmp_dir, "long")
-        config = {"name": "slack",
-                  "type": "connector",
-                  "install_path": os.path.join(
-                      base_path, os.path.normpath("test/path/test")),
-                  "path": os.path.join(
-                      self._tmp_dir, os.path.normpath("install/from/here"))}
+        config = {
+            "name": "slack",
+            "type": "connector",
+            "install_path": os.path.join(base_path, os.path.normpath("test/path/test")),
+            "path": os.path.join(self._tmp_dir, os.path.normpath("install/from/here")),
+        }
         os.makedirs(config["path"], exist_ok=True, mode=0o777)
         loader._install_local_module(config)
         self.assertTrue(os.path.isdir(config["install_path"]))
@@ -531,71 +645,77 @@ class TestLoader(unittest.TestCase):
 
     def test_install_local_module_file(self):
         opsdroid, loader = self.setup()
-        config = {"name": "slack",
-                  "type": "connector",
-                  "install_path": os.path.join(
-                      self._tmp_dir, "test_local_module_file"),
-                  "path": os.path.join(
-                      self._tmp_dir, os.path.normpath("install/from/here.py"))}
+        config = {
+            "name": "slack",
+            "type": "connector",
+            "install_path": os.path.join(self._tmp_dir, "test_local_module_file"),
+            "path": os.path.join(
+                self._tmp_dir, os.path.normpath("install/from/here.py")
+            ),
+        }
         directory, _ = os.path.split(config["path"])
         os.makedirs(directory, exist_ok=True, mode=0o777)
-        open(config["path"], 'w')
+        open(config["path"], "w")
         loader._install_local_module(config)
-        self.assertTrue(os.path.isfile(os.path.join(
-            config["install_path"], "__init__.py")))
+        self.assertTrue(
+            os.path.isfile(os.path.join(config["install_path"], "__init__.py"))
+        )
         shutil.rmtree(config["install_path"], onerror=del_rw)
 
     def test_install_local_module_notebook(self):
         opsdroid, loader = self.setup()
-        config = {"name": "slack",
-                  "type": "connector",
-                  "install_path": os.path.join(
-                      self._tmp_dir, "test_local_module_file"),
-                  "path": os.path.abspath(
-                      "tests/mockmodules/skills/test_notebook.ipynb")}
+        config = {
+            "name": "slack",
+            "type": "connector",
+            "install_path": os.path.join(self._tmp_dir, "test_local_module_file"),
+            "path": os.path.abspath("tests/mockmodules/skills/test_notebook.ipynb"),
+        }
         directory, _ = os.path.split(config["path"])
         os.makedirs(directory, exist_ok=True, mode=0o777)
         loader._install_local_module(config)
-        self.assertTrue(os.path.isfile(os.path.join(
-            config["install_path"], "__init__.py")))
+        self.assertTrue(
+            os.path.isfile(os.path.join(config["install_path"], "__init__.py"))
+        )
         shutil.rmtree(config["install_path"], onerror=del_rw)
 
     def test_install_local_module_failure(self):
         opsdroid, loader = self.setup()
-        config = {"name": "slack",
-                  "type": "connector",
-                  "install_path": os.path.join(
-                      self._tmp_dir, "test_local_module_failure"),
-                  "path": os.path.join(self._tmp_dir, "doesnotexist")}
+        config = {
+            "name": "slack",
+            "type": "connector",
+            "install_path": os.path.join(self._tmp_dir, "test_local_module_failure"),
+            "path": os.path.join(self._tmp_dir, "doesnotexist"),
+        }
         loader._install_local_module(config)
-        self.assertLogs('_LOGGER', 'error')
+        self.assertLogs("_LOGGER", "error")
 
     def test_update_existing_local_module(self):
         opsdroid, loader = self.setup()
         base_path = os.path.join(self._tmp_dir, "long")
-        config = {"name": "testmodule",
-                  "type": "test",
-                  "install_path": os.path.join(
-                      base_path, os.path.normpath("test/path/test")),
-                  "path": os.path.join(
-                      self._tmp_dir, os.path.normpath("install/from/here"))}
+        config = {
+            "name": "testmodule",
+            "type": "test",
+            "install_path": os.path.join(base_path, os.path.normpath("test/path/test")),
+            "path": os.path.join(self._tmp_dir, os.path.normpath("install/from/here")),
+        }
         os.makedirs(config["install_path"], exist_ok=True, mode=0o777)
         os.makedirs(config["path"], exist_ok=True, mode=0o777)
 
         loader._update_module(config)
-        self.assertLogs('_LOGGER', 'debug')
+        self.assertLogs("_LOGGER", "debug")
 
         shutil.rmtree(base_path, onerror=del_rw)
 
     def test_update_existing_git_module(self):
         opsdroid, loader = self.setup()
-        config = {"name": "testmodule",
-                  "install_path":
-                  os.path.join(self._tmp_dir, "test_specific_remote_module"),
-                  "repo": "https://github.com/rmccue/test-repository.git",
-                  "branch": "master"}
+        config = {
+            "name": "testmodule",
+            "install_path": os.path.join(self._tmp_dir, "test_specific_remote_module"),
+            "repo": "https://github.com/rmccue/test-repository.git",
+            "branch": "master",
+        }
         os.mkdir(config["install_path"])
-        with mock.patch.object(loader, 'git_pull') as mockpull:
+        with mock.patch.object(loader, "git_pull") as mockpull:
             loader._update_module(config)
             mockpull.assert_called_with(config["install_path"])
 
@@ -603,34 +723,40 @@ class TestLoader(unittest.TestCase):
 
     def test_install_gist_module_file(self):
         opsdroid, loader = self.setup()
-        config = {"name": "ping",
-                  "type": "skill",
-                  "install_path": os.path.join(
-                      self._tmp_dir, "test_gist_module_file"),
-                  "gist": "https://gist.github.com/jacobtomlinson/"
-                          "6dd35e0f62d6b779d3d0d140f338d3e5"}
-        with mock.patch('urllib.request.urlopen') as mock_urlopen:
-            with open(os.path.abspath(
-                    'tests/responses/gist_module_file.json'), 'rb') as fh:
+        config = {
+            "name": "ping",
+            "type": "skill",
+            "install_path": os.path.join(self._tmp_dir, "test_gist_module_file"),
+            "gist": "https://gist.github.com/jacobtomlinson/"
+            "6dd35e0f62d6b779d3d0d140f338d3e5",
+        }
+        with mock.patch("urllib.request.urlopen") as mock_urlopen:
+            with open(
+                os.path.abspath("tests/responses/gist_module_file.json"), "rb"
+            ) as fh:
                 mock_urlopen.return_value = fh
                 loader._install_gist_module(config)
-                self.assertTrue(os.path.isfile(os.path.join(
-                    config["install_path"], "__init__.py")))
+                self.assertTrue(
+                    os.path.isfile(os.path.join(config["install_path"], "__init__.py"))
+                )
                 shutil.rmtree(config["install_path"], onerror=del_rw)
 
     def test_install_gist_module_notebook(self):
         opsdroid, loader = self.setup()
-        config = {"name": "ping",
-                  "type": "skill",
-                  "install_path": os.path.join(
-                      self._tmp_dir, "test_gist_module_file"),
-                  "gist": "https://gist.github.com/jacobtomlinson/"
-                          "c9852fa17d3463acc14dca1217d911f6"}
-        with mock.patch('urllib.request.urlopen') as mock_urlopen:
-            with open(os.path.abspath(
-                    'tests/responses/gist_module_notebook.json'), 'rb') as fh:
+        config = {
+            "name": "ping",
+            "type": "skill",
+            "install_path": os.path.join(self._tmp_dir, "test_gist_module_file"),
+            "gist": "https://gist.github.com/jacobtomlinson/"
+            "c9852fa17d3463acc14dca1217d911f6",
+        }
+        with mock.patch("urllib.request.urlopen") as mock_urlopen:
+            with open(
+                os.path.abspath("tests/responses/gist_module_notebook.json"), "rb"
+            ) as fh:
                 mock_urlopen.return_value = fh
                 loader._install_gist_module(config)
-                self.assertTrue(os.path.isfile(os.path.join(
-                    config["install_path"], "__init__.py")))
+                self.assertTrue(
+                    os.path.isfile(os.path.join(config["install_path"], "__init__.py"))
+                )
                 shutil.rmtree(config["install_path"], onerror=del_rw)

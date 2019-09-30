@@ -100,4 +100,8 @@ ENV/
 .docker/
 
 .vscode/
+.devcontainer/
 .idea/
+site/
+Pipfile
+Pipfile.lock

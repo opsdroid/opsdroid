@@ -7,11 +7,7 @@ from opsdroid.database import Database
 
 
 class DatabaseMongo(Database):
-    """A module for opsdroid to allow memory to persist in a mongo database.
-
-    Attributes:
-
-    """
+    """A module for opsdroid to allow memory to persist in a mongo database."""
 
     def __init__(self, config, opsdroid=None):
         """Create the connection.
@@ -19,7 +15,7 @@ class DatabaseMongo(Database):
         Set some basic properties from the database config such as the name
         of this database.
 
-        Args:
+        Attributes:
             config (dict): The config for this database specified in the
                            `configuration.yaml` file.
 
@@ -35,8 +31,7 @@ class DatabaseMongo(Database):
         """Connect to the database."""
         host = self.config["host"] if "host" in self.config else "localhost"
         port = self.config["port"] if "port" in self.config else "27017"
-        database = self.config["database"] \
-            if "database" in self.config else "opsdroid"
+        database = self.config["database"] if "database" in self.config else "opsdroid"
         path = "mongodb://" + host + ":" + port
         self.client = AsyncIOMotorClient(path)
         self.database = self.client[database]
@@ -48,11 +43,11 @@ class DatabaseMongo(Database):
         Args:
             key (str): the key is the databasename
             data (object): the data to be inserted or replaced
+
         """
         logging.debug("Putting %s into mongo", key)
         if "_id" in data:
-            await self.database[key].update_one({"_id": data["_id"]},
-                                                {"$set": data})
+            await self.database[key].update_one({"_id": data["_id"]}, {"$set": data})
         else:
             await self.database[key].insert_one(data)
 
@@ -60,9 +55,10 @@ class DatabaseMongo(Database):
         """Get a document from the database (key).
 
         Args:
-            key (str): the key is the databasename.
+            key (str): the key is the database name.
+
         """
         logging.debug("Getting %s from mongo", key)
         return await self.database[key].find_one(
             {"$query": {}, "$orderby": {"$natural": -1}}
-            )
+        )

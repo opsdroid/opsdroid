@@ -113,13 +113,13 @@ What if you could write a script that, instead of waiting for the second request
 An asynchronous function in Python is typically called a 'coroutine', which is just a function that uses the async keyword. The function below would work as an asynchronous function:
 
 ```python
-async def ping_server(ip):  
+async def ping_server(ip):
     pass
 
 ```
 To actually call these asynchronous functions, we use the `await` keyword:
 ```python
-async def ping_local():  
+async def ping_local():
     return await ping_server('192.168.1.1')
 ```
 The await keyword must be used within another function (typically an asyncio function). Otherwise, it will result in a syntax error.

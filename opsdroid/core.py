@@ -10,6 +10,7 @@ import asyncio
 import contextlib
 import inspect
 
+from opsdroid import events
 from opsdroid.const import DEFAULT_CONFIG_PATH
 from opsdroid.memory import Memory
 from opsdroid.connector import Connector
@@ -18,10 +19,12 @@ from opsdroid.skill import Skill
 from opsdroid.loader import Loader
 from opsdroid.web import Web
 from opsdroid.parsers.always import parse_always
+from opsdroid.parsers.event_type import parse_event_type
 from opsdroid.parsers.regex import parse_regex
+from opsdroid.parsers.parseformat import parse_format
 from opsdroid.parsers.dialogflow import parse_dialogflow
 from opsdroid.parsers.luisai import parse_luisai
-from opsdroid.parsers.recastai import parse_recastai
+from opsdroid.parsers.sapcai import parse_sapcai
 from opsdroid.parsers.witai import parse_witai
 from opsdroid.parsers.rasanlu import parse_rasanlu, train_rasanlu
 from opsdroid.parsers.crontab import parse_crontab
@@ -30,7 +33,7 @@ from opsdroid.parsers.crontab import parse_crontab
 _LOGGER = logging.getLogger(__name__)
 
 
-class OpsDroid():
+class OpsDroid:
     """Root object for opsdroid."""
 
     # pylint: disable=too-many-instance-attributes
@@ -40,17 +43,17 @@ class OpsDroid():
 
     def __init__(self, config=None):
         """Start opsdroid."""
-        self.bot_name = 'opsdroid'
+        self.bot_name = "opsdroid"
         self._running = False
         self.sys_status = 0
         self.connectors = []
         self.connector_tasks = []
         self.eventloop = asyncio.get_event_loop()
-        if os.name != 'nt':
+        if os.name != "nt":
             for sig in (signal.SIGINT, signal.SIGTERM):
                 self.eventloop.add_signal_handler(
-                    sig,
-                    lambda: asyncio.ensure_future(self.handle_signal()))
+                    sig, lambda: asyncio.ensure_future(self.handle_signal())
+                )
         self.eventloop.set_exception_handler(self.handle_async_exception)
         self.skills = []
         self.memory = Memory()
@@ -99,8 +102,7 @@ class OpsDroid():
 
     def exit(self):
         """Exit application."""
-        _LOGGER.info(_("Exiting application with return code %s"),
-                     str(self.sys_status))
+        _LOGGER.info(_("Exiting application with return code %s"), str(self.sys_status))
         sys.exit(self.sys_status)
 
     def critical(self, error, code):
@@ -112,8 +114,14 @@ class OpsDroid():
     @staticmethod
     def handle_async_exception(loop, context):
         """Handle exceptions from async coroutines."""
-        _LOGGER.error(_("Caught exception"))
-        _LOGGER.error(context)
+        print("ERROR: Unhandled exception in opsdroid, exiting...")
+        if "future" in context:
+            try:  # pragma: nocover
+                context["future"].result()
+            # pylint: disable=broad-except
+            except Exception:  # pragma: nocover
+                print("Caught exception")
+                print(context)
 
     def is_running(self):
         """Check whether opsdroid is running."""
@@ -126,6 +134,7 @@ class OpsDroid():
 
     def run(self):
         """Start the event loop."""
+        self.sync_load()
         _LOGGER.info(_("Opsdroid is now running, press ctrl+c to exit."))
         if not self.is_running():
             self._running = True
@@ -142,19 +151,25 @@ class OpsDroid():
         else:
             _LOGGER.error(_("Oops! Opsdroid is already running."))
 
-    def load(self):
+    def sync_load(self):
+        """Run the load modules method synchronously."""
+        self.eventloop.run_until_complete(self.load())
+
+    async def load(self):
         """Load modules."""
         self.modules = self.loader.load_modules_from_config(self.config)
         _LOGGER.debug(_("Loaded %i skills"), len(self.modules["skills"]))
         self.setup_skills(self.modules["skills"])
         self.web_server = Web(self)
         self.web_server.setup_webhooks(self.skills)
-        self.train_parsers(self.modules["skills"])
+        await self.train_parsers(self.modules["skills"])
         if self.modules["databases"] is not None:
-            self.start_databases(self.modules["databases"])
-        self.start_connectors(self.modules["connectors"])
+            await self.start_databases(self.modules["databases"])
+        await self.start_connectors(self.modules["connectors"])
         self.cron_task = self.eventloop.create_task(parse_crontab(self))
         self.eventloop.create_task(self.web_server.start())
+
+        self.eventloop.create_task(self.parse(events.OpsdroidStarted()))
 
     async def unload(self, future=None):
         """Stop the event loop."""
@@ -162,7 +177,7 @@ class OpsDroid():
 
         _LOGGER.info(_("Removing skills..."))
         for skill in self.skills:
-            _LOGGER.info(_("Removed %s"), skill.config['name'])
+            _LOGGER.info(_("Removed %s"), skill.config["name"])
             self.skills.remove(skill)
 
         for connector in self.connectors:
@@ -197,11 +212,13 @@ class OpsDroid():
     async def reload(self):
         """Reload opsdroid."""
         await self.unload()
-        self.config = Loader.load_config_file([
-            "configuration.yaml",
-            DEFAULT_CONFIG_PATH,
-            "/etc/opsdroid/configuration.yaml"
-        ])
+        self.config = Loader.load_config_file(
+            [
+                "configuration.yaml",
+                DEFAULT_CONFIG_PATH,
+                "/etc/opsdroid/configuration.yaml",
+            ]
+        )
         self.load()
 
     def setup_skills(self, skills):
@@ -216,10 +233,8 @@ class OpsDroid():
         """
         for skill in skills:
             for func in skill["module"].__dict__.values():
-                if (isinstance(func, type) and
-                        issubclass(func, Skill) and
-                        func != Skill):
-                    skill_obj = func(self, skill['config'])
+                if isinstance(func, type) and issubclass(func, Skill) and func != Skill:
+                    skill_obj = func(self, skill["config"])
 
                     for name in skill_obj.__dir__():
                         # pylint: disable=broad-except
@@ -233,78 +248,101 @@ class OpsDroid():
                         except Exception:
                             continue
 
-                        if hasattr(method, 'skill'):
+                        if hasattr(method, "skill"):
                             self.skills.append(method)
 
                     continue
 
                 if hasattr(func, "skill"):
-                    _LOGGER.warning(_("Function based skills are deprecated "
-                                      "and will be removed in a future "
-                                      "release. Please use class-based skills "
-                                      "instead."))
-                    func.config = skill['config']
+                    _LOGGER.warning(
+                        _(
+                            "Function based skills are deprecated "
+                            "and will be removed in a future "
+                            "release. Please use class-based skills "
+                            "instead."
+                        )
+                    )
+                    func.config = skill["config"]
                     self.skills.append(func)
 
         with contextlib.suppress(AttributeError):
             for skill in skills:
                 skill["module"].setup(self, self.config)
-                _LOGGER.warning(_("<skill module>.setup() is deprecated and "
-                                  "will be removed in a future release. "
-                                  "Please use class-based skills instead."))
+                _LOGGER.warning(
+                    _(
+                        "<skill module>.setup() is deprecated and "
+                        "will be removed in a future release. "
+                        "Please use class-based skills instead."
+                    )
+                )
 
-    def train_parsers(self, skills):
+    async def train_parsers(self, skills):
         """Train the parsers."""
         if "parsers" in self.config:
             parsers = self.config["parsers"] or []
-            tasks = []
             rasanlu = [p for p in parsers if p["name"] == "rasanlu"]
-            if len(rasanlu) == 1 and \
-                    ("enabled" not in rasanlu[0] or
-                     rasanlu[0]["enabled"] is not False):
-                tasks.append(
-                    asyncio.ensure_future(
-                        train_rasanlu(rasanlu[0], skills),
-                        loop=self.eventloop))
-            self.eventloop.run_until_complete(
-                asyncio.gather(*tasks, loop=self.eventloop))
+            if len(rasanlu) == 1 and (
+                "enabled" not in rasanlu[0] or rasanlu[0]["enabled"] is not False
+            ):
+                await train_rasanlu(rasanlu[0], skills)
 
-    def start_connectors(self, connectors):
+    async def start_connectors(self, connectors):
         """Start the connectors."""
         for connector_module in connectors:
             for _, cls in connector_module["module"].__dict__.items():
-                if isinstance(cls, type) and \
-                   issubclass(cls, Connector) and\
-                   cls is not Connector:
+                if (
+                    isinstance(cls, type)
+                    and issubclass(cls, Connector)
+                    and cls is not Connector
+                ):
                     connector = cls(connector_module["config"], self)
                     self.connectors.append(connector)
 
         if connectors:
             for connector in self.connectors:
-                if self.eventloop.is_running():
-                    self.eventloop.create_task(connector.connect())
-                else:
-                    self.eventloop.run_until_complete(connector.connect())
+                await self.eventloop.create_task(connector.connect())
+
             for connector in self.connectors:
                 task = self.eventloop.create_task(connector.listen())
                 self.connector_tasks.append(task)
         else:
             self.critical("All connectors failed to load", 1)
 
-    def start_databases(self, databases):
+    # pylint: disable=W0640
+    @property
+    def _connector_names(self):  # noqa: D401
+        """Mapping of names to connector instances."""
+        if not self.connectors:
+            raise ValueError("No connectors have been started")
+
+        names = {}
+        for connector in self.connectors:
+            name = connector.config.get("name", connector.name)
+            # Deduplicate any names
+            if name in names:
+                # Calculate the number of keys in names which start with name.
+                n_key = len(list(filter(lambda x: x.startswith(name), names)))
+                name += "_{}".format(n_key)
+            names[name] = connector
+
+        return names
+
+    async def start_databases(self, databases):
         """Start the databases."""
         if not databases:
             _LOGGER.debug(databases)
             _LOGGER.warning(_("All databases failed to load"))
         for database_module in databases:
             for name, cls in database_module["module"].__dict__.items():
-                if isinstance(cls, type) and \
-                   issubclass(cls, Database) and \
-                   cls is not Database:
+                if (
+                    isinstance(cls, type)
+                    and issubclass(cls, Database)
+                    and cls is not Database
+                ):
                     _LOGGER.debug(_("Adding database: %s"), name)
                     database = cls(database_module["config"])
                     self.memory.databases.append(database)
-                    self.eventloop.run_until_complete(database.connect())
+                    await database.connect()
 
     async def run_skill(self, skill, config, message):
         """Execute a skill."""
@@ -318,76 +356,79 @@ class OpsDroid():
             else:
                 await skill(message)
         except Exception:
+            _LOGGER.exception(
+                _("Exception when running skill '%s' "), str(config["name"])
+            )
             if message:
-                await message.respond(_("Whoops there has been an error"))
-                await message.respond(_("Check the log for details"))
-            _LOGGER.exception(_("Exception when running skill '%s' "),
-                              str(config["name"]))
+                await message.respond(
+                    events.Message(_("Whoops there has been an error"))
+                )
+                await message.respond(events.Message(_("Check the log for details")))
 
     async def get_ranked_skills(self, skills, message):
         """Take a message and return a ranked list of matching skills."""
         ranked_skills = []
-        ranked_skills += await parse_regex(self, skills, message)
+        if isinstance(message, events.Message):
+            ranked_skills += await parse_regex(self, skills, message)
+            ranked_skills += await parse_format(self, skills, message)
+        ranked_skills += await parse_event_type(self, message)
 
         if "parsers" in self.config:
             _LOGGER.debug(_("Processing parsers..."))
             parsers = self.config["parsers"] or []
 
-            dialogflow = [p for p in parsers if p["name"] == "dialogflow"
-                          or p["name"] == "apiai"]
+            dialogflow = [
+                p for p in parsers if p["name"] == "dialogflow" or p["name"] == "apiai"
+            ]
 
             # Show deprecation message but  parse message
             # Once it stops working remove this bit
             apiai = [p for p in parsers if p["name"] == "apiai"]
             if apiai:
-                _LOGGER.warning(_("Api.ai is now called Dialogflow. This "
-                                  "parser will stop working in the future "
-                                  "please swap: 'name: apiai' for "
-                                  "'name: dialogflow' in configuration.yaml"))
+                _LOGGER.warning(
+                    _(
+                        "Api.ai is now called Dialogflow. This "
+                        "parser will stop working in the future "
+                        "please swap: 'name: apiai' for "
+                        "'name: dialogflow' in configuration.yaml"
+                    )
+                )
 
-            if len(dialogflow) == 1 and \
-                    ("enabled" not in dialogflow[0] or
-                     dialogflow[0]["enabled"] is not False):
+            if len(dialogflow) == 1 and (
+                "enabled" not in dialogflow[0] or dialogflow[0]["enabled"] is not False
+            ):
                 _LOGGER.debug(_("Checking dialogflow..."))
-                ranked_skills += \
-                    await parse_dialogflow(self, skills,
-                                           message, dialogflow[0])
+                ranked_skills += await parse_dialogflow(
+                    self, skills, message, dialogflow[0]
+                )
 
             luisai = [p for p in parsers if p["name"] == "luisai"]
-            if len(luisai) == 1 and \
-                    ("enabled" not in luisai[0] or
-                     luisai[0]["enabled"] is not False):
+            if len(luisai) == 1 and (
+                "enabled" not in luisai[0] or luisai[0]["enabled"] is not False
+            ):
                 _LOGGER.debug("Checking luisai...")
-                ranked_skills += \
-                    await parse_luisai(self, skills,
-                                       message, luisai[0])
+                ranked_skills += await parse_luisai(self, skills, message, luisai[0])
 
-            recastai = [p for p in parsers if p["name"] == "recastai"]
-            if len(recastai) == 1 and \
-                    ("enabled" not in recastai[0] or
-                     recastai[0]["enabled"] is not False):
+            sapcai = [p for p in parsers if p["name"] == "sapcai"]
+            if len(sapcai) == 1 and (
+                "enabled" not in sapcai[0] or sapcai[0]["enabled"] is not False
+            ):
                 _LOGGER.debug(_("Checking Recast.AI..."))
-                ranked_skills += \
-                    await parse_recastai(self, skills,
-                                         message, recastai[0])
+                ranked_skills += await parse_sapcai(self, skills, message, sapcai[0])
 
             witai = [p for p in parsers if p["name"] == "witai"]
-            if len(witai) == 1 and \
-                    ("enabled" not in witai[0] or
-                     witai[0]["enabled"] is not False):
+            if len(witai) == 1 and (
+                "enabled" not in witai[0] or witai[0]["enabled"] is not False
+            ):
                 _LOGGER.debug(_("Checking wit.ai..."))
-                ranked_skills += \
-                    await parse_witai(self, skills,
-                                      message, witai[0])
+                ranked_skills += await parse_witai(self, skills, message, witai[0])
 
             rasanlu = [p for p in parsers if p["name"] == "rasanlu"]
-            if len(rasanlu) == 1 and \
-                    ("enabled" not in rasanlu[0] or
-                     rasanlu[0]["enabled"] is not False):
+            if len(rasanlu) == 1 and (
+                "enabled" not in rasanlu[0] or rasanlu[0]["enabled"] is not False
+            ):
                 _LOGGER.debug(_("Checking Rasa NLU..."))
-                ranked_skills += \
-                    await parse_rasanlu(self, skills,
-                                        message, rasanlu[0])
+                ranked_skills += await parse_rasanlu(self, skills, message, rasanlu[0])
 
         return sorted(ranked_skills, key=lambda k: k["score"], reverse=True)
 
@@ -403,31 +444,52 @@ class OpsDroid():
             list: A list of the skills which were not constrained.
 
         """
-        for skill in skills:
-            for constraint in skill.constraints:
-                if not constraint(message):
-                    skills.remove(skill)
-        return skills
+        return [
+            skill
+            for skill in skills
+            if all(constraint(message) for constraint in skill.constraints)
+        ]
 
-    async def parse(self, message):
+    async def parse(self, event):
         """Parse a string against all skills."""
         self.stats["messages_parsed"] = self.stats["messages_parsed"] + 1
         tasks = []
-        if message is not None and message.text.strip() != "":
-            _LOGGER.debug(_("Parsing input: %s"), message.text)
+        if isinstance(event, events.Message):
+            _LOGGER.debug(_("Parsing input: %s"), event)
 
-            tasks.append(
-                self.eventloop.create_task(parse_always(self, message)))
+            tasks.append(self.eventloop.create_task(parse_always(self, event)))
 
-            unconstrained_skills = await self._constrain_skills(
-                self.skills, message)
-            ranked_skills = await self.get_ranked_skills(
-                unconstrained_skills, message)
+            unconstrained_skills = await self._constrain_skills(self.skills, event)
+            ranked_skills = await self.get_ranked_skills(unconstrained_skills, event)
             if ranked_skills:
                 tasks.append(
                     self.eventloop.create_task(
-                        self.run_skill(ranked_skills[0]["skill"],
-                                       ranked_skills[0]["config"],
-                                       message)))
+                        self.run_skill(
+                            ranked_skills[0]["skill"],
+                            ranked_skills[0]["config"],
+                            ranked_skills[0]["message"],
+                        )
+                    )
+                )
 
         return tasks
+
+    async def send(self, event):
+        """Send an event.
+
+        If ``event.connector`` is not set this method will use
+        `OpsDroid.default_connector`. If ``event.connector`` is a string, it
+        will be resolved to the name of the connectors configured in this
+        instance.
+
+        Args:
+            event (opsdroid.events.Event): The event to send.
+
+        """
+        if isinstance(event.connector, str):
+            event.connector = self._connector_names[event.connector]
+
+        if not event.connector:
+            event.connector = self.default_connector
+
+        return await event.connector.send(event)

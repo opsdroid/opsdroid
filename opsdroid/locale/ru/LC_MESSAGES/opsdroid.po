@@ -18,12 +18,12 @@ msgstr ""
 "Generated-By: Babel 2.6.0\n"
 
 #: opsdroid/__main__.py:81
-msgid "Started application"
-msgstr "Приложение создано"
+msgid "Started opsdroid %s"
+msgstr "Opsdroid %s создано"
 
 #: opsdroid/__main__.py:103
-msgid "Whoops! opsdroid requires python 3.5 or above."
-msgstr "Упс! Для работы opsdroid требуется версия python 3.5 или выше"
+msgid "Whoops! opsdroid requires python 3.6 or above."
+msgstr "Упс! Для работы opsdroid требуется версия python 3.6 или выше"
 
 #: opsdroid/__main__.py:148
 msgid "You can customise your opsdroid by modifying your configuration.yaml"

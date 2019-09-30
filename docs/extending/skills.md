@@ -28,32 +28,41 @@ If the message matches the regular expression then the decorated function is cal
 
 To ensure the bot is responsive the concurrency controls introduced in Python 3.5 are used. This means that all functions which will be executed should be defined as an `async` function, and calls to functions which may require IO (like a connector or database) should be awaited with the `await` keyword. For more information see [asyncio](https://docs.python.org/3/library/asyncio.html) and [event loops](https://docs.python.org/3/library/asyncio-eventloop.html).
 
-## Message object
+## Events
 
-The message object passed to the skill function is an instance of the opsdroid `Message` class which has the following properties and methods.
+In opsdroid when events are received the connector emits `Event` objects which can be matched by skills and processed. The most common event is the `Message` event but a number of other events are implemented including:
 
-Also depending on the matcher it may have parser specific properties too. See the [matchers documentation](../tutorials/introduction.md#matchers-available) for more details.
+* Reaction
+* File
+* Image
 
-### `text`
+_Note: Not all connectors support all event types. To find out which events a connector will emit you can access the `.events` attribute of a connector._
 
-A _string_ containing the message from the user.
 
-### `user`
+The base `Event` class has the following attributes. Also depending on the matcher it may have parser specific properties too. See the [matchers documentation](tutorials/introduction.md#matchers-available) for more details.
 
-A _string_ containing the username of the user who wrote the message.
 
-### `room`
+* `user`: A _string_ containing the username of the user who wrote the message.
 
-A _string_ containing the name of the room or chat channel the message was sent in.
+* `target`: A _string_ normally containing the name of the room or chat channel the message was sent in.
 
-### `connector`
+* `connector`: A pointer to the opsdroid _connector object_ which received the message.
 
-A pointer to the opsdroid _connector object_ which receieved the message.
+* `raw_event`: The raw event received by the connector (may be `None`).
 
-### `respond(text, room=None)`
+* `responded_to`: A boolean (True/False) flag indicating if this event has already had its `respond` method called.
 
-A method which responds to the received message using the same connector.
-By default the response is sent to the same room, but arguments may be passed to `connector.respond()` using the `room` argument to change this behaviour, if the connector supports this.
+* `respond(text)`: A method which responds to the received message using the same connector.
+
+
+### `Message`
+
+In addition to the base properties listed above, the `Message` class has the following properties:
+
+* `text`: A _string_ containing the message from the user.
+
+
+For more information on the other types of events see the [events](events.md) documentation.
 
 ## Persisting data
 

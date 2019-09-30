@@ -3,9 +3,8 @@ import asyncio
 import logging
 import aiohttp
 
-
-from opsdroid.connector import Connector
-from opsdroid.events import Message
+from opsdroid.connector import Connector, register_event
+from opsdroid.events import Message, Image
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -27,17 +26,63 @@ class ConnectorTelegram(Connector):
         self.name = "telegram"
         self.opsdroid = opsdroid
         self.latest_update = None
-        self.default_room = None
+        self.default_target = None
         self.listening = True
         self.default_user = config.get("default-user", None)
         self.whitelisted_users = config.get("whitelisted-users", None)
-        self.update_interval = config.get("update_interval", 1)
+        self.update_interval = config.get("update-interval", 1)
+        self.session = None
+        self._closing = asyncio.Event()
+        self.loop = asyncio.get_event_loop()
 
         try:
             self.token = config["token"]
         except (KeyError, AttributeError):
-            _LOGGER.error("Unable to login: Access token is missing. "
-                          "Telegram connector will be unavailable.")
+            _LOGGER.error(
+                "Unable to login: Access token is missing. "
+                "Telegram connector will be unavailable."
+            )
+
+    @staticmethod
+    def get_user(response):
+        """Get user from response.
+
+        The API response is different depending on how
+        the bot is set up and where the message is coming
+        from. This method was created to keep if/else
+        statements to a minium on  _parse_message.
+
+        Args:
+            response (dict): Response returned by aiohttp.ClientSession.
+
+        """
+        user = None
+        if "username" in response["message"]["from"]:
+            user = response["message"]["from"]["username"]
+
+        elif "first_name" in response["message"]["from"]:
+            user = response["message"]["from"]["first_name"]
+
+        return user
+
+    def handle_user_permission(self, response, user):
+        """Handle user permissions.
+
+        This will check if the user that tried to talk with
+        the bot is allowed to do so. It will also work with
+        userid to improve security.
+
+        """
+        user_id = response["message"]["from"]["id"]
+
+        if (
+            not self.whitelisted_users
+            or user in self.whitelisted_users
+            or user_id in self.whitelisted_users
+        ):
+            return True
+
+        return False
 
     def build_url(self, method):
         """Build the url to connect to the API.
@@ -51,6 +96,23 @@ class ConnectorTelegram(Connector):
         """
         return "https://api.telegram.org/bot{}/{}".format(self.token, method)
 
+    async def delete_webhook(self):
+        """Delete Telegram webhook.
+
+        The Telegram api will thrown an 409 error when an webhook is
+        active and a call to getUpdates is made. This method will
+        try to request the deletion of the webhook to make the getUpdate
+        request possible.
+
+        """
+        _LOGGER.debug("Sending deleteWebhook request to Telegram...")
+        resp = await self.session.get(self.build_url("deleteWebhook"))
+
+        if resp.status == 200:
+            _LOGGER.debug("Telegram webhook deleted successfully.")
+        else:
+            _LOGGER.debug("Unable to delete webhook.")
+
     async def connect(self):
         """Connect to Telegram.
 
@@ -60,18 +122,16 @@ class ConnectorTelegram(Connector):
 
         """
         _LOGGER.debug("Connecting to telegram")
-        async with aiohttp.ClientSession() as session:
-            resp = await session.get(self.build_url("getMe"))
+        self.session = aiohttp.ClientSession()
+        resp = await self.session.get(self.build_url("getMe"))
 
-            if resp.status != 200:
-                _LOGGER.error("Unable to connect")
-                _LOGGER.error("Telegram error %s, %s",
-                              resp.status, resp.text)
-            else:
-                json = await resp.json()
-                _LOGGER.debug(json)
-                _LOGGER.debug("Connected to telegram as %s",
-                              json["result"]["username"])
+        if resp.status != 200:
+            _LOGGER.error("Unable to connect")
+            _LOGGER.error("Telegram error %s, %s", resp.status, resp.text)
+        else:
+            json = await resp.json()
+            _LOGGER.debug(json)
+            _LOGGER.debug("Connected to telegram as %s", json["result"]["username"])
 
     async def _parse_message(self, response):
         """Handle logic to parse a received message.
@@ -93,23 +153,37 @@ class ConnectorTelegram(Connector):
         """
         for result in response["result"]:
             _LOGGER.debug(result)
-            if result["message"]["text"]:
-                user = result["message"]["from"]["username"]
-
+            if result.get("edited_message", None):
+                result["message"] = result.pop("edited_message")
+            if "channel" in result["message"]["chat"]["type"]:
+                _LOGGER.debug(
+                    "Channel message parsing not supported " "- Ignoring message"
+                )
+            elif "message" in result and "text" in result["message"]:
+                user = self.get_user(result)
                 message = Message(
-                    user,
-                    result["message"]["chat"],
-                    self,
-                    result["message"]["text"])
+                    result["message"]["text"], user, result["message"]["chat"], self
+                )
 
-                if not self.whitelisted_users or \
-                        user in self.whitelisted_users:
+                if self.handle_user_permission(result, user):
                     await self.opsdroid.parse(message)
                 else:
-                    message.text = "Sorry, you're not allowed " \
-                                   "to speak with this bot."
-                    await self.respond(message)
+                    message.text = (
+                        "Sorry, you're not allowed " "to speak with this bot."
+                    )
+                    await self.send(message)
                 self.latest_update = result["update_id"] + 1
+            elif (
+                "message" in result
+                and "sticker" in result["message"]
+                and "emoji" in result["message"]["sticker"]
+            ):
+                self.latest_update = result["update_id"] + 1
+                _LOGGER.debug(
+                    "Emoji message parsing not supported " "- Ignoring message"
+                )
+            else:
+                _LOGGER.error("Unable to parse the message.")
 
     async def _get_messages(self):
         """Connect to the Telegram API.
@@ -124,23 +198,30 @@ class ConnectorTelegram(Connector):
         return an empty {}.
 
         """
-        async with aiohttp.ClientSession() as session:
-            data = {}
-            if self.latest_update is not None:
-                data["offset"] = self.latest_update
-            resp = await session.get(self.build_url("getUpdates"),
-                                     params=data)
-            if resp.status != 200:
-                _LOGGER.error("Telegram error %s, %s",
-                              resp.status, resp.text)
-                self.listening = False
+        data = {}
+        if self.latest_update is not None:
+            data["offset"] = self.latest_update
 
-            else:
-                json = await resp.json()
+        await asyncio.sleep(self.update_interval)
+        resp = await self.session.get(self.build_url("getUpdates"), params=data)
 
-                await self._parse_message(json)
+        if resp.status == 409:
+            _LOGGER.info(
+                "Can't get updates because previous "
+                "webhook is still active. Will try to "
+                "delete webhook."
+            )
+            await self.delete_webhook()
 
-    async def listen(self):
+        if resp.status != 200:
+            _LOGGER.error("Telegram error %s, %s", resp.status, resp.text)
+            self.listening = False
+        else:
+            json = await resp.json()
+
+            await self._parse_message(json)
+
+    async def get_messages_loop(self):
         """Listen for and parse new messages.
 
         The bot will always listen to all opened chat windows,
@@ -153,32 +234,73 @@ class ConnectorTelegram(Connector):
         config.yaml with the param update-interval - this
         defaults to 1 second.
 
-        Args:
-            opsdroid (OpsDroid): An instance of opsdroid core.
-
         """
         while self.listening:
             await self._get_messages()
 
-            await asyncio.sleep(self.update_interval)
+    async def listen(self):
+        """Listen method of the connector.
 
-    async def respond(self, message, room=None):
+        Every connector has to implement the listen method. When an
+        infinite loop is running, it becomes hard to cancel this task.
+        So we are creating a task and set it on a variable so we can
+        cancel the task.
+
+        """
+        message_getter = self.loop.create_task(self.get_messages_loop())
+        await self._closing.wait()
+        message_getter.cancel()
+
+    @register_event(Message)
+    async def send_message(self, message):
         """Respond with a message.
 
         Args:
             message (object): An instance of Message.
-            room (string, optional): Name of the room to respond to.
 
         """
         _LOGGER.debug("Responding with: %s", message.text)
 
-        async with aiohttp.ClientSession() as session:
-            data = {}
-            data["chat_id"] = message.room["id"]
-            data["text"] = message.text
-            resp = await session.post(self.build_url("sendMessage"),
-                                      data=data)
-            if resp.status == 200:
-                _LOGGER.debug("Successfully responded")
-            else:
-                _LOGGER.error("Unable to respond.")
+        data = dict()
+        data["chat_id"] = message.target["id"]
+        data["text"] = message.text
+        resp = await self.session.post(self.build_url("sendMessage"), data=data)
+        if resp.status == 200:
+            _LOGGER.debug("Successfully responded")
+        else:
+            _LOGGER.error("Unable to respond.")
+
+    @register_event(Image)
+    async def send_image(self, file_event):
+        """Send Image to Telegram.
+
+        Gets the chat id from the channel and then
+        sends the bytes of the image as multipart/form-data.
+
+        """
+        data = aiohttp.FormData()
+        data.add_field(
+            "chat_id", str(file_event.target["id"]), content_type="multipart/form-data"
+        )
+        data.add_field(
+            "photo",
+            await file_event.get_file_bytes(),
+            content_type="multipart/form-data",
+        )
+
+        resp = await self.session.post(self.build_url("sendPhoto"), data=data)
+        if resp.status == 200:
+            _LOGGER.debug("Sent %s image " "successfully", file_event.name)
+        else:
+            _LOGGER.debug("Unable to send image - " "Status Code %s", resp.status)
+
+    async def disconnect(self):
+        """Disconnect from Telegram.
+
+        Stops the infinite loop found in self._listen(), closes
+        aiohttp session.
+
+        """
+        self.listening = False
+        self._closing.set()
+        await self.session.close()

@@ -14,79 +14,102 @@ parsers:
 
 ## About Regular Expression Matcher
 
-This is the simplest matcher available in opsdroid. It matches the message from the user against a regular expression. If the regex matches then the function is called.
+This is [almost](/matchers/parse_format.md) the simplest matcher available in opsdroid. It matches the message from the user against a regular expression. If the regex matches then the function is called.
 
-_note: The use of position anchors(`^` or `$`) are encouraged when using regex to match a function. This should prevent opsdroid to be triggered with every use of the matched regular expression_
+You can specify to the regex matcher which kind of matching you want to apply through the `matching_condition` kwarg (*match* matching is the default). This kwarg should give you more control on how to use the regex matcher.
 
-## Example 1
+Matching conditions:
 
-```python
-from opsdroid.skill import Skill
-from opsdroid.matchers import match_regex
+- **search** - Scans through the string looking for the first location where the regular expression pattern produces a match.
+- **match** - Scans through the string looking at the beginning of the string to match the regular expression pattern.
+- **fullmatch** - Scans and checks if the whole string matches the regular expression pattern.
 
-class MySkill(Skill):
-    @match_regex('hi', case_sensitive=False)
-    async def hello(self, message):
-        await message.respond('Hey')
-```
+### Example 1 - Search condition
 
-The above skill would be called on any message which matches the regex `'hi'`, `'Hi'`, `'hI'` or `'HI'`. The `case_sensitive` kwarg is optional and defaults to `True`.
-
-## Example 2
+Let's use the following hello skill with the kwarg `matching_condition="search"`.
 
 ```python
-from opsdroid.skill import Skill
 from opsdroid.matchers import match_regex
+import random
 
-class MySkill(Skill):
-@match_regex('cold')
-async def is_cold(self, message):
-    await message.respond('it is')
+@match_regex(r'hi|hello|hey|hallo', case_sensitive=False, matching_condition="search")
+async def hello(opsdroid, config, message):
+    text = random.choice(["Hi {}", "Hello {}", "Hey {}"]).format(message.user)
+    await message.respond(text)
 ```
 
-The above skill would be called on any message that matches the regex `'cold'` .
+When we run opsdroid and send the message *"Hi opsdroid"* opsdroid will match the hello to the skill and reply immediately.
 
-> user: is it cold?
->
-> opsdroid: it is
+```
+[6:13:11 PM] HichamTerkiba:
+Hi opsdroid
 
-Undesired effect:
+[6:13:12 PM] opsdroid:
+Hi HichamTerkiba
+```
 
-> user:  Wow, yesterday was so cold at practice!
->
-> opsdroid: it is.
+### Example 2 - match condition
 
-Since this matcher searches a message for the regular expression used on a skill, opsdroid will trigger any mention of the `'cold'`. To prevent this position anchors should be used.
-
-#### Fixed example
+Let's use the following hello skill with the kwarg `matching_condition="match"`.
 
 ```python
-from opsdroid.skill import Skill
 from opsdroid.matchers import match_regex
+import random
 
-class MySkill(Skill):
-    @match_regex('cold$')
-    async def is_cold(self, message):
-        await message.respond('it is')
+@match_regex(r'hi|hello|hey|hallo', case_sensitive=False, matching_condition="match")
+async def hello(opsdroid, config, message):
+    text = random.choice(["Hi {}", "Hello {}", "Hey {}"]).format(message.user)
+    await message.respond(text)
 ```
 
-Now this skill will only be triggered if `'cold'` is located at the end of the message.
+With the matching condition kwarg set to match, opsdroid will only trigger the skill if *Hi** is present at the beginning of the message.
 
-> user: is it cold
->
-> opsdroid: it is
->
-> user: Wow it was so cold outside yesterday!
->
-> opsdroid:
+```
+[6:13:11 PM] HichamTerkiba:
+Hi opsdroid
 
-Since `'cold'` wasn't located at the end of the message, opsdroid didn't react to the second message posted by the user.
+[6:13:12 PM] opsdroid:
+Hi HichamTerkiba
+
+[6:13:11 PM] HichamTerkiba:
+I said Hi opsdroid
+
+<No reply from opsdroid>
+```
+
+### Example 3 - fullmatch condition
+
+Let's use the following hello skill with the kwarg `matching_condition="fullmatch"`.
+
+```python
+from opsdroid.matchers import match_regex
+import random
+
+@match_regex(r'hi|hello|hey|hallo', case_sensitive=False, matching_condition="fullmatch")
+async def hello(opsdroid, config, message):
+    text = random.choice(["Hi {}", "Hello {}", "Hey {}"]).format(message.user)
+    await message.respond(text)
+```
+With the matching condition to fullmatch, opsdroid will only trigger the skill if the whole message matches the pattern.
+
+```
+[6:13:11 PM] HichamTerkiba:
+Hi
+
+[6:13:12 PM] opsdroid:
+Hi HichamTerkiba
+
+[6:13:11 PM] HichamTerkiba:
+Hi!
+
+<No reply from opsdroid>
+```
 
 ## Message object additional parameters
 
 ### `message.regex`
 
-A _[re match object](https://docs.python.org/3/library/re.html#re.MatchObject)_ for the regular expression the message was matched against. This allows you to access any wildcard matches in the regex from within your skill.
+You can access any group or wildcard matches in the regex from within your skill.
 
 ```python
 from opsdroid.skill import Skill
@@ -140,7 +163,7 @@ The above example gives each group a name and retrieves each group by using thei
 
 In order to make NLU skills execute over regex skills, opsdroid always applies a default factor of `0.6` to every regex evaluated score.
 
-If a developer want to have a regex skill executed over a NLU one then the keyword argument `score_factor` can be used to achieve this.
+If a developer wants to have a regex skill executed over an NLU one then the keyword argument `score_factor` can be used to achieve this.
 
 
 ### Example

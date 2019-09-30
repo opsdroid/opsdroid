@@ -4,15 +4,13 @@ environment:
 
     # For Python versions available on Appveyor, see
     # http://www.appveyor.com/docs/installed-software#python
-
-    - PYTHON: "C:\\Python35-x64"
-      TOXENV: "py35"
     - PYTHON: "C:\\Python36-x64"
       TOXENV: "py36"
     - PYTHON: "C:\\Python37-x64"
       TOXENV: "py37"
 
 install:
+  - "%PYTHON%\\python.exe -m pip install --upgrade pip setuptools"
   - "%PYTHON%\\python.exe -m pip install tox"
 
 build: off

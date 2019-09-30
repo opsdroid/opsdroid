@@ -1,10 +1,40 @@
 """A base class for connectors to inherit from."""
 
+import collections
+import inspect
 import logging
-from opsdroid.events import Message  # NOQA # pylint: disable=unused-import
+import warnings
+
+from opsdroid.events import Event, Reaction, Message
 
 
 _LOGGER = logging.getLogger(__name__)
+
+
+__all__ = ["Connector", "register_event"]
+
+
+def register_event(event_type, include_subclasses=False):
+    """
+    Register a method to handle a specific `opsdroid.events.Event` object.
+
+    Args:
+        event_type (Event): The event class this method can handle.
+        include_subclasses (bool): Allow the function to trigger on subclasses of the registered
+            event. Defaults to False.
+
+    """
+
+    def decorator(func):
+        if hasattr(func, "__opsdroid_events__"):
+            func.__opsdroid_events__.append(event_type)
+        else:
+            func.__opsdroid_events__ = [event_type]
+
+        func.__opsdroid_match_subclasses__ = include_subclasses
+        return func
+
+    return decorator
 
 
 class Connector:
@@ -13,6 +43,46 @@ class Connector:
     Connectors are used to interact with a given chat service.
 
     """
+
+    def __new__(cls, *args, **kwargs):
+        """Create the class object.
+
+        Before constructing the class parse all the methods that have been
+        decorated with ``register_event``.
+        """
+        # Get all 'function' members as the wrapped methods are functions
+        # This returns a tuple of (name, function) for each method.
+        functions = inspect.getmembers(cls, predicate=inspect.isfunction)
+
+        # Filter out anything that's not got the attribute __opsdroid_event__
+        event_methods = filter(
+            lambda f: hasattr(f, "__opsdroid_events__"),
+            # Just extract the function objects
+            map(lambda t: t[1], functions),
+        )
+
+        # If we don't have the event call the unknown event coroutine
+        cls.events = collections.defaultdict(lambda: cls._unknown_event)
+
+        for event_method in event_methods:
+            for event_type in event_method.__opsdroid_events__:
+                if not issubclass(event_type, Event):
+                    err_msg = (
+                        "The event type {event_type} is "
+                        "not a valid OpsDroid event type"
+                    )
+                    raise TypeError(err_msg.format(event_type=event_type))
+
+                if event_method.__opsdroid_match_subclasses__:
+                    # Register all event types which are a subclass of this
+                    # one.
+                    for event in Event.event_registry.values():
+                        if issubclass(event, event_type):
+                            cls.events[event] = event_method
+                else:
+                    cls.events[event_type] = event_method
+
+        return super().__new__(cls)
 
     def __init__(self, config, opsdroid=None):
         """Create the connector.
@@ -28,7 +98,7 @@ class Connector:
         """
         self.name = ""
         self.config = config
-        self.default_room = None
+        self.default_target = None
         self.opsdroid = opsdroid
 
     @property
@@ -56,9 +126,17 @@ class Connector:
         As the method should include some kind of `while True` all messages
         from the chat service should be "awaited" asyncronously to avoid
         blocking the thread.
-
         """
         raise NotImplementedError
+
+    async def _unknown_event(self, event, target=None):
+        """Fallback for when the subclass can not handle the event type."""
+        raise TypeError(
+            "Connector {stype} can not handle the"
+            " '{eventt.__name__}' event type.".format(
+                stype=type(self), eventt=type(event)
+            )
+        )
 
     async def respond(self, message, room=None):
         """Send a message back to the chat service.
@@ -75,7 +153,25 @@ class Connector:
             bool: True for message successfully sent. False otherwise.
 
         """
-        raise NotImplementedError
+        warnings.warn(
+            "Connector.respond is deprecated. Use " "Connector.send instead.",
+            DeprecationWarning,
+        )
+
+        if isinstance(message, str):
+            message = Message(message)
+
+        if room:
+            message.target = room
+
+        return await self.send(message)
+
+    async def disconnect(self):
+        """Disconnect from the chat service.
+
+        This method is called when opsdroid is exiting, it can be used to close
+        connections or do other cleanup.
+        """
 
     async def react(self, message, emoji):
         """React to a message.
@@ -92,24 +188,53 @@ class Connector:
             bool: True for message successfully sent. False otherwise.
 
         """
-        _LOGGER.debug(_("%s connector can't react to messages"), self.name)
-        return False
+        warnings.warn(
+            "Connector.react is deprecated. Use "
+            "Connector.send(events.Reaction(emoji)) instead.",
+            DeprecationWarning,
+        )
 
-    async def user_typing(self, trigger):
-        """Signals that opsdroid is typing.
+        return await message.respond(Reaction(emoji))
+
+    async def send(self, event):
+        """Send a message to the chat service.
 
         Args:
-            opsdroid (OpsDroid): An instance of the opsdroid core.
-            trigger: a bool that allows the event to be triggered on/off
+            event (Event): A message received by the connector.
+            target (string): The name of the room or other place to send the
+            event.
 
-        Triggers the "user is typing" event if the chat service that
-        opsdroid is connected to accepts it.
-        """
-
-    async def disconnect(self):
-        """Disconnect from the chat service.
-
-        This method is called when opsdroid is exiting, it can be used to close
-        connections or do other cleanup.
+        Returns:
+            bool: True for event successfully sent. False otherwise.
 
         """
+        if not isinstance(event, Event):
+            raise TypeError(
+                "The event argument to send must be an opsdroid Event object"
+            )
+
+        # If the event does not have a target, use the default.
+        event.target = event.target or self.default_target
+
+        return await self.events[type(event)](self, event)
+
+    @property
+    def default_room(self):  # noqa: D401
+        """The room to send messages to if not specified."""
+        warnings.warn(
+            "Connector.default_room is deprecated. Use "
+            "Connector.default_target instead.",
+            DeprecationWarning,
+        )
+
+        return self.default_target
+
+    @default_room.setter
+    def default_room(self, value):
+        warnings.warn(
+            "Connector.default_room is deprecated. Use "
+            "Connector.default_target instead.",
+            DeprecationWarning,
+        )
+
+        self.default_target = value

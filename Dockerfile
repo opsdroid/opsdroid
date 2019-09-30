@@ -1,6 +1,7 @@
-FROM python:3.6-alpine
+FROM python:3.7-alpine
 LABEL maintainer="Jacob Tomlinson <jacob@tom.linson.uk>"
 
+RUN apk add --no-cache gcc musl-dev
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
@@ -13,10 +14,11 @@ COPY requirements.txt requirements.txt
 COPY README.md README.md
 COPY MANIFEST.in MANIFEST.in
 
-RUN apk update && apk add git
+RUN apk update && apk add --no-cache git openssh-client
 RUN pip3 install --upgrade pip
 RUN pip3 install --no-cache-dir --no-use-pep517 .
+RUN apk del gcc musl-dev
 
 EXPOSE 8080
 
-CMD ["opsdroid"]
+CMD ["opsdroid", "start"]
