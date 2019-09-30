@@ -1,4 +1,4 @@
-<!-- Before you post an issue or if you are unsure about something join our Matrix channel https://riot.im/app/#/room/#opsdroid-general:matrix.org and ask away! We are more than happy to help you. -->
+<!-- Before you post an issue or if you are unsure about something join our matrix channel https://riot.im/app/#/room/#opsdroid-general:matrix.org and ask away! We are more than happy to help you. -->
 # Description
 Please include a summary of the issue. 
 
