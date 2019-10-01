@@ -253,6 +253,18 @@ class OpsDroid:
 
                     continue
 
+                if hasattr(func, "skill"):
+                    _LOGGER.warning(
+                        _(
+                            "Function based skills are deprecated "
+                            "and will be removed in a future "
+                            "release. Please use class-based skills "
+                            "instead."
+                        )
+                    )
+                    func.config = skill["config"]
+                    self.skills.append(func)
+
         with contextlib.suppress(AttributeError):
             for skill in skills:
                 skill["module"].setup(self, self.config)
