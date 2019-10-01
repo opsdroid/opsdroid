@@ -8,6 +8,8 @@ import logging
 import filecmp
 import json
 
+from functools import wraps
+
 import nbformat
 from nbconvert import PythonExporter
 
@@ -277,3 +279,21 @@ register_json_type(
         dct["hour"], dct["minute"], dct["second"], dct["microsecond"]
     ),
 )
+
+
+def negate(func):
+    """Negates the result of a function.
+
+    Args:
+        func (func): Any function.
+
+    Returns:
+        bool: Negated result.
+
+    """
+
+    @wraps(func)
+    def negated_func(*args, **kwargs):
+        return not func(*args, **kwargs)
+
+    return negated_func

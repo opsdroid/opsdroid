@@ -6,13 +6,13 @@ having a matcher which matches the current message.
 
 import logging
 
-from opsdroid.helper import add_skill_attributes
+from opsdroid.helper import add_skill_attributes, negate
 
 
 _LOGGER = logging.getLogger(__name__)
 
 
-def constrain_rooms(rooms):
+def constrain_rooms(rooms, invert=False):
     """Return room constraint decorator."""
 
     def constraint_decorator(func):
@@ -23,13 +23,16 @@ def constrain_rooms(rooms):
             return message.target in rooms
 
         func = add_skill_attributes(func)
-        func.constraints.append(constraint_callback)
+        if invert:
+            func.constraints.append(negate(constraint_callback))
+        else:
+            func.constraints.append(constraint_callback)
         return func
 
     return constraint_decorator
 
 
-def constrain_users(users):
+def constrain_users(users, invert=False):
     """Return user constraint decorator."""
 
     def constraint_decorator(func):
@@ -40,13 +43,16 @@ def constrain_users(users):
             return message.user in users
 
         func = add_skill_attributes(func)
-        func.constraints.append(constraint_callback)
+        if invert:
+            func.constraints.append(negate(constraint_callback))
+        else:
+            func.constraints.append(constraint_callback)
         return func
 
     return constraint_decorator
 
 
-def constrain_connectors(connectors):
+def constrain_connectors(connectors, invert=False):
     """Return connector constraint decorator."""
 
     def constraint_decorator(func):
@@ -57,7 +63,10 @@ def constrain_connectors(connectors):
             return message.connector and (message.connector.name in connectors)
 
         func = add_skill_attributes(func)
-        func.constraints.append(constraint_callback)
+        if invert:
+            func.constraints.append(negate(constraint_callback))
+        else:
+            func.constraints.append(constraint_callback)
         return func
 
     return constraint_decorator

@@ -1,7 +1,7 @@
 # Constraints
 
 As well as matchers opsdroid also has constraints. There are decorators for your functions which prevent the skill from being called even if it is matched by a matcher.
-
+You can invert the constraints so to filter out the opposite of the criteria.
 ## Constrain rooms
 
 The constraint `constrain_rooms(rooms)` allows you to restrict a skill to a specific set of rooms in your chat client.
