@@ -352,7 +352,7 @@ class Loader:
             included_yaml = os.path.join(main_yaml_path, loader.construct_scalar(node))
 
             with open(included_yaml, "r") as included:
-                return yaml.safe_load(included)
+                return yaml.load(stream, Loader=yaml.SafeLoader)
 
         yaml.SafeLoader.add_constructor("!envvar", envvar_constructor)
         yaml.SafeLoader.add_constructor("!include", include_constructor)
@@ -364,7 +364,7 @@ class Loader:
                 schema = yamale.make_schema(schema_path)
                 data = yamale.make_data(config_path)
                 yamale.validate(schema, data)
-                return yaml.safe_load(stream)
+                return yaml.load(stream, Loader=yaml.SafeLoader)
 
         except ValueError as error:
             _LOGGER.critical(error)
