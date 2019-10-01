@@ -1,6 +1,7 @@
 # Constraints
 
 As well as matchers opsdroid also has constraints. There are decorators for your functions which prevent the skill from being called even if it is matched by a matcher.
+You can also invert constraints so that they filter out the opposite of the constraint criteria.
 
 ## Constrain rooms
 
@@ -59,5 +60,20 @@ class MySkill(Skill):
     @match_regex(r'hi')
     @constrain_connectors(['websocket'])
     async def hello(self, message):
+        await message.respond('Hey')
+```
+
+## Inverted Constraints Example
+```python
+from opsdroid.skill import Skill
+from opsdroid.matchers import match_regex
+from opsdroid.constraints import constrain_users
+
+class MySkill(Skill):
+
+    @match_regex(r'hi')
+    @constrain_users(['alice', 'bob'], invert=True)
+    async def hello(self, message):
+        """Says 'Hey' to anyone EXCEPT 'alice' and 'bob'."""
         await message.respond('Hey')
 ```
