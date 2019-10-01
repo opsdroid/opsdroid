@@ -10,7 +10,7 @@ Things you can help with:
      - [Squashing bugs](#quick-links)
      - [Enhance opsdroid](#quick-links)
 
-*If you need help or if you are unsure about something join our* [gitter channel](https://gitter.im/opsdroid/) *and ask away! We are more than happy to help you.*
+*If you need help or if you are unsure about something join our* [matrix channel](https://riot.im/app/#/room/#opsdroid-general:matrix.org) *and ask away! We are more than happy to help you.*
 
 ## Workflow
 
@@ -74,7 +74,7 @@ docker run --rm -ti -v $(pwd):/usr/src/app opsdroid/opsdroid:myfeature tox
 
 ## Automatic Linting with Black
 
-Opsdroid is running black to deal with linting issues and it will be triggered when Travis runs our tests automatically. You can install back on your machine and have it correct any linting issues that you might have.
+Opsdroid is running black to deal with linting issues and it will be triggered when Travis runs our tests automatically. You can install black on your machine and have it correct any linting issues that you might have.
 
 ### Install Black
 
@@ -86,16 +86,16 @@ pip install black
 
 _Note: You need to be running Python 3.6.0+ to have Black running._
 
-You also need to have [pre-commit](https://pre-commit.com) installed and set up to have Black check your code and work on each git commit. If you followed the instructions on running the tests earlier on on [Developing](#developing), you should have pre-commit set up already, if not please do it now.
+You also need to have [pre-commit](https://pre-commit.com) installed and set up in order to have Black check your code and work on each git commit. If you followed the instructions on running the tests earlier on [Developing](#developing), you should have pre-commit set up already, and if not, please do it now.
 
 
 ### Using Black
 
-Black will be triggered when you commit changes with the command `git commit`. You then can check your terminal and check what sort of message you get from Black - either all is good or some files would be formatted.
+Black will be triggered when you commit changes with the command `git commit`. You can then check your terminal for what sort of message you get from Black - either all is good or some files would be formatted.
 
 *Example of issues with linting*
 
-Let's imagine that you have added your files to stating and did `git commit -m 'my awesome feature` black will run on your terminal and show you something like this:
+Let's imagine that you have added your files to stating and did `git commit -m 'my awesome feature` , then black will run on your terminal and show you something like this:
 
 ```bash
 lint run-test-pre: PYTHONHASHSEED='4023478313'
@@ -108,9 +108,9 @@ All done! 💥 💔 💥
 ERROR: InvocationError for command /home/travis/build/opsdroid/opsdroid/.tox/lint/bin/black --check opsdroid tests scripts setup.py versioneer.py (exited with code 1)
 ```
 
-As you can see black tells you that found some issues with linting on 1 file and since it reformats your code to fix the linting issues, it tells you that the file would be reformatted.
+As you can see black tells you that it found some issues with linting on 1 file and since it reformats your code to fix the linting issues, it tells you that the file would be reformatted.
 
-Black will change your file and if you go `git status` you will see that your file was modified. You just need to add the files to stating again and commit them with the previous commit message. Afterwards, you can push the changes to your repository/PR.
+Black will change your file and if you go to `git status` you will see that your file was modified. You just need to add the files to starting again and commit them with the previous commit message. Afterwards, you can push the changes to your repository/PR.
 
 *Example of good linting*
 If your linting is good when you commit your changes you will see the following message:
@@ -150,7 +150,7 @@ txt = 'hello {}'.format(name)  # this is NOT translatable
 txt = _('hello {}').format(name)  # but now it's translatable! 🎉
 ```
 
-When some new translatable strings are added, you must extract them to a non versioned `pot` file with:
+When some new translatable strings are added, you must extract them to a non-versioned `pot` file with:
 ```shell
 python setup.py extract_messages
 ```
@@ -177,15 +177,14 @@ Then you can translate it in `locale/eo/LC_MESSAGES/opsdroid.po`, then compile i
 ## Creating New Modules
 Opsdroid is an open source chatbot framework. It is designed to be extendable, scalable and simple. It comes with a few official modules that can be found in the [Opsdroid  GitHub account](https://github.com/opsdroid).
 
- If you love a particular platform and wish to use opsdroid with it or if you want opsdroid to interact with something in a certain way you can create your own modules and extend the functionality of opsdroid.
-
- If you don't know where to start, make sure to check the [tutorials](tutorials) and read the [documentation](http://opsdroid.readthedocs.io/en/latest/?badge=latest).  Remember that you can also ask for help in our [gitter channel](https://gitter.im/opsdroid/)
-
+ If you love a particular platform and wish to use opsdroid with it or if you want opsdroid to interact with something in a certain way, you can create your own modules and extend the functionality of opsdroid.
+ 
+ If you don't know where to start, make sure to check the [tutorials](tutorials) and read the [documentation](http://opsdroid.readthedocs.io/en/latest/?badge=latest).  Remember that you can also ask for help in our [matrix channel](https://riot.im/app/#/room/#opsdroid-general:matrix.org)
 
 ## Issues
 You can help us by reporting new issues or by fixing existing issues.
 
-If you find any part of opsdroid that's acting odd it would be great if you take the time to create a new issue. That will help us keep opsdroid free of any bugs.
+If you find any part of opsdroid that's acting odd, it would be great if you take the time to create a new issue. That will help us keep opsdroid devoid of any bugs.
 
 We try to tackle issues as fast as possible, but help would be greatly appreciated. To get started, simply follow the [workflow guidelines](#workflow) and developing instructions.
 
