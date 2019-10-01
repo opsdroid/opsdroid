@@ -375,6 +375,7 @@ class OpsDroid:
 
         if "parsers" in self.config:
             _LOGGER.debug(_("Processing parsers..."))
+            _LOGGER.info("test")
             parsers = self.config["parsers"] or []
 
             dialogflow = [p for p in parsers if p.get("name") == "dialogflow"]
