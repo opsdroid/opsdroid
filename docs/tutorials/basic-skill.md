@@ -1,6 +1,6 @@
 # Creating a Basic Skill
-We will create a basic skill that makes opsdroid answer the text "how are you". This skill will be very similar to the [hello skill](docs/extending/skills/#hello-world) found in the documentation.
-The video tutorial for creating your own skill is also available [here](https://www.youtube.com/watch?v=gk7JN4e5l_4&index=3&list=PLViQCHlMbEq5nZL6VNrUxu--Of1uCpflq)
+We will create a basic skill that makes opsdroid respond to the text "how are you". This skill will be very similar to the [hello skill](docs/extending/skills/#hello-world) found in the documentation.
+The video tutorial for creating your own skill is also available [here](https://www.youtube.com/watch?v=gk7JN4e5l_4&index=3&list=PLViQCHlMbEq5nZL6VNrUxu--Of1uCpflq).
 
 *If you need help or if you are unsure about something join our* [gitter channel](https://gitter.im/opsdroid/) *and ask away! We are more than happy to help you.*
 
@@ -82,7 +82,7 @@ class MySkill(Skill):
         await message.respond('Good thanks! My load average is 0.2, 0.1, 0.1.')
 ```
 
-Our skill is done and opsdroid will be able to answer like in the [Opsdroid main page](https://opsdroid.github.io). The next thing that is left to do is to add the skill to the opsdroid configuration file.
+Our skill is done and opsdroid will be able to respond like in the [Opsdroid main page](https://opsdroid.github.io). The final thing  left to do is to add the skill to the opsdroid configuration file.
 
 
 #### Adding the Skill To Configuration
@@ -90,7 +90,7 @@ For the sake of simplicity we will assume the following:
 - The configuration file is located at: `~/.opsdroid/configuration.yaml`
 - Your skill is located at: `~/documents/skill-howareyou`
 
-Open your `configuration.yaml` file and under the skills add the name and path of your skill like such:
+Open your `configuration.yaml` file and under the skills section, add the name and path of your skill:
 
 ```yaml
 skills:
@@ -98,5 +98,5 @@ skills:
     path: /Users/username/documents/skill-howareyou
 ```
 
-As mentioned in the [introduction](introduction.md/), the indentation and the use of spaces instead of tabs is very important. If you have any issues when running opsdroid check both of this things, it might be a problem with a space.
+As mentioned in the [introduction](introduction.md/), the indentation and the use of spaces instead of tabs is very important. If you have any issues when running opsdroid check both of these things; it might be a problem with a space.
 
