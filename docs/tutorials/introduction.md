@@ -1,6 +1,6 @@
 # Getting started
 
-This first part of the tutorial will give a brief introduction to the yaml files, explain some basic things about opsdroid configuration, connectors, parsers and what to expect on the first run of opsdroid.
+This first part of the tutorial will give you a brief introduction to the yaml files, explain some basic things about opsdroid configuration, connectors, parsers and what to expect on the first run of opsdroid.
 
 *If you need help or if you are unsure about something join our* [matrix channel](https://riot.im/app/#/room/#opsdroid-general:matrix.org) *and ask away! We are more than happy to help you.*
 
@@ -46,7 +46,7 @@ skills:
   ## Loud noises (https://github.com/opsdroid/skill-loudnoises)
   - name: loudnoises
 ```
-_note: we use two spaces indentation before using `-name: <skillname>`_
+_note: we use a two space indentation before using `-name: <skillname>`_
 
 This part of the configuration will be represented as:
 
@@ -76,7 +76,7 @@ skills:
 
 This tells opsdroid to use the [shell connector](https://github.com/opsdroid/connector-shell) and [hello skill](https://github.com/opsdroid/skill-hello) from the official module library.
 
-In opsdroid all modules are git repositories which will be cloned locally the first time they are used. By default, if you do not specify a repository opsdroid will look at `https://github.com/opsdroid/<moduletype>-<modulename>.git` for the repository. Therefore in the above configuration, the `connector-shell` and `skill-hello` repositories were pulled from the opsdroid organisation on GitHub.
+In opsdroid, all modules are git repositories which will be cloned locally when used for the first time. By default, if you do not specify a repository opsdroid will look at `https://github.com/opsdroid/<moduletype>-<modulename>.git` for the repository. Therefore in the above configuration, the `connector-shell` and `skill-hello` repositories were pulled from the opsdroid organisation on GitHub.
 
 You are of course encouraged to write your own modules and make them available on GitHub or any other repository host which is accessible by your opsdroid installation.
 
@@ -105,9 +105,9 @@ In this configuration we are using the [slack connector](../connectors/slack.md)
 Configuration options such as the `token` in the slack connector or the `host`, `port` and `database` options in the mongo database are specific to those modules. Ensure you check each module's required configuration items before you use them.
 
 ## Asynchronous functions(Asyncio)
-In a standard sequential program, all the instructions you send to the interpreter will be executed one by one. It is easy to visualize and predict the output of such a code. But let’s say you have a script that requests data from 3 different servers. Sometimes the request to one of those servers may take unexpectedly too much time to execute. Imagine that it takes 10 seconds to get data from the second server. While you are waiting, the whole script is actually doing nothing.
+In a standard sequential program, all the instructions you send to the interpreter will be executed in a step-by-step manner. It is easy to visualize and predict the output of such a code. However, let's assume that you have a script which requests data from 3 different servers. Sometimes the request to one of those servers may unexpectedly take too much time to execute. Imagine that it takes 10 seconds to get data from the second server. While you are waiting, the whole script is actually doing nothing.
 
-What if you could write a script that, instead of waiting for the second request, simply skip it and start executing the third request, then go back to the second one, and proceed from where it left off? That’s the nature of an asynchronous program. You minimize idle time by switching tasks.
+What if you could write a script that, instead of waiting for the second request, simply skips it and starts executing the third request, then goes back to the second one, and proceed from where it left off? That’s the nature of an asynchronous program. You minimize idle time by switching tasks.
 
 An asynchronous function in Python is typically called a 'coroutine', which is just a function that uses the async keyword. The function below would work as an asynchronous function:
 
@@ -116,7 +116,7 @@ async def ping_server(ip):
     pass
 
 ```
-To actually call these asynchronous functions, we use the `await` keyword:
+To call these asynchronous functions, we use the `await` keyword:
 ```python
 async def ping_local():
     return await ping_server('192.168.1.1')
