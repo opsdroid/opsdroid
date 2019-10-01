@@ -1,26 +1,3 @@
-<<<<<<< HEAD
- ![opsdroid](https://github.com/opsdroid/style-guidelines/raw/master/logos/logo-wide-light.png)
-
-[![Current version of pypi](https://img.shields.io/pypi/v/opsdroid.svg)](https://pypi.python.org/pypi)
-[![Build Status](https://img.shields.io/travis/opsdroid/opsdroid/master.svg?logo=travis)](https://travis-ci.org/opsdroid/opsdroid)
-[![Build status](https://img.shields.io/appveyor/ci/opsdroid/opsdroid/master.svg?logo=appveyor)](https://ci.appveyor.com/project/opsdroid/opsdroid/branch/master)
-[![codecov](https://img.shields.io/codecov/c/github/opsdroid/opsdroid.svg)](https://codecov.io/gh/opsdroid/opsdroid)
-[![BCH compliance](https://bettercodehub.com/edge/badge/opsdroid/opsdroid?branch=master)](https://bettercodehub.com/)
-[![Updates](https://pyup.io/repos/github/opsdroid/opsdroid/shield.svg)](https://pyup.io/repos/github/opsdroid/opsdroid/)
-[![Docker Build](https://img.shields.io/docker/build/opsdroid/opsdroid.svg)](https://hub.docker.com/r/opsdroid/opsdroid/builds/)
-[![Docker Image](https://img.shields.io/microbadger/image-size/opsdroid/opsdroid.svg)](https://hub.docker.com/r/opsdroid/opsdroid/)
-[![Docker Layers](https://img.shields.io/microbadger/layers/opsdroid/opsdroid.svg)](https://microbadger.com/#/images/opsdroid/opsdroid)
-[![Documentation Status](https://img.shields.io/readthedocs/opsdroid/latest.svg)](http://opsdroid.readthedocs.io/en/stable/?badge=stable)
-[![Matrix Chat](https://img.shields.io/matrix/opsdroid-general:matrix.org.svg?logo=matrix)](https://riot.im/app/#/room/#opsdroid-general:matrix.org)
-[![Badge](https://img.shields.io/badge/gitter-join%20chat-4fb896.svg)](https://gitter.im/opsdroid)
-[![Backers on Open Collective](https://opencollective.com/opsdroid/backers/badge.svg)](#backers)
-[![Sponsors on Open Collective](https://opencollective.com/opsdroid/sponsors/badge.svg)](#sponsors)
-[![Open Source Helpers](https://www.codetriage.com/opsdroid/opsdroid/badges/users.svg)](https://www.codetriage.com/opsdroid/opsdroid)
-
-An open source chat bot framework written in python. It is designed to be extendable, scalable and simple.
-
-This application is designed to take messages from chat services and execute python functions (skills) based on their contents. Those functions can be anything you like, from simple conversational responses to running complex tasks. The true power of this project is to act as a glue library to bring the multitude of natural language APIs, chat services and third party APIs together.
-=======
 <h6 align=center>
 <img src="https://github.com/opsdroid/style-guidelines/raw/master/logos/logo-wide-light.png" alt="Opsdroid Logo"/>
 </h6>
@@ -64,7 +41,6 @@ An open source chat bot framework written in Python. It is designed to be extend
 
 
 This application is designed to take messages from chat services and execute Python functions (skills) based on their contents. Those functions can be anything you like, from simple conversational responses to running complex tasks. The true power of this project is to act as a glue library to bring the multitude of natural language APIs, chat services and third party APIs together.
->>>>>>> upstream/master
 
 Help support opsdroid in one click by pressing [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Check%20out%20opsdroid,%20an%20awesome%20open%20source%20chatbot%20framework%20written%20in%20Python.&url=https://opsdroid.github.io/&via=opsdroid&hashtags=chatbots,chatops,devops,automation,opensource)
 

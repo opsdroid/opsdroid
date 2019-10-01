@@ -9,13 +9,8 @@ Things you can help with:
  - [Issues](#issues)
      - [Squashing bugs](#quick-links)
      - [Enhance opsdroid](#quick-links)
-<<<<<<< HEAD
- 
-*If you need help or if you are unsure about something join our* [matrix channel](https://riot.im/app/#/room/#opsdroid-general:matrix.org) *and ask away! We are more than happy to help you.*
-=======
 
-*If you need help or if you are unsure about something join our* [gitter channel](https://gitter.im/opsdroid/) *and ask away! We are more than happy to help you.*
->>>>>>> upstream/master
+*If you need help or if you are unsure about something join our* [matrix channel](https://riot.im/app/#/room/#opsdroid-general:matrix.org) *and ask away! We are more than happy to help you.*
 
 ## Workflow
 
@@ -183,14 +178,8 @@ Then you can translate it in `locale/eo/LC_MESSAGES/opsdroid.po`, then compile i
 Opsdroid is an open source chatbot framework. It is designed to be extendable, scalable and simple. It comes with a few official modules that can be found in the [Opsdroid  GitHub account](https://github.com/opsdroid).
 
  If you love a particular platform and wish to use opsdroid with it or if you want opsdroid to interact with something in a certain way you can create your own modules and extend the functionality of opsdroid.
-<<<<<<< HEAD
  
  If you don't know where to start, make sure to check the [tutorials](tutorials) and read the [documentation](http://opsdroid.readthedocs.io/en/latest/?badge=latest).  Remember that you can also ask for help in our [matrix channel](https://riot.im/app/#/room/#opsdroid-general:matrix.org)
-=======
-
- If you don't know where to start, make sure to check the [tutorials](tutorials) and read the [documentation](http://opsdroid.readthedocs.io/en/latest/?badge=latest).  Remember that you can also ask for help in our [gitter channel](https://gitter.im/opsdroid/)
->>>>>>> upstream/master
-
 
 ## Issues
 You can help us by reporting new issues or by fixing existing issues.
