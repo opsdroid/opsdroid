@@ -219,7 +219,7 @@ class OpsDroid:
                 "/etc/opsdroid/configuration.yaml",
             ]
         )
-        self.load()
+        await self.load()
 
     def setup_skills(self, skills):
         """Call the setup function on the loaded skills.
