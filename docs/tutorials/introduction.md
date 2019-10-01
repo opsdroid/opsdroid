@@ -2,7 +2,7 @@
 
 This first part of the tutorial will give a brief introduction to the yaml files, explain some basic things about opsdroid configuration, connectors, parsers and what to expect on the first run of opsdroid.
 
-*If you need help or if you are unsure about something join our* [gitter channel](https://gitter.im/opsdroid/) *and ask away! We are more than happy to help you.*
+*If you need help or if you are unsure about something join our [*gitter channel*](https://gitter.im/opsdroid/) *and ask away! We are more than happy to help you.*
 
 
 ## Configuration and Yaml files
@@ -145,20 +145,20 @@ Read any of the matchers page for a quick reference guide on how to use them.
 
 
 ## First run - Skills available
-The opsdroid project itself is very simple and requires modules to give it functionality.  So, when you run opsdroid for the first time only 4 skills (hello, seen, dance and loudnoises) are available. What means that opsdroid won't do much yet.
+The opsdroid project itself is very simple and requires modules to give it functionality.  So, when you run opsdroid for the first time only 4 skills (hello, seen, dance and loudnoises) are available, which means that opsdroid won't do much yet.
 
-To expand opsdroid functionality you need to make some changes in your configuration file. You must specify the connector, skill and database* modules you wish to use and any options they may require.
+To expand opsdroid functionality you need to make some changes in your configuration file. You must specify the connector, skill and database modules you wish to use and also specify any options they may require.
 
-The ` example_configuration.yaml`  contains all the official modules to help you shape opsdroid to your liking. Simply uncomment(remove the #) the modules that you wish to use, provide any required options and everything should work just fine.
+The ` example_configuration.yaml`  contains all the official modules to help you shape opsdroid to your liking. Simply uncomment(remove the #) of the modules that you wish to use, provide any required options and everything should work just fine.
 
 _Note: Spacing might be off when uncommenting modules, make sure to check your indentation before running opsdroid. Opsdroid won't start if indentation is off._
 
 
 ## Expanding opsdroid functionality
-Now that you have the basics of how opsdroid works, you can see how skills can empower opsdroid. You can make opsdroid work with pretty much everything, But how do you make a new skill for opsdroid to use?
+Now that you have learnt the basics of how opsdroid works, you can see how skills can empower opsdroid. You can make opsdroid work with pretty much everything, but how do you make a new skill for opsdroid to use?
 
 You probably noticed the demo on [opsdroid main page](https://opsdroid.github.io) in which opsdroid seems to have a conversation with a user. At the moment opsdroid can only reply to a few commands (hello, goodbye, dancing, etc).
 
 
-The next step in the tutorial will teach you how to make your opsdroid reply to the message "how are you", just like you seen on the main page.
+The next step in the tutorial will teach you how to make your opsdroid reply to the message "how are you", just like you see on the main page.
 
