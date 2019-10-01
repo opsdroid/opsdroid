@@ -106,7 +106,7 @@ In this configuration we are using the [slack connector](../connectors/slack.md)
 Configuration options such as the `token` in the slack connector or the `host`, `port` and `database` options in the mongo database are specific to those modules. Ensure you check each module's required configuration items before you use them.
 
 ## Asynchronous functions(Asyncio)
-In a standard sequential program, all the instructions you send to the interpreter will be executed one by one. It is easy to visualize and predict the output of such a code. But let’s assume you have a script that requests data from 3 different servers. Sometimes the request to one of those servers may take unexpectedly too much time to execute. Imagine that it takes 10 seconds to get data from the second server. While you are waiting, the whole script is actually doing nothing.
+In a standard sequential program, all the instructions you send to the interpreter will be executed in a step-by-step manner. It is easy to visualize and predict the output of such a code. However, let's assume that you have a script which requests data from 3 different servers. Sometimes the request to one of those servers may unexpectedly take too much time to execute. Imagine that it takes 10 seconds to get data from the second server. While you are waiting, the whole script is actually doing nothing.
 
 What if you could write a script that, instead of waiting for the second request, simply skips it and starts executing the third request, then goes back to the second one, and proceed from where it left off? That’s the nature of an asynchronous program. You minimize idle time by switching tasks.
 
@@ -117,7 +117,7 @@ async def ping_server(ip):
     pass
 
 ```
-To actually call these asynchronous functions, we use the `await` keyword:
+To call these asynchronous functions, we use the `await` keyword:
 ```python
 async def ping_local():
     return await ping_server('192.168.1.1')
