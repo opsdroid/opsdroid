@@ -1,2 +1,4 @@
 ignore:
   - "opsdroid/_version.py"
+codecov:
+  allow_coverage_offsets: true
