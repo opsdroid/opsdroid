@@ -21,7 +21,7 @@ services:
 install: pip install -U tox codecov
 language: python
 script: tox
-after_success: codecov
+after_success: bash <(curl -s https://codecov.io/bash) -v
 deploy:
   provider: pypi
   user: $PYPI_USER
