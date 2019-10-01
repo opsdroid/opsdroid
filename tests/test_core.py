@@ -260,7 +260,7 @@ class TestCoreAsync(asynctest.TestCase):
 
     async def test_reload(self):
         with OpsDroid() as opsdroid:
-            opsdroid.load = mock.Mock()
+            opsdroid.load = amock.CoroutineMock()
             opsdroid.unload = amock.CoroutineMock()
             await opsdroid.reload()
             self.assertTrue(opsdroid.load.called)
