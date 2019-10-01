@@ -6,7 +6,7 @@ import asynctest
 import asynctest.mock as amock
 import importlib
 
-from opsdroid.__main__ import configure_lang
+from opsdroid.cli.start import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.events import Message
 from opsdroid.connector import Connector

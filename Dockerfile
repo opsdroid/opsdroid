@@ -22,4 +22,4 @@ RUN apk del gcc musl-dev alpine-sdk
 
 EXPOSE 8080
 
-CMD ["opsdroid"]
+CMD ["opsdroid", "start"]

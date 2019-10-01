@@ -4,7 +4,7 @@ import asynctest.mock as mock
 import asyncio
 import aiohttp.web
 
-from opsdroid.__main__ import configure_lang
+from opsdroid.cli.start import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.web import Web
 from opsdroid import matchers

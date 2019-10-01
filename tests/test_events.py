@@ -7,7 +7,7 @@ import asynctest.mock as amock
 from opsdroid import events
 from opsdroid.core import OpsDroid
 from opsdroid.connector import Connector
-from opsdroid.__main__ import configure_lang
+from opsdroid.cli.start import configure_lang
 
 
 class TestEventCreator(asynctest.TestCase):

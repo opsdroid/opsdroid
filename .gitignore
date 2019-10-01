@@ -100,6 +100,7 @@ ENV/
 .docker/
 
 .vscode/
+.devcontainer/
 .idea/
 site/
 Pipfile

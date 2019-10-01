@@ -10,7 +10,7 @@ from opsdroid import events
 from opsdroid.core import OpsDroid
 from opsdroid.connector.telegram import ConnectorTelegram
 from opsdroid.events import Message, Image
-from opsdroid.__main__ import configure_lang
+from opsdroid.cli.start import configure_lang
 
 
 class TestConnectorTelegram(unittest.TestCase):

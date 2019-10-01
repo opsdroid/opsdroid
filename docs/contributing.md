@@ -33,7 +33,7 @@ cd opsdroid
 pip install -e .
 
 # run opsdroid
-python -m opsdroid
+opsdroid start
 ```
 
 Running the tests

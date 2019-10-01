@@ -9,7 +9,7 @@ from types import ModuleType
 
 import pkg_resources
 from yaml import YAMLError
-from opsdroid.__main__ import configure_lang
+from opsdroid.cli.start import configure_lang
 from opsdroid import loader as ld
 from opsdroid.loader import Loader
 from opsdroid.helper import del_rw

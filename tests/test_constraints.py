@@ -1,7 +1,7 @@
 import asynctest
 import asynctest.mock as mock
 
-from opsdroid.__main__ import configure_lang
+from opsdroid.cli.start import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.events import Message
 from opsdroid.matchers import match_regex
