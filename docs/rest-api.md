@@ -1,12 +1,12 @@
 # REST API
 
-There is a RESTful API for opsdroid accessible on port `8080`. See the [configuration reference](configuration-reference#web) for config options.
+There is a **RESTful API** which is for opsdroid accessible on port **`8080`**. See the [**configuration reference**](configuration-reference#web) for config options.
 
 ## Methods
 
 ### `/` _[GET]_
 
-A test URL you can use to check whether the API is running.
+A test URL that you can use to check whether the API is running or not.
 
 **Example response**
 
@@ -18,7 +18,7 @@ A test URL you can use to check whether the API is running.
 
 ### `/stats/` _[GET]_
 
-This method returns runtime statistics which could be useful in monitoring.
+This method returns the runtime statistics of the process engine which could be useful in monitoring it.
 
 **Example response**
 
@@ -42,7 +42,7 @@ This method returns runtime statistics which could be useful in monitoring.
 
 ### `/skill/{skillname}/{webhookname}` _[POST]_
 
-This method family will call skills which have been decorated with the [webhook matcher](parsers/webhook). The URI format includes the name of the skill from the `configuration.yaml` and the name of the webhook set in the decorator.
+This method family call the skills which have been decorated with the [webhook matcher](parsers/webhook). The URI format includes the name of the skill from the `configuration.yaml` and the name of the webhook set in the decorator.
 
 The response includes information on whether a skill was successfully triggered or not.
 
