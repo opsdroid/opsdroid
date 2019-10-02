@@ -33,7 +33,7 @@ class TestConstraints(asynctest.TestCase):
             self.assertEqual(len(tasks), 1)  # Just match_always
 
     async def test_constrain_rooms_skips(self):
-        with OpsDroid() as opsdroid:
+        with OpsDroid() as opsdroid, mock.patch("opsdroid.parsers.always.parse_always"):
             opsdroid.eventloop = mock.CoroutineMock()
             skill = await self.getMockSkill()
             skill = match_regex(r".*")(skill)

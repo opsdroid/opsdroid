@@ -247,7 +247,7 @@ class ConnectorTelegram(Connector):
         cancel the task.
 
         """
-        message_getter = self.loop.create_task(self.get_messages_loop())
+        message_getter = self.loop.create_task(await self.get_messages_loop())
         await self._closing.wait()
         message_getter.cancel()
 
