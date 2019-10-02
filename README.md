@@ -198,7 +198,7 @@ Contributing to the opsdroid ecosystem is strongly encouraged and every little b
 
 **To get started see the [contribution guide](http://opsdroid.readthedocs.io/en/latest/contributing/).**
 
-Do you need help? Do you want to chat? [Join our Gitter channel](https://gitter.im/opsdroid/)
+Do you need help? Do you want to chat? [Join our Matrix channel](https://riot.im/app/#/room/#opsdroid-general:matrix.org)
 
 -------
 
