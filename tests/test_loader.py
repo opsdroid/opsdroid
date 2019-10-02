@@ -114,15 +114,15 @@ class TestLoader(unittest.TestCase):
 
     def test_yaml_AttributeError(self):
         opsdroid, loader = self.setup()
-        with self.assertRaises(AttributeError), mock.patch(
-            "yaml.CSafeLoader"
+        with self.assertRaises(AttributeError), mock.patch.object(
+            loader, "yaml_loader"
         ) as mocked_yaml:
             mocked_yaml.side_effect = AttributeError()
             config = loader.load_config_file(
                 [os.path.abspath("tests/configs/minimal.yaml")]
             )
             self.assertIsNotNone(config)
-            self.assertEqual(loader.yaml_loader, yaml.CSafeLoader)
+            self.assertEqual(loader.yaml_loader, yaml.SafeLoader)
 
     def test_load_config_file_with_include(self):
         opsdroid, loader = self.setup()
