@@ -24,7 +24,7 @@ class ConnectorWebexTeams(Connector):
         self.name = "webexteams"
         self.config = config
         self.opsdroid = opsdroid
-        self.default_room = None
+        self.default_target = None
         self.bot_name = config.get("bot-name", "opsdroid")
         self.bot_webex_id = None
         self.secret = uuid.uuid4().hex
