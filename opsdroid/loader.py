@@ -44,9 +44,9 @@ class Loader:
     """Class to load in config and modules."""
 
     try:
-        loader = yaml.CSafeLoader
+        yaml_loader = yaml.CSafeLoader
     except AttributeError:
-        loader = yaml.SafeLoader
+        yaml_loader = yaml.SafeLoader
 
     def __init__(self, opsdroid):
         """Create object with opsdroid instance."""
@@ -343,7 +343,7 @@ class Loader:
             config_path = cls.create_default_config(DEFAULT_CONFIG_PATH)
 
         env_var_pattern = re.compile(r"^\$([A-Z_]*)$")
-        cls.loader.add_implicit_resolver("!envvar", env_var_pattern, first="$")
+        cls.yaml_loader.add_implicit_resolver("!envvar", env_var_pattern, first="$")
 
         def envvar_constructor(loader, node):
             """Yaml parser for env vars."""
@@ -357,10 +357,10 @@ class Loader:
             included_yaml = os.path.join(main_yaml_path, loader.construct_scalar(node))
 
             with open(included_yaml, "r") as included:
-                return yaml.load(stream, Loader=cls.loader)
+                return yaml.load(included, Loader=cls.yaml_loader)
 
-        cls.loader.add_constructor("!envvar", envvar_constructor)
-        cls.loader.add_constructor("!include", include_constructor)
+        cls.yaml_loader.add_constructor("!envvar", envvar_constructor)
+        cls.yaml_loader.add_constructor("!include", include_constructor)
         try:
             with open(config_path, "r") as stream:
                 _LOGGER.info(_("Loaded config from %s."), config_path)
@@ -368,7 +368,7 @@ class Loader:
                 schema = yamale.make_schema(schema_path)
                 data = yamale.make_data(config_path)
                 yamale.validate(schema, data)
-                return yaml.load(stream, Loader=cls.loader)
+                return yaml.load(stream, Loader=cls.yaml_loader)
 
         except ValueError as error:
             _LOGGER.critical(error)
