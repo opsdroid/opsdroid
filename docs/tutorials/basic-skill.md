@@ -1,4 +1,5 @@
 # Creating a Basic Skill
+
 We will create a basic skill that makes opsdroid respond to the text "how are you". This skill will be very similar to the [hello skill](docs/extending/skills/#hello-world) found in the documentation.
 The video tutorial for creating your own skill is also available [here](https://www.youtube.com/watch?v=gk7JN4e5l_4&index=3&list=PLViQCHlMbEq5nZL6VNrUxu--Of1uCpflq).
 
@@ -44,7 +45,7 @@ class MySkill(Skill):
     @match_regex('how are you?')
 ```
 
-The [regex matcher](/matchers/regex.md) takes a regular expression and searches for it on every message sent by a user. So if the user types `how are you?` opsdroid will trigger the function underneath the `match_regex` decorator.
+The [regex matcher](../matchers/regex.md) takes a regular expression and searches for it on every message sent by a user. So if the user types `how are you?` opsdroid will trigger the function underneath the `match_regex` decorator.
 
 _Note: Opsdroid won't trigger with the text `how are you` because the question mark is missing._
 
@@ -98,5 +99,4 @@ skills:
     path: /Users/username/documents/skill-howareyou
 ```
 
-As mentioned in the [introduction](introduction.md/), the indentation and the use of spaces instead of tabs is very important. If you have any issues when running opsdroid check both of these things; it might be a problem with a space.
-
+As mentioned in the [introduction](introduction.md), the indentation and the use of spaces instead of tabs is very important. If you have any issues when running opsdroid check both of these things; it might be a problem with a space.

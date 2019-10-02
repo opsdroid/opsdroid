@@ -34,7 +34,7 @@ For configuration, opsdroid uses a single YAML file named `configuration.yaml`. 
   - Windows: `C:\<User>\<Application Data>\<Local Settings>\opsdroid\` or
              `C:\Users\<User>\AppData\Local\opsdroid`
 
-_Note: If no file named `configuration.yaml` can be found on one of these folders one will be created for you taken from the [example configuration file](../opsdroid/configuration/example_configuration.yaml)_
+_Note: If no file named `configuration.yaml` can be found on one of these folders one will be created for you taken from the [example configuration file](https://github.com/opsdroid/opsdroid/blob/master/opsdroid/configuration/example_configuration.yaml)_
 
 If you are using one of the default locations you can run the command `opsdroid -e` or `opsdroid --edit-config` to open the configuration with your favorite editor(taken from the environment variable `EDITOR`) or the default editor [vim](tutorials/introduction-vim.md).
 
@@ -82,7 +82,7 @@ skills:
     repo: "https://github.com/username/myawesomeskill.git"
 ```
 
-In this configuration, we are using the [slack connector](/connectors/slack.md) with a slack [auth token](https://api.slack.com/tokens) supplied, a built-in mongo database connection for persisting data, `hello` and `seen` skills from the official repos and finally a custom skill hosted on GitHub.
+In this configuration, we are using the [slack connector](connectors/slack.md) with a slack [auth token](https://api.slack.com/tokens) supplied, a built-in mongo database connection for persisting data, `hello` and `seen` skills from the official repos and finally a custom skill hosted on GitHub.
 
 Configuration options such as the `token` in the slack connector or the `host`, `port` and `database` options in the mongo database are specific to those modules. Ensure you check each module's required configuration items before you use them.
 
@@ -94,14 +94,14 @@ Opsdroid comes with some built-in connectors out of the box. A connector is a mo
 
 The built-in connectors are:
 
-- [Facebook](/connectors/facebook.md)
-- [GitHub](/connectors/github.md)
-- [Matrix](/connectors/matrix.md)
-- [Rocket.Chat](/connectors/rocketchat.md)
-- [Slack](/connectors/slack.md)
-- [Telegram](/connectors/telegram.md)
-- [Websockets](/connectors/websocket.md)
-- [Webex Teams](/connectors/webexteams.md)
+- [Facebook](connectors/facebook.md)
+- [GitHub](connectors/github.md)
+- [Matrix](connectors/matrix.md)
+- [Rocket.Chat](connectors/rocketchat.md)
+- [Slack](connectors/slack.md)
+- [Telegram](connectors/telegram.md)
+- [Websockets](connectors/websocket.md)
+- [Webex Teams](connectors/webexteams.md)
 
 _Note: More connectors will be added as built-in connectors into the opsdroid over time._
 
@@ -146,8 +146,8 @@ Skills can store data in opsdroid's "memory", this is a dictionary which can be 
 
 The built-in databases are:
 
-- [Mongo DB](/databases/mongo.md)
-- [SQLite](/databases/sqlite.md)
+- [Mongo DB](databases/mongo.md)
+- [SQLite](databases/sqlite.md)
 
 _Config options of the databases themselves differ between databases, see the database documentation for details._
 
@@ -404,7 +404,7 @@ lang: <ISO 639-1 code -  example: 'en'>
 
 Configure the REST API in opsdroid.
 
-By default, opsdroid will start a web server on port `8080` (or `8443` if SSL details are provided). For more information see the [REST API docs](rest-api).
+By default, opsdroid will start a web server on port `8080` (or `8443` if SSL details are provided). For more information see the [REST API docs](rest-api.md).
 
 ```yaml
 web:

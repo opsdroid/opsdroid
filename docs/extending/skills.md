@@ -39,7 +39,7 @@ In opsdroid when events are received the connector emits `Event` objects which c
 _Note: Not all connectors support all event types. To find out which events a connector will emit you can access the `.events` attribute of a connector._
 
 
-The base `Event` class has the following attributes. Also depending on the matcher it may have parser specific properties too. See the [matchers documentation](tutorials/introduction.md#matchers-available) for more details.
+The base `Event` class has the following attributes. Also depending on the matcher it may have parser specific properties too. See the [matchers documentation](../tutorials/introduction.md#matchers-available) for more details.
 
 
 * `user`: A _string_ containing the username of the user who wrote the message.

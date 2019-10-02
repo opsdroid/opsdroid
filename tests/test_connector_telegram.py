@@ -1,12 +1,10 @@
 """Tests for the ConnectorTelegram class."""
 import asyncio
-import aiohttp
 import contextlib
 import unittest
 import asynctest
 import asynctest.mock as amock
 
-from opsdroid import events
 from opsdroid.core import OpsDroid
 from opsdroid.connector.telegram import ConnectorTelegram
 from opsdroid.events import Message, Image
@@ -145,14 +143,11 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
                 }
             ]
         }
-        response_copy = list(response)
         mocked_status = amock.CoroutineMock()
         mocked_status.status = 200
-        with amock.patch(
-            "opsdroid.core.OpsDroid.parse"
-        ) as mocked_parse, amock.patch.object(
-            self.connector.session, "post"
-        ) as patched_request:
+        with amock.patch("opsdroid.core.OpsDroid.parse"), amock.patch.object(
+            self.connector, "get_messages_loop"
+        ), amock.patch.object(self.connector.session, "post") as patched_request:
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(mocked_status)
             self.assertTrue(response["result"][0].get("edited_message"))
@@ -520,7 +515,9 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
             self.connector.loop, "create_task"
         ) as mocked_task, amock.patch.object(
             self.connector._closing, "wait"
-        ) as mocked_event:
+        ) as mocked_event, amock.patch.object(
+            self.connector, "get_messages_loop"
+        ):
             mocked_event.return_value = asyncio.Future()
             mocked_event.return_value.set_result(True)
             mocked_task.return_value = asyncio.Future()
