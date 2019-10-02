@@ -206,7 +206,7 @@ We try to tackle issues as fast as possible, but help would be greatly appreciat
 ### Contributors
 
 Thank you to all the people who have already contributed to opsdroid!
-<a href="graphs/contributors"><img src="https://opencollective.com/opsdroid/contributors.svg?width=890" /></a>
+<a href="https://github.com/opsdroid/opsdroid/graphs/contributors"><img src="https://opencollective.com/opsdroid/contributors.svg?width=890" /></a>
 
 
 ### Backers
