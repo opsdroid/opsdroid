@@ -206,8 +206,8 @@ _\* databases are optional, however bot memory will not persist between differen
 
 ### Contributors
 
-This project exists thanks to all the people who contribute. [[Contribute](/docs/contributing.md)].
-<a href="graphs/contributors"><img src="https://opencollective.com/opsdroid/contributors.svg?width=890" /></a>
+This project exists thanks to all the people who contribute. [[Contribute](contributing.md)].
+<a href="https://github.com/opsdroid/opsdroid/graphs/contributors"><img src="https://opencollective.com/opsdroid/contributors.svg?width=890" /></a>
 
 
 ## Backers
