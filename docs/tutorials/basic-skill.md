@@ -82,7 +82,7 @@ class MySkill(Skill):
         await message.respond('Good thanks! My load average is 0.2, 0.1, 0.1.')
 ```
 
-Our skill is done and opsdroid will be able to respond like in the [Opsdroid main page](https://opsdroid.github.io). The final thing  left to do is to add the skill to the opsdroid configuration file.
+Our skill is done and opsdroid will be able to respond like in the [Opsdroid main page](https://opsdroid.github.io). The final thing left to do is to add the skill to the opsdroid configuration file.
 
 
 #### Adding the Skill To Configuration
