@@ -132,14 +132,13 @@ class TestLoader(unittest.TestCase):
             # If the command in exploit.yaml is echoed it will return 0
             self.assertNotEqual(config, 0)
 
-    @unittest.skip("old config type fails validation #770")
     def test_load_config_file_with_env_vars(self):
         opsdroid, loader = self.setup()
-        os.environ["ENVVAR"] = "shell"
+        os.environ["ENVVAR"] = "opsdroid"
         config = loader.load_config_file(
             [os.path.abspath("tests/configs/minimal_with_envs.yaml")]
         )
-        self.assertEqual(config["connectors"][0]["name"], os.environ["ENVVAR"])
+        self.assertEqual(config["connectors"][0]["bot-name"], os.environ["ENVVAR"])
 
     def test_create_default_config(self):
         test_config_path = os.path.join(
