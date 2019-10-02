@@ -437,7 +437,7 @@ class TestCoreAsync(asynctest.TestCase):
 
     async def test_start_connectors(self):
         with OpsDroid() as opsdroid:
-            opsdroid.start_connectors([])
+            await opsdroid.start_connectors([])
 
             module = {}
             module["config"] = {}
@@ -457,7 +457,7 @@ class TestCoreAsync(asynctest.TestCase):
 
     async def test_start_connectors_not_implemented(self):
         with OpsDroid() as opsdroid:
-            opsdroid.start_connectors([])
+            await opsdroid.start_connectors([])
 
             module = {}
             module["config"] = {}
