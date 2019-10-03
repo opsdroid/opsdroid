@@ -162,7 +162,10 @@ class ConnectorTelegram(Connector):
             elif "message" in result and "text" in result["message"]:
                 user = self.get_user(result)
                 message = Message(
-                    result["message"]["text"], user, result["message"]["chat"], self
+                    text=result["message"]["text"],
+                    user=user,
+                    target=result["message"]["chat"],
+                    connector=self,
                 )
 
                 if self.handle_user_permission(result, user):

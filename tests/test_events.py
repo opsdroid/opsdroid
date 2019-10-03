@@ -31,8 +31,9 @@ class TestEvent(asynctest.TestCase):
     async def test_event(self):
         opsdroid = amock.CoroutineMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
-        event = events.Event("user", "default", mock_connector)
+        event = events.Event("user_id", "user", "default", mock_connector)
 
+        self.assertEqual(event.user_id, "user_id")
         self.assertEqual(event.user, "user")
         self.assertEqual(event.target, "default")
 
@@ -58,16 +59,23 @@ class TestMessage(asynctest.TestCase):
             mock_connector = Connector({}, opsdroid=opsdroid)
             raw_message = {
                 "text": "Hello world",
+                "user_id": "user_id",
                 "user": "user",
                 "room": "default",
                 "timestamp": "01/01/2000 19:23:00",
                 "messageId": "101",
             }
             message = events.Message(
-                "Hello world", "user", "default", mock_connector, raw_event=raw_message
+                text="Hello world",
+                user_id="user_id",
+                user="user",
+                target="default",
+                connector=mock_connector,
+                raw_event=raw_message,
             )
 
             self.assertEqual(message.text, "Hello world")
+            self.assertEqual(message.user_id, "user_id")
             self.assertEqual(message.user, "user")
             self.assertEqual(message.target, "default")
             self.assertEqual(message.raw_event["timestamp"], "01/01/2000 19:23:00")
@@ -85,7 +93,9 @@ class TestMessage(asynctest.TestCase):
         with OpsDroid() as opsdroid:
             mock_connector = Connector({}, opsdroid=opsdroid)
             message_text = "Hello world"
-            message = events.Message(message_text, "user", "default", mock_connector)
+            message = events.Message(
+                message_text, "user_id", "user", "default", mock_connector
+            )
             with self.assertRaises(TypeError):
                 await message.respond("Goodbye world")
             self.assertEqual(message_text, message.text)
@@ -103,7 +113,9 @@ class TestMessage(asynctest.TestCase):
             )
 
             with amock.patch("opsdroid.events.Message._thinking_delay") as logmock:
-                message = events.Message("hi", "user", "default", mock_connector)
+                message = events.Message(
+                    "hi", "user_id", "user", "default", mock_connector
+                )
                 with self.assertRaises(TypeError):
                     await message.respond("Hello there")
 
@@ -122,7 +134,9 @@ class TestMessage(asynctest.TestCase):
             )
 
             with amock.patch("asyncio.sleep") as mocksleep_int:
-                message = events.Message("hi", "user", "default", mock_connector_int)
+                message = events.Message(
+                    "hi", "user_id", "user", "default", mock_connector_int
+                )
                 with self.assertRaises(TypeError):
                     await message.respond("Hello there")
 
@@ -141,7 +155,9 @@ class TestMessage(asynctest.TestCase):
             )
 
             with amock.patch("asyncio.sleep") as mocksleep_list:
-                message = events.Message("hi", "user", "default", mock_connector_list)
+                message = events.Message(
+                    "hi", "user_id", "user", "default", mock_connector_list
+                )
                 with self.assertRaises(TypeError):
                     await message.respond("Hello there")
 
@@ -160,7 +176,9 @@ class TestMessage(asynctest.TestCase):
             )
             with amock.patch("opsdroid.events.Message._typing_delay") as logmock:
                 with amock.patch("asyncio.sleep") as mocksleep:
-                    message = events.Message("hi", "user", "default", mock_connector)
+                    message = events.Message(
+                        "hi", "user_id", "user", "default", mock_connector
+                    )
                     with self.assertRaises(TypeError):
                         await message.respond("Hello there")
 
@@ -180,7 +198,9 @@ class TestMessage(asynctest.TestCase):
             )
 
             with amock.patch("asyncio.sleep") as mocksleep_list:
-                message = events.Message("hi", "user", "default", mock_connector_list)
+                message = events.Message(
+                    "hi", "user_id", "user", "default", mock_connector_list
+                )
                 with self.assertRaises(TypeError):
                     await message.respond("Hello there")
 
@@ -198,7 +218,9 @@ class TestMessage(asynctest.TestCase):
                 opsdroid=opsdroid,
             )
             with amock.patch("asyncio.sleep") as mocksleep:
-                message = events.Message("hi", "user", "default", mock_connector)
+                message = events.Message(
+                    "hi", "user_id", "user", "default", mock_connector
+                )
                 with self.assertRaises(TypeError):
                     await message.respond("Hello there")
 
@@ -212,7 +234,7 @@ class TestMessage(asynctest.TestCase):
             )
             with amock.patch("asyncio.sleep") as mocksleep:
                 message = events.Message(
-                    "Hello world", "user", "default", mock_connector
+                    "Hello world", "user_id", "user", "default", mock_connector
                 )
                 with self.assertRaises(TypeError):
                     await message.respond(events.Reaction("emoji"))
@@ -230,11 +252,13 @@ class TestFile(asynctest.TestCase):
         mock_connector = Connector({}, opsdroid=opsdroid)
         event = events.File(
             bytes("some file contents", "utf-8"),
+            user_id="user_id",
             user="user",
             target="default",
             connector=mock_connector,
         )
 
+        self.assertEqual(event.user_id, "user_id")
         self.assertEqual(event.user, "user")
         self.assertEqual(event.target, "default")
         self.assertEqual((await event.get_file_bytes()).decode(), "some file contents")
@@ -280,9 +304,14 @@ class TestImage(asynctest.TestCase):
         opsdroid = amock.CoroutineMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
         event = events.Image(
-            self.gif_bytes, user="user", target="default", connector=mock_connector
+            self.gif_bytes,
+            user_id="user_id",
+            user="user",
+            target="default",
+            connector=mock_connector,
         )
 
+        self.assertEqual(event.user_id, "user_id")
         self.assertEqual(event.user, "user")
         self.assertEqual(event.target, "default")
         self.assertEqual(await event.get_file_bytes(), self.gif_bytes)
@@ -294,6 +323,7 @@ class TestImage(asynctest.TestCase):
         mock_connector = Connector({}, opsdroid=opsdroid)
         event = events.Image(
             self.gif_bytes,
+            user_id="user_id",
             user="user",
             target="default",
             mimetype="image/jpeg",
@@ -306,7 +336,11 @@ class TestImage(asynctest.TestCase):
         opsdroid = amock.CoroutineMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
         event = events.Image(
-            b"aslkdjsalkdjlaj", user="user", target="default", connector=mock_connector
+            b"aslkdjsalkdjlaj",
+            user_id="user_id",
+            user="user",
+            target="default",
+            connector=mock_connector,
         )
 
         self.assertEqual(await event.get_mimetype(), "")

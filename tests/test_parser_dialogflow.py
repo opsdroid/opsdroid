@@ -35,7 +35,9 @@ class TestParserDialogflow(asynctest.TestCase):
     async def test_call_dialogflow(self):
         opsdroid = amock.CoroutineMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
-        message = Message("Hello world", "user", "default", mock_connector)
+        message = Message(
+            text="Hello", user="user", target="default", connector=mock_connector
+        )
         config = {"name": "dialogflow", "access-token": "test"}
         result = amock.Mock()
         result.json = amock.CoroutineMock()
@@ -60,7 +62,9 @@ class TestParserDialogflow(asynctest.TestCase):
             opsdroid.skills.append(match_dialogflow_action("myaction")(mock_skill))
 
             mock_connector = amock.CoroutineMock()
-            message = Message("Hello world", "user", "default", mock_connector)
+            message = Message(
+                text="Hello", user="user", target="default", connector=mock_connector
+            )
 
             with amock.patch.object(
                 dialogflow, "call_dialogflow"
@@ -87,7 +91,10 @@ class TestParserDialogflow(asynctest.TestCase):
 
             mock_connector = amock.CoroutineMock()
             message = Message(
-                "I want some good French food", "user", "default", mock_connector
+                text="I want some good French food",
+                user="user",
+                target="default",
+                connector=mock_connector,
             )
 
             with amock.patch.object(
@@ -140,7 +147,12 @@ class TestParserDialogflow(asynctest.TestCase):
 
             mock_connector = amock.MagicMock()
             mock_connector.send = amock.CoroutineMock()
-            message = Message("Hello world", "user", "default", mock_connector)
+            message = Message(
+                text="Hello world",
+                user="user",
+                target="default",
+                connector=mock_connector,
+            )
 
             with amock.patch.object(
                 dialogflow, "call_dialogflow"
@@ -166,7 +178,9 @@ class TestParserDialogflow(asynctest.TestCase):
             match_dialogflow_action("myaction")(mock_skill)
 
             mock_connector = amock.CoroutineMock()
-            message = Message("Hello world", "user", "default", mock_connector)
+            message = Message(
+                text="Hello", user="user", target="default", connector=mock_connector
+            )
 
             with amock.patch.object(
                 dialogflow, "call_dialogflow"
@@ -189,7 +203,9 @@ class TestParserDialogflow(asynctest.TestCase):
             match_dialogflow_action("myaction")(mock_skill)
 
             mock_connector = amock.CoroutineMock()
-            message = Message("Hello world", "user", "default", mock_connector)
+            message = Message(
+                text="Hello", user="user", target="default", connector=mock_connector
+            )
 
             with amock.patch.object(
                 dialogflow, "call_dialogflow"
@@ -213,7 +229,9 @@ class TestParserDialogflow(asynctest.TestCase):
             match_dialogflow_action("myaction")(mock_skill)
 
             mock_connector = amock.CoroutineMock()
-            message = Message("Hello world", "user", "default", mock_connector)
+            message = Message(
+                text="Hello", user="user", target="default", connector=mock_connector
+            )
 
             with amock.patch.object(dialogflow, "call_dialogflow") as mocked_call:
                 mocked_call.side_effect = ClientOSError()
