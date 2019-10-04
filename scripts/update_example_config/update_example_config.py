@@ -1,4 +1,4 @@
-from github import Github
+from github import Github, Repository
 from argparse import ArgumentParser
 import jinja2
 import base64
@@ -31,6 +31,21 @@ def render(tpl_path, context):
     )
 
 
+def get_core_modules():
+    """Get core module names of databases and connectors."""
+    core_modules = [
+        "database-" + name
+        for name in os.listdir("./opsdroid/database")
+        if os.path.isdir(os.path.join("./opsdroid/database", name))
+    ]
+    core_modules += [
+        "connector-" + name
+        for name in os.listdir("./opsdroid/connector")
+        if os.path.isdir(os.path.join("./opsdroid/connector", name))
+    ]
+    return core_modules
+
+
 def get_repos():
     """Get repository details for: skills, connectors, database."""
     return [
@@ -42,14 +57,25 @@ def get_repos():
     ]
 
 
-def get_readme(repo):
+def get_readme(module):
     """Get readme.md details from repository."""
-    readme_base64 = repo.get_readme().content
-    return base64.b64decode(readme_base64).decode("utf-8")
+    isRepo = isinstance(module, Repository.Repository)
+    if isRepo:
+        readme_base64 = module.get_readme().content
+        return base64.b64decode(readme_base64).decode("utf-8")
+    else:
+        if module[:9] == "connector":
+            mdfile = module[10:] + ".md"
+            subfolder = "connectors/"
+        else:
+            mdfile = module[9:] + ".md"
+            subfolder = "databases/"
+        core_readme = open("./docs/" + subfolder + mdfile, "rb").read().decode("utf-8")
+        return core_readme
 
 
 def get_config_details(readme):
-    """Gets all the configuration details located in the readme.md file,
+    """Gets all the configuration details located in the readme.md/<modulename>.md file of modules,
     under the title "Configuration".
 
     Note: Regex divided by multiline in order to pass lint.
@@ -62,20 +88,33 @@ def get_config_details(readme):
     return config
 
 
-def get_config_params(repo, readme):
+def get_config_params(module, readme):
     """Returns parameters to be used in the update."""
-    if repo.name[:5] == "skill":
-        raw_name = repo.name[6:]
-        repo_type = "skill"
-    elif repo.name[:9] == "connector":
-        raw_name = repo.name[10:]
-        repo_type = "connector"
+    isRepo = isinstance(module, Repository.Repository)
+
+    if isRepo:
+        if module.name[:5] == "skill":
+            raw_name = module.name[6:]
+            repo_type = "skill"
+        elif module.name[:9] == "connector":
+            raw_name = module.name[10:]
+            repo_type = "connector"
+        else:
+            raw_name = module.name[9:]
+            repo_type = "database"
     else:
-        raw_name = repo.name[9:]
-        repo_type = "database"
+        if module[:5] == "skill":
+            raw_name = module[6:]
+            repo_type = "skill"
+        elif module[:9] == "connector":
+            raw_name = module[10:]
+            repo_type = "connector"
+        else:
+            raw_name = module[9:]
+            repo_type = "database"
 
     name = raw_name.replace("-", " ").capitalize()
-    url = repo.html_url
+    url = module.html_url if isRepo else "core"
     config = get_config_details(readme)
 
     if config:
@@ -123,9 +162,9 @@ def get_parsers_details():
 def validate_yaml_format(mapping, error_strict):
     """Scans the configuration format and validates yaml formatting."""
     try:
-        yaml.load(mapping["config"])
+        yaml.load(mapping["config"], Loader=yaml.FullLoader)
     except (KeyError, TypeError):
-        yaml.load(mapping)
+        yaml.load(mapping, Loader=yaml.FullLoader)
     except yaml.scanner.ScannerError as e:
         if error_strict:
             raise e
@@ -137,7 +176,9 @@ def validate_yaml_format(mapping, error_strict):
 
 def triage_modules(g, active_modules, error_strict=False):
     """Allocate modules to their type and active/inactive status."""
+    core_modules = get_core_modules()
     repos = get_repos()
+    repos += core_modules
 
     skills = {"commented": [], "uncommented": []}
     connectors = {"commented": [], "uncommented": []}
@@ -156,19 +197,27 @@ def triage_modules(g, active_modules, error_strict=False):
         params = get_config_params(repo, readme)
         validate_yaml_format(params, error_strict)
 
-        if params["repo_type"] == "skill":
-            if params["raw_name"] in active_modules:
-                skills["uncommented"].append(params)
-            skills["commented"].append(params)
-
-        elif params["repo_type"] == "connector":
-            if params["raw_name"] in active_modules:
-                connectors["uncommented"].append(params)
-            connectors["commented"].append(params)
+        if (isinstance(repo, Repository.Repository)) and (
+            params["repo_type"] + "-" + params["raw_name"] in core_modules
+        ):
+            pass
         else:
-            if params["raw_name"] == active_modules:
-                databases["uncommented"].append(params)
-            databases["commented"].append(params)
+            if params["repo_type"] == "skill":
+                if params["raw_name"] in active_modules:
+                    skills["uncommented"].append(params)
+                else:
+                    skills["commented"].append(params)
+
+            elif params["repo_type"] == "connector":
+                if params["raw_name"] in active_modules:
+                    connectors["uncommented"].append(params)
+                else:
+                    connectors["commented"].append(params)
+            else:
+                if params["raw_name"] == active_modules:
+                    databases["uncommented"].append(params)
+                else:
+                    databases["commented"].append(params)
 
     return modules
 
@@ -218,7 +267,7 @@ if __name__ == "__main__":
     if args.active_modules:
         active_modules.append((args.active_skills.split(",")))
     else:
-        active_modules = ["dance", "hello", "seen", "loudnoises", "websocket", "shell"]
+        active_modules = ["dance", "hello", "seen", "loudnoises", "websocket"]
     if not args.output:
         base_path = "/".join(os.path.realpath(__file__).split("/")[:-3])
         config_path = base_path
