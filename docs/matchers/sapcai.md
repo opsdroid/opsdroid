@@ -19,7 +19,7 @@ parsers:
 
 [SAP Conversational AI](https://cai.tools.sap/) is an NLP API for matching strings to [intents](https://cai.tools.sap/docs/concepts/intent). Intents are created on the SAP Conversational AI website.
 
-## [Example 1](#example1)
+## Example 1
 
 ```python
 from opsdroid.skill import Skill
