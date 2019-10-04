@@ -41,7 +41,7 @@ class TestMessage(asynctest.TestCase):
 
     def test_depreacted_properties(self):
         message = Message(
-            text="hello", user_id="user_id", user="user", target="", connector=""
+            text="hello", user_id="user_id", user="user", room="", connector=""
         )
 
         message.target = "spam"
