@@ -28,7 +28,7 @@ Rasa NLU is also trained via the API and so opsdroid can do the training for you
 
 > ⚠️ **Warning** - Rasa NLU requires 4GB of memory, 2GB for training models and 2GB for serving requests. If you do not provide enough it will hang and cause timeouts in opsdroid.
 
-## [Example 1](#example1)
+## [Example 1]
 
 Skill file (`__init__.py`).
 ```python
