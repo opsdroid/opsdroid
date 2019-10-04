@@ -2,13 +2,12 @@
 import asyncio
 
 import unittest
-import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector.webexteams import ConnectorWebexTeams
-from opsdroid.events import Message, Reaction
+from opsdroid.events import Message
 from opsdroid.cli.start import configure_lang
 
 
@@ -46,9 +45,7 @@ class TestConnectorCiscoSparkAsync(asynctest.TestCase):
         connector.subscribe_to_rooms = amock.CoroutineMock()
         connector.set_own_id = amock.CoroutineMock()
 
-        with amock.patch(
-            "websockets.connect", new=amock.CoroutineMock()
-        ) as mocked_websocket_connect:
+        with amock.patch("websockets.connect", new=amock.CoroutineMock()):
             await connector.connect()
 
         self.assertTrue(connector.clean_up_webhooks.called)
@@ -118,7 +115,7 @@ class TestConnectorCiscoSparkAsync(asynctest.TestCase):
             target={"id": "3vABZrQgDzfcz7LZi"},
             connector=None,
         )
-        await connector.respond(message)
+        await connector.send(message)
         self.assertTrue(connector.api.messages.create.called)
 
     async def test_get_person(self):
