@@ -42,7 +42,7 @@ This method returns runtime statistics which could be useful in monitoring.
 
 ### `/skill/{skillname}/{webhookname}` _[POST]_
 
-This method family will call skills which have been decorated with the [webhook matcher](matchers/webhook). The URI format includes the name of the skill from the `configuration.yaml` and the name of the webhook set in the decorator.
+This method family will call skills which have been decorated with the [webhook matcher](matchers/webhook.md). The URI format includes the name of the skill from the `configuration.yaml` and the name of the webhook set in the decorator.
 
 The response includes information on whether a skill was successfully triggered or not.
 
