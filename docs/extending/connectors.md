@@ -22,7 +22,7 @@ Connectors are a class which extends the base opsdroid Connector. The class has 
 
 ### Handling Events
 
-Opsdroid supports different types of events, which can both be sent and received via connectors, for more information on the different types of events see the [events documentation](../events.md).
+Opsdroid supports different types of events, which can both be sent and received via connectors, for more information on the different types of events see the [events documentation](../extending/events.md).
 
 
 Connectors can implement support for sending different types of events using the `opsdroid.connector.register_event` decorator.
