@@ -47,7 +47,7 @@ class TestLoader(unittest.TestCase):
         )
         self.assertIsNotNone(config)
 
-    def test_load_config_valid_without_wellcome_message(self):
+    def test_load_config_valid_without_welcome_message(self):
         opsdroid, loader = self.setup()
         config = loader.load_config_file(
             [os.path.abspath("tests/configs/valid_without_wellcome_message.yaml")]
@@ -111,7 +111,6 @@ class TestLoader(unittest.TestCase):
             self.assertRaises(YAMLError)
             unittest.main(exit=False)
 
-    @unittest.skip("old config type fails validation #770")
     def test_load_config_file_with_include(self):
         opsdroid, loader = self.setup()
         config = loader.load_config_file(
@@ -132,14 +131,13 @@ class TestLoader(unittest.TestCase):
             # If the command in exploit.yaml is echoed it will return 0
             self.assertNotEqual(config, 0)
 
-    @unittest.skip("old config type fails validation #770")
     def test_load_config_file_with_env_vars(self):
         opsdroid, loader = self.setup()
-        os.environ["ENVVAR"] = "shell"
+        os.environ["ENVVAR"] = "opsdroid"
         config = loader.load_config_file(
             [os.path.abspath("tests/configs/minimal_with_envs.yaml")]
         )
-        self.assertEqual(config["connectors"][0]["name"], os.environ["ENVVAR"])
+        self.assertEqual(config["connectors"][0]["bot-name"], os.environ["ENVVAR"])
 
     def test_create_default_config(self):
         test_config_path = os.path.join(
@@ -377,6 +375,22 @@ class TestLoader(unittest.TestCase):
             loaded = loader._load_modules("database", modules)
             self.assertEqual(loaded[0]["config"]["name"], "myep")
 
+    def test_load_config_move_to_appdir(self):
+        opsdroid, loader = self.setup()
+        loader._load_modules = mock.MagicMock()
+        loader._setup_modules = mock.MagicMock()
+        config = {}
+        config["databases"] = mock.MagicMock()
+        config["skills"] = mock.MagicMock()
+        config["connectors"] = mock.MagicMock()
+        config["module-path"] = os.path.join(self._tmp_dir, "opsdroid")
+
+        with mock.patch("opsdroid.helper.move_config_to_appdir") as mocked_move:
+            mocked_move.side_effect = FileNotFoundError()
+            loader.load_modules_from_config(config)
+            self.assertLogs("_LOGGER", "info")
+            self.assertEqual(len(loader._load_modules.mock_calls), 3)
+
     def test_load_config(self):
         opsdroid, loader = self.setup()
         loader._load_modules = mock.MagicMock()
@@ -388,6 +402,7 @@ class TestLoader(unittest.TestCase):
         config["module-path"] = os.path.join(self._tmp_dir, "opsdroid")
 
         loader.load_modules_from_config(config)
+        self.assertLogs("_LOGGER", "info")
         self.assertEqual(len(loader._load_modules.mock_calls), 3)
 
     def test_load_empty_config(self):
@@ -430,6 +445,27 @@ class TestLoader(unittest.TestCase):
 
         modules_type = "test"
         modules = [{"name": "testmodule"}]
+        mockedmodule = mock.Mock(return_value={"name": "testmodule"})
+
+        with tempfile.TemporaryDirectory() as tmp_dep_path:
+            with mock.patch.object(
+                loader, "_install_module"
+            ) as mockinstall, mock.patch(
+                "opsdroid.loader.DEFAULT_MODULE_DEPS_PATH",
+                os.path.join(tmp_dep_path, "site-packages"),
+            ), mock.patch.object(
+                loader, "import_module", mockedmodule
+            ) as mockimport:
+                loader.setup_modules_directory({})
+                loader._load_modules(modules_type, modules)
+                self.assertTrue(mockinstall.called)
+                self.assertTrue(mockimport.called)
+
+    def test_load_modules_not_instance_Mapping(self):
+        opsdroid, loader = self.setup()
+
+        modules_type = "test"
+        modules = ["testmodule"]
         mockedmodule = mock.Mock(return_value={"name": "testmodule"})
 
         with tempfile.TemporaryDirectory() as tmp_dep_path:

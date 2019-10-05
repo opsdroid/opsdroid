@@ -14,7 +14,7 @@ parsers:
 
 ## About Regular Expression Matcher
 
-This is [almost](/matchers/parse_format.md) the simplest matcher available in opsdroid. It matches the message from the user against a regular expression. If the regex matches then the function is called.
+This is [almost](../matchers/parse_format.md) the simplest matcher available in opsdroid. It matches the message from the user against a regular expression. If the regex matches then the function is called.
 
 You can specify to the regex matcher which kind of matching you want to apply through the `matching_condition` kwarg (*match* matching is the default). This kwarg should give you more control on how to use the regex matcher.
 
