@@ -206,7 +206,7 @@ msgstr "Ficheiro de configuração %s não foi encontrado."
 #: opsdroid/loader.py:340
 #, fuzzy, python-format
 msgid "No configuration files found. Creating %s"
-msgstr "Nenhum ficheiro de configuração encontrado."
+msgstr "Nenhum ficheiro de configuração encontrado. criando %s"
 
 #: opsdroid/loader.py:366
 #, python-format
@@ -428,7 +428,7 @@ msgstr "A obter %s da memória."
 #: opsdroid/parsers/crontab.py:17
 #, fuzzy, python-format
 msgid "Running crontab skills at %s "
-msgstr "A executar habilidades de crontab"
+msgstr "A executar habilidades de crontab %s "
 
 #: opsdroid/parsers/dialogflow.py:35
 #, python-format

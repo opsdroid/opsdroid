@@ -299,7 +299,7 @@ msgstr "Não foi possível encontrar repositório git %s"
 #: opsdroid/logging.py:117
 #, python-format
 msgid "Started opsdroid %s"
-msgstr "A aplicacão iniciou"
+msgstr "A aplicacão iniciou opsdroid %s"
 
 #: opsdroid/matchers.py:79
 msgid ""
@@ -426,7 +426,7 @@ msgstr "Obtendo %s da memória."
 #: opsdroid/parsers/crontab.py:17
 #, fuzzy, python-format
 msgid "Running crontab skills at %s "
-msgstr "Executando habilidades de crontab"
+msgstr "Executando habilidades de crontab %s "
 
 #: opsdroid/parsers/dialogflow.py:35
 #, python-format

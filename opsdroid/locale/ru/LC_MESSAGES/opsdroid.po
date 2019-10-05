@@ -424,7 +424,7 @@ msgstr "Получение %s из памяти"
 #: opsdroid/parsers/crontab.py:17
 #, fuzzy, python-format
 msgid "Running crontab skills at %s "
-msgstr "Запуск crontab навыков"
+msgstr "Запуск crontab навыков %s "
 
 #: opsdroid/parsers/dialogflow.py:35
 #, python-format

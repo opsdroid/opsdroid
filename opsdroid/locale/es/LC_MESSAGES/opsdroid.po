@@ -171,7 +171,7 @@ msgstr ""
 #: opsdroid/loader.py:115
 #, fuzzy, python-format
 msgid "Loaded %s: %s"
-msgstr "Cargadas %i 'skills'."
+msgstr "Cargadas %s: %s"
 
 #: opsdroid/loader.py:118
 #, python-format
@@ -439,7 +439,7 @@ msgstr ""
 #: opsdroid/parsers/dialogflow.py:86 opsdroid/parsers/sapcai.py:82
 #, fuzzy, python-format
 msgid "Matched against skill %s"
-msgstr "Cargadas %i 'skills'."
+msgstr ""
 
 #: opsdroid/parsers/luisai.py:32
 #, python-format
