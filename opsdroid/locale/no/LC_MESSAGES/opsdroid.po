@@ -7,39 +7,353 @@ msgid ""
 msgstr ""
 "Project-Id-Version: opsdroid 0.11.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-02-20 13:29+0000\n"
+"POT-Creation-Date: 2019-10-04 21:22+0200\n"
 "PO-Revision-Date: 2018-03-22 08:44+0100\n"
 "Last-Translator: Tor Christian <tctovsli@gmail.com>\n"
 "Language: nb_NO\n"
 "Language-Team: no\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.5.3\n"
-"X-Generator: Poedit 2.0.6\n"
+"Generated-By: Babel 2.7.0\n"
 
-#: opsdroid/__main__.py:71
+#: opsdroid/core.py:105
+#, python-format
+msgid "Exiting application with return code %s"
+msgstr "Avslutter applikasjon med returkode %s"
+
+#: opsdroid/core.py:138
+msgid "Opsdroid is now running, press ctrl+c to exit."
+msgstr ""
+
+#: opsdroid/core.py:149
+msgid "Bye!"
+msgstr ""
+
+#: opsdroid/core.py:152
+msgid "Oops! Opsdroid is already running."
+msgstr ""
+
+#: opsdroid/core.py:161
+#, python-format
+msgid "Loaded %i skills"
+msgstr "Lastet %i 'skills'."
+
+#: opsdroid/core.py:176
+msgid "Received stop signal, exiting."
+msgstr ""
+
+#: opsdroid/core.py:178
+msgid "Removing skills..."
+msgstr ""
+
+#: opsdroid/core.py:180
+#, python-format
+msgid "Removed %s"
+msgstr ""
+
+#: opsdroid/core.py:184
+#, python-format
+msgid "Stopping connector %s..."
+msgstr ""
+
+#: opsdroid/core.py:187
+#, python-format
+msgid "Stopped connector %s"
+msgstr ""
+
+#: opsdroid/core.py:190
+#, fuzzy, python-format
+msgid "Stopping database %s..."
+msgstr "Legger til database: %s"
+
+#: opsdroid/core.py:193
+#, fuzzy, python-format
+msgid "Stopped database %s"
+msgstr "Legger til database: %s"
+
+#: opsdroid/core.py:195
+msgid "Stopping web server..."
+msgstr ""
+
+#: opsdroid/core.py:198
+msgid "Stopped web server"
+msgstr ""
+
+#: opsdroid/core.py:200
+msgid "Stopping cron..."
+msgstr ""
+
+#: opsdroid/core.py:203
+msgid "Stopped cron"
+msgstr ""
+
+#: opsdroid/core.py:205
+msgid "Stopping pending tasks..."
+msgstr ""
+
+#: opsdroid/core.py:210
+msgid "Stopped pending tasks"
+msgstr ""
+
+#: opsdroid/core.py:319
+msgid "All databases failed to load"
+msgstr "Kunne ikke laste noen databaser"
+
+#: opsdroid/core.py:327
+#, python-format
+msgid "Adding database: %s"
+msgstr "Legger til database: %s"
+
+#: opsdroid/core.py:345
+#, python-format
+msgid "Exception when running skill '%s' "
+msgstr "Unntak under kjøring av 'skill' '%s'."
+
+#: opsdroid/core.py:349
+msgid "Whoops there has been an error"
+msgstr "Oops, en feil har skjedd"
+
+#: opsdroid/core.py:351
+msgid "Check the log for details"
+msgstr "Sjekk loggen for detaljer"
+
+#: opsdroid/core.py:362
+msgid "Processing parsers..."
+msgstr ""
+
+#: opsdroid/core.py:374
+msgid ""
+"Api.ai is now called Dialogflow. This parser will stop working in the "
+"future please swap: 'name: apiai' for 'name: dialogflow' in "
+"configuration.yaml"
+msgstr ""
+"Api.ai heter nå Dialogflow. Denne parseren vil slutte å fungere i "
+"fremtiden. Bytt ut 'name: apiai' med 'name: dialogflow' i "
+"configuration.yaml"
+
+#: opsdroid/core.py:385
+msgid "Checking dialogflow..."
+msgstr "Sjekker dialogflow..."
+
+#: opsdroid/core.py:401
+msgid "Checking Recast.AI..."
+msgstr "Sjekker Recast.AI..."
+
+#: opsdroid/core.py:408
+msgid "Checking wit.ai..."
+msgstr "Sjekker wit.ai..."
+
+#: opsdroid/core.py:415
+msgid "Checking Rasa NLU..."
+msgstr "Sjekker Rasa NLU..."
+
+#: opsdroid/core.py:443
+#, python-format
+msgid "Parsing input: %s"
+msgstr ""
+
+#: opsdroid/helper.py:78
+#, python-format
+msgid "File %s copied from %s to %s run opsdroid -e to edit the main config file"
+msgstr ""
+
+#: opsdroid/loader.py:56
+msgid "Loaded loader"
+msgstr ""
+
+#: opsdroid/loader.py:95
+#, python-format
+msgid "Loading entry point-defined module for %s"
+msgstr ""
+
+#: opsdroid/loader.py:115
+#, python-format
+msgid "Loaded %s: %s"
+msgstr ""
+
+#: opsdroid/loader.py:118
+#, python-format
+msgid "Failed to load %s: %s"
+msgstr "Kunne ikke laste %s: %s"
+
+#: opsdroid/loader.py:130
+#, python-format
+msgid "'no-cache' set, removing %s"
+msgstr "'no-cache' satt, fjerner %s"
+
+#: opsdroid/loader.py:255
+msgid "Couldn't find the command 'pip', trying again with command 'pip3'"
+msgstr "Kunne ikke finne kommando 'pip', prøv igjen med 'pip3'"
+
+#: opsdroid/loader.py:268
+#, python-format
+msgid "Couldn't find the command 'pip3', install of %s will be skipped."
+msgstr "Kunne ikke finne kommando 'pip3', hopper over installasjon av %s."
+
+#: opsdroid/loader.py:276
+msgid "Pip and pip3 not found, exiting..."
+msgstr "Kunne ikke finne pip og pip3, avslutter..."
+
+#: opsdroid/loader.py:330
+#, python-format
+msgid "Config file %s not found."
+msgstr "Kunne ikke finne konfigurasjonsfil %s."
+
+#: opsdroid/loader.py:340
+#, fuzzy, python-format
+msgid "No configuration files found. Creating %s"
+msgstr "Ingen konfigurasjonsfiler funnet. skaper %s"
+
+#: opsdroid/loader.py:366
+#, python-format
+msgid "Loaded config from %s."
+msgstr "Lastet konfigurasjon fra %s."
+
+#: opsdroid/loader.py:417
+msgid "Loading modules from config..."
+msgstr "Laster moduler fra konfigurasjon..."
+
+#: opsdroid/loader.py:427
+#, fuzzy
+msgid ""
+"No databases in configuration.This will cause skills which store things "
+"in memory to lose data when opsdroid is restarted."
+msgstr ""
+"Ingen databaser funnet i konfigurasjonen. Det vil føre til at 'skills' "
+"som lagrer ting i minnet vil miste data ved restart av opsdroid."
+
+#: opsdroid/loader.py:440
+msgid "No skills in configuration, at least 1 required"
+msgstr "Fant ingen 'skills' i konfigurasjonen, trenger minst 1"
+
+#: opsdroid/loader.py:447
+msgid "No connectors in configuration, at least 1 required"
+msgstr "Fant ingen koblinger i konfigurasjonen, trenger minst 1"
+
+#: opsdroid/loader.py:464
+#, python-format
+msgid "Loading %s modules..."
+msgstr "Laster %s moduler..."
+
+#: opsdroid/loader.py:477
+#, python-format
+msgid "Found installed package for %s '%s' support"
+msgstr ""
+
+#: opsdroid/loader.py:530
+#, python-format
+msgid "Module %s failed to import."
+msgstr "Modul %s kunne ikke importeres."
+
+#: opsdroid/loader.py:541
+#, python-format
+msgid "Installing %s..."
+msgstr "Installerer %s..."
+
+#: opsdroid/loader.py:552
+#, python-format
+msgid "Installed %s to %s"
+msgstr "Installerte %s til %s"
+
+#: opsdroid/loader.py:555
+#, python-format
+msgid "Install of %s failed."
+msgstr "Installasjon av %s feilet."
+
+#: opsdroid/loader.py:567
+#, python-format
+msgid "Updating %s..."
+msgstr "Oppdaterer %s..."
+
+#: opsdroid/loader.py:570
+msgid "Local modules are not updated, skipping."
+msgstr "Lokale moduler oppdateres ikke, hopper over."
+
+#: opsdroid/loader.py:593
+msgid "'no-dep' set in configuration, skipping the install of dependencies."
+msgstr ""
+
+#: opsdroid/loader.py:625
+#, python-format
+msgid "Cloning %s from remote repository"
+msgstr ""
+
+#: opsdroid/loader.py:630
+#, python-format
+msgid "Cloning %s from local repository"
+msgstr ""
+
+#: opsdroid/loader.py:633
+#, python-format
+msgid "Could not find local git repo %s"
+msgstr ""
+
+#: opsdroid/logging.py:117
+#, python-format
 msgid "Started opsdroid %s"
 msgstr "Opsdroid %s startet"
 
-#: opsdroid/__main__.py:99
+#: opsdroid/matchers.py:79
+msgid ""
+"Api.ai is now called Dialogflow, this matcher will stop working in the "
+"future. Use match_dialogflow_action instead."
+msgstr ""
+
+#: opsdroid/matchers.py:98
+msgid ""
+"Api.ai is now called Dialogflow, this matcher will stop working in the "
+"future. Use match_dialogflow_intent instead."
+msgstr ""
+
+#: opsdroid/matchers.py:165
+msgid ""
+"Recast.AI is now called SAP Conversational AI, this matcher  will stop "
+"working in the future. Use match_sapcai instead."
+msgstr ""
+
+#: opsdroid/memory.py:37
+#, python-format
+msgid "Getting %s from memory."
+msgstr "Henter %s fra minne."
+
+#: opsdroid/memory.py:56
+#, python-format
+msgid "Putting %s to memory"
+msgstr "Legger %s i minne"
+
+#: opsdroid/web.py:87
+msgid "Cannot find ssl cert or key."
+msgstr "Kunne ikke finne SSL sertifikat eller nøkkel."
+
+#: opsdroid/web.py:95
+#, python-format
+msgid "Started web server on %s://%s%s"
+msgstr ""
+
+#: opsdroid/web.py:131
+#, python-format
+msgid "Running skill %s via webhook"
+msgstr ""
+
+#: opsdroid/cli/utils.py:77
 msgid "Whoops! opsdroid requires python 3.6 or above."
 msgstr "Oops! opsdroid trenger python 3.6 eller nyere."
 
-#: opsdroid/__main__.py:108
+#: opsdroid/cli/utils.py:95
 msgid "You can customise your opsdroid by modifying your configuration.yaml"
 msgstr "Du kan tilpasse opsdroid ved å endre configuration.yaml"
 
-#: opsdroid/__main__.py:110
+#: opsdroid/cli/utils.py:101
 msgid "Read more at: http://opsdroid.readthedocs.io/#configuration"
 msgstr "Les mer: http://opsdroid.readthedocs.io/#configuration"
 
-#: opsdroid/__main__.py:112
+#: opsdroid/cli/utils.py:103
 msgid "Watch the Get Started Videos at: http://bit.ly/2fnC0Fh"
 msgstr "Se \"Kom igang\"-videoer her: http://bit.ly/2fnC0Fh"
 
-#: opsdroid/__main__.py:114
+#: opsdroid/cli/utils.py:105
 msgid ""
 "Install Opsdroid Desktop at: \n"
 "https://github.com/opsdroid/opsdroid-desktop/releases"
@@ -47,272 +361,96 @@ msgstr ""
 "Installer Opsdroid Desktop her: \n"
 "https://github.com/opsdroid/opsdroid-desktop/releases"
 
-#: opsdroid/__main__.py:119
+#: opsdroid/cli/utils.py:114
 msgid "'welcome-message: true/false' is missing in configuration.yaml"
 msgstr "'welcome-message: true/false' mangler i configuration.yaml"
 
-#: opsdroid/core.py:90
-#, python-format
-msgid "Exiting application with return code %s"
-msgstr "Avslutter applikasjon med returkode %s"
-
-#: opsdroid/core.py:123
-msgid "Keyboard interrupt, exiting."
+#: opsdroid/database/redis/__init__.py:36
+msgid "Loaded redis database connector."
 msgstr ""
 
-#: opsdroid/core.py:137
+#: opsdroid/database/redis/__init__.py:54
 #, python-format
-msgid "Loaded %i skills"
-msgstr "Lastet %i 'skills'."
-
-#: opsdroid/core.py:201
-msgid "All databases failed to load"
-msgstr "Kunne ikke laste noen databaser"
-
-#: opsdroid/core.py:207
-#, python-format
-msgid "Adding database: %s"
-msgstr "Legger til database: %s"
-
-#: opsdroid/core.py:222
-msgid "Whoops there has been an error"
-msgstr "Oops, en feil har skjedd"
-
-#: opsdroid/core.py:223
-msgid "Check the log for details"
-msgstr "Sjekk loggen for detaljer"
-
-#: opsdroid/core.py:224
-#, python-format
-msgid "Exception when running skill '%s' "
-msgstr "Unntak under kjøring av 'skill' '%s'."
-
-#: opsdroid/core.py:233
-msgid "Processing parsers..."
+msgid "Connected to redis database %s from %s on port %s"
 msgstr ""
 
-#: opsdroid/core.py:243
-msgid ""
-"Api.ai is now called Dialogflow. This parser will stop working in the future "
-"please swap: 'name: apiai' for 'name: dialogflow' in configuration.yaml"
-msgstr ""
-"Api.ai heter nå Dialogflow. Denne parseren vil slutte å fungere i fremtiden. "
-"Bytt ut 'name: apiai' med 'name: dialogflow' i configuration.yaml"
-
-#: opsdroid/core.py:251
-msgid "Checking dialogflow..."
-msgstr "Sjekker dialogflow..."
-
-#: opsdroid/core.py:267
-msgid "Checking Recast.AI..."
-msgstr "Sjekker Recast.AI..."
-
-#: opsdroid/core.py:275
-msgid "Checking wit.ai..."
-msgstr "Sjekker wit.ai..."
-
-#: opsdroid/core.py:283
-msgid "Checking Rasa NLU..."
-msgstr "Sjekker Rasa NLU..."
-
-#: opsdroid/core.py:294
+#: opsdroid/database/redis/__init__.py:61
 #, python-format
-msgid "Parsing input: %s"
+msgid "Unable to connect to redis database on address: %s port: %s"
 msgstr ""
 
-#: opsdroid/loader.py:31
-msgid "Loaded loader"
-msgstr ""
-
-#: opsdroid/loader.py:52 opsdroid/loader.py:59
-#, python-format
-msgid "Loaded %s: %s"
-msgstr ""
-
-#: opsdroid/loader.py:63
-#, python-format
-msgid "Failed to load %s: %s"
-msgstr "Kunne ikke laste %s: %s"
-
-#: opsdroid/loader.py:73
-#, python-format
-msgid "'no-cache' set, removing %s"
-msgstr "'no-cache' satt, fjerner %s"
-
-#: opsdroid/loader.py:126
-msgid "Couldn't find the command 'pip', trying again with command 'pip3'"
-msgstr "Kunne ikke finne kommando 'pip', prøv igjen med 'pip3'"
-
-#: opsdroid/loader.py:136
-#, python-format
-msgid "Couldn't find the command 'pip3', install of %s will be skipped."
-msgstr "Kunne ikke finne kommando 'pip3', hopper over installasjon av %s."
-
-#: opsdroid/loader.py:141
-msgid "Pip and pip3 not found, exiting..."
-msgstr "Kunne ikke finne pip og pip3, avslutter..."
-
-#: opsdroid/loader.py:179
-#, python-format
-msgid "Reloading module %s"
-msgstr "Laster modul %s på nytt"
-
-#: opsdroid/loader.py:187
-#, python-format
-msgid "Config file %s not found."
-msgstr "Kunne ikke finne konfigurasjonsfil %s."
-
-#: opsdroid/loader.py:193
-msgid "No configuration files found."
-msgstr "Ingen konfigurasjonsfiler funnet."
-
-#: opsdroid/loader.py:219
-#, python-format
-msgid "Loaded config from %s."
-msgstr "Lastet konfigurasjon fra %s."
-
-#: opsdroid/loader.py:243
-msgid "Loading modules from config..."
-msgstr "Laster moduler fra konfigurasjon..."
-
-#: opsdroid/loader.py:252
-msgid ""
-"No databases in configuration.This will cause skills which store things "
-"inmemory to lose data when opsdroid is restarted."
-msgstr ""
-"Ingen databaser funnet i konfigurasjonen. Det vil føre til at 'skills' som "
-"lagrer ting i minnet vil miste data ved restart av opsdroid."
-
-#: opsdroid/loader.py:263
-msgid "No skills in configuration, at least 1 required"
-msgstr "Fant ingen 'skills' i konfigurasjonen, trenger minst 1"
-
-#: opsdroid/loader.py:269
-msgid "No connectors in configuration, at least 1 required"
-msgstr "Fant ingen koblinger i konfigurasjonen, trenger minst 1"
-
-#: opsdroid/loader.py:276
-#, python-format
-msgid "Loading %s modules..."
-msgstr "Laster %s moduler..."
-
-#: opsdroid/loader.py:325
-#, python-format
-msgid "Module %s failed to import."
-msgstr "Modul %s kunne ikke importeres."
-
-#: opsdroid/loader.py:332
-#, python-format
-msgid "Installing %s..."
-msgstr "Installerer %s..."
-
-#: opsdroid/loader.py:340
-#, python-format
-msgid "Installed %s to %s"
-msgstr "Installerte %s til %s"
-
-#: opsdroid/loader.py:343
-#, python-format
-msgid "Install of %s failed."
-msgstr "Installasjon av %s feilet."
-
-#: opsdroid/loader.py:349
-#, python-format
-msgid "Updating %s..."
-msgstr "Oppdaterer %s..."
-
-#: opsdroid/loader.py:352
-msgid "Local modules are not updated, skipping."
-msgstr "Lokale moduler oppdateres ikke, hopper over."
-
-#: opsdroid/loader.py:384
-#, python-format
-msgid "Cloning %s from remote repository"
-msgstr ""
-
-#: opsdroid/loader.py:390
-#, python-format
-msgid "Cloning %s from local repository"
-msgstr ""
-
-#: opsdroid/loader.py:395
-#, python-format
-msgid "Could not find local git repo %s"
-msgstr ""
-
-#: opsdroid/matchers.py:35
-msgid ""
-"Api.ai is now called Dialogflow, this matcher will stop working in the "
-"future. Use match_dialogflow_action instead."
-msgstr ""
-
-#: opsdroid/matchers.py:50
-msgid ""
-"Api.ai is now called Dialogflow, this matcher will stop working in the "
-"future. Use match_dialogflow_intent instead."
-msgstr ""
-
-#: opsdroid/memory.py:19
-#, python-format
-msgid "Getting %s from memory."
-msgstr "Henter %s fra minne."
-
-#: opsdroid/memory.py:30
-#, python-format
-msgid "Putting %s to memory"
+#: opsdroid/database/redis/__init__.py:75
+#, fuzzy, python-format
+msgid "Putting %s into redis"
 msgstr "Legger %s i minne"
 
-#: opsdroid/web.py:61
-msgid "Cannot find ssl cert or key."
-msgstr "Kunne ikke finne SSL sertifikat eller nøkkel."
+#: opsdroid/database/redis/__init__.py:90
+#, fuzzy, python-format
+msgid "Getting %s from redis"
+msgstr "Henter %s fra minne."
 
-#: opsdroid/web.py:68
+#: opsdroid/database/sqlite/__init__.py:42
+msgid "Loaded sqlite database connector"
+msgstr ""
+
+#: opsdroid/database/sqlite/__init__.py:68
 #, python-format
-msgid "Starting web server with host %s and port %s"
-msgstr "Starter web server med vert %s og port %s"
+msgid "Connected to sqlite %s"
+msgstr ""
+
+#: opsdroid/database/sqlite/__init__.py:82
+#, fuzzy, python-format
+msgid "Putting %s into sqlite"
+msgstr "Legger %s i minne"
+
+#: opsdroid/database/sqlite/__init__.py:105
+#, fuzzy, python-format
+msgid "Getting %s from sqlite"
+msgstr "Henter %s fra minne."
 
 #: opsdroid/parsers/crontab.py:17
-msgid "Running crontab skills"
-msgstr "Kjører crontab 'skills'..."
+#, fuzzy, python-format
+msgid "Running crontab skills at %s "
+msgstr "Kjører crontab 'skills' %s..."
 
-#: opsdroid/parsers/dialogflow.py:33
+#: opsdroid/parsers/dialogflow.py:35
 #, python-format
 msgid "Dialogflow response - %s"
 msgstr "Dialogflow respons - %s"
 
-#: opsdroid/parsers/dialogflow.py:47
+#: opsdroid/parsers/dialogflow.py:49
 msgid "No response from Dialogflow, check your network."
 msgstr "Ingen respons fra Dialogflow, sjekk nettverk."
 
-#: opsdroid/parsers/dialogflow.py:52
+#: opsdroid/parsers/dialogflow.py:54
 #, python-format
 msgid "Dialogflow error - %s  - %s"
 msgstr ""
 
-#: opsdroid/parsers/dialogflow.py:59
+#: opsdroid/parsers/dialogflow.py:61
 msgid "Dialogflow score lower than min-score"
 msgstr ""
 
-#: opsdroid/parsers/dialogflow.py:76 opsdroid/parsers/recastai.py:66
+#: opsdroid/parsers/dialogflow.py:86 opsdroid/parsers/sapcai.py:82
 #, python-format
 msgid "Matched against skill %s"
 msgstr ""
 
-#: opsdroid/parsers/luisai.py:26
+#: opsdroid/parsers/luisai.py:32
 #, python-format
 msgid "luis.ai response - %s"
 msgstr ""
 
-#: opsdroid/parsers/luisai.py:38
+#: opsdroid/parsers/luisai.py:44
 msgid "No response from luis.ai, check your network."
 msgstr "Ingen respons fra luis.ai, sjekk nettverk."
 
-#: opsdroid/parsers/luisai.py:47
+#: opsdroid/parsers/luisai.py:54
 #, python-format
 msgid "luis.ai error - %s %s"
 msgstr ""
 
-#: opsdroid/parsers/luisai.py:56
+#: opsdroid/parsers/luisai.py:63
 msgid "luis.ai score lower than min-score"
 msgstr ""
 
@@ -329,98 +467,99 @@ msgstr ""
 msgid "Initialisation complete in %s seconds."
 msgstr ""
 
-#: opsdroid/parsers/rasanlu.py:82
+#: opsdroid/parsers/rasanlu.py:85
 msgid "Starting Rasa NLU training."
 msgstr ""
 
-#: opsdroid/parsers/rasanlu.py:85
+#: opsdroid/parsers/rasanlu.py:88
 msgid "No intents found, skipping training."
 msgstr ""
 
-#: opsdroid/parsers/rasanlu.py:90
+#: opsdroid/parsers/rasanlu.py:93
 msgid "This model already exists, skipping training..."
 msgstr ""
 
-#: opsdroid/parsers/rasanlu.py:95
+#: opsdroid/parsers/rasanlu.py:98
 msgid "Now training the model. This may take a while..."
 msgstr ""
 
-#: opsdroid/parsers/rasanlu.py:103
+#: opsdroid/parsers/rasanlu.py:113
 msgid "Unable to connect to Rasa NLU, training failed."
 msgstr ""
 
-#: opsdroid/parsers/rasanlu.py:110
+#: opsdroid/parsers/rasanlu.py:122 opsdroid/parsers/rasanlu.py:134
 #, python-format
 msgid "Rasa NLU training completed in %s seconds."
 msgstr ""
 
-#: opsdroid/parsers/rasanlu.py:117 opsdroid/parsers/rasanlu.py:145
+#: opsdroid/parsers/rasanlu.py:152 opsdroid/parsers/rasanlu.py:179
 #, python-format
 msgid "Bad Rasa NLU response - %s"
 msgstr ""
 
-#: opsdroid/parsers/rasanlu.py:118
+#: opsdroid/parsers/rasanlu.py:153
 msgid "Rasa NLU training failed."
 msgstr ""
 
-#: opsdroid/parsers/rasanlu.py:138
+#: opsdroid/parsers/rasanlu.py:172
 msgid "Unable to connect to Rasa NLU"
 msgstr ""
 
-#: opsdroid/parsers/rasanlu.py:142
+#: opsdroid/parsers/rasanlu.py:176
 #, python-format
 msgid "Rasa NLU response - %s"
 msgstr ""
 
-#: opsdroid/parsers/rasanlu.py:156
+#: opsdroid/parsers/rasanlu.py:190
 msgid "No response from Rasa NLU, check your network."
 msgstr "Ingen respons fra Rasa NLU, sjekk nettverk."
 
-#: opsdroid/parsers/rasanlu.py:160
+#: opsdroid/parsers/rasanlu.py:194
 msgid "Rasa NLU error - Unauthorised request.Check your 'token'."
 msgstr ""
 
-#: opsdroid/parsers/rasanlu.py:165
+#: opsdroid/parsers/rasanlu.py:199
 msgid "Rasa NLU error - No intent found. Did you forget to create one?"
 msgstr ""
 
-#: opsdroid/parsers/rasanlu.py:171
+#: opsdroid/parsers/rasanlu.py:205
 msgid "Rasa NLU score lower than min-score"
 msgstr ""
 
-#: opsdroid/parsers/recastai.py:29
+#: opsdroid/parsers/sapcai.py:26
 #, python-format
-msgid "Recastai response - %s"
+msgid "SAP Conversational AI response - %s"
 msgstr ""
 
-#: opsdroid/parsers/recastai.py:43
-msgid "No response from Recast.AI, check your network."
-msgstr "Ingen respons fra Recast.AI, sjekk nettverk."
+#: opsdroid/parsers/sapcai.py:41
+#, fuzzy
+msgid "No response from SAP Conversational.AI, check your network."
+msgstr "Ingen respons fra wit.ai, sjekk nettverk."
 
-#: opsdroid/parsers/recastai.py:47
+#: opsdroid/parsers/sapcai.py:46
 #, python-format
-msgid "Recast.AI error - %s"
+msgid "SAP Conversational AI error - %s"
 msgstr ""
 
-#: opsdroid/parsers/recastai.py:50
+#: opsdroid/parsers/sapcai.py:51
 #, python-format
-msgid "Recast.AI error - No intent found for the message %s"
+msgid "SAP Conversational AI error - No intent found for the message %s"
 msgstr ""
 
-#: opsdroid/parsers/recastai.py:57
-msgid "Recast.AI score lower than min-score"
+#: opsdroid/parsers/sapcai.py:63
+msgid "SAP Conversational AI score lower than min-score"
 msgstr ""
 
-#: opsdroid/parsers/witai.py:27
+#: opsdroid/parsers/witai.py:24
 #, python-format
 msgid "wit.ai response - %s"
 msgstr ""
 
-#: opsdroid/parsers/witai.py:38
+#: opsdroid/parsers/witai.py:35
 msgid "No response from wit.ai, check your network."
 msgstr "Ingen respons fra wit.ai, sjekk nettverk."
 
-#: opsdroid/parsers/witai.py:42
+#: opsdroid/parsers/witai.py:40
 #, python-format
 msgid "wit.ai error - %s %s"
 msgstr ""
@@ -433,11 +572,36 @@ msgstr ""
 msgid "wit.ai score lower than min-score"
 msgstr ""
 
-msgid "opsdroid has already been started"
-msgstr "opsdroid har allerede blitt startet"
+#~ msgid "Keyboard interrupt, exiting."
+#~ msgstr ""
 
-msgid "All connectors failed to load"
-msgstr "Kunne ikke laste noen koblinger"
+#~ msgid "Reloading module %s"
+#~ msgstr "Laster modul %s på nytt"
 
-msgid "Creating %s."
-msgstr "Oppretter %s."
+#~ msgid "Starting web server with host %s and port %s"
+#~ msgstr "Starter web server med vert %s og port %s"
+
+#~ msgid "Recastai response - %s"
+#~ msgstr ""
+
+#~ msgid "No response from Recast.AI, check your network."
+#~ msgstr "Ingen respons fra Recast.AI, sjekk nettverk."
+
+#~ msgid "Recast.AI error - %s"
+#~ msgstr ""
+
+#~ msgid "Recast.AI error - No intent found for the message %s"
+#~ msgstr ""
+
+#~ msgid "Recast.AI score lower than min-score"
+#~ msgstr ""
+
+#~ msgid "opsdroid has already been started"
+#~ msgstr "opsdroid har allerede blitt startet"
+
+#~ msgid "All connectors failed to load"
+#~ msgstr "Kunne ikke laste noen koblinger"
+
+#~ msgid "Creating %s."
+#~ msgstr "Oppretter %s."
+
