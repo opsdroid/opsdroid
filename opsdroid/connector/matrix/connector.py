@@ -135,11 +135,11 @@ class ConnectorMatrix(Connector):
                     _LOGGER.info(_("Matrix Sync Timeout (code: %d)", mre.code))
                     continue
 
-                _LOGGER.exception("Matrix Sync Error")
+                _LOGGER.exception(_("Matrix Sync Error"))
             except CancelledError:
                 raise
             except Exception:  # pylint: disable=W0703
-                _LOGGER.exception("Matrix Sync Error")
+                _LOGGER.exception(_("Matrix Sync Error"))
 
     async def get_nick(self, roomid, mxid):
         """

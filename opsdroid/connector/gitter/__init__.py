@@ -82,7 +82,7 @@ class ConnectorGitter(Connector):
                     message["text"], message["fromUser"]["username"], self.room_id, self
                 )
             except KeyError as err:
-                _LOGGER.error("Unable to parse message %s", err)
+                _LOGGER.error(_("Unable to parse message %s"), err)
                 _LOGGER.error(err)
 
     @register_event(Message)

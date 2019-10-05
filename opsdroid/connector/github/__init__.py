@@ -35,7 +35,7 @@ class ConnectorGitHub(Connector):
         async with aiohttp.ClientSession() as session:
             response = await session.get(url)
             if response.status >= 300:
-                _LOGGER.error("Error connecting to github: %s", response.text())
+                _LOGGER.error(_("Error connecting to github: %s"), response.text())
                 return False
             _LOGGER.debug(_("Reading bot information..."))
             bot_data = await response.json()
@@ -87,7 +87,7 @@ class ConnectorGitHub(Connector):
             )
             await self.opsdroid.parse(message)
         except KeyError as error:
-            _LOGGER.error("Key %s not found in payload", error)
+            _LOGGER.error(_("Key %s not found in payload"), error)
             _LOGGER.debug(payload)
         return aiohttp.web.Response(text=json.dumps("Received"), status=201)
 

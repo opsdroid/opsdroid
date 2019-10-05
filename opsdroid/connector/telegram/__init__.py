@@ -129,11 +129,11 @@ class ConnectorTelegram(Connector):
 
         if resp.status != 200:
             _LOGGER.error(_("Unable to connect"))
-            _LOGGER.error("Telegram error %s, %s", resp.status, resp.text)
+            _LOGGER.error(_("Telegram error %s, %s"), resp.status, resp.text)
         else:
             json = await resp.json()
             _LOGGER.debug(json)
-            _LOGGER.debug("Connected to telegram as %s", json["result"]["username"])
+            _LOGGER.debug(_("Connected to telegram as %s"), json["result"]["username"])
 
     async def _parse_message(self, response):
         """Handle logic to parse a received message.
@@ -218,7 +218,7 @@ class ConnectorTelegram(Connector):
             await self.delete_webhook()
 
         if resp.status != 200:
-            _LOGGER.error("Telegram error %s, %s", resp.status, resp.text)
+            _LOGGER.error(_("Telegram error %s, %s"), resp.status, resp.text)
             self.listening = False
         else:
             json = await resp.json()
@@ -263,7 +263,7 @@ class ConnectorTelegram(Connector):
             message (object): An instance of Message.
 
         """
-        _LOGGER.debug("Responding with: %s", message.text)
+        _LOGGER.debug(_("Responding with: %s"), message.text)
 
         data = dict()
         data["chat_id"] = message.target["id"]
@@ -294,9 +294,9 @@ class ConnectorTelegram(Connector):
 
         resp = await self.session.post(self.build_url("sendPhoto"), data=data)
         if resp.status == 200:
-            _LOGGER.debug("Sent %s image " "successfully", file_event.name)
+            _LOGGER.debug(_("Sent %s image " "successfully"), file_event.name)
         else:
-            _LOGGER.debug("Unable to send image - " "Status Code %s", resp.status)
+            _LOGGER.debug(_("Unable to send image - " "Status Code %s"), resp.status)
 
     async def disconnect(self):
         """Disconnect from Telegram.

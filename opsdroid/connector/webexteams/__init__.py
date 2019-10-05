@@ -35,7 +35,7 @@ class ConnectorWebexTeams(Connector):
         try:
             self.api = WebexTeamsAPI(access_token=self.config["access-token"])
         except KeyError:
-            _LOGGER.error(_("Must set accesst-token for webex teams connector!"))
+            _LOGGER.error(_("Must set access-token for webex teams connector!"))
             return
 
         await self.clean_up_webhooks()
