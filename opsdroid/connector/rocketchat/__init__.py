@@ -45,8 +45,10 @@ class RocketChat(Connector):
             self.headers = {"X-User-Id": self.user_id, "X-Auth-Token": self.token}
         except (KeyError, AttributeError):
             _LOGGER.error(
-                "Unable to login: Access token is missing. "
-                "Rocket.Chat connector will not be available."
+                _(
+                    "Unable to login: Access token is missing. "
+                    "Rocket.Chat connector will not be available."
+                )
             )
 
     def build_url(self, method):
@@ -75,11 +77,11 @@ class RocketChat(Connector):
         information is not used.
 
         """
-        _LOGGER.info("Connecting to Rocket.Chat")
+        _LOGGER.info(_("Connecting to Rocket.Chat"))
         self.session = aiohttp.ClientSession()
         resp = await self.session.get(self.build_url("me"), headers=self.headers)
         if resp.status != 200:
-            _LOGGER.error("Unable to connect.")
+            _LOGGER.error(_("Unable to connect."))
             _LOGGER.error("Rocket.Chat error %s, %s", resp.status, resp.text)
         else:
             json = await resp.json()
@@ -188,7 +190,7 @@ class RocketChat(Connector):
         )
 
         if resp.status == 200:
-            _LOGGER.debug("Successfully responded")
+            _LOGGER.debug(_("Successfully responded"))
         else:
             _LOGGER.debug("Error - %s: Unable to respond", resp.status)
 

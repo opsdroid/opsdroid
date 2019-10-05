@@ -32,7 +32,7 @@ class ConnectorFacebook(Connector):
     def __init__(self, config, opsdroid=None):
         """Connector Setup."""
         super().__init__(config, opsdroid=opsdroid)
-        _LOGGER.debug("Starting facebook connector")
+        _LOGGER.debug(_("Starting facebook connector"))
         self.name = self.config.get("name", "facebook")
         self.bot_name = config.get("bot-name", "opsdroid")
 
@@ -100,7 +100,7 @@ class ConnectorFacebook(Connector):
     @register_event(Message)
     async def send_message(self, message):
         """Respond with a message."""
-        _LOGGER.debug("Responding to facebook")
+        _LOGGER.debug(_("Responding to facebook"))
         url = _FACEBOOK_SEND_URL.format(self.config.get("page-access-token"))
         headers = {"content-type": "application/json"}
         payload = {
@@ -114,4 +114,4 @@ class ConnectorFacebook(Connector):
             else:
                 _LOGGER.debug(resp.status)
                 _LOGGER.debug(await resp.text())
-                _LOGGER.error("Unable to respond to facebook")
+                _LOGGER.error(_("Unable to respond to facebook"))

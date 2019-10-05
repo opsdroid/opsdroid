@@ -19,7 +19,7 @@ class ConnectorSlack(Connector):
     def __init__(self, config, opsdroid=None):
         """Create the connector."""
         super().__init__(config, opsdroid=opsdroid)
-        _LOGGER.debug("Starting Slack connector")
+        _LOGGER.debug(_("Starting Slack connector"))
         self.name = "slack"
         self.default_target = config.get("default-room", "#general")
         self.icon_emoji = config.get("icon-emoji", ":robot_face:")
@@ -43,7 +43,7 @@ class ConnectorSlack(Connector):
 
     async def connect(self):
         """Connect to the chat service."""
-        _LOGGER.info("Connecting to Slack")
+        _LOGGER.info(_("Connecting to Slack"))
 
         try:
             # The slack library recommends you call `self.slack_rtm.start()`` here but it
@@ -65,7 +65,7 @@ class ConnectorSlack(Connector):
             _LOGGER.debug("Connected as %s", self.bot_name)
             _LOGGER.debug("Using icon %s", self.icon_emoji)
             _LOGGER.debug("Default room is %s", self.default_target)
-            _LOGGER.info("Connected successfully")
+            _LOGGER.info(_("Connected successfully"))
         except slack.errors.SlackApiError as error:
             _LOGGER.error(
                 "Unable to connect to Slack due to %s - "
@@ -97,14 +97,14 @@ class ConnectorSlack(Connector):
             return
 
         # Lookup username
-        _LOGGER.debug("Looking up sender username")
+        _LOGGER.debug(_("Looking up sender username"))
         try:
             user_info = await self.lookup_username(message["user"])
         except ValueError:
             return
 
         # Replace usernames in the message
-        _LOGGER.debug("Replacing userids in message with usernames")
+        _LOGGER.debug(_("Replacing userids in message with usernames"))
         message["text"] = await self.replace_usernames(message["text"])
 
         await self.opsdroid.parse(

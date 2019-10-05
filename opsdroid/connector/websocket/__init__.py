@@ -22,7 +22,7 @@ class ConnectorWebsocket(Connector):
     def __init__(self, config, opsdroid=None):
         """Create the connector."""
         super().__init__(config, opsdroid=opsdroid)
-        _LOGGER.debug("Starting Websocket connector")
+        _LOGGER.debug(_("Starting Websocket connector"))
         self.name = "websocket"
         self.max_connections = self.config.get("max-connections", 10)
         self.connection_timeout = self.config.get("connection-timeout", 60)
@@ -104,7 +104,7 @@ class ConnectorWebsocket(Connector):
                     websocket.exception(),
                 )
 
-        _LOGGER.info("websocket connection closed")
+        _LOGGER.info(_("websocket connection closed"))
         self.active_connections.pop(socket, None)
 
         return websocket
