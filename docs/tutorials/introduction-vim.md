@@ -1,5 +1,5 @@
 # Introduction to Vi/Vim
-Vi/Vim is a command line text editor that comes with every platform other than windows (unless you install it). It can be hard to figure out how to do things in this editor, this tutorial is meant to give you the basic knowledge of vi/vim and how to do things with it.
+Vi/Vim is a command-line text editor that comes with every platform other than windows (unless you install it). It can be hard to figure out how to do things in this editor, this tutorial is meant to give you the basic knowledge of vi/vim and how to do things with it.
 
 
 ## Vi/Vim Modes
@@ -15,7 +15,7 @@ The normal mode is the default mode and the one activated as soon as you open Vi
 #### Editing text
 If you want to edit the text you can just press the _i_ key on your keyboard you can notice that the bottom left corner of the window now shows the text: --INSERT--. 
 
-You will now be able to use your terminal as a text editor, you can add, edit and delete text like you would do in any other text editor. 
+You will now be able to use your terminal as a text editor, you can add, edit and delete text as you would do in any other text editor. 
 
 Once you are happy with the changes that you have just made, press the _esc_ key on your keyboard and you will be back to the Normal mode.
 
@@ -37,7 +37,7 @@ Things that you will learn:
 _Note: Vi/Vim has a lot of different commands and combinations, this is just an introduction and you should read other sources if you want to learn how to use Vi/Vim properly._
 
 #### Saving and quitting Vi/Vim
-Now that you know how to edit text in Vi/Vim, the most important thing you will learn will be how to save your changes and quit. If you press the _:_ key of your keyboard, you will be able to enter commands to Vi/Vim.
+Now that you know how to edit the text in Vi/Vim, the most important thing you will learn will be how to save your changes and quit. If you press the _:_ key of your keyboard, you will be able to enter commands to Vi/Vim.
 
 To save a file all you need to do is type `:w` and then press enter.
 
