@@ -603,7 +603,7 @@ class Loader:
             )
             return True
 
-        _LOGGER.debug("Couldn't find the file requirements.txt, " "skipping.")
+        _LOGGER.debug(_("Couldn't find the file requirements.txt, " "skipping."))
         return None
 
     def _install_git_module(self, config):
