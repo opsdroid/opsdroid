@@ -19,7 +19,7 @@ class ConnectorGitter(Connector):
     def __init__(self, config, opsdroid=None):
         """Create the connector."""
         super().__init__(config, opsdroid=opsdroid)
-        _LOGGER.debug("Starting Gitter connector")
+        _LOGGER.debug(_("Starting Gitter connector"))
         self.name = "gitter"
         self.session = None
         self.response = None
@@ -34,7 +34,7 @@ class ConnectorGitter(Connector):
         """Create the connection."""
 
         # Create connection object with chat library
-        _LOGGER.debug("Connecting with gitter stream")
+        _LOGGER.debug(_("Connecting with gitter stream"))
         self.session = aiohttp.ClientSession()
         gitter_url = self.build_url(
             GITTER_STREAM_API,
@@ -56,7 +56,7 @@ class ConnectorGitter(Connector):
 
     async def listen(self):
         """Keep listing to the gitter channel."""
-        _LOGGER.debug("Listening with gitter stream")
+        _LOGGER.debug(_("Listening with gitter stream"))
         while self.listening:
             try:
                 await self._get_messages()
@@ -82,7 +82,7 @@ class ConnectorGitter(Connector):
                     message["text"], message["fromUser"]["username"], self.room_id, self
                 )
             except KeyError as err:
-                _LOGGER.error("Unable to parse message %s", err)
+                _LOGGER.error(_("Unable to parse message %s"), err)
                 _LOGGER.error(err)
 
     @register_event(Message)
@@ -98,9 +98,9 @@ class ConnectorGitter(Connector):
         payload = {"text": message.text}
         resp = await self.session.post(url, json=payload, headers=headers)
         if resp.status == 200:
-            _LOGGER.info("Successfully responded")
+            _LOGGER.info(_("Successfully responded"))
         else:
-            _LOGGER.error("Unable to respond.")
+            _LOGGER.error(_("Unable to respond."))
 
     async def disconnect(self):
         """Disconnect the gitter."""
