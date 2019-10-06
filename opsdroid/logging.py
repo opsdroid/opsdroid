@@ -22,10 +22,12 @@ class ParsingFilter(logging.Filter):
                 and self.config["filter"]["blacklist"]
             ):
                 _LOGGER.warning(
-                    "Both whitelist and blacklist "
-                    "filters found in configuration. "
-                    "Only one can be used at a time - "
-                    "only the whitelist filter will be used."
+                    _(
+                        "Both whitelist and blacklist "
+                        "filters found in configuration. "
+                        "Only one can be used at a time - "
+                        "only the whitelist filter will be used."
+                    )
                 )
                 self.parse_list = [
                     logging.Filter(name) for name in parse_list[0]["whitelist"]
