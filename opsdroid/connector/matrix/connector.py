@@ -132,7 +132,7 @@ class ConnectorMatrix(Connector):
                 # We can safely ignore timeout errors. The non-standard error
                 # codes are returned by Cloudflare.
                 if mre.code in [504, 522, 524]:
-                    _LOGGER.info(_("Matrix Sync Timeout (code: %d)", mre.code))
+                    _LOGGER.info(_("Matrix Sync Timeout (code: %d)"), mre.code)
                     continue
 
                 _LOGGER.exception(_("Matrix Sync Error"))

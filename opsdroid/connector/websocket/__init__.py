@@ -124,7 +124,7 @@ class ConnectorWebsocket(Connector):
             if message.target is None:
                 message.target = next(iter(self.active_connections))
             _LOGGER.debug(
-                _("Responding with: '" + message.text + "' in target " + message.target)
+                _("Responding with: '%s' in target %s"), message.text, message.target
             )
             await self.active_connections[message.target].send_str(message.text)
         except KeyError:
