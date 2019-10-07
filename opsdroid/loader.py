@@ -53,7 +53,7 @@ class Loader:
         self.opsdroid = opsdroid
         self.modules_directory = None
         self.current_import_config = None
-        _LOGGER.debug(_("Loaded loader"))
+        _LOGGER.debug(_("Loaded loader."))
 
     @staticmethod
     def import_module_from_spec(module_spec):
@@ -112,7 +112,7 @@ class Loader:
 
         if module_spec:
             module = Loader.import_module_from_spec(module_spec)
-            _LOGGER.debug(_("Loaded %s: %s"), config["type"], config["module_path"])
+            _LOGGER.debug(_("Loaded %s: %s"), config["type"], config["module_path"], ".")
             return module
 
         _LOGGER.error(_("Failed to load %s: %s"), config["type"], config["module_path"])
@@ -127,7 +127,7 @@ class Loader:
 
         """
         if "no-cache" in config and config["no-cache"]:
-            _LOGGER.debug(_("'no-cache' set, removing %s"), config["install_path"])
+            _LOGGER.debug(_("'no-cache' set, removing %s"), config["install_path"], ".")
             if os.path.isdir(config["install_path"]):
                 shutil.rmtree(config["install_path"])
             if os.path.isfile(config["install_path"] + ".py"):
@@ -254,7 +254,7 @@ class Loader:
             _LOGGER.debug(
                 _(
                     "Couldn't find the command 'pip', "
-                    "trying again with command 'pip3'"
+                    "trying again with command 'pip3'."
                 )
             )
 
@@ -337,7 +337,7 @@ class Loader:
                 move_config_to_appdir(PRE_0_12_0_ROOT_PATH, DEFAULT_ROOT_PATH)
             except FileNotFoundError:
                 _LOGGER.info(
-                    _("No configuration files found. " "Creating %s"),
+                    _("No configuration files found. " "Creating %s."),
                     DEFAULT_CONFIG_PATH,
                 )
             config_path = cls.create_default_config(DEFAULT_CONFIG_PATH)
@@ -474,7 +474,7 @@ class Loader:
         entry_points = {ep.name: ep for ep in iter_entry_points(group=epname)}
         for epname in entry_points:
             _LOGGER.debug(
-                _("Found installed package for %s '%s' support"), modules_type, epname
+                _("Found installed package for %s '%s' support."), modules_type, epname
             )
 
         for module in modules:
@@ -527,7 +527,7 @@ class Loader:
                     {"module": module, "config": config, "intents": intents}
                 )
             else:
-                _LOGGER.error(_("Module %s failed to import."), config["name"])
+                _LOGGER.error(_("Module %s failed to import."), config["name"], ".")
         return loaded_modules
 
     def _install_module(self, config):
@@ -538,7 +538,7 @@ class Loader:
             config: dict of module config fields
 
         """
-        _LOGGER.debug(_("Installing %s..."), config["name"])
+        _LOGGER.debug(_("Installing %s..."), config["name"], ".")
 
         if self._is_local_module(config):
             self._install_local_module(config)
@@ -549,10 +549,10 @@ class Loader:
 
         if self._is_module_installed(config):
             _LOGGER.debug(
-                _("Installed %s to %s"), config["name"], config["install_path"]
+                _("Installed %s to %s", "."), config["name"], config["install_path"], "."
             )
         else:
-            _LOGGER.error(_("Install of %s failed."), config["name"])
+            _LOGGER.error(_("Install of %s failed."), config["name"], ".")
 
         self._install_module_dependencies(config)
 
@@ -564,7 +564,7 @@ class Loader:
             config: dict of module config fields
 
         """
-        _LOGGER.debug(_("Updating %s..."), config["name"])
+        _LOGGER.debug(_("Updating %s..."), config["name"], ".")
 
         if self._is_local_module(config):
             _LOGGER.debug(_("Local modules are not updated, skipping."))
@@ -627,10 +627,10 @@ class Loader:
             self.git_clone(git_url, config["install_path"], config["branch"], key_path)
         else:
             if os.path.isdir(git_url):
-                _LOGGER.debug(_("Cloning %s from local repository"), config["name"])
+                _LOGGER.debug(_("Cloning %s from local repository"), config["name"], ".")
                 self.git_clone(git_url, config["install_path"], config["branch"])
             else:
-                _LOGGER.error(_("Could not find local git repo %s"), git_url)
+                _LOGGER.error(_("Could not find local git repo %s"), git_url, ".")
 
     @staticmethod
     def _install_local_module(config):
@@ -661,7 +661,7 @@ class Loader:
             installed = True
 
         if not installed:
-            _LOGGER.error("Failed to install from %s", str(config["path"]))
+            _LOGGER.error("Failed to install from %s", str(config["path"]), ".")
 
     def _install_gist_module(self, config):
         gist_id = extract_gist_id(config["gist"])
