@@ -16,7 +16,7 @@ parsers:
 
 ##
 
-[Dialogflow](https://dialogflow.com/) is an NLP API for matching strings to [intents](https://dialogflow.com/docs/intents) or [actions](https://dialogflow.com/docs/concept-actions). Intents are created on the Dialogflow website.
+[Dialogflow](https://dialogflow.com/) is an NLP API for matching strings to [intents](https://cloud.google.com/dialogflow/docs/intents-overview) or [actions](https://cloud.google.com/dialogflow/docs/intents-actions-parameters). Intents are created on the Dialogflow website.
 
 ## Example 1
 
@@ -48,11 +48,11 @@ The above skill would be called on any intent which has a name of `'myIntent'`.
 
 ## Creating a Dialogflow bot
 
-You can find a quick getting started with Dialogflow guide [here](https://dialogflow.com/docs/getting-started/basics).
+You can find a quick getting started with Dialogflow guide [here](https://cloud.google.com/dialogflow/docs/quick/).
 
 If you want to use Dialogflow in a different language other than English, all you need to do is specify the `lang` parameter in opsdroid's configuration. Then change/add another language to your Dialogflow agent in the Language tab of the agent settings.
 
-_Useful Links: [Languages Reference](https://dialogflow.com/docs/reference/language), [Multi-language Agents Reference](https://dialogflow.com/docs/multi-language)_
+_Useful Links: [Languages Reference](https://cloud.google.com/dialogflow/docs/reference/language), [Multi-language Agents Reference](https://cloud.google.com/dialogflow/docs/agents-multilingual)_
 
 ## Message object additional parameters
 
