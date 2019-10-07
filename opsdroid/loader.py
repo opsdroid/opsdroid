@@ -536,7 +536,7 @@ class Loader:
         Args:
             self: instance method
             config: dict of module config fields
-    
+
         """
         _LOGGER.debug(_("Installing %s..."), config["name"])
 
@@ -589,13 +589,13 @@ class Loader:
 
     def _install_module_dependencies(self, config):
         """Install the dependencies of the module.
-        
+
         Args:
             self: instance method
-            config: dict of the module config fields 
-        
+            config: dict of the module config fields
+
         Returns:
-            bool: True if installation succeeds 
+            bool: True if installation succeeds
 
         """
         if config.get("no-dep", False):
@@ -675,11 +675,11 @@ class Loader:
 
     def _install_gist_module(self, config):
         """Install a module from gist path.
-        
+
         Args:
             self: instance method
             config: dict of module config fields
-        
+
         """
         gist_id = extract_gist_id(config["gist"])
 
