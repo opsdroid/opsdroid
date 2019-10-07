@@ -68,7 +68,7 @@ $ pip3 install opsdroid
 $ opsdroid start
 ```
 
-## Installation Guide
+## Installation Guide to get started!
 
 Check out the [Getting Started](https://www.youtube.com/watch?v=7wyIi_cpodE&list=PLViQCHlMbEq5nZL6VNrUxu--Of1uCpflq) video series on YouTube. The video series demonstrates how to install and configure opsdroid and opsdroid desktop on Ubuntu 16.04. It also demonstrates how to create your own skill in opsdroid
 
