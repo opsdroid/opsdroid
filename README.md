@@ -61,7 +61,7 @@ In this new frontier of DevOps, it is becoming more and more popular to interact
  * Can connect to multiple chat services simultaneously
  * No coding necessary if using the official modules
 
-## Quick start
+## Quick start Guide
 
 ```bash
 $ pip3 install opsdroid
