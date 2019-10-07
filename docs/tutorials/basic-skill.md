@@ -65,7 +65,7 @@ class MySkill(Skill):
         pass
 ```
 
-Opsdroid is build with asyncio. That means every function that you wish opsdroid to react to, should be an asynchronous function.
+Opsdroid is built with asyncio. That means every function that you wish opsdroid to react to, should be an asynchronous function.
 
 _Note: that every function will take these two parameters: `self`, `message`._
 
@@ -99,4 +99,4 @@ skills:
     path: /Users/username/documents/skill-howareyou
 ```
 
-As mentioned in the [introduction](introduction.md), the indentation and the use of spaces instead of tabs is very important. If you have any issues when running opsdroid check both of these things; it might be a problem with a space.
+As mentioned in the [introduction](introduction.md), the indentation and the use of spaces instead of tabs is very important. If you have any issues when running opsdroid check both of these things; it might be a problem with space.

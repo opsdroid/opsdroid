@@ -60,7 +60,7 @@ _note: The keys: [type, module_path, install_path, branch] are added to every sk
 
 ## Connectors, skills and Databases
 **Connectors** are modules for connecting opsdroid to your specific chat service.
-**Skills** are modules which define what actions opsdroid should perform based on different chat messages.
+**Skills** are modules that define what actions opsdroid should perform based on different chat messages.
 **Database** modules connect opsdroid to your chosen database and allow skills to store information between messages.
 
 
@@ -76,7 +76,7 @@ skills:
 
 This tells opsdroid to use the [shell connector](https://github.com/opsdroid/connector-shell) and [hello skill](https://github.com/opsdroid/skill-hello) from the official module library.
 
-In opsdroid, all modules are git repositories which will be cloned locally when used for the first time. By default, if you do not specify a repository opsdroid will look at `https://github.com/opsdroid/<moduletype>-<modulename>.git` for the repository. Therefore in the above configuration, the `connector-shell` and `skill-hello` repositories were pulled from the opsdroid organisation on GitHub.
+In opsdroid, all modules are git repositories which will be cloned locally when used for the first time. By default, if you do not specify a repository opsdroid will look at `https://github.com/opsdroid/<moduletype>-<modulename>.git` for the repository. Therefore in the above configuration, the `connector-shell` and `skill-hello` repositories were pulled from the opsdroid organization on GitHub.
 
 You are of course encouraged to write your own modules and make them available on GitHub or any other repository host which is accessible by your opsdroid installation.
 
@@ -105,7 +105,7 @@ In this configuration we are using the [slack connector](../connectors/slack.md)
 Configuration options such as the `token` in the slack connector or the `host`, `port` and `database` options in the mongo database are specific to those modules. Ensure you check each module's required configuration items before you use them.
 
 ## Asynchronous functions(Asyncio)
-In a standard sequential program, all the instructions you send to the interpreter will be executed in a step-by-step manner. It is easy to visualize and predict the output of such a code. However, let's assume that you have a script which requests data from 3 different servers. Sometimes the request to one of those servers may unexpectedly take too much time to execute. Imagine that it takes 10 seconds to get data from the second server. While you are waiting, the whole script is actually doing nothing.
+In a standard sequential program, all the instructions you send to the interpreter will be executed in a step-by-step manner. It is easy to visualize and predict the output of such a code. However, let's assume that you have a script that requests data from 3 different servers. Sometimes the request to one of those servers may unexpectedly take too much time to execute. Imagine that it takes 10 seconds to get data from the second server. While you are waiting, the whole script is actually doing nothing.
 
 What if you could write a script that, instead of waiting for the second request, simply skips it and starts executing the third request, then goes back to the second one, and proceed from where it left off? That’s the nature of an asynchronous program. You minimize idle time by switching tasks.
 
