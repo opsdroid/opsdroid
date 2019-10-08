@@ -18,24 +18,21 @@ class TestConnectorShell(unittest.TestCase):
     """Test the opsdroid shell connector class."""
 
     def setUp(self):
-        self.connector = ConnectorShell({
-            'name': 'shell',
-            'bot-name': 'opsdroid-test'
-        })
+        self.connector = ConnectorShell({"name": "shell", "bot-name": "opsdroid-test"})
         self.loop = asyncio.new_event_loop()
         configure_lang({})
         os.environ["USERNAME"] = "opsdroid"
 
     def test_init(self):
         """Test that the connector is initialised properly."""
-        self.assertEqual(self.connector.user, 'opsdroid')
+        self.assertEqual(self.connector.user, "opsdroid")
         self.assertEqual(len(self.connector.config), 2)
         self.assertEqual("shell", self.connector.name)
-        self.assertEqual('opsdroid-test', self.connector.bot_name)
+        self.assertEqual("opsdroid-test", self.connector.bot_name)
 
     def test_is_listening(self):
         self.assertEqual(self.connector.listening, self.connector.is_listening)
-    
+
     def test_is_listening_setter(self):
         self.assertEqual(self.connector.listening, self.connector.is_listening)
         self.connector.is_listening = False
@@ -49,7 +46,7 @@ class TestConnectorShell(unittest.TestCase):
             self.connector.prompt_length = 1
             self.connector.draw_prompt()
             prompt = f.getvalue()
-            self.assertEqual(prompt, 'opsdroid-test> ')
+            self.assertEqual(prompt, "opsdroid-test> ")
         self.connector.draw_prompt()
         self.assertEqual(self.connector.prompt_length, 15)
 
@@ -60,60 +57,62 @@ class TestConnectorShell(unittest.TestCase):
         with contextlib.redirect_stdout(f):
             self.connector.clear_prompt()
             prompt = f.getvalue()
-            self.assertEqual(prompt, '\r \r')
-        
+            self.assertEqual(prompt, "\r \r")
+
 
 class TestConnectorShellAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid shell connector class."""
 
     def setUp(self):
         os.environ["LOGNAME"] = "opsdroid"
-        self.connector = ConnectorShell({
-                'name': 'shell',
-                'bot-name': 'opsdroid'
-            })
+        self.connector = ConnectorShell({"name": "shell", "bot-name": "opsdroid"})
 
     async def test_read_stdin(self):
         with amock.patch(
-                'opsdroid.connector.shell.ConnectorShell.read_stdin') \
-                as mocked_read_stdin:
+            "opsdroid.connector.shell.ConnectorShell.read_stdin"
+        ) as mocked_read_stdin:
             await self.connector.read_stdin()
             self.assertTrue(mocked_read_stdin.called)
 
-        with amock.patch('asyncio.events.AbstractEventLoop.connect_read_pipe') as mock:
+        with amock.patch("asyncio.events.AbstractEventLoop.connect_read_pipe") as mock:
             with contextlib.suppress(NotImplementedError):
                 await self.connector.read_stdin()
-
 
     async def test_connect(self):
         connector = ConnectorShell({}, opsdroid=OpsDroid())
         await connector.connect()
         self.assertTrue(connector.connect)
 
-    @amock.patch('opsdroid.connector.shell.ConnectorShell.read_stdin')
+    @amock.patch("opsdroid.connector.shell.ConnectorShell.read_stdin")
     async def test_async_input(self, mocked_read):
-        mocked_read.readline.return_value.side_effect = 'hi'
+        mocked_read.readline.return_value.side_effect = "hi"
         with contextlib.suppress(AttributeError, TypeError):
             await self.connector.async_input()
-            self.assertEqual(mocked_read, 'hi')
-        
+            self.assertEqual(mocked_read, "hi")
+
         connector = ConnectorShell({}, opsdroid=OpsDroid())
         f = asyncio.Future()
-        f.set_result(b'hi\n')
+        f.set_result(b"hi\n")
 
-        with asynctest.patch('asyncio.streams.StreamReader.readline') as mocked_line:
+        with asynctest.patch("asyncio.streams.StreamReader.readline") as mocked_line:
             mocked_line.return_value = f
             connector.reader = asyncio.streams.StreamReader
             returned = await connector.async_input()
-            self.assertEqual(returned, 'hi')
+            self.assertEqual(returned, "hi")
 
     async def test_parse_message(self):
         connector = ConnectorShell({}, opsdroid=OpsDroid())
 
-        with amock.patch('opsdroid.connector.shell.ConnectorShell.parseloop') as mockedloop:
+        with amock.patch(
+            "opsdroid.connector.shell.ConnectorShell.parseloop"
+        ) as mockedloop:
             self.assertTrue(connector.listening)
             connector.listening = True
-            with amock.patch('opsdroid.connector.shell.ConnectorShell.is_listening', new_callable=amock.PropertyMock, side_effect=[True, False]) as mocklistening:
+            with amock.patch(
+                "opsdroid.connector.shell.ConnectorShell.is_listening",
+                new_callable=amock.PropertyMock,
+                side_effect=[True, False],
+            ) as mocklistening:
                 await connector._parse_message()
                 mockedloop.assert_called()
 
@@ -121,37 +120,35 @@ class TestConnectorShellAsync(asynctest.TestCase):
         connector = ConnectorShell({}, opsdroid=OpsDroid())
 
         connector.draw_prompt = amock.CoroutineMock()
-        connector.draw_prompt.return_value = 'opsdroid> '
+        connector.draw_prompt.return_value = "opsdroid> "
         connector.async_input = amock.CoroutineMock()
-        connector.async_input.return_value = 'hello'
-        
+        connector.async_input.return_value = "hello"
+
         connector.opsdroid = amock.CoroutineMock()
         connector.opsdroid.parse = amock.CoroutineMock()
-        
+
         await connector.parseloop()
         self.assertTrue(connector.opsdroid.parse.called)
-
 
     async def test_listen(self):
         connector = ConnectorShell({}, opsdroid=OpsDroid())
         connector.listening = False
-        with amock.patch('asyncio.events.AbstractEventLoop.create_task') as mock, \
-            amock.patch('asyncio.locks.Event.wait') as mockwait:
+        with amock.patch(
+            "asyncio.events.AbstractEventLoop.create_task"
+        ) as mock, amock.patch("asyncio.locks.Event.wait") as mockwait:
             await connector.listen()
 
-
     async def test_respond(self):
-        message = Message(text="Hi",
-                          user="opsdroid",
-                          room="test",
-                          connector=self.connector)
+        message = Message(
+            text="Hi", user="opsdroid", room="test", connector=self.connector
+        )
         self.connector.prompt_length = 1
 
         f = io.StringIO()
         with contextlib.redirect_stdout(f):
             await self.connector.respond(message)
             prompt = f.getvalue()
-            self.assertEqual(prompt.strip(), 'Hi\nopsdroid>')
+            self.assertEqual(prompt.strip(), "Hi\nopsdroid>")
 
     async def test_disconnect(self):
         connector = ConnectorShell({}, opsdroid=OpsDroid())

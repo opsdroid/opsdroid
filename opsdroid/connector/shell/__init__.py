@@ -27,7 +27,7 @@ class ConnectorShell(Connector):
         self._closing = asyncio.Event()
         self.loop = asyncio.get_event_loop()
 
-        for name in ('LOGNAME', 'USER', 'LNAME', 'USERNAME'):
+        for name in ("LOGNAME", "USER", "LNAME", "USERNAME"):
             user = os.environ.get(name)
             if user:
                 self.user = user
@@ -50,9 +50,7 @@ class ConnectorShell(Connector):
         self.reader = asyncio.StreamReader(loop=self.loop)
         reader_protocol = asyncio.StreamReaderProtocol(self.reader)
 
-        await self.loop.connect_read_pipe(
-            lambda: reader_protocol,
-            sys.stdin)
+        await self.loop.connect_read_pipe(lambda: reader_protocol, sys.stdin)
 
     async def async_input(self):
         """Read user input asynchronously from stdin.
@@ -65,11 +63,11 @@ class ConnectorShell(Connector):
             self.reader = await self.read_stdin()
         line = await self.reader.readline()
 
-        return line.decode('utf8').replace('\r', '').replace('\n', '')
+        return line.decode("utf8").replace("\r", "").replace("\n", "")
 
     def draw_prompt(self):
         """Draw the user input prompt."""
-        prompt = self.bot_name + '> '
+        prompt = self.bot_name + "> "
         self.prompt_length = len(prompt)
         print(prompt, end="", flush=True)
 
@@ -99,8 +97,10 @@ class ConnectorShell(Connector):
 
         """
         if platform.system() == "Windows":
-            _LOGGER.warning("The shell connector does not work on windows."
-                            " Please install the Opsdroid Desktop App.")
+            _LOGGER.warning(
+                "The shell connector does not work on windows."
+                " Please install the Opsdroid Desktop App."
+            )
         pass
 
     async def listen(self):
