@@ -34,10 +34,12 @@ class ConnectorShell(Connector):
 
     @property
     def is_listening(self):
+        """helper, gets listening."""
         return self.listening
 
     @is_listening.setter
     def is_listening(self, val):
+        """helper, sets listening."""
         self.listening = val
 
     async def read_stdin(self):
@@ -76,7 +78,7 @@ class ConnectorShell(Connector):
         print("\r" + (" " * self.prompt_length) + "\r", end="", flush=True)
 
     async def parseloop(self):
-        """Parseloop moved out for testing"""
+        """Parseloop moved out for testing."""
         self.draw_prompt()
         user_input = await self.async_input()
         message = Message(user_input, self.user, None, self)
@@ -116,6 +118,7 @@ class ConnectorShell(Connector):
 
         Args:
             message (object): An instance of Message
+            
         """
         _LOGGER.debug(_("Responding with: %s"), message.text)
         self.clear_prompt()
