@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: opsdroid 0.11.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-10-04 21:22+0200\n"
+"POT-Creation-Date: 2019-10-06 14:18+0200\n"
 "PO-Revision-Date: 2018-01-28 16:05+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ca\n"
@@ -132,6 +132,10 @@ msgstr ""
 
 #: opsdroid/core.py:385
 msgid "Checking dialogflow..."
+msgstr ""
+
+#: opsdroid/core.py:394
+msgid "Checking luisai..."
 msgstr ""
 
 #: opsdroid/core.py:401
@@ -269,6 +273,10 @@ msgstr ""
 msgid "'no-dep' set in configuration, skipping the install of dependencies."
 msgstr ""
 
+#: opsdroid/loader.py:606
+msgid "Couldn't find the file requirements.txt, skipping."
+msgstr ""
+
 #: opsdroid/loader.py:625
 #, python-format
 msgid "Cloning %s from remote repository"
@@ -284,7 +292,13 @@ msgstr ""
 msgid "Could not find local git repo %s"
 msgstr ""
 
-#: opsdroid/logging.py:117
+#: opsdroid/logging.py:25
+msgid ""
+"Both whitelist and blacklist filters found in configuration. Only one can"
+" be used at a time - only the whitelist filter will be used."
+msgstr ""
+
+#: opsdroid/logging.py:119
 #, python-format
 msgid "Started opsdroid %s"
 msgstr ""
@@ -355,6 +369,319 @@ msgstr ""
 
 #: opsdroid/cli/utils.py:114
 msgid "'welcome-message: true/false' is missing in configuration.yaml"
+msgstr ""
+
+#: opsdroid/connector/facebook/__init__.py:35
+msgid "Starting facebook connector"
+msgstr ""
+
+#: opsdroid/connector/facebook/__init__.py:103
+msgid "Responding to facebook"
+msgstr ""
+
+#: opsdroid/connector/facebook/__init__.py:113
+#, python-format
+msgid "Responded with: %s"
+msgstr ""
+
+#: opsdroid/connector/facebook/__init__.py:117
+msgid "Unable to respond to facebook"
+msgstr ""
+
+#: opsdroid/connector/github/__init__.py:26
+msgid "Missing auth token!You must set 'token' in your config"
+msgstr ""
+
+#: opsdroid/connector/github/__init__.py:38
+#, python-format
+msgid "Error connecting to github: %s"
+msgstr ""
+
+#: opsdroid/connector/github/__init__.py:40
+msgid "Reading bot information..."
+msgstr ""
+
+#: opsdroid/connector/github/__init__.py:42
+msgid "Done."
+msgstr ""
+
+#: opsdroid/connector/github/__init__.py:74
+msgid "No message to respond to."
+msgstr ""
+
+#: opsdroid/connector/github/__init__.py:90
+#, python-format
+msgid "Key %s not found in payload"
+msgstr ""
+
+#: opsdroid/connector/github/__init__.py:100
+msgid "Responding via GitHub"
+msgstr ""
+
+#: opsdroid/connector/github/__init__.py:107
+msgid "Message sent."
+msgstr ""
+
+#: opsdroid/connector/gitter/__init__.py:22
+msgid "Starting Gitter connector"
+msgstr ""
+
+#: opsdroid/connector/gitter/__init__.py:37
+msgid "Connecting with gitter stream"
+msgstr ""
+
+#: opsdroid/connector/gitter/__init__.py:59
+msgid "Listening with gitter stream"
+msgstr ""
+
+#: opsdroid/connector/gitter/__init__.py:85
+#, python-format
+msgid "Unable to parse message %s"
+msgstr ""
+
+#: opsdroid/connector/gitter/__init__.py:101
+#: opsdroid/connector/rocketchat/__init__.py:194
+#: opsdroid/connector/telegram/__init__.py:273
+msgid "Successfully responded"
+msgstr ""
+
+#: opsdroid/connector/gitter/__init__.py:103
+#: opsdroid/connector/telegram/__init__.py:275
+msgid "Unable to respond."
+msgstr ""
+
+#: opsdroid/connector/matrix/connector.py:126
+msgid "matrix sync request returned"
+msgstr ""
+
+#: opsdroid/connector/matrix/connector.py:135
+#, python-format
+msgid "Matrix Sync Timeout (code: %d)"
+msgstr ""
+
+#: opsdroid/connector/matrix/connector.py:138
+#: opsdroid/connector/matrix/connector.py:142
+msgid "Matrix Sync Error"
+msgstr ""
+
+#: opsdroid/connector/matrix/connector.py:212
+msgid "Server had disconnected, retrying send."
+msgstr ""
+
+#: opsdroid/connector/rocketchat/__init__.py:48
+msgid ""
+"Unable to login: Access token is missing. Rocket.Chat connector will not "
+"be available."
+msgstr ""
+
+#: opsdroid/connector/rocketchat/__init__.py:80
+msgid "Connecting to Rocket.Chat"
+msgstr ""
+
+#: opsdroid/connector/rocketchat/__init__.py:84
+msgid "Unable to connect."
+msgstr ""
+
+#: opsdroid/connector/rocketchat/__init__.py:85
+#: opsdroid/connector/rocketchat/__init__.py:136
+#, python-format
+msgid "Rocket.Chat error %s, %s"
+msgstr ""
+
+#: opsdroid/connector/rocketchat/__init__.py:88
+#, python-format
+msgid "Connected to Rocket.Chat as %s"
+msgstr ""
+
+#: opsdroid/connector/rocketchat/__init__.py:105
+#, python-format
+msgid "Received message from Rocket.Chat %s"
+msgstr ""
+
+#: opsdroid/connector/rocketchat/__init__.py:182
+#: opsdroid/connector/telegram/__init__.py:266
+#, python-format
+msgid "Responding with: %s"
+msgstr ""
+
+#: opsdroid/connector/rocketchat/__init__.py:196
+#, python-format
+msgid "Error - %s: Unable to respond"
+msgstr ""
+
+#: opsdroid/connector/slack/__init__.py:22
+msgid "Starting Slack connector"
+msgstr ""
+
+#: opsdroid/connector/slack/__init__.py:46
+msgid "Connecting to Slack"
+msgstr ""
+
+#: opsdroid/connector/slack/__init__.py:65
+#, python-format
+msgid "Connected as %s"
+msgstr ""
+
+#: opsdroid/connector/slack/__init__.py:66
+#, python-format
+msgid "Using icon %s"
+msgstr ""
+
+#: opsdroid/connector/slack/__init__.py:67
+#, python-format
+msgid "Default room is %s"
+msgstr ""
+
+#: opsdroid/connector/slack/__init__.py:68
+msgid "Connected successfully"
+msgstr ""
+
+#: opsdroid/connector/slack/__init__.py:71
+#, python-format
+msgid ""
+"Unable to connect to Slack due to %s - The Slack Connector will not be "
+"available."
+msgstr ""
+
+#: opsdroid/connector/slack/__init__.py:102
+msgid "Looking up sender username"
+msgstr ""
+
+#: opsdroid/connector/slack/__init__.py:109
+msgid "Replacing userids in message with usernames"
+msgstr ""
+
+#: opsdroid/connector/slack/__init__.py:126
+#, python-format
+msgid "Responding with: '%s' in room  %s"
+msgstr ""
+
+#: opsdroid/connector/slack/__init__.py:143
+#, python-format
+msgid "Responding with interactive blocks in room  %s"
+msgstr ""
+
+#: opsdroid/connector/slack/__init__.py:159
+#, python-format
+msgid "Reacting with: %s"
+msgstr ""
+
+#: opsdroid/connector/slack/__init__.py:171
+#, python-format
+msgid "Slack does not support the emoji %s"
+msgstr ""
+
+#: opsdroid/connector/telegram/__init__.py:24
+msgid "Loaded telegram connector"
+msgstr ""
+
+#: opsdroid/connector/telegram/__init__.py:42
+msgid ""
+"Unable to login: Access token is missing. Telegram connector will be "
+"unavailable."
+msgstr ""
+
+#: opsdroid/connector/telegram/__init__.py:110
+msgid "Sending deleteWebhook request to Telegram..."
+msgstr ""
+
+#: opsdroid/connector/telegram/__init__.py:114
+msgid "Telegram webhook deleted successfully."
+msgstr ""
+
+#: opsdroid/connector/telegram/__init__.py:116
+msgid "Unable to delete webhook."
+msgstr ""
+
+#: opsdroid/connector/telegram/__init__.py:126
+msgid "Connecting to telegram"
+msgstr ""
+
+#: opsdroid/connector/telegram/__init__.py:131
+msgid "Unable to connect"
+msgstr ""
+
+#: opsdroid/connector/telegram/__init__.py:132
+#: opsdroid/connector/telegram/__init__.py:221
+#, python-format
+msgid "Telegram error %s, %s"
+msgstr ""
+
+#: opsdroid/connector/telegram/__init__.py:136
+#, python-format
+msgid "Connected to telegram as %s"
+msgstr ""
+
+#: opsdroid/connector/telegram/__init__.py:162
+msgid "Channel message parsing not supported - Ignoring message"
+msgstr ""
+
+#: opsdroid/connector/telegram/__init__.py:185
+msgid "Emoji message parsing not supported - Ignoring message"
+msgstr ""
+
+#: opsdroid/connector/telegram/__init__.py:188
+msgid "Unable to parse the message."
+msgstr ""
+
+#: opsdroid/connector/telegram/__init__.py:212
+msgid ""
+"Can't get updates because previous webhook is still active. Will try to "
+"delete webhook."
+msgstr ""
+
+#: opsdroid/connector/telegram/__init__.py:297
+#, python-format
+msgid "Sent %s image successfully"
+msgstr ""
+
+#: opsdroid/connector/telegram/__init__.py:299
+#, python-format
+msgid "Unable to send image - Status Code %s"
+msgstr ""
+
+#: opsdroid/connector/webexteams/__init__.py:22
+msgid "Loaded webex teams connector"
+msgstr ""
+
+#: opsdroid/connector/webexteams/__init__.py:38
+msgid "Must set access-token for webex teams connector!"
+msgstr ""
+
+#: opsdroid/connector/webexteams/__init__.py:47
+msgid "Handling message from Webex Teams"
+msgstr ""
+
+#: opsdroid/connector/webexteams/__init__.py:77
+msgid "Creating Webex Teams webhook"
+msgstr ""
+
+#: opsdroid/connector/websocket/__init__.py:25
+msgid "Starting Websocket connector"
+msgstr ""
+
+#: opsdroid/connector/websocket/__init__.py:91
+#, python-format
+msgid "User connected to %s"
+msgstr ""
+
+#: opsdroid/connector/websocket/__init__.py:103
+#, python-format
+msgid "Websocket connection closed with exception %s"
+msgstr ""
+
+#: opsdroid/connector/websocket/__init__.py:107
+msgid "websocket connection closed"
+msgstr ""
+
+#: opsdroid/connector/websocket/__init__.py:127
+#, python-format
+msgid "Responding with: '%s' in target %s"
+msgstr ""
+
+#: opsdroid/connector/websocket/__init__.py:131
+#, python-format
+msgid "No active socket for target %s"
 msgstr ""
 
 #: opsdroid/database/redis/__init__.py:36
