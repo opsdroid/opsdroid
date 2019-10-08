@@ -588,6 +588,16 @@ class Loader:
         return "gist" in config
 
     def _install_module_dependencies(self, config):
+        """Install the dependencies of the module.
+
+        Args:
+            self: instance method
+            config: dict of the module config fields
+
+        Returns:
+            bool: True if installation succeeds
+
+        """
         if config.get("no-dep", False):
             _LOGGER.debug(
                 _(
@@ -664,6 +674,13 @@ class Loader:
             _LOGGER.error("Failed to install from %s", str(config["path"]))
 
     def _install_gist_module(self, config):
+        """Install a module from gist path.
+
+        Args:
+            self: instance method
+            config: dict of module config fields
+
+        """
         gist_id = extract_gist_id(config["gist"])
 
         # Get the content of the gist

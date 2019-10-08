@@ -12,7 +12,7 @@ Our `__init__.py` init file will contain two functions, one that interacts with 
 
 
 ## Building the Skill
-We are ready to start working on our skill. First, you need to create a folder for the weather skill. Choose a location and name it weather-skill.
+We are ready to start working on our skills. First, you need to create a folder for the weather skill. Choose a location and name it weather-skill.
 
 Now, let's open opsdroid `configuration.yaml` file and add our weather skill to the skills section.
 
