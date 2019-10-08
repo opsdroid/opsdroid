@@ -118,7 +118,7 @@ class ConnectorShell(Connector):
 
         Args:
             message (object): An instance of Message
-            
+
         """
         _LOGGER.debug(_("Responding with: %s"), message.text)
         self.clear_prompt()
