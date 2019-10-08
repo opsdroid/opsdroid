@@ -32,6 +32,14 @@ class ConnectorShell(Connector):
             if user:
                 self.user = user
 
+    @property
+    def is_listening(self):
+        return self.listening
+
+    @is_listening.setter
+    def is_listening(self, val):
+        self.listening = val
+
     async def read_stdin(self):
         """Create a stream reader to read stdin asynchronously.
 
@@ -45,8 +53,6 @@ class ConnectorShell(Connector):
         await self.loop.connect_read_pipe(
             lambda: reader_protocol,
             sys.stdin)
-
-        return self.reader
 
     async def async_input(self):
         """Read user input asynchronously from stdin.
@@ -71,13 +77,17 @@ class ConnectorShell(Connector):
         """Clear the prompt."""
         print("\r" + (" " * self.prompt_length) + "\r", end="", flush=True)
 
+    async def parseloop(self):
+        """Parseloop moved out for testing"""
+        self.draw_prompt()
+        user_input = await self.async_input()
+        message = Message(user_input, self.user, None, self)
+        await self.opsdroid.parse(message)
+
     async def _parse_message(self):
         """Parse user input."""
-        while self.listening:
-            self.draw_prompt()
-            user_input = await self.async_input()
-            message = Message(user_input, self.user, None, self)
-            await self.opsdroid.parse(message)
+        while self.is_listening:
+            await self.parseloop()
 
     async def connect(self):
         """Connect to the shell.
