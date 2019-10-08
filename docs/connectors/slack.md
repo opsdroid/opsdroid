@@ -29,7 +29,7 @@ connectors:
 The connector itself won't allow opsdroid to do much. It will connect to Slack and be active on the `default-room`
 but you will still need some skill to have opsdroid react to an input.
 
-Luckily, opsdroid comes with a few skills out of the box as well. So once you run opsdroid you will see that it joined either the room that you set up on `default-room` parameter in the configuration or it will be in the `#general` room.
+Luckily, opsdroid comes with few skills out of the box as well. So once you run opsdroid you will see that it joined either the room that you set up on `default-room` parameter in the configuration or it will be in the `#general` room.
 
 _Note: If opsdroid failed to join the room you can always invite him by clicking `info>Members section>invite more people...`_
 
