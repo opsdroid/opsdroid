@@ -391,7 +391,7 @@ class OpsDroid:
             if len(luisai) == 1 and (
                 "enabled" not in luisai[0] or luisai[0]["enabled"] is not False
             ):
-                _LOGGER.debug("Checking luisai...")
+                _LOGGER.debug(_("Checking luisai..."))
                 ranked_skills += await parse_luisai(self, skills, message, luisai[0])
 
             sapcai = [p for p in parsers if p["name"] == "sapcai"]
