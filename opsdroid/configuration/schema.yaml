@@ -31,7 +31,8 @@ redis:
   name: regex('^(?i)redis$')
   host: str(required=False)
   port: regex('(^\d+$)', required=False)
-  database: regex('(^\d+$)', required=False)
+  #database: regex('(^\d+$)', required=False)
+  database: int(required=False)
   password: str(required=False)
   reconnect: bool(required=False)
 ---
