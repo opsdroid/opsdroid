@@ -37,10 +37,10 @@
 
 ---
 
-An open source chat bot framework written in Python. It is designed to be extendable, scalable and simple.
+An open source chatbot framework written in Python. It is designed to be extendable, scalable and simple.
 
 
-This application is designed to take messages from chat services and execute Python functions (skills) based on their contents. Those functions can be anything you like, from simple conversational responses to running complex tasks. The true power of this project is to act as a glue library to bring the multitude of natural language APIs, chat services and third party APIs together.
+This application is designed to take messages from chat services and execute Python functions (skills) based on their contents. Those functions can be anything you like, from simple conversational responses to running complex tasks. The true power of this project is to act as a glue library to bring the multitude of natural language APIs, chat services and third-party APIs together.
 
 Help support opsdroid in one click by pressing [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Check%20out%20opsdroid,%20an%20awesome%20open%20source%20chatbot%20framework%20written%20in%20Python.&url=https://opsdroid.github.io/&via=opsdroid&hashtags=chatbots,chatops,devops,automation,opensource)
 
@@ -61,7 +61,7 @@ In this new frontier of DevOps, it is becoming more and more popular to interact
  * Can connect to multiple chat services simultaneously
  * No coding necessary if using the official modules
 
-## Quick start
+## Quickstart
 
 ```bash
 $ pip3 install opsdroid
@@ -166,7 +166,7 @@ For information on arguments that you can pass to opsdroid run `opsdroid --help`
 $ opsdroid --help
 Usage: opsdroid [OPTIONS] COMMAND [ARGS]...
 
-  Opsdroid is a chat bot framework written in Python.
+  Opsdroid is a chatbot framework written in Python.
 
   It is designed to be extendable, scalable and simple. See
   https://opsdroid.github.io/ for more information.
@@ -202,7 +202,7 @@ Do you need help? Do you want to chat? [Join our Matrix channel](https://riot.im
 
 -------
 
-_\* databases are optional, however bot memory will not persist between different connectors or system reboots without one_
+_\* databases are optional, however, bot memory will not persist between different connectors or system reboots without one_
 
 ### Contributors
 
