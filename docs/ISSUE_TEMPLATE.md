@@ -20,7 +20,7 @@ Explain what happened instead(Please include the debug log).
 - **OS/Docker version:**
 
 ## Configuration File
-Please include your version of the configuration file bellow.
+Please include your version of the configuration file below.
 
 ```yaml
 # Your code goes here.
