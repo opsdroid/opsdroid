@@ -7,7 +7,6 @@ import unittest
 import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock
-import sys
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector.shell import ConnectorShell
