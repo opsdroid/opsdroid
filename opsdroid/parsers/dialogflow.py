@@ -8,7 +8,7 @@ from opsdroid.const import DEFAULT_LANGUAGE
 _LOGGER = logging.getLogger(__name__)
 
 
-async def call_dialogflow(text, config):
+async def call_dialogflow(text, opsdroid, config):
     """Call Dialogflow to get intent from text.
 
     Dialogflow will return an object with a few restrictions, you can't
@@ -17,7 +17,8 @@ async def call_dialogflow(text, config):
 
     Args:
         text (string): message.text this is the text obtained from the user.
-        config (dict): configuration settings from the file config.yaml
+        opsdroid (OpsDroid): An instance of opsdroid.core.
+        config (dict): configuration settings from the file config.yaml.
 
     Return:
         A 'google.cloud.dialogflow_v2.types.DetectIntentResponse' object.
@@ -35,11 +36,12 @@ async def call_dialogflow(text, config):
         ):
             session_client = dialogflow.SessionsClient()
             project_id = config.get("project-id")
+            language = config.get("lang") or opsdroid.config.get(
+                "lang", DEFAULT_LANGUAGE
+            )
 
             session = session_client.session_path(project_id, "opsdroid")
-            text_input = dialogflow.types.TextInput(
-                text=text, language_code=DEFAULT_LANGUAGE
-            )
+            text_input = dialogflow.types.TextInput(text=text, language_code=language)
             query_input = dialogflow.types.QueryInput(text=text_input)
 
             response = session_client.detect_intent(
@@ -59,8 +61,7 @@ async def call_dialogflow(text, config):
                 "Unable to find dialogflow dependency. Please install dialogflow with the command pip install dialogflow if you want to use this parser."
             )
         )
-        config.pop("name", None)
-        config.pop("project-id", None)
+        opsdroid.config["parsers"][0]["enabled"] = False
 
 
 async def parse_dialogflow(opsdroid, skills, message, config):
@@ -87,7 +88,7 @@ async def parse_dialogflow(opsdroid, skills, message, config):
 
     """
     try:
-        result = await call_dialogflow(message.text, config)
+        result = await call_dialogflow(message.text, opsdroid, config)
         matched_skills = []
         if (
             "min-score" in config

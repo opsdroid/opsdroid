@@ -80,7 +80,7 @@ class TestParserDialogflow(asynctest.TestCase):
             mocked_response.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
 
-            await dialogflow.call_dialogflow(message, config)
+            await dialogflow.call_dialogflow(message, opsdroid, config)
             self.assertTrue(patched_request.called)
 
     async def test_call_dialogflow_failure(self):
@@ -90,17 +90,24 @@ class TestParserDialogflow(asynctest.TestCase):
         message = Message("Hello world", "user", "default", mock_connector)
 
         with self.assertRaises(Warning):
-            await dialogflow.call_dialogflow(message, config)
+            await dialogflow.call_dialogflow(message, opsdroid, config)
             self.assertLogs("_LOGGER", "error")
 
     async def test_call_dialogflow_import_failure(self):
-        config = {"name": "dialogflow", "project-id": "test"}
+        with OpsDroid() as opsdroid, amock.patch(
+            "dialogflow.SessionsClient"
+        ) as patched_request, amock.patch.object(dialogflow, "parse_dialogflow"):
+            config = {"name": "dialogflow", "project-id": "test"}
+            mock_connector = Connector({}, opsdroid=opsdroid)
+            message = Message("Hello world", "user", "default", mock_connector)
+            patched_request.side_effect = ImportError()
+            opsdroid.config["parsers"] = [config]
 
-        with amock.patch("dialogflow.SessionsClient"), self.assertRaises(ImportError):
+            await dialogflow.call_dialogflow(message, opsdroid, config)
 
-            await dialogflow.call_dialogflow("hi", config)
             self.assertLogs("_LOGGER", "error")
-            self.assertEqual(config, {})
+            self.assertIn("enabled", opsdroid.config["parsers"][0])
+            self.assertEqual(opsdroid.config["parsers"][0]["enabled"], False)
 
     async def test_parse_dialogflow(self):
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "path/test.json"
