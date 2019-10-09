@@ -36,11 +36,6 @@ welcome-message: true
 ## Parsers
 # parsers:
 #
-#  ## Dialogflow (http://opsdroid.readthedocs.io/en/stable/matchers/dialogflow)
-#  - name: dialogflow
-#    access-token: "exampleaccesstoken123"
-#    min-score: 0.6
-#
 #  ## Rasanlu (http://opsdroid.readthedocs.io/en/stable/matchers/rasanlu)
 #  - name: rasanlu
 #    url: http://localhost:5000
@@ -48,13 +43,17 @@ welcome-message: true
 #    token: 85769fjoso084jd
 #    min-score: 0.8
 #
-#  ## Recast.ai (http://opsdroid.readthedocs.io/en/stable/matchers/recast.ai)
-#  - name: recastai
-#    access-token: 85769fjoso084jd
-#    min-score: 0.8
+#  ## Dialogflow (http://opsdroid.readthedocs.io/en/stable/matchers/dialogflow)
+#  - name: dialogflow
+#    access-token: "exampleaccesstoken123"
+#    min-score: 0.6
 #
 #  ## Regex (http://opsdroid.readthedocs.io/en/stable/matchers/regex)
 #  - name: regex
+#    enabled: true
+#
+#  ## Parse_format (http://opsdroid.readthedocs.io/en/stable/matchers/parse_format)
+#  - name: parse_format
 #    enabled: true
 #
 #  ## Wit.ai (http://opsdroid.readthedocs.io/en/stable/matchers/wit.ai)
@@ -73,6 +72,11 @@ welcome-message: true
 #  - name: crontab
 #    enabled: true
 #
+#  ## Sapcai (http://opsdroid.readthedocs.io/en/stable/matchers/sapcai)
+#  - name: sapcai
+#    access-token: 85769fjoso084jd
+#    min-score: 0.8
+#
 
 ## Connector modules
 connectors:
@@ -82,17 +86,8 @@ connectors:
     bot-name: "mybot" # default "opsdroid"
     max-connections: 10 # default is 10 users can be connected at once
     connection-timeout: 10 # default 10 seconds before requested socket times out
-
-#  - name: gitter
-#    # optional
-#    bot-name: "mr.boot" # default "opsdroid"
-#    room-id: "to be added"
-#    access-token: "to be added"
-### Uncomment the connector(s) that you wish opsdroid to work on
-#
-#  - name: shell
-#    # optional
-#    bot-name: "mybot" # default "opsdroid"
+  
+  # Uncomment the connector(s) that you wish opsdroid to work on
 #
 #  ## Ciscospark (https://github.com/opsdroid/connector-ciscospark)
 #  - name: ciscospark
@@ -100,7 +95,29 @@ connectors:
 #    webhook-url: http(s)://<host>:<port>  # Url for Spark to connect to your bot
 #    access-token: <your bot access token>  # Your access token
 #
-#  ## Facebook (https://github.com/opsdroid/connector-facebook)
+#  ## Shell (https://github.com/opsdroid/connector-shell)
+#  - name: shell
+#    # optional
+#    bot-name: "mybot" # default "opsdroid"
+#
+#  ## Twitter (https://github.com/opsdroid/connector-twitter)
+#  - name: twitter
+#    # required
+#    consumer_key: "zyxw-abdcefghi-12345"
+#    consumer_secret: "zyxw-abdcefghi-12345-zyxw-abdcefghi-12345"
+#    oauth_token: "zyxw-abdcefghi-12345-zyxw-abdcefghi-12345"
+#    oauth_token_secret: "zyxw-abdcefghi-12345-zyxw-abdcefghi-12345"
+#    # optional
+#    enable_dms: true  # Should the bot respond to Direct Messages
+#    enable_tweets: true  # Should the bot respond to tweets
+#
+#  ## Webexteams (core)
+#  - name: webexteams
+#    # required
+#    webhook-url: http(s)://<host>:<port>  # Url for Webex Teams to connect to your bot
+#    access-token: <your bot access token>  # Your access token
+#
+#  ## Facebook (core)
 #  - name: facebook
 #    # required
 #    verify-token: aabbccddee
@@ -108,12 +125,7 @@ connectors:
 #    # optional
 #    bot-name: "mybot" # default "opsdroid"
 #
-#  ## Github (https://github.com/opsdroid/connector-github)
-#  - name: github
-#    # required
-#    github-token: aaabbbcccdddeee111222333444
-#
-#  ## Matrix (https://github.com/opsdroid/connector-matrix)
+#  ## Matrix (core)
 #  - name: matrix
 #    # Required
 #    mxid: "@username:matrix.org"
@@ -128,13 +140,28 @@ connectors:
 #    # Optional
 #    homeserver: "https://matrix.org"
 #    nick: "Botty McBotface"  # The nick will be set on startup
+#    room_specific_nicks: False  # Look up room specific nicknames of senders (expensive in large rooms)
 #
-#  ## Shell (https://github.com/opsdroid/connector-shell)
-#  - name: shell
+#  ## Github (core)
+#  - name: github
+#    # required
+#    token: aaabbbcccdddeee111222333444
+#
+#  ## Gitter (core)
+#  - name: gitter
+#
+#  ## Telegram (core)
+#  - name: telegram
+#    # required
+#    token: "123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ-ZYXWVUT"  # Telegram bot token
 #    # optional
-#    bot-name: "mybot" # default "opsdroid"
+#    update-interval: 0.5  # Interval between checking for messages
+#    default-user: user1  # Default user to send messages to (overrides default room in connector)
+#    whitelisted-users:  # List of users who can speak to the bot, if not set anyone can speak
+#      - user1
+#      - user2
 #
-#  ## Slack (https://github.com/opsdroid/connector-slack)
+#  ## Slack (core)
 #  - name: slack
 #    # required
 #    api-token: "zyxw-abdcefghi-12345"
@@ -144,34 +171,17 @@ connectors:
 #    icon-emoji: ":smile:" # default ":robot_face:"
 #    connect-timeout: 10 # default 10 seconds
 #
-#  ## Telegram (https://github.com/opsdroid/connector-telegram)
-#  - name: telegram
+#  ## Rocketchat (core)
+#  - name: rocketchat
 #    # required
-#    token: "123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ-ZYXWVUT"  # Telegraf bot token
-#    # optional
-#    update_interval: 0.5  # Interval between checking for messages
-#    default_user: user1  # Default user to send messages to (overrides default room in connector)
-#    whitelisted_users:  # List of users who can speak to the bot, if not set anyone can speak
-#      - user1
-#      - user2
-#
-#  ## Twitter (https://github.com/opsdroid/connector-twitter)
-#  - name: twitter
-#    # required
-#    consumer_key: "zyxw-abdcefghi-12345"
-#    consumer_secret: "zyxw-abdcefghi-12345-zyxw-abdcefghi-12345"
-#    oauth_token: "zyxw-abdcefghi-12345-zyxw-abdcefghi-12345"
-#    oauth_token_secret: "zyxw-abdcefghi-12345-zyxw-abdcefghi-12345"
-#    # optional
-#    enable_dms: true  # Should the bot respond to Direct Messages
-#    enable_tweets: true  # Should the bot respond to tweets
-#
-#  ## Websocket (https://github.com/opsdroid/connector-websocket)
-#  - name: websocket
+#    user-id: "1ioKHDIOD"
+#    token: "zyxw-abdcefghi-12345"
 #    # optional
 #    bot-name: "mybot" # default "opsdroid"
-#    max-connections: 10 # default is 10 users can be connected at once
-#    connection-timeout: 10 # default 10 seconds before requested socket times out
+#    default-room: "random" # default "general"
+#    group: "MyAwesomeGroup" # default to None 
+#    channel-url: "http://127.0.0.1" # defaults to https://open.rocket.chat
+#    update-interval: 5 # defaults to 1
 #
 
 
@@ -179,22 +189,24 @@ connectors:
 
 # databases:
 #
-#  ## Mongo (https://github.com/opsdroid/database-mongo)
+#  ## Redis (core)
+#  - name: redis
+#    host:       "my host"     # (optional) default "localhost"
+#    port:       "12345"       # (optional) default "6379"
+#    database:   7           # (optional) default 0
+#    password:   "pass123"     # (optional) default "None"
+#    reconnect:  true          # (optional) default "False"
+#
+#  ## Sqlite (core)
+#  - name: sqlite
+#    file: "my_file.db"  # (optional) default "~/.opsdroid/sqlite.db"
+#    table: "my_table"  # (optional) default "opsdroid"
+#
+#  ## Mongo (core)
 #  - name: mongo
 #    host:       "my host"     # (optional) default "localhost"
 #    port:       "12345"       # (optional) default "27017"
 #    database:   "mydatabase"  # (optional) default "opsdroid"
-#
-#  ## Redis (https://github.com/opsdroid/database-redis)
-#  - name: redis
-#    host:       "my host"     # (optional) default "localhost"
-#    port:       "12345"       # (optional) default "6379"
-#    database:   "7"           # (optional) default "0"
-#
-#  ## Sqlite (https://github.com/opsdroid/database-sqlite)
-#  - name: sqlite
-#    file: "my_file.db"  # (optional) default "~/.opsdroid/sqlite.db"
-#    table: "my_table"  # (optional) default "opsdroid"
 #
 
 
@@ -203,29 +215,26 @@ skills:
 
   ## Dance (https://github.com/opsdroid/skill-dance)
   - name: dance
-
+  
   ## Hello (https://github.com/opsdroid/skill-hello)
   - name: hello
-
+  
   ## Loudnoises (https://github.com/opsdroid/skill-loudnoises)
   - name: loudnoises
-
+  
   ## Seen (https://github.com/opsdroid/skill-seen)
   - name: seen
-
+  
   # Configurations for other skills uncomment desired skill to activate it.
 #
 #  ## Cloudhealth (https://github.com/opsdroid/skill-cloudhealth)
-#  - name: aws-billing
+#  - name: cloudhealth
 #    # Required
 #    chapi-key: ABCDEF123456789  # Cloud Health API key for billing alerts
 #    # Optional
 #    room: "#monitoring"  # Room to send alert to
 #    daily-billing-alerts: true  # Announce the previous day's bill each morning
 #    monthly-billing-alerts: true  # Announce the previous month's bill each month
-#
-#  ## Dance (https://github.com/opsdroid/skill-dance)
-#  - name: dance
 #
 #  ## Devtools (https://github.com/opsdroid/skill-devtools)
 #  - name: devtools
@@ -276,15 +285,17 @@ skills:
 #  ## Hacktoberfest (https://github.com/opsdroid/skill-hacktoberfest)
 #  - name: hacktoberfest
 #
-#  ## Hello (https://github.com/opsdroid/skill-hello)
-#  - name: hello
-#
 #  ## Help (https://github.com/opsdroid/skill-help)
 #  skill_name <required_parameter> [optional_parameter] - Description of the skill
 #
 #  ## Homeassistant (https://github.com/opsdroid/skill-homeassistant)
 #  - name: homeassistant
+#    # Notification settings
 #    room: "#homeassistant"  # (Optional) room to send notifications to
+#    # Conversation component passthrough settings
+#    conversation-passthrough: false  # Enable/disable the conversation component passthrough
+#    hass-url: "http://127.0.0.1:8123"  # The URL of your Home Assistant
+#    hass-password: "YOURPASSWORD"  # Your Home Assistant auth password
 #
 #  ## Iss (https://github.com/opsdroid/skill-iss)
 #  - name: iss
@@ -295,9 +306,6 @@ skills:
 #    map-size: "1024x768"
 #    map-type: "hybrid" # hybrid, satellite or roadmap
 #
-#  ## Loudnoises (https://github.com/opsdroid/skill-loudnoises)
-#  - name: loudnoises
-#
 #  ## Magpi (https://github.com/opsdroid/skill-magpi)
 #  - name: magpi
 #    room: "#raspberrypi"  # (Optional) room to send notifications to
@@ -307,9 +315,6 @@ skills:
 #
 #  ## Random (https://github.com/opsdroid/skill-random)
 #  - name: random
-#
-#  ## Seen (https://github.com/opsdroid/skill-seen)
-#  - name: seen
 #
 #  ## Speakingclock (https://github.com/opsdroid/skill-speakingclock)
 #  - name: speakingclock
@@ -332,7 +337,7 @@ skills:
 #  ## Weather (https://github.com/opsdroid/skill-weather)
 #  - name: weather
 #    # Required
-#    city: London,UK    # For accuracy use {city},{country code}
+#    city: London,UK    # For accuracy use {city},{country code}          
 #    unit: metric       # Choose metric/imperial
 #    api-key: 6fut9e098d8g90g
 #

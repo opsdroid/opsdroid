@@ -95,5 +95,5 @@ setup(
     cmdclass=versioneer.get_cmdclass(
         {"sdist": Sdist, "build_py": BuildPy, "develop": Develop}
     ),
-    entry_points={"console_scripts": ["opsdroid = opsdroid.__main__:main"]},
+    entry_points={"console_scripts": ["opsdroid = opsdroid.cli:cli"]},
 )

@@ -27,20 +27,20 @@
 <p align="center">
   <a href="#chatops">ChatOps</a> •
   <a href="#why-use-opsdroid">Why use opsdroid?</a> •
-  <a href="#quick-start">Quick Start</a> •
+  <a href="#quickstart">Quick Start</a> •
   <a href="#installation-guide">Installation Guide</a> •
   <a href="#usage">Usage</a> •
-  <a href="#contributing">Contributing</a> •
+  <a href="#contributors">Contributors</a> •
   <a href="#backers">Backers</a> •
-  <a href="#sponsors">Sponsers</a>
+  <a href="#sponsors">Sponsors</a>
 </p>
 
 ---
 
-An open source chat bot framework written in Python. It is designed to be extendable, scalable and simple.
+An open source chatbot framework written in Python. It is designed to be extendable, scalable and simple.
 
 
-This application is designed to take messages from chat services and execute Python functions (skills) based on their contents. Those functions can be anything you like, from simple conversational responses to running complex tasks. The true power of this project is to act as a glue library to bring the multitude of natural language APIs, chat services and third party APIs together.
+This application is designed to take messages from chat services and execute Python functions (skills) based on their contents. Those functions can be anything you like, from simple conversational responses to running complex tasks. The true power of this project is to act as a glue library to bring the multitude of natural language APIs, chat services and third-party APIs together.
 
 Help support opsdroid in one click by pressing [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Check%20out%20opsdroid,%20an%20awesome%20open%20source%20chatbot%20framework%20written%20in%20Python.&url=https://opsdroid.github.io/&via=opsdroid&hashtags=chatbots,chatops,devops,automation,opensource)
 
@@ -61,11 +61,11 @@ In this new frontier of DevOps, it is becoming more and more popular to interact
  * Can connect to multiple chat services simultaneously
  * No coding necessary if using the official modules
 
-## Quick start
+## Quickstart
 
 ```bash
 $ pip3 install opsdroid
-$ opsdroid
+$ opsdroid start
 ```
 
 ## Installation Guide
@@ -153,7 +153,7 @@ $ pip3 install --upgrade pip
 $ sudo pip3 install opsdroid
 
 # Run opsdroid
-$ opsdroid
+$ opsdroid start
 ```
 
 ## Usage
@@ -162,21 +162,23 @@ When running the `opsdroid` command with no arguments the bot framework will sta
 
 For information on arguments that you can pass to opsdroid run `opsdroid --help`.
 
-```
+```console
 $ opsdroid --help
-Usage: opsdroid [OPTIONS]
+Usage: opsdroid [OPTIONS] COMMAND [ARGS]...
 
-  Opsdroid is a chat bot framework written in Python.
+  Opsdroid is a chatbot framework written in Python.
 
   It is designed to be extendable, scalable and simple. See
   https://opsdroid.github.io/ for more information.
 
 Options:
-  --gen-config          Print an example config and exit.
-  -v, --version         Print the version and exit.
-  -e, --edit-config     Edit configuration.yaml
-  -l, --view-log        Open opsdroid logs
-  --help                Show this message and exit.
+  --help             Show this message and exit.
+
+Commands:
+  config   Subcommands related to opsdroid configuration.
+  logs     Open opsdroid logs with your favorite editor and exits.
+  start    Start the opsdroid bot.
+  version  Print the version and exit.
 ```
 
 ## Contributing
@@ -196,16 +198,16 @@ Contributing to the opsdroid ecosystem is strongly encouraged and every little b
 
 **To get started see the [contribution guide](http://opsdroid.readthedocs.io/en/latest/contributing/).**
 
-Do you need help? Do you want to chat? [Join our Gitter channel](https://gitter.im/opsdroid/)
+Do you need help? Do you want to chat? [Join our Matrix channel](https://riot.im/app/#/room/#opsdroid-general:matrix.org)
 
 -------
 
-_\* databases are optional, however bot memory will not persist between different connectors or system reboots without one_
+_\* databases are optional, however, bot memory will not persist between different connectors or system reboots without one_
 
 ### Contributors
 
-This project exists thanks to all the people who contribute. [[Contribute](/docs/contributing.md)].
-<a href="graphs/contributors"><img src="https://opencollective.com/opsdroid/contributors.svg?width=890" /></a>
+This project exists thanks to all the people who contribute. [[Contribute](https://opsdroid.readthedocs.io/en/latest/contributing/)].
+<a href="https://github.com/opsdroid/opsdroid/graphs/contributors"><img src="https://opencollective.com/opsdroid/contributors.svg?width=890" /></a>
 
 
 ## Backers

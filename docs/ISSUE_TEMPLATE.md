@@ -1,4 +1,4 @@
-<!-- Before you post an issue or if you are unsure about something join our gitter channel https://gitter.im/opsdroid/ and ask away! We are more than happy to help you. -->
+<!-- Before you post an issue or if you are unsure about something join our matrix channel https://riot.im/app/#/room/#opsdroid-general:matrix.org and ask away! We are more than happy to help you. -->
 # Description
 Please include a summary of the issue. 
 
@@ -20,7 +20,7 @@ Explain what happened instead(Please include the debug log).
 - **OS/Docker version:**
 
 ## Configuration File
-Please include your version of the configuration file bellow.
+Please include your version of the configuration file below.
 
 ```yaml
 # Your code goes here.

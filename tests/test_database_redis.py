@@ -7,7 +7,7 @@ import asynctest.mock as amock
 
 from contextlib import suppress
 from opsdroid.database.redis import RedisDatabase
-from opsdroid.__main__ import configure_lang
+from opsdroid.cli.start import configure_lang
 
 
 class MockRedisClient:

@@ -100,6 +100,8 @@ ENV/
 .docker/
 
 .vscode/
+.mypy_cache
+.devcontainer/
 .idea/
 site/
 Pipfile

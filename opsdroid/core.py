@@ -219,7 +219,7 @@ class OpsDroid:
                 "/etc/opsdroid/configuration.yaml",
             ]
         )
-        self.load()
+        await self.load()
 
     def setup_skills(self, skills):
         """Call the setup function on the loaded skills.
@@ -254,30 +254,20 @@ class OpsDroid:
                     continue
 
                 if hasattr(func, "skill"):
-                    _LOGGER.warning(
-                        _(
-                            "Function based skills are deprecated "
-                            "and will be removed in a future "
-                            "release. Please use class-based skills "
-                            "instead."
-                        )
-                    )
                     func.config = skill["config"]
                     self.skills.append(func)
 
         with contextlib.suppress(AttributeError):
             for skill in skills:
                 skill["module"].setup(self, self.config)
-                _LOGGER.warning(
-                    _(
-                        "<skill module>.setup() is deprecated and "
-                        "will be removed in a future release. "
-                        "Please use class-based skills instead."
-                    )
-                )
 
     async def train_parsers(self, skills):
-        """Train the parsers."""
+        """Train the parsers.
+
+        Args:
+            skills (list): A list of all the loaded skills.
+
+        """
         if "parsers" in self.config:
             parsers = self.config["parsers"] or []
             rasanlu = [p for p in parsers if p["name"] == "rasanlu"]
@@ -391,14 +381,14 @@ class OpsDroid:
             if len(luisai) == 1 and (
                 "enabled" not in luisai[0] or luisai[0]["enabled"] is not False
             ):
-                _LOGGER.debug("Checking luisai...")
+                _LOGGER.debug(_("Checking luisai..."))
                 ranked_skills += await parse_luisai(self, skills, message, luisai[0])
 
             sapcai = [p for p in parsers if p["name"] == "sapcai"]
             if len(sapcai) == 1 and (
                 "enabled" not in sapcai[0] or sapcai[0]["enabled"] is not False
             ):
-                _LOGGER.debug(_("Checking Recast.AI..."))
+                _LOGGER.debug(_("Checking SAPCAI..."))
                 ranked_skills += await parse_sapcai(self, skills, message, sapcai[0])
 
             witai = [p for p in parsers if p["name"] == "witai"]

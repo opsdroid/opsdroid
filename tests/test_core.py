@@ -6,7 +6,7 @@ import asynctest
 import asynctest.mock as amock
 import importlib
 
-from opsdroid.__main__ import configure_lang
+from opsdroid.cli.start import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.events import Message
 from opsdroid.connector import Connector
@@ -261,7 +261,7 @@ class TestCoreAsync(asynctest.TestCase):
 
     async def test_reload(self):
         with OpsDroid() as opsdroid:
-            opsdroid.load = mock.Mock()
+            opsdroid.load = amock.CoroutineMock()
             opsdroid.unload = amock.CoroutineMock()
             await opsdroid.reload()
             self.assertTrue(opsdroid.load.called)
@@ -439,7 +439,7 @@ class TestCoreAsync(asynctest.TestCase):
 
     async def test_start_connectors(self):
         with OpsDroid() as opsdroid:
-            opsdroid.start_connectors([])
+            await opsdroid.start_connectors([])
 
             module = {}
             module["config"] = {}
@@ -459,7 +459,7 @@ class TestCoreAsync(asynctest.TestCase):
 
     async def test_start_connectors_not_implemented(self):
         with OpsDroid() as opsdroid:
-            opsdroid.start_connectors([])
+            await opsdroid.start_connectors([])
 
             module = {}
             module["config"] = {}

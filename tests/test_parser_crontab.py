@@ -1,7 +1,7 @@
 import asynctest
 import asynctest.mock as amock
 
-from opsdroid.__main__ import configure_lang
+from opsdroid.cli.start import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.matchers import match_crontab
 from opsdroid.parsers.crontab import parse_crontab
