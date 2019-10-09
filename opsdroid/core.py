@@ -459,7 +459,7 @@ class OpsDroid:
             if len(sapcai) == 1 and (
                 "enabled" not in sapcai[0] or sapcai[0]["enabled"] is not False
             ):
-                _LOGGER.debug(_("Checking Recast.AI..."))
+                _LOGGER.debug(_("Checking SAPCAI..."))
                 ranked_skills += await parse_sapcai(self, skills, message, sapcai[0])
 
             witai = [p for p in parsers if p["name"] == "witai"]

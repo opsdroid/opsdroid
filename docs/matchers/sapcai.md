@@ -2,8 +2,10 @@
 
 ## Configuring opsdroid
 
+[SAP Conversational AI](https://cai.tools.sap/) is an NLP API for matching strings to [intents](https://cai.tools.sap/docs/concepts/intent). Intents are created on the SAP Conversational AI website.
+
 In order to enable SAP Conversational AI skills, you must specify an `access-token` for your bot in the parsers section of the opsdroid configuration file.
-You can find this `access-token` in the settings of your bot under the name: `'Request access token'`.
+You can find this `access-token` in the settings of your bot. Click on the Tokens tab and use the `'Developer token'` details.
 
 You can also set a `min-score` option to tell opsdroid to ignore any matches which score less than a given number between 0 and 1. The default for this is 0 which will match all messages.
 
@@ -15,11 +17,33 @@ parsers:
     min-score: 0.8
 ```
 
-##
+### Localization
 
-[SAP Conversational AI](https://cai.tools.sap/) is an NLP API for matching strings to [intents](https://cai.tools.sap/docs/concepts/intent). Intents are created on the SAP Conversational AI website.
+If you use opsdroid in a language other than English, this parser will automatically grab the language code that you have set on your configuration.
 
-## [Example 1](#example1)
+If you want to run this parser in a different language you can overwrite the language configuration by adding the `lang` parameter on this parser configuration.
+
+_Note: You need to make sure that your intent has the language that you wish to parse added to it. Click the intent name and choose 'Add Language'._
+
+#### Example
+
+```yaml
+parsers:
+  - name: sapcai
+    access-token: 85769fjoso084jd
+    min-score: 0.8
+    lang: 'pt'
+```
+
+This will make the parser to use the Portuguese language when matching the string to an intent.
+
+## Using the parser with a skill
+
+Let's have a look at how you can use this parser and the `match_sapcai` decorator on a skill. 
+
+The `match_sapcai` decorator takes one parameter (the name of the intent to match), any skill (function or class method) decorated with this matcher, will trigger that skill.
+
+### [Example 1](#example1)
 
 ```python
 from opsdroid.skill import Skill
@@ -36,7 +60,7 @@ class MySkill(Skill):
 
 The above skill would be called on any intent which has a name of `'greetings'`.
 
-## Example 2
+### Example 2
 
 ```python
 from opsdroid.skill import Skill
@@ -57,9 +81,6 @@ You need to [register](https://cai.tools.sap/signup) on SAP Conversational AI an
 
 You can find a quick getting started with the SAP Conversational AI guide [here](https://cai.tools.sap/docs/concepts/create-builder-bot).
 
-If you want to use SAP Conversational AI in a different language other than English, all you need to do is specify the `lang` parameter in opsdroid's configuration.
-
-_Note: "If you do not have any expressions in this language, we will use your default bot language for processing." - [SAP Conversational AI Language page](https://cai.tools.sap/docs/concepts/language)_
 
 ## Message object additional parameters
 
