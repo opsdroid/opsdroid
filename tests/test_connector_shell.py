@@ -7,6 +7,7 @@ import unittest
 import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock
+import sys
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector.shell import ConnectorShell
@@ -81,10 +82,11 @@ class TestConnectorShellAsync(asynctest.TestCase):
                 with contextlib.suppress(NotImplementedError):
                     await self.connector.read_stdin()
         else:
-            self.connector.reader = amock.CoroutineMock()
-            with amock.patch("sys.stdin") as mockstd:
-                with contextlib.suppress(ValueError):
-                    await self.connector.read_stdin()
+            self.connector.loop.connect_read_pipe = amock.CoroutineMock()
+            self.connector.reader = None
+            self.assertIsNone(self.connector.reader)
+            result = await self.connector.read_stdin()
+            self.assertEqual(result, self.connector.reader)
 
     async def test_connect(self):
         connector = ConnectorShell({}, opsdroid=OpsDroid())

@@ -34,12 +34,12 @@ class ConnectorShell(Connector):
 
     @property
     def is_listening(self):
-        """helper, gets listening."""
+        """Helper, gets listening."""
         return self.listening
 
     @is_listening.setter
     def is_listening(self, val):
-        """helper, sets listening."""
+        """Helper, sets listening."""
         self.listening = val
 
     async def read_stdin(self):
@@ -53,6 +53,8 @@ class ConnectorShell(Connector):
         reader_protocol = asyncio.StreamReaderProtocol(self.reader)
 
         await self.loop.connect_read_pipe(lambda: reader_protocol, sys.stdin)
+
+        return self.reader
 
     async def async_input(self):
         """Read user input asynchronously from stdin.
