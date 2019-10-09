@@ -27,12 +27,12 @@
 <p align="center">
   <a href="#chatops">ChatOps</a> •
   <a href="#why-use-opsdroid">Why use opsdroid?</a> •
-  <a href="#quick-start">Quick Start</a> •
+  <a href="#quickstart">Quick Start</a> •
   <a href="#installation-guide">Installation Guide</a> •
   <a href="#usage">Usage</a> •
-  <a href="#contributing">Contributing</a> •
+  <a href="#contributors">Contributors</a> •
   <a href="#backers">Backers</a> •
-  <a href="#sponsors">Sponsers</a>
+  <a href="#sponsors">Sponsors</a>
 </p>
 
 ---
