@@ -262,7 +262,12 @@ class OpsDroid:
                 skill["module"].setup(self, self.config)
 
     async def train_parsers(self, skills):
-        """Train the parsers."""
+        """Train the parsers.
+
+        Args:
+            skills (list): A list of all the loaded skills.
+
+        """
         if "parsers" in self.config:
             parsers = self.config["parsers"] or []
             rasanlu = [p for p in parsers if p["name"] == "rasanlu"]
