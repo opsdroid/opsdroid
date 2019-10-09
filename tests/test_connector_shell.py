@@ -74,8 +74,10 @@ class TestConnectorShellAsync(asynctest.TestCase):
             await self.connector.read_stdin()
             self.assertTrue(mocked_read_stdin.called)
 
-        if os.name == 'nt':
-            with amock.patch("asyncio.events.AbstractEventLoop.connect_read_pipe") as mock:
+        if os.name == "nt":
+            with amock.patch(
+                "asyncio.events.AbstractEventLoop.connect_read_pipe"
+            ) as mock:
                 with contextlib.suppress(NotImplementedError):
                     await self.connector.read_stdin()
         else:
@@ -84,15 +86,12 @@ class TestConnectorShellAsync(asynctest.TestCase):
                 with contextlib.suppress(ValueError):
                     await self.connector.read_stdin()
 
-
-        
-
     async def test_connect(self):
         connector = ConnectorShell({}, opsdroid=OpsDroid())
         await connector.connect()
         self.assertTrue(connector.connect)
 
-        with amock.patch('platform.system', amock.MagicMock(return_value="Windows")):
+        with amock.patch("platform.system", amock.MagicMock(return_value="Windows")):
             await connector.connect()
             self.assertTrue(connector.connect)
 
