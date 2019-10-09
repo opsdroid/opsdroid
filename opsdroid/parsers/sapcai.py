@@ -31,14 +31,14 @@ async def call_sapcai(message, config, lang=DEFAULT_LANGUAGE):
 async def parse_sapcai(opsdroid, skills, message, config):
     """Parse a message against all SAP Conversational AI intents."""
     matched_skills = []
+    language = config.get("lang") or opsdroid.config.get("lang", DEFAULT_LANGUAGE)
+    _LOGGER.info(language)
     if "access-token" in config:
         try:
-            result = await call_sapcai(
-                message, config, opsdroid.config.get("lang", DEFAULT_LANGUAGE)
-            )
+            result = await call_sapcai(message, config, language)
         except aiohttp.ClientOSError:
             _LOGGER.error(
-                _("No response from SAP Conversational.AI, " "check your network.")
+                _("No response from SAP Conversational.AI, check your network.")
             )
             return matched_skills
 
@@ -60,7 +60,7 @@ async def parse_sapcai(opsdroid, skills, message, config):
         confidence = result["results"]["intents"][0]["confidence"]
 
         if "min-score" in config and confidence < config["min-score"]:
-            _LOGGER.debug(_("SAP Conversational AI score lower " "than min-score"))
+            _LOGGER.debug(_("SAP Conversational AI score lower than min-score"))
             return matched_skills
 
         if result:
