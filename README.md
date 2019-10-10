@@ -53,7 +53,7 @@ In this new frontier of DevOps, it is becoming more and more popular to interact
 ## Why use opsdroid?
 
  * It's open source
- * Simple to modify and extend
+ * Easy to modify and extend
  * Add your own skills in under 10 lines of Python
  * Easy to install
  * Designed with Docker in mind for simple deployment
