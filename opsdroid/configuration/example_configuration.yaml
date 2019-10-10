@@ -95,11 +95,6 @@ connectors:
 #    webhook-url: http(s)://<host>:<port>  # Url for Spark to connect to your bot
 #    access-token: <your bot access token>  # Your access token
 #
-#  ## Shell (https://github.com/opsdroid/connector-shell)
-#  - name: shell
-#    # optional
-#    bot-name: "mybot" # default "opsdroid"
-#
 #  ## Twitter (https://github.com/opsdroid/connector-twitter)
 #  - name: twitter
 #    # required
@@ -182,6 +177,11 @@ connectors:
 #    group: "MyAwesomeGroup" # default to None 
 #    channel-url: "http://127.0.0.1" # defaults to https://open.rocket.chat
 #    update-interval: 5 # defaults to 1
+#
+#  ## Shell (core)
+#  - name: shell
+#    # optional
+#    bot-name: "mybot" # default "opsdroid"
 #
 
 
