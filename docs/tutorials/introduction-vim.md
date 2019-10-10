@@ -1,5 +1,5 @@
 # Introduction to Vi/Vim
-Vi/Vim is a command line text editor that comes with every platform other than windows (unless you install it). It can be hard to figure out how to do things in this editor, this tutorial is meant to give you the basic knowledge of vi/vim and how to do things with it.
+Vi/Vim is a command line text editor that comes with every platform other than windows (unless you install it). It can be hard to figure out how to do things in this editor because the editor is command-centric, this tutorial is meant to give you the basic knowledge of vi/vim and how to do things with it.
 
 
 ## Vi/Vim Modes
@@ -24,6 +24,10 @@ Once you are happy with the changes that you have just made, press the _esc_ key
 There is nothing much to say about this mode. It allows you to select big chunks of text in order for you to copy or cut. When this mode is active you can read the text: --VISUAL-- in the bottom left corner of the window.
 
 Another thing you can do in the visual mode is to highlight text and then make small changes to the highlighted text such as changing to uppercase or indenting lines.
+
+For example, let's highlight a block of text starting with v and then moving the cursor.
+We now delete it with the d command.
+The v command selects text by character. The CTRL-V command selects text as a block. The V command selects line.
 
 ## Vi/Vim Commands
 Vi/Vim is meant to help you do things fairly quickly without the need for a mouse. Everything can be done with a keyboard, so learning some of the Vi/Vim commands will be helpful.
