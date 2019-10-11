@@ -1,9 +1,11 @@
 # IBM Watson Matcher
 
+[IBM Watson](https://www.ibm.com/watson) is an NLP API for matching strings to [intents](https://cloud.ibm.com/docs/services/assistant?topic=assistant-intents). Intents are created on your assistant intent page.
+
 ## Configuring opsdroid
 
-In order to enable wit.ai skills, you must specify an `access-token` for your bot in the parsers section of the opsdroid configuration file.
-You can find this `access-token` in the settings of your App under the name: `'Server Access Token: '`.
+In order to enable Watson skills, you must specify an `access-token`, an `assistant-id` and a `gateway` for your bot in the parsers section of the opsdroid configuration file.
+You can find these informations inside your Assistant Settings under the `API Details`. Note that depending where your bot is located the gateway will be different, just use this. For example: `gateway-fra`.
 
 You can also set a `min-score` option to tell opsdroid to ignore any matches which score less than a given number between 0 and 1. The default for this is 0 which will match all messages.
 
@@ -17,113 +19,143 @@ parsers:
     min-score: 0.6
 ```
 
-##
+### Localization
 
-[wit.ai](https://wit.ai) is an NLP API for matching strings to [intents](https://wit.ai/docs/recipes#categorize-the-user-intent). Intents are created on the wit.ai website.
+If you want to use Watson on a different language you will have to create different intents and entities to handle the languages that you wish to support.
 
-## [Example 1](#example1)
+## Using the parser with a skill
+
+In this example we have a Watson assistant set up with the default Customer Care Sample Skill - this will show you how you can get entities and replies from the assistant and include them with opsdroid.
+
+### [Example 1](#example1)
 
 ```python
 from opsdroid.skill import Skill
-from opsdroid.matchers import match_witai
+from opsdroid.matchers import match_watson
+import logging
+
+_LOGGER = logging.getLogger(__name__)
 
 class MySkill(Skill):
-    @match_witai('get_weather')
-    async def weather(self, message):
-        """Hard Coded version of weather function"""
-        temp = 10
-        humidity = "80%"
-        city = message.witai['entities']['location'][0]['value']
-        status = "Clouds"
+    @match_watson('Customer_Care_Appointments')
+    async def book_slot(self, message):
+        """Book an appointment"""
+        reply = message.watson['output']['generic'][0]['text']
+        booking_date = message.watson['output']['entities'][0]['value']
+        booking_time = message.watson['output']['entities'][1]['value']
 
-        await message.respond("It's currently {} degrees, {}% humidity in {} and {} is forecasted "
-                              "for today".format(temp, humidity, city, status))
+        _LOGGER.info(reply)
+
+        await message.respond("Done! Booked you for {} at {}".format(booking_date, booking_time))
 ```
 
-The above skill would be called on any intent which has a name of `'get_weather'`.
+_Note: In this example we are getting a reply from the bot just to show you how you can get that reply into an opsdroid reply - Watson's reply is actually this: `Let me confirm: You want an appointment for <date> at <time>. Is this correct?`_
+
+The above skill would be called on any intent which has a name of `'Customer_Care_Appointment'`.
 
 #### Usage example
 
-> user: what's the weather like in London
+> user: Book me an appointment for tomorrow at 11am
 >
-> opsdroid: It's currently 13.12 degrees, 67% humidity in London and Rain is forecasted for today
+> opsdroid: Done! Booked you for 2019-10-12 at 11:00:00
 
-## Creating a wit.ai App
-You need to register on wit.ai and create an App in order to use wit.ai with opsdroid.
+This is the JSON response that opsdroid will get from this text:
 
-You can find a quick getting started with the wit.ai guide [here](https://wit.ai/getting-started).
+```json
+{
+  "output": {
+    "generic": [
+      {
+        "response_type": "text", 
+        "text": "Let me confirm: You want an appointment for Saturday at 11 AM. Is this correct?"
+      }
+    ], 
+    "intents": [
+      {
+        "intent": "Customer_Care_Appointments", 
+        "confidence": 0.9975103855133056
+      }
+    ], 
+    "entities": [
+      {
+        "entity": "sys-date", 
+        "location": [24, 40], 
+        "value": "2019-10-12", 
+        "confidence": 1, 
+        "metadata": {"calendar_type": "GREGORIAN", "timezone": "GMT"}
+      }, 
+      {
+        "entity": "sys-time", 
+        "location": [24, 40], 
+        "value": "11:00:00", 
+        "confidence": 1, 
+        "metadata": {"calendar_type": "GREGORIAN", "timezone": "GMT"}}]}}
+```
 
-If you want to use wit.ai in a different language other than English, all you need to do is change the language of your app located in the app settings.
+## Creating a Watson App
+
+You need to register on [IBM Watson website](https://www.ibm.com/), head over to the IBM Watson Assistant and create an assistant - you can call it whatever you like.
+
+You can find a guide to get started with the IBM Watson on the [Getting Started With Watson Assistant guide](https://cloud.ibm.com/docs/services/assistant?topic=assistant-getting-started).
+
 
 ## Message object additional parameters
 
-### `message.witai`
+### `message.watson`
 
-An http response object which has been returned by the wit.ai API. This allows you to access any information from the matched intent including other entities, intents, values, etc.
+An http response object which has been returned by the Watson API. This allows you to access any information from the matched intent including other entities, intents, values, etc.
 
 
 ## Example Skill
 
 ```python
 from opsdroid.skill import Skill
-from opsdroid.matchers import match_witai
+from opsdroid.matchers import match_watson
 
 import json
 
 class MySkill(Skill):
-    @match_witai('get_weather')
+    @match_watson('hello')
     async def dumpResponse(self, message):
-        print(json.dumps(message.witai))
+        print(json.dumps(message.watson))
 ```
 
-### Return Value on "How's the weather?"
+### Return Value on "Hi"
 
-The example skill will print the following on the message "how's the weather?".
+The example skill will print the following on the message "Hi".
 
 ```json
-{
-  "msg_id": "0zTl3L16kFW4PwtSt",
-  "_text": "how's the weather",
-  "entities": {
-     "intent": [
-       {
-         "confidence": 0.77586417870417,
-         "value": "get_weather"
-       }
-     ]
-  }
-}
+ {
+    'output': {
+        'generic': [
+            {
+                'response_type': 'text', 
+                'text': 'Hey hows it going?'
+            }
+        ], 
+        'intents': [
+            {
+                'intent': 'hello', 
+                'confidence': 1
+            }
+        ], 
+        'entities': [
+            {
+                'entity': 'greetings', 
+                'location': [0, 2], 
+                'value': 'hello', 
+                'confidence': 1
+            }, 
+            {
+                'entity': 'greetings', 
+                'location': [0, 2], 
+                'value': 'hi', 
+                'confidence': 1
+            }
+        ]
+    }
+ }
 ```
 
-## Return Value on "What's the weather like in London?"
-
-The example skill will print the following on the message "What's the weather like in London?".
-
-```json
-{
-   "msg_id": "0zrCQ5LEkWd0MoHYM",
-   "_text": "What's the weather like in London?",
-   "entities": {
-      "location": [
-        {
-          "suggested": true,
-          "confidence": 0.74044071131585,
-          "value": "London",
-          "type": "value"
-        }
-      ],
-      "intent": [
-        {
-          "confidence": 0.99979499373014,
-          "value": "get_weather"
-        }
-      ]
-   }
-}
-
-```
-
-Since Wit.ai can recognise locations, you can use this values on your skills to return different things.
-On our weather skill([example 1](#example1)) we changed the city param to get the temperature related to any city passed on the message.
 
 
