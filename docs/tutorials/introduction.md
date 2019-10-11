@@ -129,7 +129,7 @@ Matchers are used to match a message, sent by a user, to a connector and a skill
   * Basic matcher
     * [Regular Expressions](../matchers/regex.md)
   * NLP Matchers
-    * [Dialogflow (previous Api.ai)](../matchers/dialogflow.md)
+    * [Dialogflow](../matchers/dialogflow.md)
     * [Wit.ai](../matchers/wit.ai.md)
     * [Luis.ai](../matchers/luis.ai.md)
     * [SAP Conversational AI (previously Recast.ai)](../matchers/sapcai.md)

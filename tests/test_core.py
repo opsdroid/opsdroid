@@ -1,3 +1,4 @@
+import os
 import asyncio
 import unittest
 import unittest.mock as mock
@@ -306,19 +307,20 @@ class TestCoreAsync(asynctest.TestCase):
             self.assertTrue(mock_connector.send.called)
 
     async def test_parse_dialogflow(self):
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "path/test.json"
         with OpsDroid() as opsdroid:
-            opsdroid.config["parsers"] = [{"name": "dialogflow"}]
-            dialogflow_action = ""
+            opsdroid.config["parsers"] = [{"name": "dialogflow", "project-id": "test"}]
+            dialogflow_action = "smalltalk.greetings.whatsup"
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
             match_dialogflow_action(dialogflow_action)(skill)
             message = Message("Hello world", "user", "default", mock_connector)
-            with amock.patch("opsdroid.parsers.dialogflow.parse_dialogflow"):
+            with amock.patch(
+                "opsdroid.parsers.dialogflow.parse_dialogflow"
+            ), amock.patch("opsdroid.parsers.dialogflow.call_dialogflow"):
                 tasks = await opsdroid.parse(message)
                 self.assertEqual(len(tasks), 1)
 
-                # Once apiai parser stops working, remove this test!
-                opsdroid.config["parsers"] = [{"name": "apiai"}]
                 tasks = await opsdroid.parse(message)
                 self.assertLogs("_LOGGER", "warning")
 
