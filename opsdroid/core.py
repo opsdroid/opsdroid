@@ -26,6 +26,7 @@ from opsdroid.parsers.dialogflow import parse_dialogflow
 from opsdroid.parsers.luisai import parse_luisai
 from opsdroid.parsers.sapcai import parse_sapcai
 from opsdroid.parsers.witai import parse_witai
+from opsdroid.parsers.watson import parse_watson
 from opsdroid.parsers.rasanlu import parse_rasanlu, train_rasanlu
 from opsdroid.parsers.crontab import parse_crontab
 
@@ -412,6 +413,13 @@ class OpsDroid:
             ):
                 _LOGGER.debug(_("Checking wit.ai..."))
                 ranked_skills += await parse_witai(self, skills, message, witai[0])
+
+            watson = [p for p in parsers if p["name"] == "watson"]
+            if len(watson) == 1 and (
+                "enabled" not in watson[0] or watson[0]["enabled"] is not False
+            ):
+                _LOGGER.debug(_("Checking IBM Watson..."))
+                ranked_skills += await parse_watson(self, skills, message, watson[0])
 
             rasanlu = [p for p in parsers if p["name"] == "rasanlu"]
             if len(rasanlu) == 1 and (
