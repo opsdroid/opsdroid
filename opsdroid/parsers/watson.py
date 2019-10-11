@@ -67,16 +67,22 @@ async def parse_watson(opsdroid, skills, message, config):
         return matched_skills
 
     if result:
+
         for skill in skills:
             for matcher in skill.matchers:
+
                 if "watson_intent" in matcher:
-                    if matcher["watson_intent"] in [
-                        i["value"] for i in result["output"]["intents"][0]["intent"]
-                    ]:
+                    _LOGGER.info(matcher)
+                    if (
+                        matcher["watson_intent"]
+                        in result["output"]["intents"][0]["intent"]
+                    ):
                         message.watson = result
+
                         for key, entity in result["output"]["intents"][0].items():
                             if key != "intent":
-                                await message.update_entity(key, entity["confidence"])
+                                await message.update_entity(key, entity, None)
+
                         matched_skills.append(
                             {
                                 "score": confidence,
@@ -85,4 +91,5 @@ async def parse_watson(opsdroid, skills, message, config):
                                 "message": message,
                             }
                         )
+
     return matched_skills

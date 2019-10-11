@@ -183,6 +183,18 @@ def match_sapcai(intent):
     return matcher
 
 
+def match_watson(intent):
+    """Return watson intent match decorator."""
+
+    def matcher(func):
+        """Add decorated function to skills list for watson matching."""
+        func = add_skill_attributes(func)
+        func.matchers.append({"watson_intent": intent})
+        return func
+
+    return matcher
+
+
 def match_witai(intent):
     """Return witai intent match decorator."""
 
