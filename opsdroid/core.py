@@ -107,7 +107,8 @@ class OpsDroid:
 
     def exit(self):
         """Exit application."""
-        _LOGGER.info(_("Exiting application with return code %s"), str(self.sys_status))
+        _LOGGER.info(_("Exiting application with return code %s"),
+                     str(self.sys_status))
         sys.exit(self.sys_status)
 
     def critical(self, error, code):
@@ -305,9 +306,9 @@ class OpsDroid:
         for connector_module in connectors:
             for _, cls in connector_module["module"].__dict__.items():
                 if (
-                    isinstance(cls, type)
-                    and issubclass(cls, Connector)
-                    and cls is not Connector
+                    isinstance(cls, type) and
+                    issubclass(cls, Connector) and
+                    cls is not Connector
                 ):
                     connector = cls(connector_module["config"], self)
                     self.connectors.append(connector)
@@ -362,9 +363,9 @@ class OpsDroid:
         for database_module in databases:
             for name, cls in database_module["module"].__dict__.items():
                 if (
-                    isinstance(cls, type)
-                    and issubclass(cls, Database)
-                    and cls is not Database
+                    isinstance(cls, type) and
+                    issubclass(cls, Database) and
+                    cls is not Database
                 ):
                     _LOGGER.debug(_("Adding database: %s"), name)
                     database = cls(database_module["config"])
