@@ -2,25 +2,33 @@
 
 **Quick Links:**
 
-- [Config file](#config-file)
-- [Reference](#reference)
-  - [Connector Modules](#connector-modules)
-  - [Database Modules](#database-modules)
-  - [Logging](#logging)
-  - [Installation Path](#installation-path)
-  - [Parsers](#parsers)
-  - [Skills](#skills)
-  - [Time Zone](#time-zone)
-  - [Language](#language)
-  - [Web Server](#web-server)
-- [Module Options](#module-options)
-  - [Install Location](#install-location)
-  - [Git Repository](#git-repository)
-  - [Local Directory](#local-directory)
-  - [Disable Caching](#disable-caching)
-  - [Disable dependency install](#disable-dependency-install)
-- [Environment Variables](#environment-variables)
-- [Include Additional Yaml Files](#include-additional-yaml-files)
+- [Configuration reference](#configuration-reference)
+  - [Config file](#config-file)
+  - [Reference](#reference)
+    - [Connector Modules](#connector-modules)
+    - [Database Modules](#database-modules)
+    - [Welcome-message](#welcome-message)
+    - [Logging](#logging)
+      - [Optional logging arguments](#optional-logging-arguments)
+        - [extended mode](#extended-mode)
+        - [Whitelist log names](#whitelist-log-names)
+        - [Blacklist log names](#blacklist-log-names)
+        - [Using both whitelist and blacklist filter](#using-both-whitelist-and-blacklist-filter)
+    - [Installation Path](#installation-path)
+    - [Parsers](#parsers)
+    - [Skills](#skills)
+    - [Time Zone](#time-zone)
+    - [Language](#language)
+    - [Web Server](#web-server)
+  - [Module options](#module-options)
+    - [Install Location](#install-location)
+      - [Git Repository](#git-repository)
+      - [Local Directory](#local-directory)
+      - [GitHub Gist](#github-gist)
+    - [Disable Caching](#disable-caching)
+    - [Disable dependency install](#disable-dependency-install)
+  - [Environment variables](#environment-variables)
+  - [Include additional yaml files](#include-additional-yaml-files)
 
 ## Config file
 
@@ -96,8 +104,10 @@ The built-in connectors are:
 
 - [Facebook](connectors/facebook.md)
 - [GitHub](connectors/github.md)
+- [Gitter](connectors/gitter.md)
 - [Matrix](connectors/matrix.md)
 - [Rocket.Chat](connectors/rocketchat.md)
+- [Shell](connectors/shell.md)
 - [Slack](connectors/slack.md)
 - [Telegram](connectors/telegram.md)
 - [Websockets](connectors/websocket.md)
@@ -147,6 +157,7 @@ Skills can store data in opsdroid's "memory", this is a dictionary which can be 
 The built-in databases are:
 
 - [Mongo DB](databases/mongo.md)
+- [Redis](databases/redis.md)
 - [SQLite](databases/sqlite.md)
 
 _Config options of the databases themselves differ between databases, see the database documentation for details._

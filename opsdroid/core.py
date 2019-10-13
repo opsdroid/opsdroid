@@ -424,22 +424,7 @@ class OpsDroid:
             _LOGGER.debug(_("Processing parsers..."))
             parsers = self.config["parsers"] or []
 
-            dialogflow = [
-                p for p in parsers if p["name"] == "dialogflow" or p["name"] == "apiai"
-            ]
-
-            # Show deprecation message but  parse message
-            # Once it stops working remove this bit
-            apiai = [p for p in parsers if p["name"] == "apiai"]
-            if apiai:
-                _LOGGER.warning(
-                    _(
-                        "Api.ai is now called Dialogflow. This "
-                        "parser will stop working in the future "
-                        "please swap: 'name: apiai' for "
-                        "'name: dialogflow' in configuration.yaml"
-                    )
-                )
+            dialogflow = [p for p in parsers if p["name"] == "dialogflow"]
 
             if len(dialogflow) == 1 and (
                 "enabled" not in dialogflow[0] or dialogflow[0]["enabled"] is not False
@@ -460,7 +445,7 @@ class OpsDroid:
             if len(sapcai) == 1 and (
                 "enabled" not in sapcai[0] or sapcai[0]["enabled"] is not False
             ):
-                _LOGGER.debug(_("Checking Recast.AI..."))
+                _LOGGER.debug(_("Checking SAPCAI..."))
                 ranked_skills += await parse_sapcai(self, skills, message, sapcai[0])
 
             witai = [p for p in parsers if p["name"] == "witai"]

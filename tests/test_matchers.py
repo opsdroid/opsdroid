@@ -39,28 +39,6 @@ class TestMatchers(asynctest.TestCase):
             )
             self.assertTrue(asyncio.iscoroutinefunction(opsdroid.skills[0]))
 
-    async def test_match_apiai(self):
-        with OpsDroid() as opsdroid:
-            action = "myaction"
-            decorator = matchers.match_apiai_action(action)
-            opsdroid.skills.append(decorator(await self.getMockSkill()))
-            self.assertEqual(len(opsdroid.skills), 1)
-            self.assertEqual(
-                opsdroid.skills[0].matchers[0]["dialogflow_action"], action
-            )
-            self.assertTrue(asyncio.iscoroutinefunction(opsdroid.skills[0]))
-            intent = "myIntent"
-            decorator = matchers.match_apiai_intent(intent)
-            opsdroid.skills.append(decorator(await self.getMockSkill()))
-            self.assertEqual(len(opsdroid.skills), 2)
-            self.assertEqual(
-                opsdroid.skills[1].matchers[0]["dialogflow_intent"], intent
-            )
-            self.assertTrue(asyncio.iscoroutinefunction(opsdroid.skills[1]))
-            decorator = matchers.match_apiai_intent(intent)
-            opsdroid.skills.append(decorator(await self.getMockSkill()))
-            self.assertLogs("_LOGGER", "warning")
-
     async def test_match_dialogflow(self):
         with OpsDroid() as opsdroid:
             action = "myaction"
