@@ -27,10 +27,10 @@
 <p align="center">
   <a href="#chatops">ChatOps</a> •
   <a href="#why-use-opsdroid">Why use opsdroid?</a> •
-  <a href="#quickstart">Quick Start</a> •
+  <a href="#quick-start">Quick Start</a> •
   <a href="#installation-guide">Installation Guide</a> •
   <a href="#usage">Usage</a> •
-  <a href="#contributors">Contributors</a> •
+  <a href="#contributing">Contributors</a> •
   <a href="#backers">Backers</a> •
   <a href="#sponsors">Sponsors</a>
 </p>
@@ -40,7 +40,7 @@
 An open source chatbot framework written in Python. It is designed to be extendable, scalable and simple.
 
 
-This application is designed to take messages from chat services and execute Python functions (skills) based on their contents. Those functions can be anything you like, from simple conversational responses to running complex tasks. The true power of this project is to act as a glue library to bring the multitude of natural language APIs, chat services and third-party APIs together.
+This application is designed to take messages from chat services and execute Python functions (skills) based on their contents. Those functions can be anything you like, from simple conversational responses to running complex tasks. The true purpose of this project is to act as a glue library to bring the multitude of natural language APIs, chat services and third party APIs together.
 
 Help support opsdroid in one click by pressing [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Check%20out%20opsdroid,%20an%20awesome%20open%20source%20chatbot%20framework%20written%20in%20Python.&url=https://opsdroid.github.io/&via=opsdroid&hashtags=chatbots,chatops,devops,automation,opensource)
 
@@ -48,8 +48,7 @@ Help support opsdroid in one click by pressing [![Tweet](https://img.shields.io/
 
 _"ChatOps is an operational paradigm where work that is already happening in the background today is brought into a common chatroom. By doing this, you are unifying the communication about what work should get done with actual history of the work being done."_ - [StackStorm](https://docs.stackstorm.com/chatops/chatops.html)
 
-In this new frontier of DevOps, it is becoming more and more popular to interact with your automation tools via an instant messenger. Opsdroid is a framework to make creating and extending your ChatOps workflows powerful but simple.
-
+In this new frontier of DevOps, it is becoming more and more popular to interact with your automation tools via an instant messenger. Opsdroid is a framework to make, create and extend your ChatOps workflows to become powerful yet simple.
 ## Why use opsdroid?
 
  * It's open source
@@ -61,7 +60,7 @@ In this new frontier of DevOps, it is becoming more and more popular to interact
  * Can connect to multiple chat services simultaneously
  * No coding necessary if using the official modules
 
-## Quickstart
+## Quick Start
 
 ```bash
 $ pip3 install opsdroid
