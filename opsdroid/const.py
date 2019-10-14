@@ -39,5 +39,5 @@ WITAI_API_ENDPOINT = "https://api.wit.ai/message?"
 
 SAPCAI_API_ENDPOINT = "https://api.cai.tools.sap/v2/request"
 
-WATSON_API_ENDPOINT = ".watsonplatform.net/assistant/api"
+WATSON_API_ENDPOINT = "https://{gateway}.watsonplatform.net/assistant/api"
 WATSON_API_VERSION = "2019-02-28"

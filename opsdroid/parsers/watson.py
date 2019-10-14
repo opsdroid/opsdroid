@@ -14,9 +14,7 @@ _LOGGER = logging.getLogger(__name__)
 
 async def get_session_id(service, config):
     """Authenticate and get session id from watson."""
-    service.set_service_url(
-        "https://{}{}".format(config["gateway"], WATSON_API_ENDPOINT)
-    )
+    service.set_service_url(WATSON_API_ENDPOINT.format(gateway=config["gateway"]))
     response = service.create_session(assistant_id=config["assistant-id"]).get_result()
 
     config["session-id"] = response["session_id"]
@@ -35,7 +33,7 @@ async def call_watson(message, config):
         input={"message_type": "text", "text": message.text},
     ).get_result()
 
-    _LOGGER.info(_("Watson response - %s"), json.dumps(response))
+    _LOGGER.debug(_("Watson response - %s"), json.dumps(response))
 
     return response
 
