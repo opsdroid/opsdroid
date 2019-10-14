@@ -371,7 +371,7 @@ class OpsDroid:
                     self.memory.databases.append(database)
                     await database.connect()
 
-    async def run_skill(self, skill, config, event):
+    async def run_skill(self, skill, config, message):
         """Execute a skill.
 
         Attempts to run the skill parsed and provides other arguments to the skill if necessary.
@@ -380,7 +380,7 @@ class OpsDroid:
         Args:
             skill: name of the skill to be run.
             config: The configuration the skill must be loaded in.
-            event: Message/event to be parsed to the chat service.
+            message: Message to be parsed to the chat service.
 
         """
         # pylint: disable=broad-except
@@ -389,18 +389,18 @@ class OpsDroid:
         # give a response to the user, so an error response should be given.
         try:
             if len(inspect.signature(skill).parameters.keys()) > 1:
-                await skill(self, config, event)
+                await skill(self, config, message)
             else:
-                await skill(event)
+                await skill(message)
         except Exception:
             _LOGGER.exception(
                 _("Exception when running skill '%s' "), str(config["name"])
             )
-            if event:
-                await event.respond(
+            if message:
+                await message.respond(
                     events.Message(_("Whoops there has been an error"))
                 )
-                await event.respond(events.Message(_("Check the log for details")))
+                await message.respond(events.Message(_("Check the log for details")))
 
     async def get_ranked_skills(self, skills, message):
         """Take a message and return a ranked list of matching skills.
