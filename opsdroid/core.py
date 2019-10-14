@@ -295,7 +295,7 @@ class OpsDroid:
     async def start_connectors(self, connectors):
         """Start the connectors.
 
-        Iterates through all the connectors parsed in the argument, 
+        Iterates through all the connectors parsed in the argument,
         spawns all that can be loaded, and keeps them open (listening).
 
         Args:
@@ -349,7 +349,7 @@ class OpsDroid:
     async def start_databases(self, databases):
         """Start the databases.
 
-        Iterates through all the database modules parsed 
+        Iterates through all the database modules parsed
         in the argument, connects and starts them.
 
         Args:
