@@ -1,6 +1,6 @@
 # opsdroid connector Matrix
 
-A connector for [opsdroid](https://github.com/opsdroid/opsdroid) to receive and respond to messages in [Matrix](https://matrix.org/) rooms. 
+A connector for [opsdroid](https://github.com/opsdroid/opsdroid) to receive and respond to messages in [Matrix](https://matrix.org/) rooms.
 
 Maintained by [@SolarDrew](https://github.com/SolarDrew).
 
@@ -16,13 +16,11 @@ connectors:
     # Required
     mxid: "@username:matrix.org"
     password: "mypassword"
-    # Name of a single room to connect to
-    room: "#matrix:matrix.org"
-    # Alternatively, a dictionary of multiple rooms
-    # One of these should be named 'main'
+    # a dictionary of rooms to connect to, at least one is needed
+    # # a dictionary of multiple rooms
     rooms:
-      'main': '#matrix:matrix.org'
-      'other': '#riot:matrix.org'
+      - '#matrix:matrix.org'
+      - '#riot:matrix.org'
     # Optional
     homeserver: "https://matrix.org"
     nick: "Botty McBotface"  # The nick will be set on startup

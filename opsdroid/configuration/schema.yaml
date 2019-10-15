@@ -68,18 +68,13 @@ github:
 ---
 matrix:
   name: regex('^(?i)matrix$')
-  mxid: regex('^\@[a-zA-Z]*:matrix.org$')
+  mxid: str()
   password: str()
-  room: str()
-  rooms: (include('room1'))
-  homeserver: regex('^https://matrix.org$')
+  rooms: list(str(), required=True)
+  homeserver: str()
   nick: str(required=False)
   room_specific_nicks: bool(required=False)
   send_m_notice: bool(required=False)
----
-room1:
-  'main': regex('^#matrix:matrix.org')
-  'other': regex('^#riot:matrix.org$')
 ---
 slack:
   name: regex('^(?i)slack$')
