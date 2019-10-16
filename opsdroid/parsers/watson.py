@@ -42,6 +42,45 @@ async def parse_watson(opsdroid, skills, message, config):
     matched_skills = []
     try:
         result = await call_watson(message, config)
+
+        if not result["output"]["intents"]:
+            _LOGGER.error(_("Watson - No intent found. Did you forget to create one?"))
+            return matched_skills
+
+        try:
+            confidence = result["output"]["intents"][0]["confidence"]
+        except KeyError:
+            confidence = 0.0
+
+        if "min-score" in config and confidence < config["min-score"]:
+            _LOGGER.info(_("Watson score lower than min-score"))
+            return matched_skills
+
+        if result:
+            for skill in skills:
+                for matcher in skill.matchers:
+
+                    if "watson_intent" in matcher:
+                        _LOGGER.info(matcher)
+                        if (
+                            matcher["watson_intent"]
+                            in result["output"]["intents"][0]["intent"]
+                        ):
+                            message.watson = result
+
+                            for key, entity in result["output"]["intents"][0].items():
+                                if key != "intent":
+                                    await message.update_entity(key, entity, None)
+
+                            matched_skills.append(
+                                {
+                                    "score": confidence,
+                                    "skill": skill,
+                                    "config": skill.config,
+                                    "message": message,
+                                }
+                            )
+
     except KeyError as error:
         _LOGGER.error(
             _("Error: %s . You are probably missing some configuration parameter."),
@@ -49,44 +88,5 @@ async def parse_watson(opsdroid, skills, message, config):
         )
     except ApiException as ex:
         _LOGGER.error(_("Watson Api error - %d:%s"), ex.code, ex.message)
-
-    if not result["output"]["intents"]:
-        _LOGGER.error(_("Watson - No intent found. Did you forget to create one?"))
-        return matched_skills
-
-    try:
-        confidence = result["output"]["intents"][0]["confidence"]
-    except KeyError:
-        confidence = 0.0
-
-    if "min-score" in config and confidence < config["min-score"]:
-        _LOGGER.info(_("Watson score lower than min-score"))
-        return matched_skills
-
-    if result:
-
-        for skill in skills:
-            for matcher in skill.matchers:
-
-                if "watson_intent" in matcher:
-                    _LOGGER.info(matcher)
-                    if (
-                        matcher["watson_intent"]
-                        in result["output"]["intents"][0]["intent"]
-                    ):
-                        message.watson = result
-
-                        for key, entity in result["output"]["intents"][0].items():
-                            if key != "intent":
-                                await message.update_entity(key, entity, None)
-
-                        matched_skills.append(
-                            {
-                                "score": confidence,
-                                "skill": skill,
-                                "config": skill.config,
-                                "message": message,
-                            }
-                        )
 
     return matched_skills
