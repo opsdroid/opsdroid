@@ -31,8 +31,10 @@ class ConnectorMatrix(Connector):
 
         self.name = "ConnectorMatrix"  # The name of your connector
         self.rooms = config.get("rooms", None)
+        if not self.rooms:
+            self.rooms = {"main": config["room"]}
         self.room_ids = {}
-        self.default_target = self.rooms[0]
+        self.default_target = self.rooms["main"]
         self.mxid = config["mxid"]
         self.nick = config.get("nick", None)
         self.homeserver = config.get("homeserver", "https://matrix.org")
@@ -82,9 +84,9 @@ class ConnectorMatrix(Connector):
         mapi.token = login_response["access_token"]
         mapi.sync_token = None
 
-        for room in self.rooms:
+        for roomname, room in self.rooms.items():
             response = await mapi.join_room(room)
-            self.room_ids[room] = response["room_id"]
+            self.room_ids[roomname] = response["room_id"]
         self.connection = mapi
 
         # Create a filter now, saves time on each later sync

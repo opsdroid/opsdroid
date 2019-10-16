@@ -70,11 +70,16 @@ matrix:
   name: regex('^(?i)matrix$')
   mxid: str()
   password: str()
-  rooms: list(str(), required=True)
+  room: str(required=False)
+  rooms: (include('room1'))
   homeserver: str()
   nick: str(required=False)
   room_specific_nicks: bool(required=False)
   send_m_notice: bool(required=False)
+---
+room1:
+  'main': str()
+  'other': str()
 ---
 slack:
   name: regex('^(?i)slack$')
