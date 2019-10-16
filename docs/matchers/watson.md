@@ -4,8 +4,8 @@
 
 ## Configuring opsdroid
 
-In order to enable Watson skills, you must specify an `access-token`, an `assistant-id` and a `gateway` for your bot in the parsers section of the opsdroid configuration file.
-You can find this information inside your Assistant Settings under the `API Details`. Note that depending where your bot is located the gateway will be different, just use this. For example: `gateway-fra`.
+To enable Watson skills, you must specify an `access-token`, an `assistant-id` and a `gateway` for your bot in the parsers section of the opsdroid configuration file.
+You can find this information inside your Assistant Settings under the `API Details`. Note that depending on where your bot is located the gateway will be different, just use this. For example: `gateway-fra`.
 
 You can also set a `min-score` option to tell opsdroid to ignore any matches which score less than a given number between 0 and 1. The default for this is 0 which will match all messages.
 
@@ -21,7 +21,7 @@ parsers:
 
 ### Localization
 
-If you want to use Watson on a different language you will have to create different intents and entities to handle the languages that you wish to support.
+If you want to use Watson in a different language you will have to create different intents and entities to handle the languages that you wish to support.
 
 ## Using the parser with a skill
 
@@ -40,16 +40,11 @@ class MySkill(Skill):
     @match_watson('Customer_Care_Appointments')
     async def book_slot(self, message):
         """Book an appointment"""
-        reply = message.watson['output']['generic'][0]['text']
         booking_date = message.watson['output']['entities'][0]['value']
         booking_time = message.watson['output']['entities'][1]['value']
 
-        _LOGGER.info(reply)
-
         await message.respond("Done! Booked you for {} at {}".format(booking_date, booking_time))
 ```
-
-_Note: In this example we are getting a reply from the bot just to show you how you can get that reply into an opsdroid reply - Watson's reply is actually this: `Let me confirm: You want an appointment for <date> at <time>. Is this correct?`_
 
 The above skill would be called on any intent which has a name of `'Customer_Care_Appointment'`.
 
@@ -90,6 +85,51 @@ This is the JSON response that opsdroid will get from this text:
         "value": "11:00:00", 
         "confidence": 1, 
         "metadata": {"calendar_type": "GREGORIAN", "timezone": "GMT"}}]}}
+```
+
+### [Example 2](#example2)
+
+```python
+from opsdroid.skill import Skill
+from opsdroid.matchers import match_watson
+
+
+class MySkill(Skill):
+    @match_watson('Customer_Care_Appointments')
+    async def book_slot(self, message):
+        """Book an appointment"""
+        reply = message.watson['output']['generic'][0]['text']
+
+
+        await message.respond(reply)
+```
+
+_Note: This example uses the default intent `Customer_Care_Store_Hours` from the `Customer Care Sample Skill` pack to get opening hours of a store._
+
+#### Usage example
+
+> user: What time do you open?
+>
+> opsdroid: Our hours are Monday to Friday 10am to 8pm and Friday and Saturday 11am to 6pm.
+
+This is the JSON response that opsdroid will get from this text:
+
+```json
+{
+  "output": {
+    "generic": [
+      {
+        "response_type": "text", 
+        "text": "Our hours are Monday to Friday 10am to 8pm and Friday and Saturday 11am to 6pm."
+      }
+    ], 
+    "intents": [
+      {
+        "intent": "Customer_Care_Store_Hours", 
+        "confidence": 0.972700834274292
+      }
+    ], 
+    "entities": []}}
 ```
 
 ## Creating a Watson App
