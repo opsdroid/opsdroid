@@ -5,12 +5,12 @@ WORKDIR /usr/src/app
 
 # Copy source
 COPY opsdroid opsdroid
-COPY setup.cfg setup.cfg
-COPY README.md README.md
-COPY MANIFEST.in MANIFEST.in
-COPY requirements.txt requirements.txt
 COPY setup.py setup.py
 COPY versioneer.py versioneer.py
+COPY setup.cfg setup.cfg
+COPY requirements.txt requirements.txt
+COPY README.md README.md
+COPY MANIFEST.in MANIFEST.in
 
 RUN apk update \
 && apk add --no-cache gcc musl-dev git openssh-client \
