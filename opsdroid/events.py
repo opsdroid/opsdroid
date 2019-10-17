@@ -92,6 +92,7 @@ class Event(metaclass=EventMetaClass):
                 was sent.
         connector: Connector object used to interact with given chat service
         raw_event: Raw event provided by chat service
+        raw_parses: Dictionary mapping of the response created by parsers
         responded_to: Boolean initialized as False. True if event has been
             responded to
         entities: Dictionary mapping of entities created by parsers
@@ -115,6 +116,7 @@ class Event(metaclass=EventMetaClass):
         self.created = datetime.now()
         self.event_id = event_id
         self.raw_event = raw_event
+        self.raw_parses = {}
         self.responded_to = False
         self.entities = {}
 
@@ -186,6 +188,7 @@ class Message(Event):
         connector: Connector object used to interact with given chat service
         text: Text of message as string
         raw_event: Raw message provided by chat service
+        raw_parses: Raw response provided by the parser service
         raw_match: A match object for a search against which the message was
             matched. E.g. a regular expression or natural language intent
         responded_to: Boolean initialized as False. True if event has been

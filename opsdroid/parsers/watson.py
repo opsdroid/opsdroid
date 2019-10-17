@@ -127,7 +127,7 @@ async def parse_watson(opsdroid, skills, message, config):
                             matcher["watson_intent"]
                             in result["output"]["intents"][0]["intent"]
                         ):
-                            message.watson = result
+                            message.raw_parses["watson"] = result
 
                             entities = await get_all_entities(
                                 result["output"]["entities"]
