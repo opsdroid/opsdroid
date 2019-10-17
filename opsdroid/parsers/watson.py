@@ -1,6 +1,5 @@
 """A helper function for parsing and executing IBM watson skills."""
 import logging
-import json
 
 from ibm_watson import AssistantV2
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
@@ -32,7 +31,7 @@ async def call_watson(message, config):
         input={"message_type": "text", "text": message.text},
     ).get_result()
 
-    _LOGGER.debug(_("Watson response - %s"), json.dumps(response))
+    _LOGGER.debug(_("Watson response - %s"), response)
 
     return response
 
