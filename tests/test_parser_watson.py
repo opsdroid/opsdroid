@@ -32,6 +32,51 @@ class TestParserWatson(asynctest.TestCase):
         mockedskill.config = {}
         return mockedskill
 
+    async def test_get_all_entities(self):
+        entities = [
+            {
+                "entity": "sys-number",
+                "location": [24, 26],
+                "value": "18",
+                "confidence": 1,
+            },
+            {
+                "entity": "sys-date",
+                "location": [24, 32],
+                "value": "2019-10-18",
+                "confidence": 1,
+            },
+            {
+                "entity": "sys-number",
+                "location": [27, 29],
+                "value": "10",
+                "confidence": 1,
+            },
+            {
+                "entity": "sys-number",
+                "location": [30, 32],
+                "value": "19",
+                "confidence": 1,
+            },
+            {
+                "entity": "sys-time",
+                "location": [33, 39],
+                "value": "15:00:00",
+                "confidence": 1,
+            },
+        ]
+
+        entities_dict = await watson.get_all_entities(entities)
+
+        self.assertEqual(
+            entities_dict,
+            {
+                "sys-number": ["18", "10", "19"],
+                "sys-date": ["2019-10-18"],
+                "sys-time": ["15:00:00"],
+            },
+        )
+
     async def test_get_session_id(self):
         config = {
             "name": "watson",
