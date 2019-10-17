@@ -10,8 +10,38 @@ from opsdroid.const import WATSON_API_ENDPOINT, WATSON_API_VERSION
 _LOGGER = logging.getLogger(__name__)
 
 
+async def get_all_entities(entities):
+    """Get all entities on the same dict.
+
+    Watson API will return a list containing dictionaries for each,
+    entity found. On large numbers of entities it becomes hard to get
+    what we want, this function is meant to be an helper function to get
+    all the entities into a concise dictionary containing {<string>:<list>}
+
+    Return:
+        Dictionary containing entities name and list of values.
+
+    """
+    entities_dict = dict()
+    for entity in entities:
+        name = entity["entity"]
+        val = entity["value"]
+
+        entities_dict.setdefault(name, []).append(val)
+    return entities_dict
+
+
 async def get_session_id(service, config):
-    """Authenticate and get session id from watson."""
+    """Authenticate and get session id from watson.
+
+    Watson API expects you to get the session id first before using
+    the API. So far it seems that each request made through the API has
+    to have its own session id.
+
+    This helper function makes it easier to get the id and inject it into
+    the configuration.
+
+    """
     service.set_service_url(WATSON_API_ENDPOINT.format(gateway=config["gateway"]))
     response = service.create_session(assistant_id=config["assistant-id"]).get_result()
 
@@ -19,7 +49,18 @@ async def get_session_id(service, config):
 
 
 async def call_watson(message, config):
-    """Call the IBM Watson api and return the response."""
+    """Call the IBM Watson api and return the response.
+
+    Main function used to call Watson API by using the official
+    watson dependency for python.  We use get_result() to get the
+    response on a dict format - without this the response is of type
+    'ibm_cloud_sdk_core.detailed_response.DetailedResponse' and will
+    show everything from the request including headers.
+
+    Return:
+        A dict containing the API response
+
+    """
     authenticator = IAMAuthenticator(config["access-token"])
     service = AssistantV2(version=WATSON_API_VERSION, authenticator=authenticator)
 
@@ -37,7 +78,29 @@ async def call_watson(message, config):
 
 
 async def parse_watson(opsdroid, skills, message, config):
-    """Parse a message against all IBM Watson skills."""
+    """Parse a message against all IBM Watson skills.
+
+    Since the official watson dependency throws their own exceptions,
+    we are using a try/excerpt and check if ApiException is thrown.
+    This exception contains a code, a message and info (contains
+    additional info about the error, but we are not using it at the
+    moment).
+
+    Since we need a few things to be present on the configuration file,
+    we also check if all the needed keys are in the configuration otherwise
+    we will log an error.
+
+    Args:
+        opsdroid (OpsDroid): An instance of opsdroid.core.
+        skills (list): A list containing all skills available.
+        message(object): An instance of events.message.
+        config (dict): configuration settings from the
+            file config.yaml.
+
+    Return:
+        Either empty list or a list containing all matched skills.
+
+    """
     matched_skills = []
     try:
         result = await call_watson(message, config)
@@ -60,16 +123,21 @@ async def parse_watson(opsdroid, skills, message, config):
                 for matcher in skill.matchers:
 
                     if "watson_intent" in matcher:
-                        _LOGGER.info(matcher)
                         if (
                             matcher["watson_intent"]
                             in result["output"]["intents"][0]["intent"]
                         ):
                             message.watson = result
 
-                            for key, entity in result["output"]["intents"][0].items():
-                                if key != "intent":
-                                    await message.update_entity(key, entity, None)
+                            entities = await get_all_entities(
+                                result["output"]["entities"]
+                            )
+                            for key, value in entities.items():
+                                await message.update_entity(
+                                    key,
+                                    value,
+                                    result["output"]["intents"][0]["confidence"],
+                                )
 
                             matched_skills.append(
                                 {
