@@ -95,7 +95,7 @@ Black will be triggered when you commit changes with the command `git commit`. Y
 
 *Example of issues with linting*
 
-Let's imagine that you have added your files to stating and did `git commit -m 'my awesome feature` , then black will run on your terminal and show you something like this:
+Let's imagine that you have added your files to stating and did `git commit -m 'my awesome feature`, then black will run on your terminal and show you something like this:
 
 ```bash
 lint run-test-pre: PYTHONHASHSEED='4023478313'
@@ -135,7 +135,7 @@ More documentation is always appreciated and it's something that you can contrib
 Things that we need help with:
 
  - More documentation. Something that you think is unclear?
- - More examples on how to use opsdroid
+ - More examples of how to use opsdroid
  - More Tutorials
  - Typos/Grammar check
  - Blog posts, articles, etc
