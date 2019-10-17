@@ -40,8 +40,8 @@ class MySkill(Skill):
     @match_watson('Customer_Care_Appointments')
     async def book_slot(self, message):
         """Book an appointment"""
-        booking_date = message.watson['output']['entities'][0]['value']
-        booking_time = message.watson['output']['entities'][1]['value']
+        booking_date = message.entities['sys-date']['value'][0]
+        booking_time = message.entities['sys-time']['value'][0]
 
         await message.respond("Done! Booked you for {} at {}".format(booking_date, booking_time))
 ```
