@@ -80,6 +80,8 @@ class Event(metaclass=EventMetaClass):
                                          given chat service
         raw_event (dict, optional): Raw message as provided by chat service.
                                     None by default
+        raw_parses (dict, optional): Raw response as provided by parse service.
+                            None by default
         event_id (object, optional): The unique id for this event as provided
                                      by the connector.
         linked_event (Event, optional): An event to link to this one, i.e. the
@@ -105,6 +107,7 @@ class Event(metaclass=EventMetaClass):
         target=None,
         connector=None,
         raw_event=None,
+        raw_parser=None,
         event_id=None,
         linked_event=None,
     ):  # noqa: D107
@@ -116,9 +119,19 @@ class Event(metaclass=EventMetaClass):
         self.created = datetime.now()
         self.event_id = event_id
         self.raw_event = raw_event
-        self.raw_parses = {}
+        self.raw_parser = raw_parser or {}
         self.responded_to = False
         self.entities = {}
+
+    @property
+    def raw_parses(self):
+        """Helper gets raw_parser."""
+        return self.raw_parser
+
+    @raw_parses.setter
+    def raw_parses(self, val):
+        """Helper sets raw_parser."""
+        self.raw_parser = val
 
     async def respond(self, event):
         """Respond to this event with another event.
@@ -180,6 +193,8 @@ class Message(Event):
                                          given chat service
         raw_event (dict, optional): Raw message as provided by chat service.
                                     None by default
+        raw_parses (dict, optional): Raw response as provided by parse service.
+                    None by default
 
     Attributes:
         created: Local date and time that message object was created
