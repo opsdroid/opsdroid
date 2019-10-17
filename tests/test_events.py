@@ -35,16 +35,6 @@ class TestEvent(asynctest.TestCase):
         self.assertEqual(event.user, "user")
         self.assertEqual(event.target, "default")
 
-    async def test_event_raw_parses(self):
-        opsdroid = amock.CoroutineMock()
-        mock_connector = Connector({}, opsdroid=opsdroid)
-        event = events.Event("user", "default", mock_connector)
-        event.raw_parses["test"] = {"hello": "world"}
-
-        self.assertEqual(event.raw_parses, {"test": {"hello": "world"}})
-        self.assertEqual(event.raw_parses["test"], event.raw_parser["test"])
-        self.assertIn("test", event.raw_parser)
-
     def test_unique_subclasses(self):
         with self.assertRaises(NameError):
 

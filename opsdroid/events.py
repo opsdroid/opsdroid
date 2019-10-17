@@ -107,7 +107,7 @@ class Event(metaclass=EventMetaClass):
         target=None,
         connector=None,
         raw_event=None,
-        raw_parser=None,
+        raw_parses=None,
         event_id=None,
         linked_event=None,
     ):  # noqa: D107
@@ -119,19 +119,9 @@ class Event(metaclass=EventMetaClass):
         self.created = datetime.now()
         self.event_id = event_id
         self.raw_event = raw_event
-        self.raw_parser = raw_parser or {}
+        self.raw_parses = raw_parses or {}
         self.responded_to = False
         self.entities = {}
-
-    @property
-    def raw_parses(self):
-        """Helper gets raw_parser."""
-        return self.raw_parser
-
-    @raw_parses.setter
-    def raw_parses(self, val):
-        """Helper sets raw_parser."""
-        self.raw_parser = val
 
     async def respond(self, event):
         """Respond to this event with another event.
