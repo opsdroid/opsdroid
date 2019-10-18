@@ -79,7 +79,6 @@ matrix:
 ---
 room1:
   'main': str()
-  'other': str()
 ---
 slack:
   name: regex('^(?i)slack$')

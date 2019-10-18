@@ -16,10 +16,8 @@ connectors:
     # Required
     mxid: "@username:matrix.org"
     password: "mypassword"
-    # Name of a single room to connect to
-    room: "#matrix:matrix.org"
-    # Alternatively, a dictionary of multiple rooms
-    # One of these should be named 'main'
+    # A dictionary of rooms to connect to
+    # One of these have to be named 'main'
     rooms:
       'main': '#matrix:matrix.org'
       'other': '#riot:matrix.org'
