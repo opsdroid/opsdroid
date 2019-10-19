@@ -2,7 +2,7 @@
 
 In opsdroid we follow [NEP 29](https://numpy.org/neps/nep-0029-deprecation_policy.html) to decide which versions of Python to support at any given time.
 
-NEP29 states that we should support any Python version released in the previous 42 months. This effectively covers the previous two releases of Python (the release cycle is 18 months) and include an additional six months to account for any fluctuations and spin up for the community in new releases.
+NEP29 states that we should support any Python version released in the previous 42 months. This effectively covers the previous two releases of Python (the release cycle is 18 months) and includes an additional six months to account for any fluctuations in release dates. It gives the community time to adopt new releases.
 
 In addition to this we will also endeavour to support new minor versions of Python within 6 months of their release.
 
