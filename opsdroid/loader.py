@@ -321,9 +321,9 @@ class Loader:
         """
 
         try:
-            yaml_loader = yaml.CSafeLoader
+            cls.yaml_loader = yaml.CSafeLoader
         except AttributeError:
-            yaml_loader = yaml.SafeLoader
+            cls.yaml_loader = yaml.SafeLoader
 
         config_path = ""
         for possible_path in config_paths:
