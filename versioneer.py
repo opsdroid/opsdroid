@@ -19,7 +19,6 @@ the embedded version string" step from your release process. Making a new
 release should be as easy as recording a new tag in your version-control
 system, and maybe making new tarballs.
 
-
 ## Quick Install
 
 * `pip install versioneer` to somewhere to your $PATH
