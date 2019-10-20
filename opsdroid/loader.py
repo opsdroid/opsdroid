@@ -43,11 +43,6 @@ _LOGGER = logging.getLogger(__name__)
 class Loader:
     """Class to load in config and modules."""
 
-    try:
-        yaml_loader = yaml.CSafeLoader
-    except AttributeError:
-        yaml_loader = yaml.SafeLoader
-
     def __init__(self, opsdroid):
         """Create object with opsdroid instance."""
         self.opsdroid = opsdroid
@@ -324,6 +319,12 @@ class Loader:
             dict: Dict containing config fields
 
         """
+
+        try:
+            cls.yaml_loader = yaml.CSafeLoader
+        except AttributeError:
+            cls.yaml_loader = yaml.SafeLoader
+
         config_path = ""
         for possible_path in config_paths:
             if not os.path.isfile(possible_path):
