@@ -48,6 +48,7 @@ class MatrixEventCreator:
         """Send a Message event."""
         return events.Message(
             text=event["content"]["body"],
+            user_id=event["sender"],
             user=await self.connector.get_nick(roomid, event["sender"]),
             target=roomid,
             connector=self.connector,
@@ -60,6 +61,7 @@ class MatrixEventCreator:
         return dict(
             url=url,
             name=event["content"]["body"],
+            user_id=event["sender"],
             user=await self.connector.get_nick(roomid, event["sender"]),
             target=roomid,
             connector=self.connector,

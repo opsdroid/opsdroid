@@ -97,6 +97,7 @@ class RocketChat(Connector):
         if response["messages"]:
             message = Message(
                 text=response["messages"][0]["msg"],
+                user_id=response["messages"][0]["u"]["_id"],
                 user=response["messages"][0]["u"]["username"],
                 target=response["messages"][0]["rid"],
                 connector=self,

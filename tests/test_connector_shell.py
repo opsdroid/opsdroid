@@ -153,7 +153,7 @@ class TestConnectorShellAsync(asynctest.TestCase):
 
     async def test_respond(self):
         message = Message(
-            text="Hi", user="opsdroid", user_id="test_id" room="test", connector=self.connector
+            text="Hi", user="opsdroid", room="test", connector=self.connector
         )
         self.connector.prompt_length = 1
 
