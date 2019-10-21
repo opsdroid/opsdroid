@@ -21,7 +21,7 @@ class ConnectorTelegram(Connector):
                 file config.yaml.
 
         """
-        _LOGGER.debug(_("Loaded telegram connector"))
+        _LOGGER.debug(_("Loaded Telegram Connector"))
         super().__init__(config, opsdroid=opsdroid)
         self.name = "telegram"
         self.opsdroid = opsdroid
@@ -123,7 +123,7 @@ class ConnectorTelegram(Connector):
         call to Telegram and evaluates the status of the call.
 
         """
-        _LOGGER.debug(_("Connecting to telegram"))
+        _LOGGER.debug(_("Connecting to Telegram"))
         self.session = aiohttp.ClientSession()
         resp = await self.session.get(self.build_url("getMe"))
 
@@ -133,7 +133,7 @@ class ConnectorTelegram(Connector):
         else:
             json = await resp.json()
             _LOGGER.debug(json)
-            _LOGGER.debug(_("Connected to telegram as %s"), json["result"]["username"])
+            _LOGGER.debug(_("Connected to Telegram as %s"), json["result"]["username"])
 
     async def _parse_message(self, response):
         """Handle logic to parse a received message.
