@@ -262,7 +262,7 @@ class Loader:
             _LOGGER.debug(
                 _(
                     "Couldn't find the command 'pip3', "
-                    "install of %s will be skipped."
+                    "install of %s will be skipped"
                 ),
                 str(requirements_path),
             )
@@ -328,7 +328,7 @@ class Loader:
         config_path = ""
         for possible_path in config_paths:
             if not os.path.isfile(possible_path):
-                _LOGGER.debug(_("Config file %s not found."), possible_path)
+                _LOGGER.debug(_("Config file %s not found"), possible_path)
             else:
                 config_path = possible_path
                 break
