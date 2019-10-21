@@ -26,6 +26,8 @@ The base `Event` class has the following attributes and methods:
 
 * `raw_event`: The raw event received by the connector (may be `None`).
 
+* `raw_parses`: The raw response provided by the parser service.
+
 * `responded_to`: A boolean (True/False) flag indicating if this event has already had its `respond` method called.
 
 * `entities`: A dictionary mapping of entities created by parsers. These could be values extracted form sentences like locations, times, people, etc.
