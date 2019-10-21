@@ -48,7 +48,7 @@ class Loader:
         self.opsdroid = opsdroid
         self.modules_directory = None
         self.current_import_config = None
-        _LOGGER.debug(_("Loaded loader"))
+        _LOGGER.debug(_("Loaded loader."))
 
     @staticmethod
     def import_module_from_spec(module_spec):
@@ -87,7 +87,7 @@ class Loader:
 
         if config.get("entrypoint"):
             _LOGGER.debug(
-                _("Loading entry point-defined module for %s"), config["name"]
+                _("Loading entry point-defined module for %s."), config["name"]
             )
             return config["entrypoint"].load()
 
@@ -107,10 +107,10 @@ class Loader:
 
         if module_spec:
             module = Loader.import_module_from_spec(module_spec)
-            _LOGGER.debug(_("Loaded %s: %s"), config["type"], config["module_path"])
+            _LOGGER.debug(_("Loaded %s: %s."), config["type"], config["module_path"])
             return module
 
-        _LOGGER.error(_("Failed to load %s: %s"), config["type"], config["module_path"])
+        _LOGGER.error(_("Failed to load %s: %s."), config["type"], config["module_path"])
         return None
 
     @staticmethod
@@ -122,7 +122,7 @@ class Loader:
 
         """
         if "no-cache" in config and config["no-cache"]:
-            _LOGGER.debug(_("'no-cache' set, removing %s"), config["install_path"])
+            _LOGGER.debug(_("'no-cache' set, removing %s."), config["install_path"])
             if os.path.isdir(config["install_path"]):
                 shutil.rmtree(config["install_path"])
             if os.path.isfile(config["install_path"] + ".py"):
@@ -249,7 +249,7 @@ class Loader:
             _LOGGER.debug(
                 _(
                     "Couldn't find the command 'pip', "
-                    "trying again with command 'pip3'"
+                    "trying again with command 'pip3'."
                 )
             )
 
@@ -475,7 +475,7 @@ class Loader:
         entry_points = {ep.name: ep for ep in iter_entry_points(group=epname)}
         for epname in entry_points:
             _LOGGER.debug(
-                _("Found installed package for %s '%s' support"), modules_type, epname
+                _("Found installed package for %s '%s' support."), modules_type, epname
             )
 
         for module in modules:
@@ -550,7 +550,7 @@ class Loader:
 
         if self._is_module_installed(config):
             _LOGGER.debug(
-                _("Installed %s to %s"), config["name"], config["install_path"]
+                _("Installed %s to %s."), config["name"], config["install_path"]
             )
         else:
             _LOGGER.error(_("Install of %s failed."), config["name"])
@@ -638,7 +638,7 @@ class Loader:
             self.git_clone(git_url, config["install_path"], config["branch"], key_path)
         else:
             if os.path.isdir(git_url):
-                _LOGGER.debug(_("Cloning %s from local repository"), config["name"])
+                _LOGGER.debug(_("Cloning %s from local repository."), config["name"])
                 self.git_clone(git_url, config["install_path"], config["branch"])
             else:
                 _LOGGER.error(_("Could not find local git repo %s"), git_url)
