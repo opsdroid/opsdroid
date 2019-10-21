@@ -126,6 +126,4 @@ async def parse_dialogflow(opsdroid, skills, message, config):
 
     except Exception as error:
         # TODO: Refactor broad exception
-        _LOGGER.error(
-            _("There was an error while parsing to dialogflow - {}".format(error))
-        )
+        _LOGGER.error(_("There was an error while parsing to dialogflow - %s"), error)
