@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: opsdroid 0.11.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-10-21 15:34+0100\n"
+"POT-Creation-Date: 2019-10-21 16:27+0100\n"
 "PO-Revision-Date: 2018-01-28 16:05+0100\n"
 "Last-Translator: FabioRosado <fabiorosado@outlook.com>\n"
 "Language: pt\n"
@@ -158,68 +158,70 @@ msgstr "A interpretar: %s"
 #: opsdroid/helper.py:78
 #, python-format
 msgid "File %s copied from %s to %s run opsdroid -e to edit the main config file"
-msgstr "O ficheiro %s foi copiado de %s para %s. Usa o comando opsdroid -e para editar o ficheiro de configuração"
+msgstr ""
+"O ficheiro %s foi copiado de %s para %s. Usa o comando opsdroid -e para "
+"editar o ficheiro de configuração"
 
-#: opsdroid/loader.py:56
+#: opsdroid/loader.py:51
 #, fuzzy
-msgid "Loaded loader."
+msgid "Loaded loader"
 msgstr "Loader carregado"
 
-#: opsdroid/loader.py:95
+#: opsdroid/loader.py:90
 #, python-format
 msgid "Loading entry point-defined module for %s"
 msgstr "A carregar o ponto de entrada para o módulo %s "
 
-#: opsdroid/loader.py:115
+#: opsdroid/loader.py:110
 #, python-format
 msgid "Loaded %s: %s"
 msgstr "'%s: %s' carregado com sucesso"
 
-#: opsdroid/loader.py:118
+#: opsdroid/loader.py:113
 #, python-format
 msgid "Failed to load %s: %s"
 msgstr "Carregamento de %s falhou: %s"
 
-#: opsdroid/loader.py:130
+#: opsdroid/loader.py:125
 #, python-format
 msgid "'no-cache' set, removing %s"
 msgstr "Parâmetro 'no-cache' definido, a remover %s"
 
-#: opsdroid/loader.py:255
+#: opsdroid/loader.py:250
 msgid "Couldn't find the command 'pip', trying again with command 'pip3'"
 msgstr ""
 "Não foi possivel encontrar o comando 'pip', a tentar novamente com o "
 "comando 'pip3'"
 
-#: opsdroid/loader.py:268
+#: opsdroid/loader.py:263
 #, python-format
 msgid "Couldn't find the command 'pip3', install of %s will be skipped."
 msgstr "Não foi encontrar o comando 'pip3', a instalação de %s será ignorada."
 
-#: opsdroid/loader.py:276
+#: opsdroid/loader.py:271
 msgid "Pip and pip3 not found, exiting..."
 msgstr "Os comandos pip e pip3 não foram encontrados. A sair da aplicação..."
 
-#: opsdroid/loader.py:330
+#: opsdroid/loader.py:331
 #, python-format
 msgid "Config file %s not found."
 msgstr "Ficheiro de configuração %s não foi encontrado."
 
-#: opsdroid/loader.py:340
+#: opsdroid/loader.py:341
 #, fuzzy, python-format
 msgid "No configuration files found. Creating %s"
 msgstr "Nenhum ficheiro de configuração encontrado. criando %s"
 
-#: opsdroid/loader.py:366
+#: opsdroid/loader.py:367
 #, python-format
 msgid "Loaded config from %s."
 msgstr "Configuração carregada de %s."
 
-#: opsdroid/loader.py:417
+#: opsdroid/loader.py:418
 msgid "Loading modules from config..."
 msgstr "A carregar módulos da configuração.... "
 
-#: opsdroid/loader.py:427
+#: opsdroid/loader.py:428
 #, fuzzy
 msgid ""
 "No databases in configuration.This will cause skills which store things "
@@ -228,76 +230,78 @@ msgstr ""
 "Não há bases de dados na configuração. Isso causará habilidades que "
 "armazenam dados em memória sejam perdidos quando o opsdroid é reiniciado."
 
-#: opsdroid/loader.py:440
+#: opsdroid/loader.py:441
 msgid "No skills in configuration, at least 1 required"
 msgstr ""
 "Não existem habilidades especificadas na configuração, pelo menos uma é "
 "necessária"
 
-#: opsdroid/loader.py:447
+#: opsdroid/loader.py:448
 msgid "No connectors in configuration, at least 1 required"
 msgstr ""
 "Não existem conectores especificados na configuração, pelo menos um é "
 "necessário"
 
-#: opsdroid/loader.py:464
+#: opsdroid/loader.py:465
 #, python-format
 msgid "Loading %s modules..."
 msgstr "A carregar módulos - %s"
 
-#: opsdroid/loader.py:477
+#: opsdroid/loader.py:478
 #, python-format
 msgid "Found installed package for %s '%s' support"
 msgstr "Pacote de supporte para %s '%s' encontrado"
 
-#: opsdroid/loader.py:530
+#: opsdroid/loader.py:531
 #, python-format
 msgid "Module %s failed to import."
 msgstr "O carregamento do módulo %s falhou."
 
-#: opsdroid/loader.py:541
+#: opsdroid/loader.py:542
 #, python-format
 msgid "Installing %s..."
 msgstr "A instalar %s..."
 
-#: opsdroid/loader.py:552
+#: opsdroid/loader.py:553
 #, python-format
 msgid "Installed %s to %s"
 msgstr "%s instalado em %s"
 
-#: opsdroid/loader.py:555
+#: opsdroid/loader.py:556
 #, python-format
 msgid "Install of %s failed."
 msgstr "A instalação de %s falhou."
 
-#: opsdroid/loader.py:567
+#: opsdroid/loader.py:568
 #, python-format
 msgid "Updating %s..."
 msgstr "A actualizar %s..."
 
-#: opsdroid/loader.py:570
+#: opsdroid/loader.py:571
 msgid "Local modules are not updated, skipping."
 msgstr "Módulos locais não são actualizados, a ignorar."
 
-#: opsdroid/loader.py:603
+#: opsdroid/loader.py:604
 msgid "'no-dep' set in configuration, skipping the install of dependencies."
-msgstr "Parametro 'no-dep' encontrado na configuração, nenhuma dependência será instalada. "
+msgstr ""
+"Parametro 'no-dep' encontrado na configuração, nenhuma dependência será "
+"instalada. "
 
-#: opsdroid/loader.py:616
+#: opsdroid/loader.py:617
 msgid "Couldn't find the file requirements.txt, skipping."
 msgstr "Não foi possível encontrar o ficheiro 'requirements.txt'"
 
-#: opsdroid/loader.py:635
+#: opsdroid/loader.py:636
 #, python-format
 msgid "Cloning %s from remote repository"
 msgstr "A clonar %s pelo repositório remoto"
 
-#: opsdroid/loader.py:640
+#: opsdroid/loader.py:641
 #, python-format
 msgid "Cloning %s from local repository"
 msgstr "A clonar %s pelo repositório local"
 
-#: opsdroid/loader.py:643
+#: opsdroid/loader.py:644
 #, python-format
 msgid "Could not find local git repo %s"
 msgstr "Não foi possivel encontrar repositorio git %s"
@@ -306,8 +310,10 @@ msgstr "Não foi possivel encontrar repositorio git %s"
 msgid ""
 "Both whitelist and blacklist filters found in configuration. Only one can"
 " be used at a time - only the whitelist filter will be used."
-msgstr "Ambos filtros 'whitelist' e 'backlist' encontrados na configuracao. Apenas um"
-" pode ser usado. O filtro 'whitelist' vai ser usado por definição"
+msgstr ""
+"Ambos filtros 'whitelist' e 'backlist' encontrados na configuracao. "
+"Apenas um pode ser usado. O filtro 'whitelist' vai ser usado por "
+"definição"
 
 #: opsdroid/logging.py:119
 #, python-format
@@ -398,7 +404,9 @@ msgstr "Não foi possível responder ao facebook"
 
 #: opsdroid/connector/github/__init__.py:26
 msgid "Missing auth token!You must set 'token' in your config"
-msgstr "Falta o token de autenticação! Tens que definir 'token' na configuração do conector"
+msgstr ""
+"Falta o token de autenticação! Tens que definir 'token' na configuração "
+"do conector"
 
 #: opsdroid/connector/github/__init__.py:38
 #, python-format
@@ -480,8 +488,9 @@ msgstr "Servidor desconectado, tentando enviar novamente."
 msgid ""
 "Unable to login: Access token is missing. Rocket.Chat connector will not "
 "be available."
-msgstr "Não foi possível fazer o login: o token de acesso não está definido. O conector "
-"Rocket.Chat não irá estar disponivel."
+msgstr ""
+"Não foi possível fazer o login: o token de acesso não está definido. O "
+"conector Rocket.Chat não irá estar disponivel."
 
 #: opsdroid/connector/rocketchat/__init__.py:80
 msgid "Connecting to Rocket.Chat"
@@ -560,7 +569,9 @@ msgstr "Connectado com sucesso"
 msgid ""
 "Unable to connect to Slack due to %s - The Slack Connector will not be "
 "available."
-msgstr "Não foi possível conectar-se ao Slack devido a %s - o conector para Slack não estará disponível"
+msgstr ""
+"Não foi possível conectar-se ao Slack devido a %s - o conector para Slack"
+" não estará disponível"
 
 #: opsdroid/connector/slack/__init__.py:102
 msgid "Looking up sender username"
@@ -591,15 +602,17 @@ msgid "Slack does not support the emoji %s"
 msgstr "O Slack não suporta o emoji %s"
 
 #: opsdroid/connector/telegram/__init__.py:24
-msgid "Loaded telegram connector"
+#, fuzzy
+msgid "Loaded Telegram Connector"
 msgstr "Conector para telegram carregado"
 
 #: opsdroid/connector/telegram/__init__.py:42
 msgid ""
 "Unable to login: Access token is missing. Telegram connector will be "
 "unavailable."
-msgstr "Não foi possível fazer o login: o token de acesso não está presente na configuração. "
-"O conector de telegrama estará indisponível."
+msgstr ""
+"Não foi possível fazer o login: o token de acesso não está presente na "
+"configuração. O conector de telegrama estará indisponível."
 
 #: opsdroid/connector/telegram/__init__.py:110
 msgid "Sending deleteWebhook request to Telegram..."
@@ -614,7 +627,8 @@ msgid "Unable to delete webhook."
 msgstr "Não foi possível  apagar o webhook."
 
 #: opsdroid/connector/telegram/__init__.py:126
-msgid "Connecting to telegram"
+#, fuzzy
+msgid "Connecting to Telegram"
 msgstr "A conectar ao telegram."
 
 #: opsdroid/connector/telegram/__init__.py:131
@@ -629,8 +643,8 @@ msgid "Telegram error %s, %s"
 msgstr "Erro do Telegram %s, %s"
 
 #: opsdroid/connector/telegram/__init__.py:136
-#, python-format
-msgid "Connected to telegram as %s"
+#, fuzzy, python-format
+msgid "Connected to Telegram as %s"
 msgstr "Conectado ao Telegram como %s"
 
 #: opsdroid/connector/telegram/__init__.py:162
@@ -649,8 +663,9 @@ msgstr "Não foi possível analisar a mensagem."
 msgid ""
 "Can't get updates because previous webhook is still active. Will try to "
 "delete webhook."
-msgstr "Não é possível obter atualizações porque o webhook anterior ainda está ativo. "
-"Vamos tentar apagar o webhook."
+msgstr ""
+"Não é possível obter atualizações porque o webhook anterior ainda está "
+"ativo. Vamos tentar apagar o webhook."
 
 #: opsdroid/connector/telegram/__init__.py:297
 #, python-format
@@ -718,7 +733,9 @@ msgstr "Conectado com a base de dados redis %s no endereço %s na porta %s"
 #: opsdroid/database/redis/__init__.py:61
 #, python-format
 msgid "Unable to connect to redis database on address: %s port: %s"
-msgstr "Não foi possível conectar a base de dados redis no endereço: %s e porta: %s"
+msgstr ""
+"Não foi possível conectar a base de dados redis no endereço: %s e porta: "
+"%s"
 
 #: opsdroid/database/redis/__init__.py:75
 #, fuzzy, python-format
@@ -737,7 +754,7 @@ msgstr "Base de dados sqlite carregada"
 #: opsdroid/database/sqlite/__init__.py:68
 #, python-format
 msgid "Connected to sqlite %s"
-msgstr "Conectado a base de dados sqlite"
+msgstr "Conectado a base de dados sqlite %s"
 
 #: opsdroid/database/sqlite/__init__.py:82
 #, fuzzy, python-format
@@ -758,15 +775,18 @@ msgstr "A executar habilidades de crontab %s "
 msgid ""
 "Authentication file not found or 'project-id' not in configuration, "
 "dialogflow parser will not be available"
-msgstr "Arquivo de autenticação não encontrado ou 'id do projeto' não está na configuração, "
-"dialogflow não estará disponível"
+msgstr ""
+"Arquivo de autenticação não encontrado ou 'id do projeto' não está na "
+"configuração, dialogflow não estará disponível"
 
 #: opsdroid/parsers/dialogflow.py:60
 msgid ""
 "Unable to find dialogflow dependency. Please install dialogflow with the "
 "command pip install dialogflow if you want to use this parser."
-msgstr "Não foi possível encontrar a dependência para dialogflow. Instale a dependencia com o "
-"comando pip install dialogflow se quizeres usar este analisador."
+msgstr ""
+"Não foi possível encontrar a dependência para dialogflow. Instale a "
+"dependencia com o comando pip install dialogflow se quizeres usar este "
+"analisador."
 
 #: opsdroid/parsers/dialogflow.py:97
 #, fuzzy
@@ -779,8 +799,9 @@ msgid "Matched against skill %s"
 msgstr "Comparado com a habilidade %s"
 
 #: opsdroid/parsers/dialogflow.py:130
-msgid "There was an error while parsing to dialogflow - {}"
-msgstr "Houve um erro ao analisar para o dialogflow - {}"
+#, fuzzy, python-format
+msgid "There was an error while parsing to dialogflow - %s"
+msgstr "Houve um erro ao analisar para o dialogflow - %s"
 
 #: opsdroid/parsers/luisai.py:32
 #, python-format
@@ -892,7 +913,8 @@ msgstr "Erro do analisador SAP Conversational AI - %s"
 #: opsdroid/parsers/sapcai.py:51
 #, fuzzy, python-format
 msgid "SAP Conversational AI error - No intent found for the message %s"
-msgstr "Erro do analisador SAP Conversational AI - Nenhuma intenção encontrada para a mensagem %s"
+msgstr "Erro do analisador SAP Conversational AI - Nenhuma intenção encontrada "
+"para a mensagem %s"
 
 #: opsdroid/parsers/sapcai.py:63
 #, fuzzy
