@@ -26,6 +26,7 @@ from opsdroid.parsers.dialogflow import parse_dialogflow
 from opsdroid.parsers.luisai import parse_luisai
 from opsdroid.parsers.sapcai import parse_sapcai
 from opsdroid.parsers.witai import parse_witai
+from opsdroid.parsers.watson import parse_watson
 from opsdroid.parsers.rasanlu import parse_rasanlu, train_rasanlu
 from opsdroid.parsers.crontab import parse_crontab
 
@@ -90,7 +91,12 @@ class OpsDroid:
 
     @property
     def default_connector(self):
-        """Return the default connector."""
+        """Return the default connector.
+
+        Returns:
+            default_connector (connector object): A connector that was configured as default.
+
+        """
         default_connector = None
         for connector in self.connectors:
             if "default" in connector.config and connector.config["default"]:
@@ -106,14 +112,25 @@ class OpsDroid:
         sys.exit(self.sys_status)
 
     def critical(self, error, code):
-        """Exit due to unrecoverable error."""
+        """Exit due to unrecoverable error.
+
+        Args:
+            error (String): Describes the error encountered.
+            code (Integer): Error code to exit with.
+
+        """
         self.sys_status = code
         _LOGGER.critical(error)
         self.exit()
 
     @staticmethod
     def handle_async_exception(loop, context):
-        """Handle exceptions from async coroutines."""
+        """Handle exceptions from async coroutines.
+
+        Args:
+            context (String): Describes the exception encountered.
+
+        """
         print("ERROR: Unhandled exception in opsdroid, exiting...")
         if "future" in context:
             try:  # pragma: nocover
@@ -262,7 +279,12 @@ class OpsDroid:
                 skill["module"].setup(self, self.config)
 
     async def train_parsers(self, skills):
-        """Train the parsers."""
+        """Train the parsers.
+
+        Args:
+            skills (list): A list of all the loaded skills.
+
+        """
         if "parsers" in self.config:
             parsers = self.config["parsers"] or []
             rasanlu = [p for p in parsers if p["name"] == "rasanlu"]
@@ -272,7 +294,15 @@ class OpsDroid:
                 await train_rasanlu(rasanlu[0], skills)
 
     async def start_connectors(self, connectors):
-        """Start the connectors."""
+        """Start the connectors.
+
+        Iterates through all the connectors parsed in the argument,
+        spawns all that can be loaded, and keeps them open (listening).
+
+        Args:
+            connectors (list): A list of all the connectors to be loaded.
+
+        """
         for connector_module in connectors:
             for _, cls in connector_module["module"].__dict__.items():
                 if (
@@ -296,7 +326,12 @@ class OpsDroid:
     # pylint: disable=W0640
     @property
     def _connector_names(self):  # noqa: D401
-        """Mapping of names to connector instances."""
+        """Mapping of names to connector instances.
+
+        Returns:
+            names (list): A list of the names of connectors that are running.
+
+        """
         if not self.connectors:
             raise ValueError("No connectors have been started")
 
@@ -313,7 +348,15 @@ class OpsDroid:
         return names
 
     async def start_databases(self, databases):
-        """Start the databases."""
+        """Start the databases.
+
+        Iterates through all the database modules parsed
+        in the argument, connects and starts them.
+
+        Args:
+            databases (list): A list of all database modules to be started.
+
+        """
         if not databases:
             _LOGGER.debug(databases)
             _LOGGER.warning(_("All databases failed to load"))
@@ -329,29 +372,46 @@ class OpsDroid:
                     self.memory.databases.append(database)
                     await database.connect()
 
-    async def run_skill(self, skill, config, message):
-        """Execute a skill."""
+    async def run_skill(self, skill, config, event):
+        """Execute a skill.
+
+        Attempts to run the skill parsed and provides other arguments to the skill if necessary.
+        Also handles the exception encountered if th e
+
+        Args:
+            skill: name of the skill to be run.
+            config: The configuration the skill must be loaded in.
+            event: Message/event to be parsed to the chat service.
+
+        """
         # pylint: disable=broad-except
         # We want to catch all exceptions coming from a skill module and not
         # halt the application. If a skill throws an exception it just doesn't
         # give a response to the user, so an error response should be given.
         try:
             if len(inspect.signature(skill).parameters.keys()) > 1:
-                await skill(self, config, message)
+                await skill(self, config, event)
             else:
-                await skill(message)
+                await skill(event)
         except Exception:
             _LOGGER.exception(
                 _("Exception when running skill '%s' "), str(config["name"])
             )
-            if message:
-                await message.respond(
-                    events.Message(_("Whoops there has been an error"))
-                )
-                await message.respond(events.Message(_("Check the log for details")))
+            if event:
+                await event.respond(events.Message(_("Whoops there has been an error")))
+                await event.respond(events.Message(_("Check the log for details")))
 
     async def get_ranked_skills(self, skills, message):
-        """Take a message and return a ranked list of matching skills."""
+        """Take a message and return a ranked list of matching skills.
+
+        Args:
+            skills (list): List of all available skills.
+            message (string): Context message to base the ranking of skills on.
+
+        Returns:
+            ranked_skills (list): List of all available skills sorted and ranked based on the score they muster when matched against the message parsed.
+
+        """
         ranked_skills = []
         if isinstance(message, events.Message):
             ranked_skills += await parse_regex(self, skills, message)
@@ -362,22 +422,7 @@ class OpsDroid:
             _LOGGER.debug(_("Processing parsers..."))
             parsers = self.config["parsers"] or []
 
-            dialogflow = [
-                p for p in parsers if p["name"] == "dialogflow" or p["name"] == "apiai"
-            ]
-
-            # Show deprecation message but  parse message
-            # Once it stops working remove this bit
-            apiai = [p for p in parsers if p["name"] == "apiai"]
-            if apiai:
-                _LOGGER.warning(
-                    _(
-                        "Api.ai is now called Dialogflow. This "
-                        "parser will stop working in the future "
-                        "please swap: 'name: apiai' for "
-                        "'name: dialogflow' in configuration.yaml"
-                    )
-                )
+            dialogflow = [p for p in parsers if p["name"] == "dialogflow"]
 
             if len(dialogflow) == 1 and (
                 "enabled" not in dialogflow[0] or dialogflow[0]["enabled"] is not False
@@ -391,14 +436,14 @@ class OpsDroid:
             if len(luisai) == 1 and (
                 "enabled" not in luisai[0] or luisai[0]["enabled"] is not False
             ):
-                _LOGGER.debug("Checking luisai...")
+                _LOGGER.debug(_("Checking luisai..."))
                 ranked_skills += await parse_luisai(self, skills, message, luisai[0])
 
             sapcai = [p for p in parsers if p["name"] == "sapcai"]
             if len(sapcai) == 1 and (
                 "enabled" not in sapcai[0] or sapcai[0]["enabled"] is not False
             ):
-                _LOGGER.debug(_("Checking Recast.AI..."))
+                _LOGGER.debug(_("Checking SAPCAI..."))
                 ranked_skills += await parse_sapcai(self, skills, message, sapcai[0])
 
             witai = [p for p in parsers if p["name"] == "witai"]
@@ -407,6 +452,13 @@ class OpsDroid:
             ):
                 _LOGGER.debug(_("Checking wit.ai..."))
                 ranked_skills += await parse_witai(self, skills, message, witai[0])
+
+            watson = [p for p in parsers if p["name"] == "watson"]
+            if len(watson) == 1 and (
+                "enabled" not in watson[0] or watson[0]["enabled"] is not False
+            ):
+                _LOGGER.debug(_("Checking IBM Watson..."))
+                ranked_skills += await parse_watson(self, skills, message, watson[0])
 
             rasanlu = [p for p in parsers if p["name"] == "rasanlu"]
             if len(rasanlu) == 1 and (
@@ -436,7 +488,15 @@ class OpsDroid:
         ]
 
     async def parse(self, event):
-        """Parse a string against all skills."""
+        """Parse a string against all skills.
+
+        Args:
+            event (String): The string to parsed against all available skills.
+
+        Returns:
+            tasks (list): Task that tells the skill which best matches the parsed event.
+
+        """
         self.stats["messages_parsed"] = self.stats["messages_parsed"] + 1
         tasks = []
         if isinstance(event, events.Message):

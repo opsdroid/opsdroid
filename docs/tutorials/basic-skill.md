@@ -1,6 +1,6 @@
 # Creating a Basic Skill
 
-We will create a basic skill that makes opsdroid respond to the text "how are you". This skill will be very similar to the [hello skill](docs/extending/skills/#hello-world) found in the documentation.
+We will create a basic skill that makes opsdroid respond to the text "how are you". This skill will be very similar to the [hello skill](../extending/skills.md#hello-world) found in the documentation.
 The video tutorial for creating your own skill is also available [here](https://www.youtube.com/watch?v=gk7JN4e5l_4&index=3&list=PLViQCHlMbEq5nZL6VNrUxu--Of1uCpflq).
 
 *If you need help or if you are unsure about something join our* [matrix channel](https://riot.im/app/#/room/#opsdroid-general:matrix.org) *and ask away! We are more than happy to help you.*
@@ -65,7 +65,7 @@ class MySkill(Skill):
         pass
 ```
 
-Opsdroid is build with asyncio. That means every function that you wish opsdroid to react to, should be an asynchronous function.
+Opsdroid is built with asyncio. That means every function that you wish opsdroid to react to, should be an asynchronous function.
 
 _Note: that every function will take these two parameters: `self`, `message`._
 
@@ -99,4 +99,4 @@ skills:
     path: /Users/username/documents/skill-howareyou
 ```
 
-As mentioned in the [introduction](introduction.md), the indentation and the use of spaces instead of tabs is very important. If you have any issues when running opsdroid check both of these things; it might be a problem with a space.
+As mentioned in the [introduction](introduction.md), the indentation and the use of spaces instead of tabs is very important. If you have any issues when running opsdroid check both of these things; it might be a problem with space.

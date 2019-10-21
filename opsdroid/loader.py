@@ -43,11 +43,6 @@ _LOGGER = logging.getLogger(__name__)
 class Loader:
     """Class to load in config and modules."""
 
-    try:
-        yaml_loader = yaml.CSafeLoader
-    except AttributeError:
-        yaml_loader = yaml.SafeLoader
-
     def __init__(self, opsdroid):
         """Create object with opsdroid instance."""
         self.opsdroid = opsdroid
@@ -324,6 +319,12 @@ class Loader:
             dict: Dict containing config fields
 
         """
+
+        try:
+            cls.yaml_loader = yaml.CSafeLoader
+        except AttributeError:
+            cls.yaml_loader = yaml.SafeLoader
+
         config_path = ""
         for possible_path in config_paths:
             if not os.path.isfile(possible_path):
@@ -588,6 +589,16 @@ class Loader:
         return "gist" in config
 
     def _install_module_dependencies(self, config):
+        """Install the dependencies of the module.
+
+        Args:
+            self: instance method
+            config: dict of the module config fields
+
+        Returns:
+            bool: True if installation succeeds
+
+        """
         if config.get("no-dep", False):
             _LOGGER.debug(
                 _(
@@ -603,7 +614,7 @@ class Loader:
             )
             return True
 
-        _LOGGER.debug("Couldn't find the file requirements.txt, " "skipping.")
+        _LOGGER.debug(_("Couldn't find the file requirements.txt, " "skipping."))
         return None
 
     def _install_git_module(self, config):
@@ -664,6 +675,13 @@ class Loader:
             _LOGGER.error("Failed to install from %s", str(config["path"]))
 
     def _install_gist_module(self, config):
+        """Install a module from gist path.
+
+        Args:
+            self: instance method
+            config: dict of module config fields
+
+        """
         gist_id = extract_gist_id(config["gist"])
 
         # Get the content of the gist

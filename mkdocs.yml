@@ -3,46 +3,54 @@ repo_url: https://github.com/opsdroid/opsdroid
 theme: readthedocs
 
 pages:
-  - 'Home': 'index.md'
-  - 'Configuration Reference': 'configuration-reference.md'
-  - 'REST API': 'rest-api.md'
-  - 'Tutorial':
-      - 'Introduction': 'tutorials/introduction.md'
-      - 'Create a Basic Skill': 'tutorials/basic-skill.md'
-      - 'Create a Weather Skill': 'tutorials/create-weather-skill.md'
-      - 'Introduction to Vim': 'tutorials/introduction-vim.md'
-  - 'Extending opsdroid':
-      - 'Introduction': 'extending/intro.md'
-      - 'Adding skills': 'extending/skills.md'
-      - 'Adding connectors': 'extending/connectors.md'
-      - 'Adding databases': 'extending/databases.md'
-      - 'Using Events': 'extending/events.md'
-      - 'Extension packaging': 'extending/packaging.md'
-  - 'Connectors':
-      - 'Slack': 'connectors/slack.md'
-      - 'Websocket': 'connectors/websocket.md'
-      - 'Facebook': 'connectors/facebook.md'
-      - 'GitHub': 'connectors/github.md'
-      - 'Telegram': 'connectors/telegram.md'
-      - 'Rocket.Chat': 'connectors/rocketchat.md'
-      - 'Matrix': 'connectors/matrix.md'
-      - 'Webex Teams': 'connectors/webexteams.md'
-  - 'Databases':
-      - 'MongoDB': 'databases/mongo.md'
-      - 'SQLite': 'databases/sqlite.md'
-      - 'Redis': 'databases/redis.md'
-  - 'Matchers':
-      - 'Regular Expressions': 'matchers/regex.md'
-      - 'Parse Format': 'matchers/parse_format.md'
-      - 'Rasa NLU (local)': 'matchers/rasanlu.md'
-      - 'Dialogflow (Api.ai)': 'matchers/dialogflow.md'
-      - 'LUIS.AI': 'matchers/luis.ai.md'
-      - 'Recast.AI (SAPCAI)': 'matchers/sapcai.md'
-      - 'wit.ai': 'matchers/wit.ai.md'
-      - 'Crontab': 'matchers/crontab.md'
-      - 'Webhook': 'matchers/webhook.md'
-      - 'Always': 'matchers/always.md'
-  - 'Constraints': 'constraints.md'
-  - 'Contributing': 'contributing.md'
-  - 'Releasing': 'project/making-a-release.md'
-  - 'Maintainers': 'maintainers.md'
+    - "Home": "index.md"
+    - "Configuration Reference": "configuration-reference.md"
+    - "REST API": "rest-api.md"
+    - "Tutorial":
+          - "Introduction": "tutorials/introduction.md"
+          - "Create a Basic Skill": "tutorials/basic-skill.md"
+          - "Create a Weather Skill": "tutorials/create-weather-skill.md"
+          - "Introduction to Vim": "tutorials/introduction-vim.md"
+    - "Extending opsdroid":
+          - "Introduction": "extending/intro.md"
+          - "Adding skills": "extending/skills.md"
+          - "Adding connectors": "extending/connectors.md"
+          - "Adding databases": "extending/databases.md"
+          - "Using Events": "extending/events.md"
+          - "Extension packaging": "extending/packaging.md"
+    - "Connectors":
+          - "Facebook": "connectors/facebook.md"
+          - "GitHub": "connectors/github.md"
+          - "Gitter": "connectors/gitter.md"
+          - "Matrix": "connectors/matrix.md"
+          - "Rocket.Chat": "connectors/rocketchat.md"
+          - "Shell": "connectors/shell.md"
+          - "Slack": "connectors/slack.md"
+          - "Telegram": "connectors/telegram.md"
+          - "Webex Teams": "connectors/webexteams.md"
+          - "Websocket": "connectors/websocket.md"
+    - "Databases":
+          - "MongoDB": "databases/mongo.md"
+          - "Redis": "databases/redis.md"
+          - "SQLite": "databases/sqlite.md"
+    - "Matchers":
+          - "Simple":
+                - "Parse Format": "matchers/parse_format.md"
+                - "Regular Expressions": "matchers/regex.md"
+          - "Third party NLU":
+                - "Dialogflow (Api.ai)": "matchers/dialogflow.md"
+                - "LUIS.AI": "matchers/luis.ai.md"
+                - "Rasa NLU (local)": "matchers/rasanlu.md"
+                - "Recast.AI (SAPCAI)": "matchers/sapcai.md"
+                - "wit.ai": "matchers/wit.ai.md"
+          - "Misc":
+                - "Always": "matchers/always.md"
+                - "Crontab": "matchers/crontab.md"
+                - "Event": "matchers/event.md"
+                - "Webhook": "matchers/webhook.md"
+    - "Constraints": "constraints.md"
+    - "Contributing": "contributing.md"
+    - "Project":
+          - "Supported Python Versions": "project/supported-python-versions.md"
+          - "Releasing": "project/making-a-release.md"
+          - "Maintainers Guide": "maintainers.md"

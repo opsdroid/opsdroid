@@ -66,44 +66,6 @@ def match_parse(
     return matcher
 
 
-def match_apiai_action(action):
-    """Return Dialogflow action match decorator."""
-
-    def matcher(func):
-        """Add decorated function to skills list for Dialogflow matching."""
-        func = add_skill_attributes(func)
-        func.matchers.append({"dialogflow_action": action})
-        return func
-
-    _LOGGER.warning(
-        _(
-            "Api.ai is now called Dialogflow, this matcher "
-            "will stop working in the future. "
-            "Use match_dialogflow_action instead."
-        )
-    )
-    return matcher
-
-
-def match_apiai_intent(intent):
-    """Return Dialogflow intent match decorator."""
-
-    def matcher(func):
-        """Add decorated function to skills list for Dialogflow matching."""
-        func = add_skill_attributes(func)
-        func.matchers.append({"dialogflow_intent": intent})
-        return func
-
-    _LOGGER.warning(
-        _(
-            "Api.ai is now called Dialogflow, this matcher "
-            "will stop working in the future. "
-            "Use match_dialogflow_intent instead."
-        )
-    )
-    return matcher
-
-
 def match_dialogflow_action(action):
     """Return Dialogflowi action match decorator."""
 
@@ -178,6 +140,18 @@ def match_sapcai(intent):
         """Add decorated function to skills list for SAPCAI matching."""
         func = add_skill_attributes(func)
         func.matchers.append({"sapcai_intent": intent})
+        return func
+
+    return matcher
+
+
+def match_watson(intent):
+    """Return watson intent match decorator."""
+
+    def matcher(func):
+        """Add decorated function to skills list for watson matching."""
+        func = add_skill_attributes(func)
+        func.matchers.append({"watson_intent": intent})
         return func
 
     return matcher

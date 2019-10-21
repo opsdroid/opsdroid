@@ -1,5 +1,4 @@
 import asyncio
-from unittest import mock
 
 import asynctest
 import asynctest.mock as amock

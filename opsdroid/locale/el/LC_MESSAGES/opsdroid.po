@@ -1,567 +1,569 @@
-# Portuguese translations for opsdroid.
-# Copyright (C) 2018 ORGANIZATION
+# Greek translations for opsdroid.
+# Copyright (C) 2019 ORGANIZATION
 # This file is distributed under the same license as the opsdroid project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+# FIRST AUTHOR <mip2000@protonmail.com>, 2019.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: opsdroid 0.11.2\n"
-"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-10-06 14:18+0200\n"
-"PO-Revision-Date: 2018-01-28 16:05+0100\n"
-"Last-Translator: FabioRosado <fabiorosado@outlook.com>\n"
-"Language: pt\n"
-"Language-Team: pt <LL@li.org>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"Project-Id-Version: opsdroid 0.16.0+19.gfa00705\n"
+"Report-Msgid-Bugs-To: mip2000@protonmail.com\n"
+"POT-Creation-Date: 2019-10-09 18:18+0200\n"
+"PO-Revision-Date: 2019-10-17 19:08+0300\n"
+"Language-Team: el <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.7.0\n"
+"X-Generator: Poedit 2.2.4\n"
+"Last-Translator: \n"
+"Language: el\n"
 
 #: opsdroid/core.py:105
 #, python-format
 msgid "Exiting application with return code %s"
-msgstr "A sair da aplicação com o código %s"
+msgstr "Έξοδος από την εφαρμογή με κωδικό επιστροφής %s"
 
 #: opsdroid/core.py:138
 msgid "Opsdroid is now running, press ctrl+c to exit."
-msgstr ""
+msgstr "Το opsdroid λειτουργεί, πατήστε ctrl+ c για έξοδο."
 
 #: opsdroid/core.py:149
 msgid "Bye!"
-msgstr ""
+msgstr "Αντίο!"
 
 #: opsdroid/core.py:152
 msgid "Oops! Opsdroid is already running."
-msgstr ""
+msgstr "Oops! Το opsdroid λειτουργεί ήδη."
 
 #: opsdroid/core.py:161
 #, python-format
 msgid "Loaded %i skills"
-msgstr "%i habilidades carregadas"
+msgstr "Φόρτωση %i skills"
 
 #: opsdroid/core.py:176
 msgid "Received stop signal, exiting."
-msgstr ""
+msgstr "Λήφθηκε το σήμα διακοπής, έξοδος."
 
 #: opsdroid/core.py:178
 msgid "Removing skills..."
-msgstr ""
+msgstr "Αφαίρεση skills..."
 
 #: opsdroid/core.py:180
 #, python-format
 msgid "Removed %s"
-msgstr ""
+msgstr "Αφαιρέθηκαν %s"
 
 #: opsdroid/core.py:184
 #, python-format
 msgid "Stopping connector %s..."
-msgstr ""
+msgstr "Σταμάτημα connector %s..."
 
 #: opsdroid/core.py:187
 #, python-format
 msgid "Stopped connector %s"
-msgstr ""
+msgstr "O connector %s σταμάτησε"
 
 #: opsdroid/core.py:190
-#, fuzzy, python-format
+#, python-format
 msgid "Stopping database %s..."
-msgstr "A adicionar base de dados: %s"
+msgstr "Σταμάτημα βάσης δεδομένων %s..."
 
 #: opsdroid/core.py:193
-#, fuzzy, python-format
+#, python-format
 msgid "Stopped database %s"
-msgstr "A adicionar base de dados: %s"
+msgstr "Η βάση δεδομένων %s σταμάτησε"
 
 #: opsdroid/core.py:195
 msgid "Stopping web server..."
-msgstr ""
+msgstr "Σταμάτημα web server..."
 
 #: opsdroid/core.py:198
 msgid "Stopped web server"
-msgstr ""
+msgstr "Ο web server σταμάτησε"
 
 #: opsdroid/core.py:200
 msgid "Stopping cron..."
-msgstr ""
+msgstr "Σταμάτημα cron..."
 
 #: opsdroid/core.py:203
 msgid "Stopped cron"
-msgstr ""
+msgstr "Ο cron σταμάτησε"
 
 #: opsdroid/core.py:205
 msgid "Stopping pending tasks..."
-msgstr ""
+msgstr "Σταμάτημα εκκρεμών εργασιών..."
 
 #: opsdroid/core.py:210
 msgid "Stopped pending tasks"
-msgstr ""
+msgstr "Οι εκκρεμείς εργασίες σταμάτησαν"
 
 #: opsdroid/core.py:319
 msgid "All databases failed to load"
-msgstr "Não foi possível carregar as base de dados."
+msgstr "Όλες οι βάσεις δεδομένων απέτυχαν να φορτωθούν"
 
 #: opsdroid/core.py:327
 #, python-format
 msgid "Adding database: %s"
-msgstr "A adicionar base de dados: %s"
+msgstr "Προσθήκη βάσης δεδομένων: %s"
 
 #: opsdroid/core.py:345
 #, python-format
 msgid "Exception when running skill '%s' "
-msgstr "Ocorreu uma excepção ao executar a habilidade '%s' "
+msgstr "Εξαίρεση όταν εκτελείται το skill '%s' "
 
 #: opsdroid/core.py:349
 msgid "Whoops there has been an error"
-msgstr "Whoops! Ocorreu um erro"
+msgstr "Whoops υπήρξε ένα σφάλμα"
 
 #: opsdroid/core.py:351
 msgid "Check the log for details"
-msgstr "Verifica o log para mais detalhes"
+msgstr "Ελέγξτε τα αρχεία καταγραφής για λεπτομέρειες"
 
 #: opsdroid/core.py:362
 msgid "Processing parsers..."
-msgstr "A processar interpretadores..."
+msgstr "Επεξεργασία parsers..."
 
 #: opsdroid/core.py:374
 msgid ""
-"Api.ai is now called Dialogflow. This parser will stop working in the "
-"future please swap: 'name: apiai' for 'name: dialogflow' in "
-"configuration.yaml"
+"Api.ai is now called Dialogflow. This parser will stop working in the future "
+"please swap: 'name: apiai' for 'name: dialogflow' in configuration.yaml"
 msgstr ""
-"Api.ai é agora chamada de Dialogflow. Este interpretador vai parar de "
-"funcionar no futuro. Por favor mudar 'name: apiai' por 'name:dialogflow' "
-"no ficheiro configuration.yaml"
+"Το api.ai τώρα ονομάζεται Dialogflow. Αυτό το πρόγραμμα ανάλυσης θα "
+"σταματήσει να λειτουργεί στο μέλλον παρακαλώ αλλάξτε το: 'name: apiai' σε "
+"'name: dialogflow' στο configuration.yaml"
 
 #: opsdroid/core.py:385
 msgid "Checking dialogflow..."
-msgstr "A verificar Dialogflow..."
+msgstr "Έλεγχος dialogflow..."
 
 #: opsdroid/core.py:394
-#, fuzzy
-msgid "Checking luisai..."
-msgstr "A verificar wit.ai..."
+msgid "Checking luis.ai..."
+msgstr "Έλεγχος luis.ai..."
 
 #: opsdroid/core.py:401
 msgid "Checking Recast.AI..."
-msgstr "A verificar Recast.AI..."
+msgstr "Έλεγχος Recast.AI..."
 
 #: opsdroid/core.py:408
 msgid "Checking wit.ai..."
-msgstr "A verificar wit.ai..."
+msgstr "Έλεγχος wit.ai..."
 
 #: opsdroid/core.py:415
 msgid "Checking Rasa NLU..."
-msgstr "A verificar Rasa NLU..."
+msgstr "Έλεγχος Rasa NLU..."
 
 #: opsdroid/core.py:443
 #, python-format
 msgid "Parsing input: %s"
-msgstr "A interpretar: %s"
+msgstr "Ανάλυση εισόδου: %s"
 
 #: opsdroid/helper.py:78
 #, python-format
-msgid "File %s copied from %s to %s run opsdroid -e to edit the main config file"
+msgid ""
+"File %s copied from %s to %s run opsdroid -e to edit the main config file"
 msgstr ""
+"Το αρχείο %s αντιγράφηκε από %s στο %s εκτελέστε το opsdroid -e για να "
+"επεξεργαστείτε το κύριο αρχείο config"
 
 #: opsdroid/loader.py:56
 msgid "Loaded loader"
-msgstr "Loader carregado"
+msgstr "Ο loader φορτώθηκε"
 
 #: opsdroid/loader.py:95
 #, python-format
 msgid "Loading entry point-defined module for %s"
-msgstr ""
+msgstr "Φόρτωση λειτουργικής μονάδας οριζόμενη από το σημείο εισόδου για %s"
 
 #: opsdroid/loader.py:115
 #, python-format
 msgid "Loaded %s: %s"
-msgstr "'%s: %s' carregado com sucesso"
+msgstr "Φορτώθηκε %s: %s"
 
 #: opsdroid/loader.py:118
 #, python-format
 msgid "Failed to load %s: %s"
-msgstr "Carregamento de %s falhou: %s"
+msgstr "Αποτυχία φόρτωσης %s: %s"
 
 #: opsdroid/loader.py:130
 #, python-format
 msgid "'no-cache' set, removing %s"
-msgstr "Parâmetro 'no-cache' definido, a remover %s"
+msgstr "'no-cache' ρυθμίστηκε, αφαίρεση %s"
 
 #: opsdroid/loader.py:255
 msgid "Couldn't find the command 'pip', trying again with command 'pip3'"
 msgstr ""
-"Não foi possivel encontrar o comando 'pip', a tentar novamente com o "
-"comando 'pip3'"
+"Δεν βρέθηκε η εντολή 'pip', γίνεται προσπάθεια ξανά με την εντολή 'pip3'"
 
 #: opsdroid/loader.py:268
 #, python-format
 msgid "Couldn't find the command 'pip3', install of %s will be skipped."
-msgstr "Não foi encontrar o comando 'pip3', a instalação de %s será ignorada."
+msgstr "Δεν βρέθηκε η εντολή 'pip3', η εγκατάσταση του %s θα παραλειφθεί."
 
 #: opsdroid/loader.py:276
 msgid "Pip and pip3 not found, exiting..."
-msgstr "Os comandos pip e pip3 não foram encontrados. A sair da aplicação..."
+msgstr "Τα pip και pip3 δεν βρέθηκαν, έξοδος..."
 
 #: opsdroid/loader.py:330
 #, python-format
 msgid "Config file %s not found."
-msgstr "Ficheiro de configuração %s não foi encontrado."
+msgstr "Το αρχείο config %s δεν βρέθηκε."
 
 #: opsdroid/loader.py:340
-#, fuzzy, python-format
+#, python-format
 msgid "No configuration files found. Creating %s"
-msgstr "Nenhum ficheiro de configuração encontrado. criando %s"
+msgstr "Δεν βρέθηκαν αρχεία ρύθμισης παραμέτρων. Δημιουργία %s"
 
 #: opsdroid/loader.py:366
 #, python-format
 msgid "Loaded config from %s."
-msgstr "Configuração carregada de %s."
+msgstr "Φορώθηκε το config από το %s."
 
 #: opsdroid/loader.py:417
 msgid "Loading modules from config..."
-msgstr "A carregar módulos da configuração.... "
+msgstr "Φόρτωση modules από το config..."
 
 #: opsdroid/loader.py:427
-#, fuzzy
 msgid ""
-"No databases in configuration.This will cause skills which store things "
-"in memory to lose data when opsdroid is restarted."
+"No databases in configuration.This will cause skills which store things in "
+"memory to lose data when opsdroid is restarted."
 msgstr ""
-"Não há bases de dados na configuração. Isso causará habilidades que "
-"armazenam dados em memória sejam perdidos quando o opsdroid é reiniciado."
+"Δεν υπάρχουν βάσεις δεδομένων στη ρύθμιση παραμέτρων. Αυτό θα προκαλέσει  "
+"skills που αποθηκεύουν πράγματα στη μνήμη να χάσουν δεδομένα κατά την "
+"επανεκκίνηση  του opsdroid."
 
 #: opsdroid/loader.py:440
 msgid "No skills in configuration, at least 1 required"
-msgstr ""
-"Não existem habilidades especificadas na configuração, pelo menos uma é "
-"necessária"
+msgstr "Δεν υπάρχουν skills στη ρύθμιση παραμέτρων, απαιτείται τουλάχιστον 1"
 
 #: opsdroid/loader.py:447
 msgid "No connectors in configuration, at least 1 required"
 msgstr ""
-"Não existem conectores especificados na configuração, pelo menos um é "
-"necessário"
+"Δεν υπάρχουν συνδέσεις στη ρύθμιση παραμέτρων, απαιτείται τουλάχιστον 1"
 
 #: opsdroid/loader.py:464
 #, python-format
 msgid "Loading %s modules..."
-msgstr "A carregar módulos - %s"
+msgstr "Φόρτωση μονάδων %s..."
 
 #: opsdroid/loader.py:477
 #, python-format
 msgid "Found installed package for %s '%s' support"
-msgstr ""
+msgstr "Εντοπίστηκε εγκατεστημένο πακέτο για την υποστήριξη %s ' %s '"
 
 #: opsdroid/loader.py:530
 #, python-format
 msgid "Module %s failed to import."
-msgstr "O carregamento do módulo %s falhou."
+msgstr "Απέτυχε να γίνει εισαγωγή του module %s."
 
 #: opsdroid/loader.py:541
 #, python-format
 msgid "Installing %s..."
-msgstr "A instalar %s..."
+msgstr "Εγκατάσταση %s..."
 
 #: opsdroid/loader.py:552
 #, python-format
 msgid "Installed %s to %s"
-msgstr "%s instalado em %s"
+msgstr "Εγκαταστάθηκε το %s στο %s"
 
 #: opsdroid/loader.py:555
 #, python-format
 msgid "Install of %s failed."
-msgstr "A instalação de %s falhou."
+msgstr "Η εγκατάσταση του %s απέτυχε."
 
 #: opsdroid/loader.py:567
 #, python-format
 msgid "Updating %s..."
-msgstr "A actualizar %s..."
+msgstr "Ενημέρωση %s..."
 
 #: opsdroid/loader.py:570
 msgid "Local modules are not updated, skipping."
-msgstr "Módulos locais não são actualizados, a ignorar."
+msgstr "Τα τοπικά modules δεν ενημερώθηκαν, παράληψη."
 
 #: opsdroid/loader.py:593
 msgid "'no-dep' set in configuration, skipping the install of dependencies."
 msgstr ""
+"' no-dep ' έχει οριστεί στη ρύθμιση παραμέτρων, παρακάμπτοντας την "
+"εγκατάσταση εξαρτήσεων."
 
 #: opsdroid/loader.py:606
 msgid "Couldn't find the file requirements.txt, skipping."
-msgstr ""
+msgstr "Δεν βρέθηκε το αρχείο requirements.txt, παράλειψη."
 
 #: opsdroid/loader.py:625
 #, python-format
 msgid "Cloning %s from remote repository"
-msgstr "A clonar %s pelo repositório remoto"
+msgstr "Κλωνοποίηση %s από απομακρυσμένο repository"
 
 #: opsdroid/loader.py:630
 #, python-format
 msgid "Cloning %s from local repository"
-msgstr "A clonar %s pelo repositório local"
+msgstr "Κλωνοποίηση %s από τοπικό repository"
 
 #: opsdroid/loader.py:633
 #, python-format
 msgid "Could not find local git repo %s"
-msgstr "Não foi possivel encontrar repositorio git %s"
+msgstr "Δεν βρέθηκε τοπικό git repo %s"
 
 #: opsdroid/logging.py:25
 msgid ""
-"Both whitelist and blacklist filters found in configuration. Only one can"
-" be used at a time - only the whitelist filter will be used."
+"Both whitelist and blacklist filters found in configuration. Only one can be "
+"used at a time - only the whitelist filter will be used."
 msgstr ""
+"Και τα δύο φίλτρα whitelist και blacklist βρέθηκαν στη διαμόρφωση. Μόνο ένα "
+"μπορεί να χρησιμοποιηθεί -μόνο το φίλτρο whitelist θα χρησιμοποιηθεί."
 
 #: opsdroid/logging.py:119
 #, python-format
 msgid "Started opsdroid %s"
-msgstr "Opsdroid %s iniciou"
+msgstr "Εκκίνηση opsdroid %s"
 
 #: opsdroid/matchers.py:79
 msgid ""
 "Api.ai is now called Dialogflow, this matcher will stop working in the "
 "future. Use match_dialogflow_action instead."
 msgstr ""
-"Api.ai é agora chamado Dialogflow, este matcher irá para de funcionar no "
-"futuro. Usa match_dialogflow_action no teu código"
+"Το api.ai τώρα ονομάζεται Dialogflow, αυτός ο matcher θα σταματήσει να "
+"λειτουργεί στο μέλλον. Χρησιμοποιήστε το match_dialogflow_action αντ 'αυτού."
 
 #: opsdroid/matchers.py:98
 msgid ""
 "Api.ai is now called Dialogflow, this matcher will stop working in the "
 "future. Use match_dialogflow_intent instead."
 msgstr ""
-"Api.ai é agora chamado Dialogflow, este matcher irá para de funcionar no "
-"futuro. Usa match_dialogflow_action no teu código"
+"Το api.ai τώρα ονομάζεται Dialogflow, αυτός ο matcher θα σταματήσει να "
+"λειτουργεί στο μέλλον. Χρησιμοποιήστε το match_dialogflow_intent αντ 'αυτού."
 
 #: opsdroid/matchers.py:165
-#, fuzzy
 msgid ""
 "Recast.AI is now called SAP Conversational AI, this matcher  will stop "
 "working in the future. Use match_sapcai instead."
 msgstr ""
-"Api.ai é agora chamado Dialogflow, este matcher irá para de funcionar no "
-"futuro. Usa match_dialogflow_action no teu código"
+"Το Recast.AI τώρα ονομάζεται SAP Conversational AI, αυτός ο matcher θα "
+"σταματήσει να λειτουργεί στο μέλλον. Χρησιμοποιήστε το match_sapcai αντ "
+"'αυτού."
 
 #: opsdroid/memory.py:37
 #, python-format
 msgid "Getting %s from memory."
-msgstr "A obter %s da memória."
+msgstr "Αποκτήστε το %s από την μνήμη."
 
 #: opsdroid/memory.py:56
 #, python-format
 msgid "Putting %s to memory"
-msgstr "A colocar %s na memória"
+msgstr "Τοποθέτηση του %s στη μνήμη"
 
 #: opsdroid/web.py:87
 msgid "Cannot find ssl cert or key."
-msgstr "Não foi possivel encontrar o certificado ou chave SSL"
+msgstr "Δεν βρέθηκε sll cert ή κλειδί."
 
 #: opsdroid/web.py:95
 #, python-format
 msgid "Started web server on %s://%s%s"
-msgstr ""
+msgstr "Εκκίνηση web server στο %s://%s%s"
 
 #: opsdroid/web.py:131
 #, python-format
 msgid "Running skill %s via webhook"
-msgstr ""
+msgstr "Εκτέλεση skill %s μέσω του webhook"
 
 #: opsdroid/cli/utils.py:77
 msgid "Whoops! opsdroid requires python 3.6 or above."
-msgstr "Whoops! opsdroid precisa que a tua versão de python seja 3.6 ou superior."
+msgstr "Whoops! Το opsdroid χρειάζεται python 3.6 ή παραπάνω."
 
 #: opsdroid/cli/utils.py:95
 msgid "You can customise your opsdroid by modifying your configuration.yaml"
 msgstr ""
-"Podes personalizar o teu opsdroid modificando o ficheiro "
-"configuration.yaml  "
+"Μπορείτε να προσαρμόσετε το opsdroid τροποποιώντας το configuration.yaml"
 
 #: opsdroid/cli/utils.py:101
 msgid "Read more at: http://opsdroid.readthedocs.io/#configuration"
-msgstr "Le mais: http://opsdroid.readthedocs.io/#configuration "
+msgstr ""
+"Διαβάστε περισσότερα στο: http://opsdroid.readthedocs.io/#configuration"
 
 #: opsdroid/cli/utils.py:103
 msgid "Watch the Get Started Videos at: http://bit.ly/2fnC0Fh"
-msgstr "Vê os vídeos de iniciação: http://bit.ly/2fnC0Fh"
+msgstr "Παρακολουθήστε Get Started Videos στο: http://bit.ly/2fnC0Fh"
 
 #: opsdroid/cli/utils.py:105
 msgid ""
 "Install Opsdroid Desktop at: \n"
 "https://github.com/opsdroid/opsdroid-desktop/releases"
 msgstr ""
-"Instala Opsdroid Desktop: \n"
+"Εγκαταστήστε το Opsdroid Desktop στο:\n"
 "https://github.com/opsdroid/opsdroid-desktop/releases"
 
 #: opsdroid/cli/utils.py:114
 msgid "'welcome-message: true/false' is missing in configuration.yaml"
-msgstr ""
-"Parâmetro 'welcome-message: true/false' não esta especificado no ficheiro"
-" configuration.yaml"
+msgstr "'welcome-message: true/false' λείπει από το configuration.yaml"
 
 #: opsdroid/connector/facebook/__init__.py:35
 msgid "Starting facebook connector"
-msgstr ""
+msgstr "Έναρξη σύνδεσης στο Facebook"
 
 #: opsdroid/connector/facebook/__init__.py:103
 msgid "Responding to facebook"
-msgstr ""
+msgstr "Ανταπόκριση στο Facebook"
 
 #: opsdroid/connector/facebook/__init__.py:113
 #, python-format
 msgid "Responded with: %s"
-msgstr ""
+msgstr "Απάντηση με: %s"
 
 #: opsdroid/connector/facebook/__init__.py:117
 msgid "Unable to respond to facebook"
-msgstr ""
+msgstr "Δεν είναι δυνατή η ανταπόκριση στο Facebook"
 
 #: opsdroid/connector/github/__init__.py:26
 msgid "Missing auth token!You must set 'token' in your config"
 msgstr ""
+"Λείπει το token ελέγχου ταυτότητας! Πρέπει να ορίσετε 'token' στο config σας"
 
 #: opsdroid/connector/github/__init__.py:38
 #, python-format
 msgid "Error connecting to github: %s"
-msgstr ""
+msgstr "Σφάλμα κατά τη σύνδεση στο GitHub: %s"
 
 #: opsdroid/connector/github/__init__.py:40
 msgid "Reading bot information..."
-msgstr ""
+msgstr "Ανάγνωση πληροφοριών bot..."
 
 #: opsdroid/connector/github/__init__.py:42
 msgid "Done."
-msgstr ""
+msgstr "Ολοκληρώθηκε."
 
 #: opsdroid/connector/github/__init__.py:74
 msgid "No message to respond to."
-msgstr ""
+msgstr "Δεν υπάρχει μήνυμα για να απαντήσετε."
 
 #: opsdroid/connector/github/__init__.py:90
 #, python-format
 msgid "Key %s not found in payload"
-msgstr ""
+msgstr "Το κλειδί %s δεν βρέθηκε στο payload"
 
 #: opsdroid/connector/github/__init__.py:100
 msgid "Responding via GitHub"
-msgstr ""
+msgstr "Απάντηση μέσω του GitHub"
 
 #: opsdroid/connector/github/__init__.py:107
 msgid "Message sent."
-msgstr ""
+msgstr "Μήνυμα στάλθηκε."
 
 #: opsdroid/connector/gitter/__init__.py:22
 msgid "Starting Gitter connector"
-msgstr ""
+msgstr "Έναρξη σύνδεσης στο Gitter"
 
 #: opsdroid/connector/gitter/__init__.py:37
 msgid "Connecting with gitter stream"
-msgstr ""
+msgstr "Σύνδεση με ροή gitter"
 
 #: opsdroid/connector/gitter/__init__.py:59
 msgid "Listening with gitter stream"
-msgstr ""
+msgstr "Ακρόαση με τη ροή gitter"
 
 #: opsdroid/connector/gitter/__init__.py:85
 #, python-format
 msgid "Unable to parse message %s"
-msgstr ""
+msgstr "Δεν είναι δυνατή η ανάλυση του μηνύματος %s"
 
 #: opsdroid/connector/gitter/__init__.py:101
 #: opsdroid/connector/rocketchat/__init__.py:194
 #: opsdroid/connector/telegram/__init__.py:273
 msgid "Successfully responded"
-msgstr ""
+msgstr "Επιτυχής απάντηση"
 
 #: opsdroid/connector/gitter/__init__.py:103
 #: opsdroid/connector/telegram/__init__.py:275
 msgid "Unable to respond."
-msgstr ""
+msgstr "Αδυναμία απάντησης."
 
 #: opsdroid/connector/matrix/connector.py:126
 msgid "matrix sync request returned"
-msgstr ""
+msgstr "Eπιστροφή αίτηmatowς συγχρονισμού matrix"
 
 #: opsdroid/connector/matrix/connector.py:135
 #, python-format
 msgid "Matrix Sync Timeout (code: %d)"
-msgstr ""
+msgstr "Χρονικό όριο συγχρονισμού matrix (κωδικός: %d)"
 
 #: opsdroid/connector/matrix/connector.py:138
 #: opsdroid/connector/matrix/connector.py:142
 msgid "Matrix Sync Error"
-msgstr ""
+msgstr "Σφάλμα συγχρονισμού του Matrix"
 
 #: opsdroid/connector/matrix/connector.py:212
 msgid "Server had disconnected, retrying send."
-msgstr ""
+msgstr "Ο Server έχει αποσυνδεθεί, επανάληψη αιτήματος."
 
 #: opsdroid/connector/rocketchat/__init__.py:48
 msgid ""
-"Unable to login: Access token is missing. Rocket.Chat connector will not "
-"be available."
+"Unable to login: Access token is missing. Rocket.Chat connector will not be "
+"available."
 msgstr ""
+"Δεν είναι δυνατή η σύνδεση: Λείπει token πρόσβασης. Ο σύνδεσμος Rocket.Chat "
+"δεν θα είναι διαθέσιμος."
 
 #: opsdroid/connector/rocketchat/__init__.py:80
 msgid "Connecting to Rocket.Chat"
-msgstr ""
+msgstr "Σύνδεση στο Rocket.Chat"
 
 #: opsdroid/connector/rocketchat/__init__.py:84
-#, fuzzy
 msgid "Unable to connect."
-msgstr "Não foi possivel conectar a Rasa NLU"
+msgstr "Αδυναμία σύνδεσης."
 
 #: opsdroid/connector/rocketchat/__init__.py:85
 #: opsdroid/connector/rocketchat/__init__.py:136
 #, python-format
 msgid "Rocket.Chat error %s, %s"
-msgstr ""
+msgstr "Σφάλμα του Rocket.Chat - %s %s"
 
 #: opsdroid/connector/rocketchat/__init__.py:88
 #, python-format
 msgid "Connected to Rocket.Chat as %s"
-msgstr ""
+msgstr "Συνδεδεμένο στο Rocket.Chat ως %s"
 
 #: opsdroid/connector/rocketchat/__init__.py:105
 #, python-format
 msgid "Received message from Rocket.Chat %s"
-msgstr ""
+msgstr "Λήφθηκε μήνυμα από το Rocket.Chat %s"
 
 #: opsdroid/connector/rocketchat/__init__.py:182
 #: opsdroid/connector/telegram/__init__.py:266
-#, fuzzy, python-format
+#, python-format
 msgid "Responding with: %s"
-msgstr "A interpretar: %s"
+msgstr "Απάντηση με: %s"
 
 #: opsdroid/connector/rocketchat/__init__.py:196
 #, python-format
 msgid "Error - %s: Unable to respond"
-msgstr ""
+msgstr "Σφάλμα - %s: Αδυναμία ανταπόκρισης"
 
 #: opsdroid/connector/slack/__init__.py:22
 msgid "Starting Slack connector"
-msgstr ""
+msgstr "Έναρξη συνδέσμου Slack"
 
 #: opsdroid/connector/slack/__init__.py:46
 msgid "Connecting to Slack"
-msgstr ""
+msgstr "Σύνδεση στο Slack"
 
 #: opsdroid/connector/slack/__init__.py:65
 #, python-format
 msgid "Connected as %s"
-msgstr ""
+msgstr "Συνδεδεμένο ως %s"
 
 #: opsdroid/connector/slack/__init__.py:66
-#, fuzzy, python-format
+#, python-format
 msgid "Using icon %s"
-msgstr "A interpretar: %s"
+msgstr "Χρήση εικονιδίου %s"
 
 #: opsdroid/connector/slack/__init__.py:67
 #, python-format
 msgid "Default room is %s"
-msgstr ""
+msgstr "Το προεπιλεγμένο δωμάτιο είναι %s"
 
 #: opsdroid/connector/slack/__init__.py:68
 msgid "Connected successfully"
-msgstr ""
+msgstr "Επιτυχής σύνδεση"
 
 #: opsdroid/connector/slack/__init__.py:71
 #, python-format
@@ -569,383 +571,361 @@ msgid ""
 "Unable to connect to Slack due to %s - The Slack Connector will not be "
 "available."
 msgstr ""
+"Αδυναμία σύνδεσης στο Slack εξαιτίας του %s - Ο Slack Connector δεν θα είναι "
+"διαθέσιμος."
 
 #: opsdroid/connector/slack/__init__.py:102
 msgid "Looking up sender username"
-msgstr ""
+msgstr "Αναζήτηση ονόματος χρήστη του αποστολέα"
 
 #: opsdroid/connector/slack/__init__.py:109
 msgid "Replacing userids in message with usernames"
-msgstr ""
+msgstr "Αντικατάσταση των userids σε μήνυμα με ονόματα χρήστη"
 
 #: opsdroid/connector/slack/__init__.py:126
 #, python-format
 msgid "Responding with: '%s' in room  %s"
-msgstr ""
+msgstr "Απάντηση με: '%s' στο δωμάτιο %s"
 
 #: opsdroid/connector/slack/__init__.py:143
 #, python-format
 msgid "Responding with interactive blocks in room  %s"
-msgstr ""
+msgstr "Ανταπόκριση με αλληλεπιδραστικά blocks στο δωμάτιο %s"
 
 #: opsdroid/connector/slack/__init__.py:159
-#, fuzzy, python-format
+#, python-format
 msgid "Reacting with: %s"
-msgstr "A interpretar: %s"
+msgstr "Αντίδραση με: %s"
 
 #: opsdroid/connector/slack/__init__.py:171
 #, python-format
 msgid "Slack does not support the emoji %s"
-msgstr ""
+msgstr "Το Slack δεν υποστηρίζει το emoji %s"
 
 #: opsdroid/connector/telegram/__init__.py:24
 msgid "Loaded telegram connector"
-msgstr ""
+msgstr "Φορτώθηκε ο σύνδεσμος του telegram"
 
 #: opsdroid/connector/telegram/__init__.py:42
 msgid ""
 "Unable to login: Access token is missing. Telegram connector will be "
 "unavailable."
 msgstr ""
+"Δεν είναι δυνατή η σύνδεση: Λείπει το διακριτικό πρόσβασης. Ο σύνδεσμος του "
+"Telegram δεν θα είναι διαθέσιμος."
 
 #: opsdroid/connector/telegram/__init__.py:110
 msgid "Sending deleteWebhook request to Telegram..."
-msgstr ""
+msgstr "Αποστολή εντολής deleteWebhook στο Telegram..."
 
 #: opsdroid/connector/telegram/__init__.py:114
 msgid "Telegram webhook deleted successfully."
-msgstr ""
+msgstr "Το Telegram webhook διαγράφηκε επιτυχώς."
 
 #: opsdroid/connector/telegram/__init__.py:116
 msgid "Unable to delete webhook."
-msgstr ""
+msgstr "Αδυναμία διαγραφής του webhook."
 
 #: opsdroid/connector/telegram/__init__.py:126
 msgid "Connecting to telegram"
-msgstr ""
+msgstr "Σύνδεση στο Telegram"
 
 #: opsdroid/connector/telegram/__init__.py:131
-#, fuzzy
 msgid "Unable to connect"
-msgstr "Não foi possivel conectar a Rasa NLU"
+msgstr "Αδυναμία σύνδεσης"
 
 #: opsdroid/connector/telegram/__init__.py:132
 #: opsdroid/connector/telegram/__init__.py:221
 #, python-format
 msgid "Telegram error %s, %s"
-msgstr ""
+msgstr "Σφάλμα του Telegram %s, %s"
 
 #: opsdroid/connector/telegram/__init__.py:136
 #, python-format
 msgid "Connected to telegram as %s"
-msgstr ""
+msgstr "Συνδεδεμένο στο telegram ως %s"
 
 #: opsdroid/connector/telegram/__init__.py:162
 msgid "Channel message parsing not supported - Ignoring message"
-msgstr ""
+msgstr "Δεν υποστηρίζεται η ανάλυση μηνυμάτων καναλιού - Παράβλεψη μηνύματος"
 
 #: opsdroid/connector/telegram/__init__.py:185
 msgid "Emoji message parsing not supported - Ignoring message"
-msgstr ""
+msgstr "Δεν υποστηρίζεται η ανάλυση μηνυμάτων emoji - Παράβλεψη μηνύματος"
 
 #: opsdroid/connector/telegram/__init__.py:188
 msgid "Unable to parse the message."
-msgstr ""
+msgstr "Δεν είναι δυνατή η ανάλυση του μηνύματος."
 
 #: opsdroid/connector/telegram/__init__.py:212
 msgid ""
 "Can't get updates because previous webhook is still active. Will try to "
 "delete webhook."
 msgstr ""
+"Δεν είναι δυνατή η λήψη ενημερώσεων, επειδή το προηγούμενο webhook είναι "
+"ακόμα ενεργό. Θα γίνει προσπάθεια διαγραφείς του webhook."
 
 #: opsdroid/connector/telegram/__init__.py:297
 #, python-format
 msgid "Sent %s image successfully"
-msgstr ""
+msgstr "Η εικόνα %s στάλθηκε επιτυχώς"
 
 #: opsdroid/connector/telegram/__init__.py:299
 #, python-format
 msgid "Unable to send image - Status Code %s"
-msgstr ""
+msgstr "Αδυναμία αποστολής εικόνας - Κωδικός %s"
 
 #: opsdroid/connector/webexteams/__init__.py:22
 msgid "Loaded webex teams connector"
-msgstr ""
+msgstr "Φορτώθηκε ο σύνδεσμος webex teams"
 
 #: opsdroid/connector/webexteams/__init__.py:38
 msgid "Must set access-token for webex teams connector!"
 msgstr ""
+"Πρέπει να ορίσετε διακριτικό πρόσβασης για τον σύνδεσμο των webex teams!"
 
 #: opsdroid/connector/webexteams/__init__.py:47
 msgid "Handling message from Webex Teams"
-msgstr ""
+msgstr "Χειρισμός μηνύματος από τις Webex Teams"
 
 #: opsdroid/connector/webexteams/__init__.py:77
 msgid "Creating Webex Teams webhook"
-msgstr ""
+msgstr "Δημιουργία Webex Teams webhook"
 
 #: opsdroid/connector/websocket/__init__.py:25
 msgid "Starting Websocket connector"
-msgstr ""
+msgstr "Έναρξη συνδέσμου Websocket"
 
 #: opsdroid/connector/websocket/__init__.py:91
 #, python-format
 msgid "User connected to %s"
-msgstr ""
+msgstr "Ο χρήστης συνδέθηκε στο %s"
 
 #: opsdroid/connector/websocket/__init__.py:103
 #, python-format
 msgid "Websocket connection closed with exception %s"
-msgstr ""
+msgstr "Η σύνδεση Websocket έκλεισε με εξαίρεση το %s"
 
 #: opsdroid/connector/websocket/__init__.py:107
 msgid "websocket connection closed"
-msgstr ""
+msgstr "Η σύνδεση websocket έκλεισε"
 
 #: opsdroid/connector/websocket/__init__.py:127
 #, python-format
 msgid "Responding with: '%s' in target %s"
-msgstr ""
+msgstr "Απάντηση με: ' %s ' στο στόχο %s"
 
 #: opsdroid/connector/websocket/__init__.py:131
 #, python-format
 msgid "No active socket for target %s"
-msgstr ""
+msgstr "Δεν υπάρχει ενεργή υποδοχή για το στόχο %s"
 
 #: opsdroid/database/redis/__init__.py:36
 msgid "Loaded redis database connector."
-msgstr ""
+msgstr "Φορτώθηκε ο σύνδεσμος της βάσης δεδομένων redis."
 
 #: opsdroid/database/redis/__init__.py:54
 #, python-format
 msgid "Connected to redis database %s from %s on port %s"
-msgstr ""
+msgstr "Συνδεδεμένο στη βάση δεδομένων redis %s από το %s στη θύρα: %s"
 
 #: opsdroid/database/redis/__init__.py:61
 #, python-format
 msgid "Unable to connect to redis database on address: %s port: %s"
-msgstr ""
+msgstr "Αδυναμία σύνδεσης στη βάση δεδομένων redis στη διευθυνση: %s θύρα: %s"
 
 #: opsdroid/database/redis/__init__.py:75
-#, fuzzy, python-format
+#, python-format
 msgid "Putting %s into redis"
-msgstr "A colocar %s na memória"
+msgstr "Τοποθέτηση του %s στο redis"
 
 #: opsdroid/database/redis/__init__.py:90
-#, fuzzy, python-format
+#, python-format
 msgid "Getting %s from redis"
-msgstr "A obter %s da memória."
+msgstr "Αποκτήστε το %s από το redis"
 
 #: opsdroid/database/sqlite/__init__.py:42
 msgid "Loaded sqlite database connector"
-msgstr ""
+msgstr "Φορτώθηκε ο σύνδεσμος της βάσης δεδομένων sqlite"
 
 #: opsdroid/database/sqlite/__init__.py:68
 #, python-format
 msgid "Connected to sqlite %s"
-msgstr ""
+msgstr "Συνδεδεμένο στο sqlite %s"
 
 #: opsdroid/database/sqlite/__init__.py:82
-#, fuzzy, python-format
+#, python-format
 msgid "Putting %s into sqlite"
-msgstr "A colocar %s na memória"
+msgstr "Τοποθέτηση του %s στο sqlite"
 
 #: opsdroid/database/sqlite/__init__.py:105
-#, fuzzy, python-format
+#, python-format
 msgid "Getting %s from sqlite"
-msgstr "A obter %s da memória."
+msgstr "Αποκτήστε το %s από το sqlite"
 
 #: opsdroid/parsers/crontab.py:17
-#, fuzzy, python-format
+#, python-format
 msgid "Running crontab skills at %s "
-msgstr "A executar habilidades de crontab %s "
+msgstr "Εκτέλεση crontab skills από το %s "
 
 #: opsdroid/parsers/dialogflow.py:35
 #, python-format
 msgid "Dialogflow response - %s"
-msgstr "Resposta de Dialogflow - %s"
+msgstr "Απάντηση του Dialogflow - %s"
 
 #: opsdroid/parsers/dialogflow.py:49
 msgid "No response from Dialogflow, check your network."
-msgstr "Não foi possível obter resposta de Dialogflow. Verifica a tua conexão."
+msgstr "Καμία απάντηση από το Dialogflow, ελέγξτε την σύνδεση σας."
 
 #: opsdroid/parsers/dialogflow.py:54
 #, python-format
 msgid "Dialogflow error - %s  - %s"
-msgstr "Erro de Dialogflow - %s - %s"
+msgstr "Σφάλμα του Dialogflow - %s %s"
 
 #: opsdroid/parsers/dialogflow.py:61
 msgid "Dialogflow score lower than min-score"
-msgstr "Pontuação do Dialogflow inferior ao min-score"
+msgstr "Dialogflow βαθμολογία χαμηλότερη από την ελάχιστη βαθμολογία"
 
 #: opsdroid/parsers/dialogflow.py:86 opsdroid/parsers/sapcai.py:82
 #, python-format
 msgid "Matched against skill %s"
-msgstr "Comparado com a habilidade %s"
+msgstr "Αντιστοιχία με το skill %s"
 
 #: opsdroid/parsers/luisai.py:32
 #, python-format
 msgid "luis.ai response - %s"
-msgstr "Resposta luis.ai - %s"
+msgstr "Απάντηση του luis.ai - %s"
 
 #: opsdroid/parsers/luisai.py:44
 msgid "No response from luis.ai, check your network."
-msgstr "Não foi possível obter resposta de luis.ai. Verifica a tua conexão."
+msgstr "Καμία απάντηση από το luis.ai, ελέγξτε την σύνδεση σας."
 
 #: opsdroid/parsers/luisai.py:54
 #, python-format
 msgid "luis.ai error - %s %s"
-msgstr "Erro de luis.ai - %s %s"
+msgstr "Σφάλμα του luis.ai - %s %s"
 
 #: opsdroid/parsers/luisai.py:63
 msgid "luis.ai score lower than min-score"
-msgstr "Pontuação do luis.ai inferior ao min-score"
+msgstr "luis.ai βαθμολογία χαμηλότερη από την ελάχιστη βαθμολογία"
 
 #: opsdroid/parsers/rasanlu.py:52
 msgid "Initialising Rasa NLU model."
-msgstr "A iniciar modelo Rasa NLU"
+msgstr "Εγκατάσταση μοντέλου του Rasa NLU."
 
 #: opsdroid/parsers/rasanlu.py:58
 msgid "Initialisation failed, training failed.."
-msgstr "Iniciação falhou, o treino falhou..."
+msgstr "Η εγκατάσταση απέτυχε, η εκπαίδευση απέτυχε..."
 
 #: opsdroid/parsers/rasanlu.py:62
 #, python-format
 msgid "Initialisation complete in %s seconds."
-msgstr "Inicialização completa em %s segundos."
+msgstr "Η εγκατάσταση ολοκληρώθηκε σε %s δευτερόλεπτα."
 
 #: opsdroid/parsers/rasanlu.py:85
 msgid "Starting Rasa NLU training."
-msgstr "A iniciar treino Rasa NLU"
+msgstr "Εκκίνηση εκπαίδευσης του Rasa NLU."
 
 #: opsdroid/parsers/rasanlu.py:88
 msgid "No intents found, skipping training."
-msgstr "Nenhuma intenção encontrada, a saltar treino."
+msgstr "Δεν βρέθηκαν προθέσεις, παράλειψη εκπαίδευσης."
 
 #: opsdroid/parsers/rasanlu.py:93
 msgid "This model already exists, skipping training..."
-msgstr "Este modelo já existe, a saltar treino..."
+msgstr "Αυτό το μοντέλο υπάρχει ήδη, παράληψη εκπαίδευσης..."
 
 #: opsdroid/parsers/rasanlu.py:98
 msgid "Now training the model. This may take a while..."
-msgstr "A treinar o modelo agora. Isto pode demorar um pouco..."
+msgstr "Σε διαδικασία εκπαίδευσης του μοντέλου. Αυτό ίσως πάρει λίγο χρόνο..."
 
 #: opsdroid/parsers/rasanlu.py:113
 msgid "Unable to connect to Rasa NLU, training failed."
-msgstr "Não foi possível conectar com Rasa NLU, o treino falhou."
+msgstr "Αδυναμία σύνδεσης στο Rasa NLU, η εκπαίδευση απέτυχε."
 
 #: opsdroid/parsers/rasanlu.py:122 opsdroid/parsers/rasanlu.py:134
 #, python-format
 msgid "Rasa NLU training completed in %s seconds."
-msgstr "Treino de Rasa NLU demorou %s segundos."
+msgstr "Η εκπαίδευση του Rasa NLU ολοκληρώθηκε σε %s δευτερόλεπτα."
 
 #: opsdroid/parsers/rasanlu.py:152 opsdroid/parsers/rasanlu.py:179
 #, python-format
 msgid "Bad Rasa NLU response - %s"
-msgstr "Má resposta de Rasa NLU - %s"
+msgstr "Κακή απάντηση του Rasa NLU - %s"
 
 #: opsdroid/parsers/rasanlu.py:153
 msgid "Rasa NLU training failed."
-msgstr "Treino de Rasa NLU falhou."
+msgstr "Η εκπαίδευση του Rasa NLU απέτυχε."
 
 #: opsdroid/parsers/rasanlu.py:172
 msgid "Unable to connect to Rasa NLU"
-msgstr "Não foi possivel conectar a Rasa NLU"
+msgstr "Αδυναμία σύνδεσης στο Rasa NLU"
 
 #: opsdroid/parsers/rasanlu.py:176
 #, python-format
 msgid "Rasa NLU response - %s"
-msgstr "Resposta de Rasa NLU - %s"
+msgstr "Απάντηση του Rasa NLU - %s"
 
 #: opsdroid/parsers/rasanlu.py:190
 msgid "No response from Rasa NLU, check your network."
-msgstr "Não foi possível obter resposta de Rasa NLU. Verifica a tua conexão."
+msgstr "Καμία απάντηση από το Rasa NLU, ελέγξτε την σύνδεση σας."
 
 #: opsdroid/parsers/rasanlu.py:194
 msgid "Rasa NLU error - Unauthorised request.Check your 'token'."
-msgstr "Erro de Rasa NLU - Pedido não autorizado. Confirma o teu 'token'."
+msgstr "Σφάλμα του Rasa NLU."
 
 #: opsdroid/parsers/rasanlu.py:199
 msgid "Rasa NLU error - No intent found. Did you forget to create one?"
 msgstr ""
-"Error de Rasa NLU - Nenhuma intenção encontrada. Esqueceste-te de criar "
-"uma?"
+"Σφάλμα του Rasa NLU - Δεν βρέθηκε πρόθεση. Ξεχάσετε να δημιουργήσετε μία?"
 
 #: opsdroid/parsers/rasanlu.py:205
 msgid "Rasa NLU score lower than min-score"
-msgstr "Pontuação de Rasa NLU inferior ao min-score"
+msgstr "Rasa NLU βαθμολογία χαμηλότερη από την ελάχιστη βαθμολογία"
 
 #: opsdroid/parsers/sapcai.py:26
-#, fuzzy, python-format
+#, python-format
 msgid "SAP Conversational AI response - %s"
-msgstr "Resposta de Recastai - %s"
+msgstr "Απάντηση του SAP Conversational AI - %s"
 
 #: opsdroid/parsers/sapcai.py:41
-#, fuzzy
 msgid "No response from SAP Conversational.AI, check your network."
-msgstr "Sem resposta de wit.ai, verifica a tua conexão."
+msgstr "Καμία απάντηση από το SAP Conversational.AI, ελέγξτε την σύνδεση σας."
 
 #: opsdroid/parsers/sapcai.py:46
 #, python-format
 msgid "SAP Conversational AI error - %s"
-msgstr ""
+msgstr "Σφάλμα του SAP Conversational AI - %s"
 
 #: opsdroid/parsers/sapcai.py:51
-#, fuzzy, python-format
+#, python-format
 msgid "SAP Conversational AI error - No intent found for the message %s"
-msgstr "Erro de Recast.AI - Nenhuma intenção encontrada para a mensagem %s"
+msgstr ""
+"Σφάλμα του SAP Conversational AI - Δεν βρέθηκε πρόθεση για το μήνυμα %s"
 
 #: opsdroid/parsers/sapcai.py:63
-#, fuzzy
 msgid "SAP Conversational AI score lower than min-score"
-msgstr "Pontuação de wit.ai inferior ao min-score"
+msgstr ""
+"SAP Conversational AI βαθμολογία χαμηλότερη από την ελάχιστη βαθμολογία"
 
 #: opsdroid/parsers/witai.py:24
 #, python-format
 msgid "wit.ai response - %s"
-msgstr "Resposta de wit-ai - %s"
+msgstr "Απάντηση του wit.ai - %s"
 
 #: opsdroid/parsers/witai.py:35
 msgid "No response from wit.ai, check your network."
-msgstr "Sem resposta de wit.ai, verifica a tua conexão."
+msgstr "Καμία απάντηση από το wit.ai, ελέγξτε την σύνδεση σας."
 
 #: opsdroid/parsers/witai.py:40
 #, python-format
 msgid "wit.ai error - %s %s"
-msgstr "Erro de wit.ai - %s %s"
+msgstr "Σφάλμα του wit.ai - %s %s"
 
 #: opsdroid/parsers/witai.py:46
 msgid "wit.ai error - No intent found. Did you forget to create one?"
-msgstr "Erro de wit.ai - Nenhuma intenção encontrada. Esqueceste-te de criar uma?"
+msgstr ""
+"Σφάλμα του wit.ai - Δεν βρέθηκε πρόθεση. Ξεχάσετε να δημιουργήσετε μία?"
 
 #: opsdroid/parsers/witai.py:55
 msgid "wit.ai score lower than min-score"
-msgstr "Pontuação de wit.ai inferior ao min-score"
-
-#~ msgid "Keyboard interrupt, exiting."
-#~ msgstr "Interrupção de teclado, a sair da aplicação."
-
-#~ msgid "Reloading module %s"
-#~ msgstr "A recarregar o módulo %s"
-
-#~ msgid "Starting web server with host %s and port %s"
-#~ msgstr "A iniciar servidor web com o host %s e porta %s"
-
-#~ msgid "No response from Recast.AI, check your network."
-#~ msgstr "Sem resposta de Recast.AI, verifica a tua conexão."
-
-#~ msgid "Recast.AI error - %s"
-#~ msgstr "Erro de Recast.AI - %s"
-
-#~ msgid "Recast.AI score lower than min-score"
-#~ msgstr "Pontuação de Recast.AI inferior ao min-score"
-
-#~ msgid "opsdroid has already been started"
-#~ msgstr "opsdroid já iniciou"
-
-#~ msgid "All connectors failed to load"
-#~ msgstr "O carregamento de todos os conectores falharam"
-
-#~ msgid "Creating %s."
-#~ msgstr "A creat %s."
-
+msgstr "wit.ai βαθμολογία χαμηλότερη από την ελάχιστη βαθμολογία"

@@ -33,6 +33,22 @@ class TestLoader(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self._tmp_dir, onerror=del_rw)
 
+    def test_yaml_loader_exception(self):
+        ld2 = ld
+
+        with contextlib.suppress(AttributeError):
+            csafeloader = ld2.yaml.CSafeLoader
+            safeloader = ld2.yaml.SafeLoader
+            del ld2.yaml.CSafeLoader
+
+            ld2.Loader.load_config_file([os.path.abspath("tests/configs/minimal.yaml")])
+            self.assertEqual(ld2.Loader.yaml_loader, safeloader)
+            del ld2
+
+            ld.yaml.CSafeLoader = csafeloader
+            ld.Loader.load_config_file([os.path.abspath("tests/configs/minimal.yaml")])
+            self.assertEqual(ld.Loader.yaml_loader, csafeloader)
+
     def test_load_config_file(self):
         opsdroid, loader = self.setup()
         config = loader.load_config_file(
