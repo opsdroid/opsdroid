@@ -135,7 +135,7 @@ msgstr "Έλεγχος luis.ai..."
 #: opsdroid/core.py:446
 #, fuzzy
 msgid "Checking SAPCAI..."
-msgstr "Έλεγχος luis.ai..."
+msgstr "Έλεγχος SAPCAI..."
 
 #: opsdroid/core.py:453
 msgid "Checking wit.ai..."
@@ -144,7 +144,7 @@ msgstr "Έλεγχος wit.ai..."
 #: opsdroid/core.py:460
 #, fuzzy
 msgid "Checking IBM Watson..."
-msgstr "Έλεγχος wit.ai..."
+msgstr "Έλεγχος IBM Watson..."
 
 #: opsdroid/core.py:467
 msgid "Checking Rasa NLU..."
@@ -519,12 +519,12 @@ msgstr "Σφάλμα - %s: Αδυναμία ανταπόκρισης"
 #: opsdroid/connector/shell/__init__.py:19
 #, fuzzy
 msgid "Loaded shell connector"
-msgstr "Φορτώθηκε ο σύνδεσμος του telegram"
+msgstr "Φορτώθηκε ο σύνδεσμος του shell"
 
 #: opsdroid/connector/shell/__init__.py:112
 #, fuzzy
 msgid "Connecting to shell"
-msgstr "Σύνδεση στο Slack"
+msgstr "Σύνδεση στο shell"
 
 #: opsdroid/connector/slack/__init__.py:22
 msgid "Starting Slack connector"
@@ -900,17 +900,17 @@ msgstr "SAP Conversational AI βαθμολογία χαμηλότερη από �
 #: opsdroid/parsers/watson.py:75
 #, fuzzy, python-format
 msgid "Watson response - %s"
-msgstr "Απάντηση του wit.ai - %s"
+msgstr "Απάντηση του Watson - %s"
 
 #: opsdroid/parsers/watson.py:109
 #, fuzzy
 msgid "Watson - No intent found. Did you forget to create one?"
-msgstr "Σφάλμα του wit.ai - Δεν βρέθηκε πρόθεση. Ξεχάσετε να δημιουργήσετε μία?"
+msgstr "Σφάλμα του Watson - Δεν βρέθηκε πρόθεση. Ξεχάσετε να δημιουργήσετε μία?"
 
 #: opsdroid/parsers/watson.py:118
 #, fuzzy
 msgid "Watson score lower than min-score"
-msgstr "wit.ai βαθμολογία χαμηλότερη από την ελάχιστη βαθμολογία"
+msgstr "Watson βαθμολογία χαμηλότερη από την ελάχιστη βαθμολογία"
 
 #: opsdroid/parsers/watson.py:153
 #, python-format

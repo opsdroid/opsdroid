@@ -130,12 +130,12 @@ msgstr "Prüfe dialogflow..."
 #: opsdroid/core.py:439
 #, fuzzy
 msgid "Checking luisai..."
-msgstr "Prüfe wit.ai..."
+msgstr "Prüfe luis.ai..."
 
 #: opsdroid/core.py:446
 #, fuzzy
 msgid "Checking SAPCAI..."
-msgstr "Prüfe wit.ai..."
+msgstr "Prüfe SAPCAI..."
 
 #: opsdroid/core.py:453
 msgid "Checking wit.ai..."
@@ -144,7 +144,7 @@ msgstr "Prüfe wit.ai..."
 #: opsdroid/core.py:460
 #, fuzzy
 msgid "Checking IBM Watson..."
-msgstr "Prüfe wit.ai..."
+msgstr "Prüfe IBM Watson..."
 
 #: opsdroid/core.py:467
 msgid "Checking Rasa NLU..."
@@ -490,7 +490,7 @@ msgstr ""
 #: opsdroid/connector/rocketchat/__init__.py:88
 #, fuzzy, python-format
 msgid "Connected to Rocket.Chat as %s"
-msgstr "Mit sqlite %s verbunden"
+msgstr "Mit  %s verbunden"
 
 #: opsdroid/connector/rocketchat/__init__.py:105
 #, python-format
@@ -512,12 +512,12 @@ msgstr ""
 #: opsdroid/connector/shell/__init__.py:19
 #, fuzzy
 msgid "Loaded shell connector"
-msgstr "Sqlite Datenbank connector geladen"
+msgstr "Connector geladen"
 
 #: opsdroid/connector/shell/__init__.py:112
 #, fuzzy, python-format
 msgid "Connecting to shell"
-msgstr "Mit sqlite %s verbunden"
+msgstr "Mit %s verbunden"
 
 #: opsdroid/connector/slack/__init__.py:22
 msgid "Starting Slack connector"
@@ -530,7 +530,7 @@ msgstr ""
 #: opsdroid/connector/slack/__init__.py:65
 #, fuzzy, python-format
 msgid "Connected as %s"
-msgstr "Mit sqlite %s verbunden"
+msgstr "Mit %s verbunden"
 
 #: opsdroid/connector/slack/__init__.py:66
 #, fuzzy, python-format
@@ -584,7 +584,7 @@ msgstr ""
 #: opsdroid/connector/telegram/__init__.py:24
 #, fuzzy
 msgid "Loaded Telegram Connector"
-msgstr "Sqlite Datenbank connector geladen"
+msgstr "Telegram connector geladen"
 
 #: opsdroid/connector/telegram/__init__.py:42
 msgid ""
@@ -607,12 +607,12 @@ msgstr ""
 #: opsdroid/connector/telegram/__init__.py:126
 #, fuzzy, python-format
 msgid "Connecting to Telegram"
-msgstr "Mit sqlite %s verbunden"
+msgstr "Mit Telegram verbunden"
 
 #: opsdroid/connector/telegram/__init__.py:131
 #, fuzzy
 msgid "Unable to connect"
-msgstr "Konnte nicht mit Rasa NLU verbinden"
+msgstr "Konnte nicht verbinden"
 
 #: opsdroid/connector/telegram/__init__.py:132
 #: opsdroid/connector/telegram/__init__.py:221
@@ -623,7 +623,7 @@ msgstr ""
 #: opsdroid/connector/telegram/__init__.py:136
 #, fuzzy, python-format
 msgid "Connected to Telegram as %s"
-msgstr "Mit sqlite %s verbunden"
+msgstr "Mit Telegram %s verbunden"
 
 #: opsdroid/connector/telegram/__init__.py:162
 msgid "Channel message parsing not supported - Ignoring message"
@@ -656,7 +656,7 @@ msgstr ""
 #: opsdroid/connector/webexteams/__init__.py:22
 #, fuzzy
 msgid "Loaded webex teams connector"
-msgstr "Sqlite Datenbank connector geladen"
+msgstr "Webex teams connector geladen"
 
 #: opsdroid/connector/webexteams/__init__.py:38
 msgid "Must set access-token for webex teams connector!"
@@ -677,7 +677,7 @@ msgstr ""
 #: opsdroid/connector/websocket/__init__.py:91
 #, fuzzy, python-format
 msgid "User connected to %s"
-msgstr "Mit sqlite %s verbunden"
+msgstr "Mit websocket %s verbunden"
 
 #: opsdroid/connector/websocket/__init__.py:103
 #, python-format
@@ -891,17 +891,17 @@ msgstr "SAP Conversational AI score kleiner als min-score"
 #: opsdroid/parsers/watson.py:75
 #, fuzzy, python-format
 msgid "Watson response - %s"
-msgstr "wit.ai Antwort - %s"
+msgstr "Watson antwort - %s"
 
 #: opsdroid/parsers/watson.py:109
 #, fuzzy
 msgid "Watson - No intent found. Did you forget to create one?"
-msgstr "wit.ai Fehler - Kein intent gefunden. Vergessen zu erstellen?"
+msgstr "Watson Fehler - Kein intent gefunden. Vergessen zu erstellen?"
 
 #: opsdroid/parsers/watson.py:118
 #, fuzzy
 msgid "Watson score lower than min-score"
-msgstr "wit.ai score kleiner als min-score"
+msgstr "Watson score kleiner als min-score"
 
 #: opsdroid/parsers/watson.py:153
 #, python-format

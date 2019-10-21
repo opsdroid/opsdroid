@@ -135,7 +135,7 @@ msgstr "Sprawdzam luisai..."
 #: opsdroid/core.py:446
 #, fuzzy
 msgid "Checking SAPCAI..."
-msgstr "Sprawdzam luisai..."
+msgstr "Sprawdzam SAPCAI..."
 
 #: opsdroid/core.py:453
 msgid "Checking wit.ai..."
@@ -144,7 +144,7 @@ msgstr "Sprawdzam wit.ai..."
 #: opsdroid/core.py:460
 #, fuzzy
 msgid "Checking IBM Watson..."
-msgstr "Sprawdzam wit.ai..."
+msgstr "Sprawdzam IBM Watson..."
 
 #: opsdroid/core.py:467
 msgid "Checking Rasa NLU..."
@@ -517,12 +517,12 @@ msgstr "Błąd - %s: Nie udało się odpowiedzieć"
 #: opsdroid/connector/shell/__init__.py:19
 #, fuzzy
 msgid "Loaded shell connector"
-msgstr "Wczytano łącze z telegramem"
+msgstr "Wczytano łącze z shell"
 
 #: opsdroid/connector/shell/__init__.py:112
 #, fuzzy
 msgid "Connecting to shell"
-msgstr "Łączę się ze Slackiem"
+msgstr "Łączę się ze Shell"
 
 #: opsdroid/connector/slack/__init__.py:22
 msgid "Starting Slack connector"
@@ -900,17 +900,17 @@ msgstr "Wynik SAP Conversational score mniejszy niż min-score"
 #: opsdroid/parsers/watson.py:75
 #, fuzzy, python-format
 msgid "Watson response - %s"
-msgstr "Odpowieź wit.ai - %s"
+msgstr "Odpowieź Watson - %s"
 
 #: opsdroid/parsers/watson.py:109
 #, fuzzy
 msgid "Watson - No intent found. Did you forget to create one?"
-msgstr "Błąd wit.ai - brak intecji. Może zapomniałeś je stworzyć?"
+msgstr "Błąd Watson - brak intecji. Może zapomniałeś je stworzyć?"
 
 #: opsdroid/parsers/watson.py:118
 #, fuzzy
 msgid "Watson score lower than min-score"
-msgstr "Wynik wit.ai mniejszy niż min-score"
+msgstr "Wynik Watson mniejszy niż min-score"
 
 #: opsdroid/parsers/watson.py:153
 #, python-format

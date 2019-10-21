@@ -131,12 +131,12 @@ msgstr "Проверка dialogflow..."
 #: opsdroid/core.py:439
 #, fuzzy
 msgid "Checking luisai..."
-msgstr "Проверка wit.ai..."
+msgstr "Проверка luisai..."
 
 #: opsdroid/core.py:446
 #, fuzzy
 msgid "Checking SAPCAI..."
-msgstr "Проверка wit.ai..."
+msgstr "Проверка SAPCAI..."
 
 #: opsdroid/core.py:453
 msgid "Checking wit.ai..."
@@ -145,7 +145,7 @@ msgstr "Проверка wit.ai..."
 #: opsdroid/core.py:460
 #, fuzzy
 msgid "Checking IBM Watson..."
-msgstr "Проверка wit.ai..."
+msgstr "Проверка IBM Watson..."
 
 #: opsdroid/core.py:467
 msgid "Checking Rasa NLU..."
@@ -482,7 +482,7 @@ msgstr ""
 #: opsdroid/connector/rocketchat/__init__.py:84
 #, fuzzy
 msgid "Unable to connect."
-msgstr "Невозможно подключиться к Rasa NLU"
+msgstr "Невозможно подключиться к Rocket.chat"
 
 #: opsdroid/connector/rocketchat/__init__.py:85
 #: opsdroid/connector/rocketchat/__init__.py:136
@@ -493,7 +493,7 @@ msgstr ""
 #: opsdroid/connector/rocketchat/__init__.py:88
 #, fuzzy, python-format
 msgid "Connected to Rocket.Chat as %s"
-msgstr "Установлено соединение к sqlite %s"
+msgstr "Установлено соединение к Rocket.Chat %s"
 
 #: opsdroid/connector/rocketchat/__init__.py:105
 #, python-format
@@ -515,12 +515,12 @@ msgstr ""
 #: opsdroid/connector/shell/__init__.py:19
 #, fuzzy
 msgid "Loaded shell connector"
-msgstr "Загружен коннектор базы данных sqlite"
+msgstr "Загружен коннектор базы данных shell"
 
 #: opsdroid/connector/shell/__init__.py:112
 #, fuzzy, python-format
 msgid "Connecting to shell"
-msgstr "Установлено соединение к sqlite %s"
+msgstr "Установлено соединение к shell %s"
 
 #: opsdroid/connector/slack/__init__.py:22
 msgid "Starting Slack connector"
@@ -533,7 +533,7 @@ msgstr ""
 #: opsdroid/connector/slack/__init__.py:65
 #, fuzzy, python-format
 msgid "Connected as %s"
-msgstr "Установлено соединение к sqlite %s"
+msgstr "Установлено соединение к slack %s"
 
 #: opsdroid/connector/slack/__init__.py:66
 #, fuzzy, python-format
@@ -587,7 +587,7 @@ msgstr ""
 #: opsdroid/connector/telegram/__init__.py:24
 #, fuzzy
 msgid "Loaded Telegram Connector"
-msgstr "Загружен коннектор базы данных sqlite"
+msgstr "Загружен коннектор базы данных Telegram"
 
 #: opsdroid/connector/telegram/__init__.py:42
 msgid ""
@@ -610,12 +610,12 @@ msgstr ""
 #: opsdroid/connector/telegram/__init__.py:126
 #, fuzzy, python-format
 msgid "Connecting to Telegram"
-msgstr "Установлено соединение к sqlite %s"
+msgstr "Установлено соединение к Telegram %s"
 
 #: opsdroid/connector/telegram/__init__.py:131
 #, fuzzy
 msgid "Unable to connect"
-msgstr "Невозможно подключиться к Rasa NLU"
+msgstr "Невозможно подключиться к Telegram"
 
 #: opsdroid/connector/telegram/__init__.py:132
 #: opsdroid/connector/telegram/__init__.py:221
@@ -626,7 +626,7 @@ msgstr ""
 #: opsdroid/connector/telegram/__init__.py:136
 #, fuzzy, python-format
 msgid "Connected to Telegram as %s"
-msgstr "Установлено соединение к sqlite %s"
+msgstr "Установлено соединение к Telegram %s"
 
 #: opsdroid/connector/telegram/__init__.py:162
 msgid "Channel message parsing not supported - Ignoring message"
@@ -659,7 +659,7 @@ msgstr ""
 #: opsdroid/connector/webexteams/__init__.py:22
 #, fuzzy
 msgid "Loaded webex teams connector"
-msgstr "Загружен коннектор базы данных sqlite"
+msgstr "Загружен коннектор базы данных webex teams"
 
 #: opsdroid/connector/webexteams/__init__.py:38
 msgid "Must set access-token for webex teams connector!"
@@ -680,7 +680,7 @@ msgstr ""
 #: opsdroid/connector/websocket/__init__.py:91
 #, fuzzy, python-format
 msgid "User connected to %s"
-msgstr "Установлено соединение к sqlite %s"
+msgstr "Установлено соединение к websocket %s"
 
 #: opsdroid/connector/websocket/__init__.py:103
 #, python-format
@@ -892,17 +892,17 @@ msgstr "Значение счётчика SAP Conversational AI меньше ч�
 #: opsdroid/parsers/watson.py:75
 #, fuzzy, python-format
 msgid "Watson response - %s"
-msgstr "ответ wit.ai - %s"
+msgstr "ответ Watson - %s"
 
 #: opsdroid/parsers/watson.py:109
 #, fuzzy
 msgid "Watson - No intent found. Did you forget to create one?"
-msgstr "ошибка wit.ai - не найдены намерения. Вы забыли создать их?"
+msgstr "ошибка Watson - не найдены намерения. Вы забыли создать их?"
 
 #: opsdroid/parsers/watson.py:118
 #, fuzzy
 msgid "Watson score lower than min-score"
-msgstr "значение счётчика wit.ai меньше чем min-score"
+msgstr "значение счётчика Watson меньше чем min-score"
 
 #: opsdroid/parsers/watson.py:153
 #, python-format

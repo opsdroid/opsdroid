@@ -130,12 +130,12 @@ msgstr "Comprobando dialogflow..."
 #: opsdroid/core.py:439
 #, fuzzy
 msgid "Checking luisai..."
-msgstr "Comprobando wit.ai..."
+msgstr "Comprobando luisai..."
 
 #: opsdroid/core.py:446
 #, fuzzy
 msgid "Checking SAPCAI..."
-msgstr "Comprobando wit.ai..."
+msgstr "Comprobando SAPCAI..."
 
 #: opsdroid/core.py:453
 msgid "Checking wit.ai..."
@@ -144,7 +144,7 @@ msgstr "Comprobando wit.ai..."
 #: opsdroid/core.py:460
 #, fuzzy
 msgid "Checking IBM Watson..."
-msgstr "Comprobando wit.ai..."
+msgstr "Comprobando IBM Watson..."
 
 #: opsdroid/core.py:467
 msgid "Checking Rasa NLU..."

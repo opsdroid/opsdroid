@@ -130,12 +130,12 @@ msgstr "Sjekker dialogflow..."
 #: opsdroid/core.py:439
 #, fuzzy
 msgid "Checking luisai..."
-msgstr "Sjekker wit.ai..."
+msgstr "Sjekker luisai..."
 
 #: opsdroid/core.py:446
 #, fuzzy
 msgid "Checking SAPCAI..."
-msgstr "Sjekker wit.ai..."
+msgstr "Sjekker SAPCAI..."
 
 #: opsdroid/core.py:453
 msgid "Checking wit.ai..."
@@ -144,7 +144,7 @@ msgstr "Sjekker wit.ai..."
 #: opsdroid/core.py:460
 #, fuzzy
 msgid "Checking IBM Watson..."
-msgstr "Sjekker wit.ai..."
+msgstr "Sjekker IBM Watson..."
 
 #: opsdroid/core.py:467
 msgid "Checking Rasa NLU..."
@@ -858,7 +858,7 @@ msgstr ""
 #: opsdroid/parsers/sapcai.py:41
 #, fuzzy
 msgid "No response from SAP Conversational.AI, check your network."
-msgstr "Ingen respons fra wit.ai, sjekk nettverk."
+msgstr "Ingen respons fra SAP Conversational.AI, sjekk nettverk."
 
 #: opsdroid/parsers/sapcai.py:46
 #, python-format
@@ -877,7 +877,7 @@ msgstr ""
 #: opsdroid/parsers/watson.py:75
 #, fuzzy, python-format
 msgid "Watson response - %s"
-msgstr "Dialogflow respons - %s"
+msgstr "Watson respons - %s"
 
 #: opsdroid/parsers/watson.py:109
 msgid "Watson - No intent found. Did you forget to create one?"
