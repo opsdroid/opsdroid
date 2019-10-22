@@ -90,7 +90,7 @@ def check_dependencies():
 
     Args:
         None
-    
+
     Returns:
         int: the exit code. Returns 1 if the Python version installed is
         below 3.6. 
