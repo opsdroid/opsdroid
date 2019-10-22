@@ -15,7 +15,7 @@ def print_example_config(ctx, param, value):
             context when invoking this function as a callback.
         value (bool): the value of this parameter after invocation.
             Defaults to False, set to True when this flag is called.
-    
+
     Returns:
         int: the exit code. Always returns 0 in this case.
 

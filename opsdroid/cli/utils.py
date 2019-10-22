@@ -93,7 +93,7 @@ def check_dependencies():
 
     Returns:
         int: the exit code. Returns 1 if the Python version installed is
-        below 3.6. 
+        below 3.6.
 
     """
     if sys.version_info.major < 3 or sys.version_info.minor < 6:
