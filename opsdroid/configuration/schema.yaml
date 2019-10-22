@@ -70,7 +70,6 @@ matrix:
   name: regex('^(?i)matrix$')
   mxid: str()
   password: str()
-  room: str(required=False)
   rooms: (include('room1'))
   homeserver: str()
   nick: str(required=False)
