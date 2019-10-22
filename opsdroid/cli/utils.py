@@ -88,9 +88,6 @@ def configure_lang(config):
 def check_dependencies():
     """Check for system dependencies required by opsdroid.
 
-    Args:
-        None
-
     Returns:
         int: the exit code. Returns 1 if the Python version installed is
         below 3.6.
