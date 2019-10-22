@@ -30,7 +30,7 @@ class ConnectorMatrix(Connector):
         super().__init__(config, opsdroid=opsdroid)
 
         self.name = "ConnectorMatrix"  # The name of your connector
-        self.rooms = config.get("rooms", None)
+        self.rooms = config["rooms"]
         self.room_ids = {}
         self.default_target = self.rooms["main"]
         self.mxid = config["mxid"]
