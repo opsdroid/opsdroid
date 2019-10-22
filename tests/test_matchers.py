@@ -67,6 +67,15 @@ class TestMatchers(asynctest.TestCase):
             self.assertEqual(opsdroid.skills[0].matchers[0]["luisai_intent"], intent)
             self.assertTrue(asyncio.iscoroutinefunction(opsdroid.skills[0]))
 
+    async def test_match_watson(self):
+        with OpsDroid() as opsdroid:
+            intent = "myIntent"
+            decorator = matchers.match_watson(intent)
+            opsdroid.skills.append(decorator(await self.getMockSkill()))
+            self.assertEqual(len(opsdroid.skills), 1)
+            self.assertEqual(opsdroid.skills[0].matchers[0]["watson_intent"], intent)
+            self.assertTrue(asyncio.iscoroutinefunction(opsdroid.skills[0]))
+
     async def test_match_witai(self):
         with OpsDroid() as opsdroid:
             intent = "myIntent"
