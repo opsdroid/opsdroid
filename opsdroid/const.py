@@ -1,6 +1,7 @@
 """Constants used by OpsDroid."""
 import os
 from appdirs import user_log_dir, user_config_dir, user_data_dir
+import osdroid
 from opsdroid import __version__  # noqa # pylint: disable=unused-import
 
 NAME = "opsdroid"
@@ -25,6 +26,7 @@ EXAMPLE_CONFIG_FILE = os.path.join(
     "configuration/example_configuration.yaml",
 )
 REGEX_PARSE_SCORE_FACTOR = 0.6
+MODULE_ROOT = os.path.dirname(os.path.abspath(opsdroid.__file__))
 
 RASANLU_DEFAULT_URL = "http://localhost:5000"
 RASANLU_DEFAULT_PROJECT = "opsdroid"
