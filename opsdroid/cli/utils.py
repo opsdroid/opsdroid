@@ -20,7 +20,21 @@ _LOGGER = logging.getLogger("opsdroid")
 
 
 def edit_files(ctx, param, value):
-    """Open config/log file with favourite editor."""
+    """Open config/log file with favourite editor.
+
+    Args:
+        ctx (:obj:`click.Context`): The current click cli context.
+        param (dict): a dictionary of all parameters pass to the click
+            context when invoking this function as a callback.
+        value (string): the value of this parameter after invocation.
+            It is either "config" or "log" depending on the program
+            calling this function.
+
+    Returns:
+        int: the exit code. Always returns 0 in this case.
+
+    """
+
     if value == "config":
         file = DEFAULT_CONFIG_PATH
         if ctx.command.name == "cli":
@@ -72,7 +86,13 @@ def configure_lang(config):
 
 
 def check_dependencies():
-    """Check for system dependencies required by opsdroid."""
+    """Check for system dependencies required by opsdroid.
+
+    Returns:
+        int: the exit code. Returns 1 if the Python version installed is
+        below 3.6.
+
+    """
     if sys.version_info.major < 3 or sys.version_info.minor < 6:
         logging.critical(_("Whoops! opsdroid requires python 3.6 or above."))
         sys.exit(1)
