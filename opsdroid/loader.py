@@ -34,7 +34,7 @@ from opsdroid.const import (
     DEFAULT_MODULE_DEPS_PATH,
     PRE_0_12_0_ROOT_PATH,
     DEFAULT_ROOT_PATH,
-    MODULE_ROOT,
+    SCHEMA_PATH,
 )
 
 
@@ -366,8 +366,7 @@ class Loader:
         try:
             with open(config_path, "r") as stream:
                 _LOGGER.info(_("Loaded config from %s."), config_path)
-                schema_path = os.path.join(MODULE_ROOT, "configuration/schema.yaml")
-                schema = yamale.make_schema(schema_path)
+                schema = yamale.make_schema(SCHEMA_PATH)
                 data = yamale.make_data(config_path)
                 yamale.validate(schema, data)
                 return yaml.load(stream, Loader=cls.yaml_loader)

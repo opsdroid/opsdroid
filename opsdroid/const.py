@@ -22,6 +22,7 @@ PRE_0_12_0_ROOT_PATH = os.path.expanduser("~/.opsdroid")
 DEFAULT_MODULE_BRANCH = "master"
 DEFAULT_LANGUAGE = "en"
 LOCALE_DIR = os.path.join(MODULE_ROOT, "locale")
+SCHEMA_PATH = os.path.join(MODULE_ROOT, "configuration/schema.yaml")
 EXAMPLE_CONFIG_FILE = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
     "configuration/example_configuration.yaml",
