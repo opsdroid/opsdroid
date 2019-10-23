@@ -169,6 +169,18 @@ def match_crontab(crontab, timezone=None):
     return matcher
 
 
+def match_rss(feed_url, interval="60"):
+    """Return RSS match decorator."""
+
+    def matcher(func):
+        """Add decorated function to skills list for RSS matching."""
+        func = add_skill_attributes(func)
+        func.matchers.append({"feed_url": feed_url, "interval": interval})
+        return func
+
+    return matcher
+
+
 def match_webhook(webhook):
     """Return webhook match decorator."""
 
