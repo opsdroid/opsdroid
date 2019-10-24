@@ -370,15 +370,7 @@ class Loader:
                 yamale.validate(schema, data)
                 return yaml.load(stream, Loader=cls.yaml_loader)
 
-        except ValueError as error:
-            _LOGGER.critical(error)
-            sys.exit(1)
-
-        except yaml.YAMLError as error:
-            _LOGGER.critical(error)
-            sys.exit(1)
-
-        except FileNotFoundError as error:
+        except (ValueError, yaml.YAMLError, FileNotFoundError) as error:
             _LOGGER.critical(error)
             sys.exit(1)
 
