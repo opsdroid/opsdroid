@@ -3,7 +3,6 @@ import logging
 import time
 
 import aiohttp
-import arrow
 import atoma
 
 from opsdroid.connector import Connector
@@ -17,12 +16,13 @@ class ConnectorRSS(Connector):
         """Create the connector."""
         super().__init__(config, opsdroid=opsdroid)
         self.feeds = {}
+        self.running = False
 
     async def connect(self):
         for skill in opsdroid.skills:
             for matcher in skill.matchers:
                 if "feed_url" in matcher:
-                    feed = matcher
+                    feed = matcher.copy()
                     if feed["feed_url"] not in self.feeds:
                         feed["last_checked"] = time.time()
                         feed["feed"] = self.update_feed(feed["feed_url"])
@@ -30,32 +30,54 @@ class ConnectorRSS(Connector):
                     else:
                         # If feed is already added check for a shorter interval and
                         # reduce it if necessary
-                        if feed["interval"] < self.feeds[feed["feed_url"]]:
+                        if feed["interval"] < self.feeds[feed["feed_url"]]["interval"]:
                             self.feeds[feed["feed_url"]]["interval"] = feed["interval"]
+        self.running = True
 
     async def disconnect(self):
         self.feeds = {}
+        self.running = False
 
     async def listen(self):
-        await asyncio.sleep(60 - arrow.now().time().second)
-        for feed_url, feed in self.feeds:
-            if time.time() > feed["last_checked"] + feed["interval"]:
-                newfeed = self.update_feed(feed["feed_url"])
-                self.check_for_new_items(newfeed, feed["feed"])
-                feed["feed"] = newfeed
+        while self.running:
+            await asyncio.sleep(5)  # Shortest polling interval is 5 seconds
+            for feed_url, feed in self.feeds:
+                if time.time() > feed["last_checked"] + feed["interval"]:
+                    newfeed = await self.update_feed(feed["feed_url"])
+                    new_items = await self.check_for_new_items(newfeed, feed["feed"])
+                    if new_items:
+                        await self.run_skills(feed_url, new_items)
+                    feed["feed"] = newfeed
 
     async def check_for_new_items(newfeed, oldfeed):
-        # TODO Diff the feeds and emit events for items that are in new but not old
-        if False:
-            await self.opsdroid.parse(
-                FeedItemEvent(
-                    message["text"],
-                    user_info["name"],
-                    message["channel"],
-                    self,
-                    raw_event=message,
-                )
-            )
+        new_items = []
+        if isinstance(newfeed, atoma.rss.RSSChannel):
+            for item in newfeed.items:
+                if item not in oldfeed.items:
+                    new_items.append(item)
+        else:
+            for item in newfeed.entries:
+                if item not in oldfeed.entries:
+                    new_items.append(item)
+        return new_items
+
+    async def run_skills(self, feed_url, new_items):
+        for item in new_items:
+            for skill in self.opsdroid.skills:
+                for matcher in skill.matchers:
+                    if "feed_url" in matcher and matcher["feed_url"] == feed_url:
+                        # We shouldn't be doing this here. We should hand off to opsdroid.parse()
+                        # but there isn't a clean place to put this logic in there yet. Once we
+                        # start on really hashing out #933 this should move somewhere else.
+                        self.opsdroid.eventloop.create_task(
+                            self.opsdroid.run_skill(
+                                skill,
+                                skill.config,
+                                FeedItemEvent(
+                                    item, None, None, feed_url, self, raw_event=item
+                                ),
+                            )
+                        )
 
     @staticmethod
     async def update_feed(feed):
