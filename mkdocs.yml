@@ -13,6 +13,7 @@ pages:
       - "Example Skills":
               - "Introduction": "examples/introduction.md"
               - "Weather": "examples/weather.md"
+              - "Skill-weather": "examples/skill-weather.md"
       - "Extending opsdroid":
               - "Introduction": "extending/intro.md"
               - "Adding skills": "extending/skills.md"
