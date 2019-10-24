@@ -11,6 +11,7 @@ pages:
               - "Create a Basic Skill": "tutorials/basic-skill.md"
               - "Introduction to Vim": "tutorials/introduction-vim.md"
       - "Example Skills":
+              - "Introduction": "examples/introduction.md"
               - "Weather": "examples/weather.md"
       - "Extending opsdroid":
               - "Introduction": "extending/intro.md"
