@@ -135,9 +135,6 @@ This means that if you decorate a skill with both the `regex` and `dialogflow` m
 
 ## Example modules
 
-See the following official modules for examples:
-
- * [hello](https://github.com/opsdroid/skill-hello) - A simple hello world skill.
- * [seen](https://github.com/opsdroid/skill-seen) - Makes use of opsdroid memory.
+For examples of the kind of skill you can build in opsdroid see the [examples section](../examples/introduction.md).
 
 *If you need help or if you are unsure about something join our* [matrix channel](https://riot.im/app/#/room/#opsdroid-general:matrix.org) *and ask away! We are more than happy to help you.*
