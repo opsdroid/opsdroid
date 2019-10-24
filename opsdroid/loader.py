@@ -34,6 +34,7 @@ from opsdroid.const import (
     DEFAULT_MODULE_DEPS_PATH,
     PRE_0_12_0_ROOT_PATH,
     DEFAULT_ROOT_PATH,
+    SCHEMA_PATH,
 )
 
 
@@ -42,11 +43,6 @@ _LOGGER = logging.getLogger(__name__)
 
 class Loader:
     """Class to load in config and modules."""
-
-    try:
-        yaml_loader = yaml.CSafeLoader
-    except AttributeError:
-        yaml_loader = yaml.SafeLoader
 
     def __init__(self, opsdroid):
         """Create object with opsdroid instance."""
@@ -324,6 +320,12 @@ class Loader:
             dict: Dict containing config fields
 
         """
+
+        try:
+            cls.yaml_loader = yaml.CSafeLoader
+        except AttributeError:
+            cls.yaml_loader = yaml.SafeLoader
+
         config_path = ""
         for possible_path in config_paths:
             if not os.path.isfile(possible_path):
@@ -364,8 +366,7 @@ class Loader:
         try:
             with open(config_path, "r") as stream:
                 _LOGGER.info(_("Loaded config from %s."), config_path)
-                schema_path = os.path.abspath("opsdroid/configuration/schema.yaml")
-                schema = yamale.make_schema(schema_path)
+                schema = yamale.make_schema(SCHEMA_PATH)
                 data = yamale.make_data(config_path)
                 yamale.validate(schema, data)
                 return yaml.load(stream, Loader=cls.yaml_loader)

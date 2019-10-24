@@ -21,7 +21,7 @@ def setup_connector():
     """Initiate a basic connector setup for testing on"""
     connector = ConnectorMatrix(
         {
-            "room": "#test:localhost",
+            "rooms": {"main": "#test:localhost"},
             "mxid": "@opsdroid:localhost",
             "password": "hello",
             "homeserver": "http://localhost:8008",

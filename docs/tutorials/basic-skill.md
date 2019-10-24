@@ -100,3 +100,5 @@ skills:
 ```
 
 As mentioned in the [introduction](introduction.md), the indentation and the use of spaces instead of tabs is very important. If you have any issues when running opsdroid check both of these things; it might be a problem with space.
+
+For more examples of skills you can build with opsdroid checkout our [examples section](../examples/introduction.md).

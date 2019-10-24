@@ -80,6 +80,8 @@ class Event(metaclass=EventMetaClass):
                                          given chat service
         raw_event (dict, optional): Raw message as provided by chat service.
                                     None by default
+        raw_parses (dict, optional): Raw response as provided by parse service.
+                            None by default
         event_id (object, optional): The unique id for this event as provided
                                      by the connector.
         linked_event (Event, optional): An event to link to this one, i.e. the
@@ -92,6 +94,7 @@ class Event(metaclass=EventMetaClass):
                 was sent.
         connector: Connector object used to interact with given chat service
         raw_event: Raw event provided by chat service
+        raw_parses: Dictionary mapping of the response created by parsers
         responded_to: Boolean initialized as False. True if event has been
             responded to
         entities: Dictionary mapping of entities created by parsers
@@ -104,6 +107,7 @@ class Event(metaclass=EventMetaClass):
         target=None,
         connector=None,
         raw_event=None,
+        raw_parses=None,
         event_id=None,
         linked_event=None,
     ):  # noqa: D107
@@ -115,6 +119,7 @@ class Event(metaclass=EventMetaClass):
         self.created = datetime.now()
         self.event_id = event_id
         self.raw_event = raw_event
+        self.raw_parses = raw_parses or {}
         self.responded_to = False
         self.entities = {}
 
@@ -178,6 +183,8 @@ class Message(Event):
                                          given chat service
         raw_event (dict, optional): Raw message as provided by chat service.
                                     None by default
+        raw_parses (dict, optional): Raw response as provided by parse service.
+                    None by default
 
     Attributes:
         created: Local date and time that message object was created
@@ -186,6 +193,7 @@ class Message(Event):
         connector: Connector object used to interact with given chat service
         text: Text of message as string
         raw_event: Raw message provided by chat service
+        raw_parses: Raw response provided by the parser service
         raw_match: A match object for a search against which the message was
             matched. E.g. a regular expression or natural language intent
         responded_to: Boolean initialized as False. True if event has been

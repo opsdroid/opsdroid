@@ -18,6 +18,7 @@ from opsdroid.matchers import (
     match_luisai_intent,
     match_sapcai,
     match_rasanlu,
+    match_watson,
     match_witai,
 )
 
@@ -365,6 +366,20 @@ class TestCoreAsync(asynctest.TestCase):
             match_sapcai(sapcai_intent)(skill)
             message = Message("Hello", "user", "default", mock_connector)
             with amock.patch("opsdroid.parsers.sapcai.parse_sapcai"):
+                tasks = await opsdroid.parse(message)
+                self.assertEqual(len(tasks), 1)
+                for task in tasks:
+                    await task
+
+    async def test_parse_watson(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.config["parsers"] = [{"name": "watson"}]
+            watson_intent = ""
+            skill = amock.CoroutineMock()
+            mock_connector = Connector({}, opsdroid=opsdroid)
+            match_watson(watson_intent)(skill)
+            message = Message("Hello world", "user", "default", mock_connector)
+            with amock.patch("opsdroid.parsers.watson.parse_watson"):
                 tasks = await opsdroid.parse(message)
                 self.assertEqual(len(tasks), 1)
                 for task in tasks:
