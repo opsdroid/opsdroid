@@ -15,7 +15,7 @@ class ConnectorRSS(Connector):
     def __init__(self, config, opsdroid=None):
         """Create the connector."""
         super().__init__(config, opsdroid=opsdroid)
-        self.feeds = {}
+        self._feeds = {}
         self.running = False
 
     async def connect(self):
@@ -23,45 +23,33 @@ class ConnectorRSS(Connector):
             for matcher in skill.matchers:
                 if "feed_url" in matcher:
                     feed = matcher.copy()
-                    if feed["feed_url"] not in self.feeds:
+                    if feed["feed_url"] not in self._feeds:
                         feed["last_checked"] = time.time()
-                        feed["feed"] = self.update_feed(feed["feed_url"])
-                        self.feeds[feed["feed_url"]] = feed
+                        feed["feed"] = self._update_feed(feed["feed_url"])
+                        self._feeds[feed["feed_url"]] = feed
                     else:
                         # If feed is already added check for a shorter interval and
                         # reduce it if necessary
-                        if feed["interval"] < self.feeds[feed["feed_url"]]["interval"]:
-                            self.feeds[feed["feed_url"]]["interval"] = feed["interval"]
+                        if feed["interval"] < self._feeds[feed["feed_url"]]["interval"]:
+                            self._feeds[feed["feed_url"]]["interval"] = feed["interval"]
         self.running = True
 
     async def disconnect(self):
-        self.feeds = {}
+        self._feeds = {}
         self.running = False
 
     async def listen(self):
         while self.running:
             await asyncio.sleep(5)  # Shortest polling interval is 5 seconds
-            for feed_url, feed in self.feeds:
+            for feed_url, feed in self._feeds:
                 if time.time() > feed["last_checked"] + feed["interval"]:
-                    newfeed = await self.update_feed(feed["feed_url"])
-                    new_items = await self.check_for_new_items(newfeed, feed["feed"])
+                    newfeed = await self._update_feed(feed["feed_url"])
+                    new_items = await self._check_for_new_items(newfeed, feed["feed"])
                     if new_items:
-                        await self.run_skills(feed_url, new_items)
+                        await self._run_skills(feed_url, new_items)
                     feed["feed"] = newfeed
 
-    async def check_for_new_items(newfeed, oldfeed):
-        new_items = []
-        if isinstance(newfeed, atoma.rss.RSSChannel):
-            for item in newfeed.items:
-                if item not in oldfeed.items:
-                    new_items.append(item)
-        else:
-            for item in newfeed.entries:
-                if item not in oldfeed.entries:
-                    new_items.append(item)
-        return new_items
-
-    async def run_skills(self, feed_url, new_items):
+    async def _run_skills(self, feed_url, new_items):
         for item in new_items:
             for skill in self.opsdroid.skills:
                 for matcher in skill.matchers:
@@ -80,7 +68,20 @@ class ConnectorRSS(Connector):
                         )
 
     @staticmethod
-    async def update_feed(feed):
+    async def _check_for_new_items(newfeed, oldfeed):
+        new_items = []
+        if isinstance(newfeed, atoma.rss.RSSChannel):
+            for item in newfeed.items:
+                if item not in oldfeed.items:
+                    new_items.append(item)
+        else:
+            for item in newfeed.entries:
+                if item not in oldfeed.entries:
+                    new_items.append(item)
+        return new_items
+
+    @staticmethod
+    async def _update_feed(feed):
         async with aiohttp.ClientSession() as session:
             async with session.get(feed) as resp:
                 if "atom" in resp.content_type:
