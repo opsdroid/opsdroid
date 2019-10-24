@@ -16,7 +16,6 @@
 <a href="https://microbadger.com/#/images/opsdroid/opsdroid"><img src="https://img.shields.io/microbadger/layers/opsdroid/opsdroid.svg" alt="Docker Layers" /></a>
 <a href="http://opsdroid.readthedocs.io/en/stable/?badge=stable"><img src="https://img.shields.io/readthedocs/opsdroid/latest.svg" alt="Documentation Status" /></a>
 <a href="https://riot.im/app/#/room/#opsdroid-general:matrix.org"><img src="https://img.shields.io/matrix/opsdroid-general:matrix.org.svg?logo=matrix" alt="Matrix Chat" /></a>
-<a href="https://gitter.im/opsdroid"><img src="https://img.shields.io/badge/gitter-join%20chat-4fb896.svg" alt="Gitter Badge" /></a>
 <a href="#backers"><img src="https://opencollective.com/opsdroid/backers/badge.svg" alt="Backers on Open Collective" /></a>
 <a href="#sponsors"><img src="https://opencollective.com/opsdroid/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
 <a href="https://www.codetriage.com/opsdroid/opsdroid"><img src="https://www.codetriage.com/opsdroid/opsdroid/badges/users.svg" alt="Open Source Helpers" /></a>
@@ -166,7 +165,7 @@ $ opsdroid start
 C:\Users\myaccount> pip install opsdroid
 
 # Create a starting configuration to work with
-C:\Users\myaccount> opsdroid config gen | out-file "configuration.yaml" -encoding utf8
+C:\Users\myaccount> opsdroid config gen | out-file "configuration.yaml" -encoding ascii
 
 # Start opsdroid
 C:\Users\myaccount> opsdroid start
