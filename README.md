@@ -156,6 +156,23 @@ $ sudo pip3 install opsdroid
 $ opsdroid start
 ```
 
+### Windows 10
+
+```powershell
+# Install Python from https://www.python.org/downloads/
+# Launch powershell command prompt
+
+# Install opsdroid
+C:\Users\myaccount> pip install opsdroid
+
+# Create a starting configuration to work with
+C:\Users\myaccount> opsdroid config gen | out-file "configuration.yaml" -encoding utf8
+
+# Start opsdroid
+C:\Users\myaccount> opsdroid start
+```
+
+
 ## Usage
 
 When running the `opsdroid` command with no arguments the bot framework will start using the configuration in `~/.opsdroid/configuration.yaml`. Beginners should check out the [introduction tutorial](http://opsdroid.readthedocs.io/en/stable/tutorials/introduction/) for information on how to configure opsdroid.
