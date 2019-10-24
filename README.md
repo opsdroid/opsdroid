@@ -165,7 +165,7 @@ $ opsdroid start
 C:\Users\myaccount> pip install opsdroid
 
 # Create a starting configuration to work with
-C:\Users\myaccount> opsdroid config gen | out-file "configuration.yaml" -encoding utf8
+C:\Users\myaccount> opsdroid config gen | out-file "configuration.yaml" -encoding ascii
 
 # Start opsdroid
 C:\Users\myaccount> opsdroid start
