@@ -23,9 +23,9 @@ DEFAULT_MODULE_BRANCH = "master"
 DEFAULT_LANGUAGE = "en"
 LOCALE_DIR = os.path.join(MODULE_ROOT, "locale")
 SCHEMA_PATH = os.path.join(MODULE_ROOT, "configuration/schema.yaml")
+DEFAULT_CONFIG_FILE = os.path.join(MODULE_ROOT, "configuration/default.yaml")
 EXAMPLE_CONFIG_FILE = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    "configuration/example_configuration.yaml",
+    MODULE_ROOT, "configuration/example_configuration.yaml"
 )
 REGEX_PARSE_SCORE_FACTOR = 0.6
 

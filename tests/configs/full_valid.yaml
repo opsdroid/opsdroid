@@ -1,32 +1,29 @@
 welcome-message: true
 
 connectors:
+  - name: rss
+    enabled: false
 
   - name: websocket
     bot-name: "mybot"
     max-connections: 10
     connection-timeout: 10
 
-
   - name: telegram
-    token: "123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ-ZYXWVUT"  # Telegram bot token
-
+    token: "123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ-ZYXWVUT" # Telegram bot token
 
 databases:
-
   - name: mongo
     host: "my host"
-    port:  "12345"
-    database:  "mydatabase"
+    port: "12345"
+    database: "mydatabase"
 
 parsers:
-
   - name: dialogflow
     access-token: "exampleaccesstoken123"
     min-score: 0.6
 
 skills:
-
   - name: dance
 
   - name: hello

@@ -153,7 +153,12 @@ class TestLoader(unittest.TestCase):
         config = loader.load_config_file(
             [os.path.abspath("tests/configs/minimal_with_envs.yaml")]
         )
-        self.assertEqual(config["connectors"][0]["bot-name"], os.environ["ENVVAR"])
+        [shell_connector_config] = [
+            connector
+            for connector in config["connectors"]
+            if connector["name"] == "shell"
+        ]
+        self.assertEqual(shell_connector_config["bot-name"], os.environ["ENVVAR"])
 
     def test_create_default_config(self):
         test_config_path = os.path.join(
@@ -476,6 +481,27 @@ class TestLoader(unittest.TestCase):
                 loader._load_modules(modules_type, modules)
                 self.assertTrue(mockinstall.called)
                 self.assertTrue(mockimport.called)
+
+    def test_load_modules_skip(self):
+        opsdroid, loader = self.setup()
+
+        modules_type = "test"
+        modules = [{"name": "testmodule", "enabled": False}]
+        mockedmodule = mock.Mock(return_value={"name": "testmodule"})
+
+        with tempfile.TemporaryDirectory() as tmp_dep_path:
+            with mock.patch.object(
+                loader, "_install_module"
+            ) as mockinstall, mock.patch(
+                "opsdroid.loader.DEFAULT_MODULE_DEPS_PATH",
+                os.path.join(tmp_dep_path, "site-packages"),
+            ), mock.patch.object(
+                loader, "import_module", mockedmodule
+            ) as mockimport:
+                loader.setup_modules_directory({})
+                loader._load_modules(modules_type, modules)
+                self.assertFalse(mockinstall.called)
+                self.assertFalse(mockimport.called)
 
     def test_load_modules_not_instance_Mapping(self):
         opsdroid, loader = self.setup()

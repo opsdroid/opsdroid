@@ -1,0 +1,8 @@
+# A default config file to use as a base for the users config.
+# This will act as the central place to put default configuration options.
+
+welcome-message: true
+
+connectors:
+  - name: rss
+    enabled: true

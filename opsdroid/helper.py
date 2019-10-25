@@ -277,3 +277,81 @@ register_json_type(
         dct["hour"], dct["minute"], dct["second"], dct["microsecond"]
     ),
 )
+
+
+class ConfigMergeError(Exception):
+    """An exception to be raised when two configs fail to merge."""
+
+
+def collapse_module_lists(module_list):
+    """Remove duplicates in a list of modules.
+
+    Modules are dictionaries with a ``name`` key. When passed a list of modules with
+    duplicate names the one with the highest index in the list will be favored and the rest removed.
+
+    Args:
+        module_list (list): A list of dictionaries each containing a ``name`` key.
+
+    Returns:
+        list: A list of dictionaries each containing a ``name`` key with duplicates removed.
+
+    """
+    if (
+        len(module_list) > 0
+        and isinstance(module_list[0], dict)
+        and "name" in module_list[0]
+    ):
+        tmpdict = {}
+        for item in module_list:
+            tmpdict[item["name"]] = item
+        module_list = [item for item in tmpdict.values()]
+    return module_list
+
+
+def config_merge(config_a, config_b):
+    """Merge two configuration objects together.
+
+    A configuration will be a nested dictionary with unknown complexity. This function
+    takes two configuration objects and attempts to merge them together.
+
+    Scalar primitives such as strings, integers, booleans, etc will take their value
+    from ``config_b`` if there is a match. Lists will be extended together and then
+    flattened if they are a list of modules (see ``collapse_module_lists()``). Dictionaries
+    will be recursively merged favoring the keys from ``config_b``.
+
+    Args:
+        config_a (dict): A nested configuration dictionary to use as the base config.
+        config_b (dict): A nested configuration dictionary to use to update ``config_a``.
+
+    Returns:
+        dict: The merged configurations as a single dictionary.
+
+    """
+    key = None
+    if config_a is None or isinstance(config_a, (str, int, float, bool)):
+        # border case for first run or if a is a primitive
+        config_a = config_b
+    elif isinstance(config_a, list):
+        # lists can be only appended
+        if isinstance(config_b, list):
+            # merge lists
+            config_a.extend(config_b)
+        else:
+            # append to list
+            config_a.append(config_b)
+        config_a = collapse_module_lists(config_a)
+    elif isinstance(config_a, dict):
+        # dicts must be merged
+        if isinstance(config_b, dict):
+            for key in config_b:
+                if key in config_a:
+                    config_a[key] = config_merge(config_a[key], config_b[key])
+                else:
+                    config_a[key] = config_b[key]
+        else:
+            raise ConfigMergeError(
+                'Cannot merge non-dict "%s" into dict "%s"' % (config_b, config_a)
+            )
+    else:
+        raise ConfigMergeError('NOT IMPLEMENTED "%s" into "%s"' % (config_b, config_a))
+    return config_a

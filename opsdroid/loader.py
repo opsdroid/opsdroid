@@ -23,6 +23,7 @@ from opsdroid.helper import (
     file_is_ipython_notebook,
     convert_ipynb_to_script,
     extract_gist_id,
+    config_merge,
 )
 from opsdroid.const import (
     DEFAULT_GIT_URL,
@@ -30,6 +31,7 @@ from opsdroid.const import (
     DEFAULT_MODULES_PATH,
     DEFAULT_MODULE_BRANCH,
     DEFAULT_CONFIG_PATH,
+    DEFAULT_CONFIG_FILE,
     EXAMPLE_CONFIG_FILE,
     DEFAULT_MODULE_DEPS_PATH,
     PRE_0_12_0_ROOT_PATH,
@@ -326,15 +328,15 @@ class Loader:
         except AttributeError:
             cls.yaml_loader = yaml.SafeLoader
 
-        config_path = ""
+        cls.config_path = ""
         for possible_path in config_paths:
             if not os.path.isfile(possible_path):
                 _LOGGER.debug(_("Config file %s not found."), possible_path)
             else:
-                config_path = possible_path
+                cls.config_path = possible_path
                 break
 
-        if not config_path:
+        if not cls.config_path:
             try:
                 move_config_to_appdir(PRE_0_12_0_ROOT_PATH, DEFAULT_ROOT_PATH)
             except FileNotFoundError:
@@ -342,7 +344,7 @@ class Loader:
                     _("No configuration files found. " "Creating %s"),
                     DEFAULT_CONFIG_PATH,
                 )
-            config_path = cls.create_default_config(DEFAULT_CONFIG_PATH)
+            cls.config_path = cls.create_default_config(DEFAULT_CONFIG_PATH)
 
         env_var_pattern = re.compile(r"^\$([A-Z_]*)$")
         cls.yaml_loader.add_implicit_resolver("!envvar", env_var_pattern, first="$")
@@ -355,8 +357,9 @@ class Loader:
 
         def include_constructor(loader, node):
             """Add a yaml file to be loaded inside another."""
-            main_yaml_path = os.path.split(stream.name)[0]
-            included_yaml = os.path.join(main_yaml_path, loader.construct_scalar(node))
+            included_yaml = os.path.join(
+                os.path.dirname(cls.config_path), loader.construct_scalar(node)
+            )
 
             with open(included_yaml, "r") as included:
                 return yaml.load(included, Loader=cls.yaml_loader)
@@ -364,12 +367,15 @@ class Loader:
         cls.yaml_loader.add_constructor("!envvar", envvar_constructor)
         cls.yaml_loader.add_constructor("!include", include_constructor)
         try:
-            with open(config_path, "r") as stream:
-                _LOGGER.info(_("Loaded config from %s."), config_path)
-                schema = yamale.make_schema(SCHEMA_PATH)
-                data = yamale.make_data(config_path)
-                yamale.validate(schema, data)
-                return yaml.load(stream, Loader=cls.yaml_loader)
+            schema = yamale.make_schema(SCHEMA_PATH)
+            data = yamale.make_data(cls.config_path)
+            yamale.validate(schema, data)
+            with open(cls.config_path, "r") as stream:
+                user_config = yaml.load(stream, Loader=cls.yaml_loader)
+            with open(DEFAULT_CONFIG_FILE, "r") as stream:
+                default_config = yaml.load(stream, Loader=cls.yaml_loader)
+            _LOGGER.info(_("Loaded config from %s."), cls.config_path)
+            return config_merge(default_config, user_config)
 
         except (ValueError, yaml.YAMLError, FileNotFoundError) as error:
             _LOGGER.critical(error)
@@ -475,6 +481,10 @@ class Loader:
             # Set up module config
             config = module
             config = {} if config is None else config
+
+            # Skip loading if module is disabled
+            if "enabled" in config and not config["enabled"]:
+                continue
 
             # We might load from a configuration file an item that is just
             # a string, rather than a mapping object

@@ -1,7 +1,6 @@
 welcome-message: bool(required=False)
 
-connectors:
-  list(include('websocket', required=False),
+connectors: list(include('websocket', required=False),
   include('shell', required=False),
   include('webexteams', required=False),
   include('facebook', required=False),
@@ -10,10 +9,10 @@ connectors:
   include('slack', required=False),
   include('telegram', required=False),
   include('twitter', required=False),
-  include('gitter', required=False))
+  include('gitter', required=False),
+  include('rss', required=False))
 
-databases:
-  list(include('mongo', required=False),
+databases: list(include('mongo', required=False),
   include('redis', required=False),
   include('sqlite', required=False),required=False)
 
@@ -77,7 +76,7 @@ matrix:
   send_m_notice: bool(required=False)
 ---
 room1:
-  'main': str()
+  "main": str()
 ---
 slack:
   name: regex('^(?i)slack$')
@@ -108,6 +107,9 @@ gitter:
   bot-name: str(required=False)
   room-id: str()
   access-token: str()
+---
+rss:
+  enabled: bool(required=False)
 ---
 skill:
   name: str()
