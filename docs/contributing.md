@@ -110,7 +110,7 @@ ERROR: InvocationError for command /home/travis/build/opsdroid/opsdroid/.tox/lin
 
 As you can see black tells you that it found some issues with linting on 1 file and since it reformats your code to fix the linting issues, it tells you that the file would be reformatted.
 
-Black will change your file and if you go to `git status` you will see that your file was modified. You just need to add the files to starting again and commit them with the previous commit message. Afterwards, you can push the changes to your repository/PR.
+Black will change your file and if you go to `git status` you will see that your file was modified. You just need to add the files to starting again and commit them with the previous commit message. Afterward, you can push the changes to your repository/PR.
 
 *Example of good linting*
 If your linting is good when you commit your changes you will see the following message:
