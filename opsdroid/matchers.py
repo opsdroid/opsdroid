@@ -11,13 +11,14 @@ _LOGGER = logging.getLogger(__name__)
 def match_event(event_type):
     """Return event type matcher.
 
-    Decorator that calls skill based on passed event_type
+    Decorator that calls skill based on passed event_type.
 
     Args:
         event_type (str): opsdroidstarted, message, typing, reaction, file, image
 
     Returns:
         Decorated function
+
     """
 
 
@@ -47,6 +48,7 @@ def match_regex(
 
     Returns:
         Decorated function
+
     """
 
     def matcher(func):
@@ -85,6 +87,7 @@ def match_parse(
 
     Returns:
         Decorated function
+
     """
 
     def matcher(func):
