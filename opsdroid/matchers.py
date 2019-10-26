@@ -28,13 +28,16 @@ def match_regex(
 ):
     """Return regex match decorator.
 
+    Decorator used to handle regex matching in skills. Decorated skill will be called if regex string matches. Matching
+    can be customized based on the matching condition passed.
+
     Args:
         regex (str): Regex expression as a string.
         case_sensitive (bool): Flag to check for case sensitive matching, defaults to True.
-        matching_condition (str):
-        score_factor (bool):
+        matching_condition (str): Type of matching to be applied, can be "search", "match" or "fullmatch"
+        score_factor (bool): Score multiplier used by Rasa NLU skills
 
-    Returns:
+    Returns: Decorated function
 
     """
 
