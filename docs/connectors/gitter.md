@@ -20,3 +20,5 @@ connectors:
     bot-name: "mr.boot" #optional
     room-id: "to be added" #required
     access-token: "to be added" #required
+    # optional
+    proxy: http://proxy:8080

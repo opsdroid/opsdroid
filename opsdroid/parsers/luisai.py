@@ -3,6 +3,7 @@
 import logging
 import json
 import contextlib
+import os
 
 import aiohttp
 
@@ -27,6 +28,18 @@ async def call_luisai(message, config):
             + "&q="
             + message.text,
             headers=headers,
+            proxy=config.get(
+                "proxy",
+                os.environ.get(
+                    "https_proxy",
+                    os.environ.get(
+                        "HTTPS_PROXY",
+                        os.environ.get(
+                            "http_proxy", os.environ.get("HTTP_PROXY", None)
+                        ),
+                    ),
+                ),
+            ),
         )
         result = await resp.json()
         _LOGGER.debug(_("luis.ai response - %s"), json.dumps(result))

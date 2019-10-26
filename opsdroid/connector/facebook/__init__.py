@@ -1,6 +1,7 @@
 """A connector for Facebook Messenger."""
 import json
 import logging
+import os
 
 import aiohttp
 
@@ -35,6 +36,16 @@ class ConnectorFacebook(Connector):
         _LOGGER.debug(_("Starting facebook connector"))
         self.name = self.config.get("name", "facebook")
         self.bot_name = config.get("bot-name", "opsdroid")
+        self.proxy = config.get(
+            "proxy",
+            os.environ.get(
+                "https_proxy",
+                os.environ.get(
+                    "HTTPS_PROXY",
+                    os.environ.get("http_proxy", os.environ.get("HTTP_PROXY", None)),
+                ),
+            ),
+        )
 
     async def connect(self):
         """Connect to the chat service."""
@@ -108,7 +119,9 @@ class ConnectorFacebook(Connector):
             "message": {"text": message.text},
         }
         async with aiohttp.ClientSession() as session:
-            resp = await session.post(url, data=json.dumps(payload), headers=headers)
+            resp = await session.post(
+                url, data=json.dumps(payload), headers=headers, proxy=self.proxy
+            )
             if resp.status < 300:
                 _LOGGER.info(_("Responded with: %s"), message.text)
             else:

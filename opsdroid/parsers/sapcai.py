@@ -1,6 +1,7 @@
 """A helper function for parsing and executing Recast.AI skills."""
 import logging
 import json
+import os
 
 import aiohttp
 
@@ -20,7 +21,21 @@ async def call_sapcai(message, config, lang=DEFAULT_LANGUAGE):
             "Content-Type": "application/json",
         }
         resp = await session.post(
-            SAPCAI_API_ENDPOINT, data=json.dumps(payload), headers=headers
+            SAPCAI_API_ENDPOINT,
+            data=json.dumps(payload),
+            headers=headers,
+            proxy=config.get(
+                "proxy",
+                os.environ.get(
+                    "https_proxy",
+                    os.environ.get(
+                        "HTTPS_PROXY",
+                        os.environ.get(
+                            "http_proxy", os.environ.get("HTTP_PROXY", None)
+                        ),
+                    ),
+                ),
+            ),
         )
         result = await resp.json()
         _LOGGER.info(_("SAP Conversational AI response - %s"), json.dumps(result))

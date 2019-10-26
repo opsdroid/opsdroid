@@ -1,6 +1,7 @@
 """A connector for GitHub."""
 import json
 import logging
+import os
 
 import aiohttp
 
@@ -28,12 +29,22 @@ class ConnectorGitHub(Connector):
         self.name = self.config.get("name", "github")
         self.opsdroid = opsdroid
         self.github_username = None
+        self.proxy = self.config.get(
+            "proxy",
+            os.environ.get(
+                "https_proxy",
+                os.environ.get(
+                    "HTTPS_PROXY",
+                    os.environ.get("http_proxy", os.environ.get("HTTP_PROXY", None)),
+                ),
+            ),
+        )
 
     async def connect(self):
         """Connect to GitHub."""
         url = "{}/user?access_token={}".format(GITHUB_API_URL, self.github_token)
         async with aiohttp.ClientSession() as session:
-            response = await session.get(url)
+            response = await session.get(url, proxy=self.proxy)
             if response.status >= 300:
                 _LOGGER.error(_("Error connecting to github: %s"), response.text())
                 return False
@@ -102,7 +113,9 @@ class ConnectorGitHub(Connector):
         url = "{}/repos/{}/issues/{}/comments".format(GITHUB_API_URL, repo, issue)
         headers = {"Authorization": " token {}".format(self.github_token)}
         async with aiohttp.ClientSession() as session:
-            resp = await session.post(url, json={"body": message.text}, headers=headers)
+            resp = await session.post(
+                url, json={"body": message.text}, headers=headers, proxy=self.proxy
+            )
             if resp.status == 201:
                 _LOGGER.info(_("Message sent."))
                 return True

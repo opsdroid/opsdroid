@@ -2,6 +2,7 @@
 import asyncio
 import logging
 import aiohttp
+import os
 
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message, Image
@@ -34,6 +35,16 @@ class ConnectorTelegram(Connector):
         self.session = None
         self._closing = asyncio.Event()
         self.loop = asyncio.get_event_loop()
+        self.proxy = config.get(
+            "proxy",
+            os.environ.get(
+                "https_proxy",
+                os.environ.get(
+                    "HTTPS_PROXY",
+                    os.environ.get("http_proxy", os.environ.get("HTTP_PROXY", None)),
+                ),
+            ),
+        )
 
         try:
             self.token = config["token"]
@@ -125,7 +136,7 @@ class ConnectorTelegram(Connector):
         """
         _LOGGER.debug(_("Connecting to Telegram"))
         self.session = aiohttp.ClientSession()
-        resp = await self.session.get(self.build_url("getMe"))
+        resp = await self.session.get(self.build_url("getMe"), proxy=self.proxy)
 
         if resp.status != 200:
             _LOGGER.error(_("Unable to connect"))
@@ -205,7 +216,9 @@ class ConnectorTelegram(Connector):
             data["offset"] = self.latest_update
 
         await asyncio.sleep(self.update_interval)
-        resp = await self.session.get(self.build_url("getUpdates"), params=data)
+        resp = await self.session.get(
+            self.build_url("getUpdates"), params=data, proxy=self.proxy
+        )
 
         if resp.status == 409:
             _LOGGER.info(
@@ -268,7 +281,9 @@ class ConnectorTelegram(Connector):
         data = dict()
         data["chat_id"] = message.target["id"]
         data["text"] = message.text
-        resp = await self.session.post(self.build_url("sendMessage"), data=data)
+        resp = await self.session.post(
+            self.build_url("sendMessage"), data=data, proxy=self.proxy
+        )
         if resp.status == 200:
             _LOGGER.debug(_("Successfully responded"))
         else:
@@ -292,7 +307,9 @@ class ConnectorTelegram(Connector):
             content_type="multipart/form-data",
         )
 
-        resp = await self.session.post(self.build_url("sendPhoto"), data=data)
+        resp = await self.session.post(
+            self.build_url("sendPhoto"), data=data, proxy=self.proxy
+        )
         if resp.status == 200:
             _LOGGER.debug(_("Sent %s image " "successfully"), file_event.name)
         else:

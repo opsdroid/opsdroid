@@ -6,6 +6,7 @@ import logging
 from random import randrange
 from datetime import datetime
 from collections import defaultdict
+import os
 
 import aiohttp
 import puremagic
@@ -307,6 +308,7 @@ class File(Event):
         url_headers=None,
         name=None,
         mimetype=None,
+        http_proxy=None,
         *args,
         **kwargs,
     ):  # noqa: D107
@@ -320,13 +322,26 @@ class File(Event):
         self._file_bytes = file_bytes
         self.url = url
         self._url_headers = url_headers
+        self.http_proxy = (
+            http_proxy
+            if http_proxy
+            else os.environ.get(
+                "https_proxy",
+                os.environ.get(
+                    "HTTPS_PROXY",
+                    os.environ.get("http_proxy", os.environ.get("HTTP_PROXY", None)),
+                ),
+            )
+        )
 
     async def get_file_bytes(self):
         """Return the bytes representation of this file."""
         if not self._file_bytes and self.url:
             async with aiohttp.ClientSession() as session:
                 _LOGGER.debug(self._url_headers)
-                async with session.get(self.url, headers=self._url_headers) as resp:
+                async with session.get(
+                    self.url, headers=self._url_headers, proxy=self.http_proxy
+                ) as resp:
                     self._file_bytes = await resp.read()
 
         return self._file_bytes

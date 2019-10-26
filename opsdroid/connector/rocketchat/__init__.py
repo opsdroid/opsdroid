@@ -3,6 +3,7 @@ import asyncio
 import logging
 import datetime
 import aiohttp
+import os
 
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
@@ -38,6 +39,16 @@ class RocketChat(Connector):
         self._closing = asyncio.Event()
         self.loop = asyncio.get_event_loop()
         self.session = None
+        self.proxy = config.get(
+            "proxy",
+            os.environ.get(
+                "https_proxy",
+                os.environ.get(
+                    "HTTPS_PROXY",
+                    os.environ.get("http_proxy", os.environ.get("HTTP_PROXY", None)),
+                ),
+            ),
+        )
 
         try:
             self.user_id = config["user-id"]
@@ -79,7 +90,9 @@ class RocketChat(Connector):
         """
         _LOGGER.info(_("Connecting to Rocket.Chat"))
         self.session = aiohttp.ClientSession()
-        resp = await self.session.get(self.build_url("me"), headers=self.headers)
+        resp = await self.session.get(
+            self.build_url("me"), headers=self.headers, proxy=self.proxy
+        )
         if resp.status != 200:
             _LOGGER.error(_("Unable to connect."))
             _LOGGER.error(_("Rocket.Chat error %s, %s"), resp.status, resp.text)
@@ -130,7 +143,7 @@ class RocketChat(Connector):
             url += "&oldest={}".format(self.latest_update)
 
             await asyncio.sleep(self.update_interval)
-            resp = await self.session.get(url, headers=self.headers)
+            resp = await self.session.get(url, headers=self.headers, proxy=self.proxy)
 
             if resp.status != 200:
                 _LOGGER.error(_("Rocket.Chat error %s, %s"), resp.status, resp.text)
@@ -187,7 +200,10 @@ class RocketChat(Connector):
         data["text"] = message.text
         data["avatar"] = ""
         resp = await self.session.post(
-            self.build_url("chat.postMessage"), headers=self.headers, data=data
+            self.build_url("chat.postMessage"),
+            headers=self.headers,
+            data=data,
+            proxy=self.proxy,
         )
 
         if resp.status == 200:
