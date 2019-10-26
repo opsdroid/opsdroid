@@ -87,7 +87,7 @@ def match_parse(
 
 
 def match_dialogflow_action(action):
-    """Return Dialogflowi action match decorator."""
+    """Return Dialogflow action match decorator."""
 
     def matcher(func):
         """Add decorated function to skills list for Dialogflow matching."""
