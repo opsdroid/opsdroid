@@ -29,7 +29,9 @@ def match_event(event_type):
     return matcher
 
 
-def match_regex(regex, case_sensitive=True, matching_condition="match", score_factor=None):
+def match_regex(
+    regex, case_sensitive=True, matching_condition="match", score_factor=None
+):
     """Return regex match decorator.
 
     Decorator used to handle regex matching in skills. Decorated function will be called if regex
@@ -66,7 +68,7 @@ def match_regex(regex, case_sensitive=True, matching_condition="match", score_fa
 
 
 def match_parse(
-        format_str, case_sensitive=True, matching_condition="match", score_factor=None
+    format_str, case_sensitive=True, matching_condition="match", score_factor=None
 ):
     """Return parse match decorator.
 
