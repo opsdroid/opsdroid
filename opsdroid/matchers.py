@@ -12,10 +12,8 @@ def match_event(event_type):
     """Return event type matcher.
 
     Decorator that calls skill based on passed event_type.
-
     Args:
         event_type (str): opsdroidstarted, message, typing, reaction, file, image
-
     Returns:
         Decorated function
 
@@ -31,9 +29,7 @@ def match_event(event_type):
     return matcher
 
 
-def match_regex(
-        regex, case_sensitive=True, matching_condition="match", score_factor=None
-    ):
+def match_regex(regex, case_sensitive=True, matching_condition="match", score_factor=None):
     """Return regex match decorator.
 
     Decorator used to handle regex matching in skills. Decorated function will be called if regex
