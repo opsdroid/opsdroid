@@ -16,6 +16,8 @@ def match_event(event_type):
     Args:
         event_type (str): opsdroidstarted, message, typing, reaction, file, image
 
+    Returns:
+        Decorated function
     """
 
 
@@ -42,14 +44,12 @@ def match_regex(
         matching_condition (str): Type of matching to be applied, can be "search", "match" or "fullmatch"
         score_factor (float): Score multiplier used by Rasa NLU skills
 
-    Returns: Decorated function
-
+    Returns:
+        Decorated function
     """
 
     def matcher(func):
-        """Add decorated function to skills list for regex matching.
-
-        """
+        """Add decorated function to skills list for regex matching."""
         func = add_skill_attributes(func)
         func.matchers.append(
             {
@@ -81,8 +81,8 @@ def match_parse(
         matching_condition (str): Type of matching to be applied, can be "match" or "search"
         score_factor (float): Score multiplier used by Rasa NLU skills
 
-    Returns: Decorated function
-
+    Returns:
+        Decorated function
     """
 
     def matcher(func):
@@ -116,10 +116,7 @@ def match_dialogflow_action(action):
 
 
 def match_dialogflow_intent(intent):
-    """Return Dialogflow intent match decorator.
-
-
-    """
+    """Return Dialogflow intent match decorator."""
 
     def matcher(func):
         """Add decorated function to skills list for Dialogflow matching."""
@@ -131,9 +128,7 @@ def match_dialogflow_intent(intent):
 
 
 def match_luisai_intent(intent):
-    """Return luisai intent match decorator.
-
-    """
+    """Return luisai intent match decorator."""
 
     def matcher(func):
         """Add decorated function to skills list for luisai matching."""
@@ -145,9 +140,7 @@ def match_luisai_intent(intent):
 
 
 def match_rasanlu(intent):
-    """Return Rasa NLU intent match decorator.
-
-    """
+    """Return Rasa NLU intent match decorator."""
 
     def matcher(func):
         """Add decorated function to skills list for Rasa NLU matching."""
@@ -159,9 +152,7 @@ def match_rasanlu(intent):
 
 
 def match_recastai(intent):
-    """Return recastai intent match decorator.
-
-    """
+    """Return recastai intent match decorator."""
 
     def matcher(func):
         """Add decorated function to skills list for recastai matching."""
@@ -180,9 +171,7 @@ def match_recastai(intent):
 
 
 def match_sapcai(intent):
-    """Return SAP Conversational AI intent match decorator.
-
-    """
+    """Return SAP Conversational AI intent match decorator."""
 
     def matcher(func):
         """Add decorated function to skills list for SAPCAI matching."""
@@ -206,9 +195,7 @@ def match_watson(intent):
 
 
 def match_witai(intent):
-    """Return witai intent match decorator.
-
-    """
+    """Return witai intent match decorator."""
 
     def matcher(func):
         """Add decorated function to skills list for witai matching."""
@@ -220,9 +207,7 @@ def match_witai(intent):
 
 
 def match_crontab(crontab, timezone=None):
-    """Return crontab match decorator.
-
-    """
+    """Return crontab match decorator."""
 
     def matcher(func):
         """Add decorated function to skills list for crontab matching."""
@@ -234,9 +219,7 @@ def match_crontab(crontab, timezone=None):
 
 
 def match_webhook(webhook):
-    """Return webhook match decorator.
-
-    """
+    """Return webhook match decorator."""
 
     def matcher(func):
         """Add decorated function to skills list for webhook matching."""
@@ -249,9 +232,7 @@ def match_webhook(webhook):
 
 
 def match_always(func=None):
-    """Return always match decorator.
-
-    """
+    """Return always match decorator."""
 
     def matcher(func):
         """Add decorated function to skills list for always matching."""
