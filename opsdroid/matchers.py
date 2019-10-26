@@ -12,13 +12,13 @@ def match_event(event_type):
     """Return event type matcher.
 
     Decorator that calls skill based on passed event_type.
+
     Args:
         event_type (str): opsdroidstarted, message, typing, reaction, file, image
     Returns:
         Decorated function
 
     """
-
 
     def matcher(func):
         """Add decorated function to list for event matching."""
