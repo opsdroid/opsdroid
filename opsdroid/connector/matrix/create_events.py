@@ -70,7 +70,7 @@ class MatrixEventCreator:
     async def create_file(self, event, roomid):
         """Send a File event."""
         kwargs = await self._file_kwargs(event, roomid)
-        return events.File(http_proxy=self.connector.proxy, **kwargs)
+        return events.File(**kwargs)
 
     async def create_image(self, event, roomid):
         """Send a Image event."""

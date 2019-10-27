@@ -8,8 +8,6 @@ Maintained by [@SolarDrew](https://github.com/SolarDrew).
 
 To use this connector you will need to have a Matrix account, and login using your Matrix username (mxid) and password.
 
-To use a HTTP proxy you will need to set the https_proxy/http_proxy environment variables.
-
 ## Configuration
 
 ```yaml

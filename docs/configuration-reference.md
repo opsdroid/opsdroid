@@ -29,6 +29,7 @@
     - [Disable dependency install](#disable-dependency-install)
   - [Environment variables](#environment-variables)
   - [Include additional yaml files](#include-additional-yaml-files)
+  - [HTTP Proxy support](#http-proxy-support)
 
 ## Config file
 
@@ -130,8 +131,6 @@ connectors:
 ```
 
 Some connectors will allow you to specify a delay to simulate a real user, you just need to add the delay option under a connector in the `configuration.yaml` file.
-
-To allow a connector to use a HTTP proxy, either define the https_proxy/http_proxy environment variables, or set a `proxy:` key in the connector configuration. The matrix connector only uses environment variables to configure it to use a proxy server.
 
 **Thinking Delay:** accepts a _int_, _float_ or a _list_ to delay reply by _x_ seconds.
 **Typing Delay:** accepts a _int_, _float_ or a _list_ to delay reply by _x_ seconds - this is calculated by the length of opsdroid response text so waiting time will be variable.
@@ -542,3 +541,7 @@ skills: !include skills.yaml
 ```
 
 _Note: The file.yaml that you wish to include in the config must be in the same directory as your configuration.yaml (e.g ~/.opsdroid)_
+
+## HTTP proxy support
+
+If you need to use a HTTP proxy, set the HTTP_PROXY and HTTPS_PROXY environment variables.

@@ -4,7 +4,6 @@ import re
 import logging
 from concurrent.futures import CancelledError
 from urllib.parse import urlparse
-import os
 
 import aiohttp
 
@@ -42,16 +41,6 @@ class ConnectorMatrix(Connector):
         self.session = None
         self.filter_id = None
         self.connection = None
-        self.proxy = config.get(
-            "proxy",
-            os.environ.get(
-                "https_proxy",
-                os.environ.get(
-                    "HTTPS_PROXY",
-                    os.environ.get("http_proxy", os.environ.get("HTTP_PROXY", None)),
-                ),
-            ),
-        )
 
         self._event_creator = MatrixEventCreator(self)
 
@@ -83,7 +72,7 @@ class ConnectorMatrix(Connector):
 
     async def connect(self):
         """Create connection object with chat library."""
-        session = aiohttp.ClientSession(trust_env=True if self.proxy else False)
+        session = aiohttp.ClientSession(trust_env=True)
         mapi = AsyncHTTPAPI(self.homeserver, session)
 
         self.session = session

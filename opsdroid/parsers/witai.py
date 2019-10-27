@@ -2,7 +2,6 @@
 
 import logging
 import json
-import os
 
 import aiohttp
 
@@ -14,24 +13,12 @@ _LOGGER = logging.getLogger(__name__)
 
 async def call_witai(message, config):
     """Call the wit.ai api and return the response."""
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(trust_env=True) as session:
         headers = {"Authorization": "Bearer " + config["access-token"]}
         payload = {"v": WITAI_DEFAULT_VERSION, "q": message.text}
         resp = await session.get(
             WITAI_API_ENDPOINT + "v={}&q={}".format(payload["v"], payload["q"]),
             headers=headers,
-            proxy=config.get(
-                "proxy",
-                os.environ.get(
-                    "https_proxy",
-                    os.environ.get(
-                        "HTTPS_PROXY",
-                        os.environ.get(
-                            "http_proxy", os.environ.get("HTTP_PROXY", None)
-                        ),
-                    ),
-                ),
-            ),
         )
         result = await resp.json()
         _LOGGER.info(_("wit.ai response - %s"), json.dumps(result))

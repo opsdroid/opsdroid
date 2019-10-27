@@ -3,7 +3,6 @@
 import logging
 import json
 import unicodedata
-import os
 
 from hashlib import sha256
 
@@ -48,20 +47,6 @@ async def _build_status_url(config):
     return "{}/status".format(config.get("url", RASANLU_DEFAULT_URL))
 
 
-async def _get_proxy(config):
-    """Get the proxy server to use."""
-    return config.get(
-        "proxy",
-        os.environ.get(
-            "https_proxy",
-            os.environ.get(
-                "HTTPS_PROXY",
-                os.environ.get("http_proxy", os.environ.get("HTTP_PROXY", None)),
-            ),
-        ),
-    )
-
-
 async def _init_model(config):
     """Make a request to force Rasa NLU to load the model into memory."""
     _LOGGER.info(_("Initialising Rasa NLU model."))
@@ -82,11 +67,9 @@ async def _init_model(config):
 async def _get_existing_models(config):
     """Get a list of models already trained in the Rasa NLU project."""
     project = config.get("project", RASANLU_DEFAULT_PROJECT)
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(trust_env=True) as session:
         try:
-            resp = await session.get(
-                await _build_status_url(config), proxy=await _get_proxy(config)
-            )
+            resp = await session.get(await _build_status_url(config))
             if resp.status == 200:
                 result = await resp.json()
                 if project in result["available_projects"]:
@@ -111,7 +94,7 @@ async def train_rasanlu(config, skills):
         await _init_model(config)
         return True
 
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(trust_env=True) as session:
         _LOGGER.info(_("Now training the model. This may take a while..."))
 
         url = await _build_training_url(config)
@@ -125,9 +108,7 @@ async def train_rasanlu(config, skills):
 
         try:
             training_start = arrow.now()
-            resp = await session.post(
-                url, data=intents, headers=headers, proxy=await _get_proxy(config)
-            )
+            resp = await session.post(url, data=intents, headers=headers)
         except aiohttp.client_exceptions.ClientConnectorError:
             _LOGGER.error(_("Unable to connect to Rasa NLU, training failed."))
             return False
@@ -175,7 +156,7 @@ async def train_rasanlu(config, skills):
 
 async def call_rasanlu(text, config):
     """Call the Rasa NLU api and return the response."""
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(trust_env=True) as session:
         headers = {}
         data = {
             "q": text,
@@ -186,12 +167,7 @@ async def call_rasanlu(text, config):
             data["token"] = config["token"]
         url = config.get("url", RASANLU_DEFAULT_URL) + "/parse"
         try:
-            resp = await session.post(
-                url,
-                data=json.dumps(data),
-                headers=headers,
-                proxy=await _get_proxy(config),
-            )
+            resp = await session.post(url, data=json.dumps(data), headers=headers)
         except aiohttp.client_exceptions.ClientConnectorError:
             _LOGGER.error(_("Unable to connect to Rasa NLU"))
             return None

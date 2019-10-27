@@ -21,7 +21,6 @@ connectors:
     group: "MyAwesomeGroup" # default to None 
     channel-url: "http://127.0.0.1" # defaults to https://open.rocket.chat
     update-interval: 5 # defaults to 1
-    proxy: http://proxy:8080
 ```
 
 _Notes:_

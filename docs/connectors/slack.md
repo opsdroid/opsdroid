@@ -23,7 +23,6 @@ connectors:
     default-room: "#random" # default "#general"
     icon-emoji: ":smile:" # default ":robot_face:"
     connect-timeout: 10 # default 10 seconds
-    proxy: http://proxy:8080
 ```
 
 ## Usage

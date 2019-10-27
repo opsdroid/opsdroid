@@ -25,7 +25,6 @@ connectors:
     whitelisted-users:  # List of users who can speak to the bot, if not set anyone can speak
       - user1
       - user2
-    proxy: http://proxy:8080
 ```
 
 ## Usage

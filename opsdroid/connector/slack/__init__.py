@@ -1,6 +1,7 @@
 """A connector for Slack."""
 import logging
 import re
+import os
 
 import slack
 from emoji import demojize
@@ -25,18 +26,12 @@ class ConnectorSlack(Connector):
         self.icon_emoji = config.get("icon-emoji", ":robot_face:")
         self.token = config["api-token"]
         self.timeout = config.get("connect-timeout", 10)
-        proxy = config.get(
-            "proxy",
-            os.environ.get(
-                "https_proxy",
-                os.environ.get(
-                    "HTTPS_PROXY",
-                    os.environ.get("http_proxy", os.environ.get("HTTP_PROXY", None)),
-                ),
-            ),
+        self.slack = slack.WebClient(
+            token=self.token, run_async=True, proxy=os.environ.get("HTTPS_PROXY")
         )
-        self.slack = slack.WebClient(token=self.token, run_async=True, proxy=proxy)
-        self.slack_rtm = slack.RTMClient(token=self.token, run_async=True, proxy=proxy)
+        self.slack_rtm = slack.RTMClient(
+            token=self.token, run_async=True, proxy=os.environ.get("HTTPS_PROXY")
+        )
         self.websocket = None
         self.bot_name = config.get("bot-name", "opsdroid")
         self.auth_info = None

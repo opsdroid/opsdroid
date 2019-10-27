@@ -26,5 +26,4 @@ connectors:
     page-access-token: aabbccddee112233445566
     # optional
     bot-name: "mybot" # default "opsdroid"
-    proxy: http://proxy:8080
 ```

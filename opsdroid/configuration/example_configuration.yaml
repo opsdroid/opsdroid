@@ -105,7 +105,6 @@ connectors:
 #    # optional
 #    enable_dms: true  # Should the bot respond to Direct Messages
 #    enable_tweets: true  # Should the bot respond to tweets
-#    proxy: http://myproxyserver:8080
 #
 #  ## Webexteams (core)
 #  - name: webexteams
@@ -120,7 +119,6 @@ connectors:
 #    page-access-token: aabbccddee112233445566
 #    # optional
 #    bot-name: "mybot" # default "opsdroid"
-#    proxy: http://myproxyserver:8080
 #
 #  ## Matrix (core)
 #  - name: matrix
@@ -138,17 +136,14 @@ connectors:
 #    homeserver: "https://matrix.org"
 #    nick: "Botty McBotface"  # The nick will be set on startup
 #    room_specific_nicks: False  # Look up room specific nicknames of senders (expensive in large rooms)
-#    proxy: True #Uses http_proxy/https_proxy environment variables
 #
 #  ## Github (core)
 #  - name: github
 #    # required
 #    token: aaabbbcccdddeee111222333444
-#    proxy: http://myproxyserver:8080
 #
 #  ## Gitter (core)
 #  - name: gitter
-#    proxy: http://myproxyserver:8080
 #
 #  ## Telegram (core)
 #  - name: telegram
@@ -160,7 +155,6 @@ connectors:
 #    whitelisted-users:  # List of users who can speak to the bot, if not set anyone can speak
 #      - user1
 #      - user2
-#    proxy: http://myproxyserver:8080
 #
 #  ## Slack (core)
 #  - name: slack
@@ -171,7 +165,6 @@ connectors:
 #    default-room: "#random" # default "#general"
 #    icon-emoji: ":smile:" # default ":robot_face:"
 #    connect-timeout: 10 # default 10 seconds
-#    proxy: http://myproxyserver:8080
 #
 #  ## Rocketchat (core)
 #  - name: rocketchat
@@ -184,7 +177,6 @@ connectors:
 #    group: "MyAwesomeGroup" # default to None 
 #    channel-url: "http://127.0.0.1" # defaults to https://open.rocket.chat
 #    update-interval: 5 # defaults to 1
-#    proxy: http://myproxyserver:8080
 #
 #  ## Shell (core)
 #  - name: shell

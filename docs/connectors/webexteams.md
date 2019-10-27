@@ -21,6 +21,4 @@ connectors:
     # required
     webhook-url: http(s)://<host>:<port>  # Url for Webex Teams to connect to your bot
     access-token: <your bot access token>  # Your access token
-    # optional
-    proxy: http://proxy:8080
 ```

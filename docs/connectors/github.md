@@ -22,6 +22,4 @@ connectors:
   - name: github
     # required
     token: aaabbbcccdddeee111222333444
-    # optional
-    proxy: http://proxy:8080
 ```

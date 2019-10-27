@@ -1,7 +1,6 @@
 """A helper function for parsing and executing Recast.AI skills."""
 import logging
 import json
-import os
 
 import aiohttp
 
@@ -14,28 +13,14 @@ _LOGGER = logging.getLogger(__name__)
 
 async def call_sapcai(message, config, lang=DEFAULT_LANGUAGE):
     """Call the SAP Conversational AI api and return the response."""
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(trust_env=True) as session:
         payload = {"language": lang, "text": message.text}
         headers = {
             "Authorization": "Token " + config["access-token"],
             "Content-Type": "application/json",
         }
         resp = await session.post(
-            SAPCAI_API_ENDPOINT,
-            data=json.dumps(payload),
-            headers=headers,
-            proxy=config.get(
-                "proxy",
-                os.environ.get(
-                    "https_proxy",
-                    os.environ.get(
-                        "HTTPS_PROXY",
-                        os.environ.get(
-                            "http_proxy", os.environ.get("HTTP_PROXY", None)
-                        ),
-                    ),
-                ),
-            ),
+            SAPCAI_API_ENDPOINT, data=json.dumps(payload), headers=headers
         )
         result = await resp.json()
         _LOGGER.info(_("SAP Conversational AI response - %s"), json.dumps(result))

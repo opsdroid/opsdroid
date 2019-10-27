@@ -4,7 +4,6 @@ import aiohttp
 import asyncio
 import json
 import urllib
-import os
 
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
@@ -30,32 +29,20 @@ class ConnectorGitter(Connector):
         self.update_interval = 1
         self.opsdroid = opsdroid
         self.listening = True
-        self.proxy = self.config.get(
-            "proxy",
-            os.environ.get(
-                "https_proxy",
-                os.environ.get(
-                    "HTTPS_PROXY",
-                    os.environ.get("http_proxy", os.environ.get("HTTP_PROXY", None)),
-                ),
-            ),
-        )
 
     async def connect(self):
         """Create the connection."""
 
         # Create connection object with chat library
         _LOGGER.debug(_("Connecting with gitter stream"))
-        self.session = aiohttp.ClientSession()
+        self.session = aiohttp.ClientSession(trust_env=True)
         gitter_url = self.build_url(
             GITTER_STREAM_API,
             self.room_id,
             "chatMessages",
             access_token=self.access_token,
         )
-        self.response = await self.session.get(
-            gitter_url, timeout=None, proxy=self.proxy
-        )
+        self.response = await self.session.get(gitter_url, timeout=None)
 
     def build_url(self, base_url, *res, **params):
         """Build the url. args ex:(base_url,p1,p2=1,p2=2)."""
@@ -109,9 +96,7 @@ class ConnectorGitter(Connector):
             "Accept": "application/json",
         }
         payload = {"text": message.text}
-        resp = await self.session.post(
-            url, json=payload, headers=headers, proxy=self.proxy
-        )
+        resp = await self.session.post(url, json=payload, headers=headers)
         if resp.status == 200:
             _LOGGER.info(_("Successfully responded"))
         else:
