@@ -94,6 +94,12 @@ def get_config_path(config_paths):
 def load_config_file(config_paths):
     """Load a yaml config file from path.
 
+    We get a path for the configuration file and then use the yaml
+    library to load this file - the configuration will be shown as a
+    dict.  Here we also add constructors to our yaml loader and handle
+    different exceptions that could be raised when trying to load or
+    validate the file.
+
     Args:
         config_paths: List of paths to configuration.yaml files
 
