@@ -2,7 +2,7 @@ import os
 import shutil
 import sys
 import logging
-from voluptuous import Schema, MultipleInvalid, ALLOW_EXTRA
+from voluptuous import MultipleInvalid
 import yaml
 
 
@@ -19,6 +19,8 @@ from opsdroid.configuration.constructors import (
     include_constructor,
     env_var_pattern,
 )
+
+from opsdroid.configuration.validation import validate_configuration
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -111,19 +113,12 @@ def load_config_file(config_paths):
     yaml_loader.add_constructor("!envvar", envvar_constructor)
     yaml_loader.add_constructor("!include", include_constructor)
 
-    schema_test = {
-        "logging": {"level": str, "console": bool},
-        "welcome-message": bool,
-        "connectors": [{"name": str, "token": str, "access-token": str}],
-        "skills": [{"name": str}],
-    }
-    schema = Schema(schema_test, extra=ALLOW_EXTRA)
-
     try:
         with open(config_path, "r") as stream:
             _LOGGER.info(_("Loaded config from %s."), config_path)
+
             data = yaml.load(stream, Loader=yaml_loader)
-            schema(data)
+            validate_configuration(data)
 
             return data
 
