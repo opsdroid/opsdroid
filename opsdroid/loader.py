@@ -8,7 +8,6 @@ import importlib.util
 import json
 import logging
 import os
-import re
 import shutil
 import subprocess
 import sys
@@ -16,10 +15,8 @@ import tempfile
 import urllib.request
 from collections.abc import Mapping
 from pkg_resources import iter_entry_points
-import yaml
 
 from opsdroid.helper import (
-    move_config_to_appdir,
     file_is_ipython_notebook,
     convert_ipynb_to_script,
     extract_gist_id,
@@ -30,11 +27,7 @@ from opsdroid.const import (
     MODULES_DIRECTORY,
     DEFAULT_MODULES_PATH,
     DEFAULT_MODULE_BRANCH,
-    DEFAULT_CONFIG_PATH,
-    EXAMPLE_CONFIG_FILE,
     DEFAULT_MODULE_DEPS_PATH,
-    PRE_0_12_0_ROOT_PATH,
-    DEFAULT_ROOT_PATH,
 )
 
 
@@ -308,96 +301,6 @@ class Loader:
                 return intents
         else:
             return None
-
-    @staticmethod
-    def create_default_config(config_path):
-        """Create a default config file based on the included example.
-
-        Args:
-            config_path: String containing the path to configuration.yaml
-                default install location
-
-        Returns:
-            str: path to configuration.yaml default install location
-
-        """
-        _LOGGER.info("Creating %s.", config_path)
-        config_dir, _ = os.path.split(config_path)
-        if not os.path.isdir(config_dir):
-            os.makedirs(config_dir)
-        shutil.copyfile(EXAMPLE_CONFIG_FILE, config_path)
-        return config_path
-
-    @classmethod
-    def load_config_file(cls, config_paths):
-        """Load a yaml config file from path.
-
-        Args:
-            config_paths: List of paths to configuration.yaml files
-
-        Returns:
-            dict: Dict containing config fields
-
-        """
-
-        try:
-            cls.yaml_loader = yaml.CSafeLoader
-        except AttributeError:
-            cls.yaml_loader = yaml.SafeLoader
-
-        config_path = ""
-        for possible_path in config_paths:
-            if not os.path.isfile(possible_path):
-                _LOGGER.debug(_("Config file %s not found."), possible_path)
-            else:
-                config_path = possible_path
-                break
-
-        if not config_path:
-            try:
-                move_config_to_appdir(PRE_0_12_0_ROOT_PATH, DEFAULT_ROOT_PATH)
-            except FileNotFoundError:
-                _LOGGER.info(
-                    _("No configuration files found. " "Creating %s"),
-                    DEFAULT_CONFIG_PATH,
-                )
-            config_path = cls.create_default_config(DEFAULT_CONFIG_PATH)
-
-        env_var_pattern = re.compile(r"^\$([A-Z_]*)$")
-        cls.yaml_loader.add_implicit_resolver("!envvar", env_var_pattern, first="$")
-
-        def envvar_constructor(loader, node):
-            """Yaml parser for env vars."""
-            value = loader.construct_scalar(node)
-            [env_var] = env_var_pattern.match(value).groups()
-            return os.environ[env_var]
-
-        def include_constructor(loader, node):
-            """Add a yaml file to be loaded inside another."""
-            main_yaml_path = os.path.split(stream.name)[0]
-            included_yaml = os.path.join(main_yaml_path, loader.construct_scalar(node))
-
-            with open(included_yaml, "r") as included:
-                return yaml.load(included, Loader=cls.yaml_loader)
-
-        cls.yaml_loader.add_constructor("!envvar", envvar_constructor)
-        cls.yaml_loader.add_constructor("!include", include_constructor)
-        try:
-            with open(config_path, "r") as stream:
-                _LOGGER.info(_("Loaded config from %s."), config_path)
-
-                configuration = yaml.load(stream, Loader=cls.yaml_loader)
-                updated_configuration = update_pre_0_17_config_format(configuration)
-
-                return updated_configuration
-
-        except yaml.YAMLError as error:
-            _LOGGER.critical(error)
-            sys.exit(1)
-
-        except FileNotFoundError as error:
-            _LOGGER.critical(error)
-            sys.exit(1)
 
     def setup_modules_directory(self, config):
         """Create and configure the modules directory.
