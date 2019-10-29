@@ -1,6 +1,9 @@
+"""Load configuration from yaml file."""
+
 import os
 import shutil
 import sys
+import re
 import logging
 from voluptuous import MultipleInvalid
 import yaml
@@ -13,11 +16,6 @@ from opsdroid.const import (
     EXAMPLE_CONFIG_FILE,
     PRE_0_12_0_ROOT_PATH,
     DEFAULT_ROOT_PATH,
-)
-from opsdroid.configuration.constructors import (
-    envvar_constructor,
-    include_constructor,
-    env_var_pattern,
 )
 
 from opsdroid.configuration.validation import validate_configuration
@@ -40,7 +38,7 @@ def create_default_config(config_path):
         str: path to configuration.yaml default install location
 
     """
-    _LOGGER.info(_("Creating %s."), config_path)
+    _LOGGER.info("Creating %s.", config_path)
     config_dir, _ = os.path.split(config_path)
     if not os.path.isdir(config_dir):
         os.makedirs(config_dir)
@@ -91,6 +89,16 @@ def get_config_path(config_paths):
     return config_path
 
 
+env_var_pattern = re.compile(r"^\$([A-Z_]*)$")
+
+
+def envvar_constructor(loader, node):
+    """Yaml parser for env vars."""
+    value = loader.construct_scalar(node)
+    [env_var] = env_var_pattern.match(value).groups()
+    return os.environ[env_var]
+
+
 def load_config_file(config_paths):
     """Load a yaml config file from path.
 
@@ -108,22 +116,16 @@ def load_config_file(config_paths):
 
     """
 
-    try:
-        yaml_loader = yaml.CSafeLoader
-    except AttributeError:
-        yaml_loader = yaml.SafeLoader
-
     config_path = get_config_path(config_paths)
 
-    yaml_loader.add_implicit_resolver("!envvar", env_var_pattern, first="$")
-    yaml_loader.add_constructor("!envvar", envvar_constructor)
-    yaml_loader.add_constructor("!include", include_constructor)
+    yaml.SafeLoader.add_implicit_resolver("!envvar", env_var_pattern, first="$")
+    yaml.SafeLoader.add_constructor("!envvar", envvar_constructor)
 
     try:
         with open(config_path, "r") as stream:
             _LOGGER.info(_("Loaded config from %s."), config_path)
 
-            data = yaml.load(stream, Loader=yaml_loader)
+            data = yaml.load(stream, Loader=yaml.SafeLoader)
             validate_configuration(data)
 
             return data
@@ -132,14 +134,6 @@ def load_config_file(config_paths):
         _LOGGER.critical("Configuration contains an error - %s", error)
         sys.exit(1)
 
-    except ValueError as error:
-        _LOGGER.critical(error)
-        sys.exit(1)
-
     except yaml.YAMLError as error:
-        _LOGGER.critical(error)
-        sys.exit(1)
-
-    except FileNotFoundError as error:
         _LOGGER.critical(error)
         sys.exit(1)

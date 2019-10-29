@@ -4,7 +4,7 @@ from voluptuous import Schema, ALLOW_EXTRA
 
 
 schema = {
-    "logging": {"level": bool, "console": bool},
+    "logging": {"level": str, "console": bool},
     "welcome-message": bool,
     "connectors": [{"name": str, "token": str, "access-token": str}],
     "skills": [{"name": str}],
