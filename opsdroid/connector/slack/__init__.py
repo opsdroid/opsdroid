@@ -101,7 +101,7 @@ class ConnectorSlack(Connector):
         # Lookup username
         _LOGGER.debug(_("Looking up sender username"))
         try:
-            user_info = await self.lookup_username(message["user"])
+            user_info = await self.lookup_username(message.get("user", self.bot_id))
         except ValueError:
             return
 
