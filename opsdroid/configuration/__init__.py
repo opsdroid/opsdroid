@@ -9,14 +9,7 @@ from voluptuous import MultipleInvalid
 import yaml
 
 
-from opsdroid.helper import move_config_to_appdir
-
-from opsdroid.const import (
-    DEFAULT_CONFIG_PATH,
-    EXAMPLE_CONFIG_FILE,
-    PRE_0_12_0_ROOT_PATH,
-    DEFAULT_ROOT_PATH,
-)
+from opsdroid.const import DEFAULT_CONFIG_PATH, EXAMPLE_CONFIG_FILE
 
 from opsdroid.configuration.validation import validate_configuration
 
@@ -78,12 +71,9 @@ def get_config_path(config_paths):
             break
 
     if not config_path:
-        try:
-            move_config_to_appdir(PRE_0_12_0_ROOT_PATH, DEFAULT_ROOT_PATH)
-        except FileNotFoundError:
-            _LOGGER.info(
-                _("No configuration files found. Creating %s"), DEFAULT_CONFIG_PATH
-            )
+        _LOGGER.info(
+            _("No configuration files found. Creating %s"), DEFAULT_CONFIG_PATH
+        )
         config_path = create_default_config(DEFAULT_CONFIG_PATH)
 
     return config_path

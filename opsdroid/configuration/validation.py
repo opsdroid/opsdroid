@@ -26,6 +26,7 @@ def validate_configuration(data):
 
     Args:
         data: a yaml stream obtained from opening configuration.yaml
+
     """
 
     validate = Schema(schema, extra=ALLOW_EXTRA)

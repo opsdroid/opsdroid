@@ -34,20 +34,6 @@ class TestConfiguration(unittest.TestCase):
         config = load_config_file([os.path.abspath("tests/configs/minimal.yaml")])
         self.assertIsNotNone(config)
 
-    def test_get_config_path_FileNotFound(self):
-        with mock.patch("opsdroid.helper.move_config_to_appdir") as mocked_move:
-            mocked_move.side_effect = FileNotFoundError()
-            load_config_file([os.path.abspath("tests/configs/full_valid.yaml")])
-            self.assertLogs("_LOGGER", "info")
-            self.assertRaises(FileNotFoundError)
-
-    def test_get_config_path_FileNotFound2(self):
-        with mock.patch("opsdroid.configuration.get_config_path") as mocked_function:
-            mocked_function.side_effect = FileNotFoundError()
-            load_config_file([os.path.abspath("tests/configs/full_valid.yaml")])
-            self.assertLogs("_LOGGER", "info")
-            self.assertRaises(FileNotFoundError)
-
     def test_load_config_valid(self):
         config = load_config_file([os.path.abspath("tests/configs/full_valid.yaml")])
         self.assertIsNotNone(config)

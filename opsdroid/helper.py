@@ -3,9 +3,7 @@
 import datetime
 import os
 import stat
-import shutil
 import logging
-import filecmp
 import json
 
 import nbformat
