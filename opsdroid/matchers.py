@@ -107,7 +107,17 @@ def match_parse(
 
 
 def match_dialogflow_action(action):
-    """Return Dialogflow action match decorator."""
+    """Return Dialogflow action match decorator.
+
+    Decorator that calls a function on specific Diaglogflow actions.
+
+    Args:
+        action():
+
+    Returns:
+        Decorated Function
+
+    """
 
     def matcher(func):
         """Add decorated function to skills list for Dialogflow matching."""
@@ -210,7 +220,13 @@ def match_witai(intent):
 
 
 def match_crontab(crontab, timezone=None):
-    """Return crontab match decorator."""
+    """Return crontab match decorator.
+
+    Args:
+        crontab ():
+        timezone ():
+
+    """
 
     def matcher(func):
         """Add decorated function to skills list for crontab matching."""
