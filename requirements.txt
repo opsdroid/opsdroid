@@ -5,8 +5,10 @@ appdirs==1.4.3
 arrow==0.15.4
 Babel==2.7.0
 bleach==3.1.0
+certifi==2019.9.11
 click==7.0
 emoji==0.5.4
+mattermostdriver==7.0.1
 matrix-api-async==0.1.0
 motor==2.0.0
 multidict==4.5.2
@@ -22,6 +24,4 @@ slackclient==2.3.1
 ibm-watson==4.0.1
 websockets==8.1
 webexteamssdk==1.2
-yamale==2.0.1
-certifi==2019.9.11
-mattermostdriver==7.0.1
+voluptuous==0.11.7
