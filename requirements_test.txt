@@ -1,5 +1,5 @@
-black==19.3b0
 flake8==3.7.9
+black==19.10b0
 coveralls==1.8.2
 dialogflow==0.7.2
 astroid==2.3.2
