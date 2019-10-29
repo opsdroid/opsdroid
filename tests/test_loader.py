@@ -253,22 +253,6 @@ class TestLoader(unittest.TestCase):
             loaded = loader._load_modules("database", modules)
             self.assertEqual(loaded[0]["config"]["name"], "myep")
 
-    def test_load_config_move_to_appdir(self):
-        opsdroid, loader = self.setup()
-        loader._load_modules = mock.MagicMock()
-        loader._setup_modules = mock.MagicMock()
-        config = {}
-        config["databases"] = mock.MagicMock()
-        config["skills"] = mock.MagicMock()
-        config["connectors"] = mock.MagicMock()
-        config["module-path"] = os.path.join(self._tmp_dir, "opsdroid")
-
-        with mock.patch("opsdroid.helper.move_config_to_appdir") as mocked_move:
-            mocked_move.side_effect = FileNotFoundError()
-            loader.load_modules_from_config(config)
-            self.assertLogs("_LOGGER", "info")
-            self.assertEqual(len(loader._load_modules.mock_calls), 3)
-
     def test_load_config(self):
         opsdroid, loader = self.setup()
         loader._load_modules = mock.MagicMock()
