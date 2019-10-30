@@ -1,13 +1,71 @@
 """Schema validation for configuration.yaml."""
 
-from voluptuous import Schema, ALLOW_EXTRA
-
+from voluptuous import Schema, ALLOW_EXTRA, Optional, Required, Url
 
 schema = {
     "logging": {"level": str, "console": bool},
     "welcome-message": bool,
     "connectors": [{"name": str, "token": str, "access-token": str}],
     "skills": [{"name": str}],
+    Optional("parsers", default=list): [
+        {
+            "name": str,
+            "enabled": bool,
+            "token": str,
+            "access-token": str,
+            "min-score": int,
+            "appid": str,
+            "appkey": str,
+            "verbose": bool,
+        }
+    ],
+    Required("connectors", default=list): [
+        {
+            "name": str,
+            "bot-name": str,
+            "max-connections": int,
+            "connection-timeout": int,
+            "webhook-url": Url(),
+            "access-token": str,
+            "consumer-key": str,
+            "consumer-secret": str,
+            "oauth-token": str,
+            "oauth-token-secret": str,
+            "enable_dms": str,
+            "verify-token": str,
+            "page-access-token": str,
+            "mxid": str,
+            "password": str,
+            "room": str,
+            "rooms": dict,
+            "homeserver": str,
+            "nick": str,
+            "room_specific_nicks": str,
+            "token": str,
+            "update-interval": int,
+            "default-user": str,
+            "whitelisted-users": list,
+            "default-room": str,
+            "icon-emoji": str,
+            "connection-timeout": int,
+            "user-id": str,
+            "group": str,
+            "channel-url": Url(),
+        }
+    ],
+    Optional("databases", default=list): [
+        {
+            "name": str,
+            "host": str,
+            "port": str,
+            "database": int or str,
+            "password": str,
+            "recconect": bool,
+            "file": str,
+            "table": str,
+        }
+    ],
+    Optional("skills", default=list): [{"name": str}],
 }
 
 
@@ -30,5 +88,4 @@ def validate_configuration(data):
     """
 
     validate = Schema(schema, extra=ALLOW_EXTRA)
-
     validate(data)
