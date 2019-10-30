@@ -64,7 +64,6 @@ from opsdroid.matchers import match_regex
 
 import aiohttp
 
-
 async def get_weather(config):
     api_url = "http://api.openweathermap.org/data/2.5/weather?q="
 ```
@@ -121,52 +120,52 @@ Now when we call our `get_weather` function, `aiohttp` will get all the data fro
 
 ```json
 {
-     'coord':
+     "coord":
          {
-             'lon': -0.13,
-             'lat': 51.51
+             "lon": -0.13,
+             "lat": 51.51
          },
-     'weather':
+     "weather":
          [
              {
-                 'id': 800,
-                 'main': 'Clear',
-                 'description': 'clear sky',
-                 'icon': '01n'
+                 "id": 800,
+                 "main": "Clear",
+                 "description": "clear sky",
+                 "icon": "01n"
              }
          ],
-     'base': 'stations',
-     'main':
+     "base": "stations",
+     "main":
          {
-             'temp': 3.37,
-             'pressure': 1022,
-             'humidity': 86,
-             'temp_min': 2,
-             'temp_max': 5
+             "temp": 3.37,
+             "pressure": 1022,
+             "humidity": 86,
+             "temp_min": 2,
+             "temp_max": 5
          },
-     'visibility': 10000,
-     'wind':
+     "visibility": 10000,
+     "wind":
          {
-             'speed': 2.1,
-             'deg': 310
+             "speed": 2.1,
+             "deg": 310
          },
-     'clouds':
+     "clouds":
          {
-             'all': 0
+             "all": 0
          },
-     'dt': 1511076000,
-     'sys':
+     "dt": 1511076000,
+     "sys":
          {
-             'type': 1,
-             'id': 5089,
-             'message': 0.1668,
-             'country': 'GB',
-             'sunrise': 1511076308,
-             'sunset': 1511107601
+             "type": 1,
+             "id": 5089,
+             "message": 0.1668,
+             "country": "GB",
+             "sunrise": 1511076308,
+             "sunset": 1511107601
          },
-     'id': 2639545,
-     'name': 'London',
-     'cod': 200
+     "id": 2639545,
+     "name": "London",
+     "cod": 200
  }
 ```
 
@@ -185,7 +184,6 @@ from opsdroid.skill import Skill
 from opsdroid.matchers import match_regex
 
 import aiohttp
-
 
 async def get_weather(config):
     api_url = "http://api.openweathermap.org/data/2.5/weather?q="
@@ -255,7 +253,6 @@ from opsdroid.skill import Skill
 from opsdroid.matchers import match_regex
 
 import aiohttp
-
 
 class WeatherSkill(Skill):
 
