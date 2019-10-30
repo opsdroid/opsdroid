@@ -13,7 +13,6 @@ schema = {
             "enabled": bool,
             "token": str,
             "access-token": str,
-            "min-score": int,
             "appid": str,
             "appkey": str,
             "verbose": bool,
@@ -53,18 +52,18 @@ schema = {
             "channel-url": Url(),
         }
     ],
-    Optional("databases", default=list): [
-        {
-            "name": str,
-            "host": str,
-            "port": str,
-            "database": int or str,
-            "password": str,
-            "recconect": bool,
-            "file": str,
-            "table": str,
-        }
-    ],
+    # Optional("databases", default=list): [
+    #     {
+    #         "name": str,
+    #         "host": str,
+    #         "port": str,
+    #         Optional("database", default=int): str,
+    #         "password": str,
+    #         "reconnect": bool,
+    #         "file": str,
+    #         "table": str,
+    #     }
+    # ],
     Optional("skills", default=list): [{"name": str}],
 }
 
@@ -86,6 +85,5 @@ def validate_configuration(data):
         data: a yaml stream obtained from opening configuration.yaml
 
     """
-
     validate = Schema(schema, extra=ALLOW_EXTRA)
     validate(data)
