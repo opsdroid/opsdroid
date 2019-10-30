@@ -187,7 +187,7 @@ def match_rss(feed_url, interval="60"):
     def matcher(func):
         """Add decorated function to skills list for RSS matching."""
         func = add_skill_attributes(func)
-        func.matchers.append({"feed_url": feed_url, "interval": interval})
+        func.matchers.append({"feed_url": feed_url, "interval": int(interval)})
         return func
 
     return matcher

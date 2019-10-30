@@ -12,20 +12,24 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class ConnectorRSS(Connector):
+    """A connector to trigger events from feed items."""
+
     def __init__(self, config, opsdroid=None):
         """Create the connector."""
         super().__init__(config, opsdroid=opsdroid)
+        self.name = self.config.get("name", "rss")
         self._feeds = {}
         self.running = False
 
     async def connect(self):
-        for skill in opsdroid.skills:
+        """Get all feed urls from skills with the match_rss decorator."""
+        for skill in self.opsdroid.skills:
             for matcher in skill.matchers:
                 if "feed_url" in matcher:
                     feed = matcher.copy()
                     if feed["feed_url"] not in self._feeds:
                         feed["last_checked"] = time.time()
-                        feed["feed"] = self._update_feed(feed["feed_url"])
+                        feed["feed"] = await self._update_feed(feed["feed_url"])
                         self._feeds[feed["feed_url"]] = feed
                     else:
                         # If feed is already added check for a shorter interval and
@@ -35,10 +39,12 @@ class ConnectorRSS(Connector):
         self.running = True
 
     async def disconnect(self):
+        """Disconnect and reset feed urls."""
         self._feeds = {}
         self.running = False
 
     async def listen(self):
+        """Loop over feed urls, update their contents and check for new items."""
         while self.running:
             await asyncio.sleep(5)  # Shortest polling interval is 5 seconds
             for feed_url, feed in self._feeds:
@@ -50,6 +56,7 @@ class ConnectorRSS(Connector):
                     feed["feed"] = newfeed
 
     async def _run_skills(self, feed_url, new_items):
+        """Run relevant skills for each new item found in feed."""
         for item in new_items:
             for skill in self.opsdroid.skills:
                 for matcher in skill.matchers:
@@ -62,13 +69,17 @@ class ConnectorRSS(Connector):
                                 skill,
                                 skill.config,
                                 FeedItemEvent(
-                                    item, None, None, feed_url, self, raw_event=item
+                                    item=item,
+                                    target=feed_url,
+                                    connector=self,
+                                    raw_event=item,
                                 ),
                             )
                         )
 
     @staticmethod
     async def _check_for_new_items(newfeed, oldfeed):
+        """Check the diff between two feeds and return new items."""
         new_items = []
         if isinstance(newfeed, atoma.rss.RSSChannel):
             for item in newfeed.items:
@@ -82,15 +93,17 @@ class ConnectorRSS(Connector):
 
     @staticmethod
     async def _update_feed(feed):
+        """Get the contents of a feed."""
         async with aiohttp.ClientSession() as session:
             async with session.get(feed) as resp:
                 if "atom" in resp.content_type:
-                    return atoma.parse_atom_bytes(await response.read())
+                    return atoma.parse_atom_bytes(await resp.read())
                 elif "rss" in resp.content_type:
-                    return atoma.parse_rss_bytes(await response.read())
+                    return atoma.parse_rss_bytes(await resp.read())
                 else:
                     _LOGGER.error(
                         "Feed type %s not supported for feed %s.",
                         resp.content_type,
                         feed,
                     )
+                    return None
