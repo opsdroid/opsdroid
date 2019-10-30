@@ -49,6 +49,8 @@ class ConnectorMatrix(Connector):
         self.homeserver = config.get("homeserver", "https://matrix.org")
         self.password = config["password"]
         self.room_specific_nicks = config.get("room_specific_nicks", False)
+        send_m_notice = config.get("send_m_notice", False)
+        self.message_type = "m.notice" if send_m_notice else "m.text"
         self.session = None
         self.filter_id = None
         self.connection = None
@@ -221,14 +223,14 @@ class ConnectorMatrix(Connector):
             await self.connection.send_message_event(
                 room_id,
                 "m.room.message",
-                self._get_formatted_message_body(message.text),
+                self._get_formatted_message_body(message.text, msgtype=self.message_type),
             )
         except aiohttp.client_exceptions.ServerDisconnectedError:
             _LOGGER.debug(_("Server had disconnected, retrying send."))
             await self.connection.send_message_event(
                 room_id,
                 "m.room.message",
-                self._get_formatted_message_body(message.text),
+                self._get_formatted_message_body(message.text, msgtype=self.message_type),
             )
 
     async def _get_image_info(self, image):
