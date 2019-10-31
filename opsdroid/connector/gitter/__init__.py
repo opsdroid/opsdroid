@@ -25,7 +25,7 @@ class ConnectorGitter(Connector):
         self.response = None
         self.bot_name = self.config.get("bot-name", "opsdroid")
         self.room_id = self.config.get("room-id")
-        self.access_token = self.config.get("access-token")
+        self.access_token = self.config.get("token")
         self.update_interval = 1
         self.opsdroid = opsdroid
         self.listening = True

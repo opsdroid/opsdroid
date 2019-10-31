@@ -61,7 +61,7 @@ async def call_watson(message, config):
         A dict containing the API response
 
     """
-    authenticator = IAMAuthenticator(config["access-token"])
+    authenticator = IAMAuthenticator(config["token"])
     service = AssistantV2(version=WATSON_API_VERSION, authenticator=authenticator)
 
     await get_session_id(service, config)

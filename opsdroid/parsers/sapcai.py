@@ -16,7 +16,7 @@ async def call_sapcai(message, config, lang=DEFAULT_LANGUAGE):
     async with aiohttp.ClientSession() as session:
         payload = {"language": lang, "text": message.text}
         headers = {
-            "Authorization": "Token " + config["access-token"],
+            "Authorization": "Token " + config["token"],
             "Content-Type": "application/json",
         }
         resp = await session.post(
@@ -33,7 +33,7 @@ async def parse_sapcai(opsdroid, skills, message, config):
     matched_skills = []
     language = config.get("lang") or opsdroid.config.get("lang", DEFAULT_LANGUAGE)
 
-    if "access-token" in config:
+    if "token" in config:
         try:
             result = await call_sapcai(message, config, language)
         except aiohttp.ClientOSError:

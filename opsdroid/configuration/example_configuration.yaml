@@ -44,8 +44,9 @@ welcome-message: true
 #    min-score: 0.8
 #
 #  ## Dialogflow (http://opsdroid.readthedocs.io/en/stable/matchers/dialogflow)
+
 #  dialogflow:
-#    access-token: "exampleaccesstoken123"
+#    token: "exampleaccesstoken123"
 #    min-score: 0.6
 #
 #  ## Regex (http://opsdroid.readthedocs.io/en/stable/matchers/regex)
@@ -57,8 +58,9 @@ welcome-message: true
 #    enabled: true
 #
 #  ## Wit.ai (http://opsdroid.readthedocs.io/en/stable/matchers/wit.ai)
+
 #  witai:
-#    access-token: XJF475SKGITJ98KHFO
+#    token: XJF475SKGITJ98KHFO
 #    min-score: 0.6
 #
 #  ## Luis.ai (http://opsdroid.readthedocs.io/en/stable/matchers/luis.ai)
@@ -74,7 +76,7 @@ welcome-message: true
 #
 #  ## Sapcai (http://opsdroid.readthedocs.io/en/stable/matchers/sapcai)
 #  sapcai:
-#    access-token: 85769fjoso084jd
+#    token: 85769fjoso084jd
 #    min-score: 0.8
 #
 
@@ -93,7 +95,7 @@ connectors:
 #  ciscospark:
 #    # required
 #    webhook-url: http(s)://<host>:<port>  # Url for Spark to connect to your bot
-#    access-token: <your bot access token>  # Your access token
+#    token: <your bot access token>  # Your access token
 #
 #  ## Twitter (https://github.com/opsdroid/connector-twitter)
 #  twitter:
@@ -110,7 +112,7 @@ connectors:
 #  webexteams:
 #    # required
 #    webhook-url: http(s)://<host>:<port>  # Url for Webex Teams to connect to your bot
-#    access-token: <your bot access token>  # Your access token
+#    token: <your bot access token>  # Your access token
 #
 #  ## Facebook (core)
 #  facebook:

@@ -33,9 +33,9 @@ class ConnectorWebexTeams(Connector):
     async def connect(self):
         """Connect to the chat service."""
         try:
-            self.api = WebexTeamsAPI(access_token=self.config["access-token"])
+            self.api = WebexTeamsAPI(access_token=self.config["token"])
         except KeyError:
-            _LOGGER.error(_("Must set access-token for webex teams connector!"))
+            _LOGGER.error(_("Must set 'token' for webex teams connector!"))
             return
 
         await self.clean_up_webhooks()

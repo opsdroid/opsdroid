@@ -22,7 +22,7 @@ databases:
 parsers:
 
   - name: dialogflow
-    access-token: "exampleaccesstoken123"
+    token: "exampleaccesstoken123"
     min-score: 0.6
 
 skills:

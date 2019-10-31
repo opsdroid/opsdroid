@@ -6,10 +6,10 @@ parsers_config = {
     "name": str,
     "enabled": bool,
     "token": str,
-    "access-token": str,
     "appid": str,
     "appkey": str,
     "verbose": bool,
+    "min-score": float,
 }
 
 connectors_config = {
@@ -18,7 +18,6 @@ connectors_config = {
     "max-connections": int,
     "connection-timeout": int,
     "webhook-url": Url(),
-    "access-token": str,
     "consumer-key": str,
     "consumer-secret": str,
     "oauth-token": str,
@@ -49,7 +48,7 @@ connectors_config = {
 schema = {
     "logging": {"level": str, "console": bool},
     "welcome-message": bool,
-    "connectors": [{"name": str, "token": str, "access-token": str}],
+    "connectors": [{"name": str, "token": str}],
     "skills": [{"name": str}],
     Optional("parsers", default=list): [parsers_config],
     Required("connectors", default=list): [connectors_config],
@@ -86,5 +85,6 @@ def validate_configuration(data):
         data: a yaml stream obtained from opening configuration.yaml
 
     """
+    print(type(data["parsers"][0]["min-score"]))
     validate = Schema(schema, extra=ALLOW_EXTRA)
     validate(data)
