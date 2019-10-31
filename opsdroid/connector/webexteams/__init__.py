@@ -19,7 +19,7 @@ class ConnectorWebexTeams(Connector):
 
     def __init__(self, config, opsdroid=None):
         """Create a connector."""
-        _LOGGER.debug(_("Loaded webex teams connector"))
+        _LOGGER.debug(_("Loaded WebEx Teams Connector"))
         super().__init__(config, opsdroid=opsdroid)
         self.name = "webexteams"
         self.config = config
@@ -35,7 +35,7 @@ class ConnectorWebexTeams(Connector):
         try:
             self.api = WebexTeamsAPI(access_token=self.config["access-token"])
         except KeyError:
-            _LOGGER.error(_("Must set access-token for webex teams connector!"))
+            _LOGGER.error(_("Must set access-token for WebEx Teams Connector"))
             return
 
         await self.clean_up_webhooks()
@@ -44,7 +44,7 @@ class ConnectorWebexTeams(Connector):
 
     async def webexteams_message_handler(self, request):
         """Handle webhooks from the Webex Teams api."""
-        _LOGGER.debug(_("Handling message from Webex Teams"))
+        _LOGGER.debug(_("Handling message from WebEx Teams"))
         req_data = await request.json()
 
         _LOGGER.debug(req_data)

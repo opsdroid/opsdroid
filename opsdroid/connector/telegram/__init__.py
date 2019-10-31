@@ -111,9 +111,9 @@ class ConnectorTelegram(Connector):
         resp = await self.session.get(self.build_url("deleteWebhook"))
 
         if resp.status == 200:
-            _LOGGER.debug(_("Telegram webhook deleted successfully."))
+            _LOGGER.debug(_("Telegram webhook deleted successfully"))
         else:
-            _LOGGER.debug(_("Unable to delete webhook."))
+            _LOGGER.debug(_("Unable to delete webhook"))
 
     async def connect(self):
         """Connect to Telegram.
@@ -185,7 +185,7 @@ class ConnectorTelegram(Connector):
                     _("Emoji message parsing not supported " "- Ignoring message")
                 )
             else:
-                _LOGGER.error(_("Unable to parse the message."))
+                _LOGGER.error(_("Unable to parse the message"))
 
     async def _get_messages(self):
         """Connect to the Telegram API.
@@ -212,7 +212,7 @@ class ConnectorTelegram(Connector):
                 _(
                     "Can't get updates because previous "
                     "webhook is still active. Will try to "
-                    "delete webhook."
+                    "delete webhook"
                 )
             )
             await self.delete_webhook()
@@ -272,7 +272,7 @@ class ConnectorTelegram(Connector):
         if resp.status == 200:
             _LOGGER.debug(_("Successfully responded"))
         else:
-            _LOGGER.error(_("Unable to respond."))
+            _LOGGER.error(_("Unable to respond"))
 
     @register_event(Image)
     async def send_image(self, file_event):

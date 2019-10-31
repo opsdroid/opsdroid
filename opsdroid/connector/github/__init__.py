@@ -35,11 +35,11 @@ class ConnectorGitHub(Connector):
         async with aiohttp.ClientSession() as session:
             response = await session.get(url)
             if response.status >= 300:
-                _LOGGER.error(_("Error connecting to github: %s"), response.text())
+                _LOGGER.error(_("Error connecting to GitHub: %s"), response.text())
                 return False
             _LOGGER.debug(_("Reading bot information..."))
             bot_data = await response.json()
-        _LOGGER.debug(_("Done."))
+        _LOGGER.debug(_("Done"))
         self.github_username = bot_data["login"]
 
         self.opsdroid.web_server.web_app.router.add_post(
@@ -71,10 +71,10 @@ class ConnectorGitHub(Connector):
                 issue_number = payload["pull_request"]["number"]
                 body = payload["pull_request"]["body"]
             else:
-                _LOGGER.debug(_("No message to respond to."))
+                _LOGGER.debug(_("No message to respond to"))
                 _LOGGER.debug(payload)
                 return aiohttp.web.Response(
-                    text=json.dumps("No message to respond to."), status=200
+                    text=json.dumps("No message to respond to"), status=200
                 )
 
             issue = "{}/{}#{}".format(
@@ -104,7 +104,7 @@ class ConnectorGitHub(Connector):
         async with aiohttp.ClientSession() as session:
             resp = await session.post(url, json={"body": message.text}, headers=headers)
             if resp.status == 201:
-                _LOGGER.info(_("Message sent."))
+                _LOGGER.info(_("Message sent"))
                 return True
             _LOGGER.error(await resp.json())
             return False

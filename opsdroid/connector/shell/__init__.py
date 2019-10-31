@@ -16,7 +16,7 @@ class ConnectorShell(Connector):
 
     def __init__(self, config, opsdroid=None):
         """Create the connector."""
-        _LOGGER.debug(_("Loaded shell connector"))
+        _LOGGER.debug(_("Loaded shell Connector"))
         super().__init__(config, opsdroid=opsdroid)
         self.name = "shell"
         self.config = config
