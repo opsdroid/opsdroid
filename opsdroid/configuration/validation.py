@@ -2,56 +2,57 @@
 
 from voluptuous import Schema, ALLOW_EXTRA, Optional, Required, Url
 
+parsers_config = {
+    "name": str,
+    "enabled": bool,
+    "token": str,
+    "access-token": str,
+    "appid": str,
+    "appkey": str,
+    "verbose": bool,
+}
+
+connectors_config = {
+    "name": str,
+    "bot-name": str,
+    "max-connections": int,
+    "connection-timeout": int,
+    "webhook-url": Url(),
+    "access-token": str,
+    "consumer-key": str,
+    "consumer-secret": str,
+    "oauth-token": str,
+    "oauth-token-secret": str,
+    "enable_dms": str,
+    "verify-token": str,
+    "page-access-token": str,
+    "mxid": str,
+    "password": str,
+    "room": str,
+    "rooms": dict,
+    "homeserver": str,
+    "nick": str,
+    "room_specific_nicks": str,
+    "token": str,
+    "update-interval": int,
+    "default-user": str,
+    "whitelisted-users": list,
+    "default-room": str,
+    "icon-emoji": str,
+    "connection-timeout": int,
+    "user-id": str,
+    "group": str,
+    "channel-url": Url(),
+}
+
+
 schema = {
     "logging": {"level": str, "console": bool},
     "welcome-message": bool,
     "connectors": [{"name": str, "token": str, "access-token": str}],
     "skills": [{"name": str}],
-    Optional("parsers", default=list): [
-        {
-            "name": str,
-            "enabled": bool,
-            "token": str,
-            "access-token": str,
-            "appid": str,
-            "appkey": str,
-            "verbose": bool,
-        }
-    ],
-    Required("connectors", default=list): [
-        {
-            "name": str,
-            "bot-name": str,
-            "max-connections": int,
-            "connection-timeout": int,
-            "webhook-url": Url(),
-            "access-token": str,
-            "consumer-key": str,
-            "consumer-secret": str,
-            "oauth-token": str,
-            "oauth-token-secret": str,
-            "enable_dms": str,
-            "verify-token": str,
-            "page-access-token": str,
-            "mxid": str,
-            "password": str,
-            "room": str,
-            "rooms": dict,
-            "homeserver": str,
-            "nick": str,
-            "room_specific_nicks": str,
-            "token": str,
-            "update-interval": int,
-            "default-user": str,
-            "whitelisted-users": list,
-            "default-room": str,
-            "icon-emoji": str,
-            "connection-timeout": int,
-            "user-id": str,
-            "group": str,
-            "channel-url": Url(),
-        }
-    ],
+    Optional("parsers", default=list): [parsers_config],
+    Required("connectors", default=list): [connectors_config],
     # Optional("databases", default=list): [
     #     {
     #         "name": str,
