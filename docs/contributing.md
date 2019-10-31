@@ -16,7 +16,7 @@ Things you can help with:
 
 All contributors to the project, including the project founder [jacobtomlinson](https://github.com/jacobtomlinson), contribute using the following process:
 
- * Fork the main project to your own account
+ * Fork the main project to your account
  * Work on your changes on a feature branch
  * Create a pull request back to the main project
  * Tests and test coverage will be checked automatically
@@ -30,7 +30,7 @@ git clone https://github.com/opsdroid/opsdroid.git
 cd opsdroid
 
 # install the project in "editable" mode
-pip install -e .
+pip install -e
 
 # run opsdroid
 opsdroid start
@@ -86,7 +86,7 @@ pip install black
 
 _Note: You need to be running Python 3.6.0+ to have Black running._
 
-You also need to have [pre-commit](https://pre-commit.com) installed and set up in order to have Black check your code and work on each git commit. If you followed the instructions on running the tests earlier on [Developing](#developing), you should have pre-commit set up already, and if not, please do it now.
+You also need to have [pre-commit](https://pre-commit.com) installed and set up to have Black check your code and work on each git commit. If you followed the instructions on running the tests earlier on [Developing](#developing), you should have pre-commit set up already, and if not, please do it now.
 
 
 ### Using Black
@@ -162,13 +162,13 @@ python setup.py update_catalog
 
 Now, you can translate editing manually or with [Poedit](https://poedit.net/) the `po` files in `locale/<lang>/LC_MESSAGES/opsdroid.po`. Those files contain the real translations and are versioned.
 
-After you made a change in any `po` file, in order to view the changes in opsdroid, you should compile them to `mo` binary files, the format read by python gettext:
+After you made a change in any `po` file, to view the changes in opsdroid, you should compile them to `mo` binary files, the format read by python gettext:
 ```shell
 python setup.py compile_catalog
 ```
 
 ### Starting a new language
-If your language is not in the `locale` folder, you can initialize it. You will need the [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) code of the language. For example, in order to start a new [Esperanto](https://en.wikipedia.org/wiki/Esperanto) translation:
+If your language is not in the `locale` folder, you can initialize it. You will need the [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) code of the language. For example, to start a new [Esperanto](https://en.wikipedia.org/wiki/Esperanto) translation:
 ```shell
 python setup.py init_catalog -l eo
 ```
@@ -177,7 +177,7 @@ Then you can translate it in `locale/eo/LC_MESSAGES/opsdroid.po`, then compile i
 ## Creating New Modules
 Opsdroid is an open source chatbot framework. It is designed to be extendable, scalable and simple. It comes with a few official modules that can be found in the [Opsdroid  GitHub account](https://github.com/opsdroid).
 
- If you love a particular platform and wish to use opsdroid with it or if you want opsdroid to interact with something in a certain way, you can create your own modules and extend the functionality of opsdroid.
+ If you love a particular platform and wish to use opsdroid with it or if you want opsdroid to interact with something in a certain way, you can create your modules and extend the functionality of opsdroid.
 
  If you don't know where to start, make sure to check the [tutorials](tutorials/introduction.md) and read the [documentation](http://opsdroid.readthedocs.io/en/latest/?badge=latest).  Remember that you can also ask for help in our [matrix channel](https://riot.im/app/#/room/#opsdroid-general:matrix.org)
 
