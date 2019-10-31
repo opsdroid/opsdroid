@@ -107,7 +107,17 @@ def match_parse(
 
 
 def match_dialogflow_action(action):
-    """Return Dialogflow action match decorator."""
+    """Return Dialogflow action match decorator.
+
+    Decorator that calls a function on any Dialogflow intent with a specified action.
+
+    Args:
+        action (str): Dialogflow action
+
+    Returns:
+        Decorated Function
+
+    """
 
     def matcher(func):
         """Add decorated function to skills list for Dialogflow matching."""
@@ -119,7 +129,17 @@ def match_dialogflow_action(action):
 
 
 def match_dialogflow_intent(intent):
-    """Return Dialogflow intent match decorator."""
+    """Return Dialogflow intent match decorator.
+
+    Decorator that calls a function on specific Diaglogflow API intents.
+
+    Args:
+        intent (str): Dialogflow intent name
+
+    Returns:
+        Decorated Function
+
+    """
 
     def matcher(func):
         """Add decorated function to skills list for Dialogflow matching."""
@@ -210,7 +230,19 @@ def match_witai(intent):
 
 
 def match_crontab(crontab, timezone=None):
-    """Return crontab match decorator."""
+    """Return crontab match decorator.
+
+    Decorator that, after enabling crontab skill config, calls a function when cron timing interval
+    passes.
+
+    Args:
+        crontab (str): cron timing string
+        timezone (str): timezone string, defaults to root configuration
+
+    Returns:
+        Decorated Function
+
+    """
 
     def matcher(func):
         """Add decorated function to skills list for crontab matching."""
@@ -222,7 +254,18 @@ def match_crontab(crontab, timezone=None):
 
 
 def match_webhook(webhook):
-    """Return webhook match decorator."""
+    """Return webhook match decorator.
+
+    Decorator that calls the decorated function when a POST is sent to
+    http://localhost:8080/skill/exampleskill/<webhook>. Does not need a message as input.
+
+    Args:
+        webhook(str): webhook url
+
+    Returns:
+        Decorated Function
+
+    """
 
     def matcher(func):
         """Add decorated function to skills list for webhook matching."""
@@ -235,7 +278,15 @@ def match_webhook(webhook):
 
 
 def match_always(func=None):
-    """Return always match decorator."""
+    """Return always match decorator.
+
+    Decorator that parses every message as it is always running, it does not be need to be
+    configured explicitly.
+
+    Returns:
+        Decorated Function
+
+    """
 
     def matcher(func):
         """Add decorated function to skills list for always matching."""
