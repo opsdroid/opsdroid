@@ -151,7 +151,17 @@ def match_dialogflow_intent(intent):
 
 
 def match_luisai_intent(intent):
-    """Return luisai intent match decorator."""
+    """Return luis.ai intent match decorator.
+
+    Decorator that calls a function on specific luis.ai intents.
+
+    Args:
+        intent (str): luis.ai intent name
+
+    Returns:
+        Decorated Function
+
+    """
 
     def matcher(func):
         """Add decorated function to skills list for luisai matching."""
@@ -163,7 +173,17 @@ def match_luisai_intent(intent):
 
 
 def match_rasanlu(intent):
-    """Return Rasa NLU intent match decorator."""
+    """Return Rasa NLU intent match decorator.
+
+    Decorator that calls a function on specific Rasa NLU intents.
+
+    Args:
+        intent (str): Rasa NLU intent name
+
+    Returns:
+        Decorated Function
+
+    """
 
     def matcher(func):
         """Add decorated function to skills list for Rasa NLU matching."""
@@ -175,7 +195,17 @@ def match_rasanlu(intent):
 
 
 def match_recastai(intent):
-    """Return recastai intent match decorator."""
+    """Return Recast.ai intent match decorator.
+
+    Decorator that calls a function on specific Recast.ai intents.
+
+    Args:
+        intent (str): Recast.ai intent name
+
+    Returns:
+        Decorated Function
+
+    """
 
     def matcher(func):
         """Add decorated function to skills list for recastai matching."""
@@ -194,7 +224,17 @@ def match_recastai(intent):
 
 
 def match_sapcai(intent):
-    """Return SAP Conversational AI intent match decorator."""
+    """Return SAP Conversational AI intent match decorator.
+
+    Decorator that calls a function on specific SAP Conversational AI intents.
+
+    Args:
+        intent (str): SAP Conversational AI intent name
+
+    Returns:
+        Decorated Function
+
+    """
 
     def matcher(func):
         """Add decorated function to skills list for SAPCAI matching."""
@@ -206,7 +246,17 @@ def match_sapcai(intent):
 
 
 def match_watson(intent):
-    """Return watson intent match decorator."""
+    """Return IBM Watson intent match decorator.
+
+    Decorator that calls a function on specific IBM Watson intents.
+
+    Args:
+        intent (str): IBM Watson intent name
+
+    Returns:
+        Decorated Function
+
+    """
 
     def matcher(func):
         """Add decorated function to skills list for watson matching."""
@@ -218,7 +268,17 @@ def match_watson(intent):
 
 
 def match_witai(intent):
-    """Return witai intent match decorator."""
+    """Return wit.ai intent match decorator.
+
+    Decorator that calls a function on specific wit.ai intents.
+
+    Args:
+        intent (str): wit.ai intent name
+
+    Returns:
+        Decorated Function
+
+    """
 
     def matcher(func):
         """Add decorated function to skills list for witai matching."""
