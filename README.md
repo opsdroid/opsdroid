@@ -36,7 +36,7 @@
 
 ---
 
-An open source chatbot framework written in Python. It is designed to be extendable, scalable and simple.
+An open-source chatbot framework is written in Python. It is designed to be extendable, scalable and simple.
 
 
 This application is designed to take messages from chat services and execute Python functions (skills) based on their contents. Those functions can be anything you like, from simple conversational responses to running complex tasks. The true power of this project is to act as a glue library to bring the multitude of natural language APIs, chat services and third-party APIs together.
@@ -45,15 +45,15 @@ Help support opsdroid in one click by pressing [![Tweet](https://img.shields.io/
 
 ## ChatOps
 
-_"ChatOps is an operational paradigm where work that is already happening in the background today is brought into a common chatroom. By doing this, you are unifying the communication about what work should get done with actual history of the work being done."_ - [StackStorm](https://docs.stackstorm.com/chatops/chatops.html)
+_"ChatOps is an operational paradigm where work that is already happening in the background today is brought into a common chatroom. By doing this, you are unifying the communication about what work should get done with an actual history of the work being done."_ - [StackStorm](https://docs.stackstorm.com/chatops/chatops.html)
 
 In this new frontier of DevOps, it is becoming more and more popular to interact with your automation tools via an instant messenger. Opsdroid is a framework to make creating and extending your ChatOps workflows powerful but simple.
 
 ## Why use opsdroid?
 
- * It's open source
+ * It's open-source
  * Simple to modify and extend
- * Add your own skills in under 10 lines of Python
+ * Add your skills in under 10 lines of Python
  * Easy to install
  * Designed with Docker in mind for simple deployment
  * Configurable with a single YAML file
@@ -69,7 +69,7 @@ $ opsdroid start
 
 ## Installation Guide
 
-Check out the [Getting Started](https://www.youtube.com/watch?v=7wyIi_cpodE&list=PLViQCHlMbEq5nZL6VNrUxu--Of1uCpflq) video series on YouTube. The video series demonstrates how to install and configure opsdroid and opsdroid desktop on Ubuntu 16.04. It also demonstrates how to create your own skill in opsdroid
+Check out the [Getting Started](https://www.youtube.com/watch?v=7wyIi_cpodE&list=PLViQCHlMbEq5nZL6VNrUxu--Of1uCpflq) video series on YouTube. The video series demonstrates how to install and configure opsdroid and opsdroid desktop on Ubuntu 16.04. It also demonstrates how to create your skill in opsdroid
 
 ### Docker Image
 
@@ -205,7 +205,7 @@ Contributing to the opsdroid ecosystem is strongly encouraged and every little b
   - Improve the [documentation](https://github.com/opsdroid/opsdroid/tree/master/docs) to help others get started
   - Write [skills](http://opsdroid.readthedocs.io/en/latest/extending/skills/), [connectors](http://opsdroid.readthedocs.io/en/latest/extending/connectors/) or [database](http://opsdroid.readthedocs.io/en/latest/extending/databases/) modules
   - Contribute to the [opsdroid home page](https://github.com/opsdroid/opsdroid.github.io) (it’s a Jekyll website)
-  - Post about your experience using opsdroid on your own blog
+  - Post about your experience using opsdroid on your blog
   - Contribute to [opsdroid audio](https://github.com/opsdroid/opsdroid-audio) (Python voice client for opsdroid)
   - Submit lots of useful issues (5–10 good ones is probably sticker worthy)
   - Create [logo variations and banners](https://github.com/opsdroid/style-guidelines) for promotion
