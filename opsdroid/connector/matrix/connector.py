@@ -121,7 +121,7 @@ class ConnectorMatrix(Connector):
                     timeout_ms=int(60 * 1e3),  # 1m in ms
                     filter=self.filter_id,
                 )
-                _LOGGER.debug(_("matrix sync request returned"))
+                _LOGGER.debug(_("Matrix sync request returned"))
                 message = await self._parse_sync_response(response)
                 if message:
                     await self.opsdroid.parse(message)
@@ -130,14 +130,14 @@ class ConnectorMatrix(Connector):
                 # We can safely ignore timeout errors. The non-standard error
                 # codes are returned by Cloudflare.
                 if mre.code in [504, 522, 524]:
-                    _LOGGER.info(_("Matrix Sync Timeout (code: %d)"), mre.code)
+                    _LOGGER.info(_("Matrix sync timeout (code: %d)"), mre.code)
                     continue
 
-                _LOGGER.exception(_("Matrix Sync Error"))
+                _LOGGER.exception(_("Matrix sync error"))
             except CancelledError:
                 raise
             except Exception:  # pylint: disable=W0703
-                _LOGGER.exception(_("Matrix Sync Error"))
+                _LOGGER.exception(_("Matrix sync error"))
 
     async def get_nick(self, roomid, mxid):
         """
@@ -207,7 +207,7 @@ class ConnectorMatrix(Connector):
                 self._get_formatted_message_body(message.text),
             )
         except aiohttp.client_exceptions.ServerDisconnectedError:
-            _LOGGER.debug(_("Server had disconnected, retrying send."))
+            _LOGGER.debug(_("Server had disconnected, retrying send"))
             await self.connection.send_message_event(
                 room_id,
                 "m.room.message",
