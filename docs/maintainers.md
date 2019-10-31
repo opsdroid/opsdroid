@@ -1,6 +1,6 @@
 # Maintainers
 
-A maintainer should be polite and respectful towards every member of the community in order to make opsdroid a great project for both newbies and veterans in open source.
+A maintainer should be polite and respectful towards every member of the community to make opsdroid a great project for both newbies and veterans in open source.
 
 
 - **Responsibilities**
@@ -30,7 +30,7 @@ Depending on the pull request, coverage might drop a bit. If that is the case, a
 
 If a PR is not related to an open issue, then it's a proposal for the project. Jacob, the creator of opsdroid, and the community should give feedback and discuss the Pull Request either in the PR itself, an issue or in the [Matrix](https://riot.im/app/#/room/#opsdroid-general:matrix.org) channel.
 
-When merging a PR into opsdroid main branch you should take a few things into consideration.
+When merging a PR into opsdroid main branch you should consider a few things.
 - Use Squash and Merge option when merging a PR into opsdroid's master branch
 - The title of the merge will be included in the release notes of a new opsdroid version, so the title should make sense.
 - Remove unnecessary stuff from the description. If it takes 4 commits to get the tests to pass those lines should be deleted.
