@@ -50,7 +50,7 @@ The opsdroid project itself is very simple and requires modules to give it funct
 
 **Connectors** are modules for connecting opsdroid to your specific chat service.
 
-**Skills** are modules which define what actions opsdroid should perform based on different chat messages.
+**Skills** are modules that define what actions opsdroid should perform based on different chat messages.
 
 **Database** modules connect opsdroid to your chosen database and allow skills to store information between messages.
 
@@ -68,7 +68,7 @@ This tells opsdroid to use the [shell connector](https://github.com/opsdroid/con
 
 In opsdroid all modules are git repositories which will be cloned locally the first time they are used. By default, if you do not specify a repository opsdroid will look at `https://github.com/opsdroid/<moduletype>-<modulename>.git` for the repository. Therefore in the above configuration, the `connector-shell` and `skill-hello` repositories were pulled from the opsdroid organization on GitHub.
 
-You are of course encouraged to write your own modules and make them available on GitHub or any other repository host which is accessible by your opsdroid installation.
+You are of course encouraged to write your modules and make them available on GitHub or any other repository host which is accessible by your opsdroid installation.
 
 A more advanced config would like similar to the following:
 
@@ -150,7 +150,7 @@ See [module options](#module-options) for installing custom connectors.
 
 ### Database Modules
 
-Opsdroid comes with some built-in databases out of the box. Database modules which connect opsdroid to a persistent data storage service.
+Opsdroid comes with some built-in databases out of the box. Database modules that connect opsdroid to a persistent data storage service.
 
 Skills can store data in opsdroid's "memory", this is a dictionary which can be persisted in an external database.
 
@@ -299,7 +299,7 @@ INFO opsdroid.connector.rocketchat: Connecting to Rocket.Chat
 DEBUG opsdroid.connector.rocketchat: Connected to Rocket.Chat as FabioRosado
 INFO opsdroid.core: Opsdroid is now running, press ctrl+c to exit.
 DEBUG opsdroid-modules.connector.shell: Connecting to shell
-INFO opsdroid.web: Started web server on http://0.0.0.0:8080
+INFO opsdroid.web: Started a web server on http://0.0.0.0:8080
 ```
 
 _Note: You can also use the extended mode to filter out logs - this should allow you to have even more flexibility while dealing with your logs._
@@ -334,7 +334,7 @@ DEBUG root: Loaded hello module
 WARNING opsdroid.core: <skill module>.setup() is deprecated and will be removed in a future release. Please use class-based skills instead.
 DEBUG opsdroid.core: Adding database: DatabaseSqlite
 INFO opsdroid.core: Opsdroid is now running, press ctrl+c to exit.
-INFO opsdroid.web: Started web server on http://0.0.0.0:8080
+INFO opsdroid.web: Started a web server on http://0.0.0.0:8080
 ```
 
 ### Installation Path
@@ -477,7 +477,7 @@ skills:
 #### GitHub Gist
 
 A gist URL to download and install the module from. This downloads the gist
-to a temporary file and then uses the single file local installer above. Therefore
+to a temporary file and then uses the single-file local installer above. Therefore
 Notebooks are also supported.
 
 ```yaml
