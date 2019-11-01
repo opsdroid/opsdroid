@@ -27,8 +27,6 @@ class ConnectorSlack(Connector):
         self.token = config["api-token"]
         self.timeout = config.get("connect-timeout", 10)
         ssl_context = ssl.create_default_context()
-        ssl_context.check_hostname = False
-        ssl_context.verify_mode = ssl.CERT_NONE
         self.slack = slack.WebClient(token=self.token, run_async=True, ssl=ssl_context)
         self.slack_rtm = slack.RTMClient(token=self.token, run_async=True, ssl=ssl_context)
         self.websocket = None
