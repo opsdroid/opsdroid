@@ -1,6 +1,7 @@
 """A connector for Slack."""
 import logging
 import re
+import ssl
 
 import slack
 from emoji import demojize
