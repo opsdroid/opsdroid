@@ -90,6 +90,10 @@ class ConnectorSlack(Connector):
         """Process a raw message and pass it to the parser."""
         message = payload["data"]
 
+        # Ignore message edits
+        if "subtype" in message and message["subtype"] == "message_changed":
+            return
+
         # Ignore own messages
         if (
             "subtype" in message

@@ -130,6 +130,12 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         connector.bot_id = None
 
         connector.opsdroid.parse.reset_mock()
+        message["subtype"] = "message_changed"
+        await connector.process_message(data=message)
+        self.assertFalse(connector.opsdroid.parse.called)
+        del message["subtype"]
+
+        connector.opsdroid.parse.reset_mock()
         connector.lookup_username.side_effect = ValueError
         await connector.process_message(data=message)
         self.assertFalse(connector.opsdroid.parse.called)
@@ -189,7 +195,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
             connector=connector,
             raw_event={"ts": 0},
         )
-        with OpsDroid() as opsdroid:
+        with OpsDroid():
             await prev_message.respond(Reaction("😀"))
         self.assertTrue(connector.slack.api_call)
         self.assertEqual(
@@ -210,7 +216,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
             connector=connector,
             raw_event={"ts": 0},
         )
-        with OpsDroid() as opsdroid:
+        with OpsDroid():
             await prev_message.respond(Reaction("😀"))
         self.assertLogs("_LOGGER", "warning")
 
@@ -221,7 +227,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         connector.slack.api_call = amock.CoroutineMock(
             side_effect=slack.errors.SlackApiError("unknown", "unknown")
         )
-        with self.assertRaises(slack.errors.SlackApiError), OpsDroid() as opsdroid:
+        with self.assertRaises(slack.errors.SlackApiError), OpsDroid():
             prev_message = Message(
                 text="test",
                 user="user",
