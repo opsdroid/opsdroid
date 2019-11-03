@@ -107,7 +107,17 @@ def match_parse(
 
 
 def match_dialogflow_action(action):
-    """Return Dialogflow action match decorator."""
+    """Return Dialogflow action match decorator.
+
+    Decorator that calls a function on any Dialogflow intent with a specified action.
+
+    Args:
+        action (str): Dialogflow action
+
+    Returns:
+        Decorated Function
+
+    """
 
     def matcher(func):
         """Add decorated function to skills list for Dialogflow matching."""
@@ -119,7 +129,17 @@ def match_dialogflow_action(action):
 
 
 def match_dialogflow_intent(intent):
-    """Return Dialogflow intent match decorator."""
+    """Return Dialogflow intent match decorator.
+
+    Decorator that calls a function on specific Diaglogflow API intents.
+
+    Args:
+        intent (str): Dialogflow intent name
+
+    Returns:
+        Decorated Function
+
+    """
 
     def matcher(func):
         """Add decorated function to skills list for Dialogflow matching."""
@@ -131,7 +151,17 @@ def match_dialogflow_intent(intent):
 
 
 def match_luisai_intent(intent):
-    """Return luisai intent match decorator."""
+    """Return luis.ai intent match decorator.
+
+    Decorator that calls a function on specific luis.ai intents.
+
+    Args:
+        intent (str): luis.ai intent name
+
+    Returns:
+        Decorated Function
+
+    """
 
     def matcher(func):
         """Add decorated function to skills list for luisai matching."""
@@ -143,7 +173,17 @@ def match_luisai_intent(intent):
 
 
 def match_rasanlu(intent):
-    """Return Rasa NLU intent match decorator."""
+    """Return Rasa NLU intent match decorator.
+
+    Decorator that calls a function on specific Rasa NLU intents.
+
+    Args:
+        intent (str): Rasa NLU intent name
+
+    Returns:
+        Decorated Function
+
+    """
 
     def matcher(func):
         """Add decorated function to skills list for Rasa NLU matching."""
@@ -155,7 +195,17 @@ def match_rasanlu(intent):
 
 
 def match_recastai(intent):
-    """Return recastai intent match decorator."""
+    """Return Recast.ai intent match decorator.
+
+    Decorator that calls a function on specific Recast.ai intents.
+
+    Args:
+        intent (str): Recast.ai intent name
+
+    Returns:
+        Decorated Function
+
+    """
 
     def matcher(func):
         """Add decorated function to skills list for recastai matching."""
@@ -174,7 +224,17 @@ def match_recastai(intent):
 
 
 def match_sapcai(intent):
-    """Return SAP Conversational AI intent match decorator."""
+    """Return SAP Conversational AI intent match decorator.
+
+    Decorator that calls a function on specific SAP Conversational AI intents.
+
+    Args:
+        intent (str): SAP Conversational AI intent name
+
+    Returns:
+        Decorated Function
+
+    """
 
     def matcher(func):
         """Add decorated function to skills list for SAPCAI matching."""
@@ -186,7 +246,17 @@ def match_sapcai(intent):
 
 
 def match_watson(intent):
-    """Return watson intent match decorator."""
+    """Return IBM Watson intent match decorator.
+
+    Decorator that calls a function on specific IBM Watson intents.
+
+    Args:
+        intent (str): IBM Watson intent name
+
+    Returns:
+        Decorated Function
+
+    """
 
     def matcher(func):
         """Add decorated function to skills list for watson matching."""
@@ -198,7 +268,17 @@ def match_watson(intent):
 
 
 def match_witai(intent):
-    """Return witai intent match decorator."""
+    """Return wit.ai intent match decorator.
+
+    Decorator that calls a function on specific wit.ai intents.
+
+    Args:
+        intent (str): wit.ai intent name
+
+    Returns:
+        Decorated Function
+
+    """
 
     def matcher(func):
         """Add decorated function to skills list for witai matching."""
@@ -210,7 +290,19 @@ def match_witai(intent):
 
 
 def match_crontab(crontab, timezone=None):
-    """Return crontab match decorator."""
+    """Return crontab match decorator.
+
+    Decorator that, after enabling crontab skill config, calls a function when cron timing interval
+    passes.
+
+    Args:
+        crontab (str): cron timing string
+        timezone (str): timezone string, defaults to root configuration
+
+    Returns:
+        Decorated Function
+
+    """
 
     def matcher(func):
         """Add decorated function to skills list for crontab matching."""
@@ -222,7 +314,18 @@ def match_crontab(crontab, timezone=None):
 
 
 def match_webhook(webhook):
-    """Return webhook match decorator."""
+    """Return webhook match decorator.
+
+    Decorator that calls the decorated function when a POST is sent to
+    http://localhost:8080/skill/exampleskill/<webhook>. Does not need a message as input.
+
+    Args:
+        webhook(str): webhook url
+
+    Returns:
+        Decorated Function
+
+    """
 
     def matcher(func):
         """Add decorated function to skills list for webhook matching."""
@@ -235,7 +338,15 @@ def match_webhook(webhook):
 
 
 def match_always(func=None):
-    """Return always match decorator."""
+    """Return always match decorator.
+
+    Decorator that parses every message as it is always running, it does not be need to be
+    configured explicitly.
+
+    Returns:
+        Decorated Function
+
+    """
 
     def matcher(func):
         """Add decorated function to skills list for always matching."""
