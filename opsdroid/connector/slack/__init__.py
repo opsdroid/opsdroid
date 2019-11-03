@@ -77,8 +77,8 @@ class ConnectorSlack(Connector):
         except slack.errors.SlackApiError as error:
             _LOGGER.error(
                 _(
-                    "Unable to connect to Slack due to %s - "
-                    "The Slack Connector will not be available"
+                    "Unable to connect to Slack due to %s."
+                    "The Slack Connector will not be available."
                 ),
                 error,
             )
@@ -152,7 +152,7 @@ class ConnectorSlack(Connector):
     async def send_blocks(self, blocks):
         """Respond with structured blocks."""
         _LOGGER.debug(
-            _("Responding with interactive blocks in room %s"), blocks.target
+            _("Responding with interactive blocks in room %s."), blocks.target
         )
         await self.slack.api_call(
             "chat.postMessage",

@@ -187,7 +187,9 @@ When creating log messages, we would like to see a consistency around how to str
 
 * In general any copyright/legal name should be Capitalized (i.e. Slack, Telegram)
 * All usage of the opsdroid capabilities should be Capitalized (Connector, Skill, Database and Parsers)
-* Standalone sentances should not end with a period.  Use a period if there are more than one sentance in a line.
+* All sentances should end with a period.  
+* When inserting specific text from an error message, end the sentance with a period.  
+* When inserting the entire error output as the last part of the log message, do not end it with a period.  
 
 
 

@@ -18,12 +18,12 @@ class ConnectorGitHub(Connector):
     def __init__(self, config, opsdroid=None):
         """Create the connector."""
         super().__init__(config, opsdroid=opsdroid)
-        logging.debug("Loaded GitHub connector")
+        logging.debug("Loaded GitHub connector.")
         try:
             self.github_token = config["token"]
         except KeyError:
             _LOGGER.error(
-                _("Missing auth token!" "You must set 'token' in your config")
+                _("Missing auth token!" "You must set 'token' in your config.")
             )
         self.name = self.config.get("name", "github")
         self.opsdroid = opsdroid
@@ -39,7 +39,7 @@ class ConnectorGitHub(Connector):
                 return False
             _LOGGER.debug(_("Reading bot information..."))
             bot_data = await response.json()
-        _LOGGER.debug(_("Done"))
+        _LOGGER.debug(_("Done."))
         self.github_username = bot_data["login"]
 
         self.opsdroid.web_server.web_app.router.add_post(
@@ -71,10 +71,10 @@ class ConnectorGitHub(Connector):
                 issue_number = payload["pull_request"]["number"]
                 body = payload["pull_request"]["body"]
             else:
-                _LOGGER.debug(_("No message to respond to"))
+                _LOGGER.debug(_("No message to respond to."))
                 _LOGGER.debug(payload)
                 return aiohttp.web.Response(
-                    text=json.dumps("No message to respond to"), status=200
+                    text=json.dumps("No message to respond to."), status=200
                 )
 
             issue = "{}/{}#{}".format(
@@ -87,7 +87,7 @@ class ConnectorGitHub(Connector):
             )
             await self.opsdroid.parse(message)
         except KeyError as error:
-            _LOGGER.error(_("Key %s not found in payload"), error)
+            _LOGGER.error(_("Key %s not found in payload."), error)
             _LOGGER.debug(payload)
         return aiohttp.web.Response(text=json.dumps("Received"), status=201)
 
@@ -97,14 +97,14 @@ class ConnectorGitHub(Connector):
         # stop immediately if the message is from the bot itself.
         if message.user == self.github_username:
             return True
-        _LOGGER.debug(_("Responding via GitHub"))
+        _LOGGER.debug(_("Responding via GitHub."))
         repo, issue = message.target.split("#")
         url = "{}/repos/{}/issues/{}/comments".format(GITHUB_API_URL, repo, issue)
         headers = {"Authorization": " token {}".format(self.github_token)}
         async with aiohttp.ClientSession() as session:
             resp = await session.post(url, json={"body": message.text}, headers=headers)
             if resp.status == 201:
-                _LOGGER.info(_("Message sent"))
+                _LOGGER.info(_("Message sent."))
                 return True
             _LOGGER.error(await resp.json())
             return False

@@ -19,7 +19,7 @@ class ConnectorGitter(Connector):
     def __init__(self, config, opsdroid=None):
         """Create the connector."""
         super().__init__(config, opsdroid=opsdroid)
-        _LOGGER.debug(_("Starting Gitter Connector"))
+        _LOGGER.debug(_("Starting Gitter Connector."))
         self.name = "gitter"
         self.session = None
         self.response = None
@@ -34,7 +34,7 @@ class ConnectorGitter(Connector):
         """Create the connection."""
 
         # Create connection object with chat library
-        _LOGGER.debug(_("Connecting with Gitter stream"))
+        _LOGGER.debug(_("Connecting with Gitter stream."))
         self.session = aiohttp.ClientSession()
         gitter_url = self.build_url(
             GITTER_STREAM_API,
@@ -56,7 +56,7 @@ class ConnectorGitter(Connector):
 
     async def listen(self):
         """Keep listing to the gitter channel."""
-        _LOGGER.debug(_("Listening with Gitter stream"))
+        _LOGGER.debug(_("Listening with Gitter stream."))
         while self.listening:
             try:
                 await self._get_messages()
@@ -98,9 +98,9 @@ class ConnectorGitter(Connector):
         payload = {"text": message.text}
         resp = await self.session.post(url, json=payload, headers=headers)
         if resp.status == 200:
-            _LOGGER.info(_("Successfully responded"))
+            _LOGGER.info(_("Successfully responded."))
         else:
-            _LOGGER.error(_("Unable to respond"))
+            _LOGGER.error(_("Unable to respond."))
 
     async def disconnect(self):
         """Disconnect the gitter."""
