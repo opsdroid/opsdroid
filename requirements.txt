@@ -20,6 +20,6 @@ pyyaml==5.1.2
 setuptools==41.6.0
 slackclient==2.3.1
 ibm-watson==4.0.1
-websockets==8.0.2
+websockets==8.1
 webexteamssdk==1.2
 yamale==2.0.1
