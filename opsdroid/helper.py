@@ -68,7 +68,7 @@ def convert_dictionary(modules):
             module_copy = module.copy()
             del module_copy["name"]
 
-            config = {module["name"]: module_copy}
+            config[module["name"]] = module_copy
 
         return config
     except TypeError:
@@ -96,6 +96,7 @@ def update_config(config):
             config_type == "parsers"
             or config_type == "connectors"
             or config_type == "skills"
+            or config_type == "databases"
         ):
             updated_config[config_type] = convert_dictionary(modules)
 
