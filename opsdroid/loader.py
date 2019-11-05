@@ -23,6 +23,7 @@ from opsdroid.helper import (
     file_is_ipython_notebook,
     convert_ipynb_to_script,
     extract_gist_id,
+    update_config,
 )
 from opsdroid.const import (
     DEFAULT_GIT_URL,
@@ -368,8 +369,13 @@ class Loader:
                 _LOGGER.info(_("Loaded config from %s."), config_path)
                 schema = yamale.make_schema(SCHEMA_PATH)
                 data = yamale.make_data(config_path)
+
                 yamale.validate(schema, data)
-                return yaml.load(stream, Loader=cls.yaml_loader)
+
+                configuration = yaml.load(stream, Loader=cls.yaml_loader)
+                updated_configuration = update_config(configuration)
+
+                return updated_configuration
 
         except ValueError as error:
             _LOGGER.critical(error)
@@ -463,7 +469,7 @@ class Loader:
 
         """
         _LOGGER.debug(_("Loading %s modules..."), modules_type)
-        loaded_modules = []
+        loaded_modules = list()
 
         if not os.path.isdir(DEFAULT_MODULE_DEPS_PATH):
             os.makedirs(DEFAULT_MODULE_DEPS_PATH)
@@ -479,18 +485,20 @@ class Loader:
             )
 
         for module in modules:
+            print(module)
             # Set up module config
             config = module
             config = {} if config is None else config
-
             # We might load from a configuration file an item that is just
             # a string, rather than a mapping object
             if not isinstance(config, Mapping):
-                config = {}
+                config = dict()
                 config["name"] = module
                 config["module"] = ""
             else:
-                config["name"] = [*module][0]
+                config["name"] = [*module][
+                    0
+                ]  # module dict has only one key - the name of the module
                 config["module"] = module.get("module", "")
             config["type"] = modules_type
             config["is_builtin"] = self.is_builtin_module(config)
@@ -528,90 +536,7 @@ class Loader:
                 )
             else:
                 _LOGGER.error(_("Module %s failed to import."), config["name"])
-
-            print(config)
         return loaded_modules
-
-    # def _load_modules(self, modules_type, modules):
-    #     """Install and load modules.
-    #
-    #     Args:
-    #         self: instance method
-    #         modules_type: str with the type of module being loaded
-    #         modules: list with module attributes
-    #
-    #     Returns:
-    #         list: modules and their config information
-    #
-    #     """
-    #     _LOGGER.debug(_("Loading %s modules..."), modules_type)
-    #     loaded_modules = []
-    #
-    #     if not os.path.isdir(DEFAULT_MODULE_DEPS_PATH):
-    #         os.makedirs(DEFAULT_MODULE_DEPS_PATH)
-    #     sys.path.append(DEFAULT_MODULE_DEPS_PATH)
-    #
-    #     # entry point group naming scheme: opsdroid_ + module type plural,
-    #     # eg. "opsdroid_databases"
-    #     epname = "opsdroid_{}s".format(modules_type)
-    #     entry_points = {ep.name: ep for ep in iter_entry_points(group=epname)}
-    #     for epname in entry_points:
-    #         _LOGGER.debug(
-    #             _("Found installed package for %s '%s' support"), modules_type, epname
-    #         )
-    #
-    #     for module in modules:
-    #         # Set up module config
-    #         print(module)
-    #         config = module
-    #         config = {} if config is None else config
-    #
-    #         # We might load from a configuration file an item that is just
-    #         # a string, rather than a mapping object
-    #         if not isinstance(config, Mapping):
-    #             config = {}
-    #             config["name"] = module
-    #             config["module"] = ""
-    #         else:
-    #             config["name"] = module["name"]
-    #             config["module"] = module.get("module", "")
-    #         config["type"] = modules_type
-    #         config["is_builtin"] = self.is_builtin_module(config)
-    #         if config["name"] in entry_points:
-    #             config["entrypoint"] = entry_points[config["name"]]
-    #         else:
-    #             config["entrypoint"] = None
-    #         config["module_path"] = self.build_module_import_path(config)
-    #         config["install_path"] = self.build_module_install_path(config)
-    #         if "branch" not in config:
-    #             config["branch"] = DEFAULT_MODULE_BRANCH
-    #
-    #         # If the module isn't builtin, or isn't already on the
-    #         # python path, install it
-    #         if not (config["is_builtin"] or config["module"] or config["entrypoint"]):
-    #             # Remove module for reinstall if no-cache set
-    #             self.check_cache(config)
-    #
-    #             # Install or update module
-    #             if not self._is_module_installed(config):
-    #                 self._install_module(config)
-    #             else:
-    #                 self._update_module(config)
-    #
-    #         # Import module
-    #         self.current_import_config = config
-    #         module = self.import_module(config)
-    #
-    #         # Load intents
-    #         intents = self._load_intents(config)
-    #
-    #         if module is not None:
-    #             loaded_modules.append(
-    #                 {"module": module, "config": config, "intents": intents}
-    #             )
-    #         else:
-    #             _LOGGER.error(_("Module %s failed to import."), config["name"])
-    #     return loaded_modules
 
     def _install_module(self, config):
         """Install a module.
