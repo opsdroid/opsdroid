@@ -114,8 +114,8 @@ class Loader:
         _LOGGER.error(_("Failed to load %s: %s"), config["type"], config["module_path"])
         return None
 
-    @staticmethod
-    def check_cache(config):
+    @classmethod
+    def check_cache(cls, config):
         """Remove module if 'no-cache' set in config.
 
         Args:
@@ -124,10 +124,29 @@ class Loader:
         """
         if "no-cache" in config and config["no-cache"]:
             _LOGGER.debug(_("'no-cache' set, removing %s"), config["install_path"])
-            if os.path.isdir(config["install_path"]):
-                shutil.rmtree(config["install_path"])
-            if os.path.isfile(config["install_path"] + ".py"):
-                os.remove(config["install_path"] + ".py")
+            cls.remove_cache(config)
+
+        if "no-cache" not in config and cls._is_local_module(config):
+            _LOGGER.debug(
+                _(
+                    "Removing cache for local module %s, set 'no-cache: false' to disable this."
+                ),
+                config["install_path"],
+            )
+            cls.remove_cache(config)
+
+    @staticmethod
+    def remove_cache(config):
+        """Remove module cache.
+
+        Args:
+            config: dict of config information related to the module
+
+        """
+        if os.path.isdir(config["install_path"]):
+            shutil.rmtree(config["install_path"])
+        if os.path.isfile(config["install_path"] + ".py"):
+            os.remove(config["install_path"] + ".py")
 
     @staticmethod
     def is_builtin_module(config):
