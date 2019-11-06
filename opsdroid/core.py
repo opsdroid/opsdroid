@@ -527,9 +527,6 @@ class OpsDroid:
         if isinstance(event.connector, str):
             event.connector = self._connector_names[event.connector]
 
-            print("================= \n\n\n\n\n")
-            print(event.connector)
-
         if not event.connector:
             event.connector = self.default_connector
 
