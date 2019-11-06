@@ -485,7 +485,6 @@ class Loader:
             )
 
         for module in modules:
-            print(module)
             # Set up module config
             config = module
             config = {} if config is None else config
@@ -496,10 +495,9 @@ class Loader:
                 config["name"] = module
                 config["module"] = ""
             else:
-                config["name"] = [*module][
-                    0
-                ]  # module dict has only one key - the name of the module
+                config["name"] = module
                 config["module"] = module.get("module", "")
+            config.update(modules.get(module))
             config["type"] = modules_type
             config["is_builtin"] = self.is_builtin_module(config)
             if config["name"] in entry_points:
