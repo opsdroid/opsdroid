@@ -35,7 +35,7 @@ class ConnectorGitHub(Connector):
         async with aiohttp.ClientSession() as session:
             response = await session.get(url)
             if response.status >= 300:
-                _LOGGER.error(_("Error connecting to GitHub: %s"), response.text())
+                _LOGGER.error(_("Error connecting to GitHub: %s."), response.text())
                 return False
             _LOGGER.debug(_("Reading bot information..."))
             bot_data = await response.json()

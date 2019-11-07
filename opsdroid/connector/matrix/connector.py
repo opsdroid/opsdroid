@@ -130,7 +130,7 @@ class ConnectorMatrix(Connector):
                 # We can safely ignore timeout errors. The non-standard error
                 # codes are returned by Cloudflare.
                 if mre.code in [504, 522, 524]:
-                    _LOGGER.info(_("Matrix sync timeout (code: %d)"), mre.code)
+                    _LOGGER.info(_("Matrix sync timeout (code: %d)."), mre.code)
                     continue
 
                 _LOGGER.exception(_("Matrix sync error."))
@@ -151,14 +151,14 @@ class ConnectorMatrix(Connector):
                 return await self.connection.get_room_displayname(roomid, mxid)
             except Exception:  # pylint: disable=W0703
                 # Fallback to the non-room specific one
-                logging.exception("Failed to lookup room specific nick for %s", mxid)
+                logging.exception("Failed to lookup room specific nick for %s.", mxid)
 
         try:
             return await self.connection.get_display_name(mxid)
         except MatrixRequestError as mre:
             # Log the error if it's not the 404 from the user not having a nick
             if mre.code != 404:
-                logging.exception("Failed to lookup nick for %s", mxid)
+                logging.exception("Failed to lookup nick for %s.", mxid)
             return mxid
 
     @staticmethod

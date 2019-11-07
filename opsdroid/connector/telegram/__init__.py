@@ -40,8 +40,7 @@ class ConnectorTelegram(Connector):
         except (KeyError, AttributeError):
             _LOGGER.error(
                 _(
-                    "Unable to login: Access token is missing. "
-                    "Telegram connector will be unavailable."
+                    "Unable to login: Access token is missing. Telegram connector will be unavailable."
                 )
             )
 
@@ -128,7 +127,7 @@ class ConnectorTelegram(Connector):
         resp = await self.session.get(self.build_url("getMe"))
 
         if resp.status != 200:
-            _LOGGER.error(_("Unable to connect"))
+            _LOGGER.error(_("Unable to connect."))
             _LOGGER.error(_("Telegram error %s, %s."), resp.status, resp.text)
         else:
             json = await resp.json()

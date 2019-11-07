@@ -46,8 +46,7 @@ class RocketChat(Connector):
         except (KeyError, AttributeError):
             _LOGGER.error(
                 _(
-                    "Unable to login: Access token is missing."
-                    "Rocket.Chat connector will not be available."
+                    "Unable to login: Access token is missing. Rocket.Chat connector will not be available."
                 )
             )
 
@@ -82,10 +81,10 @@ class RocketChat(Connector):
         resp = await self.session.get(self.build_url("me"), headers=self.headers)
         if resp.status != 200:
             _LOGGER.error(_("Unable to connect."))
-            _LOGGER.error(_("Rocket.Chat error %s, %s"), resp.status, resp.text)
+            _LOGGER.error(_("Rocket.Chat error %s, %s."), resp.status, resp.text)
         else:
             json = await resp.json()
-            _LOGGER.debug(_("Connected to Rocket.Chat as %s"), json["username"])
+            _LOGGER.debug(_("Connected to Rocket.Chat as %s."), json["username"])
 
     async def _parse_message(self, response):
         """Parse the message received.
@@ -179,7 +178,7 @@ class RocketChat(Connector):
             message (object): An instance of Message
 
         """
-        _LOGGER.debug(_("Responding with: %s"), message.text)
+        _LOGGER.debug(_("Responding with: %s."), message.text)
 
         data = {}
         data["channel"] = message.target
