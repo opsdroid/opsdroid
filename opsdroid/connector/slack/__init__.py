@@ -87,7 +87,7 @@ class ConnectorSlack(Connector):
 
     async def disconnect(self):
         """Disconnect from Slack."""
-        await self.slack_rtm.stop()
+        self.slack_rtm.stop()
         self.listening = False
 
     async def listen(self):
