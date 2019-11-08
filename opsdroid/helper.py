@@ -64,18 +64,24 @@ def convert_dictionary(modules):
     config = dict()
 
     try:
-        for module in modules:
-            module_copy = module.copy()
-            del module_copy["name"]
+        if isinstance(modules, list):
+            _LOGGER.warning(
+                "Opsdroid has a new configuration format since version 0.17.0, we will change your configuration now. Please read on how to migrate in the documentation."
+            )
+            for module in modules:
+                module_copy = module.copy()
+                del module_copy["name"]
 
-            config[module["name"]] = module_copy
+                config[module["name"]] = module_copy
 
-        return config
+            return config
+        else:
+            return modules
     except TypeError:
         return {}
 
 
-def update_config(config):
+def update_pre_0_17_config_format(config):
     """Update each configuration param that contains 'name'.
 
     We decided to ditch the name param and instead divide each module by it's name.
@@ -92,12 +98,7 @@ def update_config(config):
     """
     updated_config = {}
     for config_type, modules in config.items():
-        if (
-            config_type == "parsers"
-            or config_type == "connectors"
-            or config_type == "skills"
-            or config_type == "databases"
-        ):
+        if config_type in ("parsers", "connectors", "skills", "databases"):
             updated_config[config_type] = convert_dictionary(modules)
 
     config.update(updated_config)

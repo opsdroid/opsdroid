@@ -23,7 +23,7 @@ from opsdroid.helper import (
     file_is_ipython_notebook,
     convert_ipynb_to_script,
     extract_gist_id,
-    update_config,
+    update_pre_0_17_config_format,
 )
 from opsdroid.const import (
     DEFAULT_GIT_URL,
@@ -373,7 +373,7 @@ class Loader:
                 yamale.validate(schema, data)
 
                 configuration = yaml.load(stream, Loader=cls.yaml_loader)
-                updated_configuration = update_config(configuration)
+                updated_configuration = update_pre_0_17_config_format(configuration)
 
                 return updated_configuration
 
@@ -500,6 +500,7 @@ class Loader:
             config.update(modules.get(module))
             config["type"] = modules_type
             config["is_builtin"] = self.is_builtin_module(config)
+            config["enabled"] = True
             if config["name"] in entry_points:
                 config["entrypoint"] = entry_points[config["name"]]
             else:

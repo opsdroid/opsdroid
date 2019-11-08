@@ -288,9 +288,7 @@ class OpsDroid:
         if "parsers" in self.config:
             parsers = self.config["parsers"] or {}
             rasanlu = parsers.get("rasanlu")
-            if rasanlu and (
-                "enabled" not in rasanlu or rasanlu["enabled"] is not False
-            ):
+            if rasanlu and rasanlu["enabled"]:
                 await train_rasanlu(rasanlu, skills)
 
     async def start_connectors(self, connectors):
@@ -344,7 +342,6 @@ class OpsDroid:
                 n_key = len(list(filter(lambda x: x.startswith(name), names)))
                 name += "_{}".format(n_key)
             names[name] = connector
-            print(connector)
 
         return names
 
@@ -424,39 +421,34 @@ class OpsDroid:
             parsers = self.config["parsers"] or {}
 
             dialogflow = parsers.get("dialogflow")
-
-            if dialogflow and (
-                "enabled" not in dialogflow or dialogflow["enabled"] is not False
-            ):
+            if dialogflow and dialogflow["enabled"]:
                 _LOGGER.debug(_("Checking dialogflow..."))
                 ranked_skills += await parse_dialogflow(
                     self, skills, message, dialogflow
                 )
 
             luisai = parsers.get("luisai")
-            if luisai and ("enabled" not in luisai or luisai["enabled"] is not False):
+            if luisai and luisai["enabled"]:
                 _LOGGER.debug(_("Checking luisai..."))
                 ranked_skills += await parse_luisai(self, skills, message, luisai)
 
             sapcai = parsers.get("sapcai")
-            if sapcai and ("enabled" not in sapcai or sapcai["enabled"] is not False):
+            if sapcai and sapcai["enabled"]:
                 _LOGGER.debug(_("Checking SAPCAI..."))
                 ranked_skills += await parse_sapcai(self, skills, message, sapcai)
 
             witai = parsers.get("witai")
-            if witai and ("enabled" not in witai or witai["enabled"] is not False):
+            if witai and witai["enabled"]:
                 _LOGGER.debug(_("Checking wit.ai..."))
                 ranked_skills += await parse_witai(self, skills, message, witai)
 
             watson = parsers.get("watson")
-            if watson and ("enabled" not in watson or watson["enabled"] is not False):
+            if watson and watson["enabled"]:
                 _LOGGER.debug(_("Checking IBM Watson..."))
                 ranked_skills += await parse_watson(self, skills, message, watson)
 
             rasanlu = parsers.get("rasanlu")
-            if rasanlu and (
-                "enabled" not in rasanlu or rasanlu["enabled"] is not False
-            ):
+            if rasanlu and rasanlu["enabled"]:
                 _LOGGER.debug(_("Checking Rasa NLU..."))
                 ranked_skills += await parse_rasanlu(self, skills, message, rasanlu)
 
