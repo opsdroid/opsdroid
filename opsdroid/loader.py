@@ -456,13 +456,60 @@ class Loader:
 
         return {"connectors": connectors, "databases": databases, "skills": skills}
 
+    def setup_module_config(self, module, modules_type, entry_points):
+        """Set up configuration for module.
+
+        When setting up the configuration for a module we assign a lot
+        of key:value pairs into a config dictionary. In some cases we
+        use dict.update() because this method is slightly faster than
+        direct assign.
+
+        Since some method of the Loader depend upon eachother, we decided
+        to do direct assign to the value obained from those methods.
+
+        Args:
+            module (dict): Module to be configured
+            modules_type (str): Type of module being loaded
+            entry_points (dict): name of possible entry points.
+
+        Returns:
+            dict: configuration containing all the set key:values
+
+        """
+        # Set up module config
+        config = module
+        config = {} if config is None else config
+        # We might load from a configuration file an item that is just
+        # a string, rather than a mapping object
+        if not isinstance(config, Mapping):
+            config = {"name": module, "module": ""}
+        else:
+            config.update({"name": module, "module": module.get("module", "")})
+
+        config.update(
+            {
+                "type": modules_type,
+                "enabled": True,
+                "entrypoint": entry_points.get(config["name"], None),
+            }
+        )
+
+        config["is_builtin"] = self.is_builtin_module(config)
+        config["module_path"] = self.build_module_import_path(config)
+        config["install_path"] = self.build_module_install_path(config)
+
+        if "branch" not in config:
+            config["branch"] = DEFAULT_MODULE_BRANCH
+
+        return config
+
     def _load_modules(self, modules_type, modules):
         """Install and load modules.
 
         Args:
             self: instance method
-            modules_type: str with the type of module being loaded
-            modules: list with module attributes
+            modules_type (str): Type of module being loaded
+            modules (dict): Dictionary containing all modules
 
         Returns:
             list: modules and their config information
@@ -485,30 +532,8 @@ class Loader:
             )
 
         for module in modules:
-            # Set up module config
-            config = module
-            config = {} if config is None else config
-            # We might load from a configuration file an item that is just
-            # a string, rather than a mapping object
-            if not isinstance(config, Mapping):
-                config = dict()
-                config["name"] = module
-                config["module"] = ""
-            else:
-                config["name"] = module
-                config["module"] = module.get("module", "")
+            config = self.setup_module_config(module, modules_type, entry_points)
             config.update(modules.get(module))
-            config["type"] = modules_type
-            config["is_builtin"] = self.is_builtin_module(config)
-            config["enabled"] = True
-            if config["name"] in entry_points:
-                config["entrypoint"] = entry_points[config["name"]]
-            else:
-                config["entrypoint"] = None
-            config["module_path"] = self.build_module_import_path(config)
-            config["install_path"] = self.build_module_install_path(config)
-            if "branch" not in config:
-                config["branch"] = DEFAULT_MODULE_BRANCH
 
             # If the module isn't builtin, or isn't already on the
             # python path, install it
@@ -535,6 +560,7 @@ class Loader:
                 )
             else:
                 _LOGGER.error(_("Module %s failed to import."), config["name"])
+            print(loaded_modules)
         return loaded_modules
 
     def _install_module(self, config):
