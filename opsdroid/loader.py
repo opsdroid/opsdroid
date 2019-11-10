@@ -2,6 +2,7 @@
 
 # pylint: disable=too-many-branches
 
+import contextlib
 import yamale
 import importlib
 import importlib.util
@@ -464,8 +465,12 @@ class Loader:
         use dict.update() because this method is slightly faster than
         direct assign.
 
-        Since some method of the Loader depend upon eachother, we decided
-        to do direct assign to the value obained from those methods.
+        Since some method of the Loader depend upon each other, we have
+        to do multiple config.updates.
+
+        Also we might want to load from a configuration file an item that
+        is just a string rather than a mapping object so we do a check and
+        update the config as appropriate.
 
         Args:
             module (dict): Module to be configured
@@ -476,15 +481,13 @@ class Loader:
             dict: configuration containing all the set key:values
 
         """
-        # Set up module config
         config = module
         config = {} if config is None else config
-        # We might load from a configuration file an item that is just
-        # a string, rather than a mapping object
+
         if not isinstance(config, Mapping):
             config = {"name": module, "module": ""}
         else:
-            config.update({"name": module, "module": module.get("module", "")})
+            config.update({"name": module["name"], "module": module.get("module", "")})
 
         config.update(
             {
@@ -494,12 +497,12 @@ class Loader:
             }
         )
 
-        config["is_builtin"] = self.is_builtin_module(config)
-        config["module_path"] = self.build_module_import_path(config)
-        config["install_path"] = self.build_module_install_path(config)
+        config.update({"is_builtin": self.is_builtin_module(config)})
+        config.update({"module_path": self.build_module_import_path(config)})
+        config.update({"install_path": self.build_module_install_path(config)})
 
         if "branch" not in config:
-            config["branch"] = DEFAULT_MODULE_BRANCH
+            config.update({"branch": DEFAULT_MODULE_BRANCH})
 
         return config
 
@@ -533,7 +536,10 @@ class Loader:
 
         for module in modules:
             config = self.setup_module_config(module, modules_type, entry_points)
-            config.update(modules.get(module))
+
+            # Suppress exception when using a str as module
+            with contextlib.suppress(AttributeError):
+                config.update(modules.get(module))
 
             # If the module isn't builtin, or isn't already on the
             # python path, install it
