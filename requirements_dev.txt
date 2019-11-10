@@ -8,3 +8,4 @@ alabaster==0.7.12
 commonmark==0.9.1
 recommonmark==0.6.0
 mkdocs==1.0.4
+deadlinks
