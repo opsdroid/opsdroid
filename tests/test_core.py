@@ -310,7 +310,9 @@ class TestCoreAsync(asynctest.TestCase):
     async def test_parse_dialogflow(self):
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "path/test.json"
         with OpsDroid() as opsdroid:
-            opsdroid.config["parsers"] = [{"name": "dialogflow", "project-id": "test"}]
+            opsdroid.config["parsers"] = {
+                "dialogflow": {"project-id": "test", "enabled": True}
+            }
             dialogflow_action = "smalltalk.greetings.whatsup"
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
@@ -331,7 +333,7 @@ class TestCoreAsync(asynctest.TestCase):
 
     async def test_parse_luisai(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config["parsers"] = [{"name": "luisai"}]
+            opsdroid.config["parsers"] = {"name": "luisai"}
             luisai_intent = ""
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
@@ -345,7 +347,7 @@ class TestCoreAsync(asynctest.TestCase):
 
     async def test_parse_rasanlu(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config["parsers"] = [{"name": "rasanlu"}]
+            opsdroid.config["parsers"] = {"name": "rasanlu"}
             rasanlu_intent = ""
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
@@ -359,7 +361,7 @@ class TestCoreAsync(asynctest.TestCase):
 
     async def test_parse_sapcai(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config["parsers"] = [{"name": "sapcai"}]
+            opsdroid.config["parsers"] = {"name": "sapcai"}
             sapcai_intent = ""
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
@@ -373,7 +375,7 @@ class TestCoreAsync(asynctest.TestCase):
 
     async def test_parse_watson(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config["parsers"] = [{"name": "watson"}]
+            opsdroid.config["parsers"] = {"name": "watson"}
             watson_intent = ""
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
@@ -387,7 +389,7 @@ class TestCoreAsync(asynctest.TestCase):
 
     async def test_parse_witai(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config["parsers"] = [{"name": "witai"}]
+            opsdroid.config["parsers"] = {"name": "witai"}
             witai_intent = ""
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
@@ -504,6 +506,6 @@ class TestCoreAsync(asynctest.TestCase):
 
     async def test_train_rasanlu(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config["parsers"] = [{"name": "rasanlu"}]
+            opsdroid.config["parsers"] = {"name": "rasanlu"}
             with amock.patch("opsdroid.parsers.rasanlu.train_rasanlu"):
                 await opsdroid.train_parsers({})

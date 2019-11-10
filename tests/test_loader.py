@@ -153,7 +153,9 @@ class TestLoader(unittest.TestCase):
         config = loader.load_config_file(
             [os.path.abspath("tests/configs/minimal_with_envs.yaml")]
         )
-        self.assertEqual(config["connectors"][0]["bot-name"], os.environ["ENVVAR"])
+        self.assertEqual(
+            config["connectors"]["shell"]["bot-name"], os.environ["ENVVAR"]
+        )
 
     def test_create_default_config(self):
         test_config_path = os.path.join(
@@ -384,7 +386,7 @@ class TestLoader(unittest.TestCase):
 
         opsdroid, loader = self.setup()
         loader.modules_directory = "."
-        modules = [{"name": "myep"}]
+        modules = {"myep": {}}
 
         with mock.patch("opsdroid.loader.iter_entry_points") as mock_iter_entry_points:
             mock_iter_entry_points.return_value = (ep,)
@@ -460,7 +462,7 @@ class TestLoader(unittest.TestCase):
         opsdroid, loader = self.setup()
 
         modules_type = "test"
-        modules = [{"name": "testmodule"}]
+        modules = {"testmodule": {}}
         mockedmodule = mock.Mock(return_value={"name": "testmodule"})
 
         with tempfile.TemporaryDirectory() as tmp_dep_path:
@@ -481,7 +483,7 @@ class TestLoader(unittest.TestCase):
         opsdroid, loader = self.setup()
 
         modules_type = "test"
-        modules = ["testmodule"]
+        modules = "testmodule"
         mockedmodule = mock.Mock(return_value={"name": "testmodule"})
 
         with tempfile.TemporaryDirectory() as tmp_dep_path:
@@ -502,7 +504,7 @@ class TestLoader(unittest.TestCase):
         opsdroid, loader = self.setup()
 
         modules_type = "test"
-        modules = [{"name": "testmodule"}]
+        modules = {"testmodule": {}}
 
         with mock.patch.object(
             loader, "_install_module"
@@ -519,7 +521,7 @@ class TestLoader(unittest.TestCase):
         opsdroid, loader = self.setup()
 
         modules_type = "test"
-        modules = [{"name": "testmodule"}]
+        modules = {"testmodule": {}}
         install_path = os.path.join(self._tmp_dir, "test_existing_module")
         mockedmodule = mock.Mock(return_value={"name": "testmodule"})
         mocked_install_path = mock.Mock(return_value=install_path)
