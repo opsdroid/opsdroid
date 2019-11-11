@@ -19,14 +19,13 @@ class ConnectorMattermost(Connector):
         self.token = config["api-token"]
         self.url = config["url"]
         self.team_name = config["team-name"]
-        self.default_target = config.get("default-room", "Town Square")
         self.scheme = config.get("scheme", "https")
         self.port = config.get("port", 8065)
         self.verify = config.get("ssl-verify", True)
         self.timeout = config.get("connect-timeout", 30)
         self.request_timeout = None
         self.mfa_token = None
-        self.debug = True
+        self.debug = False
         self.listening = True
 
         self.mm_driver = Driver({
@@ -57,7 +56,7 @@ class ConnectorMattermost(Connector):
 
             _LOGGER.info(_("Connected as %s"), self.bot_name)
 
-            self.mm_driver.init_websocket(await self.process_message)
+            self.mm_driver.init_websocket(self.process_message)
 
             _LOGGER.info(_("Connected successfully"))
         except Exception:

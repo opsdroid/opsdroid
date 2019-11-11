@@ -144,7 +144,6 @@ connectors:
 #    url: "mattermost.server.com"
 #    team-name: "myteam"
 #    # Optional
-#    default-room: "General" # default: Town Square
 #    scheme: "http" # default: https
 #    port: 8065 # default: 8065
 #    ssl-verify: false # default: true

@@ -82,7 +82,6 @@ mattermost:
   api-token: str()
   url: str()
   team-name: str()
-  default-room: str(required=False)
   scheme: str(required=False)
   port: int(required=False)
   ssl-verify: bool(required=False)
