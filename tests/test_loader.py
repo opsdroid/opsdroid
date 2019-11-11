@@ -300,6 +300,28 @@ class TestLoader(unittest.TestCase):
         self.assertEqual(intent_contents, loaded_intents)
         shutil.rmtree(config["install_path"], onerror=del_rw)
 
+    def test_check_cache_clears_local_by_default(self):
+        config = {}
+        config["path"] = "abc"
+        config["install_path"] = os.path.join(
+            self._tmp_dir, os.path.normpath("test/module")
+        )
+        os.makedirs(config["install_path"], mode=0o777)
+        ld.Loader.check_cache(config)
+        self.assertFalse(os.path.isdir(config["install_path"]))
+
+    def test_check_cache_clear_local_by_default_disabled(self):
+        config = {}
+        config["no-cache"] = False
+        config["path"] = "abc"
+        config["install_path"] = os.path.join(
+            self._tmp_dir, os.path.normpath("test/module")
+        )
+        os.makedirs(config["install_path"], mode=0o777)
+        ld.Loader.check_cache(config)
+        self.assertTrue(os.path.isdir(config["install_path"]))
+        shutil.rmtree(config["install_path"], onerror=del_rw)
+
     def test_loading_intents_failed(self):
         config = {}
         config["no-cache"] = True

@@ -86,6 +86,7 @@ slack:
   default-room: str(required=False)
   icon-emoji: str(required=False)
   connect-timeout: int(required=False)
+  chat-as-user: bool(required=False)
 ---
 telegram:
   name: regex('^(?i)telegram$')
