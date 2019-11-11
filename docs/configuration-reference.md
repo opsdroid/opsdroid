@@ -29,6 +29,7 @@
     - [Disable dependency install](#disable-dependency-install)
   - [Environment variables](#environment-variables)
   - [Include additional yaml files](#include-additional-yaml-files)
+  - [Migrating to new configuration layout - post v0.16.0](#migrate-to-new-configuration-layout)
 
 ## Config file
 
@@ -58,10 +59,10 @@ For example, a simple barebones configuration would look like:
 
 ```yaml
 connectors:
-  - name: shell
+  shell: {}
 
 skills:
-  - name: hello
+  hello: {}
 ```
 
 This tells opsdroid to use the [shell connector](https://github.com/opsdroid/connector-shell) and [hello skill](https://github.com/opsdroid/skill-hello) from the official module library.
@@ -74,19 +75,19 @@ A more advanced config would like similar to the following:
 
 ```yaml
 connectors:
-  - name: slack
+  slack:
     token: "mysecretslacktoken"
 
 databases:
-  - name: mongo
+  mongo:
     host: "mymongohost.mycompany.com"
     port: "27017"
     database: "opsdroid"
 
 skills:
-  - name: hello
-  - name: seen
-  - name: myawesomeskill
+  hello: {}
+  seen: {}
+  myawesomeskill: {}
     repo: "https://github.com/username/myawesomeskill.git"
 ```
 
@@ -120,11 +121,11 @@ _Config options of the connectors themselves differ between connectors, see the 
 ```yaml
 connectors:
 
-  - name: slack
+  slack:
     token: "mysecretslacktoken"
 
   # conceptual connector
-  - name: twitter
+  twitter:
     oauth_key: "myoauthkey"
     secret_key: "myoauthsecret"
 ```
@@ -138,7 +139,7 @@ Example:
 
 ```yaml
 connectors:
-  - name: slack
+  slack:
     token: "mysecretslacktoken"
     thinking-delay: <int, float or two element list>
     typing-delay: <int, float or two element list>
@@ -164,7 +165,7 @@ _Config options of the databases themselves differ between databases, see the da
 
 ```yaml
 databases:
-  - name: mongo
+  mongo:
     host: "mymongohost.mycompany.com"
     port: "27017"
     database: "opsdroid"
@@ -209,11 +210,11 @@ logging:
   console: true
 
 connectors:
-  - name: shell
+  shell: {}
 
 skills:
-  - name: hello
-  - name: seen
+  hello: {}
+  seen: {}
 ```
 
 #### Optional logging arguments
@@ -345,11 +346,11 @@ Set the path for opsdroid to use when installing skills. Defaults to the current
 module-path: "/etc/opsdroid/modules"
 
 connectors:
-  - name: shell
+  shell: {}
 
 skills:
-  - name: hello
-  - name: seen
+  hello: {}
+  seen: {}
 ```
 
 ### Parsers
@@ -360,11 +361,11 @@ _Config options of the parsers themselves differ between parsers, see the parser
 
 ```yaml
 parsers:
-  - name: regex
+  regex:
     enabled: true
 
 # NLU parser
-  - name: rasanlu
+  rasanlu:
     url: http://localhost:5000
     project: opsdroid
     token: 85769fjoso084jd
@@ -383,8 +384,8 @@ _Config options of the skills themselves differ between skills, see the skill do
 
 ```yaml
 skills:
-  - name: hello
-  - name: seen
+  hello: {}
+  seen: {}
 ```
 
 See [module options](#module-options) for installing custom skills.
@@ -440,9 +441,9 @@ A git URL to install the module from.
 
 ```yaml
 connectors:
-  - name: slack
+  slack:
     token: "mysecretslacktoken"
-  - name: mynewconnector
+  mynewconnector:
     repo: https://github.com/username/myconnector.git
 ```
 
@@ -454,7 +455,7 @@ A local path to install the module from.
 
 ```yaml
 skills:
-  - name: myawesomeskill
+  myawesomeskill:
     path: /home/me/src/opsdroid-skills/myawesomeskill
 ```
 
@@ -462,7 +463,7 @@ You can specify a single file.
 
 ```yaml
 skills:
-  - name: myawesomeskill
+  myawesomeskill:
     path: /home/me/src/opsdroid-skills/myawesomeskill/myskill.py
 ```
 
@@ -470,7 +471,7 @@ Or even an [IPython/Jupyter Notebook](http://jupyter.org/).
 
 ```yaml
 skills:
-  - name: myawesomeskill
+  myawesomeskill:
     path: /home/me/src/opsdroid-skills/myawesomeskill/myskill.ipynb
 ```
 
@@ -482,7 +483,7 @@ Notebooks are also supported.
 
 ```yaml
 skills:
- - name: ping
+ ping:
    gist: https://gist.github.com/jacobtomlinson/6dd35e0f62d6b779d3d0d140f338d3e5
 ```
 
@@ -490,7 +491,7 @@ Or you can specify the Gist ID without the full URL.
 
 ```yaml
 skills:
- - name: ping
+ ping:
    gist: 6dd35e0f62d6b779d3d0d140f338d3e5
 ```
 
@@ -501,7 +502,7 @@ default to `true` for modules configured with a local `path`.
 
 ```yaml
 databases:
-  - name: mongodb
+  mongodb:
     repo: https://github.com/username/mymongofork.git
     no-cache: true
 ```
@@ -512,7 +513,7 @@ Set `no-dep` to true to skip the installation of dependencies on every start of 
 
 ```yaml
 skills:
-  - name: myawesomeskill
+  myawesomeskill:
     no-cache: true
     no-deps: true
 ```
@@ -525,7 +526,7 @@ You can use environment variables in your config. You need to specify the variab
 
 ```yaml
 skills:
-  - name: myawesomeskill
+  myawesomeskill:
     somekey: $ENVIRONMENT_VARIABLE
 ```
 
@@ -541,3 +542,39 @@ skills: !include skills.yaml
 ```
 
 _Note: The file.yaml that you wish to include in the config must be in the same directory as your configuration.yaml (e.g ~/.opsdroid)_
+
+## Migrate to new configuration layout
+
+Since version 0.17.0 came out we have migrated to a new configuration layout. We will check your configuration and give you a deprecation warning if your configuration is using the old layout.
+
+### What changed
+
+We have dropped the pattern `- name:  <module name>`  and replaced it with the pattern `<module name>: {}` or `<module name>:` followed by a blank line underneath.
+
+This change makes sure we stop using lists containing dictionaries that carry the configuration for each module. In the new layout, we replace lists with a dictionary that uses the name of a module for a key and the additional configuration parameters inside a dictionary as a key.
+
+### Example
+
+We will use the slack connector as an example. The new configuration layout would set the Slack connection like this:
+
+```yaml
+connectors:
+  slack:
+    token: <API token>
+```
+
+Which would be represented in a dictionary format like this:
+
+```python
+{
+    'connectors': { 
+        'slack': { 
+            'token': <API token>
+        } 
+    } 
+}
+```
+
+You can have a look at the [example configuration file](https://github.com/opsdroid/opsdroid/blob/master/opsdroid/configuration/example_configuration.yaml) for a better grasp of the new layout.
+
+If you need help migrating your configuration to the new layout please get in touch with us on the [official matrix channel](https://riot.im/app/#/room/#opsdroid-general:matrix.org).
