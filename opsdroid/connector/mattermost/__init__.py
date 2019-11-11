@@ -47,15 +47,17 @@ class ConnectorMattermost(Connector):
 
         try:
             login_response = self.mm_driver.login()
+
+            _LOGGER.info(login_response)
         
             if 'id' in login_response:
                 self.bot_id = login_response['id']
             if 'username' in login_response:
                 self.bot_name = login_response['username']
 
-            _LOGGER.debug(_("Connected as %s"), self.bot_name)
+            _LOGGER.info(_("Connected as %s"), self.bot_name)
 
-            self.mm_driver.init_websocket(self.process_message)
+            self.mm_driver.init_websocket(await self.process_message)
 
             _LOGGER.info(_("Connected successfully"))
         except Exception:
