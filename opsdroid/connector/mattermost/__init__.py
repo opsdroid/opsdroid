@@ -46,25 +46,23 @@ class ConnectorMattermost(Connector):
         _LOGGER.info(_("Connecting to Mattermost"))
 
         try:
-            login_response = await self.mm_driver.login()
-
-            _LOGGER.info(login_response)
+            login_response = self.mm_driver.login()
         
-            # if 'id' in login_response:
-            #     self.bot_id = login_response['id']
-            # if 'username' in login_response:
-            #     self.bot_name = login_response['username']
+            if 'id' in login_response:
+                self.bot_id = login_response['id']
+            if 'username' in login_response:
+                self.bot_name = login_response['username']
 
-            # _LOGGER.debug(_("Connected as %s"), self.bot_name)
+            _LOGGER.debug(_("Connected as %s"), self.bot_name)
             _LOGGER.info(_("Connected successfully"))
         except Exception:
-            await self.disconnect()
+            self.disconnect()
             raise
 
     async def disconnect(self):
         """Disconnect from Mattermost."""
         self.listening = False
-        await self.mm_driver.logout()
+        self.mm_driver.logout()
 
     async def listen(self):
         """Listen for and parse new messages."""
@@ -75,8 +73,8 @@ class ConnectorMattermost(Connector):
         _LOGGER.debug(
             _("Responding with: '%s' in room  %s"), message.text, message.target
         )
-        channel_id = await self.mm_driver.channels.get_channel_by_name_and_team_name(team_name, message.target)['id']
-        await self.mm_driver.posts.create_post(options={
+        channel_id = self.mm_driver.channels.get_channel_by_name_and_team_name(team_name, message.target)['id']
+        self.mm_driver.posts.create_post(options={
             'channel_id': channel_id,
             'message': message.text
         })
