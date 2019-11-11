@@ -8,6 +8,7 @@ from opsdroid.events import Message
 
 _LOGGER = logging.getLogger(__name__)
 
+
 class ConnectorMattermost(Connector):
     """A connector for Mattermost."""
 
@@ -28,17 +29,19 @@ class ConnectorMattermost(Connector):
         self.debug = False
         self.listening = True
 
-        self.mm_driver = Driver({
-            'url': self.url,
-            'token': self.token,
-            'scheme': self.scheme,
-            'port': self.port,
-            'verify': self.verify,
-            'timeout': self.timeout,
-            'request_timeout': self.request_timeout,
-            'mfa_token': self.mfa_token,
-            'debug': self.debug
-        })
+        self.mm_driver = Driver(
+            {
+                "url": self.url,
+                "token": self.token,
+                "scheme": self.scheme,
+                "port": self.port,
+                "verify": self.verify,
+                "timeout": self.timeout,
+                "request_timeout": self.request_timeout,
+                "mfa_token": self.mfa_token,
+                "debug": self.debug,
+            }
+        )
 
     async def connect(self):
         """Connect to the chat service."""
@@ -48,11 +51,11 @@ class ConnectorMattermost(Connector):
             login_response = self.mm_driver.login()
 
             _LOGGER.info(login_response)
-        
-            if 'id' in login_response:
-                self.bot_id = login_response['id']
-            if 'username' in login_response:
-                self.bot_name = login_response['username']
+
+            if "id" in login_response:
+                self.bot_id = login_response["id"]
+            if "username" in login_response:
+                self.bot_name = login_response["username"]
 
             _LOGGER.info(_("Connected as %s"), self.bot_name)
 
@@ -81,8 +84,9 @@ class ConnectorMattermost(Connector):
         _LOGGER.debug(
             _("Responding with: '%s' in room  %s"), message.text, message.target
         )
-        channel_id = self.mm_driver.channels.get_channel_by_name_and_team_name(team_name, message.target)['id']
-        self.mm_driver.posts.create_post(options={
-            'channel_id': channel_id,
-            'message': message.text
-        })
+        channel_id = self.mm_driver.channels.get_channel_by_name_and_team_name(
+            team_name, message.target
+        )["id"]
+        self.mm_driver.posts.create_post(
+            options={"channel_id": channel_id, "message": message.text}
+        )
