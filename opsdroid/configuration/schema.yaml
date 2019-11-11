@@ -7,6 +7,7 @@ connectors:
   include('facebook', required=False),
   include('github', required=False),
   include('matrix', required=False),
+  include('mattermost', required=False),
   include('slack', required=False),
   include('telegram', required=False),
   include('twitter', required=False),
@@ -75,6 +76,17 @@ matrix:
   nick: str(required=False)
   room_specific_nicks: bool(required=False)
   send_m_notice: bool(required=False)
+---
+mattermost:
+  name: regex('^(?i)mattermost$')
+  api-token: str()
+  url: str()
+  team-name: str()
+  default-room: str(required=False)
+  scheme: str(required=False)
+  port: int(required=False)
+  ssl-verify: bool(required=False)
+  connect-timeout: int(required=False)
 ---
 room1:
   'main': str()
