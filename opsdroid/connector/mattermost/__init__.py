@@ -26,7 +26,7 @@ class ConnectorMattermost(Connector):
         self.timeout = config.get("connect-timeout", 30)
         self.request_timeout = None
         self.mfa_token = None
-        self.debug = False
+        self.debug = True
         self.listening = True
 
         self.mm_driver = Driver({
@@ -54,6 +54,9 @@ class ConnectorMattermost(Connector):
                 self.bot_name = login_response['username']
 
             _LOGGER.debug(_("Connected as %s"), self.bot_name)
+
+            self.mm_driver.init_websocket(self.process_message)
+
             _LOGGER.info(_("Connected successfully"))
         except Exception:
             self.disconnect()
@@ -66,6 +69,10 @@ class ConnectorMattermost(Connector):
 
     async def listen(self):
         """Listen for and parse new messages."""
+
+    async def process_message(self, **payload):
+        """Process a raw message and pass it to the parser."""
+        _LOGGER.info(payload)
 
     @register_event(Message)
     async def send_message(self, message):
