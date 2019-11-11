@@ -48,14 +48,14 @@ class ConnectorMattermost(Connector):
         try:
             login_response = await self.mm_driver.login()
 
-            _LOGGER.info(_(login_response))
+            _LOGGER.info(login_response)
         
-            if 'id' in login_response:
-                self.bot_id = login_response['id']
-            if 'username' in login_response:
-                self.bot_name = login_response['username']
+            # if 'id' in login_response:
+            #     self.bot_id = login_response['id']
+            # if 'username' in login_response:
+            #     self.bot_name = login_response['username']
 
-            _LOGGER.debug(_("Connected as %s"), self.bot_name)
+            # _LOGGER.debug(_("Connected as %s"), self.bot_name)
             _LOGGER.info(_("Connected successfully"))
         except Exception:
             await self.disconnect()
