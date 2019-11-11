@@ -46,7 +46,7 @@ class ConnectorMattermost(Connector):
         _LOGGER.info(_("Connecting to Mattermost"))
 
         try:
-            login_response = self.mm_driver.login()
+            login_response = await self.mm_driver.login()
         
             if 'id' in login_response:
                 self.bot_id = login_response['id']
@@ -55,7 +55,7 @@ class ConnectorMattermost(Connector):
 
             _LOGGER.debug(_("Connected as %s"), self.bot_name)
 
-            self.mm_driver.init_websocket(self.process_message)
+            await self.mm_driver.init_websocket(self.process_message)
 
             _LOGGER.info(_("Connected successfully"))
         except Exception:
