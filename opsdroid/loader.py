@@ -2,8 +2,6 @@
 
 # pylint: disable=too-many-branches
 
-import contextlib
-import yamale
 import importlib
 import importlib.util
 import json
@@ -36,7 +34,6 @@ from opsdroid.const import (
     DEFAULT_MODULE_DEPS_PATH,
     PRE_0_12_0_ROOT_PATH,
     DEFAULT_ROOT_PATH,
-    SCHEMA_PATH,
 )
 
 
@@ -387,19 +384,11 @@ class Loader:
         try:
             with open(config_path, "r") as stream:
                 _LOGGER.info(_("Loaded config from %s."), config_path)
-                schema = yamale.make_schema(SCHEMA_PATH)
-                data = yamale.make_data(config_path)
-
-                yamale.validate(schema, data)
 
                 configuration = yaml.load(stream, Loader=cls.yaml_loader)
                 updated_configuration = update_pre_0_17_config_format(configuration)
 
                 return updated_configuration
-
-        except ValueError as error:
-            _LOGGER.critical(error)
-            sys.exit(1)
 
         except yaml.YAMLError as error:
             _LOGGER.critical(error)
@@ -445,7 +434,7 @@ class Loader:
 
         self.setup_modules_directory(config)
 
-        connectors, databases, skills = None, None, None
+        connectors, databases, parsers, skills = None, None, None, None
 
         if "databases" in config.keys() and config["databases"]:
             databases = self._load_modules("database", config["databases"])
@@ -458,6 +447,8 @@ class Loader:
                     "restarted."
                 )
             )
+        if "parsers" in config.keys() and config["parsers"]:
+            parsers = self._load_modules("parsers", config["parsers"])
 
         if "skills" in config.keys() and config["skills"]:
             skills = self._load_modules("skill", config["skills"])
@@ -474,9 +465,14 @@ class Loader:
                 _("No connectors in configuration, at least 1 required"), 1
             )
 
-        return {"connectors": connectors, "databases": databases, "skills": skills}
+        return {
+            "connectors": connectors,
+            "databases": databases,
+            "parsers": parsers,
+            "skills": skills,
+        }
 
-    def setup_module_config(self, module, modules_type, entry_points):
+    def setup_module_config(self, modules, module, modules_type, entry_points):
         """Set up configuration for module.
 
         When setting up the configuration for a module we assign a lot
@@ -507,6 +503,7 @@ class Loader:
             config = {"name": module, "module": ""}
         else:
             config.update({"name": module["name"], "module": module.get("module", "")})
+            config.update(modules.get(module))
 
         config.update(
             {
@@ -554,11 +551,9 @@ class Loader:
             )
 
         for module in modules:
-            config = self.setup_module_config(module, modules_type, entry_points)
-
-            # Suppress exception when using a str as module
-            with contextlib.suppress(AttributeError):
-                config.update(modules.get(module))
+            config = self.setup_module_config(
+                modules, module, modules_type, entry_points
+            )
 
             # If the module isn't builtin, or isn't already on the
             # python path, install it
