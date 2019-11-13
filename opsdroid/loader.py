@@ -585,7 +585,6 @@ class Loader:
                 )
             else:
                 _LOGGER.error(_("Module %s failed to import."), config["name"])
-            print(loaded_modules)
         return loaded_modules
 
     def _install_module(self, config):

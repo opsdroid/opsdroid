@@ -333,7 +333,7 @@ class TestCoreAsync(asynctest.TestCase):
 
     async def test_parse_luisai(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config["parsers"] = {"name": "luisai"}
+            opsdroid.config["parsers"] = {"luisai": {"enabled": True}}
             luisai_intent = ""
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
@@ -347,7 +347,7 @@ class TestCoreAsync(asynctest.TestCase):
 
     async def test_parse_rasanlu(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config["parsers"] = {"name": "rasanlu"}
+            opsdroid.config["parsers"] = {"rasanlu": {"enabled": True}}
             rasanlu_intent = ""
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
@@ -361,7 +361,7 @@ class TestCoreAsync(asynctest.TestCase):
 
     async def test_parse_sapcai(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config["parsers"] = {"name": "sapcai"}
+            opsdroid.config["parsers"] = {"sapcai": {"enabled": True}}
             sapcai_intent = ""
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
@@ -375,7 +375,7 @@ class TestCoreAsync(asynctest.TestCase):
 
     async def test_parse_watson(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config["parsers"] = {"name": "watson"}
+            opsdroid.config["parsers"] = {"watson": {"enabled": True}}
             watson_intent = ""
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
@@ -389,7 +389,7 @@ class TestCoreAsync(asynctest.TestCase):
 
     async def test_parse_witai(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config["parsers"] = {"name": "witai"}
+            opsdroid.config["parsers"] = {"witai": {"enabled": True}}
             witai_intent = ""
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
@@ -506,6 +506,6 @@ class TestCoreAsync(asynctest.TestCase):
 
     async def test_train_rasanlu(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config["parsers"] = {"name": "rasanlu"}
+            opsdroid.config["parsers"] = {"rasanlu": {"enabled": True}}
             with amock.patch("opsdroid.parsers.rasanlu.train_rasanlu"):
                 await opsdroid.train_parsers({})

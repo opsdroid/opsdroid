@@ -63,22 +63,19 @@ def convert_dictionary(modules):
     """
     config = dict()
 
-    try:
-        if isinstance(modules, list):
-            _LOGGER.warning(
-                "Opsdroid has a new configuration format since version 0.17.0, we will change your configuration now. Please read on how to migrate in the documentation."
-            )
-            for module in modules:
-                module_copy = module.copy()
-                del module_copy["name"]
+    if isinstance(modules, list):
+        _LOGGER.warning(
+            "Opsdroid has a new configuration format since version 0.17.0, we will change your configuration now. Please read on how to migrate in the documentation."
+        )
+        for module in modules:
+            module_copy = module.copy()
+            del module_copy["name"]
 
-                config[module["name"]] = module_copy
+            config[module["name"]] = module_copy
 
-            return config
-        else:
-            return modules
-    except TypeError:
-        return {}
+        return config
+    else:
+        return modules
 
 
 def update_pre_0_17_config_format(config):

@@ -501,6 +501,17 @@ class TestLoader(unittest.TestCase):
                 self.assertTrue(mockinstall.called)
                 self.assertTrue(mockimport.called)
 
+    def test_setup_module_config(self):
+        opsdroid, loader = self.setup()
+
+        modules_type = "test"
+        module = {"name": "testmodule", "token": "test", "bot-name": "opsdroid"}
+
+        with contextlib.suppress(TypeError):
+            config = loader.setup_module_config(module, modules_type, {})
+
+            self.assertEqual(config, {"name": "testmodule", "module": ""})
+
     def test_load_modules_not_instance_Mapping(self):
         opsdroid, loader = self.setup()
 
