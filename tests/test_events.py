@@ -252,9 +252,8 @@ class TestFile(asynctest.TestCase):
         fut = asyncio.Future()
         fut.set_result(b"bob")
 
-        mock_get.return_value.__aenter__.return_value.read = amock.CoroutineMock(
-            return_value=fut
-        )
+        mock_get.return_value.__aenter__.return_value.read = amock.CoroutineMock()
+        mock_get.return_value.__aenter__.return_value.read.return_value = fut
 
         assert await f.get_file_bytes() == b"bob"
         assert mock_get.call_count == 1

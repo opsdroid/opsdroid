@@ -78,7 +78,8 @@ class TestRedisDatabaseAsync(asynctest.TestCase):
     async def test_get(self):
         db = RedisDatabase({})
         db.client = MockRedisClient()
-        db.client.execute = amock.CoroutineMock(return_value='{"key":"value"}')
+        db.client.execute = amock.CoroutineMock()
+        db.client.execute.return_value = '{"key":"value"}'
 
         result = await db.get("string")
 
@@ -87,7 +88,8 @@ class TestRedisDatabaseAsync(asynctest.TestCase):
     async def test_get_return_None(self):
         db = RedisDatabase({})
         db.client = MockRedisClient()
-        db.client.execute = amock.CoroutineMock(return_value=None)
+        db.client.execute = amock.CoroutineMock()
+        db.client.execute.return_value = None
 
         result = await db.get("string")
 
@@ -98,13 +100,14 @@ class TestRedisDatabaseAsync(asynctest.TestCase):
         db.client = MockRedisClient()
         db.client.execute = amock.CoroutineMock(return_value='{"key":"value"}')
 
-        result = await db.put("string", dict(key="value"))
+        await db.put("string", dict(key="value"))
+        # TODO: Add an assertion
 
     async def test_disconnect(self):
         db = RedisDatabase({})
         db.client = MockRedisClient()
         db.client.close = amock.CoroutineMock()
 
-        result = await db.disconnect()
+        await db.disconnect()
 
         self.assertTrue(db.client.close.called)
