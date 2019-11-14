@@ -54,7 +54,7 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
         connect_response = amock.Mock()
         connect_response.status = 200
         connect_response.json = amock.CoroutineMock()
-        connect_response.return_value = {
+        connect_response.json.return_value = {
             "ok": True,
             "result": {
                 "id": 635392558,
