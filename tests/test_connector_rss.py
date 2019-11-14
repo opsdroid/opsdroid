@@ -1,4 +1,4 @@
-"""Tests for the RocketChat class."""
+"""Tests for the RSS connector class."""
 
 import os.path
 import time
