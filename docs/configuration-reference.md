@@ -87,7 +87,7 @@ databases:
 skills:
   hello: {}
   seen: {}
-  myawesomeskill: {}
+  myawesomeskill:
     repo: "https://github.com/username/myawesomeskill.git"
 ```
 

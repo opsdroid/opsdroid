@@ -476,12 +476,7 @@ class Loader:
         """Set up configuration for module.
 
         When setting up the configuration for a module we assign a lot
-        of key:value pairs into a config dictionary. In some cases we
-        use dict.update() because this method is slightly faster than
-        direct assign.
-
-        Since some method of the Loader depend upon each other, we have
-        to do multiple config.updates.
+        of key:value pairs into a config dictionary.
 
         Also we might want to load from a configuration file an item that
         is just a string rather than a mapping object so we do a check and
@@ -502,23 +497,19 @@ class Loader:
         if not isinstance(config, Mapping):
             config = {"name": module, "module": ""}
         else:
-            config.update({"name": module["name"], "module": module.get("module", "")})
+            config["name"] = module["name"]
+            config["module"] = module.get("module", "")
             config.update(modules.get(module))
 
-        config.update(
-            {
-                "type": modules_type,
-                "enabled": True,
-                "entrypoint": entry_points.get(config["name"], None),
-            }
-        )
-
-        config.update({"is_builtin": self.is_builtin_module(config)})
-        config.update({"module_path": self.build_module_import_path(config)})
-        config.update({"install_path": self.build_module_install_path(config)})
+        config["type"] = modules_type
+        config["enabled"] = True
+        config["entrypoint"] = entry_points.get(config["name"], None)
+        config["is_builtin"] = self.is_builtin_module(config)
+        config["module_path"] = self.build_module_import_path(config)
+        config["install_path"] = self.build_module_install_path(config)
 
         if "branch" not in config:
-            config.update({"branch": DEFAULT_MODULE_BRANCH})
+            config["branch"] = DEFAULT_MODULE_BRANCH
 
         return config
 
