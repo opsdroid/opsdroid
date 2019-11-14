@@ -1,4 +1,5 @@
 """A connector which checks RSS feeds for items."""
+import asyncio
 import logging
 import time
 
@@ -20,6 +21,7 @@ class ConnectorRSS(Connector):
         self.name = self.config.get("name", "rss")
         self._feeds = {}
         self.running = False
+        self._poll_time = 5  # Shortest polling interval is 5 seconds
 
     async def connect(self):
         """Get all feed urls from skills with the match_rss decorator."""
@@ -43,17 +45,20 @@ class ConnectorRSS(Connector):
         self._feeds = {}
         self.running = False
 
+    async def _get_feeds(self):
+        await asyncio.sleep(self._poll_time)
+        for feed_url, feed in self._feeds.items():
+            if time.time() > feed["last_checked"] + feed["interval"]:
+                newfeed = await self._update_feed(feed["feed_url"])
+                new_items = await self._check_for_new_items(newfeed, feed["feed"])
+                if new_items:
+                    await self._run_skills(feed_url, new_items)
+                feed["feed"] = newfeed
+
     async def listen(self):
-        """Loop over feed urls, update their contents and check for new items."""
+        """Listen method of the connector."""
         while self.running:
-            await asyncio.sleep(5)  # Shortest polling interval is 5 seconds
-            for feed_url, feed in self._feeds:
-                if time.time() > feed["last_checked"] + feed["interval"]:
-                    newfeed = await self._update_feed(feed["feed_url"])
-                    new_items = await self._check_for_new_items(newfeed, feed["feed"])
-                    if new_items:
-                        await self._run_skills(feed_url, new_items)
-                    feed["feed"] = newfeed
+            await self._get_feeds()
 
     async def _run_skills(self, feed_url, new_items):
         """Run relevant skills for each new item found in feed."""

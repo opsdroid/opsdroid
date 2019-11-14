@@ -1,6 +1,7 @@
 """Tests for the RocketChat class."""
 
 import os.path
+import time
 
 import asyncio
 import unittest
@@ -145,3 +146,76 @@ class TestConnectorRSSAsync(asynctest.TestCase):
             mock_response.content_type = "xml"
             feed = await connector._update_feed("example url")
             self.assertTrue(feed is None)
+
+    async def test_check_for_new_rss_items(self):
+        connector = ConnectorRSS({"name": "rss"}, opsdroid={})
+        with open(
+            os.path.join(MODULE_ROOT, "..", "tests/responses/rss_old_feed.rss"), "rb"
+        ) as mock_old_feed, open(
+            os.path.join(MODULE_ROOT, "..", "tests/responses/rss_new_feed.rss"), "rb"
+        ) as mock_new_feed:
+            old_feed = atoma.parse_rss_bytes(mock_old_feed.read())
+            new_feed = atoma.parse_rss_bytes(mock_new_feed.read())
+
+            self.assertEqual(
+                len(await connector._check_for_new_items(new_feed, old_feed)), 1
+            )
+
+    async def test_check_for_new_atom_items(self):
+        connector = ConnectorRSS({"name": "rss"}, opsdroid={})
+        with open(
+            os.path.join(MODULE_ROOT, "..", "tests/responses/rss_old_feed.atom"), "rb"
+        ) as mock_old_feed, open(
+            os.path.join(MODULE_ROOT, "..", "tests/responses/rss_new_feed.atom"), "rb"
+        ) as mock_new_feed:
+            old_feed = atoma.parse_atom_bytes(mock_old_feed.read())
+            new_feed = atoma.parse_atom_bytes(mock_new_feed.read())
+
+            self.assertEqual(
+                len(await connector._check_for_new_items(new_feed, old_feed)), 1
+            )
+
+    async def test_listen(self):
+        # Load in some dummy feeds
+        with open(
+            os.path.join(MODULE_ROOT, "..", "tests/responses/rss_old_feed.atom"), "rb"
+        ) as mock_old_feed, open(
+            os.path.join(MODULE_ROOT, "..", "tests/responses/rss_new_feed.atom"), "rb"
+        ) as mock_new_feed:
+            old_feed = atoma.parse_atom_bytes(mock_old_feed.read())
+            new_feed = atoma.parse_atom_bytes(mock_new_feed.read())
+
+        # Set up the connector with one example feed and shorted poll times for testing
+        connector = ConnectorRSS({"name": "rss"}, opsdroid={})
+        connector.running = True
+        connector._poll_time = 0.01
+        connector._feeds = {
+            "https://example.com/feed.atom": {
+                "feed_url": "https://example.com/feed.atom",
+                "interval": 0,
+                "feed": old_feed,
+                "last_checked": time.time(),
+            }
+        }
+
+        # Mock out running a skill on a feed item to actually disconnect the connector and end the test
+        async def run_mock(*args, **kwargs):
+            await connector.disconnect()
+
+        connector._run_skills = amock.CoroutineMock()
+        connector._run_skills.side_effect = run_mock
+
+        # Set the connector to get no changes on the first update and the one new item on the second
+        connector._update_feed = amock.CoroutineMock()
+        connector._update_feed.side_effect = [old_feed, new_feed]
+
+        # Run the connector
+        await connector.listen()
+
+        self.assertFalse(connector.running)
+        self.assertTrue(
+            connector._update_feed.await_count == 2
+        )  # Updated the feed twice
+        self.assertTrue(
+            connector._run_skills.await_count == 1
+        )  # Found one skill to run
