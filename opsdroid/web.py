@@ -130,7 +130,7 @@ class Web:
             """Wrap up the aiohttp handler."""
             _LOGGER.info(_("Running skill %s via webhook"), webhook)
             opsdroid.stats["webhooks_called"] = opsdroid.stats["webhooks_called"] + 1
-            resp = await skill(opsdroid, config, req)
+            resp = await opsdroid.run_skill(skill, config, req)
             if isinstance(resp, web.Response):
                 return resp
             return Web.build_response(200, {"called_skill": webhook})

@@ -1,6 +1,8 @@
 """A connector for Slack."""
 import logging
 import re
+import ssl
+import certifi
 
 import slack
 from emoji import demojize
@@ -25,8 +27,14 @@ class ConnectorSlack(Connector):
         self.icon_emoji = config.get("icon-emoji", ":robot_face:")
         self.token = config["api-token"]
         self.timeout = config.get("connect-timeout", 10)
-        self.slack = slack.WebClient(token=self.token, run_async=True)
-        self.slack_rtm = slack.RTMClient(token=self.token, run_async=True)
+        self.chat_as_user = config.get("chat-as-user", False)
+        self.ssl_context = ssl.create_default_context(cafile=certifi.where())
+        self.slack = slack.WebClient(
+            token=self.token, run_async=True, ssl=self.ssl_context
+        )
+        self.slack_rtm = slack.RTMClient(
+            token=self.token, run_async=True, ssl=self.ssl_context
+        )
         self.websocket = None
         self.bot_name = config.get("bot-name", "opsdroid")
         self.auth_info = None
@@ -80,7 +88,7 @@ class ConnectorSlack(Connector):
 
     async def disconnect(self):
         """Disconnect from Slack."""
-        await self.slack_rtm.stop()
+        self.slack_rtm.stop()
         self.listening = False
 
     async def listen(self):
@@ -89,6 +97,10 @@ class ConnectorSlack(Connector):
     async def process_message(self, **payload):
         """Process a raw message and pass it to the parser."""
         message = payload["data"]
+
+        # Ignore message edits
+        if "subtype" in message and message["subtype"] == "message_changed":
+            return
 
         # Ignore own messages
         if (
@@ -130,7 +142,7 @@ class ConnectorSlack(Connector):
             data={
                 "channel": message.target,
                 "text": message.text,
-                "as_user": False,
+                "as_user": self.chat_as_user,
                 "username": self.bot_name,
                 "icon_emoji": self.icon_emoji,
             },
@@ -146,6 +158,7 @@ class ConnectorSlack(Connector):
             "chat.postMessage",
             data={
                 "channel": blocks.target,
+                "as_user": self.chat_as_user,
                 "username": self.bot_name,
                 "blocks": blocks.blocks,
                 "icon_emoji": self.icon_emoji,

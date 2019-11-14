@@ -247,7 +247,7 @@ logging:
   level: info
   path: ~/.opsdroid/output.log
   console: true
-  filter: 
+  filter:
     whitelist:
       - "opsdroid.core"
       - "opsdroid.logging"
@@ -269,7 +269,7 @@ logging:
   level: info
   path: ~/.opsdroid/output.log
   console: true
-  filter: 
+  filter:
     blacklist:
       - "opsdroid.loader"
       - "aiosqlite"
@@ -305,7 +305,7 @@ INFO opsdroid.web: Started web server on http://0.0.0.0:8080
 _Note: You can also use the extended mode to filter out logs - this should allow you to have even more flexibility while dealing with your logs._
 
 ##### Using both whitelist and blacklist filter
-You are only able to filter either with the whitelist filter or the blacklist filter. If you add both in your configuration file, you will get a warning 
+You are only able to filter either with the whitelist filter or the blacklist filter. If you add both in your configuration file, you will get a warning
 and only the whitelist filter will be used. This behavior was done because setting two filters causes an RuntimeError exception to be raised(_maximum recursion depth exceeded_).
 
 ```yaml
@@ -313,7 +313,7 @@ logging:
   level: info
   path: ~/.opsdroid/output.log
   console: true
-  filter: 
+  filter:
     whitelist:
       - "opsdroid.core"
       - "opsdroid.logging"
@@ -496,7 +496,8 @@ skills:
 
 ### Disable Caching
 
-Set `no-cache` to true to do a fresh git clone of the module whenever you start opsdroid.
+Set `no-cache` to true to do a fresh git clone of the module whenever you start opsdroid. This will
+default to `true` for modules configured with a local `path`.
 
 ```yaml
 databases:
