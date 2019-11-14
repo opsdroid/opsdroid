@@ -113,6 +113,16 @@ class TestMatchers(asynctest.TestCase):
             self.assertEqual(opsdroid.skills[0].matchers[0]["crontab"], crontab)
             self.assertTrue(asyncio.iscoroutinefunction(opsdroid.skills[0]))
 
+    async def test_match_rss(self):
+        with OpsDroid() as opsdroid:
+            feed_url = "https://example.com/feed.rss"
+            decorator = matchers.match_rss(feed_url)
+            opsdroid.skills.append(decorator(await self.getMockSkill()))
+            self.assertEqual(len(opsdroid.skills), 1)
+            self.assertEqual(opsdroid.skills[0].matchers[0]["feed_url"], feed_url)
+            self.assertEqual(opsdroid.skills[0].matchers[0]["interval"], 60)
+            self.assertTrue(asyncio.iscoroutinefunction(opsdroid.skills[0]))
+
     async def test_match_webhook(self):
         with OpsDroid() as opsdroid:
             opsdroid.loader.current_import_config = {"name": "testhook"}

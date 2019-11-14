@@ -3,8 +3,7 @@ include LICENSE
 include requirements.txt
 recursive-include opsdroid/locale *
 graft opsdroid
-include opsdroid/configuration/example_configuration.yaml
 recursive-exclude * *.py[co]
 include versioneer.py
 include opsdroid/_version.py
-include opsdroid/configuration/schema.yaml
+recursive-include opsdroid/configuration *.yaml

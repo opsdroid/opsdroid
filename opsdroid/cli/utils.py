@@ -108,28 +108,20 @@ def welcome_message(config):
         KeyError: If 'welcome-message' key is not found in configuration file
 
     """
-    try:
-        if config["welcome-message"]:
-            _LOGGER.info("=" * 40)
-            _LOGGER.info(
-                _(
-                    "You can customise your opsdroid by modifying "
-                    "your configuration.yaml"
-                )
-            )
-            _LOGGER.info(
-                _("Read more at: " "http://opsdroid.readthedocs.io/#configuration")
-            )
-            _LOGGER.info(_("Watch the Get Started Videos at: " "http://bit.ly/2fnC0Fh"))
-            _LOGGER.info(
-                _(
-                    "Install Opsdroid Desktop at: \n"
-                    "https://github.com/opsdroid/opsdroid-desktop/"
-                    "releases"
-                )
-            )
-            _LOGGER.info("=" * 40)
-    except KeyError:
-        _LOGGER.warning(
-            _("'welcome-message: true/false' is missing in configuration.yaml")
+    if config["welcome-message"]:
+        _LOGGER.info("=" * 40)
+        _LOGGER.info(
+            _("You can customise your opsdroid by modifying " "your configuration.yaml")
         )
+        _LOGGER.info(
+            _("Read more at: " "http://opsdroid.readthedocs.io/#configuration")
+        )
+        _LOGGER.info(_("Watch the Get Started Videos at: " "http://bit.ly/2fnC0Fh"))
+        _LOGGER.info(
+            _(
+                "Install Opsdroid Desktop at: \n"
+                "https://github.com/opsdroid/opsdroid-desktop/"
+                "releases"
+            )
+        )
+        _LOGGER.info("=" * 40)

@@ -15,7 +15,6 @@ import opsdroid.__main__
 import opsdroid.cli
 import opsdroid.cli.version
 from opsdroid.cli.start import configure_lang
-import opsdroid.web as web
 from opsdroid.const import __version__
 from opsdroid.core import OpsDroid
 from opsdroid.helper import del_rw
@@ -66,13 +65,6 @@ class TestCLI(unittest.TestCase):
 
         welcome_message(config)
         self.assertLogs("_LOGGER", "info")
-
-    def test_welcome_exception(self):
-        config = {}
-        from opsdroid.cli.utils import welcome_message
-
-        response = welcome_message(config)
-        self.assertIsNone(response)
 
     def test_check_version_27(self):
         with mock.patch.object(sys, "version_info") as version_info:

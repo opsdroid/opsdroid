@@ -14,11 +14,18 @@ from opsdroid.helper import (
     get_opsdroid,
     JSONEncoder,
     JSONDecoder,
+    config_merge,
+    collapse_module_lists,
+    ConfigMergeError,
 )
+from opsdroid.cli.start import configure_lang
 
 
 class TestHelper(unittest.TestCase):
     """Test the opsdroid helper classes."""
+
+    async def setup(self):
+        configure_lang({})
 
     def test_del_rw(self):
         with mock.patch("os.chmod") as mock_chmod, mock.patch(
@@ -71,6 +78,52 @@ class TestHelper(unittest.TestCase):
     def test_opsdroid(self):
         # Test that get_opsdroid returns None if no instances exist
         assert get_opsdroid() is None
+
+    def test_config_merging(self):
+        config_a = {"hello": True}
+        config_b = {"world": True}
+        config_c = {"hello": True, "world": True}
+        self.assertEqual(config_merge(config_a, config_b), config_c)
+
+        config_a = {"connectors": [{"name": "hello", "value": "bacon"}]}
+        config_b = {"connectors": [{"name": "hello", "value": "world"}]}
+        config_c = {"connectors": [{"name": "hello", "value": "world"}]}
+        self.assertEqual(config_merge(config_a, config_b), config_c)
+
+        config_a = [1, 2]
+        config_b = 3
+        config_c = [1, 2, 3]
+        self.assertEqual(config_merge(config_a, config_b), config_c)
+
+        with self.assertRaises(ConfigMergeError):
+            config_a = {"connectors": {"name": "hello", "value": "bacon"}}
+            config_b = {"connectors": True}
+            config_merge(config_a, config_b)
+
+        with self.assertRaises(ConfigMergeError):
+            config_a = {"connectors": datetime.datetime.now()}
+            config_b = {"connectors": datetime.datetime.now()}
+            config_merge(config_a, config_b)
+
+    def test_collapse_module_lists(self):
+        list_in = [
+            {"name": "hello", "value": "bacon"},
+            {"name": "hello", "value": "world"},
+        ]
+        list_out = [{"name": "hello", "value": "world"}]
+        self.assertEqual(collapse_module_lists(list_in), list_out)
+
+        list_in = []
+        self.assertEqual(collapse_module_lists(list_in), list_in)
+
+        list_in = [1, 2, 3]
+        self.assertEqual(collapse_module_lists(list_in), list_in)
+
+        list_in = [
+            {"other": "hello", "value": "bacon"},
+            {"other": "hello", "value": "world"},
+        ]
+        self.assertEqual(collapse_module_lists(list_in), list_in)
 
 
 class TestJSONEncoder(unittest.TestCase):
