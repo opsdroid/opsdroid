@@ -31,6 +31,7 @@ class ConnectorRSS(Connector):
                     feed = matcher.copy()
                     if feed["feed_url"] not in self._feeds:
                         feed["last_checked"] = time.time()
+                        # TODO: Store feeds in memory to avoid missing items during restart or downtime
                         feed["feed"] = await self._update_feed(feed["feed_url"])
                         self._feeds[feed["feed_url"]] = feed
                     else:
@@ -39,6 +40,7 @@ class ConnectorRSS(Connector):
                         if feed["interval"] < self._feeds[feed["feed_url"]]["interval"]:
                             self._feeds[feed["feed_url"]]["interval"] = feed["interval"]
         self.running = True
+        _LOGGER.info("Listening for RSS items from %s feeds.", len(self._feeds))
 
     async def disconnect(self):
         """Disconnect and reset feed urls."""
@@ -49,6 +51,7 @@ class ConnectorRSS(Connector):
         await asyncio.sleep(self._poll_time)
         for feed_url, feed in self._feeds.items():
             if time.time() > feed["last_checked"] + feed["interval"]:
+                _LOGGER.debug("Polling feed %s.", feed["feed_url"])
                 newfeed = await self._update_feed(feed["feed_url"])
                 new_items = await self._check_for_new_items(newfeed, feed["feed"])
                 if new_items:
