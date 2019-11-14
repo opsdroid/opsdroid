@@ -390,9 +390,9 @@ class OpsDroid:
         # give a response to the user, so an error response should be given.
         try:
             if len(inspect.signature(skill).parameters.keys()) > 1:
-                await skill(self, config, event)
+                return await skill(self, config, event)
             else:
-                await skill(event)
+                return await skill(event)
         except Exception:
             _LOGGER.exception(
                 _("Exception when running skill '%s' "), str(config["name"])

@@ -2,6 +2,8 @@
 import logging
 import re
 import os
+import ssl
+import certifi
 
 import slack
 from emoji import demojize
@@ -26,11 +28,13 @@ class ConnectorSlack(Connector):
         self.icon_emoji = config.get("icon-emoji", ":robot_face:")
         self.token = config["api-token"]
         self.timeout = config.get("connect-timeout", 10)
+        self.chat_as_user = config.get("chat-as-user", False)
+        self.ssl_context = ssl.create_default_context(cafile=certifi.where())
         self.slack = slack.WebClient(
-            token=self.token, run_async=True, proxy=os.environ.get("HTTPS_PROXY")
+            token=self.token, run_async=True, ssl=self.ssl_context, proxy=os.environ.get("HTTPS_PROXY")
         )
         self.slack_rtm = slack.RTMClient(
-            token=self.token, run_async=True, proxy=os.environ.get("HTTPS_PROXY")
+            token=self.token, run_async=True, ssl=self.ssl_context, proxy=os.environ.get("HTTPS_PROXY")
         )
         self.websocket = None
         self.bot_name = config.get("bot-name", "opsdroid")
@@ -85,7 +89,7 @@ class ConnectorSlack(Connector):
 
     async def disconnect(self):
         """Disconnect from Slack."""
-        await self.slack_rtm.stop()
+        self.slack_rtm.stop()
         self.listening = False
 
     async def listen(self):
@@ -139,7 +143,7 @@ class ConnectorSlack(Connector):
             data={
                 "channel": message.target,
                 "text": message.text,
-                "as_user": False,
+                "as_user": self.chat_as_user,
                 "username": self.bot_name,
                 "icon_emoji": self.icon_emoji,
             },
@@ -155,6 +159,7 @@ class ConnectorSlack(Connector):
             "chat.postMessage",
             data={
                 "channel": blocks.target,
+                "as_user": self.chat_as_user,
                 "username": self.bot_name,
                 "blocks": blocks.blocks,
                 "icon_emoji": self.icon_emoji,
