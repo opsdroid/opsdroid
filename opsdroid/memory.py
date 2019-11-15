@@ -57,7 +57,7 @@ class Memory:
         self.memory[key] = data
         await self._put_to_database(key, self.memory[key])
 
-    async def delete(self, key, data):
+    async def delete(self, key):
         """Delete data object for a given key.
 
         Deletes the key value found in-memory or from the database(s).
