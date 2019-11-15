@@ -88,7 +88,6 @@ class DatabaseSqlite(Database):
             "INSERT INTO {} VALUES (?, ?)".format(self.table), (key, json_data)
         )
         self.client.commit()
-            
 
     async def get(self, key):
         """Get data from the database for a given key.
@@ -105,9 +104,7 @@ class DatabaseSqlite(Database):
         data = None
 
         cur = await self.client.cursor()
-        await cur.execute(
-            "SELECT data FROM {} WHERE key=?".format(self.table), (key,)
-        )
+        await cur.execute("SELECT data FROM {} WHERE key=?".format(self.table), (key,))
         row = await cur.fetchone()
         if row:
             data = json.loads(row[0], object_hook=JSONDecoder())
