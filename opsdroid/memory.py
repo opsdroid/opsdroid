@@ -57,6 +57,20 @@ class Memory:
         self.memory[key] = data
         await self._put_to_database(key, self.memory[key])
 
+    async def delete(self, key, data):
+        """Delete data object for a given key.
+
+        Deletes the key value found in-memory or from the database(s).
+
+        Args:
+            key (str): Key to delete data.
+
+        """
+        _LOGGER.debug(_("Deleting %s from memory."), key)
+        if key in self.memory:
+            del self.memory[key]
+        await self._delete_from_database(key)
+
     async def _get_from_database(self, key):
         """Get updates from databases for a given key.
 
@@ -94,3 +108,16 @@ class Memory:
         if self.databases:
             for database in self.databases:
                 await database.put(key, data)
+
+    async def _delete_from_database(self, key):
+        """Delete data from databases for a given key.
+
+        Deletes the key and value on each database defined.
+
+        Args:
+            key (str): Key for the data to delete.
+
+        """
+        if self.databases:
+            for database in self.databases:
+                await database.delete(key)
