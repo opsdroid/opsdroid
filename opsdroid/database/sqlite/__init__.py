@@ -116,3 +116,18 @@ class DatabaseSqlite(Database):
 
         self.client = _db
         return data
+
+    async def delete(self, key):
+        """Delete data from the database for a given key.
+
+        Args:
+            key (string): The key to delete in the database.
+
+        """
+        _LOGGER.debug(_("Deleting %s from sqlite"), key)
+
+        async with aiosqlite.connect(self.db_file, **self.conn_args) as _db:
+            cur = await _db.cursor()
+            await cur.execute("DELETE FROM {} WHERE key=?".format(self.table), (key,))
+
+        self.client = _db
