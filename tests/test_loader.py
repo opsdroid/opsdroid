@@ -51,10 +51,28 @@ class TestLoader(unittest.TestCase):
 
     def test_load_config_file(self):
         opsdroid, loader = self.setup()
+        expected_config = {
+            "connectors": {"shell": {}},
+            "skills": {"hello": {}, "seen": {}},
+        }
         config = loader.load_config_file(
             [os.path.abspath("tests/configs/minimal.yaml")]
         )
         self.assertIsNotNone(config)
+        self.assertEqual(config, expected_config)
+
+    def test_load_pre_0_17_style_config_file(self):
+        opsdroid, loader = self.setup()
+        expected_config = {
+            "connectors": {"shell": {}},
+            "skills": {"hello": {}, "seen": {}},
+        }
+        config = loader.load_config_file(
+            [os.path.abspath("tests/configs/minimal.yaml")]
+        )
+        self.assertIsNotNone(config)
+        self.assertEqual(config, expected_config)
+        self.assertLogs("_LOGGER", "warning")
 
     def test_load_config_valid(self):
         opsdroid, loader = self.setup()
