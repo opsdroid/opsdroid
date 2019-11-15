@@ -87,7 +87,8 @@ class TestRedisDatabaseAsync(asynctest.TestCase):
     async def test_get_return_None(self):
         db = RedisDatabase({})
         db.client = MockRedisClient()
-        db.client.execute = amock.CoroutineMock(return_value=None)
+        db.client.execute = amock.CoroutineMock()
+        db.client.execute.return_value = None
 
         result = await db.get("string")
 
@@ -103,7 +104,8 @@ class TestRedisDatabaseAsync(asynctest.TestCase):
     async def test_delete(self):
         db = RedisDatabase({})
         db.client = MockRedisClient()
-        db.client.execute = amock.CoroutineMock(return_value=None)
+        db.client.execute = amock.CoroutineMock()
+        db.client.execute.return_value = None
 
         result = await db.delete("string")
 

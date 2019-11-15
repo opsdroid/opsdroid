@@ -82,14 +82,13 @@ class DatabaseSqlite(Database):
         _LOGGER.debug(_("Putting %s into sqlite"), key)
         json_data = json.dumps(data, cls=JSONEncoder)
 
-        async with aiosqlite.connect(self.db_file, **self.conn_args) as _db:
-            cur = await _db.cursor()
-            await cur.execute("DELETE FROM {} WHERE key=?".format(self.table), (key,))
-            await cur.execute(
-                "INSERT INTO {} VALUES (?, ?)".format(self.table), (key, json_data)
-            )
-
-        self.client = _db
+        cur = await self.client.cursor()
+        await cur.execute("DELETE FROM {} WHERE key=?".format(self.table), (key,))
+        await cur.execute(
+            "INSERT INTO {} VALUES (?, ?)".format(self.table), (key, json_data)
+        )
+        self.client.commit()
+            
 
     async def get(self, key):
         """Get data from the database for a given key.
@@ -105,16 +104,14 @@ class DatabaseSqlite(Database):
         _LOGGER.debug(_("Getting %s from sqlite"), key)
         data = None
 
-        async with aiosqlite.connect(self.db_file, **self.conn_args) as _db:
-            cur = await _db.cursor()
-            await cur.execute(
-                "SELECT data FROM {} WHERE key=?".format(self.table), (key,)
-            )
-            row = await cur.fetchone()
-            if row:
-                data = json.loads(row[0], object_hook=JSONDecoder())
+        cur = await self.client.cursor()
+        await cur.execute(
+            "SELECT data FROM {} WHERE key=?".format(self.table), (key,)
+        )
+        row = await cur.fetchone()
+        if row:
+            data = json.loads(row[0], object_hook=JSONDecoder())
 
-        self.client = _db
         return data
 
     async def delete(self, key):
@@ -126,8 +123,11 @@ class DatabaseSqlite(Database):
         """
         _LOGGER.debug(_("Deleting %s from sqlite"), key)
 
-        async with aiosqlite.connect(self.db_file, **self.conn_args) as _db:
-            cur = await _db.cursor()
-            await cur.execute("DELETE FROM {} WHERE key=?".format(self.table), (key,))
+        cur = await self.client.cursor()
+        await cur.execute("DELETE FROM {} WHERE key=?".format(self.table), (key,))
+        self.client.commit()
 
-        self.client = _db
+    async def disconnect(self):
+        """Disconnect from the database."""
+        if self.client:
+            self.client.close()
