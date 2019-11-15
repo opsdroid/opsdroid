@@ -1,7 +1,7 @@
 """A connector for Mattermost."""
 import logging
 
-from mattermostdriver import Driver
+from mattermostdriver import Driver, Websocket
 
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
@@ -59,7 +59,7 @@ class ConnectorMattermost(Connector):
 
             _LOGGER.info(_("Connected as %s"), self.bot_name)
 
-            self.mm_driver.init_websocket(self.process_message)
+            self.mm_driver.websocket = Websocket(self.mm_driver.options, self.mm_driver.client.token)
 
             _LOGGER.info(_("Connected successfully"))
         except Exception:
@@ -73,6 +73,7 @@ class ConnectorMattermost(Connector):
 
     async def listen(self):
         """Listen for and parse new messages."""
+        await self.mm_driver.websocket.connect(self.process_message)
 
     async def process_message(self, **payload):
         """Process a raw message and pass it to the parser."""
