@@ -69,3 +69,13 @@ class TestDatabaseBaseMongoClassAsync(asynctest.TestCase):
                 pass
         else:
             raise Exception
+
+    async def test_delete(self):
+        """test of mocked method delete"""
+        database = DatabaseMongo({})
+        try:
+            await database.delete("test")
+        except TypeError:
+            pass
+        else:
+            raise Exception

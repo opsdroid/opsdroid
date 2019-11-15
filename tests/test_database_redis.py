@@ -100,6 +100,15 @@ class TestRedisDatabaseAsync(asynctest.TestCase):
 
         result = await db.put("string", dict(key="value"))
 
+    async def test_delete(self):
+        db = RedisDatabase({})
+        db.client = MockRedisClient()
+        db.client.execute = amock.CoroutineMock(return_value=None)
+
+        result = await db.delete("string")
+
+        self.assertEqual(result, None)
+
     async def test_disconnect(self):
         db = RedisDatabase({})
         db.client = MockRedisClient()

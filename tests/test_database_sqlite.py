@@ -62,12 +62,13 @@ class TestDatabaseSqliteAsync(asynctest.TestCase):
             self.assertEqual("opsdroid", database.table)
             self.assertEqual("Connection", type(database.client).__name__)
 
-    async def test_get_and_put(self):
-        """Test get and put functions of database
+    async def test_get_put_and_delete(self):
+        """Test get, put and delete functions of database
 
-        This method will test the get and put functions which help to read
+        This method will test the get, put and delete functions which help to read
         and write data from the database. The function `put` a value with
-        key and asserts the same value after the `get` operation is completed.
+        key and asserts the same value after the `get` operation is completed 
+        followed by the `delete` operation which deletes the key.
 
         """
         database = DatabaseSqlite({"file": "sqlite.db"})
@@ -78,6 +79,7 @@ class TestDatabaseSqliteAsync(asynctest.TestCase):
             await database.connect()
             await database.put("hello", {})
             data = await database.get("hello")
+            await database.delete("hello")
         except NotImplementedError:
             raise Exception
         else:
