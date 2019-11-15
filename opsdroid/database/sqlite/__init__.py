@@ -58,13 +58,15 @@ class DatabaseSqlite(Database):
         )
         self.table = self.config.get("table", "opsdroid")
 
-        async with aiosqlite.connect(self.db_file, **self.conn_args) as _db:
-            await _db.execute(
-                "CREATE TABLE IF NOT EXISTS {}"
-                "(key text PRIMARY KEY, data text)".format(self.table)
-            )
+        self.client = await aiosqlite.connect(self.db_file, **self.conn_args)
 
-        self.client = _db
+        cur = await self.client.cursor()
+        await cur.execute(
+            "CREATE TABLE IF NOT EXISTS {}"
+            "(key text PRIMARY KEY, data text)".format(self.table)
+        )
+        self.client.commit()
+
         _LOGGER.info(_("Connected to sqlite %s"), self.db_file)
 
     async def put(self, key, data):

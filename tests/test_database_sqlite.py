@@ -62,6 +62,23 @@ class TestDatabaseSqliteAsync(asynctest.TestCase):
             self.assertEqual("opsdroid", database.table)
             self.assertEqual("Connection", type(database.client).__name__)
 
+    async def test_disconnect(self):
+        """Test of database disconnection.
+
+        This method will test the database disconnection of sqlite database.
+
+        """
+        database = DatabaseSqlite({"file": "sqlite.db"})
+        opsdroid = amock.CoroutineMock()
+        opsdroid.eventloop = self.loop
+
+        try:
+            await database.disconnect()
+        except NotImplementedError:
+            raise Exception
+        else:
+            pass
+
     async def test_get_put_and_delete(self):
         """Test get, put and delete functions of database
 
