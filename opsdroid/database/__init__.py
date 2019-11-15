@@ -75,3 +75,16 @@ class Database:
 
         """
         raise NotImplementedError
+
+    async def delete(self, key):
+        """Deletes a data object for a given key.
+
+        Args:
+            key (string): The key to delete in the database.
+
+        Returns:
+            object or None: The data object stored for that key, or None if no
+                            object found for that key.
+
+        """
+        raise NotImplementedError
