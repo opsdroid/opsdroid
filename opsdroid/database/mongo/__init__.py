@@ -62,3 +62,15 @@ class DatabaseMongo(Database):
         return await self.database[key].find_one(
             {"$query": {}, "$orderby": {"$natural": -1}}
         )
+
+    async def delete(self, key):
+        """Delete a document from the database (key).
+
+        Args:
+            key (str): the key is the database name.
+
+        """
+        logging.debug("Deleting %s from mongo", key)
+        return await self.database[key].delete_one(
+            {"$query": {}}
+        )
