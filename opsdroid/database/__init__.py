@@ -32,7 +32,7 @@ class Database:
 
         This method should connect to the given database using a native
         python library for that database. The library will most likely involve
-        a connection object which will be used by the put and get methods.
+        a connection object which will be used by the put, get and delete methods.
         This object should be stored in self.
 
         """
