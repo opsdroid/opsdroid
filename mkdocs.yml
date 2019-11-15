@@ -42,6 +42,7 @@ pages:
               - "Third party NLU":
                       - "Dialogflow (Api.ai)": "matchers/dialogflow.md"
                       - "LUIS.AI": "matchers/luis.ai.md"
+                      - "IBM Watson": "matchers/watson.md"
                       - "Rasa NLU (local)": "matchers/rasanlu.md"
                       - "Recast.AI (SAPCAI)": "matchers/sapcai.md"
                       - "wit.ai": "matchers/wit.ai.md"
