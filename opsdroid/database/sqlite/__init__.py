@@ -65,7 +65,7 @@ class DatabaseSqlite(Database):
             "CREATE TABLE IF NOT EXISTS {}"
             "(key text PRIMARY KEY, data text)".format(self.table)
         )
-        self.client.commit()
+        await self.client.commit()
 
         _LOGGER.info(_("Connected to sqlite %s"), self.db_file)
 
@@ -89,7 +89,7 @@ class DatabaseSqlite(Database):
         await cur.execute(
             "INSERT INTO {} VALUES (?, ?)".format(self.table), (key, json_data)
         )
-        self.client.commit()
+        await self.client.commit()
 
     async def get(self, key):
         """Get data from the database for a given key.
@@ -124,9 +124,9 @@ class DatabaseSqlite(Database):
 
         cur = await self.client.cursor()
         await cur.execute("DELETE FROM {} WHERE key=?".format(self.table), (key,))
-        self.client.commit()
+        await self.client.commit()
 
     async def disconnect(self):
         """Disconnect from the database."""
         if self.client:
-            self.client.close()
+            await self.client.close()
