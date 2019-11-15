@@ -31,10 +31,16 @@ class ConnectorSlack(Connector):
         self.chat_as_user = config.get("chat-as-user", False)
         self.ssl_context = ssl.create_default_context(cafile=certifi.where())
         self.slack = slack.WebClient(
-            token=self.token, run_async=True, ssl=self.ssl_context, proxy=os.environ.get("HTTPS_PROXY")
+            token=self.token, 
+            run_async=True, 
+            ssl=self.ssl_context, 
+            proxy=os.environ.get("HTTPS_PROXY"),
         )
         self.slack_rtm = slack.RTMClient(
-            token=self.token, run_async=True, ssl=self.ssl_context, proxy=os.environ.get("HTTPS_PROXY")
+            token=self.token, 
+            run_async=True, 
+            ssl=self.ssl_context, 
+            proxy=os.environ.get("HTTPS_PROXY"),
         )
         self.websocket = None
         self.bot_name = config.get("bot-name", "opsdroid")
