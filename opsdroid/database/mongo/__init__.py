@@ -71,6 +71,4 @@ class DatabaseMongo(Database):
 
         """
         logging.debug("Deleting %s from mongo", key)
-        return await self.database[key].delete_one(
-            {"$query": {}}
-        )
+        return await self.database[key].delete_one({"$query": {}})

@@ -41,4 +41,3 @@ class TestMemory(asynctest.TestCase):
         memory.databases[0].reset_mock()
         await memory.delete("test")
         self.assertTrue(memory.databases[0].delete.called)
-
