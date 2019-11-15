@@ -214,7 +214,7 @@ class Message(Event):
     async def _thinking_delay(self):
         """Make opsdroid wait x-seconds before responding.
 
-        Number of seconds defined in YAML config. file, accessed via connector.      
+        Number of seconds defined in YAML config. file, accessed via connector.
 
         """
         seconds = self.connector.configuration.get("thinking-delay", 0)
@@ -231,8 +231,8 @@ class Message(Event):
         number of seconds defined in YAML config. file, accessed via connector.
 
         Args:
-            text (str): The text input to perform typing simulation on.  
-            
+            text (str): The text input to perform typing simulation on.
+
         """
         seconds = self.connector.configuration.get("typing-delay", 0)
         char_count = len(text)
