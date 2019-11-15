@@ -95,6 +95,17 @@ class RedisDatabase(Database):
 
             return None
 
+    async def delete(self, key):
+        """Delete data from Redis for a given key.
+
+        Args:
+            key (string): The key to delete in the database.
+
+        """
+        if self.client:
+            _LOGGER.debug(_("Deleting %s from redis"), key)
+            await self.client.execute("DEL", key)
+
     async def disconnect(self):
         """Disconnect from the database."""
         if self.client:
