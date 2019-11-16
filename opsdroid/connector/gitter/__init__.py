@@ -79,7 +79,10 @@ class ConnectorGitter(Connector):
             _LOGGER.debug(message)
             try:
                 return Message(
-                    message["text"], message["fromUser"]["username"], self.room_id, self
+                    text=message["text"],
+                    user=message["fromUser"]["username"],
+                    target=self.room_id,
+                    connector=self,
                 )
             except KeyError as err:
                 _LOGGER.error(_("Unable to parse message %s"), err)

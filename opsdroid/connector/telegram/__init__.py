@@ -59,13 +59,16 @@ class ConnectorTelegram(Connector):
 
         """
         user = None
+        user_id = None
+
         if "username" in response["message"]["from"]:
             user = response["message"]["from"]["username"]
 
         elif "first_name" in response["message"]["from"]:
             user = response["message"]["from"]["first_name"]
+        user_id = response["message"]["from"]["id"]
 
-        return user
+        return user, user_id
 
     def handle_user_permission(self, response, user):
         """Handle user permissions.
@@ -162,9 +165,13 @@ class ConnectorTelegram(Connector):
                     _("Channel message parsing not supported " "- Ignoring message")
                 )
             elif "message" in result and "text" in result["message"]:
-                user = self.get_user(result)
+                user, user_id = self.get_user(result)
                 message = Message(
-                    result["message"]["text"], user, result["message"]["chat"], self
+                    text=result["message"]["text"],
+                    user=user,
+                    user_id=user_id,
+                    target=result["message"]["chat"],
+                    connector=self,
                 )
 
                 if self.handle_user_permission(result, user):

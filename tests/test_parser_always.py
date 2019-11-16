@@ -35,7 +35,12 @@ class TestParserAlways(asynctest.TestCase):
             opsdroid.run_skill = amock.CoroutineMock()
 
             mock_connector = amock.CoroutineMock()
-            message = Message("Hello world", "user", "default", mock_connector)
+            message = Message(
+                text="Hello world",
+                user="user",
+                target="default",
+                connector=mock_connector,
+            )
 
             await parse_always(opsdroid, message)
 
@@ -48,7 +53,12 @@ class TestParserAlways(asynctest.TestCase):
             opsdroid.run_skill = amock.CoroutineMock()
 
             mock_connector = amock.CoroutineMock()
-            message = Message("Hello world", "user", "default", mock_connector)
+            message = Message(
+                text="Hello world",
+                user="user",
+                target="default",
+                connector=mock_connector,
+            )
 
             await parse_always(opsdroid, message)
 
@@ -63,7 +73,12 @@ class TestParserAlways(asynctest.TestCase):
 
             mock_connector = amock.MagicMock()
             mock_connector.send = amock.CoroutineMock()
-            message = Message("Hello world", "user", "default", mock_connector)
+            message = Message(
+                text="Hello world",
+                user="user",
+                target="default",
+                connector=mock_connector,
+            )
 
             await parse_always(opsdroid, message)
             self.assertLogs("_LOGGER", "exception")
