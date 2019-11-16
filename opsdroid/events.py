@@ -138,7 +138,6 @@ class Event(metaclass=EventMetaClass):
         # to if they are not explicitly provided by this Event
         event.user = event.user or self.user
         event.user_id = event.user_id or self.user_id or event.user
-        event.user = event.user or self.user
         event.target = event.target or self.target
         event.connector = event.connector or self.connector
         event.linked_event = event.linked_event or self
