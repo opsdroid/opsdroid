@@ -45,6 +45,65 @@ def del_rw(action, name, exc):
 
 
 # This is meant to provide backwards compatibility for versions
+# prior to  0.16.0 in the future this will be deleted
+
+
+def convert_dictionary(modules):
+    """Convert dictionary to new format.
+
+    We iterate over all the modules in the list and change the dictionary
+    to be in the format 'name_of_module: { config_params}'
+
+    Args:
+        modules (list): List of dictionaries that contain the module configuration
+
+    Return:
+        List: New modified list following the new format.
+
+    """
+    config = dict()
+
+    if isinstance(modules, list):
+        _LOGGER.warning(
+            "Opsdroid has a new configuration format since version 0.17.0, we will change your configuration now. Please read on how to migrate in the documentation."
+        )
+        for module in modules:
+            module_copy = module.copy()
+            del module_copy["name"]
+
+            config[module["name"]] = module_copy
+
+        return config
+    else:
+        return modules
+
+
+def update_pre_0_17_config_format(config):
+    """Update each configuration param that contains 'name'.
+
+    We decided to ditch the name param and instead divide each module by it's name.
+    This change was due to validation issues. Now instead of a list of dictionaries
+    without any pointer to what they are, we are using the name of the module and then a
+    dictionary containing the configuration params for said module.
+
+    Args:
+        config (dict): Dictionary containing config got from configuration.yaml
+
+    Returns:
+        dict: updated configuration.
+
+    """
+    updated_config = {}
+    for config_type, modules in config.items():
+        if config_type in ("parsers", "connectors", "skills", "databases"):
+            updated_config[config_type] = convert_dictionary(modules)
+
+    config.update(updated_config)
+
+    return config
+
+
+# This is meant to provide backwards compatibility for versions
 # prior to  0.12.0 in the future this will probably be deleted
 
 
