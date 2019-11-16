@@ -539,7 +539,6 @@ You can split the config into smaller modules by using the value `!include file.
 
 ```yaml
 skills: !include skills.yaml
-
 ```
 
 _Note: The file.yaml that you wish to include in the config must be in the same directory as your configuration.yaml (e.g ~/.opsdroid)_
