@@ -167,7 +167,9 @@ class TestConnectorSlackAsync(asynctest.TestCase):
     async def test_respond(self):
         connector = ConnectorSlack({"api-token": "abc123"}, opsdroid=OpsDroid())
         connector.slack.api_call = amock.CoroutineMock()
-        await connector.send(Message("test", "user", "room", connector))
+        await connector.send(
+            Message(text="test", user="user", target="room", connector=connector)
+        )
         self.assertTrue(connector.slack.api_call.called)
 
     async def test_send_blocks(self):
@@ -186,7 +188,13 @@ class TestConnectorSlackAsync(asynctest.TestCase):
     async def test_react(self):
         connector = ConnectorSlack({"api-token": "abc123"})
         connector.slack.api_call = amock.CoroutineMock()
-        prev_message = Message("test", "user", "room", connector, raw_event={"ts": 0})
+        prev_message = Message(
+            text="test",
+            user="user",
+            target="room",
+            connector=connector,
+            raw_event={"ts": 0},
+        )
         with OpsDroid():
             await prev_message.respond(Reaction("😀"))
         self.assertTrue(connector.slack.api_call)
@@ -201,7 +209,13 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         connector.slack.api_call = amock.CoroutineMock(
             side_effect=slack.errors.SlackApiError("invalid_name", "invalid_name")
         )
-        prev_message = Message("test", "user", "room", connector, raw_event={"ts": 0})
+        prev_message = Message(
+            text="test",
+            user="user",
+            target="room",
+            connector=connector,
+            raw_event={"ts": 0},
+        )
         with OpsDroid():
             await prev_message.respond(Reaction("😀"))
         self.assertLogs("_LOGGER", "warning")
@@ -215,7 +229,11 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         )
         with self.assertRaises(slack.errors.SlackApiError), OpsDroid():
             prev_message = Message(
-                "test", "user", "room", connector, raw_event={"ts": 0}
+                text="test",
+                user="user",
+                target="room",
+                connector=connector,
+                raw_event={"ts": 0},
             )
             await prev_message.respond(Reaction("😀"))
 

@@ -275,7 +275,12 @@ class TestCoreAsync(asynctest.TestCase):
             mock_connector.send = amock.CoroutineMock()
             skill = await self.getMockSkill()
             opsdroid.skills.append(match_regex(regex)(skill))
-            message = Message("Hello World", "user", "default", mock_connector)
+            message = Message(
+                text="Hello World",
+                user="user",
+                target="default",
+                connector=mock_connector,
+            )
             tasks = await opsdroid.parse(message)
             for task in tasks:
                 await task
@@ -288,7 +293,12 @@ class TestCoreAsync(asynctest.TestCase):
             mock_connector.send = amock.CoroutineMock()
             skill = await self.getMockMethodSkill()
             opsdroid.skills.append(match_regex(regex)(skill))
-            message = Message("Hello world", "user", "default", mock_connector)
+            message = Message(
+                text="Hello world",
+                user="user",
+                target="default",
+                connector=mock_connector,
+            )
             tasks = await opsdroid.parse(message)
             for task in tasks:
                 await task
@@ -301,7 +311,12 @@ class TestCoreAsync(asynctest.TestCase):
             mock_connector.send = amock.CoroutineMock()
             skill = await self.getMockSkill()
             opsdroid.skills.append(match_regex(regex, case_sensitive=False)(skill))
-            message = Message("HELLO world", "user", "default", mock_connector)
+            message = Message(
+                text="HELLO world",
+                user="user",
+                target="default",
+                connector=mock_connector,
+            )
             tasks = await opsdroid.parse(message)
             for task in tasks:
                 await task
@@ -315,7 +330,12 @@ class TestCoreAsync(asynctest.TestCase):
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
             match_dialogflow_action(dialogflow_action)(skill)
-            message = Message("Hello world", "user", "default", mock_connector)
+            message = Message(
+                text="Hello world",
+                user="user",
+                target="default",
+                connector=mock_connector,
+            )
             with amock.patch(
                 "opsdroid.parsers.dialogflow.parse_dialogflow"
             ), amock.patch("opsdroid.parsers.dialogflow.call_dialogflow"):
@@ -336,7 +356,12 @@ class TestCoreAsync(asynctest.TestCase):
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
             match_luisai_intent(luisai_intent)(skill)
-            message = Message("Hello world", "user", "default", mock_connector)
+            message = Message(
+                text="Hello world",
+                user="user",
+                target="default",
+                connector=mock_connector,
+            )
             with amock.patch("opsdroid.parsers.luisai.parse_luisai"):
                 tasks = await opsdroid.parse(message)
                 self.assertEqual(len(tasks), 1)
@@ -350,7 +375,9 @@ class TestCoreAsync(asynctest.TestCase):
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
             match_rasanlu(rasanlu_intent)(skill)
-            message = Message("Hello", "user", "default", mock_connector)
+            message = Message(
+                text="Hello", user="user", target="default", connector=mock_connector
+            )
             with amock.patch("opsdroid.parsers.rasanlu.parse_rasanlu"):
                 tasks = await opsdroid.parse(message)
                 self.assertEqual(len(tasks), 1)
@@ -364,7 +391,9 @@ class TestCoreAsync(asynctest.TestCase):
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
             match_sapcai(sapcai_intent)(skill)
-            message = Message("Hello", "user", "default", mock_connector)
+            message = Message(
+                text="Hello", user="user", target="default", connector=mock_connector
+            )
             with amock.patch("opsdroid.parsers.sapcai.parse_sapcai"):
                 tasks = await opsdroid.parse(message)
                 self.assertEqual(len(tasks), 1)
@@ -392,7 +421,12 @@ class TestCoreAsync(asynctest.TestCase):
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
             match_witai(witai_intent)(skill)
-            message = Message("Hello world", "user", "default", mock_connector)
+            message = Message(
+                text="Hello world",
+                user="user",
+                target="default",
+                connector=mock_connector,
+            )
             with amock.patch("opsdroid.parsers.witai.parse_witai"):
                 tasks = await opsdroid.parse(message)
                 self.assertEqual(len(tasks), 1)
@@ -445,7 +479,7 @@ class TestCoreAsync(asynctest.TestCase):
 
             opsdroid.connectors = [connector, connector2]
 
-            input_message = Message("Test", connector="shell")
+            input_message = Message(text="Test", connector="shell")
             await opsdroid.send(input_message)
 
             message = patched_send.call_args[0][0]
