@@ -136,7 +136,8 @@ class Event(metaclass=EventMetaClass):
 
         # Inherit the user, target and event from the event we are responding
         # to if they are not explicitly provided by this Event
-        event.user_id = event.user_id or self.user_id
+        event.user = event.user or self.user
+        event.user_id = event.user_id or self.user_id or event.user
         event.user = event.user or self.user
         event.target = event.target or self.target
         event.connector = event.connector or self.connector
