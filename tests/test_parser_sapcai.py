@@ -35,15 +35,10 @@ class TestParserRecastAi(asynctest.TestCase):
     async def test_call_sapcai(self):
         opsdroid = amock.CoroutineMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
-<<<<<<< HEAD
         message = Message(
             text="Hello", user="user", target="default", connector=mock_connector
         )
-        config = {"name": "recastai", "access-token": "test"}
-=======
-        message = Message("Hello" "user", "default", mock_connector)
         config = {"name": "recastai", "token": "test"}
->>>>>>> Replace access-token with token
         result = amock.Mock()
         result.json = amock.CoroutineMock()
         result.json.return_value = {
