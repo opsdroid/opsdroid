@@ -286,12 +286,10 @@ class OpsDroid:
 
         """
         if "parsers" in self.config:
-            parsers = self.config["parsers"] or []
-            rasanlu = [p for p in parsers if p["name"] == "rasanlu"]
-            if len(rasanlu) == 1 and (
-                "enabled" not in rasanlu[0] or rasanlu[0]["enabled"] is not False
-            ):
-                await train_rasanlu(rasanlu[0], skills)
+            parsers = self.config["parsers"] or {}
+            rasanlu = parsers.get("rasanlu")
+            if rasanlu and rasanlu["enabled"]:
+                await train_rasanlu(rasanlu, skills)
 
     async def start_connectors(self, connectors):
         """Start the connectors.
@@ -420,52 +418,39 @@ class OpsDroid:
 
         if "parsers" in self.config:
             _LOGGER.debug(_("Processing parsers..."))
-            parsers = self.config["parsers"] or []
+            parsers = self.config["parsers"] or {}
 
-            dialogflow = [p for p in parsers if p["name"] == "dialogflow"]
-
-            if len(dialogflow) == 1 and (
-                "enabled" not in dialogflow[0] or dialogflow[0]["enabled"] is not False
-            ):
+            dialogflow = parsers.get("dialogflow")
+            if dialogflow and dialogflow["enabled"]:
                 _LOGGER.debug(_("Checking dialogflow..."))
                 ranked_skills += await parse_dialogflow(
-                    self, skills, message, dialogflow[0]
+                    self, skills, message, dialogflow
                 )
 
-            luisai = [p for p in parsers if p["name"] == "luisai"]
-            if len(luisai) == 1 and (
-                "enabled" not in luisai[0] or luisai[0]["enabled"] is not False
-            ):
+            luisai = parsers.get("luisai")
+            if luisai and luisai["enabled"]:
                 _LOGGER.debug(_("Checking luisai..."))
-                ranked_skills += await parse_luisai(self, skills, message, luisai[0])
+                ranked_skills += await parse_luisai(self, skills, message, luisai)
 
-            sapcai = [p for p in parsers if p["name"] == "sapcai"]
-            if len(sapcai) == 1 and (
-                "enabled" not in sapcai[0] or sapcai[0]["enabled"] is not False
-            ):
+            sapcai = parsers.get("sapcai")
+            if sapcai and sapcai["enabled"]:
                 _LOGGER.debug(_("Checking SAPCAI..."))
-                ranked_skills += await parse_sapcai(self, skills, message, sapcai[0])
+                ranked_skills += await parse_sapcai(self, skills, message, sapcai)
 
-            witai = [p for p in parsers if p["name"] == "witai"]
-            if len(witai) == 1 and (
-                "enabled" not in witai[0] or witai[0]["enabled"] is not False
-            ):
+            witai = parsers.get("witai")
+            if witai and witai["enabled"]:
                 _LOGGER.debug(_("Checking wit.ai..."))
-                ranked_skills += await parse_witai(self, skills, message, witai[0])
+                ranked_skills += await parse_witai(self, skills, message, witai)
 
-            watson = [p for p in parsers if p["name"] == "watson"]
-            if len(watson) == 1 and (
-                "enabled" not in watson[0] or watson[0]["enabled"] is not False
-            ):
+            watson = parsers.get("watson")
+            if watson and watson["enabled"]:
                 _LOGGER.debug(_("Checking IBM Watson..."))
-                ranked_skills += await parse_watson(self, skills, message, watson[0])
+                ranked_skills += await parse_watson(self, skills, message, watson)
 
-            rasanlu = [p for p in parsers if p["name"] == "rasanlu"]
-            if len(rasanlu) == 1 and (
-                "enabled" not in rasanlu[0] or rasanlu[0]["enabled"] is not False
-            ):
+            rasanlu = parsers.get("rasanlu")
+            if rasanlu and rasanlu["enabled"]:
                 _LOGGER.debug(_("Checking Rasa NLU..."))
-                ranked_skills += await parse_rasanlu(self, skills, message, rasanlu[0])
+                ranked_skills += await parse_rasanlu(self, skills, message, rasanlu)
 
         return sorted(ranked_skills, key=lambda k: k["score"], reverse=True)
 
