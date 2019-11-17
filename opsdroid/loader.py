@@ -20,7 +20,6 @@ from opsdroid.helper import (
     file_is_ipython_notebook,
     convert_ipynb_to_script,
     extract_gist_id,
-    update_pre_0_17_config_format,
 )
 from opsdroid.const import (
     DEFAULT_GIT_URL,
