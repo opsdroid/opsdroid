@@ -10,8 +10,8 @@ import yaml
 
 
 from opsdroid.const import DEFAULT_CONFIG_PATH, EXAMPLE_CONFIG_FILE
-
 from opsdroid.configuration.validation import validate_configuration
+from opsdroid.helper import update_pre_0_17_config_format
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -116,9 +116,10 @@ def load_config_file(config_paths):
             _LOGGER.info(_("Loaded config from %s."), config_path)
 
             data = yaml.load(stream, Loader=yaml.SafeLoader)
-            validate_configuration(data)
+            configuration = update_pre_0_17_config_format(data)
+            validate_configuration(configuration)
 
-            return data
+            return configuration
 
     except MultipleInvalid as error:
         _LOGGER.critical("Configuration contains an error - %s", error)
