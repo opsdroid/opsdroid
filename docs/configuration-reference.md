@@ -107,6 +107,7 @@ The built-in connectors are:
 - [GitHub](connectors/github.md)
 - [Gitter](connectors/gitter.md)
 - [Matrix](connectors/matrix.md)
+- [Mattermost] (connectors/mattermost.md)
 - [Rocket.Chat](connectors/rocketchat.md)
 - [Shell](connectors/shell.md)
 - [Slack](connectors/slack.md)
