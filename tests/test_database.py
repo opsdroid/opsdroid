@@ -38,3 +38,8 @@ class TestDatabaseBaseClassAsync(asynctest.TestCase):
         database = Database({})
         with self.assertRaises(NotImplementedError):
             await database.put("test", {})
+
+    async def test_delete(self):
+        database = Database({})
+        with self.assertRaises(NotImplementedError):
+            await database.delete("test")
