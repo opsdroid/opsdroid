@@ -48,26 +48,22 @@ class ConnectorMattermost(Connector):
         """Connect to the chat service."""
         _LOGGER.info(_("Connecting to Mattermost"))
 
-        try:
-            login_response = self.mm_driver.login()
+        login_response = self.mm_driver.login()
 
-            _LOGGER.info(login_response)
+        _LOGGER.info(login_response)
 
-            if "id" in login_response:
-                self.bot_id = login_response["id"]
-            if "username" in login_response:
-                self.bot_name = login_response["username"]
+        if "id" in login_response:
+            self.bot_id = login_response["id"]
+        if "username" in login_response:
+            self.bot_name = login_response["username"]
 
-            _LOGGER.info(_("Connected as %s"), self.bot_name)
+        _LOGGER.info(_("Connected as %s"), self.bot_name)
 
-            self.mm_driver.websocket = Websocket(
-                self.mm_driver.options, self.mm_driver.client.token
-            )
+        self.mm_driver.websocket = Websocket(
+            self.mm_driver.options, self.mm_driver.client.token
+        )
 
-            _LOGGER.info(_("Connected successfully"))
-        except Exception:
-            await self.disconnect()
-            raise
+        _LOGGER.info(_("Connected successfully"))
 
     async def disconnect(self):
         """Disconnect from Mattermost."""
