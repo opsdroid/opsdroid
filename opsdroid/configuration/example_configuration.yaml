@@ -37,43 +37,43 @@ welcome-message: true
 # parsers:
 #
 #  ## Rasanlu (http://opsdroid.readthedocs.io/en/stable/matchers/rasanlu)
-#  - name: rasanlu
+#  rasanlu:
 #    url: http://localhost:5000
 #    project: opsdroid
 #    token: 85769fjoso084jd
 #    min-score: 0.8
 #
 #  ## Dialogflow (http://opsdroid.readthedocs.io/en/stable/matchers/dialogflow)
-#  - name: dialogflow
+#  dialogflow:
 #    access-token: "exampleaccesstoken123"
 #    min-score: 0.6
 #
 #  ## Regex (http://opsdroid.readthedocs.io/en/stable/matchers/regex)
-#  - name: regex
+#  regex:
 #    enabled: true
 #
 #  ## Parse_format (http://opsdroid.readthedocs.io/en/stable/matchers/parse_format)
-#  - name: parse_format
+#  parse_format:
 #    enabled: true
 #
 #  ## Wit.ai (http://opsdroid.readthedocs.io/en/stable/matchers/wit.ai)
-#  - name: witai
+#  witai:
 #    access-token: XJF475SKGITJ98KHFO
 #    min-score: 0.6
 #
 #  ## Luis.ai (http://opsdroid.readthedocs.io/en/stable/matchers/luis.ai)
-#   - name: luisai
+#   luisai:
 #     appid: "<application-id>"
 #     appkey: "<subscription-key>"
 #     verbose: True
 #     min-score: 0.6
 #
 #  ## Crontab (http://opsdroid.readthedocs.io/en/stable/matchers/crontab)
-#  - name: crontab
+#  crontab:
 #    enabled: true
 #
 #  ## Sapcai (http://opsdroid.readthedocs.io/en/stable/matchers/sapcai)
-#  - name: sapcai
+#  sapcai:
 #    access-token: 85769fjoso084jd
 #    min-score: 0.8
 #
@@ -81,7 +81,7 @@ welcome-message: true
 ## Connector modules
 connectors:
 
-  - name: websocket
+  websocket:
     # optional
     bot-name: "mybot" # default "opsdroid"
     max-connections: 10 # default is 10 users can be connected at once
@@ -90,13 +90,13 @@ connectors:
   # Uncomment the connector(s) that you wish opsdroid to work on
 #
 #  ## Ciscospark (https://github.com/opsdroid/connector-ciscospark)
-#  - name: ciscospark
+#  ciscospark:
 #    # required
 #    webhook-url: http(s)://<host>:<port>  # Url for Spark to connect to your bot
 #    access-token: <your bot access token>  # Your access token
 #
 #  ## Twitter (https://github.com/opsdroid/connector-twitter)
-#  - name: twitter
+#  twitter:
 #    # required
 #    consumer_key: "zyxw-abdcefghi-12345"
 #    consumer_secret: "zyxw-abdcefghi-12345-zyxw-abdcefghi-12345"
@@ -107,13 +107,13 @@ connectors:
 #    enable_tweets: true  # Should the bot respond to tweets
 #
 #  ## Webexteams (core)
-#  - name: webexteams
+#  webexteams:
 #    # required
 #    webhook-url: http(s)://<host>:<port>  # Url for Webex Teams to connect to your bot
 #    access-token: <your bot access token>  # Your access token
 #
 #  ## Facebook (core)
-#  - name: facebook
+#  facebook:
 #    # required
 #    verify-token: aabbccddee
 #    page-access-token: aabbccddee112233445566
@@ -121,7 +121,7 @@ connectors:
 #    bot-name: "mybot" # default "opsdroid"
 #
 #  ## Matrix (core)
-#  - name: matrix
+#  matrix:
 #    # Required
 #    mxid: "@username:matrix.org"
 #    password: "mypassword"
@@ -150,15 +150,20 @@ connectors:
 #    connect-timeout: 30 # default: 30
 #
 #  ## Github (core)
-#  - name: github
+#  github:
 #    # required
 #    token: aaabbbcccdddeee111222333444
 #
 #  ## Gitter (core)
-#  - name: gitter
+#  gitter:
+#    # Required
+#    room-id: 1239kr
+#    access-token: jdr-3i4p-dk
+#    # Optional
+#    bot-name: opsdroid
 #
 #  ## Telegram (core)
-#  - name: telegram
+#  telegram:
 #    # required
 #    token: "123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ-ZYXWVUT"  # Telegram bot token
 #    # optional
@@ -169,7 +174,7 @@ connectors:
 #      - user2
 #
 #  ## Slack (core)
-#  - name: slack
+#  slack:
 #    # required
 #    api-token: "zyxw-abdcefghi-12345"
 #    # optional
@@ -180,7 +185,7 @@ connectors:
 #    chat-as-user: true # default false
 #
 #  ## Rocketchat (core)
-#  - name: rocketchat
+#  rocketchat:
 #    # required
 #    user-id: "1ioKHDIOD"
 #    token: "zyxw-abdcefghi-12345"
@@ -192,7 +197,7 @@ connectors:
 #    update-interval: 5 # defaults to 1
 #
 #  ## Shell (core)
-#  - name: shell
+#  shell:
 #    # optional
 #    bot-name: "mybot" # default "opsdroid"
 #
@@ -203,7 +208,7 @@ connectors:
 # databases:
 #
 #  ## Redis (core)
-#  - name: redis
+#  redis:
 #    host:       "my host"     # (optional) default "localhost"
 #    port:       "12345"       # (optional) default "6379"
 #    database:   7           # (optional) default 0
@@ -211,12 +216,12 @@ connectors:
 #    reconnect:  true          # (optional) default "False"
 #
 #  ## Sqlite (core)
-#  - name: sqlite
+#  sqlite:
 #    file: "my_file.db"  # (optional) default "~/.opsdroid/sqlite.db"
 #    table: "my_table"  # (optional) default "opsdroid"
 #
 #  ## Mongo (core)
-#  - name: mongo
+#  mongo:
 #    host:       "my host"     # (optional) default "localhost"
 #    port:       "12345"       # (optional) default "27017"
 #    database:   "mydatabase"  # (optional) default "opsdroid"
@@ -227,21 +232,21 @@ connectors:
 skills:
 
   ## Dance (https://github.com/opsdroid/skill-dance)
-  - name: dance
+  dance: {}
   
   ## Hello (https://github.com/opsdroid/skill-hello)
-  - name: hello
+  hello: {}
   
   ## Loudnoises (https://github.com/opsdroid/skill-loudnoises)
-  - name: loudnoises
+  loudnoises: {}
   
   ## Seen (https://github.com/opsdroid/skill-seen)
-  - name: seen
+  seen: {}
   
   # Configurations for other skills uncomment desired skill to activate it.
 #
 #  ## Cloudhealth (https://github.com/opsdroid/skill-cloudhealth)
-#  - name: cloudhealth
+#  cloudhealth:
 #    # Required
 #    chapi-key: ABCDEF123456789  # Cloud Health API key for billing alerts
 #    # Optional
@@ -250,24 +255,24 @@ skills:
 #    monthly-billing-alerts: true  # Announce the previous month's bill each month
 #
 #  ## Devtools (https://github.com/opsdroid/skill-devtools)
-#  - name: devtools
+#  devtools: {}
 #
 #  ## Dialogflow (https://github.com/opsdroid/skill-dialogflow)
-#  - name: dialogflow
+#  dialogflow:
 #    include:
 #      - smalltalk
 #    exclude:
 #      - smalltalk.agent
 #
 #  ## Food (https://github.com/opsdroid/skill-food)
-#  - name: food
+#  food:
 #    api-key: "myapikeyfromfood2fork"  # Required
 #
 #  ## Github (https://github.com/opsdroid/skill-github)
-#  - name: github
+#  github: {}
 #
 #  ## Google it (https://github.com/opsdroid/skill-google-it)
-#  - name: google-it
+#  google-it:
 #    # Use Google search engine (Default)
 #    engine-url: https://www.google.co.uk/
 #    query-arg: search?q=
@@ -292,17 +297,17 @@ skills:
 #  # query-arg: ?i=
 #
 #  ## Grafana (https://github.com/opsdroid/skill-grafana)
-#  - name: grafana
+#  grafana:
 #    room: "#monitoring"  # (Optional) room to send alert to
 #
 #  ## Hacktoberfest (https://github.com/opsdroid/skill-hacktoberfest)
-#  - name: hacktoberfest
+#  hacktoberfest: {}
 #
 #  ## Help (https://github.com/opsdroid/skill-help)
 #  skill_name <required_parameter> [optional_parameter] - Description of the skill
 #
 #  ## Homeassistant (https://github.com/opsdroid/skill-homeassistant)
-#  - name: homeassistant
+#  homeassistant:
 #    # Notification settings
 #    room: "#homeassistant"  # (Optional) room to send notifications to
 #    # Conversation component passthrough settings
@@ -311,7 +316,7 @@ skills:
 #    hass-password: "YOURPASSWORD"  # Your Home Assistant auth password
 #
 #  ## Iss (https://github.com/opsdroid/skill-iss)
-#  - name: iss
+#  iss:
 #    # Required
 #    api-key: "mygooglemapsapikey"
 #    # Optional
@@ -320,25 +325,25 @@ skills:
 #    map-type: "hybrid" # hybrid, satellite or roadmap
 #
 #  ## Magpi (https://github.com/opsdroid/skill-magpi)
-#  - name: magpi
+#  magpi:
 #    room: "#raspberrypi"  # (Optional) room to send notifications to
 #
 #  ## Please stand by (https://github.com/opsdroid/skill-please-stand-by)
-#  - name: please-stand-by
+#  please-stand-by: {}
 #
 #  ## Random (https://github.com/opsdroid/skill-random)
-#  - name: random
+#  random: {}
 #
 #  ## Speakingclock (https://github.com/opsdroid/skill-speakingclock)
-#  - name: speakingclock
+#  speakingclock: {}
 #
 #  ## Travis (https://github.com/opsdroid/skill-travis)
-#  - name: travis
+#  travis:
 #    room: "#monitoring"  # (Optional) room to send alert to
 #    travis_endpoint: "org"  # (Optional) endpoint for travis, change to "com" if using enterprise Travis CI
 #
 #  ## Vault (https://github.com/opsdroid/skill-vault)
-#  - name: vault
+#  vault:
 #    # Required
 #    vault-url: https://vault.example.com:8443
 #    vault-token: aabbccddee1122334455
@@ -348,15 +353,15 @@ skills:
 #    announce-unsealed: false  # Announce the vault is unsealed hourly
 #
 #  ## Weather (https://github.com/opsdroid/skill-weather)
-#  - name: weather
+#  weather:
 #    # Required
 #    city: London,UK    # For accuracy use {city},{country code}          
 #    unit: metric       # Choose metric/imperial
 #    api-key: 6fut9e098d8g90g
 #
 #  ## Word of the day (https://github.com/opsdroid/skill-word-of-the-day)
-#  - name: word-of-the-day
+#  word-of-the-day: {}
 #
 #  ## Words (https://github.com/opsdroid/skill-words)
-#  - name: words
+#  words: {}
 #

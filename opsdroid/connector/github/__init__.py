@@ -83,7 +83,11 @@ class ConnectorGitHub(Connector):
                 issue_number,
             )
             message = Message(
-                body, payload["sender"]["login"], issue, self, raw_event=payload
+                text=body,
+                user=payload["sender"]["login"],
+                target=issue,
+                connector=self,
+                raw_event=payload,
             )
             await self.opsdroid.parse(message)
         except KeyError as error:

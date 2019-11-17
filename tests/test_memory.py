@@ -15,7 +15,8 @@ class TestMemory(asynctest.TestCase):
         data = "Hello world!"
         await memory.put("test", data)
         self.assertEqual(data, await memory.get("test"))
-        self.assertIsNone(await memory.get("nonexistant"))
+        await memory.delete("test")
+        self.assertIsNone(await memory.get("test"))
 
     async def test_empty_memory(self):
         memory = self.setup()
@@ -26,6 +27,7 @@ class TestMemory(asynctest.TestCase):
         memory.databases = [mock.MagicMock()]
         memory.databases[0].get = mock.CoroutineMock()
         memory.databases[0].put = mock.CoroutineMock()
+        memory.databases[0].delete = mock.CoroutineMock()
         data = "Hello world!"
 
         await memory.put("test", data)
@@ -35,3 +37,7 @@ class TestMemory(asynctest.TestCase):
 
         await memory.get("test")
         self.assertTrue(memory.databases[0].get.called)
+
+        memory.databases[0].reset_mock()
+        await memory.delete("test")
+        self.assertTrue(memory.databases[0].delete.called)

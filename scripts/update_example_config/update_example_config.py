@@ -1,3 +1,4 @@
+# flake8: noqa
 from github import Github, Repository
 from argparse import ArgumentParser
 import jinja2
@@ -35,13 +36,13 @@ def get_core_modules():
     """Get core module names of databases and connectors."""
     core_modules = [
         "database-" + name
-        for name in os.listdir("./opsdroid/database")
-        if os.path.isdir(os.path.join("./opsdroid/database", name))
+        for name in os.listdir("../../opsdroid/database")
+        if os.path.isdir(os.path.join("../../opsdroid/database", name))
     ]
     core_modules += [
         "connector-" + name
-        for name in os.listdir("./opsdroid/connector")
-        if os.path.isdir(os.path.join("./opsdroid/connector", name))
+        for name in os.listdir("../../opsdroid/connector")
+        if os.path.isdir(os.path.join("../../opsdroid/connector", name))
     ]
     return core_modules
 
@@ -70,8 +71,12 @@ def get_readme(module):
         else:
             mdfile = module[9:] + ".md"
             subfolder = "databases/"
-        core_readme = open("./docs/" + subfolder + mdfile, "rb").read().decode("utf-8")
-        return core_readme
+
+        with contextlib.suppress(FileNotFoundError):
+            core_readme = (
+                open("../../docs/" + subfolder + mdfile, "rb").read().decode("utf-8")
+            )
+            return core_readme
 
 
 def get_config_details(readme):
@@ -120,7 +125,7 @@ def get_config_params(module, readme):
     if config:
         config_text = normalize(config.group(4))
     else:
-        config_text = "- name: " + raw_name
+        config_text = raw_name + ":"
 
     return {
         "repo_type": repo_type,

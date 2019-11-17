@@ -5,6 +5,8 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 from opsdroid.database import Database
 
+_LOGGER = logging.getLogger(__name__)
+
 
 class DatabaseMongo(Database):
     """A module for opsdroid to allow memory to persist in a mongo database."""
@@ -21,7 +23,7 @@ class DatabaseMongo(Database):
 
         """
         super().__init__(config, opsdroid=opsdroid)
-        logging.debug("Loaded mongo database connector")
+        _LOGGER.debug("Loaded mongo database connector")
         self.name = "mongo"
         self.config = config
         self.client = None
@@ -35,7 +37,7 @@ class DatabaseMongo(Database):
         path = "mongodb://" + host + ":" + port
         self.client = AsyncIOMotorClient(path)
         self.database = self.client[database]
-        logging.info("Connected to mongo")
+        _LOGGER.info("Connected to mongo")
 
     async def put(self, key, data):
         """Insert or replace an object into the database for a given key.
@@ -45,7 +47,7 @@ class DatabaseMongo(Database):
             data (object): the data to be inserted or replaced
 
         """
-        logging.debug("Putting %s into mongo", key)
+        _LOGGER.debug("Putting %s into mongo", key)
         if "_id" in data:
             await self.database[key].update_one({"_id": data["_id"]}, {"$set": data})
         else:
@@ -58,7 +60,17 @@ class DatabaseMongo(Database):
             key (str): the key is the database name.
 
         """
-        logging.debug("Getting %s from mongo", key)
+        _LOGGER.debug("Getting %s from mongo", key)
         return await self.database[key].find_one(
             {"$query": {}, "$orderby": {"$natural": -1}}
         )
+
+    async def delete(self, key):
+        """Delete a document from the database (key).
+
+        Args:
+            key (str): the key is the database name.
+
+        """
+        _LOGGER.debug("Deleting %s from mongo", key)
+        return await self.database[key].delete_one({"$query": {}})

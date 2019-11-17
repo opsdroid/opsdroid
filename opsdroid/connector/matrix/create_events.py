@@ -47,10 +47,11 @@ class MatrixEventCreator:
     async def create_message(self, event, roomid):
         """Send a Message event."""
         return events.Message(
-            event["content"]["body"],
-            await self.connector.get_nick(roomid, event["sender"]),
-            roomid,
-            self.connector,
+            text=event["content"]["body"],
+            user_id=event["sender"],
+            user=await self.connector.get_nick(roomid, event["sender"]),
+            target=roomid,
+            connector=self.connector,
             event_id=event["event_id"],
             raw_event=event,
         )
@@ -60,6 +61,7 @@ class MatrixEventCreator:
         return dict(
             url=url,
             name=event["content"]["body"],
+            user_id=event["sender"],
             user=await self.connector.get_nick(roomid, event["sender"]),
             target=roomid,
             connector=self.connector,
