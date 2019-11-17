@@ -46,7 +46,7 @@ welcome-message: true
 #  ## Dialogflow (http://opsdroid.readthedocs.io/en/stable/matchers/dialogflow)
 
 #  dialogflow:
-#    token: "exampleaccesstoken123"
+#    project-id: <project id>
 #    min-score: 0.6
 #
 #  ## Regex (http://opsdroid.readthedocs.io/en/stable/matchers/regex)
@@ -79,7 +79,15 @@ welcome-message: true
 #    token: 85769fjoso084jd
 #    min-score: 0.8
 #
-
+#  ## Watson (http://opsdroid.readthedocs.io/en/stable/matchers/watson)
+#
+#  watson:
+#    gateway: gateway-fra # Required
+#    assistant-id: '74yhfhis9-kfirj1e-jfir34-kfdir345' # Required
+#    token:  XJF475SKGITJ98KHFO # Required
+#    min-score: 1.0
+#
+#
 ## Connector modules
 connectors:
 
