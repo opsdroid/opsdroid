@@ -168,7 +168,7 @@ connectors:
 #  gitter:
 #    # Required
 #    room-id: 1239kr
-#    access-token: jdr-3i4p-dk
+#    token: jdr-3i4p-dk
 #    # Optional
 #    bot-name: opsdroid
 #
@@ -186,7 +186,7 @@ connectors:
 #  ## Slack (core)
 #  slack:
 #    # required
-#    api-token: "zyxw-abdcefghi-12345"
+#    token: "zyxw-abdcefghi-12345"
 #    # optional
 #    bot-name: "mybot" # default "opsdroid"
 #    default-room: "#random" # default "#general"
@@ -223,7 +223,6 @@ connectors:
 #    port:       "12345"       # (optional) default "6379"
 #    database:   7           # (optional) default 0
 #    password:   "pass123"     # (optional) default "None"
-#    reconnect:  true          # (optional) default "False"
 #
 #  ## Sqlite (core)
 #  sqlite:
