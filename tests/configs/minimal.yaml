@@ -1,6 +1,6 @@
 connectors:
-  - name: shell
+  shell: {}
 
 skills:
-  - name: hello
-  - name: seen
+  hello: {}
+  seen: {}

@@ -24,3 +24,4 @@ websockets==8.1
 webexteamssdk==1.2
 yamale==2.0.1
 certifi==2019.9.11
+mattermostdriver==7.0.1

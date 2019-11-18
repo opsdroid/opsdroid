@@ -24,7 +24,13 @@ class Message(NewMessage):
 
     def __init__(self, text, user, room, connector, raw_message=None):  # noqa: D401
         """Deprecated opsdroid.message.Message object."""
-        super().__init__(text, user, room, connector, raw_event=raw_message)
+        super().__init__(
+            text=text,
+            user=user,
+            target=room,
+            connector=connector,
+            raw_event=raw_message,
+        )
 
     @property
     def room(self):  # noqa: D401

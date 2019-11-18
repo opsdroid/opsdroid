@@ -2,7 +2,7 @@
 
 # pylint: disable=too-many-branches
 
-import yamale
+import contextlib
 import importlib
 import importlib.util
 import json
@@ -23,6 +23,7 @@ from opsdroid.helper import (
     file_is_ipython_notebook,
     convert_ipynb_to_script,
     extract_gist_id,
+    update_pre_0_17_config_format,
 )
 from opsdroid.const import (
     DEFAULT_GIT_URL,
@@ -34,7 +35,6 @@ from opsdroid.const import (
     DEFAULT_MODULE_DEPS_PATH,
     PRE_0_12_0_ROOT_PATH,
     DEFAULT_ROOT_PATH,
-    SCHEMA_PATH,
 )
 
 
@@ -385,14 +385,11 @@ class Loader:
         try:
             with open(config_path, "r") as stream:
                 _LOGGER.info(_("Loaded config from %s."), config_path)
-                schema = yamale.make_schema(SCHEMA_PATH)
-                data = yamale.make_data(config_path)
-                yamale.validate(schema, data)
-                return yaml.load(stream, Loader=cls.yaml_loader)
 
-        except ValueError as error:
-            _LOGGER.critical(error)
-            sys.exit(1)
+                configuration = yaml.load(stream, Loader=cls.yaml_loader)
+                updated_configuration = update_pre_0_17_config_format(configuration)
+
+                return updated_configuration
 
         except yaml.YAMLError as error:
             _LOGGER.critical(error)
@@ -438,7 +435,7 @@ class Loader:
 
         self.setup_modules_directory(config)
 
-        connectors, databases, skills = None, None, None
+        connectors, databases, parsers, skills = None, None, None, None
 
         if "databases" in config.keys() and config["databases"]:
             databases = self._load_modules("database", config["databases"])
@@ -451,6 +448,8 @@ class Loader:
                     "restarted."
                 )
             )
+        if "parsers" in config.keys() and config["parsers"]:
+            parsers = self._load_modules("parsers", config["parsers"])
 
         if "skills" in config.keys() and config["skills"]:
             skills = self._load_modules("skill", config["skills"])
@@ -467,22 +466,75 @@ class Loader:
                 _("No connectors in configuration, at least 1 required"), 1
             )
 
-        return {"connectors": connectors, "databases": databases, "skills": skills}
+        return {
+            "connectors": connectors,
+            "databases": databases,
+            "parsers": parsers,
+            "skills": skills,
+        }
+
+    def setup_module_config(self, modules, module, modules_type, entry_points):
+        """Set up configuration for module.
+
+        When setting up the configuration for a module we assign a lot
+        of key:value pairs into a config dictionary.
+
+        Also we might want to load from a configuration file an item that
+        is just a string rather than a mapping object so we do a check and
+        update the config as appropriate.
+
+        We also need to update the config file with the rest of the config params.
+        Since modules can be Key: { key: value } or key: None, we suppress the
+        TypeError exception which is given when we try to use .get() on a None type,
+        .
+
+        Args:
+            module (dict): Module to be configured
+            modules_type (str): Type of module being loaded
+            entry_points (dict): name of possible entry points.
+
+        Returns:
+            dict: configuration containing all the set key:values
+
+        """
+        config = module
+        config = {} if config is None else config
+
+        if not isinstance(config, Mapping):
+            config = {"name": module, "module": ""}
+        else:
+            config["name"] = module["name"]
+            config["module"] = module.get("module", "")
+
+        with contextlib.suppress(TypeError, AttributeError):
+            config.update(modules.get(module))
+
+        config["type"] = modules_type
+        config["enabled"] = True
+        config["entrypoint"] = entry_points.get(config["name"], None)
+        config["is_builtin"] = self.is_builtin_module(config)
+        config["module_path"] = self.build_module_import_path(config)
+        config["install_path"] = self.build_module_install_path(config)
+
+        if "branch" not in config:
+            config["branch"] = DEFAULT_MODULE_BRANCH
+
+        return config
 
     def _load_modules(self, modules_type, modules):
         """Install and load modules.
 
         Args:
             self: instance method
-            modules_type: str with the type of module being loaded
-            modules: list with module attributes
+            modules_type (str): Type of module being loaded
+            modules (dict): Dictionary containing all modules
 
         Returns:
             list: modules and their config information
 
         """
         _LOGGER.debug(_("Loading %s modules..."), modules_type)
-        loaded_modules = []
+        loaded_modules = list()
 
         if not os.path.isdir(DEFAULT_MODULE_DEPS_PATH):
             os.makedirs(DEFAULT_MODULE_DEPS_PATH)
@@ -498,30 +550,9 @@ class Loader:
             )
 
         for module in modules:
-
-            # Set up module config
-            config = module
-            config = {} if config is None else config
-
-            # We might load from a configuration file an item that is just
-            # a string, rather than a mapping object
-            if not isinstance(config, Mapping):
-                config = {}
-                config["name"] = module
-                config["module"] = ""
-            else:
-                config["name"] = module["name"]
-                config["module"] = module.get("module", "")
-            config["type"] = modules_type
-            config["is_builtin"] = self.is_builtin_module(config)
-            if config["name"] in entry_points:
-                config["entrypoint"] = entry_points[config["name"]]
-            else:
-                config["entrypoint"] = None
-            config["module_path"] = self.build_module_import_path(config)
-            config["install_path"] = self.build_module_install_path(config)
-            if "branch" not in config:
-                config["branch"] = DEFAULT_MODULE_BRANCH
+            config = self.setup_module_config(
+                modules, module, modules_type, entry_points
+            )
 
             # If the module isn't builtin, or isn't already on the
             # python path, install it

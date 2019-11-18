@@ -36,7 +36,10 @@ class TestParserWitai(asynctest.TestCase):
         opsdroid = amock.CoroutineMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
         message = Message(
-            "how's the weather outside", "user", "default", mock_connector
+            text="how's the weather outside",
+            user="user",
+            target="default",
+            connector=mock_connector,
         )
         config = {"name": "witai", "access-token": "test", "min-score": 0.3}
         result = amock.Mock()
@@ -64,7 +67,10 @@ class TestParserWitai(asynctest.TestCase):
 
             mock_connector = amock.CoroutineMock()
             message = Message(
-                "how's the weather outside", "user", "default", mock_connector
+                text="how's the weather outside",
+                user="user",
+                target="default",
+                connector=mock_connector,
             )
 
             with amock.patch.object(witai, "call_witai") as mocked_call_witai:
@@ -94,7 +100,10 @@ class TestParserWitai(asynctest.TestCase):
             mock_connector = amock.MagicMock()
             mock_connector.send = amock.CoroutineMock()
             message = Message(
-                "how's the weather outside", "user", "default", mock_connector
+                text="how's the weather outside",
+                user="user",
+                target="default",
+                connector=mock_connector,
             )
 
             with amock.patch.object(witai, "call_witai") as mocked_call_witai:
@@ -125,7 +134,10 @@ class TestParserWitai(asynctest.TestCase):
 
             mock_connector = amock.CoroutineMock()
             message = Message(
-                "how's the weather outside", "user", "default", mock_connector
+                text="how's the weather outside",
+                user="user",
+                target="default",
+                connector=mock_connector,
             )
 
             with amock.patch.object(witai, "call_witai") as mocked_call_witai:
@@ -148,7 +160,10 @@ class TestParserWitai(asynctest.TestCase):
 
             mock_connector = amock.CoroutineMock()
             message = Message(
-                "how's the weather outside", "user", "default", mock_connector
+                text="how's the weather outside",
+                user="user",
+                target="default",
+                connector=mock_connector,
             )
 
             with amock.patch.object(witai, "call_witai") as mocked_call_witai:
@@ -198,7 +213,10 @@ class TestParserWitai(asynctest.TestCase):
 
             mock_connector = amock.CoroutineMock()
             message = Message(
-                "how's the weather outside", "user", "default", mock_connector
+                text="how's the weather outside",
+                user="user",
+                target="default",
+                connector=mock_connector,
             )
 
             with amock.patch.object(witai, "call_witai") as mocked_call_witai:
@@ -223,7 +241,10 @@ class TestParserWitai(asynctest.TestCase):
 
             mock_connector = amock.CoroutineMock()
             message = Message(
-                "how's the weather outside", "user", "default", mock_connector
+                text="how's the weather outside",
+                user="user",
+                target="default",
+                connector=mock_connector,
             )
 
             with amock.patch.object(witai, "call_witai") as mocked_call:
@@ -245,7 +266,10 @@ class TestParserWitai(asynctest.TestCase):
 
             mock_connector = amock.CoroutineMock()
             message = Message(
-                "what is the weather in london", "user", "default", mock_connector
+                text="what is the weather in london",
+                user="user",
+                target="default",
+                connector=mock_connector,
             )
 
             with amock.patch.object(witai, "call_witai") as mocked_call_witai:

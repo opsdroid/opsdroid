@@ -73,6 +73,7 @@ class Event(metaclass=EventMetaClass):
     creation.
 
     Args:
+        user_id (string, optional): String id of user sending message
         user (string, optional): String name of user sending message
         room (string, optional): String name of the room or chat channel in
                                  which message was sent
@@ -103,6 +104,7 @@ class Event(metaclass=EventMetaClass):
 
     def __init__(
         self,
+        user_id=None,
         user=None,
         target=None,
         connector=None,
@@ -111,6 +113,7 @@ class Event(metaclass=EventMetaClass):
         event_id=None,
         linked_event=None,
     ):  # noqa: D107
+        self.user_id = user_id
         self.user = user
         self.target = target
         self.connector = connector
@@ -134,6 +137,7 @@ class Event(metaclass=EventMetaClass):
         # Inherit the user, target and event from the event we are responding
         # to if they are not explicitly provided by this Event
         event.user = event.user or self.user
+        event.user_id = event.user_id or self.user_id or event.user
         event.target = event.target or self.target
         event.connector = event.connector or self.connector
         event.linked_event = event.linked_event or self
