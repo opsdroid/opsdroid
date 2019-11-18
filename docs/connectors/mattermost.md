@@ -7,7 +7,7 @@ A connector for [Mattermost](https://mattermost.com/).
 * A Mattermost account
 * A [Mattermost App bot account](https://docs.mattermost.com/developer/bot-accounts.html).
   * Create a [new Mattermost bot](https://docs.mattermost.com/developer/bot-accounts.html).
-  * Take note of the "Bot Account Access Token" as this will be the `api-token` you need for your configuration.
+  * Take note of the "Bot Account Access Token" as this will be the `atoken` you need for your configuration.
 
 ## Configuration
 
@@ -15,7 +15,7 @@ A connector for [Mattermost](https://mattermost.com/).
 connectors:
   - name: mattermost
     # Required
-    api-token: "zyxw-abdcefghi-12345"
+    token: "zyxw-abdcefghi-12345"
     url: "mattermost.server.com"
     team-name: "myteam"
     # Optional

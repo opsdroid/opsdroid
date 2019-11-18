@@ -9,7 +9,7 @@ A connector for [Slack](https://slack.com/).
   * Create a [new Slack App](https://api.slack.com/apps/new) and select the workspace you would like it in.
   * Navigate to the "Bot Users" section and add a bot, giving it a display name and username.
   * Navigate to the "Install App" section and install the app in your workspace.
-  * Take note of the "Bot User OAuth Access Token" as this will be the `api-token` you need for your configuration.
+  * Take note of the "Bot User OAuth Access Token" as this will be the `token` you need for your configuration.
 
 ## Configuration
 
@@ -17,7 +17,7 @@ A connector for [Slack](https://slack.com/).
 connectors:
   - name: slack
     # required
-    api-token: "zyxw-abdcefghi-12345"
+    token: "zyxw-abdcefghi-12345"
     # optional
     bot-name: "mybot" # default "opsdroid"
     default-room: "#random" # default "#general"
