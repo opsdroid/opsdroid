@@ -25,7 +25,7 @@ class ConnectorSlack(Connector):
         self.name = "slack"
         self.default_target = config.get("default-room", "#general")
         self.icon_emoji = config.get("icon-emoji", ":robot_face:")
-        self.token = config["api-token"]
+        self.token = config["token"]
         self.timeout = config.get("connect-timeout", 10)
         self.chat_as_user = config.get("chat-as-user", False)
         self.ssl_context = ssl.create_default_context(cafile=certifi.where())

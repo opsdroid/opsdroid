@@ -2,6 +2,13 @@
 
 from voluptuous import Schema, ALLOW_EXTRA, Optional, Required, Url, Any
 
+logging = {
+    "level": str,
+    "console": bool,
+    "extended": bool,
+    "filter": {"whitelist": list, "blacklist": list},
+}
+
 parsers = Any(
     None,
     {
@@ -225,7 +232,7 @@ databases = Any(
 )
 
 schema = {
-    "logging": {"level": str, "console": bool},
+    "logging": logging,
     "module-path": str,
     "welcome-message": bool,
     "web": {"host": str, "port": int, "ssl": {"cert": str, "key": str}},

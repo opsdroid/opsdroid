@@ -18,6 +18,12 @@
 #   level: info
 #   path: opsdroid.log
 #   console: true
+#   extended: false
+#   filter:
+#     whitelist:
+#       - opsdroid.core
+#     blacklist:
+#       - opsdroid.loader
 
 ## Set the location for opsdroid to install modules
 # module-path: "."
