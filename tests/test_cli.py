@@ -15,7 +15,6 @@ import opsdroid.__main__
 import opsdroid.cli
 import opsdroid.cli.version
 from opsdroid.cli.start import configure_lang
-import opsdroid.web as web
 from opsdroid.const import __version__
 from opsdroid.core import OpsDroid
 from opsdroid.helper import del_rw
@@ -223,3 +222,15 @@ class TestCLI(unittest.TestCase):
             with mock.patch.object(OpsDroid, "run") as mock_run:
                 runner.invoke(opsdroid.cli.cli, [])
                 assert mock_run.called
+
+    def test_config_validate(self):
+        with mock.patch.object(click, "echo") as click_echo, mock.patch(
+            "opsdroid.configuration.load_config_file"
+        ) as opsdroid_load:
+            runner = CliRunner()
+            from opsdroid.cli.config import validate
+
+            result = runner.invoke(validate, [])
+            self.assertTrue(click_echo.called)
+            self.assertFalse(opsdroid_load.called)
+            self.assertEqual(result.exit_code, 0)

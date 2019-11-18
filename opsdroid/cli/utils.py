@@ -9,6 +9,7 @@ import sys
 import time
 import warnings
 
+from opsdroid.configuration import load_config_file
 from opsdroid.const import (
     DEFAULT_LOG_FILENAME,
     LOCALE_DIR,
@@ -61,6 +62,30 @@ def edit_files(ctx, param, value):
         time.sleep(3)
 
     subprocess.run([editor, file])
+    ctx.exit(0)
+
+
+def validate_config(ctx, param, value):
+    """Open config/log file with favourite editor.
+
+    Args:
+        ctx (:obj:`click.Context`): The current click cli context.
+        param (dict): a dictionary of all parameters pass to the click
+            context when invoking this function as a callback.
+        value (string): the value of this parameter after invocation.
+            It is either "config" or "log" depending on the program
+            calling this function.
+
+    Returns:
+        int: the exit code. Always returns 0 in this case.
+
+    """
+    config = load_config_file(
+        ["configuration.yaml", DEFAULT_CONFIG_PATH, "/etc/opsdroid/configuration.yaml"]
+    )
+    if config:
+        click.echo("Configuration validated - No errors founds!")
+
     ctx.exit(0)
 
 

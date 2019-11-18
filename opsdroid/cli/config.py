@@ -2,7 +2,7 @@
 
 import click
 
-from opsdroid.cli.utils import edit_files, warn_deprecated_cli_option
+from opsdroid.cli.utils import edit_files, warn_deprecated_cli_option, validate_config
 from opsdroid.const import EXAMPLE_CONFIG_FILE
 
 
@@ -49,3 +49,10 @@ def gen(ctx):
 def edit(ctx):
     """Print out the example config."""
     edit_files(ctx, None, "config")
+
+
+@config.command()
+@click.pass_context
+def validate(ctx):
+    """Validate the configuration."""
+    validate_config(ctx, None, "config")
