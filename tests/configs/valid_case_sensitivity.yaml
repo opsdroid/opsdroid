@@ -8,13 +8,13 @@ connectors:
     connection-timeout: 10
 
 
-  telegram:
+  Telegram:
     token: "123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ-ZYXWVUT"  # Telegram bot token
 
 
 databases:
 
-  mongo:
+  Mongo:
     host: "my host"
     port:  "12345"
     database:  "mydatabase"

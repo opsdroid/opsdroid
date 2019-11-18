@@ -38,26 +38,19 @@ class TestConfiguration(unittest.TestCase):
         config = load_config_file([os.path.abspath("tests/configs/full_valid.yaml")])
         self.assertIsNotNone(config)
 
-    # def test_load_config_valid_without_welcome_message(self):
-    #     opsdroid, loader = self.setup()
-    #     config = loader.load_config_file(
-    #         [os.path.abspath("tests/configs/valid_without_wellcome_message.yaml")]
-    #     )
-    #     self.assertIsNotNone(config)
-    #
-    # def test_load_config_valid_without_db_and_parsers(self):
-    #     opsdroid, loader = self.setup()
-    #     config = loader.load_config_file(
-    #         [os.path.abspath("tests/configs/valid_without_db_and_parsers.yaml")]
-    #     )
-    #     self.assertIsNotNone(config)
-    #
-    # def test_load_config_valid_case_sensitivity(self):
-    #     opsdroid, loader = self.setup()
-    #     config = loader.load_config_file(
-    #         [os.path.abspath("tests/configs/valid_case_sensitivity.yaml")]
-    #     )
-    #     self.assertIsNotNone(config)
+    def test_load_config_valid_without_db_and_parsers(self):
+        opsdroid, loader = self.setup()
+        config = load_config_file(
+            [os.path.abspath("tests/configs/valid_without_db_and_parsers.yaml")]
+        )
+        self.assertIsNotNone(config)
+
+    def test_load_config_valid_case_sensitivity(self):
+        opsdroid, loader = self.setup()
+        config = load_config_file(
+            [os.path.abspath("tests/configs/valid_case_sensitivity.yaml")]
+        )
+        self.assertIsNotNone(config)
 
     def test_load_config_broken(self):
 
@@ -74,7 +67,9 @@ class TestConfiguration(unittest.TestCase):
         config = load_config_file(
             [os.path.abspath("tests/configs/minimal_with_envs.yaml")]
         )
-        self.assertEqual(config["connectors"][0]["bot-name"], os.environ["ENVVAR"])
+        self.assertEqual(
+            config["connectors"]["shell"]["bot-name"], os.environ["ENVVAR"]
+        )
 
     def test_create_default_config(self):
         test_config_path = os.path.join(

@@ -14,16 +14,8 @@ connectors:
 
 databases:
 
-  mongo:
-    host: "my host"
-    port:  "12345"
-    database:  "mydatabase"
-
 parsers:
 
-  dialogflow:
-    project-id: "projectid123"
-    min-score: 0.6
 
 skills:
 

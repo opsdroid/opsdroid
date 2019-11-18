@@ -253,6 +253,4 @@ def validate_configuration(data):
 
     """
     validate = Schema(schema, extra=ALLOW_EXTRA)
-    print(data)
-    print(validate)
     validate(data)
