@@ -46,13 +46,7 @@ def get_config_path(config_paths):
     With this function, we will go through all of the possible paths and
     return the correct path.
 
-    Before version 0.12.0 opsdroid would be located at "~/.opsdroid", we
-    have moved to appdirs. If we were unable to get the path we will try to
-    find the configuration.yaml file on "~/.opsdroid" and move it to the right
-    path for the OS in question (DEFAULT_ROOT_PATH) - which is a path got by
-    appdirs.
-
-    Finally, if we don't have any configuration.yaml we will just create one using
+    If we don't have any configuration.yaml we will just create one using
     the example configuration file.
 
     Args:
