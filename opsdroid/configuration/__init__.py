@@ -128,3 +128,7 @@ def load_config_file(config_paths):
     except yaml.YAMLError as error:
         _LOGGER.critical(error)
         sys.exit(1)
+
+    except FileNotFoundError as error:
+        _LOGGER.critical(error)
+        sys.exit(1)
