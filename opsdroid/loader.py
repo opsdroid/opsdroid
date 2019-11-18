@@ -2,6 +2,7 @@
 
 # pylint: disable=too-many-branches
 
+import contextlib
 import importlib
 import importlib.util
 import json
@@ -482,6 +483,11 @@ class Loader:
         is just a string rather than a mapping object so we do a check and
         update the config as appropriate.
 
+        We also need to update the config file with the rest of the config params.
+        Since modules can be Key: { key: value } or key: None, we suppress the
+        TypeError exception which is given when we try to use .get() on a None type,
+        .
+
         Args:
             module (dict): Module to be configured
             modules_type (str): Type of module being loaded
@@ -499,6 +505,8 @@ class Loader:
         else:
             config["name"] = module["name"]
             config["module"] = module.get("module", "")
+
+        with contextlib.suppress(TypeError, AttributeError):
             config.update(modules.get(module))
 
         config["type"] = modules_type
