@@ -130,7 +130,7 @@ class Web:
             """Wrap up the aiohttp handler."""
             webhook_token = self.config.get("webhook-token", None)
             authorization_header = []
-            if req.headers is not None:
+            if req is not None:
                 authorization_header = req.headers.get("Authorization", "").split()
 
             if webhook_token is not None:
