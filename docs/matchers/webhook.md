@@ -67,8 +67,8 @@ web:
   webhook-token: "aabbccddee"
 ```
 
-**Example POST Request Header**
+**Example POST Request using Curl**
 
 ```
-Authorization: Bearer aabbccddee
+curl -X POST -H "Authorization: Bearer aabbccddee" http://localhost:8080/skill/exampleskill/examplewebhook
 ```
