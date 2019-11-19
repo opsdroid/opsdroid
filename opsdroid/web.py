@@ -128,6 +128,22 @@ class Web:
 
         async def wrapper(req, opsdroid=opsdroid, config=skill.config):
             """Wrap up the aiohttp handler."""
+            webhook_token = self.config.get("webhook-token", None)
+            authorization_header = []
+            if req is not None:
+                authorization_header = req.headers.get("Authorization", "").split()
+
+            if webhook_token is not None:
+                if not (
+                    len(authorization_header) == 2
+                    and authorization_header[0] == "Bearer"
+                    and authorization_header[1] == webhook_token
+                ):
+                    _LOGGER.error(
+                        _("Unauthorized to run skill %s via webhook"), webhook
+                    )
+                    return Web.build_response(403, {"called_skill": webhook})
+
             _LOGGER.info(_("Running skill %s via webhook"), webhook)
             opsdroid.stats["webhooks_called"] = opsdroid.stats["webhooks_called"] + 1
             resp = await opsdroid.run_skill(skill, config, req)
