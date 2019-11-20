@@ -28,7 +28,6 @@
     - [Disable Caching](#disable-caching)
     - [Disable dependency install](#disable-dependency-install)
   - [Environment variables](#environment-variables)
-  - [Include additional yaml files](#include-additional-yaml-files)
   - [Migrating to new configuration layout - post v0.16.0](#migrate-to-new-configuration-layout)
 
 ## Config file
@@ -45,7 +44,7 @@ For configuration, opsdroid uses a single YAML file named `configuration.yaml`. 
 
 _Note: If no file named `configuration.yaml` can be found on one of these folders one will be created for you taken from the [example configuration file](https://github.com/opsdroid/opsdroid/blob/master/opsdroid/configuration/example_configuration.yaml)_
 
-If you are using one of the default locations you can run the command `opsdroid -e` or `opsdroid --edit-config` to open the configuration with your favorite editor(taken from the environment variable `EDITOR`) or the default editor [vim](tutorials/introduction-vim.md).
+If you are using one of the default locations you can run the command `opsdroid config edit` to open the configuration with your favorite editor(taken from the environment variable `EDITOR`) or the default editor [vim](tutorials/introduction-vim.md).
 
 The opsdroid project itself is very simple and requires modules to give it functionality. In your configuration file, you must specify the connector, skill, and database* modules you wish to use and any options they may require.
 
