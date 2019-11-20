@@ -108,7 +108,7 @@ class OpsDroid:
 
     def exit(self):
         """Exit application."""
-        _LOGGER.info(_("Exiting application with return code %s"), str(self.sys_status))
+        _LOGGER.info(_("Exiting application with return code %s."), str(self.sys_status))
         sys.exit(self.sys_status)
 
     def critical(self, error, code):
@@ -175,7 +175,7 @@ class OpsDroid:
     async def load(self):
         """Load modules."""
         self.modules = self.loader.load_modules_from_config(self.config)
-        _LOGGER.debug(_("Loaded %i skills"), len(self.modules["skills"]))
+        _LOGGER.debug(_("Loaded %i skills."), len(self.modules["skills"]))
         self.setup_skills(self.modules["skills"])
         self.web_server = Web(self)
         self.web_server.setup_webhooks(self.skills)
@@ -194,25 +194,25 @@ class OpsDroid:
 
         _LOGGER.info(_("Removing skills..."))
         for skill in self.skills:
-            _LOGGER.info(_("Removed %s"), skill.config["name"])
+            _LOGGER.info(_("Removed %s."), skill.config["name"])
             self.skills.remove(skill)
 
         for connector in self.connectors:
             _LOGGER.info(_("Stopping connector %s..."), connector.name)
             await connector.disconnect()
             self.connectors.remove(connector)
-            _LOGGER.info(_("Stopped connector %s"), connector.name)
+            _LOGGER.info(_("Stopped connector %s."), connector.name)
 
         for database in self.memory.databases:
             _LOGGER.info(_("Stopping database %s..."), database.name)
             await database.disconnect()
             self.memory.databases.remove(database)
-            _LOGGER.info(_("Stopped database %s"), database.name)
+            _LOGGER.info(_("Stopped database %s."), database.name)
 
         _LOGGER.info(_("Stopping web server..."))
         await self.web_server.stop()
         self.web_server = None
-        _LOGGER.info(_("Stopped web server"))
+        _LOGGER.info(_("Stopped web server."))
 
         _LOGGER.info(_("Stopping cron..."))
         self.cron_task.cancel()
@@ -224,7 +224,7 @@ class OpsDroid:
         for task in list(tasks):
             if not task.done() and task is not asyncio.Task.current_task():
                 task.cancel()
-        _LOGGER.info(_("Stopped pending tasks"))
+        _LOGGER.info(_("Stopped pending tasks."))
 
     async def reload(self):
         """Reload opsdroid."""
@@ -319,7 +319,7 @@ class OpsDroid:
                 task = self.eventloop.create_task(connector.listen())
                 self.connector_tasks.append(task)
         else:
-            self.critical("All connectors failed to load", 1)
+            self.critical("All connectors failed to load.", 1)
 
     # pylint: disable=W0640
     @property
@@ -357,7 +357,7 @@ class OpsDroid:
         """
         if not databases:
             _LOGGER.debug(databases)
-            _LOGGER.warning(_("All databases failed to load"))
+            _LOGGER.warning(_("All databases failed to load."))
         for database_module in databases:
             for name, cls in database_module["module"].__dict__.items():
                 if (
@@ -365,7 +365,7 @@ class OpsDroid:
                     and issubclass(cls, Database)
                     and cls is not Database
                 ):
-                    _LOGGER.debug(_("Adding database: %s"), name)
+                    _LOGGER.debug(_("Adding database: %s."), name)
                     database = cls(database_module["config"])
                     self.memory.databases.append(database)
                     await database.connect()
@@ -393,11 +393,11 @@ class OpsDroid:
                 return await skill(event)
         except Exception:
             _LOGGER.exception(
-                _("Exception when running skill '%s' "), str(config["name"])
+                _("Exception when running skill '%s'."), str(config["name"])
             )
             if event:
-                await event.respond(events.Message(_("Whoops there has been an error")))
-                await event.respond(events.Message(_("Check the log for details")))
+                await event.respond(events.Message(_("Whoops there has been an error.")))
+                await event.respond(events.Message(_("Check the log for details.")))
 
     async def get_ranked_skills(self, skills, message):
         """Take a message and return a ranked list of matching skills.
@@ -485,7 +485,7 @@ class OpsDroid:
         self.stats["messages_parsed"] = self.stats["messages_parsed"] + 1
         tasks = []
         if isinstance(event, events.Message):
-            _LOGGER.debug(_("Parsing input: %s"), event)
+            _LOGGER.debug(_("Parsing input: %s."), event)
 
             tasks.append(self.eventloop.create_task(parse_always(self, event)))
 

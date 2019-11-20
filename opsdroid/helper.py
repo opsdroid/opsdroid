@@ -135,9 +135,7 @@ def move_config_to_appdir(src, dst):
         shutil.copyfile(original_file, copied_file)
         _LOGGER.info(
             _(
-                "File %s copied from %s to %s "
-                "run opsdroid -e to edit the "
-                "main config file"
+                "File %s copied from %s to %s. Run opsdroid -e to edit the main config file."
             ),
             file,
             src,

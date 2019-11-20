@@ -21,7 +21,7 @@ async def call_witai(message, config):
             headers=headers,
         )
         result = await resp.json()
-        _LOGGER.info(_("wit.ai response - %s"), json.dumps(result))
+        _LOGGER.info(_("wit.ai response - %s."), json.dumps(result))
         return result
 
 
@@ -43,7 +43,7 @@ async def parse_witai(opsdroid, skills, message, config):
 
         if result["entities"] == {}:
             _LOGGER.error(
-                _("wit.ai error - No intent found. Did you " "forget to create one?")
+                _("wit.ai error - No intent found. Did you forget to create one?")
             )
             return matched_skills
 
@@ -52,7 +52,7 @@ async def parse_witai(opsdroid, skills, message, config):
         except KeyError:
             confidence = 0.0
         if "min-score" in config and confidence < config["min-score"]:
-            _LOGGER.info(_("wit.ai score lower than min-score"))
+            _LOGGER.info(_("wit.ai score lower than min-score."))
             return matched_skills
 
         if result:

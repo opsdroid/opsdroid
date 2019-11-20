@@ -189,7 +189,6 @@ When creating log messages, we would like to see a consistency around how to str
 * All usage of the opsdroid capabilities should be Capitalized (Connector, Skill, Database and Parsers)
 * All sentances should end with a period.  
 * When inserting specific text from an error message, end the sentance with a period.  
-* When inserting the entire error output as the last part of the log message, do not end it with a period.  
 
 
 

@@ -52,7 +52,7 @@ async def call_dialogflow(text, opsdroid, config):
         else:
             raise Warning(
                 _(
-                    "Authentication file not found or 'project-id' not in configuration, dialogflow parser will not be available"
+                    "Authentication file not found or 'project-id' not in configuration, dialogflow parser will not be available."
                 )
             )
     except ImportError:
@@ -94,7 +94,7 @@ async def parse_dialogflow(opsdroid, skills, message, config):
             "min-score" in config
             and result.query_result.intent_detection_confidence < config["min-score"]
         ):
-            _LOGGER.debug(_("Dialogflow confidence lower than min-score"))
+            _LOGGER.debug(_("Dialogflow confidence lower than min-score."))
             return matched_skills
 
         if result:
@@ -126,4 +126,4 @@ async def parse_dialogflow(opsdroid, skills, message, config):
 
     except Exception as error:
         # TODO: Refactor broad exception
-        _LOGGER.error(_("There was an error while parsing to dialogflow - %s"), error)
+        _LOGGER.error(_("There was an error while parsing to dialogflow - %s."), error)

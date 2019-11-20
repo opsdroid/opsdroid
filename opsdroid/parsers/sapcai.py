@@ -23,7 +23,7 @@ async def call_sapcai(message, config, lang=DEFAULT_LANGUAGE):
             SAPCAI_API_ENDPOINT, data=json.dumps(payload), headers=headers
         )
         result = await resp.json()
-        _LOGGER.info(_("SAP Conversational AI response - %s"), json.dumps(result))
+        _LOGGER.info(_("SAP Conversational AI response - %s."), json.dumps(result))
 
         return result
 
@@ -43,7 +43,7 @@ async def parse_sapcai(opsdroid, skills, message, config):
             return matched_skills
 
         if result["results"] is None:
-            _LOGGER.error(_("SAP Conversational AI error - %s"), result["message"])
+            _LOGGER.error(_("SAP Conversational AI error - %s."), result["message"])
             return matched_skills
 
         if not result["results"]["intents"]:
@@ -60,7 +60,7 @@ async def parse_sapcai(opsdroid, skills, message, config):
         confidence = result["results"]["intents"][0]["confidence"]
 
         if "min-score" in config and confidence < config["min-score"]:
-            _LOGGER.debug(_("SAP Conversational AI score lower than min-score"))
+            _LOGGER.debug(_("SAP Conversational AI score lower than min-score."))
             return matched_skills
 
         if result:
@@ -79,7 +79,7 @@ async def parse_sapcai(opsdroid, skills, message, config):
                                     key, entity[0]["raw"], entity[0]["confidence"]
                                 )
                             _LOGGER.debug(
-                                _("Matched against skill %s"), skill.config["name"]
+                                _("Matched against skill %s."), skill.config["name"]
                             )
 
                             matched_skills.append(

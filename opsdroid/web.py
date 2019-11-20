@@ -128,7 +128,7 @@ class Web:
 
         async def wrapper(req, opsdroid=opsdroid, config=skill.config):
             """Wrap up the aiohttp handler."""
-            _LOGGER.info(_("Running skill %s via webhook"), webhook)
+            _LOGGER.info(_("Running skill %s via webhook."), webhook)
             opsdroid.stats["webhooks_called"] = opsdroid.stats["webhooks_called"] + 1
             resp = await opsdroid.run_skill(skill, config, req)
             if isinstance(resp, web.Response):

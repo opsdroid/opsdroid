@@ -49,7 +49,7 @@ class Loader:
         self.opsdroid = opsdroid
         self.modules_directory = None
         self.current_import_config = None
-        _LOGGER.debug(_("Loaded loader"))
+        _LOGGER.debug(_("Loaded loader."))
 
     @staticmethod
     def import_module_from_spec(module_spec):
@@ -88,7 +88,7 @@ class Loader:
 
         if config.get("entrypoint"):
             _LOGGER.debug(
-                _("Loading entry point-defined module for %s"), config["name"]
+                _("Loading entry point-defined module for %s."), config["name"]
             )
             return config["entrypoint"].load()
 
@@ -108,10 +108,10 @@ class Loader:
 
         if module_spec:
             module = Loader.import_module_from_spec(module_spec)
-            _LOGGER.debug(_("Loaded %s: %s"), config["type"], config["module_path"])
+            _LOGGER.debug(_("Loaded %s: %s."), config["type"], config["module_path"])
             return module
 
-        _LOGGER.error(_("Failed to load %s: %s"), config["type"], config["module_path"])
+        _LOGGER.error(_("Failed to load %s: %s."), config["type"], config["module_path"])
         return None
 
     @classmethod
@@ -123,7 +123,7 @@ class Loader:
 
         """
         if "no-cache" in config and config["no-cache"]:
-            _LOGGER.debug(_("'no-cache' set, removing %s"), config["install_path"])
+            _LOGGER.debug(_("'no-cache' set, removing %s."), config["install_path"])
             cls.remove_cache(config)
 
         if "no-cache" not in config and cls._is_local_module(config):
@@ -268,8 +268,7 @@ class Loader:
         except FileNotFoundError:
             _LOGGER.debug(
                 _(
-                    "Couldn't find the command 'pip', "
-                    "trying again with command 'pip3'"
+                    "Couldn't find the command 'pip', trying again with command 'pip3'."
                 )
             )
 
@@ -281,8 +280,7 @@ class Loader:
         except FileNotFoundError:
             _LOGGER.debug(
                 _(
-                    "Couldn't find the command 'pip3', "
-                    "install of %s will be skipped."
+                    "Couldn't find the command 'pip3', install of %s will be skipped."
                 ),
                 str(requirements_path),
             )
@@ -358,7 +356,7 @@ class Loader:
                 move_config_to_appdir(PRE_0_12_0_ROOT_PATH, DEFAULT_ROOT_PATH)
             except FileNotFoundError:
                 _LOGGER.info(
-                    _("No configuration files found. " "Creating %s"),
+                    _("No configuration files found. Creating %s."),
                     DEFAULT_CONFIG_PATH,
                 )
             config_path = cls.create_default_config(DEFAULT_CONFIG_PATH)
@@ -442,10 +440,8 @@ class Loader:
         else:
             _LOGGER.warning(
                 _(
-                    "No databases in configuration."
-                    "This will cause skills which store things in "
-                    "memory to lose data when opsdroid is "
-                    "restarted."
+                    "No databases in configuration. This will cause skills which store things in "
+                    "memory to lose data when opsdroid is restarted."
                 )
             )
         if "parsers" in config.keys() and config["parsers"]:
@@ -546,7 +542,7 @@ class Loader:
         entry_points = {ep.name: ep for ep in iter_entry_points(group=epname)}
         for epname in entry_points:
             _LOGGER.debug(
-                _("Found installed package for %s '%s' support"), modules_type, epname
+                _("Found installed package for %s '%s' support."), modules_type, epname
             )
 
         for module in modules:
@@ -600,7 +596,7 @@ class Loader:
 
         if self._is_module_installed(config):
             _LOGGER.debug(
-                _("Installed %s to %s"), config["name"], config["install_path"]
+                _("Installed %s to %s."), config["name"], config["install_path"]
             )
         else:
             _LOGGER.error(_("Install of %s failed."), config["name"])
@@ -652,8 +648,7 @@ class Loader:
         if config.get("no-dep", False):
             _LOGGER.debug(
                 _(
-                    "'no-dep' set in configuration, skipping the "
-                    "install of dependencies."
+                    "'no-dep' set in configuration, skipping the install of dependencies."
                 )
             )
             return None
@@ -664,7 +659,7 @@ class Loader:
             )
             return True
 
-        _LOGGER.debug(_("Couldn't find the file requirements.txt, " "skipping."))
+        _LOGGER.debug(_("Couldn't find the file requirements.txt, skipping."))
         return None
 
     def _install_git_module(self, config):
@@ -683,15 +678,15 @@ class Loader:
         if any(prefix in git_url for prefix in ["http", "https", "ssh", "git@"]):
             # TODO Test if url or ssh path exists
             # TODO Handle github authentication
-            _LOGGER.info(_("Cloning %s from remote repository"), config["name"])
+            _LOGGER.info(_("Cloning %s from remote repository."), config["name"])
             key_path = config.get("key_path", None)
             self.git_clone(git_url, config["install_path"], config["branch"], key_path)
         else:
             if os.path.isdir(git_url):
-                _LOGGER.debug(_("Cloning %s from local repository"), config["name"])
+                _LOGGER.debug(_("Cloning %s from local repository."), config["name"])
                 self.git_clone(git_url, config["install_path"], config["branch"])
             else:
-                _LOGGER.error(_("Could not find local git repo %s"), git_url)
+                _LOGGER.error(_("Could not find local git repo %s."), git_url)
 
     @staticmethod
     def _install_local_module(config):
@@ -722,7 +717,7 @@ class Loader:
             installed = True
 
         if not installed:
-            _LOGGER.error("Failed to install from %s", str(config["path"]))
+            _LOGGER.error("Failed to install from %s.", str(config["path"]))
 
     def _install_gist_module(self, config):
         """Install a module from gist path.
