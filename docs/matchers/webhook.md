@@ -56,3 +56,19 @@ class MySkill(Skill):
         # Send a custom aiohttp.web.Response object back to the webhook
         return Response(body='my custom response', status=201)
 ```
+## Securing Webhooks
+
+You can also secure the webhooks by adding an optional `webhook-token` value to the `web` configuration. This enables a token-based authentication where the `POST` request is required to have an `Authorization` header with the bearer token as its value.
+
+**Example Config**
+
+```yaml
+web:
+  webhook-token: "aabbccddee"
+```
+
+**Example POST Request using Curl**
+
+```
+curl -X POST -H "Authorization: Bearer aabbccddee" http://localhost:8080/skill/exampleskill/examplewebhook
+```
