@@ -17,7 +17,7 @@ _Note: Webex Teams was used to be called cisco spark. We changed cisco spark con
 
 ```yaml
 connectors:
-  - name: webexteams
+  webexteams:
     # required
     webhook-url: http(s)://<host>:<port>  # Url for Webex Teams to connect to your bot
     token: <your bot access token>  # Your access token

@@ -13,7 +13,7 @@ A connector for [Mattermost](https://mattermost.com/).
 
 ```yaml
 connectors:
-  - name: mattermost
+  mattermost:
     # Required
     token: "zyxw-abdcefghi-12345"
     url: "mattermost.server.com"

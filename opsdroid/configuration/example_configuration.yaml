@@ -154,7 +154,7 @@ connectors:
 #    room_specific_nicks: False  # Look up room specific nicknames of senders (expensive in large rooms)
 #
 #  ## Mattermost (core)
-#  - name: mattermost
+#  mattermost:
 #    # Required
 #    api-token: "zyxw-abdcefghi-12345"
 #    url: "mattermost.server.com"

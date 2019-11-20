@@ -12,7 +12,7 @@ To use this connector you will need to have a Matrix account, and login using yo
 
 ```yaml
 connectors:
-  - name: matrix
+  matrix:
     # Required
     mxid: "@username:matrix.org"
     password: "mypassword"

@@ -10,7 +10,7 @@ You can also set a `min-score` option to tell opsdroid to ignore any matches whi
 ```yaml
 
 parsers:
-  - name: witai
+  witai:
     token: XJF475SKGITJ98KHFO
     min-score: 0.6
 ```

@@ -25,7 +25,7 @@ You can also set a `min-score` option to tell opsdroid to ignore any matches whi
 ```yaml
 
 parsers:
-  - name: dialogflow
+  dialogflow:
     project-id: <your project id>  # Required
     min-score: 0.6 # optional
 ```
@@ -38,7 +38,7 @@ These decorator take one parameter (the name of the intent/action to match), any
 
 ```yaml
 prsers:
-  - name: dialogflow
+  dialogflow:
     project-id: <your project id>  # Required
     lang: 'pt'
 ```

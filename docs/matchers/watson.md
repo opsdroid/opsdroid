@@ -12,7 +12,7 @@ You can also set a `min-score` option to tell opsdroid to ignore any matches whi
 ```yaml
 
 parsers:
-  - name: watson
+  watson:
     gateway: 'gateway-fra' # Required
     token: XJF475SKGITJ98KHFO # Required
     assistant-id: '74yhfhis9-kfirj1e-jfir34-kfdir345' # Required

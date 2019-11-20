@@ -12,7 +12,7 @@ You can also set a `min-score` option to tell opsdroid to ignore any matches whi
 ```yaml
 
 parsers:
-  - name: sapcai
+  sapcai:
     token: 85769fjoso084jd
     min-score: 0.8
 ```
@@ -29,7 +29,7 @@ _Note: You need to make sure that your intent has the language that you wish to 
 
 ```yaml
 parsers:
-  - name: sapcai
+  sapcai:
     token: 85769fjoso084jd
     min-score: 0.8
     lang: 'pt'

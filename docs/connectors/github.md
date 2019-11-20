@@ -19,7 +19,7 @@ To use the GitHub connector you will need a user for the bot to use and generate
 
 ```yaml
 connectors:
-  - name: github
+  github:
     # required
     token: aaabbbcccdddeee111222333444
 ```

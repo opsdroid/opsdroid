@@ -15,7 +15,7 @@ A connector for [Slack](https://slack.com/).
 
 ```yaml
 connectors:
-  - name: slack
+  slack:
     # required
     token: "zyxw-abdcefghi-12345"
     # optional
