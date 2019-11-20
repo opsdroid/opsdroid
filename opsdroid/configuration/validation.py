@@ -3,11 +3,20 @@
 from voluptuous import Schema, ALLOW_EXTRA, Optional, Required, Url, Any
 
 logging = {
-    "level": str,
-    "console": bool,
-    "extended": bool,
-    "filter": {"whitelist": list, "blacklist": list},
+    Optional("level"): str,
+    Optional("console"): bool,
+    Optional("extended"): bool,
+    Optional("filter"): {Optional("whitelist"): list, Optional("blacklist"): list},
 }
+
+web = Any(
+    None,
+    {
+        Optional("host"): str,
+        Optional("port"): int,
+        Optional("ssl"): {Required("cert"): str, Required("key"): str},
+    },
+)
 
 parsers = Any(
     None,
@@ -235,7 +244,7 @@ schema = {
     "logging": logging,
     "module-path": str,
     "welcome-message": bool,
-    "web": {"host": str, "port": int, "ssl": {"cert": str, "key": str}},
+    "web": web,
     "parsers": parsers,
     "connectors": connectors,
     "databases": databases,
