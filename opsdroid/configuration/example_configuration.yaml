@@ -32,6 +32,7 @@ welcome-message: true
 #   ssl:
 #     cert: /path/to/cert.pem
 #     key: /path/to/key.pem
+#   webhook-token: "aabbccddee"
 
 ## Parsers
 # parsers:
@@ -136,6 +137,18 @@ connectors:
 #    homeserver: "https://matrix.org"
 #    nick: "Botty McBotface"  # The nick will be set on startup
 #    room_specific_nicks: False  # Look up room specific nicknames of senders (expensive in large rooms)
+#
+#  ## Mattermost (core)
+#  - name: mattermost
+#    # Required
+#    api-token: "zyxw-abdcefghi-12345"
+#    url: "mattermost.server.com"
+#    team-name: "myteam"
+#    # Optional
+#    scheme: "http" # default: https
+#    port: 8065 # default: 8065
+#    ssl-verify: false # default: true
+#    connect-timeout: 30 # default: 30
 #
 #  ## Github (core)
 #  github:

@@ -13,6 +13,9 @@ The class has three mandatory methods, `connect`, `put` and `get`.
 #### get
 *get* returns an object for a given key. The object which is returned should be equivalent to the object which was stored.
 
+#### delete
+*delete* deletes an object for a given key.
+
 ```python
 # We recommend you use the official library
 # for your database and import it here
@@ -38,6 +41,10 @@ class MyDatabase(Database):
   async def get(self, key):
     # Get the object from the database and return it
     return await self.connection.find(key)
+
+  async def delete(self, key):
+    # Delete the object from the database and return it
+    return await self.connection.delete(key)
 
 ```
 
