@@ -89,16 +89,16 @@ class Event(metaclass=EventMetaClass):
                                         event that a reaction applies to.
 
     Attributes:
-        created: Local date and time that message object was created
-        user: String name of user sending message
-        target: String name of the room or chat channel in which message
-                was sent.
-        connector: Connector object used to interact with given chat service
-        raw_event: Raw event provided by chat service
-        raw_parses: Dictionary mapping of the response created by parsers
-        responded_to: Boolean initialized as False. True if event has been
-            responded to
-        entities: Dictionary mapping of entities created by parsers
+        connector:  A pointer to the opsdroid connector object which received the message.
+        created: A timestamp of when this event was instantiated.
+        entities: A dictionary mapping of entities created by parsers. These could be values extracted form sentences like locations, times, people, etc.
+        event_id: A unique identifier for this event as provided by the connector.
+        linked_event: Another event linked to this one, for example the event that a Message replies to.
+        target: A string normally containing the name of the room or chat channel the event was sent in.
+        raw_event:  The raw event received by the connector (may be None).
+        raw_parses: The raw response provided by the parser service.
+        responded_to: A boolean (True/False) flag indicating if this event has already had its respond method called.
+        user: A string containing the username of the user who created the event.
 
     """
 

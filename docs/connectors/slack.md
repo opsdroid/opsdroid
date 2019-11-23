@@ -1,4 +1,4 @@
-# Slack connector
+# Slack
 
 A connector for [Slack](https://slack.com/).
 
@@ -15,7 +15,7 @@ A connector for [Slack](https://slack.com/).
 
 ```yaml
 connectors:
-  - name: slack
+  slack:
     # required
     api-token: "zyxw-abdcefghi-12345"
     # optional

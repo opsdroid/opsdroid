@@ -1,4 +1,4 @@
-# Websocket connector
+# Websocket
 
 A connector to listen for messages using websockets.
 
@@ -6,7 +6,7 @@ A connector to listen for messages using websockets.
 
 ```yaml
 connectors:
-  - name: websocket
+  websocket:
     # optional
     bot-name: "mybot" # default "opsdroid"
     max-connections: 10 # default is 10 users can be connected at once

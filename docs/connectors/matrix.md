@@ -1,6 +1,6 @@
-# opsdroid connector Matrix
+# Matrix
 
-A connector for [opsdroid](https://github.com/opsdroid/opsdroid) to receive and respond to messages in [Matrix](https://matrix.org/) rooms. 
+A connector for [opsdroid](https://github.com/opsdroid/opsdroid) to receive and respond to messages in [Matrix](https://matrix.org/) rooms.
 
 Maintained by [@SolarDrew](https://github.com/SolarDrew).
 
@@ -12,7 +12,7 @@ To use this connector you will need to have a Matrix account, and login using yo
 
 ```yaml
 connectors:
-  - name: matrix
+  matrix:
     # Required
     mxid: "@username:matrix.org"
     password: "mypassword"

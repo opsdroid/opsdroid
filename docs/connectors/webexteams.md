@@ -1,4 +1,4 @@
-# Webex Teams connector
+# Webex Teams
 
 A connector for [opsdroid](https://github.com/opsdroid/opsdroid) to interact with [Webex Teams](https://www.webex.com/team-collaboration.html).
 _Note: Webex Teams was used to be called cisco spark. We changed cisco spark connector to webex teams connector_
@@ -17,7 +17,7 @@ _Note: Webex Teams was used to be called cisco spark. We changed cisco spark con
 
 ```yaml
 connectors:
-  - name: webexteams
+  webexteams:
     # required
     webhook-url: http(s)://<host>:<port>  # Url for Webex Teams to connect to your bot
     access-token: <your bot access token>  # Your access token

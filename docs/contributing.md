@@ -1,8 +1,20 @@
-# Contributing to the project
+# Contributing
 
-Contributing to the opsdroid ecosystem is strongly encouraged and every little bit counts!
+Contributing to the opsdroid ecosystem is strongly encouraged and every little bit counts! We even send [sticker packs](https://medium.com/opsdroid/contributor-sticker-packs-738058ceda59) to our contributors to say thank you! There are so many ways to contribute to opsdroid:
 
-Things you can help with:
+  - Write code to [solve issues](https://github.com/opsdroid/opsdroid/issues) in the opsdroid core repository
+  - Improve the [documentation](https://github.com/opsdroid/opsdroid/tree/master/docs) to help others get started
+  - Write [skills](http://opsdroid.readthedocs.io/en/latest/extending/skills/), [connectors](http://opsdroid.readthedocs.io/en/latest/extending/connectors/) or [database](http://opsdroid.readthedocs.io/en/latest/extending/databases/) modules
+  - Contribute to the [opsdroid home page](https://github.com/opsdroid/opsdroid.github.io) (it’s a Jekyll website)
+  - Post about your experience using opsdroid on your own blog
+  - Contribute to [opsdroid audio](https://github.com/opsdroid/opsdroid-audio) (Python voice client for opsdroid)
+  - Submit lots of useful issues (5–10 good ones is probably sticker worthy)
+  - Create [logo variations and banners](https://github.com/opsdroid/style-guidelines) for promotion
+  - Contribute to [opsdroid desktop](https://github.com/opsdroid/opsdroid-desktop) (electron and react app)
+  - Promote opsdroid in a meaningful way
+
+Check out the following guides for specific contribution suggestions.
+
  - [Documentation](#documentation)
  - [Localization](#localization)
  - [Creating new modules](#new-modules)
@@ -14,7 +26,7 @@ Things you can help with:
 
 ## Workflow
 
-All contributors to the project, including the project founder [jacobtomlinson](https://github.com/jacobtomlinson), contribute using the following process:
+All contributors to the project, including maintainers, contribute using the following process:
 
  * Fork the main project to your own account
  * Work on your changes on a feature branch
@@ -36,7 +48,7 @@ pip install -e .
 opsdroid start
 ```
 
-Running the tests
+### Running the tests
 
 ```shell
 # install pre-commit hooks
@@ -52,7 +64,6 @@ pip install -U tox
 tox
 ```
 
-
 ## Developing in containers
 
 Developing in containers can be a great way to ensure that opsdroid will run in a clean python environment and that all dependencies are captured.
@@ -65,7 +76,7 @@ docker build -t opsdroid/opsdroid:myfeature .
 docker run --rm -ti -v $(pwd):/usr/src/app opsdroid/opsdroid:myfeature
 ```
 
-Running the tests
+### Running the tests
 
 ```shell
 # run tests
@@ -74,11 +85,11 @@ docker run --rm -ti -v $(pwd):/usr/src/app opsdroid/opsdroid:myfeature tox
 
 ## Automatic Linting with Black
 
-Opsdroid is running black to deal with linting issues and it will be triggered when Travis runs our tests automatically. You can install black on your machine and have it correct any linting issues that you might have.
+Opsdroid is running [Black](https://black.readthedocs.io/en/stable/) to deal with linting issues and it will be triggered when Travis runs our tests automatically. You can install Black on your machine and have it correct any linting issues that you might have.
 
 ### Install Black
 
-Run the following command to install black on your machine.
+Run the following command to install Black on your machine.
 
 ```shell
 pip install black
@@ -93,7 +104,7 @@ You also need to have [pre-commit](https://pre-commit.com) installed and set up 
 
 Black will be triggered when you commit changes with the command `git commit`. You can then check your terminal for what sort of message you get from Black - either all is good or some files would be formatted.
 
-*Example of issues with linting*
+#### Example of issues with linting
 
 Let's imagine that you have added your files to stating and did `git commit -m 'my awesome feature`, then black will run on your terminal and show you something like this:
 
@@ -112,7 +123,8 @@ As you can see black tells you that it found some issues with linting on 1 file 
 
 Black will change your file and if you go to `git status` you will see that your file was modified. You just need to add the files to starting again and commit them with the previous commit message. Afterwards, you can push the changes to your repository/PR.
 
-*Example of good linting*
+#### Example of good linting
+
 If your linting is good when you commit your changes you will see the following message:
 
 ```bash

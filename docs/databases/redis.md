@@ -1,4 +1,4 @@
-# opsdroid redis database
+# Redis
 
 A database module for [opsdroid](https://github.com/opsdroid/opsdroid) to persist memory in a [redis database](https://redis.io/).
 
@@ -12,7 +12,7 @@ _Note: If you want to use redis locally you should have the `redis cli` installe
 
 ```yaml
 databases:
-  - name: redis
+  redis:
     host:       "my host"     # (optional) default "localhost"
     port:       "12345"       # (optional) default "6379"
     database:   7           # (optional) default 0
