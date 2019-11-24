@@ -169,34 +169,40 @@ class MySkill(Skill):
 The example skill will print the following on the message "Hi".
 
 ```json
- {
-    'output': {
-        'generic': [
-            {
-                'response_type': 'text',
-                'text': 'Hey hows it going?'
-            }
-        ],
-        'intents': [
-            {
-                'intent': 'hello',
-                'confidence': 1
-            }
-        ],
-        'entities': [
-            {
-                'entity': 'greetings',
-                'location': [0, 2],
-                'value': 'hello',
-                'confidence': 1
-            },
-            {
-                'entity': 'greetings',
-                'location': [0, 2],
-                'value': 'hi',
-                'confidence': 1
-            }
-        ]
-    }
- }
+{
+   "output":{
+      "generic":[
+         {
+            "response_type":"text",
+            "text":"Hey hows it going?"
+         }
+      ],
+      "intents":[
+         {
+            "intent":"hello",
+            "confidence":1
+         }
+      ],
+      "entities":[
+         {
+            "entity":"greetings",
+            "location":[
+               0,
+               2
+            ],
+            "value":"hello",
+            "confidence":1
+         },
+         {
+            "entity":"greetings",
+            "location":[
+               0,
+               2
+            ],
+            "value":"hi",
+            "confidence":1
+         }
+      ]
+   }
+}
 ```

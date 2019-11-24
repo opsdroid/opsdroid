@@ -69,6 +69,7 @@ Currently, you can specify a user `nickname` or a `userID`. Using the `userID` m
 of the connector since users can't change this ID.
 
 Here is how you can whitelist a user:
+
 ```yaml
   - name: Telegram
     token: <your bot token>
@@ -82,16 +83,18 @@ To find a `userID` by a private message, set the `logging` level to `debug` and 
 
 ```json
 {
-  'update_id': 539026743,
-  'message': {
-    'message_id': 109,
-    'from': {
-      'id': 4532189818,
-      'is_bot': False,
-      'first_name': 'user',
-      'language_code': 'en'},
-    'chat': {}
- }}
+   "update_id": 539026743,
+   "message": {
+      "message_id": 109,
+      "from": {
+         "id": 4532189818,
+         "is_bot": false,
+         "first_name": "user",
+         "language_code": "en"
+      },
+      "chat": {}
+   }
+}
 ```
 
 Use the `id` value from the `message["from"]` field and add it to your `whitelisted-users` config option.

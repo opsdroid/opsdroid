@@ -173,7 +173,7 @@ All documentation should be written in [Basic English](https://en.wikipedia.org/
 
 [Markdown](https://en.wikipedia.org/wiki/Markdown) is our preferred markup language, although [reStructuredText](http://docutils.sourceforge.net/rst.html) (rst) is also supported. You may also embed portions of rst within your markdown documentation with the following syntax:
 
-~~~markdown
+~~~
 ```eval_rst
 .. warning::
    This is a warning admonition from rst within a markdown document.
@@ -192,7 +192,7 @@ Renders as:
 
 You can also use [Sphinx autodoc directives](http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html) to embed docstrings from the opsdroid module within your markdown documentation too.
 
-~~~markdown
+~~~
 ```eval_rst
 .. autofunction:: opsdroid.matchers.match_event
 ```
@@ -202,6 +202,7 @@ Renders as:
 
 ```eval_rst
 .. autofunction:: opsdroid.matchers.match_event
+   :noindex:
 ```
 
 It is preferable to keep as much documentation within docstrings in the opsdroid codebase as possible and to include it in the documentation website using autodoc.
@@ -244,7 +245,7 @@ Opsdroid is an open source chatbot framework. It is designed to be extendable, s
 
  If you love a particular platform and wish to use opsdroid with it or if you want opsdroid to interact with something in a certain way, you can create your own modules and extend the functionality of opsdroid.
 
- If you don't know where to start, make sure to check the [tutorials](tutorials/introduction.md) and read the [documentation](http://opsdroid.readthedocs.io/en/latest/?badge=latest).  Remember that you can also ask for help in our [matrix channel](https://riot.im/app/#/room/#opsdroid-general:matrix.org)
+ If you don't know where to start, make sure to check the [overview](overview) and read the [documentation](http://opsdroid.readthedocs.io/en/latest/?badge=latest).  Remember that you can also ask for help in our [matrix channel](https://riot.im/app/#/room/#opsdroid-general:matrix.org)
 
 ## Issues
 You can help us by reporting new issues or by fixing existing issues.

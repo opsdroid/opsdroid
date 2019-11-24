@@ -21,7 +21,7 @@ As a maintainer one of the tasks that you have to take on will be reviewing pull
 
 **Criteria for merging a PR**
   - You didn't write it yourself
-  - The [PR template](PULL_REQUEST_TEMPLATE.md) criteria are met (has tests, is documented, etc)
+  - The [PR template](https://github.com/opsdroid/opsdroid/tree/master/.github/PULL_REQUEST_TEMPLATE.md) criteria are met (has tests, is documented, etc)
   - The existing tests pass and coverage remains the same
   - It is related to an open issue
   - It moves us towards our [core aims](https://github.com/opsdroid/opsdroid/issues/1)

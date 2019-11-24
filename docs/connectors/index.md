@@ -9,6 +9,7 @@ Connectors are modules which connect opsdroid to an external event source. This 
    facebook
    github
    gitter
+   mattermost
    matrix
    rocketchat
    shell

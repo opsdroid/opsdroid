@@ -98,6 +98,6 @@ You can also specify code to run when your skill is loaded. Perhaps you want to 
 
 ## Examples
 
-For examples of the kind of skills you can build in opsdroid see the [examples section](../examples/introduction.md). Or continue reading about more of the features you can use to create your skills.
+For examples of the kind of skills you can build in opsdroid see the [examples section](../examples/index). Or continue reading about more of the features you can use to create your skills.
 
 *If you need help or if you are unsure about something join our* [matrix channel](https://riot.im/app/#/room/#opsdroid-general:matrix.org) *and ask away! We are more than happy to help you.*

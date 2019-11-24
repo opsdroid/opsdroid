@@ -1,9 +1,7 @@
 # Installation
 
 ```eval_rst
-.. toctree::
-
-   installation
+.. contents::
 ```
 
 ## Quickstart
@@ -38,7 +36,7 @@ $ opsdroid start
 
 ### Windows 10
 
-```powershell
+```
 # Install Python from https://www.python.org/downloads/
 # Launch powershell command prompt
 

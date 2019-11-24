@@ -66,8 +66,6 @@ html_theme_options = {
 
 # -- Recommonmark ------------------------------------------------------------
 
-source_parsers = {".md": CommonMarkParser}
-source_suffix = [".rst", ".md"]
 github_doc_root = "https://github.com/rtfd/recommonmark/tree/master/doc/"
 
 
@@ -81,3 +79,5 @@ def setup(app):
         True,
     )
     app.add_transform(AutoStructify)
+    app.add_source_suffix(".md", "markdown")
+    app.add_source_parser(CommonMarkParser)

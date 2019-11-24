@@ -45,7 +45,7 @@ class MySkill(Skill):
     @match_regex('how are you?')
 ```
 
-The [regex matcher](../matchers/regex.md) takes a regular expression and searches for it on every message sent by a user. So if the user types `how are you?` opsdroid will trigger the function underneath the `match_regex` decorator.
+The [regex matcher](../skills/matchers/regex) takes a regular expression and searches for it on every message sent by a user. So if the user types `how are you?` opsdroid will trigger the function underneath the `match_regex` decorator.
 
 _Note: Opsdroid won't trigger with the text `how are you` because the question mark is missing._
 
@@ -99,6 +99,6 @@ skills:
     path: /Users/username/documents/skill-howareyou
 ```
 
-As mentioned in the [introduction](introduction.md), the indentation and the use of spaces instead of tabs is very important. If you have any issues when running opsdroid check both of these things; it might be a problem with space.
+The indentation and the use of spaces instead of tabs is very important. If you have any issues when running opsdroid check both of these things, it might be a problem with space.
 
-For more examples of skills you can build with opsdroid checkout our [examples section](../examples/introduction.md).
+For more examples of skills you can build with opsdroid checkout our [examples section](../examples/index).

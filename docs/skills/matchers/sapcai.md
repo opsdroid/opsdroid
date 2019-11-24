@@ -142,7 +142,7 @@ The example skill will print the following on the message "how are you?".
         "processing_language": "en",
         "version": "2.10.1",
         "timestamp": "2017-11-15T11:50:51.478057+00:00",
-        "status": 200},
+        "status": 200,
         "message": "Requests rendered with success"
       }
 }
