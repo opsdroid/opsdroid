@@ -2,12 +2,19 @@
 import asyncio
 import logging
 import aiohttp
+from voluptuous import Required
 
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message, Image
 
 
 _LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {
+    Required("token"): str,
+    "update-interval": float,
+    "default-user": str,
+    "whitelisted-users": list,
+}
 
 
 class ConnectorTelegram(Connector):

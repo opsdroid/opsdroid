@@ -6,12 +6,14 @@ import uuid
 import aiohttp
 
 from webexteamssdk import WebexTeamsAPI
+from voluptuous import Required, Url
 
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
 
 
 _LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {Required("webhook-url"): Url, Required("token"): str}
 
 
 class ConnectorWebexTeams(Connector):

@@ -38,13 +38,6 @@ class TestConfiguration(unittest.TestCase):
         config = load_config_file([os.path.abspath("tests/configs/full_valid.yaml")])
         self.assertIsNotNone(config)
 
-    def test_load_config_valid_without_db_and_parsers(self):
-        opsdroid, loader = self.setup()
-        config = load_config_file(
-            [os.path.abspath("tests/configs/valid_without_db_and_parsers.yaml")]
-        )
-        self.assertIsNotNone(config)
-
     def test_load_config_valid_case_sensitivity(self):
         opsdroid, loader = self.setup()
         config = load_config_file(

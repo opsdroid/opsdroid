@@ -5,12 +5,10 @@ import shutil
 import sys
 import re
 import logging
-from voluptuous import MultipleInvalid
 import yaml
 
-
 from opsdroid.const import DEFAULT_CONFIG_PATH, EXAMPLE_CONFIG_FILE
-from opsdroid.configuration.validation import validate_configuration
+from opsdroid.configuration.validation import validate_configuration, BASE_SCHEMA
 from opsdroid.helper import update_pre_0_17_config_format
 
 
@@ -111,13 +109,9 @@ def load_config_file(config_paths):
 
             data = yaml.load(stream, Loader=yaml.SafeLoader)
             configuration = update_pre_0_17_config_format(data)
-            validate_configuration(configuration)
+            validate_configuration(configuration, BASE_SCHEMA)
 
             return configuration
-
-    except MultipleInvalid as error:
-        _LOGGER.critical("Configuration contains an error - %s", error)
-        sys.exit(1)
 
     except yaml.YAMLError as error:
         _LOGGER.critical(error)

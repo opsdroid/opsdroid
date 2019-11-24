@@ -4,12 +4,19 @@ import logging
 
 import aiohttp
 
+from voluptuous import Required
+
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
 
 
 _LOGGER = logging.getLogger(__name__)
 _FACEBOOK_SEND_URL = "https://graph.facebook.com/v2.6/me/messages" "?access_token={}"
+CONFIG_SCHEMA = {
+    Required("verify-token"): str,
+    Required("page-access-token"): str,
+    "bot-name": str,
+}
 
 
 class ConnectorFacebook(Connector):

@@ -2,10 +2,12 @@
 """A module for opsdroid to allow persist in mongo database."""
 import logging
 from motor.motor_asyncio import AsyncIOMotorClient
+from voluptuous import Any
 
 from opsdroid.database import Database
 
 _LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {"host": str, "port": Any(int, str), "database": str}
 
 
 class DatabaseMongo(Database):
@@ -31,10 +33,10 @@ class DatabaseMongo(Database):
 
     async def connect(self):
         """Connect to the database."""
-        host = self.config["host"] if "host" in self.config else "localhost"
-        port = self.config["port"] if "port" in self.config else "27017"
-        database = self.config["database"] if "database" in self.config else "opsdroid"
-        path = "mongodb://" + host + ":" + port
+        host = self.config.get("host", "localhost")
+        port = self.config.get("port", "27017")
+        database = self.config.get("database", "opsdroid")
+        path = "mongodb://{host}:{port}".format(host=host, port=port)
         self.client = AsyncIOMotorClient(path)
         self.database = self.client[database]
         _LOGGER.info("Connected to mongo")

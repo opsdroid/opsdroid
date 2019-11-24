@@ -3,12 +3,14 @@ import logging
 import json
 
 import aiohttp
+from voluptuous import Required
 
 from opsdroid.const import DEFAULT_LANGUAGE
 from opsdroid.const import SAPCAI_API_ENDPOINT
 
 
 _LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {Required("token"): str, "min-score": float}
 
 
 async def call_sapcai(message, config, lang=DEFAULT_LANGUAGE):

@@ -21,6 +21,8 @@ from opsdroid.helper import (
     convert_ipynb_to_script,
     extract_gist_id,
 )
+
+from opsdroid.configuration import validate_configuration
 from opsdroid.const import (
     DEFAULT_GIT_URL,
     MODULES_DIRECTORY,
@@ -391,6 +393,7 @@ class Loader:
         .
 
         Args:
+            modules (dict): Dictionary containing all modules
             module (dict): Module to be configured
             modules_type (str): Type of module being loaded
             entry_points (dict): name of possible entry points.
@@ -471,6 +474,10 @@ class Loader:
             # Import module
             self.current_import_config = config
             module = self.import_module(config)
+
+            # Suppress exception if module doesn't contain CONFIG_SCHEMA
+            with contextlib.suppress(AttributeError):
+                validate_configuration(config, module.CONFIG_SCHEMA)
 
             # Load intents
             intents = self._load_intents(config)

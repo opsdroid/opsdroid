@@ -1,3 +1,7 @@
+logging:
+  level: true
+welcome-message: no
+
 connectors:
 
   facebook:

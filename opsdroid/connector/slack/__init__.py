@@ -6,6 +6,7 @@ import certifi
 
 import slack
 from emoji import demojize
+from voluptuous import Required
 
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message, Reaction
@@ -13,6 +14,14 @@ from opsdroid.connector.slack.events import Blocks
 
 
 _LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {
+    Required("token"): str,
+    "bot-name": str,
+    "default-room": str,
+    "icon-emoji": str,
+    "connect-timeout": int,
+    "chat-as-user": bool,
+}
 
 
 class ConnectorSlack(Connector):

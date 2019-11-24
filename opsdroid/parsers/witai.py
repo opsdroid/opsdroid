@@ -5,10 +5,13 @@ import json
 
 import aiohttp
 
+from voluptuous import Required
+
 from opsdroid.const import WITAI_DEFAULT_VERSION
 from opsdroid.const import WITAI_API_ENDPOINT
 
 _LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {Required("token"): str, "min-score": float}
 
 
 async def call_witai(message, config):

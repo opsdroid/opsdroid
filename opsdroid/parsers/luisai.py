@@ -6,9 +6,17 @@ import contextlib
 
 import aiohttp
 
+from voluptuous import Required
+
 from opsdroid.const import LUISAI_DEFAULT_URL
 
 _LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {
+    Required("appid"): str,
+    Required("appkey"): str,
+    Required("verbose"): bool,
+    "min-score": float,
+}
 
 
 async def call_luisai(message, config):

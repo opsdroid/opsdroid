@@ -666,3 +666,22 @@ class TestLoader(unittest.TestCase):
                     os.path.isfile(os.path.join(config["install_path"], "__init__.py"))
                 )
                 shutil.rmtree(config["install_path"], onerror=del_rw)
+
+    def test_load_pre_0_17_config_file(self):
+        config = load_config_file(
+            [os.path.abspath("tests/configs/minimal_pre_0_17_layout.yaml")]
+        )
+        self.assertLogs("_LOGGER", "warning")
+        self.assertEqual(
+            config, {"connectors": {"shell": {}}, "skills": {"hello": {}, "seen": {}}}
+        )
+
+    def test_setup_module_bad_config(self):
+        opsdroid, loader = self.setup()
+        with mock.patch("sys.exit") as mock_sysexit:
+            config = load_config_file(
+                [os.path.abspath("tests/configs/broken_modules.yaml")]
+            )
+            loader.load_modules_from_config(config)
+            self.assertTrue(mock_sysexit.called)
+            self.assertLogs("_LOGGER", "critical")
