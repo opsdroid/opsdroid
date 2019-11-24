@@ -1,17 +1,18 @@
 """A helper function for training, parsing and executing Snips NLU skills."""
 
 import logging
+import json
 import unicodedata
-import requests
-import os
 
 from hashlib import sha256
 
+import os
+import arrow
 
-from snips_nlu import SnipsNLUEngine
+from opsdroid.const import SNIPSNLU_DEFAULT_DIR, SNIPSNLU_DEFAULT_PROJECT
 
 _LOGGER = logging.getLogger(__name__)
-model = None
+
 
 async def _get_all_intents(skills):
     """Get all skill intents and concatenate into a single markdown string."""
@@ -28,34 +29,38 @@ async def _get_intents_fingerprint(intents):
 
 
 async def _init_model(config):
-    """Iniialising the model into memory."""
+    """Make a request to force Snips NLU to load the model into memory."""
     _LOGGER.info(_("Initialising Snips NLU model."))
-    global model
-    model = SnipsNLUEngine(config=config)
-     
-    return True
 
-async def train_snipsnlu(config, skills):
-    """Train a Snips NLU model based on the loaded skills."""
-    _LOGGER.info(_("Starting Snips NLU training."))
-    global model
-    intents = await _get_all_intents(skills)
-    if intents is None:
-        _LOGGER.warning(_("No intents found, skipping training."))
+    initialisation_start = arrow.now()
+    result = await call_snipsnlu("", config)
+
+    if result is None:
+        _LOGGER.error(_("Initialisation failed, training failed.."))
         return False
 
-    config["model"] = await _get_intents_fingerprint(intents)
-    if config["model"] in await _get_existing_models(config):
-        _LOGGER.info(_("This model already exists, skipping training..."))
-        await _init_model(config)
-        return True
-    
-    _LOGGER.info(_("Now training the model. This may take a while..."))
-    url = "https://github.com/snipsco/snips-nlu/blob/master/sample_datasets/lights_dataset.json"
-    directory = os.getcwd()
-    file = os.path.join(getcwd(),'lights_dataset.json')
-    r = requests.get(url)
-    model = model.fit(file)
+    time_taken = int((arrow.now() - initialisation_start).total_seconds())
+    _LOGGER.info(_("Initialisation complete in %s seconds."), time_taken)
+
     return True
 
-    
+
+async def _build_dir(config):
+    pass
+
+async def _get_existing_models(config):
+    """Get a list of models already trained in the Snips NLU project."""
+    project = config.get("project", SNIPSNLU_DEFAULT_PROJECT)
+    try:
+        resp = await _build_dir(config)
+        os.system("cd {}").format(resp)
+        result = os.popen('ls').read()
+        result = list(result.split("\n"))
+        if project in result:
+            project_models = result[project]
+            return project_models["available_models"]
+    except OSError as e:
+        _LOGGER.error(_("Directory not build"))
+        
+    return []
+        
