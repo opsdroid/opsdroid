@@ -28,6 +28,7 @@
     - [Disable Caching](#disable-caching)
     - [Disable dependency install](#disable-dependency-install)
   - [Environment variables](#environment-variables)
+  - [Validating modules](#validating-modules)
   - [Migrating to new configuration layout - post v0.16.0](#migrate-to-new-configuration-layout)
 
 ## Config file
@@ -531,6 +532,44 @@ skills:
 ```
 
 _Note: Your environment variable names must consist of uppercase characters and underscores only. The value must also be just the environment variable, you cannot currently mix env vars inside strings._
+
+## Validating modules
+
+Opsdroid runs two types of validation:
+- Validates basic rules found on the file `configuration.yaml` (logging, web, module path and welcome message)
+- Validates rules for each module if the constant variable `CONFIG_SCHEMA` is set in the module.
+
+_Note: If the validation fails, opsdroid will exit with error code 1._
+
+You can add rules to your custom made modules by setting the constant variable and adding rules to it. The `CONFIG_SCHEMA` variable needs to be a dictionary where you pass expected arguments and type.
+
+To validate a module/configuration, we use the _voluptuous_ dependency, that means that you need to follow certain patterns expected by the dependency.
+
+- Required values need to be set with `voluptuous.Required()`
+- Optional values can be set with or without `voluptuous.Optional()` 
+
+### Example
+
+Let's take the example of our matrix connector. Inside the module we set the const `CONFIG_SCHEMA` with some rules:
+
+```python
+from voluptuous import Required
+
+CONFIG_SCHEMA = {
+    Required("mxid"): str,
+    Required("password"): str,
+    Required("rooms"): dict,
+    "homeserver": str,
+    "nick": str,
+    "room_specific_nicks": bool,
+}
+```
+
+As you can see `mxid`, `password` and `rooms` are required fields for this connector and we expect them to be either strings or a dictionary.
+
+Since we don't need to explicitly declare a value as Optional we can just write the expected value and type.
+
+_Note: If a module doesn't contain the const variable, the module will be loaded anyway and should handle any potential errors found in the configuration._
 
 ## Migrate to new configuration layout
 
