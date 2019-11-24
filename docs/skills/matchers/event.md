@@ -1,9 +1,10 @@
 # Event
 
-## Configuring opsdroid
-
 The `event` matcher matches all events of a certain type. It can, for example, be used to write a skill that responds to images or files.
 
+```eval_rst
+.. autofunction:: opsdroid.matchers.match_event
+```
 
 ## Example
 

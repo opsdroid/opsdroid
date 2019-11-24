@@ -1,14 +1,12 @@
 # Always
 
-## Configuring opsdroid
+The `always` matcher is a special case which simply always matches a skill to every single event that passes through opsdroid.
 
-The `always` matcher parses every message as it is always running. So it need not be configured explicitly.
+When an event is parsed all skills are ranked by the parsers in order of how confident they are that the message is a match, and then the highest ranking skill is executed. The `always` matcher is useful if you are wanting to do something like keep track of the last time someone spoke, so you need the skill to execute on every message and you will never directly respond to a message.
 
-##
-
-The `always` matcher is a special case which simply always matches a skill to every single message that passes through opsdroid.
-
-When a message is parsed all skills are ranked by the parsers in order of how confident they are that the message is a match, and then the highest ranking skill is executed. The `always` matcher is useful if you are wanting to do something like keep track of the last time someone spoke, so you need the skill to execute on every message and you will never directly respond to a message.
+```eval_rst
+.. autofunction:: opsdroid.matchers.match_always
+```
 
 ## Example
 

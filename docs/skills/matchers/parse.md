@@ -8,7 +8,7 @@ The third party library [parse](https://github.com/r1chardj0n3s/parse) is used t
 
 You can specify which kind of matching you want to apply through the `matching_condition` kwarg (*match* matching is the default).
 
-```evan_rst
+```eval_rst
 .. warning::
    Be careful, the matching condition names are the same than in regex but there are some differences between them.
 ```
@@ -17,6 +17,10 @@ Matching conditions:
 
 - **match** - Scans through the string looking at the beginning of the string to match the pattern, **but the end must match too**. So if you have `hi` it will match `hi`, but not `say hi` or `hi!`.
 - **search** - Scans through the string looking for the first location where the pattern produces a match, and ignores what is before or after the match. So if you have `hi` it will match `hi`, `say hi` or `hi!`.
+
+```eval_rst
+.. autofunction:: opsdroid.matchers.match_parse
+```
 
 
 ### (Very) Basic example

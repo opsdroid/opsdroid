@@ -2,12 +2,8 @@
 
 The webhook matcher allows you to trigger the skill by calling a specific URL endpoint.
 
-**Example Config**
-
-```yaml
-skills:
-  exampleskill:
-    path: "/path/to/my/exampleskill"
+```eval_rst
+.. autofunction:: opsdroid.matchers.match_webhook
 ```
 
 ## Example

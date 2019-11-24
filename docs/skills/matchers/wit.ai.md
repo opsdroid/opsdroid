@@ -15,9 +15,11 @@ parsers:
     min-score: 0.6
 ```
 
-##
-
 [wit.ai](https://wit.ai) is an NLP API for matching strings to [intents](https://wit.ai/docs/recipes#categorize-the-user-intent). Intents are created on the wit.ai website.
+
+```eval_rst
+.. autofunction:: opsdroid.matchers.match_witai
+```
 
 ## [Example 1](#example1)
 

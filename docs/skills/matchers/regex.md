@@ -12,6 +12,10 @@ Matching conditions:
 - **match** - Scans through the string looking at the beginning of the string to match the regular expression pattern.
 - **fullmatch** - Scans and checks if the whole string matches the regular expression pattern.
 
+```eval_rst
+.. autofunction:: opsdroid.matchers.match_regex
+```
+
 ### Example 1 - Search condition
 
 Let's use the following hello skill with the kwarg `matching_condition="search"`.
