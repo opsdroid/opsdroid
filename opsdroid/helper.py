@@ -69,6 +69,17 @@ def convert_dictionary(modules):
             module_copy = module.copy()
             del module_copy["name"]
 
+            if module.get("access-token") or module.get("api-token"):
+                _LOGGER.warning(
+                    _(
+                        "Configuration param for %s has been deprecated in favor of 'token', please update your config."
+                    ),
+                    module["name"],
+                )
+                module_copy["token"] = module.get("access-token") or module.get(
+                    "api-token"
+                )
+
             config[module["name"]] = module_copy
 
         return config
