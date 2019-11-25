@@ -13,7 +13,7 @@ You can also set a `min-score` option to tell opsdroid to ignore any matches whi
 ```yaml
 
 parsers:
-  - name: rasanlu
+  rasanlu:
     url: http://localhost:5000
     project: opsdroid
     token: 85769fjoso084jd

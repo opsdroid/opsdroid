@@ -16,7 +16,7 @@ Provide a name and username (ending in bot) and BotFather will give you your API
 
 ```yaml
 connectors:
-  - name: telegram
+  telegram:
     # required
     token: "123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ-ZYXWVUT"  # Telegram bot token
     # optional
@@ -72,7 +72,7 @@ of the connector since users can't change this ID.
 
 Here is how you can whitelist a user:
 ```yaml
-  - name: Telegram
+  telegram:
     token: <your bot token>
     whitelisted-users:
       - user1

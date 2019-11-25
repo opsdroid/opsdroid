@@ -11,19 +11,19 @@ some examples on how to configure opsdroid to find extension modules, in this ca
 ```yaml
 skills:
   ## From local folder
-  - name: myawesomeskill
+  myawesomeskill:
     path: /home/me/src/opsdroid-skills/myawesomeskill
   ## From local file
-  - name: mysimpleskill
+  mysimpleskill:
     path: /home/me/src/opsdroid-skills/mysimpleskill.py
   ## From custom repository
-  - name: mygithubskill
+  mygithubskill:
     path: https://github.com/me/mygithubskill.git
   ## From PYTHONPATH
-  - name: myimportedskill
+  myimportedskill:
     module: 'my.imported.skill'
   ## Hello world (https://github.com/opsdroid/skill-hello)
-  - name: hello
+  hello: {}
 ```
 
 Details on pointing opsdroid to extension modules can be found in the [configuration reference](../configuration-reference.md).

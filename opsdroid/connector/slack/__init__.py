@@ -7,6 +7,7 @@ import certifi
 
 import slack
 from emoji import demojize
+from voluptuous import Required
 
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message, Reaction
@@ -14,6 +15,14 @@ from opsdroid.connector.slack.events import Blocks
 
 
 _LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {
+    Required("token"): str,
+    "bot-name": str,
+    "default-room": str,
+    "icon-emoji": str,
+    "connect-timeout": int,
+    "chat-as-user": bool,
+}
 
 
 class ConnectorSlack(Connector):
@@ -26,7 +35,7 @@ class ConnectorSlack(Connector):
         self.name = "slack"
         self.default_target = config.get("default-room", "#general")
         self.icon_emoji = config.get("icon-emoji", ":robot_face:")
-        self.token = config["api-token"]
+        self.token = config["token"]
         self.timeout = config.get("connect-timeout", 10)
         self.chat_as_user = config.get("chat-as-user", False)
         self.ssl_context = ssl.create_default_context(cafile=certifi.where())

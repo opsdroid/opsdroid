@@ -3,11 +3,21 @@ import logging
 import json
 
 from mattermostdriver import Driver, Websocket
+from voluptuous import Required
 
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
 
 _LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {
+    Required("token"): str,
+    Required("url"): str,
+    Required("team-name"): str,
+    "scheme": str,
+    "port": int,
+    "ssl-verify": bool,
+    "connect-timeout": int,
+}
 
 
 class ConnectorMattermost(Connector):
@@ -18,7 +28,7 @@ class ConnectorMattermost(Connector):
         super().__init__(config, opsdroid=opsdroid)
         _LOGGER.debug(_("Starting Mattermost connector"))
         self.name = "mattermost"
-        self.token = config["api-token"]
+        self.token = config["token"]
         self.url = config["url"]
         self.team_name = config["team-name"]
         self.scheme = config.get("scheme", "https")
