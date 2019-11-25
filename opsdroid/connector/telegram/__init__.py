@@ -127,7 +127,7 @@ class ConnectorTelegram(Connector):
 
         """
         _LOGGER.debug(_("Connecting to Telegram"))
-        self.session = aiohttp.ClientSession()
+        self.session = aiohttp.ClientSession(trust_env=True)
         resp = await self.session.get(self.build_url("getMe"))
 
         if resp.status != 200:

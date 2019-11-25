@@ -13,7 +13,7 @@ _LOGGER = logging.getLogger(__name__)
 
 async def call_witai(message, config):
     """Call the wit.ai api and return the response."""
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(trust_env=True) as session:
         headers = {"Authorization": "Bearer " + config["access-token"]}
         payload = {"v": WITAI_DEFAULT_VERSION, "q": message.text}
         resp = await session.get(

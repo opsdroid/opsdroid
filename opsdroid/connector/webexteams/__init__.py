@@ -2,6 +2,7 @@
 import json
 import logging
 import uuid
+import os
 
 import aiohttp
 
@@ -33,7 +34,13 @@ class ConnectorWebexTeams(Connector):
     async def connect(self):
         """Connect to the chat service."""
         try:
-            self.api = WebexTeamsAPI(access_token=self.config["access-token"])
+            self.api = WebexTeamsAPI(
+                access_token=self.config["access-token"],
+                proxies={
+                    "http": os.environ.get("HTTP_PROXY"),
+                    "https": os.environ.get("HTTPS_PROXY"),
+                },
+            )
         except KeyError:
             _LOGGER.error(_("Must set access-token for webex teams connector!"))
             return

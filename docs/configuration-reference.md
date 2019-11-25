@@ -29,6 +29,7 @@
     - [Disable dependency install](#disable-dependency-install)
   - [Environment variables](#environment-variables)
   - [Include additional yaml files](#include-additional-yaml-files)
+  - [HTTP Proxy support](#http-proxy-support)
   - [Migrating to new configuration layout - post v0.16.0](#migrate-to-new-configuration-layout)
 
 ## Config file
@@ -543,6 +544,12 @@ skills: !include skills.yaml
 ```
 
 _Note: The file.yaml that you wish to include in the config must be in the same directory as your configuration.yaml (e.g ~/.opsdroid)_
+
+
+## HTTP proxy support
+
+If you need to use a HTTP proxy, set the HTTP_PROXY and HTTPS_PROXY environment variables.
+
 
 ## Migrate to new configuration layout
 

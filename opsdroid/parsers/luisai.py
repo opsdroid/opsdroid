@@ -13,7 +13,7 @@ _LOGGER = logging.getLogger(__name__)
 
 async def call_luisai(message, config):
     """Call the luis.ai api and return the response."""
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(trust_env=True) as session:
         headers = {"Content-Type": "application/json"}
         url = LUISAI_DEFAULT_URL
         resp = await session.get(
