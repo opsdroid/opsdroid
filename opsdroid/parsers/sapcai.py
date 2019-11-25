@@ -13,7 +13,7 @@ _LOGGER = logging.getLogger(__name__)
 
 async def call_sapcai(message, config, lang=DEFAULT_LANGUAGE):
     """Call the SAP Conversational AI api and return the response."""
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(trust_env=True) as session:
         payload = {"language": lang, "text": message.text}
         headers = {
             "Authorization": "Token " + config["access-token"],

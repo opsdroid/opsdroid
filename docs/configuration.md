@@ -511,6 +511,10 @@ skills:
 
 _Note: Your environment variable names must consist of uppercase characters and underscores only. The value must also be just the environment variable, you cannot currently mix env vars inside strings._
 
+## HTTP proxy support
+
+If you need to use a HTTP proxy, set the HTTP_PROXY and HTTPS_PROXY environment variables.
+
 ## Migrate to new configuration layout
 
 Since version 0.17.0 came out we have migrated to a new configuration layout. We will check your configuration and give you a deprecation warning if your configuration is using the old layout.

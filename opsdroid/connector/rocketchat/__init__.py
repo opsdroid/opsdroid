@@ -78,7 +78,7 @@ class RocketChat(Connector):
 
         """
         _LOGGER.info(_("Connecting to Rocket.Chat"))
-        self.session = aiohttp.ClientSession()
+        self.session = aiohttp.ClientSession(trust_env=True)
         resp = await self.session.get(self.build_url("me"), headers=self.headers)
         if resp.status != 200:
             _LOGGER.error(_("Unable to connect."))

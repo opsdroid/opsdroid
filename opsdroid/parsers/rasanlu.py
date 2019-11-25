@@ -67,7 +67,7 @@ async def _init_model(config):
 async def _get_existing_models(config):
     """Get a list of models already trained in the Rasa NLU project."""
     project = config.get("project", RASANLU_DEFAULT_PROJECT)
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(trust_env=True) as session:
         try:
             resp = await session.get(await _build_status_url(config))
             if resp.status == 200:
@@ -94,7 +94,7 @@ async def train_rasanlu(config, skills):
         await _init_model(config)
         return True
 
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(trust_env=True) as session:
         _LOGGER.info(_("Now training the model. This may take a while..."))
 
         url = await _build_training_url(config)
@@ -156,7 +156,7 @@ async def train_rasanlu(config, skills):
 
 async def call_rasanlu(text, config):
     """Call the Rasa NLU api and return the response."""
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(trust_env=True) as session:
         headers = {}
         data = {
             "q": text,

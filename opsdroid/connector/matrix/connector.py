@@ -72,7 +72,7 @@ class ConnectorMatrix(Connector):
 
     async def connect(self):
         """Create connection object with chat library."""
-        session = aiohttp.ClientSession()
+        session = aiohttp.ClientSession(trust_env=True)
         mapi = AsyncHTTPAPI(self.homeserver, session)
 
         self.session = session

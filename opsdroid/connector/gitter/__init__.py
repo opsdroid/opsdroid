@@ -35,7 +35,7 @@ class ConnectorGitter(Connector):
 
         # Create connection object with chat library
         _LOGGER.debug(_("Connecting with gitter stream"))
-        self.session = aiohttp.ClientSession()
+        self.session = aiohttp.ClientSession(trust_env=True)
         gitter_url = self.build_url(
             GITTER_STREAM_API,
             self.room_id,

@@ -328,7 +328,7 @@ class File(Event):
     async def get_file_bytes(self):
         """Return the bytes representation of this file."""
         if not self._file_bytes and self.url:
-            async with aiohttp.ClientSession() as session:
+            async with aiohttp.ClientSession(trust_env=True) as session:
                 _LOGGER.debug(self._url_headers)
                 async with session.get(self.url, headers=self._url_headers) as resp:
                     self._file_bytes = await resp.read()
