@@ -172,17 +172,30 @@ class TestLoader(unittest.TestCase):
             {"env_var": "$OPS-DROID", "match": True},
             {"env_var": "${OPS_DROID}", "match": True},
             {"env_var": '"$OPSDROID_SLACK_TOKEN"', "match": True},
+            {"env_var": "$_OPS_DROID", "match": True},
+            {"env_var": "${_OPS_DROID}", "match": True},
             {"env_var": "$INVALID!_CHARACTERS@", "match": False},
             {"env_var": "OPS_DROID", "match": False},
             {"env_var": "$OPS_DROID23", "match": False},
             {"env_var": "$UPPER-AND-lower", "match": False},
             {"env_var": '"MISSING_PREFIX"', "match": False},
+            {"env_var": "$all_lowercase", "match": False},
+            {"env_var": "a simple sentence.", "match": False},
+            {"env_var": "$", "match": False},
+            {"env_var": "${}", "match": False},
+            {"env_var": "", "match": False},
+            {"env_var": "556373", "match": False},
+            {"env_var": "${@!!}", "match": False},
+            {"env_var": "${_-_-}", "match": False},
+            {"env_var": "$ALONGSTRINGTHAT$CONTAINS$", "match": False},
+            {"env_var": "NOPREFIXALONGSTRINGTHAT$CONTAINS$", "match": False},
         ]
         for d in test_data:
             # Tests opsdroid constant ENV_VAR_REGEX for both valid and invalid environment variables.
-            self.assertRegex(d["env_var"], ENV_VAR_REGEX) if d[
-                "match"
-            ] else self.assertNotRegex(d["env_var"], ENV_VAR_REGEX)
+            if d["match"]:
+                self.assertRegex(d["env_var"], ENV_VAR_REGEX)
+            else:
+                self.assertNotRegex(d["env_var"], ENV_VAR_REGEX)
 
     def test_load_config_file_with_env_vars(self):
         opsdroid, loader = self.setup()
