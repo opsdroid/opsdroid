@@ -13,6 +13,7 @@ from opsdroid.helper import (
     get_opsdroid,
     JSONEncoder,
     JSONDecoder,
+    convert_dictionary,
 )
 
 
@@ -55,6 +56,15 @@ class TestHelper(unittest.TestCase):
     def test_opsdroid(self):
         # Test that get_opsdroid returns None if no instances exist
         assert get_opsdroid() is None
+
+    def test_convert_dictionary(self):
+        modules = [
+            {"name": "telegram", "access-token": "test"},
+            {"name": "mattermost", "api-token": "test"},
+        ]
+        updated_modules = convert_dictionary(modules)
+        self.assertEqual(updated_modules["telegram"].get("token"), "test")
+        self.assertIn("token", updated_modules["mattermost"])
 
 
 class TestJSONEncoder(unittest.TestCase):
