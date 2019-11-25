@@ -130,10 +130,10 @@ class ConnectorSlack(Connector):
 
         await self.opsdroid.parse(
             Message(
-                message["text"],
-                user_info["name"],
-                message["channel"],
-                self,
+                text=message["text"],
+                user=user_info["name"],
+                target=message["channel"],
+                connector=self,
                 raw_event=message,
             )
         )

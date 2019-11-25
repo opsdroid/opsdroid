@@ -1,0 +1,6 @@
+connectors:
+  - name: shell
+
+skills:
+  - name: hello
+  - name: seen

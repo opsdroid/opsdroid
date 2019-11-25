@@ -63,10 +63,10 @@ class ConnectorWebexTeams(Connector):
 
             try:
                 message = Message(
-                    msg.text,
-                    person.displayName,
-                    {"id": msg.roomId, "type": msg.roomType},
-                    self,
+                    text=msg.text,
+                    user=person.displayName,
+                    target={"id": msg.roomId, "type": msg.roomType},
+                    connector=self,
                 )
                 await self.opsdroid.parse(message)
             except KeyError as error:

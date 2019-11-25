@@ -176,7 +176,12 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(mockresponse)
             resp = await self.connector.send(
-                Message("test", "jacobtomlinson", "opsdroid/opsdroid#1", self.connector)
+                Message(
+                    text="test",
+                    user="jacobtomlinson",
+                    target="opsdroid/opsdroid#1",
+                    connector=self.connector,
+                )
             )
             self.assertTrue(patched_request.called)
             self.assertTrue(resp)
@@ -189,7 +194,12 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
             patched_request.return_value.set_result(mockresponse)
             self.connector.github_username = "opsdroid-bot"
             resp = await self.connector.send(
-                Message("test", "opsdroid-bot", "opsdroid/opsdroid#1", self.connector)
+                Message(
+                    text="test",
+                    user="opsdroid-bot",
+                    target="opsdroid/opsdroid#1",
+                    connector=self.connector,
+                )
             )
             self.assertFalse(patched_request.called)
             self.assertTrue(resp)
@@ -204,7 +214,12 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(mockresponse)
             resp = await self.connector.send(
-                Message("test", "opsdroid-bot", "opsdroid/opsdroid#1", self.connector)
+                Message(
+                    text="test",
+                    user="opsdroid-bot",
+                    target="opsdroid/opsdroid#1",
+                    connector=self.connector,
+                )
             )
             self.assertTrue(patched_request.called)
             self.assertFalse(resp)
