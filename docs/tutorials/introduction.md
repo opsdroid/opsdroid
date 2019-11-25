@@ -7,13 +7,14 @@ This first part of the tutorial will give you a brief introduction to the yaml f
 ## Configuration and Yaml files
 The configuration of opsdroid is done in a yaml file called `configuration.yaml`.  When you run opsdroid it will look for the file in the following places in order:
 
-- `./configuration.yaml`
-- `/etc/opsdroid/configuration.yaml`
- * one of the default locations:
+
+- one of the default locations:
     * Mac: `~/Library/Application Support/opsdroid`
     * Linux: `~/.local/share/opsdroid`
     * Windows: `C:\Documents and Settings\<User>\Application Data\Local Settings\opsdroid\opsdroid` or
                 `C:\Documents and Settings\<User>\Application Data\opsdroid\opsdroid`
+- `./configuration.yaml`
+- `/etc/opsdroid/configuration.yaml`
 
 _Note: if no configuration file is found then opsdroid will use the `example_configuration.yaml` and place it in one of the default locations.`_
 
@@ -35,25 +36,25 @@ Yaml files use a key-value structure and there are a few things you must take in
 skills:
 
   ## Hello world (https://github.com/opsdroid/skill-hello)
-  - name: hello
+  hello: {}
 
   ## Last seen (https://github.com/opsdroid/skill-seen)
-  - name: seen
+  seen: {}
 
   ## Dance (https://github.com/opsdroid/skill-dance)
-  - name: dance
+  dance: {}
 
   ## Loud noises (https://github.com/opsdroid/skill-loudnoises)
-  - name: loudnoises
+  loudnoises: {}
 ```
-_note: we use a two space indentation before using `-name: <skillname>`_
+_note: we use a two space indentation before using `<skillname>:`_
 
 This part of the configuration will be represented as:
 
 ```python
-{'skills': [{'name': 'hello'}, {'name': 'seen'}, {'name': 'dance'}, {'name': 'loudnoises']}
+{'skills': {'hello': {}, 'seen': {}, 'dance': {}, 'loudnoises': {}}}
 ```
-As you can see, anything starting with a hash was ignored and the key skills contain a list of dictionaries with the value `{'name':<skillname>}`
+As you can see, anything starting with a hash was ignored and the key skills contain a dictionary with the key/value pair`'<skillname>: {}`
 
 _note: The keys: [type, module_path, install_path, branch] are added to every skill when the configuration.yaml is loaded._
 
@@ -68,15 +69,15 @@ For example, a simple barebones configuration would look like:
 
 ```yaml
 connectors:
-  - name: shell
+  shell: {}
 
 skills:
-  - name: hello
+  hello: {}
 ```
 
 This tells opsdroid to use the [shell connector](https://github.com/opsdroid/connector-shell) and [hello skill](https://github.com/opsdroid/skill-hello) from the official module library.
 
-In opsdroid, all modules are git repositories which will be cloned locally when used for the first time. By default, if you do not specify a repository opsdroid will look at `https://github.com/opsdroid/<moduletype>-<modulename>.git` for the repository. Therefore in the above configuration, the `connector-shell` and `skill-hello` repositories were pulled from the opsdroid organization on GitHub.
+In opsdroid, all modules are git repositories which will be cloned locally when used for the first time. By default, if you do not specify a repository opsdroid will look at `https://github.com/opsdroid/<moduletype>-<modulename>.git` for the repository. Therefore in the above configuration, the `skill-hello` repository was pulled from the opsdroid organization on GitHub, unless they can be found in core.
 
 You are of course encouraged to write your own modules and make them available on GitHub or any other repository host which is accessible by your opsdroid installation.
 
@@ -84,19 +85,19 @@ A more advanced config would like similar to the following:
 
 ```yaml
 connectors:
-  - name: slack
+  slack:
     token: "mysecretslacktoken"
 
 databases:
-  - name: mongo
+  mongo:
     host: "mymongohost.mycompany.com"
     port: "27017"
     database: "opsdroid"
 
 skills:
-  - name: hello
-  - name: seen
-  - name: myawesomeskill
+  hello: {}
+  seen: {}
+  myawesomeskill: {}
     repo: "https://github.com/username/myawesomeskill.git"
 ```
 
@@ -105,6 +106,7 @@ In this configuration we are using the [slack connector](../connectors/slack.md)
 Configuration options such as the `token` in the slack connector or the `host`, `port` and `database` options in the mongo database are specific to those modules. Ensure you check each module's required configuration items before you use them.
 
 ## Asynchronous functions(Asyncio)
+
 In a standard sequential program, all the instructions you send to the interpreter will be executed in a step-by-step manner. It is easy to visualize and predict the output of such a code. However, let's assume that you have a script that requests data from 3 different servers. Sometimes the request to one of those servers may unexpectedly take too much time to execute. Imagine that it takes 10 seconds to get data from the second server. While you are waiting, the whole script is actually doing nothing.
 
 What if you could write a script that, instead of waiting for the second request, simply skips it and starts executing the third request, then goes back to the second one, and proceed from where it left off? That’s the nature of an asynchronous program. You minimize idle time by switching tasks.

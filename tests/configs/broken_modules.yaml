@@ -1,0 +1,12 @@
+connectors:
+  shell:
+    bot-name: 123
+
+databases:
+  sqlite:
+    file: false
+    table: 123
+
+skills:
+  hello:
+

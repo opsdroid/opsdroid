@@ -7,7 +7,7 @@ import click
 
 from opsdroid.cli.utils import check_dependencies, configure_lang, welcome_message
 from opsdroid.core import OpsDroid
-from opsdroid.loader import Loader
+from opsdroid.configuration import load_config_file
 from opsdroid.logging import configure_logging
 from opsdroid.const import DEFAULT_CONFIG_PATH
 
@@ -20,7 +20,7 @@ def start():
     """Start the opsdroid bot."""
     check_dependencies()
 
-    config = Loader.load_config_file(
+    config = load_config_file(
         ["configuration.yaml", DEFAULT_CONFIG_PATH, "/etc/opsdroid/configuration.yaml"]
     )
     configure_lang(config)

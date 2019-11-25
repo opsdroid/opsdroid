@@ -6,7 +6,7 @@ The webhook matcher allows you to trigger the skill by calling a specific URL en
 
 ```yaml
 skills:
-  - name: "exampleskill"
+  "exampleskill":
     path: "/path/to/my/exampleskill"
 ```
 

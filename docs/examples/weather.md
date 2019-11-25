@@ -26,7 +26,7 @@ Now, let's open opsdroid `configuration.yaml` file and add our weather skill to 
 
 ```yaml
 skills:
-  - name: weather
+  weather:
     city: <Your city, your country>     # For accuracy use {city},{country code}
     units: <metric/imperial>       # Choose metric/imperial
     api-key: <Your Api Key>

@@ -4,12 +4,15 @@ import logging
 
 import aiohttp
 
+from voluptuous import Required
+
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
 
 
 _LOGGER = logging.getLogger(__name__)
 GITHUB_API_URL = "https://api.github.com"
+CONFIG_SCHEMA = {Required("token"): str}
 
 
 class ConnectorGitHub(Connector):

@@ -6,7 +6,7 @@ In order to enable crontab skills you must set the `enabled` parameter to true i
 
 ```yaml
 parsers:
-  - name: crontab
+  crontab:
     enabled: true
 ```
 

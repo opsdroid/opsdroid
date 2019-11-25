@@ -12,6 +12,7 @@ import arrow
 from opsdroid.const import RASANLU_DEFAULT_URL, RASANLU_DEFAULT_PROJECT
 
 _LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {"url": str, "project": str, "token": str, "min-score": float}
 
 
 async def _get_all_intents(skills):
