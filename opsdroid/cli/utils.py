@@ -9,6 +9,8 @@ import sys
 import time
 import warnings
 
+from opsdroid.core import OpsDroid
+from opsdroid.loader import Loader
 from opsdroid.configuration import load_config_file
 from opsdroid.const import (
     DEFAULT_LOG_FILENAME,
@@ -80,9 +82,11 @@ def validate_config(ctx, param, value):
         int: the exit code. Always returns 0 in this case.
 
     """
+    loader = Loader(OpsDroid)
     config = load_config_file(
         ["configuration.yaml", DEFAULT_CONFIG_PATH, "/etc/opsdroid/configuration.yaml"]
     )
+    loader.load_modules_from_config(config)
     if config:
         click.echo("Configuration validated - No errors founds!")
 

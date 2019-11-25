@@ -53,6 +53,6 @@ def edit(ctx):
 
 @config.command()
 @click.pass_context
-def validate(ctx):
+def lint(ctx):
     """Validate the configuration."""
     validate_config(ctx, None, "config")

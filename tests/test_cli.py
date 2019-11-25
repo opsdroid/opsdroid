@@ -228,9 +228,9 @@ class TestCLI(unittest.TestCase):
             "opsdroid.configuration.load_config_file"
         ) as opsdroid_load:
             runner = CliRunner()
-            from opsdroid.cli.config import validate
+            from opsdroid.cli.config import lint
 
-            result = runner.invoke(validate, [])
+            result = runner.invoke(lint, [])
             self.assertTrue(click_echo.called)
             self.assertFalse(opsdroid_load.called)
             self.assertEqual(result.exit_code, 0)
