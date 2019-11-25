@@ -17,7 +17,7 @@ parse==1.12.1
 puremagic==1.6
 pycron==1.0.0
 pyyaml==5.1.2
-setuptools==42.0.0
+setuptools==42.0.1
 slackclient==2.3.1
 ibm-watson==4.0.1
 websockets==8.1
