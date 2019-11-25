@@ -4,18 +4,20 @@ import logging
 
 import aioredis
 from aioredis import parser
+from voluptuous import Any
 
 from opsdroid.database import Database
 from opsdroid.helper import JSONEncoder, JSONDecoder
 
 _LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {"host": str, "port": Any(int, str), "database": int, "password": str}
 
 
 class RedisDatabase(Database):
     """Database class for storing data within a Redis instance."""
 
     def __init__(self, config, opsdroid=None):
-        """Initialise the sqlite database.
+        """Initialise the redis database.
 
         Set basic properties of the database. Initialise properties like
         name, connection arguments, database file, table name and config.

@@ -1,15 +1,9 @@
 """Tests for the RocketChat class."""
 
-import os.path
-
 import asyncio
 import unittest
-import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock
-from aiohttp.helpers import TimerNoop
-from aiohttp.client_reqrep import ClientResponse, RequestInfo
-from yarl import URL
 
 
 from opsdroid.cli.start import configure_lang
@@ -27,7 +21,7 @@ class TestConnectorGitter(unittest.TestCase):
     def test_init(self):
         """Test that the connector is initialised properly."""
         connector = ConnectorGitter(
-            {"bot-name": "github", "room-id": "test-id", "access-token": "test-token"}
+            {"bot-name": "github", "room-id": "test-id", "token": "test-token"}
         )
         self.assertEqual("gitter", connector.name)
 
@@ -39,7 +33,7 @@ class TestConnectorGitterAsync(asynctest.TestCase):
         opsdroid = amock.CoroutineMock()
         configure_lang({})
         self.connector = ConnectorGitter(
-            {"bot-name": "github", "room-id": "test-id", "access-token": "test-token"},
+            {"bot-name": "github", "room-id": "test-id", "token": "test-token"},
             opsdroid=opsdroid,
         )
         with amock.patch("aiohttp.ClientSession") as mocked_session:
@@ -74,7 +68,7 @@ class TestConnectorGitterAsync(asynctest.TestCase):
     async def test_listen_loop(self):
         """Test that listening consumes from the socket."""
         connector = ConnectorGitter(
-            {"bot-name": "github", "room-id": "test-id", "access-token": "test-token"},
+            {"bot-name": "github", "room-id": "test-id", "token": "test-token"},
             opsdroid=OpsDroid(),
         )
         connector._get_messages = amock.CoroutineMock()
@@ -86,7 +80,7 @@ class TestConnectorGitterAsync(asynctest.TestCase):
     async def test_listen_break_loop(self):
         """Test that listening consumes from the socket."""
         connector = connector = ConnectorGitter(
-            {"bot-name": "github", "room-id": "test-id", "access-token": "test-token"},
+            {"bot-name": "github", "room-id": "test-id", "token": "test-token"},
             opsdroid=OpsDroid(),
         )
         connector._get_messages = amock.CoroutineMock()
@@ -106,7 +100,7 @@ class TestConnectorGitterAsync(asynctest.TestCase):
         response1.content.iter_chunked = iter_chuncked1
 
         connector = ConnectorGitter(
-            {"bot-name": "github", "room-id": "test-id", "access-token": "test-token"},
+            {"bot-name": "github", "room-id": "test-id", "token": "test-token"},
             opsdroid=OpsDroid(),
         )
         connector.parse_message = amock.CoroutineMock()
@@ -120,7 +114,7 @@ class TestConnectorGitterAsync(asynctest.TestCase):
         post_response = amock.Mock()
         post_response.status = 200
 
-        with OpsDroid() as opsdroid, amock.patch.object(
+        with OpsDroid(), amock.patch.object(
             self.connector.session, "post"
         ) as patched_request:
             patched_request.return_value = asyncio.Future()
@@ -131,7 +125,7 @@ class TestConnectorGitterAsync(asynctest.TestCase):
         post_response = amock.Mock()
         post_response.status = 400
 
-        with OpsDroid() as opsdroid, amock.patch.object(
+        with OpsDroid(), amock.patch.object(
             self.connector.session, "post"
         ) as patched_request:
             patched_request.return_value = asyncio.Future()
@@ -140,7 +134,7 @@ class TestConnectorGitterAsync(asynctest.TestCase):
 
     async def test_disconnect(self):
         post_response = amock.Mock()
-        with OpsDroid() as opsdroid, amock.patch.object(
+        with OpsDroid(), amock.patch.object(
             self.connector.session, "close"
         ) as patched_request:
             patched_request.return_value = asyncio.Future()

@@ -7,12 +7,14 @@ import os
 import aiohttp
 
 from webexteamssdk import WebexTeamsAPI
+from voluptuous import Required, Url
 
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
 
 
 _LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {Required("webhook-url"): Url, Required("token"): str}
 
 
 class ConnectorWebexTeams(Connector):
@@ -35,14 +37,14 @@ class ConnectorWebexTeams(Connector):
         """Connect to the chat service."""
         try:
             self.api = WebexTeamsAPI(
-                access_token=self.config["access-token"],
+                access_token=self.config["token"],
                 proxies={
                     "http": os.environ.get("HTTP_PROXY"),
                     "https": os.environ.get("HTTPS_PROXY"),
                 },
             )
         except KeyError:
-            _LOGGER.error(_("Must set access-token for webex teams connector!"))
+            _LOGGER.error(_("Must set 'token' for webex teams connector!"))
             return
 
         await self.clean_up_webhooks()

@@ -11,7 +11,7 @@ A connector for [Rocket.Chat](https://rocket.chat).
 
 ```yaml
 connectors:
-  - name: rocketchat
+  rocketchat:
     # required
     user-id: "1ioKHDIOD"
     token: "zyxw-abdcefghi-12345"

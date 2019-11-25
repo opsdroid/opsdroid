@@ -41,7 +41,7 @@ class TestParserWitai(asynctest.TestCase):
             target="default",
             connector=mock_connector,
         )
-        config = {"name": "witai", "access-token": "test", "min-score": 0.3}
+        config = {"name": "witai", "token": "test", "min-score": 0.3}
         result = amock.Mock()
         result.json = amock.CoroutineMock()
         result.json.return_value = {
@@ -60,7 +60,7 @@ class TestParserWitai(asynctest.TestCase):
     async def test_parse_witai(self):
         with OpsDroid() as opsdroid:
             opsdroid.config["parsers"] = [
-                {"name": "witai", "access-token": "test", "min-score": 0.3}
+                {"name": "witai", "token": "test", "min-score": 0.3}
             ]
             mock_skill = await self.getMockSkill()
             opsdroid.skills.append(match_witai("get_weather")(mock_skill))
@@ -91,7 +91,7 @@ class TestParserWitai(asynctest.TestCase):
     async def test_parse_witai_raises(self):
         with OpsDroid() as opsdroid:
             opsdroid.config["parsers"] = [
-                {"name": "witai", "access-token": "test", "min-score": 0.3}
+                {"name": "witai", "token": "test", "min-score": 0.3}
             ]
             mock_skill = await self.getRaisingMockSkill()
             mock_skill.config = {"name": "mocked-skill"}
@@ -127,7 +127,7 @@ class TestParserWitai(asynctest.TestCase):
     async def test_parse_witai_failure(self):
         with OpsDroid() as opsdroid:
             opsdroid.config["parsers"] = [
-                {"name": "witai", "access-token": "test", "min-score": 0.3}
+                {"name": "witai", "token": "test", "min-score": 0.3}
             ]
             mock_skill = amock.CoroutineMock()
             match_witai("get_weather")(mock_skill)
@@ -153,7 +153,7 @@ class TestParserWitai(asynctest.TestCase):
     async def test_parse_witai_low_score(self):
         with OpsDroid() as opsdroid:
             opsdroid.config["parsers"] = [
-                {"name": "witai", "access-token": "test", "min-score": 0.3}
+                {"name": "witai", "token": "test", "min-score": 0.3}
             ]
             mock_skill = amock.CoroutineMock()
             match_witai("get_weather")(mock_skill)
@@ -184,7 +184,7 @@ class TestParserWitai(asynctest.TestCase):
 
     async def test_parse_witai_no_entity(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config["parsers"] = [{"name": "witai", "access-token": "test"}]
+            opsdroid.config["parsers"] = [{"name": "witai", "token": "test"}]
             mock_skill = amock.CoroutineMock()
             match_witai("get_weather")(mock_skill)
 
@@ -206,7 +206,7 @@ class TestParserWitai(asynctest.TestCase):
     async def test_parse_witai_no_intent(self):
         with OpsDroid() as opsdroid:
             opsdroid.config["parsers"] = [
-                {"name": "witai", "access-token": "test", "min-score": 0.3}
+                {"name": "witai", "token": "test", "min-score": 0.3}
             ]
             mock_skill = amock.CoroutineMock()
             match_witai("get_weather")(mock_skill)
@@ -234,7 +234,7 @@ class TestParserWitai(asynctest.TestCase):
     async def test_parse_witai_raise_ClientOSError(self):
         with OpsDroid() as opsdroid:
             opsdroid.config["parsers"] = [
-                {"name": "witai", "access-token": "test", "min-score": 0.3}
+                {"name": "witai", "token": "test", "min-score": 0.3}
             ]
             mock_skill = amock.CoroutineMock()
             match_witai("get_weather")(mock_skill)
@@ -259,7 +259,7 @@ class TestParserWitai(asynctest.TestCase):
     async def test_parse_witai_entities(self):
         with OpsDroid() as opsdroid:
             opsdroid.config["parsers"] = [
-                {"name": "witai", "access-token": "test", "min-score": 0.3}
+                {"name": "witai", "token": "test", "min-score": 0.3}
             ]
             mock_skill = await self.getMockSkill()
             opsdroid.skills.append(match_witai("get_weather")(mock_skill))

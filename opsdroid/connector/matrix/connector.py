@@ -9,6 +9,7 @@ import aiohttp
 
 from matrix_api_async.api_asyncio import AsyncHTTPAPI
 from matrix_client.errors import MatrixRequestError
+from voluptuous import Required
 
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message, Image, File
@@ -18,6 +19,14 @@ from .create_events import MatrixEventCreator
 
 
 _LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {
+    Required("mxid"): str,
+    Required("password"): str,
+    Required("rooms"): dict,
+    "homeserver": str,
+    "nick": str,
+    "room_specific_nicks": bool,
+}
 
 __all__ = ["ConnectorMatrix"]
 

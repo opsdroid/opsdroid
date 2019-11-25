@@ -95,7 +95,7 @@ Open your `configuration.yaml` file and under the skills section, add the name a
 
 ```yaml
 skills:
-  - name: how-are-you
+  how-are-you:
     path: /Users/username/documents/skill-howareyou
 ```
 
