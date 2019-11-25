@@ -35,6 +35,7 @@ from opsdroid.const import (
     DEFAULT_MODULE_DEPS_PATH,
     PRE_0_12_0_ROOT_PATH,
     DEFAULT_ROOT_PATH,
+    ENV_VAR_REGEX,
 )
 
 
@@ -363,7 +364,7 @@ class Loader:
                 )
             config_path = cls.create_default_config(DEFAULT_CONFIG_PATH)
 
-        env_var_pattern = re.compile(r"^\$([A-Z_]*)$")
+        env_var_pattern = re.compile(ENV_VAR_REGEX)
         cls.yaml_loader.add_implicit_resolver("!envvar", env_var_pattern, first="$")
 
         def envvar_constructor(loader, node):

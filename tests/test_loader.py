@@ -10,6 +10,7 @@ from types import ModuleType
 import pkg_resources
 from yaml import YAMLError
 from opsdroid.cli.start import configure_lang
+from opsdroid.const import ENV_VAR_REGEX
 from opsdroid import loader as ld
 from opsdroid.loader import Loader
 from opsdroid.helper import del_rw
@@ -164,6 +165,24 @@ class TestLoader(unittest.TestCase):
             self.assertIsNone(config)
             # If the command in exploit.yaml is echoed it will return 0
             self.assertNotEqual(config, 0)
+
+    def test_env_var_regex(self):
+        test_data = [
+            {"env_var": "$OPS_DROID", "match": True},
+            {"env_var": "$OPS-DROID", "match": True},
+            {"env_var": "${OPS_DROID}", "match": True},
+            {"env_var": '"$OPSDROID_SLACK_TOKEN"', "match": True},
+            {"env_var": "$INVALID!_CHARACTERS@", "match": False},
+            {"env_var": "OPS_DROID", "match": False},
+            {"env_var": "$OPS_DROID23", "match": False},
+            {"env_var": "$UPPER-AND-lower", "match": False},
+            {"env_var": '"MISSING_PREFIX"', "match": False},
+        ]
+        for d in test_data:
+            # Tests opsdroid constant ENV_VAR_REGEX for both valid and invalid environment variables.
+            self.assertRegex(d["env_var"], ENV_VAR_REGEX) if d[
+                "match"
+            ] else self.assertNotRegex(d["env_var"], ENV_VAR_REGEX)
 
     def test_load_config_file_with_env_vars(self):
         opsdroid, loader = self.setup()
