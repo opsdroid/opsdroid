@@ -224,7 +224,9 @@ class ConnectorTelegram(Connector):
 
         if resp.status == 409:
             _LOGGER.info(
-                _("Can't get updates because previous webhook is still active. Will try to delete webhook.")
+                _(
+                    "Can't get updates because previous webhook is still active. Will try to delete webhook."
+                )
             )
             await self.delete_webhook()
 

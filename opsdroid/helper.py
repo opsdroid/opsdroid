@@ -154,7 +154,6 @@ def move_config_to_appdir(src, dst):
             os.remove(original_file)
 
 
-
 def file_is_ipython_notebook(path):
     """Check whether a file is an iPython Notebook.
 

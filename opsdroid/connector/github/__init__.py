@@ -25,9 +25,7 @@ class ConnectorGitHub(Connector):
         try:
             self.github_token = config["token"]
         except KeyError:
-            _LOGGER.error(
-                _("Missing auth token! You must set 'token' in your config.")
-            )
+            _LOGGER.error(_("Missing auth token! You must set 'token' in your config."))
         self.name = self.config.get("name", "github")
         self.opsdroid = opsdroid
         self.github_username = None
