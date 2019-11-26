@@ -111,7 +111,9 @@ class Loader:
             _LOGGER.debug(_("Loaded %s: %s."), config["type"], config["module_path"])
             return module
 
-        _LOGGER.error(_("Failed to load %s: %s."), config["type"], config["module_path"])
+        _LOGGER.error(
+            _("Failed to load %s: %s."), config["type"], config["module_path"]
+        )
         return None
 
     @classmethod
@@ -267,9 +269,7 @@ class Loader:
 
         except FileNotFoundError:
             _LOGGER.debug(
-                _(
-                    "Couldn't find the command 'pip', trying again with command 'pip3'."
-                )
+                _("Couldn't find the command 'pip', trying again with command 'pip3'.")
             )
 
         try:
@@ -279,9 +279,7 @@ class Loader:
             )
         except FileNotFoundError:
             _LOGGER.debug(
-                _(
-                    "Couldn't find the command 'pip3', install of %s will be skipped."
-                ),
+                _("Couldn't find the command 'pip3', install of %s will be skipped."),
                 str(requirements_path),
             )
 

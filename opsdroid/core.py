@@ -108,7 +108,9 @@ class OpsDroid:
 
     def exit(self):
         """Exit application."""
-        _LOGGER.info(_("Exiting application with return code %s."), str(self.sys_status))
+        _LOGGER.info(
+            _("Exiting application with return code %s."), str(self.sys_status)
+        )
         sys.exit(self.sys_status)
 
     def critical(self, error, code):
@@ -396,7 +398,9 @@ class OpsDroid:
                 _("Exception when running skill '%s'."), str(config["name"])
             )
             if event:
-                await event.respond(events.Message(_("Whoops there has been an error.")))
+                await event.respond(
+                    events.Message(_("Whoops there has been an error."))
+                )
                 await event.respond(events.Message(_("Check the log for details.")))
 
     async def get_ranked_skills(self, skills, message):
