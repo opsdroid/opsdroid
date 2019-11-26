@@ -2,12 +2,19 @@
 import asyncio
 import logging
 import aiohttp
+from voluptuous import Required
 
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message, Image
 
 
 _LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {
+    Required("token"): str,
+    "update-interval": float,
+    "default-user": str,
+    "whitelisted-users": list,
+}
 
 
 class ConnectorTelegram(Connector):
@@ -125,8 +132,10 @@ class ConnectorTelegram(Connector):
         call to Telegram and evaluates the status of the call.
 
         """
+
         _LOGGER.debug(_("Connecting to Telegram."))
         self.session = aiohttp.ClientSession()
+
         resp = await self.session.get(self.build_url("getMe"))
 
         if resp.status != 200:

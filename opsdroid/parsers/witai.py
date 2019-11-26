@@ -5,16 +5,19 @@ import json
 
 import aiohttp
 
+from voluptuous import Required
+
 from opsdroid.const import WITAI_DEFAULT_VERSION
 from opsdroid.const import WITAI_API_ENDPOINT
 
 _LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {Required("token"): str, "min-score": float}
 
 
 async def call_witai(message, config):
     """Call the wit.ai api and return the response."""
-    async with aiohttp.ClientSession() as session:
-        headers = {"Authorization": "Bearer " + config["access-token"]}
+    async with aiohttp.ClientSession(trust_env=True) as session:
+        headers = {"Authorization": "Bearer " + config["token"]}
         payload = {"v": WITAI_DEFAULT_VERSION, "q": message.text}
         resp = await session.get(
             WITAI_API_ENDPOINT + "v={}&q={}".format(payload["v"], payload["q"]),
@@ -28,7 +31,7 @@ async def call_witai(message, config):
 async def parse_witai(opsdroid, skills, message, config):
     """Parse a message against all witai skills."""
     matched_skills = []
-    if "access-token" in config:
+    if "token" in config:
         try:
             result = await call_witai(message, config)
         except aiohttp.ClientOSError:

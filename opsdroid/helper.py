@@ -3,9 +3,7 @@
 import datetime
 import os
 import stat
-import shutil
 import logging
-import filecmp
 import json
 
 import nbformat
@@ -70,6 +68,17 @@ def convert_dictionary(modules):
         for module in modules:
             module_copy = module.copy()
             del module_copy["name"]
+
+            if module.get("access-token") or module.get("api-token"):
+                _LOGGER.warning(
+                    _(
+                        "Configuration param for %s has been deprecated in favor of 'token', please update your config."
+                    ),
+                    module["name"],
+                )
+                module_copy["token"] = module.get("access-token") or module.get(
+                    "api-token"
+                )
 
             config[module["name"]] = module_copy
 
@@ -143,6 +152,7 @@ def move_config_to_appdir(src, dst):
         )
         if filecmp.cmp(original_file, copied_file):
             os.remove(original_file)
+
 
 
 def file_is_ipython_notebook(path):

@@ -4,12 +4,15 @@ import logging
 
 import aiohttp
 
+from voluptuous import Required
+
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
 
 
 _LOGGER = logging.getLogger(__name__)
 GITHUB_API_URL = "https://api.github.com"
+CONFIG_SCHEMA = {Required("token"): str}
 
 
 class ConnectorGitHub(Connector):
@@ -32,7 +35,7 @@ class ConnectorGitHub(Connector):
     async def connect(self):
         """Connect to GitHub."""
         url = "{}/user?access_token={}".format(GITHUB_API_URL, self.github_token)
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(trust_env=True) as session:
             response = await session.get(url)
             if response.status >= 300:
                 _LOGGER.error(_("Error connecting to GitHub: %s."), response.text())
@@ -105,7 +108,7 @@ class ConnectorGitHub(Connector):
         repo, issue = message.target.split("#")
         url = "{}/repos/{}/issues/{}/comments".format(GITHUB_API_URL, repo, issue)
         headers = {"Authorization": " token {}".format(self.github_token)}
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(trust_env=True) as session:
             resp = await session.post(url, json={"body": message.text}, headers=headers)
             if resp.status == 201:
                 _LOGGER.info(_("Message sent."))

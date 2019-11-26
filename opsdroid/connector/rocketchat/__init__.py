@@ -4,11 +4,22 @@ import logging
 import datetime
 import aiohttp
 
+from voluptuous import Required, Url
+
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
 
 _LOGGER = logging.getLogger(__name__)
 API_PATH = "/api/v1/"
+CONFIG_SCHEMA = {
+    Required("token"): str,
+    Required("user-id"): str,
+    "bot-name": str,
+    "default-room": str,
+    "channel-url": Url,
+    "update-interval": int,
+    "group": str,
+}
 
 
 class RocketChat(Connector):
@@ -77,7 +88,7 @@ class RocketChat(Connector):
 
         """
         _LOGGER.info(_("Connecting to Rocket.Chat"))
-        self.session = aiohttp.ClientSession()
+        self.session = aiohttp.ClientSession(trust_env=True)
         resp = await self.session.get(self.build_url("me"), headers=self.headers)
         if resp.status != 200:
             _LOGGER.error(_("Unable to connect."))

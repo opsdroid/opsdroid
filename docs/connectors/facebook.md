@@ -20,7 +20,7 @@ Follow the steps to get access token :
 
 ```yaml
 connectors:
-  - name: facebook
+  facebook:
     # required
     verify-token: aabbccddee
     page-access-token: aabbccddee112233445566

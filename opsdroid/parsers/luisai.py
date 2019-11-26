@@ -6,14 +6,22 @@ import contextlib
 
 import aiohttp
 
+from voluptuous import Required
+
 from opsdroid.const import LUISAI_DEFAULT_URL
 
 _LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {
+    Required("appid"): str,
+    Required("appkey"): str,
+    Required("verbose"): bool,
+    "min-score": float,
+}
 
 
 async def call_luisai(message, config):
     """Call the luis.ai api and return the response."""
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(trust_env=True) as session:
         headers = {"Content-Type": "application/json"}
         url = LUISAI_DEFAULT_URL
         resp = await session.get(

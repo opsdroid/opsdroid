@@ -23,7 +23,7 @@ class TestConnectorMattermost(unittest.TestCase):
     def test_init(self):
         """Test that the connector is initialised properly."""
         connector = ConnectorMattermost(
-            {"api-token": "abc123", "url": "localhost", "team-name": "opsdroid"},
+            {"token": "abc123", "url": "localhost", "team-name": "opsdroid"},
             opsdroid=OpsDroid(),
         )
         self.assertEqual("mattermost", connector.name)
@@ -44,7 +44,7 @@ class TestConnectorMattermostAsync(asynctest.TestCase):
     async def test_connect(self):
         connector = ConnectorMattermost(
             {
-                "api-token": "abc123",
+                "token": "abc123",
                 "url": "localhost",
                 "team-name": "opsdroid",
                 "scheme": "http",
@@ -62,7 +62,7 @@ class TestConnectorMattermostAsync(asynctest.TestCase):
     async def test_disconnect(self):
         connector = ConnectorMattermost(
             {
-                "api-token": "abc123",
+                "token": "abc123",
                 "url": "localhost",
                 "team-name": "opsdroid",
                 "scheme": "http",
@@ -82,7 +82,7 @@ class TestConnectorMattermostAsync(asynctest.TestCase):
         """Test that listening consumes from the socket."""
         connector = ConnectorMattermost(
             {
-                "api-token": "abc123",
+                "token": "abc123",
                 "url": "localhost",
                 "team-name": "opsdroid",
                 "scheme": "http",
@@ -97,7 +97,7 @@ class TestConnectorMattermostAsync(asynctest.TestCase):
         """Test processing a mattermost message."""
         connector = ConnectorMattermost(
             {
-                "api-token": "abc123",
+                "token": "abc123",
                 "url": "localhost",
                 "team-name": "opsdroid",
                 "scheme": "http",
@@ -156,7 +156,7 @@ class TestConnectorMattermostAsync(asynctest.TestCase):
     async def test_send_message(self):
         connector = ConnectorMattermost(
             {
-                "api-token": "abc123",
+                "token": "abc123",
                 "url": "localhost",
                 "team-name": "opsdroid",
                 "scheme": "http",

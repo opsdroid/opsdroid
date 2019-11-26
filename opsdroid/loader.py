@@ -8,7 +8,6 @@ import importlib.util
 import json
 import logging
 import os
-import re
 import shutil
 import subprocess
 import sys
@@ -16,25 +15,20 @@ import tempfile
 import urllib.request
 from collections.abc import Mapping
 from pkg_resources import iter_entry_points
-import yaml
 
 from opsdroid.helper import (
-    move_config_to_appdir,
     file_is_ipython_notebook,
     convert_ipynb_to_script,
     extract_gist_id,
-    update_pre_0_17_config_format,
 )
+
+from opsdroid.configuration import validate_configuration
 from opsdroid.const import (
     DEFAULT_GIT_URL,
     MODULES_DIRECTORY,
     DEFAULT_MODULES_PATH,
     DEFAULT_MODULE_BRANCH,
-    DEFAULT_CONFIG_PATH,
-    EXAMPLE_CONFIG_FILE,
     DEFAULT_MODULE_DEPS_PATH,
-    PRE_0_12_0_ROOT_PATH,
-    DEFAULT_ROOT_PATH,
 )
 
 
@@ -483,6 +477,7 @@ class Loader:
         .
 
         Args:
+            modules (dict): Dictionary containing all modules
             module (dict): Module to be configured
             modules_type (str): Type of module being loaded
             entry_points (dict): name of possible entry points.
@@ -563,6 +558,10 @@ class Loader:
             # Import module
             self.current_import_config = config
             module = self.import_module(config)
+
+            # Suppress exception if module doesn't contain CONFIG_SCHEMA
+            with contextlib.suppress(AttributeError):
+                validate_configuration(config, module.CONFIG_SCHEMA)
 
             # Load intents
             intents = self._load_intents(config)

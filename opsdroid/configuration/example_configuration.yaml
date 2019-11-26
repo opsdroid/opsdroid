@@ -18,6 +18,12 @@
 #   level: info
 #   path: opsdroid.log
 #   console: true
+#   extended: false
+#   filter:
+#     whitelist:
+#       - opsdroid.core
+#     blacklist:
+#       - opsdroid.loader
 
 ## Set the location for opsdroid to install modules
 # module-path: "."
@@ -45,8 +51,9 @@ welcome-message: true
 #    min-score: 0.8
 #
 #  ## Dialogflow (http://opsdroid.readthedocs.io/en/stable/matchers/dialogflow)
+
 #  dialogflow:
-#    access-token: "exampleaccesstoken123"
+#    project-id: <project id>
 #    min-score: 0.6
 #
 #  ## Regex (http://opsdroid.readthedocs.io/en/stable/matchers/regex)
@@ -58,8 +65,9 @@ welcome-message: true
 #    enabled: true
 #
 #  ## Wit.ai (http://opsdroid.readthedocs.io/en/stable/matchers/wit.ai)
+
 #  witai:
-#    access-token: XJF475SKGITJ98KHFO
+#    token: XJF475SKGITJ98KHFO
 #    min-score: 0.6
 #
 #  ## Luis.ai (http://opsdroid.readthedocs.io/en/stable/matchers/luis.ai)
@@ -75,10 +83,18 @@ welcome-message: true
 #
 #  ## Sapcai (http://opsdroid.readthedocs.io/en/stable/matchers/sapcai)
 #  sapcai:
-#    access-token: 85769fjoso084jd
+#    token: 85769fjoso084jd
 #    min-score: 0.8
 #
-
+#  ## Watson (http://opsdroid.readthedocs.io/en/stable/matchers/watson)
+#
+#  watson:
+#    gateway: gateway-fra # Required
+#    assistant-id: '74yhfhis9-kfirj1e-jfir34-kfdir345' # Required
+#    token:  XJF475SKGITJ98KHFO # Required
+#    min-score: 1.0
+#
+#
 ## Connector modules
 connectors:
 
@@ -94,7 +110,7 @@ connectors:
 #  ciscospark:
 #    # required
 #    webhook-url: http(s)://<host>:<port>  # Url for Spark to connect to your bot
-#    access-token: <your bot access token>  # Your access token
+#    token: <your bot access token>  # Your access token
 #
 #  ## Twitter (https://github.com/opsdroid/connector-twitter)
 #  twitter:
@@ -111,7 +127,7 @@ connectors:
 #  webexteams:
 #    # required
 #    webhook-url: http(s)://<host>:<port>  # Url for Webex Teams to connect to your bot
-#    access-token: <your bot access token>  # Your access token
+#    token: <your bot access token>  # Your access token
 #
 #  ## Facebook (core)
 #  facebook:
@@ -139,7 +155,7 @@ connectors:
 #    room_specific_nicks: False  # Look up room specific nicknames of senders (expensive in large rooms)
 #
 #  ## Mattermost (core)
-#  - name: mattermost
+#  mattermost:
 #    # Required
 #    api-token: "zyxw-abdcefghi-12345"
 #    url: "mattermost.server.com"
@@ -159,7 +175,7 @@ connectors:
 #  gitter:
 #    # Required
 #    room-id: 1239kr
-#    access-token: jdr-3i4p-dk
+#    token: jdr-3i4p-dk
 #    # Optional
 #    bot-name: opsdroid
 #
@@ -177,7 +193,7 @@ connectors:
 #  ## Slack (core)
 #  slack:
 #    # required
-#    api-token: "zyxw-abdcefghi-12345"
+#    token: "zyxw-abdcefghi-12345"
 #    # optional
 #    bot-name: "mybot" # default "opsdroid"
 #    default-room: "#random" # default "#general"
@@ -214,7 +230,6 @@ connectors:
 #    port:       "12345"       # (optional) default "6379"
 #    database:   7           # (optional) default 0
 #    password:   "pass123"     # (optional) default "None"
-#    reconnect:  true          # (optional) default "False"
 #
 #  ## Sqlite (core)
 #  sqlite:

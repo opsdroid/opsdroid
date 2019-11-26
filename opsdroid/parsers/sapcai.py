@@ -3,20 +3,22 @@ import logging
 import json
 
 import aiohttp
+from voluptuous import Required
 
 from opsdroid.const import DEFAULT_LANGUAGE
 from opsdroid.const import SAPCAI_API_ENDPOINT
 
 
 _LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {Required("token"): str, "min-score": float}
 
 
 async def call_sapcai(message, config, lang=DEFAULT_LANGUAGE):
     """Call the SAP Conversational AI api and return the response."""
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(trust_env=True) as session:
         payload = {"language": lang, "text": message.text}
         headers = {
-            "Authorization": "Token " + config["access-token"],
+            "Authorization": "Token " + config["token"],
             "Content-Type": "application/json",
         }
         resp = await session.post(
@@ -33,7 +35,7 @@ async def parse_sapcai(opsdroid, skills, message, config):
     matched_skills = []
     language = config.get("lang") or opsdroid.config.get("lang", DEFAULT_LANGUAGE)
 
-    if "access-token" in config:
+    if "token" in config:
         try:
             result = await call_sapcai(message, config, language)
         except aiohttp.ClientOSError:

@@ -14,6 +14,7 @@ from opsdroid import events
 from opsdroid.const import DEFAULT_CONFIG_PATH
 from opsdroid.memory import Memory
 from opsdroid.connector import Connector
+from opsdroid.configuration import load_config_file
 from opsdroid.database import Database
 from opsdroid.skill import Skill
 from opsdroid.loader import Loader
@@ -231,7 +232,7 @@ class OpsDroid:
     async def reload(self):
         """Reload opsdroid."""
         await self.unload()
-        self.config = Loader.load_config_file(
+        self.config = load_config_file(
             [
                 "configuration.yaml",
                 DEFAULT_CONFIG_PATH,

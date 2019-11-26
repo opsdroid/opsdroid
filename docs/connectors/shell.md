@@ -13,7 +13,7 @@ The shell connector requires access to user input, this means you should probabl
 
 ```yaml
 connectors:
-  - name: shell
+  shell:
     # optional
     bot-name: "mybot" # default "opsdroid"
 ```

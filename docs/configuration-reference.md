@@ -29,6 +29,8 @@
     - [Disable dependency install](#disable-dependency-install)
   - [Environment variables](#environment-variables)
   - [Include additional yaml files](#include-additional-yaml-files)
+  - [HTTP Proxy support](#http-proxy-support)
+  - [Validating modules](#validating-modules)
   - [Migrating to new configuration layout - post v0.16.0](#migrate-to-new-configuration-layout)
 
 ## Config file
@@ -45,7 +47,7 @@ For configuration, opsdroid uses a single YAML file named `configuration.yaml`. 
 
 _Note: If no file named `configuration.yaml` can be found on one of these folders one will be created for you taken from the [example configuration file](https://github.com/opsdroid/opsdroid/blob/master/opsdroid/configuration/example_configuration.yaml)_
 
-If you are using one of the default locations you can run the command `opsdroid -e` or `opsdroid --edit-config` to open the configuration with your favorite editor(taken from the environment variable `EDITOR`) or the default editor [vim](tutorials/introduction-vim.md).
+If you are using one of the default locations you can run the command `opsdroid config edit` to open the configuration with your favorite editor(taken from the environment variable `EDITOR`) or the default editor [vim](tutorials/introduction-vim.md).
 
 The opsdroid project itself is very simple and requires modules to give it functionality. In your configuration file, you must specify the connector, skill, and database* modules you wish to use and any options they may require.
 
@@ -533,16 +535,49 @@ skills:
 
 _Note: Your environment variable names must consist of uppercase characters and underscores only. The value must also be just the environment variable, you cannot currently mix env vars inside strings._
 
-## Include additional yaml files
+## Validating modules
 
-You can split the config into smaller modules by using the value `!include file.yaml` to import the contents of a yaml file into the main config.
+Opsdroid runs two types of validation:
+- Validates basic rules found on the file `configuration.yaml` (logging, web, module path and welcome message)
+- Validates rules for each module if the constant variable `CONFIG_SCHEMA` is set in the module.
 
-```yaml
-skills: !include skills.yaml
+_Note: If the validation fails, opsdroid will exit with error code 1._
 
+You can add rules to your custom made modules by setting the constant variable and adding rules to it. The `CONFIG_SCHEMA` variable needs to be a dictionary where you pass expected arguments and type.
+
+To validate a module/configuration, we use the _voluptuous_ dependency, that means that you need to follow certain patterns expected by the dependency.
+
+- Required values need to be set with `voluptuous.Required()`
+- Optional values can be set with or without `voluptuous.Optional()`
+
+### Example
+
+Let's take the example of our matrix connector. Inside the module we set the const `CONFIG_SCHEMA` with some rules:
+
+```python
+from voluptuous import Required
+
+CONFIG_SCHEMA = {
+    Required("mxid"): str,
+    Required("password"): str,
+    Required("rooms"): dict,
+    "homeserver": str,
+    "nick": str,
+    "room_specific_nicks": bool,
+}
 ```
 
-_Note: The file.yaml that you wish to include in the config must be in the same directory as your configuration.yaml (e.g ~/.opsdroid)_
+As you can see `mxid`, `password` and `rooms` are required fields for this connector and we expect them to be either strings or a dictionary.
+
+Since we don't need to explicitly declare a value as Optional we can just write the expected value and type.
+
+_Note: If a module doesn't contain the const variable, the module will be loaded anyway and should handle any potential errors found in the configuration._
+
+
+## HTTP proxy support
+
+If you need to use a HTTP proxy, set the HTTP_PROXY and HTTPS_PROXY environment variables.
+
 
 ## Migrate to new configuration layout
 
@@ -568,11 +603,11 @@ Which would be represented in a dictionary format like this:
 
 ```python
 {
-    'connectors': { 
-        'slack': { 
+    'connectors': {
+        'slack': {
             'token': <API token>
-        } 
-    } 
+        }
+    }
 }
 ```
 

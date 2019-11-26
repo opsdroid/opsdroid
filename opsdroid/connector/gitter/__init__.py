@@ -4,6 +4,7 @@ import aiohttp
 import asyncio
 import json
 import urllib
+from voluptuous import Required
 
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
@@ -11,6 +12,7 @@ from opsdroid.events import Message
 _LOGGER = logging.getLogger(__name__)
 GITTER_STREAM_API = "https://stream.gitter.im/v1/rooms"
 GITTER_MESSAGE_BASE_API = "https://api.gitter.im/v1/rooms"
+CONFIG_SCHEMA = {Required("token"): str, Required("room-id"): str, "bot-name": str}
 
 
 class ConnectorGitter(Connector):
@@ -25,7 +27,7 @@ class ConnectorGitter(Connector):
         self.response = None
         self.bot_name = self.config.get("bot-name", "opsdroid")
         self.room_id = self.config.get("room-id")
-        self.access_token = self.config.get("access-token")
+        self.access_token = self.config.get("token")
         self.update_interval = 1
         self.opsdroid = opsdroid
         self.listening = True
@@ -34,8 +36,10 @@ class ConnectorGitter(Connector):
         """Create the connection."""
 
         # Create connection object with chat library
+
         _LOGGER.debug(_("Connecting with Gitter stream."))
         self.session = aiohttp.ClientSession()
+
         gitter_url = self.build_url(
             GITTER_STREAM_API,
             self.room_id,

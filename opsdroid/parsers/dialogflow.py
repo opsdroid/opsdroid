@@ -2,10 +2,12 @@
 import os
 import logging
 
+from voluptuous import Required
 from opsdroid.const import DEFAULT_LANGUAGE
 
 
 _LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {Required("project-id"): str, "min-score": float}
 
 
 async def call_dialogflow(text, opsdroid, config):

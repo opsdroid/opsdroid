@@ -14,6 +14,7 @@ from opsdroid.events import Message
 
 _LOGGER = logging.getLogger(__name__)
 HEADERS = {"Access-Control-Allow-Origin": "*"}
+CONFIG_SCHEMA = {"bot-name": str, "max-connections": int, "connection-timeout": int}
 
 
 class ConnectorWebsocket(Connector):

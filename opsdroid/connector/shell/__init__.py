@@ -9,6 +9,7 @@ from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
 
 _LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {"bot-name": str}
 
 
 class ConnectorShell(Connector):
