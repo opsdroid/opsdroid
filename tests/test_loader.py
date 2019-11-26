@@ -405,7 +405,7 @@ class TestLoader(unittest.TestCase):
         }
         with mock.patch("opsdroid.loader._LOGGER.error") as logmock:
             loader._install_module(config)
-            logmock.assert_any_call("Could not find local git repo %s", config["repo"])
+            logmock.assert_any_call("Could not find local git repo %s.", config["repo"])
             logmock.assert_any_call("Install of %s failed.", config["name"])
 
     def test_install_specific_remote_module(self):

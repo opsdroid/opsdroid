@@ -35,7 +35,7 @@ class RedisDatabase(Database):
         self.port = self.config.get("port", 6379)
         self.database = self.config.get("database", 0)
         self.password = self.config.get("password", None)
-        _LOGGER.debug(_("Loaded redis database connector."))
+        _LOGGER.debug(_("Loaded Redis database connector."))
 
     async def connect(self):
         """Connect to the database.
@@ -53,14 +53,14 @@ class RedisDatabase(Database):
             )
 
             _LOGGER.info(
-                _("Connected to redis database %s from %s on port %s"),
+                _("Connected to Redis database %s from %s on port %s."),
                 self.database,
                 self.host,
                 self.port,
             )
         except OSError:
             _LOGGER.warning(
-                _("Unable to connect to redis database on address: %s port: %s"),
+                _("Unable to connect to Redis database on address: %s port: %s."),
                 self.host,
                 self.port,
             )
@@ -74,7 +74,7 @@ class RedisDatabase(Database):
 
         """
         if self.client:
-            _LOGGER.debug(_("Putting %s into redis"), key)
+            _LOGGER.debug(_("Putting %s into Redis."), key)
             await self.client.execute("SET", key, json.dumps(data, cls=JSONEncoder))
 
     async def get(self, key):
@@ -89,7 +89,7 @@ class RedisDatabase(Database):
 
         """
         if self.client:
-            _LOGGER.debug(_("Getting %s from redis"), key)
+            _LOGGER.debug(_("Getting %s from Redis."), key)
             data = await self.client.execute("GET", key)
 
             if data:
@@ -105,7 +105,7 @@ class RedisDatabase(Database):
 
         """
         if self.client:
-            _LOGGER.debug(_("Deleting %s from redis"), key)
+            _LOGGER.debug(_("Deleting %s from Redis."), key)
             await self.client.execute("DEL", key)
 
     async def disconnect(self):

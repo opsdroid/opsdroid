@@ -53,7 +53,7 @@ class Memory:
             data (obj): Data object to store.
 
         """
-        _LOGGER.debug(_("Putting %s to memory"), key)
+        _LOGGER.debug(_("Putting %s to memory."), key)
         self.memory[key] = data
         await self._put_to_database(key, self.memory[key])
 

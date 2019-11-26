@@ -37,7 +37,7 @@ async def call_luisai(message, config):
             headers=headers,
         )
         result = await resp.json()
-        _LOGGER.debug(_("luis.ai response - %s"), json.dumps(result))
+        _LOGGER.debug(_("luis.ai response - %s."), json.dumps(result))
 
         return result
 
@@ -68,7 +68,7 @@ async def parse_luisai(opsdroid, skills, message, config):
                 "min-score" in config
                 and result["topScoringIntent"]["score"] < config["min-score"]
             ):
-                _LOGGER.debug(_("luis.ai score lower than min-score"))
+                _LOGGER.debug(_("luis.ai score lower than min-score."))
                 return matched_skills
 
             for skill in skills:

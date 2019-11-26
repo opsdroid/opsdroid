@@ -79,7 +79,7 @@ async def call_watson(message, config):
         input={"message_type": "text", "text": message.text},
     ).get_result()
 
-    _LOGGER.debug(_("Watson response - %s"), response)
+    _LOGGER.debug(_("Watson response - %s."), response)
 
     return response
 
@@ -157,10 +157,10 @@ async def parse_watson(opsdroid, skills, message, config):
 
     except KeyError as error:
         _LOGGER.error(
-            _("Error: %s . You are probably missing some configuration parameter."),
+            _("Error: %s. You are probably missing some configuration parameter."),
             error,
         )
     except ApiException as ex:
-        _LOGGER.error(_("Watson Api error - %d:%s"), ex.code, ex.message)
+        _LOGGER.error(_("Watson Api error - %d:%s."), ex.code, ex.message)
 
     return matched_skills

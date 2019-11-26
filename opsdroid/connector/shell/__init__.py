@@ -17,7 +17,7 @@ class ConnectorShell(Connector):
 
     def __init__(self, config, opsdroid=None):
         """Create the connector."""
-        _LOGGER.debug(_("Loaded shell connector"))
+        _LOGGER.debug(_("Loaded shell Connector."))
         super().__init__(config, opsdroid=opsdroid)
         self.name = "shell"
         self.config = config
@@ -103,14 +103,13 @@ class ConnectorShell(Connector):
         """
         if platform.system() == "Windows":
             _LOGGER.warning(
-                "The shell connector does not work on windows."
-                " Please install the Opsdroid Desktop App."
+                "The shell connector does not work on windows. Please install the Opsdroid Desktop App."
             )
         pass
 
     async def listen(self):
         """Listen for and parse new user input."""
-        _LOGGER.debug(_("Connecting to shell"))
+        _LOGGER.debug(_("Connecting to shell."))
         message_processor = self.loop.create_task(self._parse_message())
         await self._closing.wait()
         message_processor.cancel()
@@ -123,7 +122,7 @@ class ConnectorShell(Connector):
             message (object): An instance of Message
 
         """
-        _LOGGER.debug(_("Responding with: %s"), message.text)
+        _LOGGER.debug(_("Responding with: %s."), message.text)
         self.clear_prompt()
         print(message.text)
         self.draw_prompt()

@@ -22,7 +22,7 @@ class ConnectorWebexTeams(Connector):
 
     def __init__(self, config, opsdroid=None):
         """Create a connector."""
-        _LOGGER.debug(_("Loaded webex teams connector"))
+        _LOGGER.debug(_("Loaded WebEx Teams Connector."))
         super().__init__(config, opsdroid=opsdroid)
         self.name = "webexteams"
         self.config = config
@@ -44,7 +44,9 @@ class ConnectorWebexTeams(Connector):
                 },
             )
         except KeyError:
-            _LOGGER.error(_("Must set 'token' for webex teams connector!"))
+
+            _LOGGER.error(_("Must set access-token for WebEx Teams Connector."))
+
             return
 
         await self.clean_up_webhooks()
@@ -53,7 +55,7 @@ class ConnectorWebexTeams(Connector):
 
     async def webexteams_message_handler(self, request):
         """Handle webhooks from the Webex Teams api."""
-        _LOGGER.debug(_("Handling message from Webex Teams"))
+        _LOGGER.debug(_("Handling message from WebEx Teams."))
         req_data = await request.json()
 
         _LOGGER.debug(req_data)
@@ -83,7 +85,7 @@ class ConnectorWebexTeams(Connector):
 
     async def subscribe_to_rooms(self):
         """Create webhooks for all rooms."""
-        _LOGGER.debug(_("Creating Webex Teams webhook"))
+        _LOGGER.debug(_("Creating Webex Teams webhook."))
         webhook_endpoint = "/connector/webexteams"
         self.opsdroid.web_server.web_app.router.add_post(
             webhook_endpoint, self.webexteams_message_handler

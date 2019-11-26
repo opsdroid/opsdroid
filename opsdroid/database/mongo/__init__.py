@@ -25,7 +25,7 @@ class DatabaseMongo(Database):
 
         """
         super().__init__(config, opsdroid=opsdroid)
-        _LOGGER.debug("Loaded mongo database connector")
+        _LOGGER.debug("Loaded mongo database connector.")
         self.name = "mongo"
         self.config = config
         self.client = None
@@ -39,7 +39,7 @@ class DatabaseMongo(Database):
         path = "mongodb://{host}:{port}".format(host=host, port=port)
         self.client = AsyncIOMotorClient(path)
         self.database = self.client[database]
-        _LOGGER.info("Connected to mongo")
+        _LOGGER.info("Connected to MongoDB.")
 
     async def put(self, key, data):
         """Insert or replace an object into the database for a given key.
@@ -49,7 +49,7 @@ class DatabaseMongo(Database):
             data (object): the data to be inserted or replaced
 
         """
-        _LOGGER.debug("Putting %s into mongo", key)
+        _LOGGER.debug("Putting %s into MongoDB.", key)
         if "_id" in data:
             await self.database[key].update_one({"_id": data["_id"]}, {"$set": data})
         else:
@@ -62,7 +62,7 @@ class DatabaseMongo(Database):
             key (str): the key is the database name.
 
         """
-        _LOGGER.debug("Getting %s from mongo", key)
+        _LOGGER.debug("Getting %s from MongoDB.", key)
         return await self.database[key].find_one(
             {"$query": {}, "$orderby": {"$natural": -1}}
         )
@@ -74,5 +74,5 @@ class DatabaseMongo(Database):
             key (str): the key is the database name.
 
         """
-        _LOGGER.debug("Deleting %s from mongo", key)
+        _LOGGER.debug("Deleting %s from MongoDB.", key)
         return await self.database[key].delete_one({"$query": {}})

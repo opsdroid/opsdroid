@@ -150,7 +150,7 @@ async def train_rasanlu(config, skills):
                 """
                 return True
 
-        _LOGGER.error(_("Bad Rasa NLU response - %s"), await resp.text())
+        _LOGGER.error(_("Bad Rasa NLU response - %s."), await resp.text())
         _LOGGER.error(_("Rasa NLU training failed."))
         return False
 
@@ -170,14 +170,14 @@ async def call_rasanlu(text, config):
         try:
             resp = await session.post(url, data=json.dumps(data), headers=headers)
         except aiohttp.client_exceptions.ClientConnectorError:
-            _LOGGER.error(_("Unable to connect to Rasa NLU"))
+            _LOGGER.error(_("Unable to connect to Rasa NLU."))
             return None
         if resp.status == 200:
             result = await resp.json()
-            _LOGGER.debug(_("Rasa NLU response - %s"), json.dumps(result))
+            _LOGGER.debug(_("Rasa NLU response - %s."), json.dumps(result))
         else:
             result = await resp.text()
-            _LOGGER.error(_("Bad Rasa NLU response - %s"), result)
+            _LOGGER.error(_("Bad Rasa NLU response - %s."), result)
 
         return result
 
@@ -192,12 +192,12 @@ async def parse_rasanlu(opsdroid, skills, message, config):
         return matched_skills
 
     if result == "unauthorized":
-        _LOGGER.error(_("Rasa NLU error - Unauthorised request." "Check your 'token'."))
+        _LOGGER.error(_("Rasa NLU error - Unauthorised request. Check your 'token'."))
         return matched_skills
 
     if result is None or "intent" not in result or result["intent"] is None:
         _LOGGER.error(
-            _("Rasa NLU error - No intent found. Did you " "forget to create one?")
+            _("Rasa NLU error - No intent found. Did you forget to create one?")
         )
         return matched_skills
 

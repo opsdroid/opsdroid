@@ -39,7 +39,7 @@ class ConnectorFacebook(Connector):
     def __init__(self, config, opsdroid=None):
         """Connector Setup."""
         super().__init__(config, opsdroid=opsdroid)
-        _LOGGER.debug(_("Starting facebook connector"))
+        _LOGGER.debug(_("Starting Facebook Connector."))
         self.name = self.config.get("name", "facebook")
         self.bot_name = config.get("bot-name", "opsdroid")
 
@@ -107,7 +107,7 @@ class ConnectorFacebook(Connector):
     @register_event(Message)
     async def send_message(self, message):
         """Respond with a message."""
-        _LOGGER.debug(_("Responding to facebook"))
+        _LOGGER.debug(_("Responding to Facebook."))
         url = _FACEBOOK_SEND_URL.format(self.config.get("page-access-token"))
         headers = {"content-type": "application/json"}
         payload = {
@@ -117,8 +117,8 @@ class ConnectorFacebook(Connector):
         async with aiohttp.ClientSession(trust_env=True) as session:
             resp = await session.post(url, data=json.dumps(payload), headers=headers)
             if resp.status < 300:
-                _LOGGER.info(_("Responded with: %s"), message.text)
+                _LOGGER.info(_("Responded with: %s."), message.text)
             else:
                 _LOGGER.debug(resp.status)
                 _LOGGER.debug(await resp.text())
-                _LOGGER.error(_("Unable to respond to facebook"))
+                _LOGGER.error(_("Unable to respond to Facebook."))

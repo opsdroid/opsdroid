@@ -142,19 +142,17 @@ def welcome_message(config):
             _LOGGER.info("=" * 40)
             _LOGGER.info(
                 _(
-                    "You can customise your opsdroid by modifying "
-                    "your configuration.yaml"
+                    "You can customise your opsdroid by modifying your configuration.yaml."
                 )
             )
             _LOGGER.info(
-                _("Read more at: " "http://opsdroid.readthedocs.io/#configuration")
+                _("Read more at: http://opsdroid.readthedocs.io/#configuration")
             )
-            _LOGGER.info(_("Watch the Get Started Videos at: " "http://bit.ly/2fnC0Fh"))
+            _LOGGER.info(_("Watch the Get Started Videos at: http://bit.ly/2fnC0Fh"))
             _LOGGER.info(
                 _(
                     "Install Opsdroid Desktop at: \n"
-                    "https://github.com/opsdroid/opsdroid-desktop/"
-                    "releases"
+                    "https://github.com/opsdroid/opsdroid-desktop/releases"
                 )
             )
             _LOGGER.info("=" * 40)

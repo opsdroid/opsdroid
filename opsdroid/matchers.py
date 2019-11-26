@@ -215,8 +215,7 @@ def match_recastai(intent):
 
     _LOGGER.warning(
         _(
-            "Recast.AI is now called SAP Conversational AI, "
-            "this matcher  will stop working in the future. "
+            "Recast.AI is now called SAP Conversational AI, this matcher will stop working in the future. "
             "Use match_sapcai instead."
         )
     )
