@@ -197,7 +197,7 @@ class ConnectorTelegram(Connector):
             ):
                 self.latest_update = result["update_id"] + 1
                 _LOGGER.debug(
-                    _("Emoji message parsing not supported " "- Ignoring message.")
+                    _("Emoji message parsing not supported - Ignoring message.")
                 )
             else:
                 _LOGGER.error(_("Unable to parse the message."))
