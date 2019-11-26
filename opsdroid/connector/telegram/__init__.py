@@ -224,11 +224,7 @@ class ConnectorTelegram(Connector):
 
         if resp.status == 409:
             _LOGGER.info(
-                _(
-                    "Can't get updates because previous "
-                    "webhook is still active. Will try to "
-                    "delete webhook"
-                )
+                _("Can't get updates because previous webhook is still active. Will try to delete webhook.")
             )
             await self.delete_webhook()
 
@@ -309,9 +305,9 @@ class ConnectorTelegram(Connector):
 
         resp = await self.session.post(self.build_url("sendPhoto"), data=data)
         if resp.status == 200:
-            _LOGGER.debug(_("Sent %s image " "successfully."), file_event.name)
+            _LOGGER.debug(_("Sent %s image successfully."), file_event.name)
         else:
-            _LOGGER.debug(_("Unable to send image - " "Status Code %s."), resp.status)
+            _LOGGER.debug(_("Unable to send image - Status Code %s."), resp.status)
 
     async def disconnect(self):
         """Disconnect from Telegram.
