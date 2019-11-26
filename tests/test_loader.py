@@ -10,6 +10,7 @@ from types import ModuleType
 import pkg_resources
 from opsdroid.cli.start import configure_lang
 from opsdroid.configuration import load_config_file
+from opsdroid.const import ENV_VAR_REGEX
 from opsdroid import loader as ld
 from opsdroid.helper import del_rw
 
@@ -685,3 +686,34 @@ class TestLoader(unittest.TestCase):
             loader.load_modules_from_config(config)
             self.assertTrue(mock_sysexit.called)
             self.assertLogs("_LOGGER", "critical")
+
+    def test_env_var_regex(self):
+        test_data = [
+            {"env_var": "$OPS_DROID", "match": True},
+            {"env_var": "$OPS-DROID", "match": True},
+            {"env_var": "${OPS_DROID}", "match": True},
+            {"env_var": '"$OPSDROID_SLACK_TOKEN"', "match": True},
+            {"env_var": "$_OPS_DROID", "match": True},
+            {"env_var": "${_OPS_DROID}", "match": True},
+            {"env_var": "$INVALID!_CHARACTERS@", "match": False},
+            {"env_var": "OPS_DROID", "match": False},
+            {"env_var": "$OPS_DROID23", "match": False},
+            {"env_var": "$UPPER-AND-lower", "match": False},
+            {"env_var": '"MISSING_PREFIX"', "match": False},
+            {"env_var": "$all_lowercase", "match": False},
+            {"env_var": "a simple sentence.", "match": False},
+            {"env_var": "$", "match": False},
+            {"env_var": "${}", "match": False},
+            {"env_var": "", "match": False},
+            {"env_var": "556373", "match": False},
+            {"env_var": "${@!!}", "match": False},
+            {"env_var": "${_-_-}", "match": False},
+            {"env_var": "$ALONGSTRINGTHAT$CONTAINS$", "match": False},
+            {"env_var": "NOPREFIXALONGSTRINGTHAT$CONTAINS$", "match": False},
+        ]
+        for d in test_data:
+            # Tests opsdroid constant ENV_VAR_REGEX for both valid and invalid environment variables.
+            if d["match"]:
+                self.assertRegex(d["env_var"], ENV_VAR_REGEX)
+            else:
+                self.assertNotRegex(d["env_var"], ENV_VAR_REGEX)

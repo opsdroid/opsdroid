@@ -7,7 +7,7 @@ import re
 import logging
 import yaml
 
-from opsdroid.const import DEFAULT_CONFIG_PATH, EXAMPLE_CONFIG_FILE
+from opsdroid.const import DEFAULT_CONFIG_PATH, ENV_VAR_REGEX, EXAMPLE_CONFIG_FILE
 from opsdroid.configuration.validation import validate_configuration, BASE_SCHEMA
 from opsdroid.helper import update_pre_0_17_config_format
 
@@ -71,7 +71,7 @@ def get_config_path(config_paths):
     return config_path
 
 
-env_var_pattern = re.compile(r"^\$([A-Z_]*)$")
+env_var_pattern = re.compile(ENV_VAR_REGEX)
 
 
 def envvar_constructor(loader, node):
