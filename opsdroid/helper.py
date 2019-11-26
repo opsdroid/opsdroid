@@ -112,48 +112,6 @@ def update_pre_0_17_config_format(config):
     return config
 
 
-# This is meant to provide backwards compatibility for versions
-# prior to  0.12.0 in the future this will probably be deleted
-
-
-def move_config_to_appdir(src, dst):
-    """Copy any .yaml extension in "src" to "dst" and remove from "src".
-
-    Args:
-        src (str): path file.
-        dst (str): destination path.
-
-    Logging:
-        info (str): File 'my_file.yaml' copied from '/path/src/
-                       to '/past/dst/' run opsdroid -e to edit
-                       the  main config file.
-
-    Examples:
-        src : source path with .yaml file '/path/src/my_file.yaml.
-        dst : destination folder to paste the .yaml files '/path/dst/.
-
-    """
-    yaml_files = [file for file in os.listdir(src) if ".yaml" in file[-5:]]
-
-    if not os.path.isdir(dst):
-        os.mkdir(dst)
-
-    for file in yaml_files:
-        original_file = os.path.join(src, file)
-        copied_file = os.path.join(dst, file)
-        shutil.copyfile(original_file, copied_file)
-        _LOGGER.info(
-            _(
-                "File %s copied from %s to %s. Run opsdroid -e to edit the main config file."
-            ),
-            file,
-            src,
-            dst,
-        )
-        if filecmp.cmp(original_file, copied_file):
-            os.remove(original_file)
-
-
 def file_is_ipython_notebook(path):
     """Check whether a file is an iPython Notebook.
 
