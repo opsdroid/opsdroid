@@ -58,9 +58,10 @@ def edit(ctx):
 
 @config.command()
 @click.pass_context
-def lint(ctx):
+@click.argument("path", required=False, type=click.Path(exists=True))
+def lint(ctx, path):
     """Validate the configuration."""
-    validate_config(ctx, None, "config")
+    validate_config(ctx, path, "config")
 
 
 @config.command()

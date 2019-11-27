@@ -17,6 +17,7 @@ from opsdroid.const import (
     LOCALE_DIR,
     DEFAULT_LANGUAGE,
     DEFAULT_CONFIG_PATH,
+    DEFAULT_CONFIG_LOCATIONS,
 )
 
 _LOGGER = logging.getLogger("opsdroid")
@@ -67,13 +68,12 @@ def edit_files(ctx, param, value):
     ctx.exit(0)
 
 
-def validate_config(ctx, param, value):
+def validate_config(ctx, path, value):
     """Open config/log file with favourite editor.
 
     Args:
         ctx (:obj:`click.Context`): The current click cli context.
-        param (dict): a dictionary of all parameters pass to the click
-            context when invoking this function as a callback.
+        path (string): a string representing the path to load the config.
         value (string): the value of this parameter after invocation.
             It is either "config" or "log" depending on the program
             calling this function.
@@ -82,15 +82,19 @@ def validate_config(ctx, param, value):
         int: the exit code. Always returns 0 in this case.
 
     """
-    loader = Loader(OpsDroid)
-    config = load_config_file(
-        ["configuration.yaml", DEFAULT_CONFIG_PATH, "/etc/opsdroid/configuration.yaml"]
-    )
-    loader.load_modules_from_config(config)
-    if config:
+    with OpsDroid() as opsdroid:
+        loader = Loader(opsdroid)
+        print(path)
+        if path:
+            DEFAULT_CONFIG_LOCATIONS.insert(0, path)
+
+        config = load_config_file(DEFAULT_CONFIG_LOCATIONS)
+
+        print(config)
+        loader.load_modules_from_config(config)
         click.echo("Configuration validated - No errors founds!")
 
-    ctx.exit(0)
+        ctx.exit(0)
 
 
 def warn_deprecated_cli_option(text):
