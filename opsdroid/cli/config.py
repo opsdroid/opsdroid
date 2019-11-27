@@ -2,7 +2,12 @@
 
 import click
 
-from opsdroid.cli.utils import edit_files, warn_deprecated_cli_option, validate_config
+from opsdroid.cli.utils import (
+    edit_files,
+    warn_deprecated_cli_option,
+    validate_config,
+    list_modules,
+)
 from opsdroid.const import EXAMPLE_CONFIG_FILE
 
 
@@ -56,3 +61,31 @@ def edit(ctx):
 def lint(ctx):
     """Validate the configuration."""
     validate_config(ctx, None, "config")
+
+
+@config.command()
+@click.pass_context
+def list_connectors(ctx):
+    """Print out a list of all active connectors."""
+    list_modules(ctx, "connectors", "config")
+
+
+@config.command()
+@click.pass_context
+def list_parsers(ctx):
+    """Print out a list of all active parsers."""
+    list_modules(ctx, "parsers", "config")
+
+
+@config.command()
+@click.pass_context
+def list_databases(ctx):
+    """Print out a list of all active databases."""
+    list_modules(ctx, "databases", "config")
+
+
+@config.command()
+@click.pass_context
+def list_skills(ctx):
+    """Print out a list of all active skills."""
+    list_modules(ctx, "skills", "config")

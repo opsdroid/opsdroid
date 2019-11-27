@@ -160,3 +160,46 @@ def welcome_message(config):
         _LOGGER.warning(
             _("'welcome-message: true/false' is missing in configuration.yaml")
         )
+
+
+def list_modules(ctx, param, value):
+    """List the active modules from confiv."""
+    config = load_config_file(
+        ["configuration.yaml", DEFAULT_CONFIG_PATH, "/etc/opsdroid/configuration.yaml"]
+    )
+
+    try:
+        if param == "connectors":
+            connectors = [connector for connector in config.get("connectors")]
+            click.echo(
+                "Connectors active in the configuration: {connectors_active}.".format(
+                    connectors_active=", ".join(connectors)
+                )
+            )
+
+        if param == "databases":
+            databases = [database for database in config.get("databases")]
+            click.echo(
+                "Databases active in the configuration: {databases_active}.".format(
+                    databases_active=", ".join(databases)
+                )
+            )
+
+        if param == "skills":
+            skills = [skill for skill in config.get("skills")]
+            click.echo(
+                "Skills active in the configuration: {skills_active}.".format(
+                    skills_active=", ".join(skills)
+                )
+            )
+
+        if param == "parsers":
+            parsers = [parser for parser in config.get("parsers")]
+            click.echo(
+                "Parsers active in the configuration: {parsers_active}.".format(
+                    parsers_active=", ".join(parsers)
+                )
+            )
+
+    except TypeError:
+        click.echo("Found no {module} active in configuration.".format(module=param))
