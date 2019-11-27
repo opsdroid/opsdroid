@@ -1,37 +1,47 @@
 # Creating a Weather Skill
-We will create a skill, that will make opsdroid tell us the current weather in a town. This skill will be quite similar to the [official weather](https://github.com/opsdroid/skill-weather) skill that can be found in the opsdroid repo.
+
+We will create a skill, that will make opsdroid tell us the current weather in a town.
 
 This tutorial will use the  [OpenWeatherMap](https://openweathermap.org) API to get the weather information from a city. We will only need the free version of the API, so register and get your key from the [API](https://openweathermap.org/price) menu.
 
 *If you need help or if you are unsure about something join our* [matrix channel](https://riot.im/app/#/room/#opsdroid-general:matrix.org) *and ask away! We are more than happy to help you.*
 
 ## Setting Up
+
 In the tutorial, you can choose the city that you want the weather information about and which system to use (metric or imperial). These settings will be specified in our opsdroid `configuration.yaml` file.
 
 Our `__init__.py` init file will contain two functions, one that interacts with the OpenWeatherMap API and one that opsdroid will use to tell us the weather in our city.
 
-
 ## Building the Skill
+
 We are ready to start working on our skills. First, you need to create a folder for the weather skill. Choose a location and name it weather-skill.
+
+```bash
+mkdir /path/to/my/weather-skill
+```
+
+### Configuration
 
 Now, let's open opsdroid `configuration.yaml` file and add our weather skill to the skills section.
 
 ```yaml
 skills:
-  - name: weather
-    city: < Your city, your country >     # For accuracy use {city},{country code}
-    units: < metric/imperial >       # Choose metric/imperial
-    api-key: < Your Api Key >
+  weather:
+    city: <Your city, your country>     # For accuracy use {city},{country code}
+    units: <metric/imperial>       # Choose metric/imperial
+    api-key: <Your Api Key>
     # Developing the skill
-    path: < full path of your weather-skill folder >
+    path: /path/to/my/weather-skill
     no-cache: true
 ```
+
 _Note: We will need to set `no-cache` to true, in order to tell opsdroid to install the skill on every opsdroid run._
 
 #### Weather Skill
-Now that our skill has all the configuration details set up in the `configuration.yaml` file, let's create the `__init__.py` inside our weather-skill folder and start working on the skill.
 
-The first thing we need to do, is to import the skill class and the regex_matcher from opsdroid and the aiohttp module. Your `__init__.py` file should look like this:
+Now that our skill has all the configuration details set up in the `configuration.yaml` file, let's create the `__init__.py` inside our `weather-skill` folder and start working on the skill.
+
+The first thing we need to do is to import the `Skill` class and the `regex_matcher` from opsdroid and the `aiohttp` module. Your `__init__.py` file should look like this:
 
 ```python
 from opsdroid.skill import Skill
@@ -41,6 +51,7 @@ import aiohttp
 ```
 
 #### Get Weather Data
+
 Now we need to get the weather data from OpenWeatherMap. Let's create an asynchronous function to get the weather data.
 
 If you read the [current weather data](https://openweathermap.org/current) documentation from OpenWeatherMap, you will see that the API endpoint that we need to use is `http://api.openweathermap.org/data/2.5/weather?q=`
@@ -53,17 +64,17 @@ from opsdroid.matchers import match_regex
 
 import aiohttp
 
-
 async def get_weather(config):
     api_url = "http://api.openweathermap.org/data/2.5/weather?q="
 ```
 
 We will need to pass the following things to OpenWeatherMap:
+
 - City
 - Units
 - API-key
 
-Since these details are already in our opsdroid `configuration.yaml` we can simply get them from the config.
+Since these details are already in our opsdroid `configuration.yaml` we can get them from the config.
 
 Make your function look like this:
 
@@ -73,7 +84,8 @@ async def get_weather(config):
     parameters = "{}&units={}&appid={}".format(
         config['city'], config['units'], config['api-key'])
 ```
-If we join `api_url` and `parameters`  we get the full URL that we need to get our weather data. We will now use aiohttp to start a session and get the data from OpenWeatherMap.
+
+If we join `api_url` and `parameters`  we get the full URL that we need to get our weather data. We will now use `aiohttp` to start a session and get the data from OpenWeatherMap.
 
 Your function should look like this now:
 
@@ -87,7 +99,7 @@ async def get_weather(config):
         response = await session.get(api_url + parameters)
 ```
 
-Our `get_weather` function is starting to look good. What's left to do is returning our response in a JSON format. Luckily aiohttp makes that quite easy for us, all we need to do is add `.json()` to our response.
+Our `get_weather` function is starting to look good. What's left to do is returning our response in a JSON format. Luckily `aiohttp` makes that quite easy for us, all we need to do is add `.json()` to our response.
 
 Make our function to look like this:
 
@@ -101,66 +113,67 @@ async def get_weather(config):
         response = await session.get(api_url + parameters)
     return await response.json()
 ```
-Now when we call our `get_weather` function, aiohttp will get all the data from the OpenWeatherMap API and return it to us in a json format.
+
+Now when we call our `get_weather` function, `aiohttp` will get all the data from the OpenWeatherMap API and return it to us as a Python dictionary.
 
 `response.json()` will give us something that looks like this:
 
 ```json
 {
-     'coord':
+     "coord":
          {
-             'lon': -0.13,
-             'lat': 51.51
+             "lon": -0.13,
+             "lat": 51.51
          },
-     'weather':
+     "weather":
          [
              {
-                 'id': 800,
-                 'main': 'Clear',
-                 'description': 'clear sky',
-                 'icon': '01n'
+                 "id": 800,
+                 "main": "Clear",
+                 "description": "clear sky",
+                 "icon": "01n"
              }
          ],
-     'base': 'stations',
-     'main':
+     "base": "stations",
+     "main":
          {
-             'temp': 3.37,
-             'pressure': 1022,
-             'humidity': 86,
-             'temp_min': 2,
-             'temp_max': 5
+             "temp": 3.37,
+             "pressure": 1022,
+             "humidity": 86,
+             "temp_min": 2,
+             "temp_max": 5
          },
-     'visibility': 10000,
-     'wind':
+     "visibility": 10000,
+     "wind":
          {
-             'speed': 2.1,
-             'deg': 310
+             "speed": 2.1,
+             "deg": 310
          },
-     'clouds':
+     "clouds":
          {
-             'all': 0
+             "all": 0
          },
-     'dt': 1511076000,
-     'sys':
+     "dt": 1511076000,
+     "sys":
          {
-             'type': 1,
-             'id': 5089,
-             'message': 0.1668,
-             'country': 'GB',
-             'sunrise': 1511076308,
-             'sunset': 1511107601
+             "type": 1,
+             "id": 5089,
+             "message": 0.1668,
+             "country": "GB",
+             "sunrise": 1511076308,
+             "sunset": 1511107601
          },
-     'id': 2639545,
-     'name': 'London',
-     'cod': 200
+     "id": 2639545,
+     "name": "London",
+     "cod": 200
  }
 ```
 
-
-That's all we need to do. Now if we call our function we will be able to get our weather data. The next step is to make opsdroid tell us the current weather.
+Now if we call our function we will be able to get our weather data. The next step is to make opsdroid tell us the current weather.
 
 #### Tell the Weather
-This skill is quite easy to understand and it will simply call our `get_weather` function and then get the details from our weather data.
+
+This skill will call our `get_weather` function and then get the details from our weather data.
 
 We also need to decorate the skill with our chosen matcher (regex in this case).
 
@@ -171,7 +184,6 @@ from opsdroid.skill import Skill
 from opsdroid.matchers import match_regex
 
 import aiohttp
-
 
 async def get_weather(config):
     api_url = "http://api.openweathermap.org/data/2.5/weather?q="
@@ -190,7 +202,7 @@ class WeatherSkill(Skill):
         pass
 ```
 
-We need to chose what should trigger opsdroid to tell us the weather. Let's make opsdroid trigger when we type `How's the weather`.
+We need to chose what should trigger opsdroid to tell us the weather. Let's make opsdroid trigger when we type `How's the weather?`.
 
 ```python
 class WeatherSkill(Skill):
@@ -242,7 +254,6 @@ from opsdroid.matchers import match_regex
 
 import aiohttp
 
-
 class WeatherSkill(Skill):
 
     async def _get_weather(self):
@@ -263,6 +274,3 @@ class WeatherSkill(Skill):
 
         await message.respond("It's {} and {}% humidity in {}.".format(temp, humidity, city))
 ```
-
-Hopefully this tutorial was helpful to you.
-

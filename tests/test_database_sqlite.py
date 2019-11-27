@@ -56,18 +56,19 @@ class TestDatabaseSqliteAsync(asynctest.TestCase):
 
         try:
             await database.connect()
+            table = database.table
+            client = type(database.client).__name__
+            await database.disconnect()
         except NotImplementedError:
             raise Exception
         else:
-            self.assertEqual("opsdroid", database.table)
-            self.assertEqual("Connection", type(database.client).__name__)
+            self.assertEqual("opsdroid", table)
+            self.assertEqual("Connection", client)
 
-    async def test_get_and_put(self):
-        """Test get and put functions of database
+    async def test_disconnect(self):
+        """Test of database disconnection.
 
-        This method will test the get and put functions which help to read
-        and write data from the database. The function `put` a value with
-        key and asserts the same value after the `get` operation is completed.
+        This method will test the database disconnection of sqlite database.
 
         """
         database = DatabaseSqlite({"file": "sqlite.db"})
@@ -76,11 +77,36 @@ class TestDatabaseSqliteAsync(asynctest.TestCase):
 
         try:
             await database.connect()
-            await database.put("hello", {})
-            data = await database.get("hello")
+            await database.disconnect()
         except NotImplementedError:
             raise Exception
         else:
-            self.assertEqual("opsdroid", database.table)
+            pass
+
+    async def test_get_put_and_delete(self):
+        """Test get, put and delete functions of database
+
+        This method will test the get, put and delete functions which help to read
+        and write data from the database. The function `put` a value with
+        key and asserts the same value after the `get` operation is completed
+        followed by the `delete` operation which deletes the key.
+
+        """
+        database = DatabaseSqlite({"file": "sqlite.db"})
+        opsdroid = amock.CoroutineMock()
+        opsdroid.eventloop = self.loop
+
+        try:
+            await database.connect()
+            table = database.table
+            client = type(database.client).__name__
+            await database.put("hello", {})
+            data = await database.get("hello")
+            await database.delete("hello")
+            await database.disconnect()
+        except NotImplementedError:
+            raise Exception
+        else:
+            self.assertEqual("opsdroid", table)
             self.assertEqual({}, data)
-            self.assertEqual("Connection", type(database.client).__name__)
+            self.assertEqual("Connection", client)

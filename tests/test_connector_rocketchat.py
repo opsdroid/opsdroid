@@ -23,7 +23,7 @@ class TestRocketChat(unittest.TestCase):
         connector = RocketChat(
             {
                 "name": "rocket.chat",
-                "access-token": "test",
+                "token": "test",
                 "user-id": "userID",
                 "update-interval": 0.1,
             },

@@ -7,7 +7,7 @@ In order to enable luis.ai skills you must specify an `appid` and `appkey` for y
 ```yaml
 
 parsers:
-   - name: luisai
+   luisai:
      appid: "<application-id>"
      appkey: "<subscription-key>"
      verbose: True

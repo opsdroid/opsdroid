@@ -80,7 +80,7 @@ class TestParserWatson(asynctest.TestCase):
     async def test_get_session_id(self):
         config = {
             "name": "watson",
-            "access-token": "test",
+            "token": "test",
             "gateway": "gateway",
             "min-score": 0.3,
             "assistant-id": "test",
@@ -102,7 +102,7 @@ class TestParserWatson(asynctest.TestCase):
         message = Message("Hello", "user", "default", mock_connector)
         config = {
             "name": "watson",
-            "access-token": "test",
+            "token": "test",
             "gateway": "gateway",
             "min-score": 0.3,
             "assistant-id": "test",
@@ -148,7 +148,7 @@ class TestParserWatson(asynctest.TestCase):
             opsdroid.config["parsers"] = [
                 {
                     "name": "watson",
-                    "access-token": "test",
+                    "token": "test",
                     "gateway": "gateway",
                     "min-score": 0.3,
                     "assistant-id": "test",
@@ -194,7 +194,7 @@ class TestParserWatson(asynctest.TestCase):
             opsdroid.config["parsers"] = [
                 {
                     "name": "watson",
-                    "access-token": "test",
+                    "token": "test",
                     "gateway": "gateway",
                     "min-score": 0.3,
                     "assistant-id": "test",
@@ -230,7 +230,7 @@ class TestParserWatson(asynctest.TestCase):
             opsdroid.config["parsers"] = [
                 {
                     "name": "watson",
-                    "access-token": "test",
+                    "token": "test",
                     "gateway": "gateway",
                     "assistant-id": "test",
                     "session-id": "12ndior2kld",
@@ -262,7 +262,7 @@ class TestParserWatson(asynctest.TestCase):
             opsdroid.config["parsers"] = [
                 {
                     "name": "watson",
-                    "access-token": "test",
+                    "token": "test",
                     "gateway": "gateway",
                     "min-score": 0.5,
                     "assistant-id": "test",
@@ -304,12 +304,39 @@ class TestParserWatson(asynctest.TestCase):
                 self.assertEqual([], skills)
                 self.assertLogs("_LOGGER", "info")
 
-    async def test_parse_watson_APIException(self):
+    async def test_parse_watson_KeyError(self):
         with OpsDroid() as opsdroid:
             opsdroid.config["parsers"] = [
                 {
                     "name": "watson",
                     "access-token": "test",
+                    "gateway": "gateway",
+                    "min-score": 0.3,
+                    "assistant-id": "test",
+                    "session-id": "12ndior2kld",
+                }
+            ]
+            mock_skill = await self.getMockSkill()
+            opsdroid.skills.append(match_watson("hello")(mock_skill))
+
+            mock_connector = amock.CoroutineMock()
+            message = Message("hi", "user", "default", mock_connector)
+
+            with amock.patch.object(watson, "call_watson") as mocked_call_watson:
+                mocked_call_watson.side_effect = KeyError()
+
+                skills = await watson.parse_watson(
+                    opsdroid, opsdroid.skills, message, opsdroid.config["parsers"][0]
+                )
+                self.assertEqual([], skills)
+                self.assertLogs("_LOGGER", "error")
+
+    async def test_parse_watson_APIException(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.config["parsers"] = [
+                {
+                    "name": "watson",
+                    "token": "test",
                     "gateway": "gateway",
                     "min-score": 0.3,
                     "assistant-id": "test",

@@ -6,7 +6,7 @@ As in [regex matcher](../matchers/regex.md), in order to enable parse format ski
 
 ```yaml
 parsers:
-  - name: parse_format
+  parse_format:
     enabled: true
 ```
 

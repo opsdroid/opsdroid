@@ -3,9 +3,7 @@
 import datetime
 import os
 import stat
-import shutil
 import logging
-import filecmp
 import json
 
 import nbformat
@@ -45,47 +43,73 @@ def del_rw(action, name, exc):
 
 
 # This is meant to provide backwards compatibility for versions
-# prior to  0.12.0 in the future this will probably be deleted
+# prior to  0.16.0 in the future this will be deleted
 
 
-def move_config_to_appdir(src, dst):
-    """Copy any .yaml extension in "src" to "dst" and remove from "src".
+def convert_dictionary(modules):
+    """Convert dictionary to new format.
+
+    We iterate over all the modules in the list and change the dictionary
+    to be in the format 'name_of_module: { config_params}'
 
     Args:
-        src (str): path file.
-        dst (str): destination path.
+        modules (list): List of dictionaries that contain the module configuration
 
-    Logging:
-        info (str): File 'my_file.yaml' copied from '/path/src/
-                       to '/past/dst/' run opsdroid -e to edit
-                       the  main config file.
-
-    Examples:
-        src : source path with .yaml file '/path/src/my_file.yaml.
-        dst : destination folder to paste the .yaml files '/path/dst/.
+    Return:
+        List: New modified list following the new format.
 
     """
-    yaml_files = [file for file in os.listdir(src) if ".yaml" in file[-5:]]
+    config = dict()
 
-    if not os.path.isdir(dst):
-        os.mkdir(dst)
-
-    for file in yaml_files:
-        original_file = os.path.join(src, file)
-        copied_file = os.path.join(dst, file)
-        shutil.copyfile(original_file, copied_file)
-        _LOGGER.info(
-            _(
-                "File %s copied from %s to %s "
-                "run opsdroid -e to edit the "
-                "main config file"
-            ),
-            file,
-            src,
-            dst,
+    if isinstance(modules, list):
+        _LOGGER.warning(
+            "Opsdroid has a new configuration format since version 0.17.0, we will change your configuration now. Please read on how to migrate in the documentation."
         )
-        if filecmp.cmp(original_file, copied_file):
-            os.remove(original_file)
+        for module in modules:
+            module_copy = module.copy()
+            del module_copy["name"]
+
+            if module.get("access-token") or module.get("api-token"):
+                _LOGGER.warning(
+                    _(
+                        "Configuration param for %s has been deprecated in favor of 'token', please update your config."
+                    ),
+                    module["name"],
+                )
+                module_copy["token"] = module.get("access-token") or module.get(
+                    "api-token"
+                )
+
+            config[module["name"]] = module_copy
+
+        return config
+    else:
+        return modules
+
+
+def update_pre_0_17_config_format(config):
+    """Update each configuration param that contains 'name'.
+
+    We decided to ditch the name param and instead divide each module by it's name.
+    This change was due to validation issues. Now instead of a list of dictionaries
+    without any pointer to what they are, we are using the name of the module and then a
+    dictionary containing the configuration params for said module.
+
+    Args:
+        config (dict): Dictionary containing config got from configuration.yaml
+
+    Returns:
+        dict: updated configuration.
+
+    """
+    updated_config = {}
+    for config_type, modules in config.items():
+        if config_type in ("parsers", "connectors", "skills", "databases"):
+            updated_config[config_type] = convert_dictionary(modules)
+
+    config.update(updated_config)
+
+    return config
 
 
 def file_is_ipython_notebook(path):

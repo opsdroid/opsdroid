@@ -4,11 +4,22 @@ import logging
 import datetime
 import aiohttp
 
+from voluptuous import Required, Url
+
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
 
 _LOGGER = logging.getLogger(__name__)
 API_PATH = "/api/v1/"
+CONFIG_SCHEMA = {
+    Required("token"): str,
+    Required("user-id"): str,
+    "bot-name": str,
+    "default-room": str,
+    "channel-url": Url,
+    "update-interval": int,
+    "group": str,
+}
 
 
 class RocketChat(Connector):
@@ -46,8 +57,7 @@ class RocketChat(Connector):
         except (KeyError, AttributeError):
             _LOGGER.error(
                 _(
-                    "Unable to login: Access token is missing. "
-                    "Rocket.Chat connector will not be available."
+                    "Unable to login: Access token is missing. Rocket.Chat connector will not be available."
                 )
             )
 
@@ -78,14 +88,14 @@ class RocketChat(Connector):
 
         """
         _LOGGER.info(_("Connecting to Rocket.Chat"))
-        self.session = aiohttp.ClientSession()
+        self.session = aiohttp.ClientSession(trust_env=True)
         resp = await self.session.get(self.build_url("me"), headers=self.headers)
         if resp.status != 200:
             _LOGGER.error(_("Unable to connect."))
-            _LOGGER.error(_("Rocket.Chat error %s, %s"), resp.status, resp.text)
+            _LOGGER.error(_("Rocket.Chat error %s, %s."), resp.status, resp.text)
         else:
             json = await resp.json()
-            _LOGGER.debug(_("Connected to Rocket.Chat as %s"), json["username"])
+            _LOGGER.debug(_("Connected to Rocket.Chat as %s."), json["username"])
 
     async def _parse_message(self, response):
         """Parse the message received.
@@ -96,10 +106,11 @@ class RocketChat(Connector):
         """
         if response["messages"]:
             message = Message(
-                response["messages"][0]["msg"],
-                response["messages"][0]["u"]["username"],
-                response["messages"][0]["rid"],
-                self,
+                text=response["messages"][0]["msg"],
+                user_id=response["messages"][0]["u"]["_id"],
+                user=response["messages"][0]["u"]["username"],
+                target=response["messages"][0]["rid"],
+                connector=self,
             )
             _LOGGER.debug(
                 _("Received message from Rocket.Chat %s"),
@@ -179,7 +190,7 @@ class RocketChat(Connector):
             message (object): An instance of Message
 
         """
-        _LOGGER.debug(_("Responding with: %s"), message.text)
+        _LOGGER.debug(_("Responding with: %s."), message.text)
 
         data = {}
         data["channel"] = message.target
@@ -191,9 +202,9 @@ class RocketChat(Connector):
         )
 
         if resp.status == 200:
-            _LOGGER.debug(_("Successfully responded"))
+            _LOGGER.debug(_("Successfully responded."))
         else:
-            _LOGGER.debug(_("Error - %s: Unable to respond"), resp.status)
+            _LOGGER.debug(_("Error - %s: Unable to respond."), resp.status)
 
     async def disconnect(self):
         """Disconnect from Rocket.Chat.

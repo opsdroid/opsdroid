@@ -8,7 +8,7 @@ If a skill is configured with both the regex and some other NLU matcher then use
 
 ```yaml
 parsers:
-  - name: regex
+  regex:
     enabled: true
 ```
 
