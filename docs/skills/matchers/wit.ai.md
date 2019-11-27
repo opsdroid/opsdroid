@@ -2,8 +2,8 @@
 
 ## Configuring opsdroid
 
-In order to enable wit.ai skills, you must specify an `access-token` for your bot in the parsers section of the opsdroid configuration file.
-You can find this `access-token` in the settings of your App under the name: `'Server Access Token: '`.
+In order to enable wit.ai skills, you must specify an `token` for your bot in the parsers section of the opsdroid configuration file.
+You can find this `token` in the settings of your App under the name: `'Server Access Token: '`.
 
 You can also set a `min-score` option to tell opsdroid to ignore any matches which score less than a given number between 0 and 1. The default for this is 0 which will match all messages.
 
@@ -11,7 +11,7 @@ You can also set a `min-score` option to tell opsdroid to ignore any matches whi
 
 parsers:
   witai:
-    access-token: XJF475SKGITJ98KHFO
+    token: XJF475SKGITJ98KHFO
     min-score: 0.6
 ```
 

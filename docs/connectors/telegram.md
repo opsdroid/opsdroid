@@ -71,7 +71,7 @@ of the connector since users can't change this ID.
 Here is how you can whitelist a user:
 
 ```yaml
-  - name: Telegram
+  telegram:
     token: <your bot token>
     whitelisted-users:
       - user1

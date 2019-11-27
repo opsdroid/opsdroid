@@ -247,6 +247,17 @@ Opsdroid is an open source chatbot framework. It is designed to be extendable, s
 
  If you don't know where to start, make sure to check the [overview](overview) and read the [documentation](http://opsdroid.readthedocs.io/en/latest/?badge=latest).  Remember that you can also ask for help in our [matrix channel](https://riot.im/app/#/room/#opsdroid-general:matrix.org)
 
+## Creating Consistent Logging Messages
+
+When creating log messages, we would like to see a consistency around how to structure and utilize them.
+
+* In general any copyright/legal name should be Capitalized (i.e. Slack, Telegram)
+* All usage of the opsdroid capabilities should be Capitalized (Connector, Skill, Database and Parsers)
+* All sentances should end with a period.  
+* When inserting specific text from an error message, end the sentance with a period.  
+
+
+
 ## Issues
 You can help us by reporting new issues or by fixing existing issues.
 

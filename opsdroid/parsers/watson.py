@@ -4,10 +4,17 @@ import logging
 from ibm_watson import AssistantV2
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 from ibm_watson import ApiException
+from voluptuous import Required
 
 from opsdroid.const import WATSON_API_ENDPOINT, WATSON_API_VERSION
 
 _LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {
+    Required("gateway"): str,
+    Required("assistant-id"): str,
+    Required("token"): str,
+    "min-score": float,
+}
 
 
 async def get_all_entities(entities):
@@ -61,7 +68,7 @@ async def call_watson(message, config):
         A dict containing the API response
 
     """
-    authenticator = IAMAuthenticator(config["access-token"])
+    authenticator = IAMAuthenticator(config["token"])
     service = AssistantV2(version=WATSON_API_VERSION, authenticator=authenticator)
 
     await get_session_id(service, config)
@@ -72,7 +79,7 @@ async def call_watson(message, config):
         input={"message_type": "text", "text": message.text},
     ).get_result()
 
-    _LOGGER.debug(_("Watson response - %s"), response)
+    _LOGGER.debug(_("Watson response - %s."), response)
 
     return response
 
@@ -150,10 +157,10 @@ async def parse_watson(opsdroid, skills, message, config):
 
     except KeyError as error:
         _LOGGER.error(
-            _("Error: %s . You are probably missing some configuration parameter."),
+            _("Error: %s. You are probably missing some configuration parameter."),
             error,
         )
     except ApiException as ex:
-        _LOGGER.error(_("Watson Api error - %d:%s"), ex.code, ex.message)
+        _LOGGER.error(_("Watson Api error - %d:%s."), ex.code, ex.message)
 
     return matched_skills

@@ -23,10 +23,8 @@ class ParsingFilter(logging.Filter):
             ):
                 _LOGGER.warning(
                     _(
-                        "Both whitelist and blacklist "
-                        "filters found in configuration. "
-                        "Only one can be used at a time - "
-                        "only the whitelist filter will be used."
+                        "Both whitelist and blacklist filters found in configuration. "
+                        "Only one can be used at a time - only the whitelist filter will be used."
                     )
                 )
                 self.parse_list = [
@@ -116,7 +114,7 @@ def configure_logging(config):
 
         rootlogger.addHandler(file_handler)
     _LOGGER.info("=" * 40)
-    _LOGGER.info(_("Started opsdroid %s"), __version__)
+    _LOGGER.info(_("Started opsdroid %s."), __version__)
 
 
 def get_logging_level(logging_level):

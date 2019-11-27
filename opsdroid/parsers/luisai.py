@@ -6,9 +6,17 @@ import contextlib
 
 import aiohttp
 
+from voluptuous import Required
+
 from opsdroid.const import LUISAI_DEFAULT_URL
 
 _LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {
+    Required("appid"): str,
+    Required("appkey"): str,
+    Required("verbose"): bool,
+    "min-score": float,
+}
 
 
 async def call_luisai(message, config):
@@ -29,7 +37,7 @@ async def call_luisai(message, config):
             headers=headers,
         )
         result = await resp.json()
-        _LOGGER.debug(_("luis.ai response - %s"), json.dumps(result))
+        _LOGGER.debug(_("luis.ai response - %s."), json.dumps(result))
 
         return result
 
@@ -60,7 +68,7 @@ async def parse_luisai(opsdroid, skills, message, config):
                 "min-score" in config
                 and result["topScoringIntent"]["score"] < config["min-score"]
             ):
-                _LOGGER.debug(_("luis.ai score lower than min-score"))
+                _LOGGER.debug(_("luis.ai score lower than min-score."))
                 return matched_skills
 
             for skill in skills:

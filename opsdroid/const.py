@@ -17,12 +17,9 @@ DEFAULT_MODULE_DEPS_PATH = os.path.join(
 DEFAULT_CONFIG_PATH = os.path.join(
     user_config_dir(NAME, appauthor=False), "configuration.yaml"
 )
-PRE_0_12_0_CONFIG_PATH = os.path.join(DEFAULT_ROOT_PATH, "configuration.yaml")
-PRE_0_12_0_ROOT_PATH = os.path.expanduser("~/.opsdroid")
 DEFAULT_MODULE_BRANCH = "master"
 DEFAULT_LANGUAGE = "en"
 LOCALE_DIR = os.path.join(MODULE_ROOT, "locale")
-SCHEMA_PATH = os.path.join(MODULE_ROOT, "configuration/schema.yaml")
 EXAMPLE_CONFIG_FILE = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
     "configuration/example_configuration.yaml",
@@ -32,7 +29,7 @@ REGEX_PARSE_SCORE_FACTOR = 0.6
 RASANLU_DEFAULT_URL = "http://localhost:5000"
 RASANLU_DEFAULT_PROJECT = "opsdroid"
 
-LUISAI_DEFAULT_URL = "https://westus.api.cognitive.microsoft.com" "/luis/v2.0/apps/"
+LUISAI_DEFAULT_URL = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/"
 
 DIALOGFLOW_API_ENDPOINT = "https://api.dialogflow.com/v1/query"
 DIALOGFLOW_API_VERSION = "20150910"
@@ -44,3 +41,4 @@ SAPCAI_API_ENDPOINT = "https://api.cai.tools.sap/v2/request"
 
 WATSON_API_ENDPOINT = "https://{gateway}.watsonplatform.net/assistant/api"
 WATSON_API_VERSION = "2019-02-28"
+ENV_VAR_REGEX = r"^\"?\${?(?=\_?[A-Z])([A-Z-_]+)}?\"?$"

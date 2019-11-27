@@ -1,7 +1,7 @@
 
 connectors:
-  - name: shell
+  shell:
     bot-name: $ENVVAR
 
 skills:
-  - name: hello
+  hello: {}

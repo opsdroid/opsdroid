@@ -9,6 +9,7 @@ import aiohttp
 
 from matrix_api_async.api_asyncio import AsyncHTTPAPI
 from matrix_client.errors import MatrixRequestError
+from voluptuous import Required
 
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message, Image, File
@@ -18,6 +19,14 @@ from .create_events import MatrixEventCreator
 
 
 _LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {
+    Required("mxid"): str,
+    Required("password"): str,
+    Required("rooms"): dict,
+    "homeserver": str,
+    "nick": str,
+    "room_specific_nicks": bool,
+}
 
 __all__ = ["ConnectorMatrix"]
 
@@ -121,7 +130,7 @@ class ConnectorMatrix(Connector):
                     timeout_ms=int(60 * 1e3),  # 1m in ms
                     filter=self.filter_id,
                 )
-                _LOGGER.debug(_("matrix sync request returned"))
+                _LOGGER.debug(_("Matrix sync request returned."))
                 message = await self._parse_sync_response(response)
                 if message:
                     await self.opsdroid.parse(message)
@@ -130,14 +139,14 @@ class ConnectorMatrix(Connector):
                 # We can safely ignore timeout errors. The non-standard error
                 # codes are returned by Cloudflare.
                 if mre.code in [504, 522, 524]:
-                    _LOGGER.info(_("Matrix Sync Timeout (code: %d)"), mre.code)
+                    _LOGGER.info(_("Matrix sync timeout (code: %d)."), mre.code)
                     continue
 
-                _LOGGER.exception(_("Matrix Sync Error"))
+                _LOGGER.exception(_("Matrix sync error."))
             except CancelledError:
                 raise
             except Exception:  # pylint: disable=W0703
-                _LOGGER.exception(_("Matrix Sync Error"))
+                _LOGGER.exception(_("Matrix sync error."))
 
     async def get_nick(self, roomid, mxid):
         """
@@ -151,14 +160,14 @@ class ConnectorMatrix(Connector):
                 return await self.connection.get_room_displayname(roomid, mxid)
             except Exception:  # pylint: disable=W0703
                 # Fallback to the non-room specific one
-                logging.exception("Failed to lookup room specific nick for %s", mxid)
+                logging.exception("Failed to lookup room specific nick for %s.", mxid)
 
         try:
             return await self.connection.get_display_name(mxid)
         except MatrixRequestError as mre:
             # Log the error if it's not the 404 from the user not having a nick
             if mre.code != 404:
-                logging.exception("Failed to lookup nick for %s", mxid)
+                logging.exception("Failed to lookup nick for %s.", mxid)
             return mxid
 
     @staticmethod

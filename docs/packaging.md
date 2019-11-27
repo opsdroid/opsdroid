@@ -70,7 +70,7 @@ An extension package with the above entry point could be used from `configuratio
 ```yaml
 databases:
   ## From a installed Python package
-  - name: zodb
+  zodb: {}
 ```
 
 That's all! Opsdroid will see the `zodb` extension name, check it against all `opsdroid_databases` entry points it is aware of,

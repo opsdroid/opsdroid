@@ -4,7 +4,7 @@
 
 ## Configuring opsdroid
 
-To enable Watson skills, you must specify an `access-token`, an `assistant-id` and a `gateway` for your bot in the parsers section of the opsdroid configuration file.
+To enable Watson skills, you must specify an `token`, an `assistant-id` and a `gateway` for your bot in the parsers section of the opsdroid configuration file.
 You can find this information inside your Assistant Settings under the `API Details`. Note that depending on where your bot is located the gateway will be different, just use this. For example: `gateway-fra`.
 
 You can also set a `min-score` option to tell opsdroid to ignore any matches which score less than a given number between 0 and 1. The default for this is 0 which will match all messages.
@@ -14,7 +14,7 @@ You can also set a `min-score` option to tell opsdroid to ignore any matches whi
 parsers:
   watson:
     gateway: 'gateway-fra' # Required
-    access-token: XJF475SKGITJ98KHFO # Required
+    token: XJF475SKGITJ98KHFO # Required
     assistant-id: '74yhfhis9-kfirj1e-jfir34-kfdir345' # Required
     min-score: 0.6
 ```

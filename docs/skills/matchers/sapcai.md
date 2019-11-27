@@ -4,8 +4,8 @@
 
 [SAP Conversational AI](https://cai.tools.sap/) is an NLP API for matching strings to [intents](https://cai.tools.sap/docs/concepts/intent). Intents are created on the SAP Conversational AI website.
 
-In order to enable SAP Conversational AI skills, you must specify an `access-token` for your bot in the parsers section of the opsdroid configuration file.
-You can find this `access-token` in the settings of your bot. Click on the Tokens tab and use the `'Developer token'` details.
+In order to enable SAP Conversational AI skills, you must specify an `token` for your bot in the parsers section of the opsdroid configuration file.
+You can find this `token` in the settings of your bot. Click on the Tokens tab and use the `'Developer token'` details.
 
 You can also set a `min-score` option to tell opsdroid to ignore any matches which score less than a given number between 0 and 1. The default for this is 0 which will match all messages.
 
@@ -13,7 +13,7 @@ You can also set a `min-score` option to tell opsdroid to ignore any matches whi
 
 parsers:
   sapcai:
-    access-token: 85769fjoso084jd
+    token: 85769fjoso084jd
     min-score: 0.8
 ```
 
@@ -30,7 +30,7 @@ _Note: You need to make sure that your intent has the language that you wish to 
 ```yaml
 parsers:
   sapcai:
-    access-token: 85769fjoso084jd
+    token: 85769fjoso084jd
     min-score: 0.8
     lang: 'pt'
 ```
@@ -79,19 +79,17 @@ class MySkill(Skill):
 
 The above skill would be called on any intent which has a name of `'ask-joke'`.
 
-
 ## Creating a SAP Conversational AI bot
+
 You need to [register](https://cai.tools.sap/signup) on SAP Conversational AI and create a bot in order to use SAP Conversational AI with opsdroid.
 
 You can find a quick getting started with the SAP Conversational AI guide [here](https://cai.tools.sap/docs/concepts/create-builder-bot).
-
 
 ## Message object additional parameters
 
 ### `message.recastai`
 
 An http response object which has been returned by the SAP Conversational AI API. This allows you to access any information from the matched intent including other entities, intents, values, etc.
-
 
 ## Example Skill
 

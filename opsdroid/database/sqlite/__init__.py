@@ -9,6 +9,7 @@ from opsdroid.database import Database
 from opsdroid.helper import JSONEncoder, JSONDecoder
 
 _LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {"file": str, "table": str}
 
 # pylint: disable=too-few-public-methods
 # As the current module needs only one public method to register json types
