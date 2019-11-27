@@ -56,7 +56,11 @@ def get_config_path(config_paths):
     """
     config_path = ""
     for possible_path in config_paths:
-        if not os.path.isfile(possible_path):
+        if not possible_path.endswith(("yaml", "json")):
+            _LOGGER.warning(
+                _("WARNING: Configuration file must be either a 'yaml' or 'json' file.")
+            )
+        elif not os.path.isfile(possible_path):
             _LOGGER.debug(_("Config file %s not found."), possible_path)
         else:
             config_path = possible_path

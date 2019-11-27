@@ -100,3 +100,15 @@ class TestConfiguration(unittest.TestCase):
         with mock.patch("sys.exit") as patched_sysexit:
             load_config_file([os.path.abspath("tests/configs/broken.yaml")])
             self.assertTrue(patched_sysexit.called)
+
+    def test_get_config_path_invalid_file(self):
+        with mock.patch("sys.exit") as mock_sysexit, mock.patch(
+            "opsdroid.configuration.create_default_config"
+        ) as mocked_create_default_config:
+            mocked_create_default_config.return_value = os.path.abspath(
+                "/tmp/my_nonexistant_config"
+            )
+            load_config_file(["file.txt"])
+            self.assertTrue(mocked_create_default_config.called)
+            self.assertLogs("_LOGGER", "critical")
+            self.assertTrue(mock_sysexit.called)

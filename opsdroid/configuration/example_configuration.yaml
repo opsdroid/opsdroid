@@ -106,7 +106,6 @@ connectors:
   
   # Uncomment the connector(s) that you wish opsdroid to work on
 #
-#
 #  ## Twitter (https://github.com/opsdroid/connector-twitter)
 #  twitter:
 #    # required
