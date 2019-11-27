@@ -183,7 +183,7 @@ def add_skill_attributes(func):
 
 
 def get_config_option(options, config, found, not_found):
-    """Helper function that gets config details.
+    """Get config details and return useful information to list active modules.
 
     When we list modules we have to do a lot of search and get, this function serves as an
     helper to get all the needed information to show in a list format. Since we are using
@@ -196,7 +196,7 @@ def get_config_option(options, config, found, not_found):
         found(str, bool): Expected text if option exists in config.
         not_found(str): expected text if option doesn't exist in config.
 
-     """
+    """
     try:
         for option in options:
             if config.get(option):
