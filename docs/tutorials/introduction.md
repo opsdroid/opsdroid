@@ -1,20 +1,20 @@
 # Getting started
 
-This first part of the tutorial will give a brief introduction to the yaml files, explain some basic things about opsdroid configuration, connectors, parsers and what to expect on the first run of opsdroid.
+This first part of the tutorial will give you a brief introduction to the yaml files, explain some basic things about opsdroid configuration, connectors, parsers and what to expect on the first run of opsdroid.
 
-*If you need help or if you are unsure about something join our* [gitter channel](https://gitter.im/opsdroid/) *and ask away! We are more than happy to help you.*
-
+*If you need help or if you are unsure about something join our* [matrix channel](https://riot.im/app/#/room/#opsdroid-general:matrix.org) *and ask away! We are more than happy to help you.*
 
 ## Configuration and Yaml files
 The configuration of opsdroid is done in a yaml file called `configuration.yaml`.  When you run opsdroid it will look for the file in the following places in order:
 
-- `./configuration.yaml`
-- `/etc/opsdroid/configuration.yaml`
- * one of the default locations:
+
+- one of the default locations:
     * Mac: `~/Library/Application Support/opsdroid`
     * Linux: `~/.local/share/opsdroid`
     * Windows: `C:\Documents and Settings\<User>\Application Data\Local Settings\opsdroid\opsdroid` or
                 `C:\Documents and Settings\<User>\Application Data\opsdroid\opsdroid`
+- `./configuration.yaml`
+- `/etc/opsdroid/configuration.yaml`
 
 _Note: if no configuration file is found then opsdroid will use the `example_configuration.yaml` and place it in one of the default locations.`_
 
@@ -36,32 +36,32 @@ Yaml files use a key-value structure and there are a few things you must take in
 skills:
 
   ## Hello world (https://github.com/opsdroid/skill-hello)
-  - name: hello
+  hello: {}
 
   ## Last seen (https://github.com/opsdroid/skill-seen)
-  - name: seen
+  seen: {}
 
   ## Dance (https://github.com/opsdroid/skill-dance)
-  - name: dance
+  dance: {}
 
   ## Loud noises (https://github.com/opsdroid/skill-loudnoises)
-  - name: loudnoises
+  loudnoises: {}
 ```
-_note: we use two spaces indentation before using `-name: <skillname>`_
+_note: we use a two space indentation before using `<skillname>:`_
 
 This part of the configuration will be represented as:
 
 ```python
-{'skills': [{'name': 'hello'}, {'name': 'seen'}, {'name': 'dance'}, {'name': 'loudnoises']}
+{'skills': {'hello': {}, 'seen': {}, 'dance': {}, 'loudnoises': {}}}
 ```
-As you can see, anything starting with a hash was ignored and the key skills contain a list of dictionaries with the value `{'name':<skillname>}`
+As you can see, anything starting with a hash was ignored and the key skills contain a dictionary with the key/value pair`'<skillname>: {}`
 
 _note: The keys: [type, module_path, install_path, branch] are added to every skill when the configuration.yaml is loaded._
 
 
 ## Connectors, skills and Databases
 **Connectors** are modules for connecting opsdroid to your specific chat service.
-**Skills** are modules which define what actions opsdroid should perform based on different chat messages.
+**Skills** are modules that define what actions opsdroid should perform based on different chat messages.
 **Database** modules connect opsdroid to your chosen database and allow skills to store information between messages.
 
 
@@ -69,15 +69,15 @@ For example, a simple barebones configuration would look like:
 
 ```yaml
 connectors:
-  - name: shell
+  shell: {}
 
 skills:
-  - name: hello
+  hello: {}
 ```
 
 This tells opsdroid to use the [shell connector](https://github.com/opsdroid/connector-shell) and [hello skill](https://github.com/opsdroid/skill-hello) from the official module library.
 
-In opsdroid all modules are git repositories which will be cloned locally the first time they are used. By default, if you do not specify a repository opsdroid will look at `https://github.com/opsdroid/<moduletype>-<modulename>.git` for the repository. Therefore in the above configuration, the `connector-shell` and `skill-hello` repositories were pulled from the opsdroid organisation on GitHub.
+In opsdroid, all modules are git repositories which will be cloned locally when used for the first time. By default, if you do not specify a repository opsdroid will look at `https://github.com/opsdroid/<moduletype>-<modulename>.git` for the repository. Therefore in the above configuration, the `skill-hello` repository was pulled from the opsdroid organization on GitHub, unless they can be found in core.
 
 You are of course encouraged to write your own modules and make them available on GitHub or any other repository host which is accessible by your opsdroid installation.
 
@@ -85,19 +85,19 @@ A more advanced config would like similar to the following:
 
 ```yaml
 connectors:
-  - name: slack
+  slack:
     token: "mysecretslacktoken"
 
 databases:
-  - name: mongo
+  mongo:
     host: "mymongohost.mycompany.com"
     port: "27017"
     database: "opsdroid"
 
 skills:
-  - name: hello
-  - name: seen
-  - name: myawesomeskill
+  hello: {}
+  seen: {}
+  myawesomeskill: {}
     repo: "https://github.com/username/myawesomeskill.git"
 ```
 
@@ -106,9 +106,10 @@ In this configuration we are using the [slack connector](../connectors/slack.md)
 Configuration options such as the `token` in the slack connector or the `host`, `port` and `database` options in the mongo database are specific to those modules. Ensure you check each module's required configuration items before you use them.
 
 ## Asynchronous functions(Asyncio)
-In a standard sequential program, all the instructions you send to the interpreter will be executed one by one. It is easy to visualize and predict the output of such a code. But let’s say you have a script that requests data from 3 different servers. Sometimes the request to one of those servers may take unexpectedly too much time to execute. Imagine that it takes 10 seconds to get data from the second server. While you are waiting, the whole script is actually doing nothing.
 
-What if you could write a script that, instead of waiting for the second request, simply skip it and start executing the third request, then go back to the second one, and proceed from where it left off? That’s the nature of an asynchronous program. You minimize idle time by switching tasks.
+In a standard sequential program, all the instructions you send to the interpreter will be executed in a step-by-step manner. It is easy to visualize and predict the output of such a code. However, let's assume that you have a script that requests data from 3 different servers. Sometimes the request to one of those servers may unexpectedly take too much time to execute. Imagine that it takes 10 seconds to get data from the second server. While you are waiting, the whole script is actually doing nothing.
+
+What if you could write a script that, instead of waiting for the second request, simply skips it and starts executing the third request, then goes back to the second one, and proceed from where it left off? That’s the nature of an asynchronous program. You minimize idle time by switching tasks.
 
 An asynchronous function in Python is typically called a 'coroutine', which is just a function that uses the async keyword. The function below would work as an asynchronous function:
 
@@ -117,7 +118,7 @@ async def ping_server(ip):
     pass
 
 ```
-To actually call these asynchronous functions, we use the `await` keyword:
+To call these asynchronous functions, we use the `await` keyword:
 ```python
 async def ping_local():
     return await ping_server('192.168.1.1')
@@ -130,10 +131,10 @@ Matchers are used to match a message, sent by a user, to a connector and a skill
   * Basic matcher
     * [Regular Expressions](../matchers/regex.md)
   * NLP Matchers
-    * [Dialogflow(previous Api.ai)](../matchers/dialogflow.md)
+    * [Dialogflow](../matchers/dialogflow.md)
     * [Wit.ai](../matchers/wit.ai.md)
     * [Luis.ai](../matchers/luis.ai.md)
-    * [Recast.ai](../matchers/recast.ai.md)
+    * [SAP Conversational AI (previously Recast.ai)](../matchers/sapcai.md)
   * NLU Matcher
     * [Rasa_NLU](../matchers/rasanlu.md)
   * Special Matcher
@@ -145,20 +146,20 @@ Read any of the matchers page for a quick reference guide on how to use them.
 
 
 ## First run - Skills available
-The opsdroid project itself is very simple and requires modules to give it functionality.  So, when you run opsdroid for the first time only 4 skills (hello, seen, dance and loudnoises) are available. What means that opsdroid won't do much yet.
+The opsdroid project itself is very simple and requires modules to give it functionality.  So, when you run opsdroid for the first time only 4 skills (hello, seen, dance and loudnoises) are available, which means that opsdroid won't do much yet.
 
-To expand opsdroid functionality you need to make some changes in your configuration file. You must specify the connector, skill and database* modules you wish to use and any options they may require.
+To expand opsdroid functionality you need to make some changes in your configuration file. You must specify the connector, skill and database modules you wish to use and also specify any options they may require.
 
-The ` example_configuration.yaml`  contains all the official modules to help you shape opsdroid to your liking. Simply uncomment(remove the #) the modules that you wish to use, provide any required options and everything should work just fine.
+The ` example_configuration.yaml`  contains all the official modules to help you shape opsdroid to your liking. Simply uncomment(remove the #) of the modules that you wish to use, provide any required options and everything should work just fine.
 
 _Note: Spacing might be off when uncommenting modules, make sure to check your indentation before running opsdroid. Opsdroid won't start if indentation is off._
 
 
 ## Expanding opsdroid functionality
-Now that you have the basics of how opsdroid works, you can see how skills can empower opsdroid. You can make opsdroid work with pretty much everything, But how do you make a new skill for opsdroid to use?
+Now that you have learnt the basics of how opsdroid works, you can see how skills can empower opsdroid. You can make opsdroid work with pretty much everything, but how do you make a new skill for opsdroid to use?
 
 You probably noticed the demo on [opsdroid main page](https://opsdroid.github.io) in which opsdroid seems to have a conversation with a user. At the moment opsdroid can only reply to a few commands (hello, goodbye, dancing, etc).
 
 
-The next step in the tutorial will teach you how to make your opsdroid reply to the message "how are you", just like you seen on the main page.
+The next step in the tutorial will teach you how to make your opsdroid reply to the message "how are you", just like you see on the main page.
 

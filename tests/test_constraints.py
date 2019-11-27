@@ -29,19 +29,36 @@ class TestConstraints(asynctest.TestCase):
             skill = constraints.constrain_rooms(["#general"])(skill)
             opsdroid.skills.append(skill)
 
-            tasks = await opsdroid.parse(Message("Hello", "user", "#random", None))
+            tasks = await opsdroid.parse(
+                Message(text="Hello", user="user", target="#random", connector=None)
+            )
             self.assertEqual(len(tasks), 1)  # Just match_always
 
     async def test_constrain_rooms_skips(self):
-        with OpsDroid() as opsdroid:
+        with OpsDroid() as opsdroid, mock.patch("opsdroid.parsers.always.parse_always"):
             opsdroid.eventloop = mock.CoroutineMock()
             skill = await self.getMockSkill()
             skill = match_regex(r".*")(skill)
             skill = constraints.constrain_rooms(["#general"])(skill)
             opsdroid.skills.append(skill)
 
-            tasks = await opsdroid.parse(Message("Hello", "user", "#general", None))
+            tasks = await opsdroid.parse(
+                Message(text="Hello", user="user", target="#general", connector=None)
+            )
             self.assertEqual(len(tasks), 2)  # match_always and the skill
+
+    async def test_constrain_rooms_inverted(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.eventloop = mock.CoroutineMock()
+            skill = await self.getMockSkill()
+            skill = match_regex(r".*")(skill)
+            skill = constraints.constrain_rooms(["#general"], invert=True)(skill)
+            opsdroid.skills.append(skill)
+
+            tasks = await opsdroid.parse(
+                Message(text="Hello", user="user", target="#general", connector=None)
+            )
+            self.assertEqual(len(tasks), 1)  # match_always only
 
     async def test_constrain_users_constrains(self):
         with OpsDroid() as opsdroid:
@@ -52,7 +69,9 @@ class TestConstraints(asynctest.TestCase):
             opsdroid.skills.append(skill)
 
             tasks = await opsdroid.parse(
-                Message("Hello", "otheruser", "#general", None)
+                Message(
+                    text="Hello", user="otheruser", target="#general", connector=None
+                )
             )
             self.assertEqual(len(tasks), 1)  # Just match_always
 
@@ -64,8 +83,23 @@ class TestConstraints(asynctest.TestCase):
             skill = constraints.constrain_users(["user"])(skill)
             opsdroid.skills.append(skill)
 
-            tasks = await opsdroid.parse(Message("Hello", "user", "#general", None))
+            tasks = await opsdroid.parse(
+                Message(text="Hello", user="user", target="#general", connector=None)
+            )
             self.assertEqual(len(tasks), 2)  # match_always and the skill
+
+    async def test_constrain_users_inverted(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.eventloop = mock.CoroutineMock()
+            skill = await self.getMockSkill()
+            skill = match_regex(r".*")(skill)
+            skill = constraints.constrain_users(["user"], invert=True)(skill)
+            opsdroid.skills.append(skill)
+
+            tasks = await opsdroid.parse(
+                Message(text="Hello", user="user", target="#general", connector=None)
+            )
+            self.assertEqual(len(tasks), 1)  # match_always only
 
     async def test_constrain_connectors_constrains(self):
         with OpsDroid() as opsdroid:
@@ -77,7 +111,11 @@ class TestConstraints(asynctest.TestCase):
             connector = mock.Mock()
             connector.configure_mock(name="twitter")
 
-            tasks = await opsdroid.parse(Message("Hello", "user", "#random", connector))
+            tasks = await opsdroid.parse(
+                Message(
+                    text="Hello", user="user", target="#random", connector=connector
+                )
+            )
             self.assertEqual(len(tasks), 1)  # Just match_always
 
     async def test_constrain_connectors_skips(self):
@@ -91,9 +129,28 @@ class TestConstraints(asynctest.TestCase):
             connector.configure_mock(name="slack")
 
             tasks = await opsdroid.parse(
-                Message("Hello", "user", "#general", connector)
+                Message(
+                    text="Hello", user="user", target="#general", connector=connector
+                )
             )
             self.assertEqual(len(tasks), 2)  # match_always and the skill
+
+    async def test_constrain_connectors_inverted(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.eventloop = mock.CoroutineMock()
+            skill = await self.getMockSkill()
+            skill = match_regex(r".*")(skill)
+            skill = constraints.constrain_connectors(["slack"], invert=True)(skill)
+            opsdroid.skills.append(skill)
+            connector = mock.Mock()
+            connector.configure_mock(name="slack")
+
+            tasks = await opsdroid.parse(
+                Message(
+                    text="Hello", user="user", target="#general", connector=connector
+                )
+            )
+            self.assertEqual(len(tasks), 1)  # match_always only
 
     async def test_constraint_can_be_called_after_skip(self):
         with OpsDroid() as opsdroid:
@@ -103,13 +160,19 @@ class TestConstraints(asynctest.TestCase):
             skill = constraints.constrain_users(["user"])(skill)
             opsdroid.skills.append(skill)
 
-            tasks = await opsdroid.parse(Message("Hello", "user", "#general", None))
+            tasks = await opsdroid.parse(
+                Message(text="Hello", user="user", target="#general", connector=None)
+            )
             self.assertEqual(len(tasks), 2)  # match_always and the skill
 
             tasks = await opsdroid.parse(
-                Message("Hello", "otheruser", "#general", None)
+                Message(
+                    text="Hello", user="otheruser", target="#general", connector=None
+                )
             )
             self.assertEqual(len(tasks), 1)  # Just match_always
 
-            tasks = await opsdroid.parse(Message("Hello", "user", "#general", None))
+            tasks = await opsdroid.parse(
+                Message(text="Hello", user="user", target="#general", connector=None)
+            )
             self.assertEqual(len(tasks), 2)  # match_always and the skill

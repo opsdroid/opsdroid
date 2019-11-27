@@ -39,7 +39,7 @@ In opsdroid when events are received the connector emits `Event` objects which c
 _Note: Not all connectors support all event types. To find out which events a connector will emit you can access the `.events` attribute of a connector._
 
 
-The base `Event` class has the following attributes. Also depending on the matcher it may have parser specific properties too. See the [matchers documentation](tutorials/introduction.md#matchers-available) for more details.
+The base `Event` class has the following attributes. Also depending on the matcher it may have parser specific properties too. See the [matchers documentation](../tutorials/introduction.md#matchers-available) for more details.
 
 
 * `user`: A _string_ containing the username of the user who wrote the message.
@@ -96,6 +96,11 @@ class RememberSkill(Skill):
     async def remember(self, message):
         information = await self.opsdroid.memory.get("remember")
         await message.respond(information)
+
+    @match_regex(r'forget me')
+    async def forget(self, message):
+        await self.opsdroid.memory.delete("remember")
+        await message.respond("OK I'll forget that")
 ```
 
 In the above example we have defined two skill functions. The first takes whatever the user says after the word "remember" and stores it in the database.
@@ -135,9 +140,6 @@ This means that if you decorate a skill with both the `regex` and `dialogflow` m
 
 ## Example modules
 
-See the following official modules for examples:
+For examples of the kind of skill you can build in opsdroid see the [examples section](../examples/introduction.md).
 
- * [hello](https://github.com/opsdroid/skill-hello) - A simple hello world skill.
- * [seen](https://github.com/opsdroid/skill-seen) - Makes use of opsdroid memory.
-
-*If you need help or if you are unsure about something join our* [gitter channel](https://gitter.im/opsdroid/) *and ask away! We are more than happy to help you.*
+*If you need help or if you are unsure about something join our* [matrix channel](https://riot.im/app/#/room/#opsdroid-general:matrix.org) *and ask away! We are more than happy to help you.*

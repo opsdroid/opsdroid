@@ -2,25 +2,36 @@
 
 **Quick Links:**
 
-- [Config file](#config-file)
-- [Reference](#reference)
-  - [Connector Modules](#connector-modules)
-  - [Database Modules](#database-modules)
-  - [Logging](#logging)
-  - [Installation Path](#installation-path)
-  - [Parsers](#parsers)
-  - [Skills](#skills)
-  - [Time Zone](#time-zone)
-  - [Language](#language)
-  - [Web Server](#web-server)
-- [Module Options](#module-options)
-  - [Install Location](#install-location)
-  - [Git Repository](#git-repository)
-  - [Local Directory](#local-directory)
-  - [Disable Caching](#disable-caching)
-  - [Disable dependency install](#disable-dependency-install)
-- [Environment Variables](#environment-variables)
-- [Include Additional Yaml Files](#include-additional-yaml-files)
+- [Configuration reference](#configuration-reference)
+  - [Config file](#config-file)
+  - [Reference](#reference)
+    - [Connector Modules](#connector-modules)
+    - [Database Modules](#database-modules)
+    - [Welcome-message](#welcome-message)
+    - [Logging](#logging)
+      - [Optional logging arguments](#optional-logging-arguments)
+        - [extended mode](#extended-mode)
+        - [Whitelist log names](#whitelist-log-names)
+        - [Blacklist log names](#blacklist-log-names)
+        - [Using both whitelist and blacklist filter](#using-both-whitelist-and-blacklist-filter)
+    - [Installation Path](#installation-path)
+    - [Parsers](#parsers)
+    - [Skills](#skills)
+    - [Time Zone](#time-zone)
+    - [Language](#language)
+    - [Web Server](#web-server)
+  - [Module options](#module-options)
+    - [Install Location](#install-location)
+      - [Git Repository](#git-repository)
+      - [Local Directory](#local-directory)
+      - [GitHub Gist](#github-gist)
+    - [Disable Caching](#disable-caching)
+    - [Disable dependency install](#disable-dependency-install)
+  - [Environment variables](#environment-variables)
+  - [Include additional yaml files](#include-additional-yaml-files)
+  - [HTTP Proxy support](#http-proxy-support)
+  - [Validating modules](#validating-modules)
+  - [Migrating to new configuration layout - post v0.16.0](#migrate-to-new-configuration-layout)
 
 ## Config file
 
@@ -34,9 +45,9 @@ For configuration, opsdroid uses a single YAML file named `configuration.yaml`. 
   - Windows: `C:\<User>\<Application Data>\<Local Settings>\opsdroid\` or
              `C:\Users\<User>\AppData\Local\opsdroid`
 
-_Note: If no file named `configuration.yaml` can be found on one of these folders one will be created for you taken from the [example configuration file](../opsdroid/configuration/example_configuration.yaml)_
+_Note: If no file named `configuration.yaml` can be found on one of these folders one will be created for you taken from the [example configuration file](https://github.com/opsdroid/opsdroid/blob/master/opsdroid/configuration/example_configuration.yaml)_
 
-If you are using one of the default locations you can run the command `opsdroid -e` or `opsdroid --edit-config` to open the configuration with your favorite editor(taken from the environment variable `EDITOR`) or the default editor [vim](tutorials/introduction-vim.md).
+If you are using one of the default locations you can run the command `opsdroid config edit` to open the configuration with your favorite editor(taken from the environment variable `EDITOR`) or the default editor [vim](tutorials/introduction-vim.md).
 
 The opsdroid project itself is very simple and requires modules to give it functionality. In your configuration file, you must specify the connector, skill, and database* modules you wish to use and any options they may require.
 
@@ -50,10 +61,10 @@ For example, a simple barebones configuration would look like:
 
 ```yaml
 connectors:
-  - name: shell
+  shell: {}
 
 skills:
-  - name: hello
+  hello: {}
 ```
 
 This tells opsdroid to use the [shell connector](https://github.com/opsdroid/connector-shell) and [hello skill](https://github.com/opsdroid/skill-hello) from the official module library.
@@ -66,23 +77,23 @@ A more advanced config would like similar to the following:
 
 ```yaml
 connectors:
-  - name: slack
+  slack:
     token: "mysecretslacktoken"
 
 databases:
-  - name: mongo
+  mongo:
     host: "mymongohost.mycompany.com"
     port: "27017"
     database: "opsdroid"
 
 skills:
-  - name: hello
-  - name: seen
-  - name: myawesomeskill
+  hello: {}
+  seen: {}
+  myawesomeskill:
     repo: "https://github.com/username/myawesomeskill.git"
 ```
 
-In this configuration, we are using the [slack connector](/connectors/slack.md) with a slack [auth token](https://api.slack.com/tokens) supplied, a built-in mongo database connection for persisting data, `hello` and `seen` skills from the official repos and finally a custom skill hosted on GitHub.
+In this configuration, we are using the [slack connector](connectors/slack.md) with a slack [auth token](https://api.slack.com/tokens) supplied, a built-in mongo database connection for persisting data, `hello` and `seen` skills from the official repos and finally a custom skill hosted on GitHub.
 
 Configuration options such as the `token` in the slack connector or the `host`, `port` and `database` options in the mongo database are specific to those modules. Ensure you check each module's required configuration items before you use them.
 
@@ -94,14 +105,17 @@ Opsdroid comes with some built-in connectors out of the box. A connector is a mo
 
 The built-in connectors are:
 
-- [Facebook](/connectors/facebook.md)
-- [GitHub](/connectors/github.md)
-- [Matrix](/connectors/matrix.md)
-- [Rocket.Chat](/connectors/rocketchat.md)
-- [Slack](/connectors/slack.md)
-- [Telegram](/connectors/telegram.md)
-- [Websockets](/connectors/websocket.md)
-- [Webex Teams](/connectors/webexteams.md)
+- [Facebook](connectors/facebook.md)
+- [GitHub](connectors/github.md)
+- [Gitter](connectors/gitter.md)
+- [Matrix](connectors/matrix.md)
+- [Mattermost] (connectors/mattermost.md)
+- [Rocket.Chat](connectors/rocketchat.md)
+- [Shell](connectors/shell.md)
+- [Slack](connectors/slack.md)
+- [Telegram](connectors/telegram.md)
+- [Websockets](connectors/websocket.md)
+- [Webex Teams](connectors/webexteams.md)
 
 _Note: More connectors will be added as built-in connectors into the opsdroid over time._
 
@@ -110,11 +124,11 @@ _Config options of the connectors themselves differ between connectors, see the 
 ```yaml
 connectors:
 
-  - name: slack
+  slack:
     token: "mysecretslacktoken"
 
   # conceptual connector
-  - name: twitter
+  twitter:
     oauth_key: "myoauthkey"
     secret_key: "myoauthsecret"
 ```
@@ -128,7 +142,7 @@ Example:
 
 ```yaml
 connectors:
-  - name: slack
+  slack:
     token: "mysecretslacktoken"
     thinking-delay: <int, float or two element list>
     typing-delay: <int, float or two element list>
@@ -146,14 +160,15 @@ Skills can store data in opsdroid's "memory", this is a dictionary which can be 
 
 The built-in databases are:
 
-- [Mongo DB](/databases/mongo.md)
-- [SQLite](/databases/sqlite.md)
+- [Mongo DB](databases/mongo.md)
+- [Redis](databases/redis.md)
+- [SQLite](databases/sqlite.md)
 
 _Config options of the databases themselves differ between databases, see the database documentation for details._
 
 ```yaml
 databases:
-  - name: mongo
+  mongo:
     host: "mymongohost.mycompany.com"
     port: "27017"
     database: "opsdroid"
@@ -198,11 +213,11 @@ logging:
   console: true
 
 connectors:
-  - name: shell
+  shell: {}
 
 skills:
-  - name: hello
-  - name: seen
+  hello: {}
+  seen: {}
 ```
 
 #### Optional logging arguments
@@ -236,7 +251,7 @@ logging:
   level: info
   path: ~/.opsdroid/output.log
   console: true
-  filter: 
+  filter:
     whitelist:
       - "opsdroid.core"
       - "opsdroid.logging"
@@ -258,7 +273,7 @@ logging:
   level: info
   path: ~/.opsdroid/output.log
   console: true
-  filter: 
+  filter:
     blacklist:
       - "opsdroid.loader"
       - "aiosqlite"
@@ -294,7 +309,7 @@ INFO opsdroid.web: Started web server on http://0.0.0.0:8080
 _Note: You can also use the extended mode to filter out logs - this should allow you to have even more flexibility while dealing with your logs._
 
 ##### Using both whitelist and blacklist filter
-You are only able to filter either with the whitelist filter or the blacklist filter. If you add both in your configuration file, you will get a warning 
+You are only able to filter either with the whitelist filter or the blacklist filter. If you add both in your configuration file, you will get a warning
 and only the whitelist filter will be used. This behavior was done because setting two filters causes an RuntimeError exception to be raised(_maximum recursion depth exceeded_).
 
 ```yaml
@@ -302,7 +317,7 @@ logging:
   level: info
   path: ~/.opsdroid/output.log
   console: true
-  filter: 
+  filter:
     whitelist:
       - "opsdroid.core"
       - "opsdroid.logging"
@@ -334,11 +349,11 @@ Set the path for opsdroid to use when installing skills. Defaults to the current
 module-path: "/etc/opsdroid/modules"
 
 connectors:
-  - name: shell
+  shell: {}
 
 skills:
-  - name: hello
-  - name: seen
+  hello: {}
+  seen: {}
 ```
 
 ### Parsers
@@ -349,11 +364,11 @@ _Config options of the parsers themselves differ between parsers, see the parser
 
 ```yaml
 parsers:
-  - name: regex
+  regex:
     enabled: true
 
 # NLU parser
-  - name: rasanlu
+  rasanlu:
     url: http://localhost:5000
     project: opsdroid
     token: 85769fjoso084jd
@@ -372,8 +387,8 @@ _Config options of the skills themselves differ between skills, see the skill do
 
 ```yaml
 skills:
-  - name: hello
-  - name: seen
+  hello: {}
+  seen: {}
 ```
 
 See [module options](#module-options) for installing custom skills.
@@ -404,7 +419,7 @@ lang: <ISO 639-1 code -  example: 'en'>
 
 Configure the REST API in opsdroid.
 
-By default, opsdroid will start a web server on port `8080` (or `8443` if SSL details are provided). For more information see the [REST API docs](rest-api).
+By default, opsdroid will start a web server on port `8080` (or `8443` if SSL details are provided). For more information see the [REST API docs](rest-api.md).
 
 ```yaml
 web:
@@ -429,9 +444,9 @@ A git URL to install the module from.
 
 ```yaml
 connectors:
-  - name: slack
+  slack:
     token: "mysecretslacktoken"
-  - name: mynewconnector
+  mynewconnector:
     repo: https://github.com/username/myconnector.git
 ```
 
@@ -443,7 +458,7 @@ A local path to install the module from.
 
 ```yaml
 skills:
-  - name: myawesomeskill
+  myawesomeskill:
     path: /home/me/src/opsdroid-skills/myawesomeskill
 ```
 
@@ -451,7 +466,7 @@ You can specify a single file.
 
 ```yaml
 skills:
-  - name: myawesomeskill
+  myawesomeskill:
     path: /home/me/src/opsdroid-skills/myawesomeskill/myskill.py
 ```
 
@@ -459,7 +474,7 @@ Or even an [IPython/Jupyter Notebook](http://jupyter.org/).
 
 ```yaml
 skills:
-  - name: myawesomeskill
+  myawesomeskill:
     path: /home/me/src/opsdroid-skills/myawesomeskill/myskill.ipynb
 ```
 
@@ -471,7 +486,7 @@ Notebooks are also supported.
 
 ```yaml
 skills:
- - name: ping
+ ping:
    gist: https://gist.github.com/jacobtomlinson/6dd35e0f62d6b779d3d0d140f338d3e5
 ```
 
@@ -479,17 +494,18 @@ Or you can specify the Gist ID without the full URL.
 
 ```yaml
 skills:
- - name: ping
+ ping:
    gist: 6dd35e0f62d6b779d3d0d140f338d3e5
 ```
 
 ### Disable Caching
 
-Set `no-cache` to true to do a fresh git clone of the module whenever you start opsdroid.
+Set `no-cache` to true to do a fresh git clone of the module whenever you start opsdroid. This will
+default to `true` for modules configured with a local `path`.
 
 ```yaml
 databases:
-  - name: mongodb
+  mongodb:
     repo: https://github.com/username/mymongofork.git
     no-cache: true
 ```
@@ -500,7 +516,7 @@ Set `no-dep` to true to skip the installation of dependencies on every start of 
 
 ```yaml
 skills:
-  - name: myawesomeskill
+  myawesomeskill:
     no-cache: true
     no-deps: true
 ```
@@ -513,19 +529,88 @@ You can use environment variables in your config. You need to specify the variab
 
 ```yaml
 skills:
-  - name: myawesomeskill
+  myawesomeskill:
     somekey: $ENVIRONMENT_VARIABLE
 ```
 
 _Note: Your environment variable names must consist of uppercase characters and underscores only. The value must also be just the environment variable, you cannot currently mix env vars inside strings._
 
-## Include additional yaml files
+## Validating modules
 
-You can split the config into smaller modules by using the value `!include file.yaml` to import the contents of a yaml file into the main config.
+Opsdroid runs two types of validation:
+- Validates basic rules found on the file `configuration.yaml` (logging, web, module path and welcome message)
+- Validates rules for each module if the constant variable `CONFIG_SCHEMA` is set in the module.
 
-```yaml
-skills: !include skills.yaml
+_Note: If the validation fails, opsdroid will exit with error code 1._
 
+You can add rules to your custom made modules by setting the constant variable and adding rules to it. The `CONFIG_SCHEMA` variable needs to be a dictionary where you pass expected arguments and type.
+
+To validate a module/configuration, we use the _voluptuous_ dependency, that means that you need to follow certain patterns expected by the dependency.
+
+- Required values need to be set with `voluptuous.Required()`
+- Optional values can be set with or without `voluptuous.Optional()`
+
+### Example
+
+Let's take the example of our matrix connector. Inside the module we set the const `CONFIG_SCHEMA` with some rules:
+
+```python
+from voluptuous import Required
+
+CONFIG_SCHEMA = {
+    Required("mxid"): str,
+    Required("password"): str,
+    Required("rooms"): dict,
+    "homeserver": str,
+    "nick": str,
+    "room_specific_nicks": bool,
+}
 ```
 
-_Note: The file.yaml that you wish to include in the config must be in the same directory as your configuration.yaml (e.g ~/.opsdroid)_
+As you can see `mxid`, `password` and `rooms` are required fields for this connector and we expect them to be either strings or a dictionary.
+
+Since we don't need to explicitly declare a value as Optional we can just write the expected value and type.
+
+_Note: If a module doesn't contain the const variable, the module will be loaded anyway and should handle any potential errors found in the configuration._
+
+
+## HTTP proxy support
+
+If you need to use a HTTP proxy, set the HTTP_PROXY and HTTPS_PROXY environment variables.
+
+
+## Migrate to new configuration layout
+
+Since version 0.17.0 came out we have migrated to a new configuration layout. We will check your configuration and give you a deprecation warning if your configuration is using the old layout.
+
+### What changed
+
+We have dropped the pattern `- name:  <module name>`  and replaced it with the pattern `<module name>: {}` or `<module name>:` followed by a blank line underneath.
+
+This change makes sure we stop using lists containing dictionaries that carry the configuration for each module. In the new layout, we replace lists with a dictionary that uses the name of a module for a key and the additional configuration parameters inside a dictionary as a key.
+
+### Example
+
+We will use the slack connector as an example. The new configuration layout would set the Slack connection like this:
+
+```yaml
+connectors:
+  slack:
+    token: <API token>
+```
+
+Which would be represented in a dictionary format like this:
+
+```python
+{
+    'connectors': {
+        'slack': {
+            'token': <API token>
+        }
+    }
+}
+```
+
+You can have a look at the [example configuration file](https://github.com/opsdroid/opsdroid/blob/master/opsdroid/configuration/example_configuration.yaml) for a better grasp of the new layout.
+
+If you need help migrating your configuration to the new layout please get in touch with us on the [official matrix channel](https://riot.im/app/#/room/#opsdroid-general:matrix.org).

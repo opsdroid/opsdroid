@@ -2,8 +2,12 @@
 """A module for opsdroid to allow persist in mongo database."""
 import logging
 from motor.motor_asyncio import AsyncIOMotorClient
+from voluptuous import Any
 
 from opsdroid.database import Database
+
+_LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {"host": str, "port": Any(int, str), "database": str}
 
 
 class DatabaseMongo(Database):
@@ -21,7 +25,7 @@ class DatabaseMongo(Database):
 
         """
         super().__init__(config, opsdroid=opsdroid)
-        logging.debug("Loaded mongo database connector")
+        _LOGGER.debug("Loaded mongo database connector.")
         self.name = "mongo"
         self.config = config
         self.client = None
@@ -29,13 +33,13 @@ class DatabaseMongo(Database):
 
     async def connect(self):
         """Connect to the database."""
-        host = self.config["host"] if "host" in self.config else "localhost"
-        port = self.config["port"] if "port" in self.config else "27017"
-        database = self.config["database"] if "database" in self.config else "opsdroid"
-        path = "mongodb://" + host + ":" + port
+        host = self.config.get("host", "localhost")
+        port = self.config.get("port", "27017")
+        database = self.config.get("database", "opsdroid")
+        path = "mongodb://{host}:{port}".format(host=host, port=port)
         self.client = AsyncIOMotorClient(path)
         self.database = self.client[database]
-        logging.info("Connected to mongo")
+        _LOGGER.info("Connected to MongoDB.")
 
     async def put(self, key, data):
         """Insert or replace an object into the database for a given key.
@@ -45,7 +49,7 @@ class DatabaseMongo(Database):
             data (object): the data to be inserted or replaced
 
         """
-        logging.debug("Putting %s into mongo", key)
+        _LOGGER.debug("Putting %s into MongoDB.", key)
         if "_id" in data:
             await self.database[key].update_one({"_id": data["_id"]}, {"$set": data})
         else:
@@ -58,7 +62,17 @@ class DatabaseMongo(Database):
             key (str): the key is the database name.
 
         """
-        logging.debug("Getting %s from mongo", key)
+        _LOGGER.debug("Getting %s from MongoDB.", key)
         return await self.database[key].find_one(
             {"$query": {}, "$orderby": {"$natural": -1}}
         )
+
+    async def delete(self, key):
+        """Delete a document from the database (key).
+
+        Args:
+            key (str): the key is the database name.
+
+        """
+        _LOGGER.debug("Deleting %s from MongoDB.", key)
+        return await self.database[key].delete_one({"$query": {}})

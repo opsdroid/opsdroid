@@ -23,10 +23,10 @@ class TestMessage(asynctest.TestCase):
                 "messageId": "101",
             }
             message = Message(
-                "Hello world",
-                "user",
-                "default",
-                mock_connector,
+                text="Hello world",
+                user="user",
+                room="default",
+                connector=mock_connector,
                 raw_message=raw_message,
             )
 
@@ -39,7 +39,7 @@ class TestMessage(asynctest.TestCase):
                 await message.respond("Goodbye world")
 
     def test_depreacted_properties(self):
-        message = Message("hello", "user", "", "")
+        message = Message(text="hello", user="user", room="", connector="")
 
         message.target = "spam"
         with self.assertWarns(DeprecationWarning):

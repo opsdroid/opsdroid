@@ -1,9 +1,13 @@
 """A connector for Slack."""
 import logging
 import re
+import os
+import ssl
+import certifi
 
 import slack
 from emoji import demojize
+from voluptuous import Required
 
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message, Reaction
@@ -11,6 +15,14 @@ from opsdroid.connector.slack.events import Blocks
 
 
 _LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {
+    Required("token"): str,
+    "bot-name": str,
+    "default-room": str,
+    "icon-emoji": str,
+    "connect-timeout": int,
+    "chat-as-user": bool,
+}
 
 
 class ConnectorSlack(Connector):
@@ -19,14 +31,26 @@ class ConnectorSlack(Connector):
     def __init__(self, config, opsdroid=None):
         """Create the connector."""
         super().__init__(config, opsdroid=opsdroid)
-        _LOGGER.debug("Starting Slack connector")
+        _LOGGER.debug(_("Starting Slack connector."))
         self.name = "slack"
         self.default_target = config.get("default-room", "#general")
         self.icon_emoji = config.get("icon-emoji", ":robot_face:")
-        self.token = config["api-token"]
+        self.token = config["token"]
         self.timeout = config.get("connect-timeout", 10)
-        self.slack = slack.WebClient(token=self.token, run_async=True)
-        self.slack_rtm = slack.RTMClient(token=self.token, run_async=True)
+        self.chat_as_user = config.get("chat-as-user", False)
+        self.ssl_context = ssl.create_default_context(cafile=certifi.where())
+        self.slack = slack.WebClient(
+            token=self.token,
+            run_async=True,
+            ssl=self.ssl_context,
+            proxy=os.environ.get("HTTPS_PROXY"),
+        )
+        self.slack_rtm = slack.RTMClient(
+            token=self.token,
+            run_async=True,
+            ssl=self.ssl_context,
+            proxy=os.environ.get("HTTPS_PROXY"),
+        )
         self.websocket = None
         self.bot_name = config.get("bot-name", "opsdroid")
         self.auth_info = None
@@ -43,7 +67,7 @@ class ConnectorSlack(Connector):
 
     async def connect(self):
         """Connect to the chat service."""
-        _LOGGER.info("Connecting to Slack")
+        _LOGGER.info(_("Connecting to Slack."))
 
         try:
             # The slack library recommends you call `self.slack_rtm.start()`` here but it
@@ -62,14 +86,16 @@ class ConnectorSlack(Connector):
             ).data
             self.bot_id = self.user_info["user"]["profile"]["bot_id"]
 
-            _LOGGER.debug("Connected as %s", self.bot_name)
-            _LOGGER.debug("Using icon %s", self.icon_emoji)
-            _LOGGER.debug("Default room is %s", self.default_target)
-            _LOGGER.info("Connected successfully")
+            _LOGGER.debug(_("Connected as %s."), self.bot_name)
+            _LOGGER.debug(_("Using icon %s."), self.icon_emoji)
+            _LOGGER.debug(_("Default room is %s."), self.default_target)
+            _LOGGER.info(_("Connected successfully."))
         except slack.errors.SlackApiError as error:
             _LOGGER.error(
-                "Unable to connect to Slack due to %s - "
-                "The Slack Connector will not be available.",
+                _(
+                    "Unable to connect to Slack due to %s."
+                    "The Slack Connector will not be available."
+                ),
                 error,
             )
         except Exception:
@@ -78,7 +104,7 @@ class ConnectorSlack(Connector):
 
     async def disconnect(self):
         """Disconnect from Slack."""
-        await self.slack_rtm.stop()
+        self.slack_rtm.stop()
         self.listening = False
 
     async def listen(self):
@@ -87,6 +113,10 @@ class ConnectorSlack(Connector):
     async def process_message(self, **payload):
         """Process a raw message and pass it to the parser."""
         message = payload["data"]
+
+        # Ignore message edits
+        if "subtype" in message and message["subtype"] == "message_changed":
+            return
 
         # Ignore own messages
         if (
@@ -97,22 +127,22 @@ class ConnectorSlack(Connector):
             return
 
         # Lookup username
-        _LOGGER.debug("Looking up sender username")
+        _LOGGER.debug(_("Looking up sender username."))
         try:
             user_info = await self.lookup_username(message["user"])
         except ValueError:
             return
 
         # Replace usernames in the message
-        _LOGGER.debug("Replacing userids in message with usernames")
+        _LOGGER.debug(_("Replacing userids in message with usernames."))
         message["text"] = await self.replace_usernames(message["text"])
 
         await self.opsdroid.parse(
             Message(
-                message["text"],
-                user_info["name"],
-                message["channel"],
-                self,
+                text=message["text"],
+                user=user_info["name"],
+                target=message["channel"],
+                connector=self,
                 raw_event=message,
             )
         )
@@ -120,13 +150,15 @@ class ConnectorSlack(Connector):
     @register_event(Message)
     async def send_message(self, message):
         """Respond with a message."""
-        _LOGGER.debug("Responding with: '%s' in room  %s", message.text, message.target)
+        _LOGGER.debug(
+            _("Responding with: '%s' in room  %s."), message.text, message.target
+        )
         await self.slack.api_call(
             "chat.postMessage",
             data={
                 "channel": message.target,
                 "text": message.text,
-                "as_user": False,
+                "as_user": self.chat_as_user,
                 "username": self.bot_name,
                 "icon_emoji": self.icon_emoji,
             },
@@ -135,11 +167,14 @@ class ConnectorSlack(Connector):
     @register_event(Blocks)
     async def send_blocks(self, blocks):
         """Respond with structured blocks."""
-        _LOGGER.debug("Responding with interactive blocks in room  %s", blocks.target)
+        _LOGGER.debug(
+            _("Responding with interactive blocks in room %s."), blocks.target
+        )
         await self.slack.api_call(
             "chat.postMessage",
             data={
                 "channel": blocks.target,
+                "as_user": self.chat_as_user,
                 "username": self.bot_name,
                 "blocks": blocks.blocks,
                 "icon_emoji": self.icon_emoji,
@@ -150,7 +185,7 @@ class ConnectorSlack(Connector):
     async def send_reaction(self, reaction):
         """React to a message."""
         emoji = demojize(reaction.emoji).replace(":", "")
-        _LOGGER.debug("Reacting with: %s", emoji)
+        _LOGGER.debug(_("Reacting with: %s."), emoji)
         try:
             await self.slack.api_call(
                 "reactions.add",
@@ -162,7 +197,7 @@ class ConnectorSlack(Connector):
             )
         except slack.errors.SlackApiError as error:
             if "invalid_name" in str(error):
-                _LOGGER.warning("Slack does not support the emoji %s", emoji)
+                _LOGGER.warning(_("Slack does not support the emoji %s."), emoji)
             else:
                 raise
 

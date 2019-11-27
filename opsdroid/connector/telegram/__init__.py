@@ -2,12 +2,19 @@
 import asyncio
 import logging
 import aiohttp
+from voluptuous import Required
 
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message, Image
 
 
 _LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {
+    Required("token"): str,
+    "update-interval": float,
+    "default-user": str,
+    "whitelisted-users": list,
+}
 
 
 class ConnectorTelegram(Connector):
@@ -21,7 +28,7 @@ class ConnectorTelegram(Connector):
                 file config.yaml.
 
         """
-        _LOGGER.debug("Loaded telegram connector")
+        _LOGGER.debug(_("Loaded Telegram Connector"))
         super().__init__(config, opsdroid=opsdroid)
         self.name = "telegram"
         self.opsdroid = opsdroid
@@ -39,8 +46,9 @@ class ConnectorTelegram(Connector):
             self.token = config["token"]
         except (KeyError, AttributeError):
             _LOGGER.error(
-                "Unable to login: Access token is missing. "
-                "Telegram connector will be unavailable."
+                _(
+                    "Unable to login: Access token is missing. Telegram connector will be unavailable."
+                )
             )
 
     @staticmethod
@@ -57,13 +65,16 @@ class ConnectorTelegram(Connector):
 
         """
         user = None
+        user_id = None
+
         if "username" in response["message"]["from"]:
             user = response["message"]["from"]["username"]
 
         elif "first_name" in response["message"]["from"]:
             user = response["message"]["from"]["first_name"]
+        user_id = response["message"]["from"]["id"]
 
-        return user
+        return user, user_id
 
     def handle_user_permission(self, response, user):
         """Handle user permissions.
@@ -105,13 +116,13 @@ class ConnectorTelegram(Connector):
         request possible.
 
         """
-        _LOGGER.debug("Sending deleteWebhook request to Telegram...")
+        _LOGGER.debug(_("Sending deleteWebhook request to Telegram..."))
         resp = await self.session.get(self.build_url("deleteWebhook"))
 
         if resp.status == 200:
-            _LOGGER.debug("Telegram webhook deleted successfully.")
+            _LOGGER.debug(_("Telegram webhook deleted successfully."))
         else:
-            _LOGGER.debug("Unable to delete webhook.")
+            _LOGGER.debug(_("Unable to delete webhook."))
 
     async def connect(self):
         """Connect to Telegram.
@@ -121,17 +132,19 @@ class ConnectorTelegram(Connector):
         call to Telegram and evaluates the status of the call.
 
         """
-        _LOGGER.debug("Connecting to telegram")
+
+        _LOGGER.debug(_("Connecting to Telegram."))
         self.session = aiohttp.ClientSession()
+
         resp = await self.session.get(self.build_url("getMe"))
 
         if resp.status != 200:
-            _LOGGER.error("Unable to connect")
-            _LOGGER.error("Telegram error %s, %s", resp.status, resp.text)
+            _LOGGER.error(_("Unable to connect."))
+            _LOGGER.error(_("Telegram error %s, %s."), resp.status, resp.text)
         else:
             json = await resp.json()
             _LOGGER.debug(json)
-            _LOGGER.debug("Connected to telegram as %s", json["result"]["username"])
+            _LOGGER.debug(_("Connected to Telegram as %s."), json["result"]["username"])
 
     async def _parse_message(self, response):
         """Handle logic to parse a received message.
@@ -157,12 +170,16 @@ class ConnectorTelegram(Connector):
                 result["message"] = result.pop("edited_message")
             if "channel" in result["message"]["chat"]["type"]:
                 _LOGGER.debug(
-                    "Channel message parsing not supported " "- Ignoring message"
+                    _("Channel message parsing not supported " "- Ignoring message.")
                 )
             elif "message" in result and "text" in result["message"]:
-                user = self.get_user(result)
+                user, user_id = self.get_user(result)
                 message = Message(
-                    result["message"]["text"], user, result["message"]["chat"], self
+                    text=result["message"]["text"],
+                    user=user,
+                    user_id=user_id,
+                    target=result["message"]["chat"],
+                    connector=self,
                 )
 
                 if self.handle_user_permission(result, user):
@@ -180,10 +197,10 @@ class ConnectorTelegram(Connector):
             ):
                 self.latest_update = result["update_id"] + 1
                 _LOGGER.debug(
-                    "Emoji message parsing not supported " "- Ignoring message"
+                    _("Emoji message parsing not supported - Ignoring message.")
                 )
             else:
-                _LOGGER.error("Unable to parse the message.")
+                _LOGGER.error(_("Unable to parse the message."))
 
     async def _get_messages(self):
         """Connect to the Telegram API.
@@ -207,14 +224,14 @@ class ConnectorTelegram(Connector):
 
         if resp.status == 409:
             _LOGGER.info(
-                "Can't get updates because previous "
-                "webhook is still active. Will try to "
-                "delete webhook."
+                _(
+                    "Can't get updates because previous webhook is still active. Will try to delete webhook."
+                )
             )
             await self.delete_webhook()
 
         if resp.status != 200:
-            _LOGGER.error("Telegram error %s, %s", resp.status, resp.text)
+            _LOGGER.error(_("Telegram error %s, %s."), resp.status, resp.text)
             self.listening = False
         else:
             json = await resp.json()
@@ -247,7 +264,7 @@ class ConnectorTelegram(Connector):
         cancel the task.
 
         """
-        message_getter = self.loop.create_task(self.get_messages_loop())
+        message_getter = self.loop.create_task(await self.get_messages_loop())
         await self._closing.wait()
         message_getter.cancel()
 
@@ -259,16 +276,16 @@ class ConnectorTelegram(Connector):
             message (object): An instance of Message.
 
         """
-        _LOGGER.debug("Responding with: %s", message.text)
+        _LOGGER.debug(_("Responding with: %s."), message.text)
 
         data = dict()
         data["chat_id"] = message.target["id"]
         data["text"] = message.text
         resp = await self.session.post(self.build_url("sendMessage"), data=data)
         if resp.status == 200:
-            _LOGGER.debug("Successfully responded")
+            _LOGGER.debug(_("Successfully responded."))
         else:
-            _LOGGER.error("Unable to respond.")
+            _LOGGER.error(_("Unable to respond."))
 
     @register_event(Image)
     async def send_image(self, file_event):
@@ -290,9 +307,9 @@ class ConnectorTelegram(Connector):
 
         resp = await self.session.post(self.build_url("sendPhoto"), data=data)
         if resp.status == 200:
-            _LOGGER.debug("Sent %s image " "successfully", file_event.name)
+            _LOGGER.debug(_("Sent %s image successfully."), file_event.name)
         else:
-            _LOGGER.debug("Unable to send image - " "Status Code %s", resp.status)
+            _LOGGER.debug(_("Unable to send image - Status Code %s."), resp.status)
 
     async def disconnect(self):
         """Disconnect from Telegram.

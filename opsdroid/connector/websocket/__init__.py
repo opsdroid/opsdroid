@@ -14,6 +14,7 @@ from opsdroid.events import Message
 
 _LOGGER = logging.getLogger(__name__)
 HEADERS = {"Access-Control-Allow-Origin": "*"}
+CONFIG_SCHEMA = {"bot-name": str, "max-connections": int, "connection-timeout": int}
 
 
 class ConnectorWebsocket(Connector):
@@ -22,7 +23,7 @@ class ConnectorWebsocket(Connector):
     def __init__(self, config, opsdroid=None):
         """Create the connector."""
         super().__init__(config, opsdroid=opsdroid)
-        _LOGGER.debug("Starting Websocket connector")
+        _LOGGER.debug(_("Starting Websocket connector."))
         self.name = "websocket"
         self.max_connections = self.config.get("max-connections", 10)
         self.connection_timeout = self.config.get("connection-timeout", 60)
@@ -88,7 +89,7 @@ class ConnectorWebsocket(Connector):
                 text=json.dumps("Socket request timed out"), headers=HEADERS, status=408
             )
         self.available_connections.remove(available[0])
-        _LOGGER.debug("User connected to %s", socket)
+        _LOGGER.debug(_("User connected to %s."), socket)
 
         websocket = aiohttp.web.WebSocketResponse()
         await websocket.prepare(request)
@@ -100,11 +101,11 @@ class ConnectorWebsocket(Connector):
                 await self.opsdroid.parse(message)
             elif msg.type == aiohttp.WSMsgType.ERROR:
                 _LOGGER.error(
-                    "Websocket connection closed with exception %s",
+                    _("Websocket connection closed with exception %s."),
                     websocket.exception(),
                 )
 
-        _LOGGER.info("websocket connection closed")
+        _LOGGER.info(_("websocket connection closed"))
         self.active_connections.pop(socket, None)
 
         return websocket
@@ -124,8 +125,8 @@ class ConnectorWebsocket(Connector):
             if message.target is None:
                 message.target = next(iter(self.active_connections))
             _LOGGER.debug(
-                "Responding with: '" + message.text + "' in target " + message.target
+                _("Responding with: '%s' in target %s"), message.text, message.target
             )
             await self.active_connections[message.target].send_str(message.text)
         except KeyError:
-            _LOGGER.error("No active socket for target %s", message.target)
+            _LOGGER.error(_("No active socket for target %s"), message.target)

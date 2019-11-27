@@ -2,11 +2,11 @@
 
 ## Configuring opsdroid
 
-As in [regex matcher](/matchers/regex.md), in order to enable parse format skills, you must set the `enabled` parameter to true in the parsers section of the opsdroid configuration file.
+As in [regex matcher](../matchers/regex.md), in order to enable parse format skills, you must set the `enabled` parameter to true in the parsers section of the opsdroid configuration file.
 
 ```yaml
 parsers:
-  - name: parse_format
+  parse_format:
     enabled: true
 ```
 
@@ -160,4 +160,4 @@ Read [parse format specification](https://github.com/r1chardj0n3s/parse#format-s
 
 ## Score factor
 
-As in [regex matcher](/matchers/regex.md), you can use the keyword argument `score_factor` in parse format skills to modify the score calculation.
+As in [regex matcher](../matchers/regex.md), you can use the keyword argument `score_factor` in parse format skills to modify the score calculation.

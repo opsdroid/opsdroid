@@ -73,6 +73,7 @@ class Event(metaclass=EventMetaClass):
     creation.
 
     Args:
+        user_id (string, optional): String id of user sending message
         user (string, optional): String name of user sending message
         room (string, optional): String name of the room or chat channel in
                                  which message was sent
@@ -80,6 +81,8 @@ class Event(metaclass=EventMetaClass):
                                          given chat service
         raw_event (dict, optional): Raw message as provided by chat service.
                                     None by default
+        raw_parses (dict, optional): Raw response as provided by parse service.
+                            None by default
         event_id (object, optional): The unique id for this event as provided
                                      by the connector.
         linked_event (Event, optional): An event to link to this one, i.e. the
@@ -92,6 +95,7 @@ class Event(metaclass=EventMetaClass):
                 was sent.
         connector: Connector object used to interact with given chat service
         raw_event: Raw event provided by chat service
+        raw_parses: Dictionary mapping of the response created by parsers
         responded_to: Boolean initialized as False. True if event has been
             responded to
         entities: Dictionary mapping of entities created by parsers
@@ -100,13 +104,16 @@ class Event(metaclass=EventMetaClass):
 
     def __init__(
         self,
+        user_id=None,
         user=None,
         target=None,
         connector=None,
         raw_event=None,
+        raw_parses=None,
         event_id=None,
         linked_event=None,
     ):  # noqa: D107
+        self.user_id = user_id
         self.user = user
         self.target = target
         self.connector = connector
@@ -115,6 +122,7 @@ class Event(metaclass=EventMetaClass):
         self.created = datetime.now()
         self.event_id = event_id
         self.raw_event = raw_event
+        self.raw_parses = raw_parses or {}
         self.responded_to = False
         self.entities = {}
 
@@ -129,6 +137,7 @@ class Event(metaclass=EventMetaClass):
         # Inherit the user, target and event from the event we are responding
         # to if they are not explicitly provided by this Event
         event.user = event.user or self.user
+        event.user_id = event.user_id or self.user_id or event.user
         event.target = event.target or self.target
         event.connector = event.connector or self.connector
         event.linked_event = event.linked_event or self
@@ -178,6 +187,8 @@ class Message(Event):
                                          given chat service
         raw_event (dict, optional): Raw message as provided by chat service.
                                     None by default
+        raw_parses (dict, optional): Raw response as provided by parse service.
+                    None by default
 
     Attributes:
         created: Local date and time that message object was created
@@ -186,6 +197,7 @@ class Message(Event):
         connector: Connector object used to interact with given chat service
         text: Text of message as string
         raw_event: Raw message provided by chat service
+        raw_parses: Raw response provided by the parser service
         raw_match: A match object for a search against which the message was
             matched. E.g. a regular expression or natural language intent
         responded_to: Boolean initialized as False. True if event has been
@@ -207,6 +219,7 @@ class Message(Event):
         """Make opsdroid wait x-seconds before responding.
 
         Number of seconds defined in YAML config. file, accessed via connector.
+
         """
         seconds = self.connector.configuration.get("thinking-delay", 0)
 
@@ -220,6 +233,10 @@ class Message(Event):
 
         Seconds to delay equals number of characters in response multiplied by
         number of seconds defined in YAML config. file, accessed via connector.
+
+        Args:
+            text (str): The text input to perform typing simulation on.
+
         """
         seconds = self.connector.configuration.get("typing-delay", 0)
         char_count = len(text)
@@ -316,7 +333,7 @@ class File(Event):
     async def get_file_bytes(self):
         """Return the bytes representation of this file."""
         if not self._file_bytes and self.url:
-            async with aiohttp.ClientSession() as session:
+            async with aiohttp.ClientSession(trust_env=True) as session:
                 _LOGGER.debug(self._url_headers)
                 async with session.get(self.url, headers=self._url_headers) as resp:
                     self._file_bytes = await resp.read()

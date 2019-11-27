@@ -9,27 +9,28 @@ A connector for [Slack](https://slack.com/).
   * Create a [new Slack App](https://api.slack.com/apps/new) and select the workspace you would like it in.
   * Navigate to the "Bot Users" section and add a bot, giving it a display name and username.
   * Navigate to the "Install App" section and install the app in your workspace.
-  * Take note of the "Bot User OAuth Access Token" as this will be the `api-token` you need for your configuration.
+  * Take note of the "Bot User OAuth Access Token" as this will be the `token` you need for your configuration.
 
 ## Configuration
 
 ```yaml
 connectors:
-  - name: slack
+  slack:
     # required
-    api-token: "zyxw-abdcefghi-12345"
+    token: "zyxw-abdcefghi-12345"
     # optional
     bot-name: "mybot" # default "opsdroid"
     default-room: "#random" # default "#general"
     icon-emoji: ":smile:" # default ":robot_face:"
     connect-timeout: 10 # default 10 seconds
+    chat-as-user: true # default false
 ```
 
 ## Usage
 The connector itself won't allow opsdroid to do much. It will connect to Slack and be active on the `default-room`
 but you will still need some skill to have opsdroid react to an input.
 
-Luckily, opsdroid comes with a few skills out of the box as well. So once you run opsdroid you will see that it joined either the room that you set up on `default-room` parameter in the configuration or it will be in the `#general` room.
+Luckily, opsdroid comes with few skills out of the box as well. So once you run opsdroid you will see that it joined either the room that you set up on `default-room` parameter in the configuration or it will be in the `#general` room.
 
 _Note: If opsdroid failed to join the room you can always invite him by clicking `info>Members section>invite more people...`_
 

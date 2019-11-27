@@ -100,8 +100,10 @@ ENV/
 .docker/
 
 .vscode/
+.mypy_cache
 .devcontainer/
 .idea/
 site/
 Pipfile
 Pipfile.lock
+.icloud

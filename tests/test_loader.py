@@ -8,10 +8,10 @@ import unittest.mock as mock
 from types import ModuleType
 
 import pkg_resources
-from yaml import YAMLError
 from opsdroid.cli.start import configure_lang
+from opsdroid.configuration import load_config_file
+from opsdroid.const import ENV_VAR_REGEX
 from opsdroid import loader as ld
-from opsdroid.loader import Loader
 from opsdroid.helper import del_rw
 
 
@@ -32,151 +32,6 @@ class TestLoader(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self._tmp_dir, onerror=del_rw)
-
-    def test_load_config_file(self):
-        opsdroid, loader = self.setup()
-        config = loader.load_config_file(
-            [os.path.abspath("tests/configs/minimal.yaml")]
-        )
-        self.assertIsNotNone(config)
-
-    def test_load_config_valid(self):
-        opsdroid, loader = self.setup()
-        config = loader.load_config_file(
-            [os.path.abspath("tests/configs/full_valid.yaml")]
-        )
-        self.assertIsNotNone(config)
-
-    def test_load_config_valid_without_wellcome_message(self):
-        opsdroid, loader = self.setup()
-        config = loader.load_config_file(
-            [os.path.abspath("tests/configs/valid_without_wellcome_message.yaml")]
-        )
-        self.assertIsNotNone(config)
-
-    def test_load_config_valid_without_db_and_parsers(self):
-        opsdroid, loader = self.setup()
-        config = loader.load_config_file(
-            [os.path.abspath("tests/configs/valid_without_db_and_parsers.yaml")]
-        )
-        self.assertIsNotNone(config)
-
-    def test_load_config_broken_without_connectors(self):
-        opsdroid, loader = self.setup()
-        with self.assertRaises(SystemExit) as cm:
-            _ = loader.load_config_file(
-                [os.path.abspath("tests/configs/broken_without_connectors.yaml")]
-            )
-        self.assertEqual(cm.exception.code, 1)
-
-    def test_load_config_valid_case_sensitivity(self):
-        opsdroid, loader = self.setup()
-        config = loader.load_config_file(
-            [os.path.abspath("tests/configs/valid_case_sensitivity.yaml")]
-        )
-        self.assertIsNotNone(config)
-
-    def test_load_config_broken(self):
-        opsdroid, loader = self.setup()
-
-        with self.assertRaises(SystemExit) as cm:
-            _ = loader.load_config_file(
-                [os.path.abspath("tests/configs/full_broken.yaml")]
-            )
-        self.assertEqual(cm.exception.code, 1)
-
-    def test_load_config_file_2(self):
-        opsdroid, loader = self.setup()
-        config = loader.load_config_file(
-            [os.path.abspath("tests/configs/minimal_2.yaml")]
-        )
-        self.assertIsNotNone(config)
-
-    def test_load_exploit(self):
-        """This will test if you can run python code from
-        config.yaml. The expected result should be:
-        - Yaml.YAMLError exception raised
-        - _LOGGER.critical message
-        - sys.exit
-
-        Note: the unittest.main(exit=False) is important so
-        other tests won't fail when sys.exit is called.
-        """
-        opsdroid, loader = self.setup()
-        with self.assertRaises(SystemExit):
-            _ = loader.load_config_file(
-                [os.path.abspath("tests/configs/include_exploit.yaml")]
-            )
-            self.assertLogs("_LOGGER", "critical")
-            self.assertRaises(YAMLError)
-            unittest.main(exit=False)
-
-    @unittest.skip("old config type fails validation #770")
-    def test_load_config_file_with_include(self):
-        opsdroid, loader = self.setup()
-        config = loader.load_config_file(
-            [os.path.abspath("tests/configs/minimal_with_include.yaml")]
-        )
-        config2 = loader.load_config_file(
-            [os.path.abspath("tests/configs/minimal.yaml")]
-        )
-        self.assertIsNotNone(config)
-        self.assertEqual(config, config2)
-
-    def test_yaml_load_exploit(self):
-        with mock.patch("sys.exit"):
-            config = Loader.load_config_file(
-                [os.path.abspath("tests/configs/include_exploit.yaml")]
-            )
-            self.assertIsNone(config)
-            # If the command in exploit.yaml is echoed it will return 0
-            self.assertNotEqual(config, 0)
-
-    @unittest.skip("old config type fails validation #770")
-    def test_load_config_file_with_env_vars(self):
-        opsdroid, loader = self.setup()
-        os.environ["ENVVAR"] = "shell"
-        config = loader.load_config_file(
-            [os.path.abspath("tests/configs/minimal_with_envs.yaml")]
-        )
-        self.assertEqual(config["connectors"][0]["name"], os.environ["ENVVAR"])
-
-    def test_create_default_config(self):
-        test_config_path = os.path.join(
-            tempfile.gettempdir(), "test_config_path/configuration.yaml"
-        )
-        opsdroid, loader = self.setup()
-
-        self.assertEqual(
-            loader.create_default_config(test_config_path), test_config_path
-        )
-        self.assertTrue(os.path.isfile(test_config_path))
-        shutil.rmtree(os.path.split(test_config_path)[0], onerror=del_rw)
-
-    def test_generate_config_if_none_exist(self):
-        cdf_backup = Loader.create_default_config
-        Loader.create_default_config = mock.Mock(
-            return_value=os.path.abspath("tests/configs/minimal.yaml")
-        )
-        Loader.load_config_file(["file_which_does_not_exist"])
-        self.assertTrue(Loader.create_default_config.called)
-        Loader.create_default_config = cdf_backup
-
-    def test_load_non_existant_config_file(self):
-        cdf_backup = Loader.create_default_config
-        Loader.create_default_config = mock.Mock(
-            return_value=os.path.abspath("/tmp/my_nonexistant_config")
-        )
-        with mock.patch("sys.exit") as mock_sysexit:
-            Loader.load_config_file(["file_which_does_not_exist"])
-            self.assertTrue(Loader.create_default_config.called)
-            self.assertTrue(mock_sysexit.called)
-        Loader.create_default_config = cdf_backup
-
-    def test_load_broken_config_file(self):
-        with mock.patch("sys.exit") as patched_sysexit:
-            Loader.load_config_file([os.path.abspath("tests/configs/broken.yaml")])
-            self.assertTrue(patched_sysexit.called)
 
     def test_git_clone(self):
         with mock.patch.object(subprocess, "Popen") as mock_subproc_popen:
@@ -284,6 +139,28 @@ class TestLoader(unittest.TestCase):
         self.assertEqual(intent_contents, loaded_intents)
         shutil.rmtree(config["install_path"], onerror=del_rw)
 
+    def test_check_cache_clears_local_by_default(self):
+        config = {}
+        config["path"] = "abc"
+        config["install_path"] = os.path.join(
+            self._tmp_dir, os.path.normpath("test/module")
+        )
+        os.makedirs(config["install_path"], mode=0o777)
+        ld.Loader.check_cache(config)
+        self.assertFalse(os.path.isdir(config["install_path"]))
+
+    def test_check_cache_clear_local_by_default_disabled(self):
+        config = {}
+        config["no-cache"] = False
+        config["path"] = "abc"
+        config["install_path"] = os.path.join(
+            self._tmp_dir, os.path.normpath("test/module")
+        )
+        os.makedirs(config["install_path"], mode=0o777)
+        ld.Loader.check_cache(config)
+        self.assertTrue(os.path.isdir(config["install_path"]))
+        shutil.rmtree(config["install_path"], onerror=del_rw)
+
     def test_loading_intents_failed(self):
         config = {}
         config["no-cache"] = True
@@ -370,7 +247,7 @@ class TestLoader(unittest.TestCase):
 
         opsdroid, loader = self.setup()
         loader.modules_directory = "."
-        modules = [{"name": "myep"}]
+        modules = {"myep": {}}
 
         with mock.patch("opsdroid.loader.iter_entry_points") as mock_iter_entry_points:
             mock_iter_entry_points.return_value = (ep,)
@@ -384,11 +261,13 @@ class TestLoader(unittest.TestCase):
         config = {}
         config["databases"] = mock.MagicMock()
         config["skills"] = mock.MagicMock()
+        config["parsers"] = mock.MagicMock()
         config["connectors"] = mock.MagicMock()
         config["module-path"] = os.path.join(self._tmp_dir, "opsdroid")
 
         loader.load_modules_from_config(config)
-        self.assertEqual(len(loader._load_modules.mock_calls), 3)
+        self.assertLogs("_LOGGER", "info")
+        self.assertEqual(len(loader._load_modules.mock_calls), 4)
 
     def test_load_empty_config(self):
         opsdroid, loader = self.setup()
@@ -401,9 +280,7 @@ class TestLoader(unittest.TestCase):
 
     def test_load_minimal_config_file(self):
         opsdroid, loader = self.setup()
-        config = Loader.load_config_file(
-            [os.path.abspath("tests/configs/minimal.yaml")]
-        )
+        config = load_config_file([os.path.abspath("tests/configs/minimal.yaml")])
         loader._install_module = mock.MagicMock()
         loader.import_module = mock.MagicMock()
         modules = loader.load_modules_from_config(config)
@@ -416,9 +293,7 @@ class TestLoader(unittest.TestCase):
         opsdroid, loader = self.setup()
         loader._install_module = mock.MagicMock()
         loader.import_module = mock.MagicMock()
-        config = Loader.load_config_file(
-            [os.path.abspath("tests/configs/minimal_2.yaml")]
-        )
+        config = load_config_file([os.path.abspath("tests/configs/minimal_2.yaml")])
         modules = loader.load_modules_from_config(config)
         self.assertIsNotNone(modules["connectors"])
         self.assertIsNone(modules["databases"])
@@ -429,7 +304,39 @@ class TestLoader(unittest.TestCase):
         opsdroid, loader = self.setup()
 
         modules_type = "test"
-        modules = [{"name": "testmodule"}]
+        modules = {"testmodule": {}}
+        mockedmodule = mock.Mock(return_value={"name": "testmodule"})
+
+        with tempfile.TemporaryDirectory() as tmp_dep_path:
+            with mock.patch.object(
+                loader, "_install_module"
+            ) as mockinstall, mock.patch(
+                "opsdroid.loader.DEFAULT_MODULE_DEPS_PATH",
+                os.path.join(tmp_dep_path, "site-packages"),
+            ), mock.patch.object(
+                loader, "import_module", mockedmodule
+            ) as mockimport:
+                loader.setup_modules_directory({})
+                loader._load_modules(modules_type, modules)
+                self.assertTrue(mockinstall.called)
+                self.assertTrue(mockimport.called)
+
+    def test_setup_module_config(self):
+        opsdroid, loader = self.setup()
+        modules = {}
+        modules_type = "test"
+        module = {"name": "testmodule", "token": "test", "bot-name": "opsdroid"}
+
+        with contextlib.suppress(TypeError):
+            config = loader.setup_module_config(modules, module, modules_type, {})
+
+            self.assertEqual(config, {"name": "testmodule", "module": ""})
+
+    def test_load_modules_not_instance_Mapping(self):
+        opsdroid, loader = self.setup()
+
+        modules_type = "test"
+        modules = "testmodule"
         mockedmodule = mock.Mock(return_value={"name": "testmodule"})
 
         with tempfile.TemporaryDirectory() as tmp_dep_path:
@@ -450,7 +357,7 @@ class TestLoader(unittest.TestCase):
         opsdroid, loader = self.setup()
 
         modules_type = "test"
-        modules = [{"name": "testmodule"}]
+        modules = {"testmodule": {}}
 
         with mock.patch.object(
             loader, "_install_module"
@@ -467,7 +374,7 @@ class TestLoader(unittest.TestCase):
         opsdroid, loader = self.setup()
 
         modules_type = "test"
-        modules = [{"name": "testmodule"}]
+        modules = {"testmodule": {}}
         install_path = os.path.join(self._tmp_dir, "test_existing_module")
         mockedmodule = mock.Mock(return_value={"name": "testmodule"})
         mocked_install_path = mock.Mock(return_value=install_path)
@@ -498,7 +405,7 @@ class TestLoader(unittest.TestCase):
         }
         with mock.patch("opsdroid.loader._LOGGER.error") as logmock:
             loader._install_module(config)
-            logmock.assert_any_call("Could not find local git repo %s", config["repo"])
+            logmock.assert_any_call("Could not find local git repo %s.", config["repo"])
             logmock.assert_any_call("Install of %s failed.", config["name"])
 
     def test_install_specific_remote_module(self):
@@ -760,3 +667,53 @@ class TestLoader(unittest.TestCase):
                     os.path.isfile(os.path.join(config["install_path"], "__init__.py"))
                 )
                 shutil.rmtree(config["install_path"], onerror=del_rw)
+
+    def test_load_pre_0_17_config_file(self):
+        config = load_config_file(
+            [os.path.abspath("tests/configs/minimal_pre_0_17_layout.yaml")]
+        )
+        self.assertLogs("_LOGGER", "warning")
+        self.assertEqual(
+            config, {"connectors": {"shell": {}}, "skills": {"hello": {}, "seen": {}}}
+        )
+
+    def test_setup_module_bad_config(self):
+        opsdroid, loader = self.setup()
+        with mock.patch("sys.exit") as mock_sysexit:
+            config = load_config_file(
+                [os.path.abspath("tests/configs/broken_modules.yaml")]
+            )
+            loader.load_modules_from_config(config)
+            self.assertTrue(mock_sysexit.called)
+            self.assertLogs("_LOGGER", "critical")
+
+    def test_env_var_regex(self):
+        test_data = [
+            {"env_var": "$OPS_DROID", "match": True},
+            {"env_var": "$OPS-DROID", "match": True},
+            {"env_var": "${OPS_DROID}", "match": True},
+            {"env_var": '"$OPSDROID_SLACK_TOKEN"', "match": True},
+            {"env_var": "$_OPS_DROID", "match": True},
+            {"env_var": "${_OPS_DROID}", "match": True},
+            {"env_var": "$INVALID!_CHARACTERS@", "match": False},
+            {"env_var": "OPS_DROID", "match": False},
+            {"env_var": "$OPS_DROID23", "match": False},
+            {"env_var": "$UPPER-AND-lower", "match": False},
+            {"env_var": '"MISSING_PREFIX"', "match": False},
+            {"env_var": "$all_lowercase", "match": False},
+            {"env_var": "a simple sentence.", "match": False},
+            {"env_var": "$", "match": False},
+            {"env_var": "${}", "match": False},
+            {"env_var": "", "match": False},
+            {"env_var": "556373", "match": False},
+            {"env_var": "${@!!}", "match": False},
+            {"env_var": "${_-_-}", "match": False},
+            {"env_var": "$ALONGSTRINGTHAT$CONTAINS$", "match": False},
+            {"env_var": "NOPREFIXALONGSTRINGTHAT$CONTAINS$", "match": False},
+        ]
+        for d in test_data:
+            # Tests opsdroid constant ENV_VAR_REGEX for both valid and invalid environment variables.
+            if d["match"]:
+                self.assertRegex(d["env_var"], ENV_VAR_REGEX)
+            else:
+                self.assertNotRegex(d["env_var"], ENV_VAR_REGEX)

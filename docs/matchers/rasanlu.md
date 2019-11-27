@@ -13,7 +13,7 @@ You can also set a `min-score` option to tell opsdroid to ignore any matches whi
 ```yaml
 
 parsers:
-  - name: rasanlu
+  rasanlu:
     url: http://localhost:5000
     project: opsdroid
     token: 85769fjoso084jd
@@ -22,9 +22,9 @@ parsers:
 
 ##
 
-[Rasa NLU](https://github.com/RasaHQ/rasa_nlu) is an open source tool for running your own NLP API for matching strings to [intents](https://rasahq.github.io/rasa_nlu/). This is the recommended parser if you have privacy concerns but want the power of a full NLU parsing engine.
+[Rasa NLU](https://github.com/RasaHQ/rasa_nlu) is an open source tool for running your own NLP API for matching strings to [intents](https://rasa.com/docs/rasa/). This is the recommended parser if you have privacy concerns but want the power of a full NLU parsing engine.
 
-Rasa NLU is also trained via the API and so opsdroid can do the training for you if you provide an intents [markdown file](https://rasahq.github.io/rasa_nlu/dataformat.html#markdown-format) along with your skill. This file must contain headers in the format `## intent:<intent name>` followed by a list of example phrases for that intent. Rasa NLU will then use those examples to build a statistical model for matching new and unseen variations on those sentences.
+Rasa NLU is also trained via the API and so opsdroid can do the training for you if you provide an intents [markdown file](https://rasa.com/docs/rasa/nlu/training-data-format/#data-formats) along with your skill. This file must contain headers in the format `## intent:<intent name>` followed by a list of example phrases for that intent. Rasa NLU will then use those examples to build a statistical model for matching new and unseen variations on those sentences.
 
 > ⚠️ **Warning** - Rasa NLU requires 4GB of memory, 2GB for training models and 2GB for serving requests. If you do not provide enough it will hang and cause timeouts in opsdroid.
 

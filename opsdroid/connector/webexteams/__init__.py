@@ -2,16 +2,19 @@
 import json
 import logging
 import uuid
+import os
 
 import aiohttp
 
 from webexteamssdk import WebexTeamsAPI
+from voluptuous import Required, Url
 
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
 
 
 _LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {Required("webhook-url"): Url, Required("token"): str}
 
 
 class ConnectorWebexTeams(Connector):
@@ -19,12 +22,12 @@ class ConnectorWebexTeams(Connector):
 
     def __init__(self, config, opsdroid=None):
         """Create a connector."""
-        _LOGGER.debug("Loaded webex teams connector")
+        _LOGGER.debug(_("Loaded WebEx Teams Connector."))
         super().__init__(config, opsdroid=opsdroid)
         self.name = "webexteams"
         self.config = config
         self.opsdroid = opsdroid
-        self.default_room = None
+        self.default_target = None
         self.bot_name = config.get("bot-name", "opsdroid")
         self.bot_webex_id = None
         self.secret = uuid.uuid4().hex
@@ -33,9 +36,17 @@ class ConnectorWebexTeams(Connector):
     async def connect(self):
         """Connect to the chat service."""
         try:
-            self.api = WebexTeamsAPI(access_token=self.config["access-token"])
+            self.api = WebexTeamsAPI(
+                access_token=self.config["token"],
+                proxies={
+                    "http": os.environ.get("HTTP_PROXY"),
+                    "https": os.environ.get("HTTPS_PROXY"),
+                },
+            )
         except KeyError:
-            _LOGGER.error("Must set accesst-token for webex teams connector!")
+
+            _LOGGER.error(_("Must set access-token for WebEx Teams Connector."))
+
             return
 
         await self.clean_up_webhooks()
@@ -44,7 +55,7 @@ class ConnectorWebexTeams(Connector):
 
     async def webexteams_message_handler(self, request):
         """Handle webhooks from the Webex Teams api."""
-        _LOGGER.debug("Handling message from Webex Teams")
+        _LOGGER.debug(_("Handling message from WebEx Teams."))
         req_data = await request.json()
 
         _LOGGER.debug(req_data)
@@ -56,10 +67,10 @@ class ConnectorWebexTeams(Connector):
 
             try:
                 message = Message(
-                    msg.text,
-                    person.displayName,
-                    {"id": msg.roomId, "type": msg.roomType},
-                    self,
+                    text=msg.text,
+                    user=person.displayName,
+                    target={"id": msg.roomId, "type": msg.roomType},
+                    connector=self,
                 )
                 await self.opsdroid.parse(message)
             except KeyError as error:
@@ -74,7 +85,7 @@ class ConnectorWebexTeams(Connector):
 
     async def subscribe_to_rooms(self):
         """Create webhooks for all rooms."""
-        _LOGGER.debug("Creating Webex Teams webhook")
+        _LOGGER.debug(_("Creating Webex Teams webhook."))
         webhook_endpoint = "/connector/webexteams"
         self.opsdroid.web_server.web_app.router.add_post(
             webhook_endpoint, self.webexteams_message_handler
