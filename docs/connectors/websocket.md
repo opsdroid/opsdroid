@@ -1,4 +1,4 @@
-# Websocket connector
+# Websocket
 
 A connector to listen for messages using websockets.
 

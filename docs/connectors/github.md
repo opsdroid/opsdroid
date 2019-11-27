@@ -1,4 +1,4 @@
-# opsdroid connector GitHub
+# GitHub
 
 A connector for [opsdroid](https://github.com/opsdroid/opsdroid) to comment on issues and pull requests on [GitHub](https://github.com).
 

@@ -1,10 +1,5 @@
 PyGithub==1.44.1
 Jinja2==2.10.1
 Pygments==2.4.2
-docutils==0.15.2
 mock==3.0.5
 pillow==6.2.1
-alabaster==0.7.12
-commonmark==0.9.1
-recommonmark==0.6.0
-mkdocs==1.0.4

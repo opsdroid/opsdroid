@@ -1,4 +1,4 @@
-# opsdroid database mongo
+# MongoDB
 
 A database module for [opsdroid](https://github.com/opsdroid/opsdroid) to persist memory in a [mongo database](https://www.mongodb.com/).
 
