@@ -68,7 +68,7 @@ def validate_data_type(data):
     as a single string. If data is not a dict we raise a TypeError.
 
     """
-    if type(data) != dict:
+    if not isinstance(data, dict):
         raise TypeError(
             "Invalid type for the configuration, please check that configuration is of <type 'dict'>."
         )

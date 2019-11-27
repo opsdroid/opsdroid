@@ -84,10 +84,8 @@ def validate_config(ctx, path, value):
     """
     with OpsDroid() as opsdroid:
         loader = Loader(opsdroid)
-        if path:
-            DEFAULT_CONFIG_LOCATIONS.insert(0, path)
 
-        config = load_config_file(DEFAULT_CONFIG_LOCATIONS)
+        config = load_config_file([path] if path else DEFAULT_CONFIG_LOCATIONS)
 
         loader.load_modules_from_config(config)
         click.echo("Configuration validated - No errors founds!")
@@ -171,37 +169,12 @@ def list_modules(ctx, param, value):
     )
 
     try:
-        if param == "connectors":
-            connectors = [connector for connector in config.get("connectors")]
-            click.echo(
-                "Connectors active in the configuration: {connectors_active}.".format(
-                    connectors_active=", ".join(connectors)
-                )
+        modules = [module for module in config.get(param)]
+        click.echo(
+            "Connectors active in the configuration: {modules_active}.".format(
+                modules_active=", ".join(modules)
             )
-
-        if param == "databases":
-            databases = [database for database in config.get("databases")]
-            click.echo(
-                "Databases active in the configuration: {databases_active}.".format(
-                    databases_active=", ".join(databases)
-                )
-            )
-
-        if param == "skills":
-            skills = [skill for skill in config.get("skills")]
-            click.echo(
-                "Skills active in the configuration: {skills_active}.".format(
-                    skills_active=", ".join(skills)
-                )
-            )
-
-        if param == "parsers":
-            parsers = [parser for parser in config.get("parsers")]
-            click.echo(
-                "Parsers active in the configuration: {parsers_active}.".format(
-                    parsers_active=", ".join(parsers)
-                )
-            )
+        )
 
     except TypeError:
         click.echo("Found no {module} active in configuration.".format(module=param))

@@ -16,15 +16,17 @@ _LOGGER = logging.getLogger("opsdroid")
 
 
 @click.command()
-@click.argument("path", required=False, type=click.Path(exists=True))
+@click.option(
+    "-f",
+    "path",
+    help="Load opsdroid configuration from a path.",
+    type=click.Path(exists=True),
+)
 def start(path):
     """Start the opsdroid bot."""
     check_dependencies()
 
-    if path:
-        DEFAULT_CONFIG_LOCATIONS.insert(0, path)
-
-    config = load_config_file(DEFAULT_CONFIG_LOCATIONS)
+    config = load_config_file([path] if path else DEFAULT_CONFIG_LOCATIONS)
 
     configure_lang(config)
     configure_logging(config)

@@ -58,7 +58,12 @@ def edit(ctx):
 
 @config.command()
 @click.pass_context
-@click.argument("path", required=False, type=click.Path(exists=True))
+@click.option(
+    "-f",
+    "path",
+    help="Validates opsdroid configuration from a path.",
+    type=click.Path(exists=True),
+)
 def lint(ctx, path):
     """Validate the configuration."""
     validate_config(ctx, path, "config")
