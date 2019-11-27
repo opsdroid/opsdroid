@@ -106,11 +106,6 @@ connectors:
   
   # Uncomment the connector(s) that you wish opsdroid to work on
 #
-#  ## Ciscospark (https://github.com/opsdroid/connector-ciscospark)
-#  ciscospark:
-#    # required
-#    webhook-url: http(s)://<host>:<port>  # Url for Spark to connect to your bot
-#    token: <your bot access token>  # Your access token
 #
 #  ## Twitter (https://github.com/opsdroid/connector-twitter)
 #  twitter:
