@@ -259,8 +259,8 @@ class TestCLI(unittest.TestCase):
     def test_config_list_db_parsers(self):
         from opsdroid.configuration import load_config_file
 
-        load_config_file([os.path.abspath("tests/configs/full_valid.yaml")])
         with mock.patch.object(click, "echo") as click_echo:
+            load_config_file([os.path.abspath("tests/configs/full_valid.yaml")])
             runner = CliRunner()
             from opsdroid.cli.config import list_databases, list_parsers
 
@@ -271,3 +271,25 @@ class TestCLI(unittest.TestCase):
             databases = runner.invoke(list_databases, [])
             self.assertTrue(click_echo.called)
             self.assertEqual(databases.exit_code, 0)
+
+    def test_start_from_path(self):
+        runner = CliRunner()
+        with mock.patch.object(OpsDroid, "run") as mock_run:
+            runner.invoke(
+                opsdroid.cli.start, [os.path.abspath("tests/configs/full_valid.yaml")]
+            )
+            assert mock_run.called
+
+    def test_config_validate_from_path(self):
+        with mock.patch.object(click, "echo") as click_echo, mock.patch(
+            "opsdroid.configuration.load_config_file"
+        ) as opsdroid_load:
+            runner = CliRunner()
+            from opsdroid.cli.config import lint
+
+            result = runner.invoke(
+                lint, [os.path.abspath("tests/configs/full_valid.yaml")]
+            )
+            self.assertTrue(click_echo.called)
+            self.assertFalse(opsdroid_load.called)
+            self.assertEqual(result.exit_code, 0)
