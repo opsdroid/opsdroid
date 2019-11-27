@@ -71,27 +71,51 @@ def lint(ctx, path):
 
 @config.command()
 @click.pass_context
-def list_connectors(ctx):
+@click.option(
+    "-f",
+    "path",
+    help="Validates opsdroid configuration from a path.",
+    type=click.Path(exists=True),
+)
+def list_connectors(ctx, path):
     """Print out a list of all active connectors."""
-    list_modules(ctx, "connectors", "config")
+    list_modules(ctx, {"modules_type": "connectors", "path": path}, "config")
 
 
 @config.command()
 @click.pass_context
-def list_parsers(ctx):
+@click.option(
+    "-f",
+    "path",
+    help="Validates opsdroid configuration from a path.",
+    type=click.Path(exists=True),
+)
+def list_parsers(ctx, path):
     """Print out a list of all active parsers."""
-    list_modules(ctx, "parsers", "config")
+    list_modules(ctx, {"modules_type": "parsers", "path": path}, "config")
 
 
 @config.command()
 @click.pass_context
-def list_databases(ctx):
+@click.option(
+    "-f",
+    "path",
+    help="Validates opsdroid configuration from a path.",
+    type=click.Path(exists=True),
+)
+def list_databases(ctx, path):
     """Print out a list of all active databases."""
-    list_modules(ctx, "databases", "config")
+    list_modules(ctx, {"modules_type": "databases", "path": path}, "config")
 
 
 @config.command()
 @click.pass_context
-def list_skills(ctx):
+@click.option(
+    "-f",
+    "path",
+    help="Validates opsdroid configuration from a path.",
+    type=click.Path(exists=True),
+)
+def list_skills(ctx, path):
     """Print out a list of all active skills."""
-    list_modules(ctx, "skills", "config")
+    list_modules(ctx, {"modules_type": "skills", "path": path}, "config")

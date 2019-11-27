@@ -10,7 +10,6 @@ import time
 import warnings
 
 from opsdroid.core import OpsDroid
-from opsdroid.loader import Loader
 from opsdroid.configuration import load_config_file
 from opsdroid.const import (
     DEFAULT_LOG_FILENAME,
@@ -19,6 +18,8 @@ from opsdroid.const import (
     DEFAULT_CONFIG_PATH,
     DEFAULT_CONFIG_LOCATIONS,
 )
+from opsdroid.helper import get_config_option
+from opsdroid.loader import Loader
 
 _LOGGER = logging.getLogger("opsdroid")
 
@@ -162,19 +163,57 @@ def welcome_message(config):
         )
 
 
-def list_modules(ctx, param, value):
-    """List the active modules from confiv."""
+def list_modules(ctx, params, value):
+    """List the active modules from config.
+
+    This function will try to get information from the modules that are active in the
+    configuration file and print them as a table or will just print a sentence saying that
+    there are no active modules for that type.
+
+    Args:
+        ctx (:obj:`click.Context`): The current click cli context.
+        params (dict): a dictionary of all parameters pass to the click
+            context when invoking this function as a callback.
+        value (string): the value of this parameter after invocation.
+            It is either "config" or "log" depending on the program
+            calling this function.
+
+    Returns:
+        int: the exit code. Always returns 0 in this case.
+
+    """
     config = load_config_file(
-        ["configuration.yaml", DEFAULT_CONFIG_PATH, "/etc/opsdroid/configuration.yaml"]
+        [params["path"]] if params["path"] else DEFAULT_CONFIG_LOCATIONS
     )
 
-    try:
-        modules = [module for module in config.get(param)]
+    module_type = config.get(params["modules_type"])
+
+    if module_type:
         click.echo(
-            "Connectors active in the configuration: {modules_active}.".format(
-                modules_active=", ".join(modules)
+            f"{'NAME':15} {'TYPE':15} {'MODE':15} {'CACHED':15}  {'LOCATION':15}"
+        )
+
+        for module in module_type:
+
+            mode = get_config_option(
+                ["repo", "path", "gist"], module_type[module], True, "module"
+            )
+            cache = get_config_option(["no-cache"], module_type[module], "no", "yes")
+            location = get_config_option(
+                ["repo", "path", "gist"],
+                module_type[module],
+                True,
+                f'opsdroid.{params["modules_type"]}.{module}',
+            )
+
+            click.echo(
+                f"{module:15} {params['modules_type']:15} {mode[1]:15} {cache[0]:15}  {location[2]:15}"
+            )
+    else:
+        click.echo(
+            "Found no {module} active in configuration.".format(
+                module=params["modules_type"]
             )
         )
 
-    except TypeError:
-        click.echo("Found no {module} active in configuration.".format(module=param))
+    ctx.exit(0)

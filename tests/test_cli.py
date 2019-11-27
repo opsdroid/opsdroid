@@ -276,7 +276,8 @@ class TestCLI(unittest.TestCase):
         runner = CliRunner()
         with mock.patch.object(OpsDroid, "run") as mock_run:
             runner.invoke(
-                opsdroid.cli.start, [os.path.abspath("tests/configs/full_valid.yaml")]
+                opsdroid.cli.start,
+                ["-f", os.path.abspath("tests/configs/full_valid.yaml")],
             )
             assert mock_run.called
 
@@ -288,7 +289,7 @@ class TestCLI(unittest.TestCase):
             from opsdroid.cli.config import lint
 
             result = runner.invoke(
-                lint, [os.path.abspath("tests/configs/full_valid.yaml")]
+                lint, ["-f", os.path.abspath("tests/configs/full_valid.yaml")]
             )
             self.assertTrue(click_echo.called)
             self.assertFalse(opsdroid_load.called)
