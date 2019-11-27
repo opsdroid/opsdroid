@@ -1,4 +1,4 @@
-# SQLite Database Module
+# SQLite
 
 A database module for opsdroid to persist memory in a [SQLite](https://www.sqlite.org/) database.
 

@@ -1,4 +1,4 @@
-# opsdroid redis database
+# Redis
 
 A database module for [opsdroid](https://github.com/opsdroid/opsdroid) to persist memory in a [redis database](https://redis.io/).
 

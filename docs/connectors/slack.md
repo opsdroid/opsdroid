@@ -1,4 +1,4 @@
-# Slack connector
+# Slack
 
 A connector for [Slack](https://slack.com/).
 

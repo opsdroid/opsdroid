@@ -1,4 +1,4 @@
-# Facebook Messenger connector
+# Facebook Messenger
 
 A connector for [Facebook Messenger](https://developers.facebook.com/docs/messenger-platform/).
 

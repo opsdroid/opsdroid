@@ -1,0 +1,7 @@
+@import url('https://fonts.googleapis.com/css?family=Fira+Code|Montserrat&display=swap');
+
+
+.sphinxsidebar .sphinxsidebarwrapper ul li {
+    font-size: 12px;
+    line-height: 1.8;
+}

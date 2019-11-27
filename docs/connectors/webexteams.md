@@ -1,4 +1,4 @@
-# Webex Teams connector
+# Webex Teams
 
 A connector for [opsdroid](https://github.com/opsdroid/opsdroid) to interact with [Webex Teams](https://www.webex.com/team-collaboration.html).
 _Note: Webex Teams was used to be called cisco spark. We changed cisco spark connector to webex teams connector_
