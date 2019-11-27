@@ -84,13 +84,11 @@ def validate_config(ctx, path, value):
     """
     with OpsDroid() as opsdroid:
         loader = Loader(opsdroid)
-        print(path)
         if path:
             DEFAULT_CONFIG_LOCATIONS.insert(0, path)
 
         config = load_config_file(DEFAULT_CONFIG_LOCATIONS)
 
-        print(config)
         loader.load_modules_from_config(config)
         click.echo("Configuration validated - No errors founds!")
 

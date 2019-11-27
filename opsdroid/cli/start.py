@@ -19,7 +19,6 @@ _LOGGER = logging.getLogger("opsdroid")
 @click.argument("path", required=False, type=click.Path(exists=True))
 def start(path):
     """Start the opsdroid bot."""
-    print(path)
     check_dependencies()
 
     if path:
