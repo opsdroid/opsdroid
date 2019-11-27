@@ -5,9 +5,9 @@ version: 2
 python:
   version: 3.6
   install:
-    - requirements.txt
-    - requirements_test.txt
-    - requirements_dev.txt
+    - requirements: requirements.txt
+    - requirements: requirements_test.txt
+    - requirements: requirements_dev.txt
 
 sphinx:
   configuration: docs/conf.py
