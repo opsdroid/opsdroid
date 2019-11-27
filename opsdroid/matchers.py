@@ -194,6 +194,28 @@ def match_rasanlu(intent):
     return matcher
 
 
+def match_snipsnlu(intent):
+    """Return Snips NLU intent match decorator.
+
+    Decorator that calls a function on specific Snips NLU intents.
+
+    Args:
+        intent (str): Snips NLU intent name
+
+    Returns:
+        Decorated Function
+
+    """
+
+    def matcher(func):
+        """Add decorated function to skills list for Snips NLU matching."""
+        func = add_skill_attributes(func)
+        func.matchers.append({"snipsnlu_intent": intent})
+        return func
+
+    return matcher
+
+
 def match_recastai(intent):
     """Return Recast.ai intent match decorator.
 

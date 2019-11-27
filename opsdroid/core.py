@@ -29,6 +29,7 @@ from opsdroid.parsers.sapcai import parse_sapcai
 from opsdroid.parsers.witai import parse_witai
 from opsdroid.parsers.watson import parse_watson
 from opsdroid.parsers.rasanlu import parse_rasanlu, train_rasanlu
+from opsdroid.parsers.snipsnlu import parse_snipsnlu, train_snipsnlu
 from opsdroid.parsers.crontab import parse_crontab
 
 
@@ -293,6 +294,9 @@ class OpsDroid:
             rasanlu = parsers.get("rasanlu")
             if rasanlu and rasanlu["enabled"]:
                 await train_rasanlu(rasanlu, skills)
+            snipsnlu = parsers.get("snipsnlu")
+            if snipsnlu and snipsnlu["enabled"]:
+                await train_snipsnlu(snipsnlu, skills)
 
     async def start_connectors(self, connectors):
         """Start the connectors.
@@ -456,6 +460,11 @@ class OpsDroid:
             if rasanlu and rasanlu["enabled"]:
                 _LOGGER.debug(_("Checking Rasa NLU..."))
                 ranked_skills += await parse_rasanlu(self, skills, message, rasanlu)
+
+            snipsnlu = parsers.get("snipsnlu")
+            if snipsnlu and snipsnlu["enabled"]:
+                _LOGGER.debug(_("Checking Snips NLU..."))
+                ranked_skills += await parse_snipsnlu(self, skills, message, rasanlu)
 
         return sorted(ranked_skills, key=lambda k: k["score"], reverse=True)
 

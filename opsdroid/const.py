@@ -29,6 +29,8 @@ REGEX_PARSE_SCORE_FACTOR = 0.6
 RASANLU_DEFAULT_URL = "http://localhost:5000"
 RASANLU_DEFAULT_PROJECT = "opsdroid"
 
+SNIPSNLU_DEFAULT_DIR = "/home/snipsmodel"
+
 LUISAI_DEFAULT_URL = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/"
 
 DIALOGFLOW_API_ENDPOINT = "https://api.dialogflow.com/v1/query"

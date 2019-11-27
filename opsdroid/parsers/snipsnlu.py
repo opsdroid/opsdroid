@@ -11,7 +11,7 @@ from snips_nlu import SnipsNLUEngine
 from os import path
 import arrow
 
-from opsdroid.const import SNIPSNLU_DEFAULT_DIR, SNIPSNLU_DEFAULT_PROJECT
+from opsdroid.const import SNIPSNLU_DEFAULT_DIR
 
 _LOGGER = logging.getLogger(__name__)
 
