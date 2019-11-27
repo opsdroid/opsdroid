@@ -8,6 +8,8 @@ python:
     - requirements: requirements.txt
     - requirements: requirements_test.txt
     - requirements: requirements_dev.txt
+    - method: pip
+      path: .
 
 sphinx:
   configuration: docs/conf.py
