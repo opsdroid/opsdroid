@@ -12,3 +12,4 @@ mypy-lang==0.5.0
 sphinx==2.2.1
 sphinx-click==2.3.0
 recommonmark==0.6.0
+deadlinks==0.1.1
