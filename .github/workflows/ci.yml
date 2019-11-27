@@ -1,0 +1,35 @@
+name: CI
+
+on: [push]
+
+jobs:
+
+  tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        python-version: [ '3.6', '3.7' ]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    name: Unit tests - ${{ matrix.os }} ${{ matrix.python-version }}
+    steps:
+      - uses: actions/checkout@master
+      - name: Setup python
+        uses: actions/setup-python@v1
+        with:
+          os: ${{ matrix.os }}
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+      - run: pip install -U tox codecov
+      - run: tox -e py36,py37
+        
+  linting:
+    runs-on: ubuntu-latest
+    name: Linting
+    steps:
+      - uses: actions/checkout@master
+      - name: Setup python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.7'
+          architecture: x64
+      - run: tox -e lint
