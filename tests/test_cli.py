@@ -238,39 +238,11 @@ class TestCLI(unittest.TestCase):
     def test_config_list_modules(self):
         with mock.patch.object(click, "echo") as click_echo:
             runner = CliRunner()
-            from opsdroid.cli.config import (
-                list_connectors,
-                list_parsers,
-                list_skills,
-            )
+            from opsdroid.cli.config import list_modules
 
-            skills = runner.invoke(list_skills, [])
+            result = runner.invoke(list_modules, [])
             self.assertTrue(click_echo.called)
-            self.assertEqual(skills.exit_code, 0)
-
-            connectors = runner.invoke(list_connectors, [])
-            self.assertTrue(click_echo.called)
-            self.assertEqual(connectors.exit_code, 0)
-
-            NoneType_parsers = runner.invoke(list_parsers, [])
-            self.assertTrue(click_echo.called)
-            self.assertEqual(NoneType_parsers.exit_code, 0)
-
-    def test_config_list_db_parsers(self):
-        from opsdroid.configuration import load_config_file
-
-        with mock.patch.object(click, "echo") as click_echo:
-            load_config_file([os.path.abspath("tests/configs/full_valid.yaml")])
-            runner = CliRunner()
-            from opsdroid.cli.config import list_databases, list_parsers
-
-            parsers = runner.invoke(list_parsers, [])
-            self.assertTrue(click_echo.called)
-            self.assertEqual(parsers.exit_code, 0)
-
-            databases = runner.invoke(list_databases, [])
-            self.assertTrue(click_echo.called)
-            self.assertEqual(databases.exit_code, 0)
+            self.assertEqual(result.exit_code, 0)
 
     def test_start_from_path(self):
         runner = CliRunner()

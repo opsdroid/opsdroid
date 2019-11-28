@@ -163,7 +163,7 @@ def welcome_message(config):
         )
 
 
-def list_modules(ctx, params, value):
+def list_all_modules(ctx, path, value):
     """List the active modules from config.
 
     This function will try to get information from the modules that are active in the
@@ -172,8 +172,7 @@ def list_modules(ctx, params, value):
 
     Args:
         ctx (:obj:`click.Context`): The current click cli context.
-        params (dict): a dictionary of all parameters pass to the click
-            context when invoking this function as a callback.
+        path (str): a str that contains a path passed.
         value (string): the value of this parameter after invocation.
             It is either "config" or "log" depending on the program
             calling this function.
@@ -182,38 +181,32 @@ def list_modules(ctx, params, value):
         int: the exit code. Always returns 0 in this case.
 
     """
-    config = load_config_file(
-        [params["path"]] if params["path"] else DEFAULT_CONFIG_LOCATIONS
+    config = load_config_file([path] if path else DEFAULT_CONFIG_LOCATIONS)
+
+    click.echo(
+        click.style(
+            f"{'NAME':15} {'TYPE':15} {'MODE':15} {'CACHED':15}  {'LOCATION':15}",
+            fg="blue",
+            bold=True,
+        )
     )
+    for module_type, module in config.items():
+        if module_type in ("connectors", "databases", "parsers", "skills"):
+            for name, options in module.items():
 
-    module_type = config.get(params["modules_type"])
+                mode = get_config_option(
+                    ["repo", "path", "gist"], options, True, "module"
+                )
+                cache = get_config_option(["no-cache"], options, "no", "yes")
+                location = get_config_option(
+                    ["repo", "path", "gist"],
+                    options,
+                    True,
+                    f"opsdroid.{module_type}.{name}",
+                )
 
-    if module_type:
-        click.echo(
-            f"{'NAME':15} {'TYPE':15} {'MODE':15} {'CACHED':15}  {'LOCATION':15}"
-        )
-
-        for module in module_type:
-
-            mode = get_config_option(
-                ["repo", "path", "gist"], module_type[module], True, "module"
-            )
-            cache = get_config_option(["no-cache"], module_type[module], "no", "yes")
-            location = get_config_option(
-                ["repo", "path", "gist"],
-                module_type[module],
-                True,
-                f'opsdroid.{params["modules_type"]}.{module}',
-            )
-
-            click.echo(
-                f"{module:15} {params['modules_type']:15} {mode[1]:15} {cache[0]:15}  {location[2]:15}"
-            )
-    else:
-        click.echo(
-            "Found no {module} active in configuration.".format(
-                module=params["modules_type"]
-            )
-        )
+                click.echo(
+                    f"{name:15} {module_type:15} {mode[1]:15} {cache[0]:15}  {location[2]:15}"
+                )
 
     ctx.exit(0)

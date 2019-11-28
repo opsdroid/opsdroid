@@ -6,7 +6,7 @@ from opsdroid.cli.utils import (
     edit_files,
     warn_deprecated_cli_option,
     validate_config,
-    list_modules,
+    list_all_modules,
 )
 from opsdroid.const import EXAMPLE_CONFIG_FILE
 
@@ -45,14 +45,37 @@ def config():
 @config.command()
 @click.pass_context
 def gen(ctx):
-    """Print out the example config."""
+    """Print out the example config.
+
+    This is a pretty basic function that will simply open your opsdroid
+    configuration file and prints the whole thing into the terminal.
+
+    Args:
+        ctx (:obj:`click.Context`): The current click cli context.
+
+    Returns:
+        int: the exit code. Always returns 0 in this case.
+
+    """
     print_example_config(ctx, None, True)
 
 
 @config.command()
 @click.pass_context
 def edit(ctx):
-    """Print out the example config."""
+    """"Open config file with your favourite editor.
+
+    By default this command will open the configuration file with
+    vi/vim. If you have a different editor that you would like to sure,
+    you need to change the environment variable - `EDITOR`.
+
+    Args:
+        ctx (:obj:`click.Context`): The current click cli context.
+
+    Returns:
+        int: the exit code. Always returns 0 in this case.
+
+    """
     edit_files(ctx, None, "config")
 
 
@@ -65,7 +88,25 @@ def edit(ctx):
     type=click.Path(exists=True),
 )
 def lint(ctx, path):
-    """Validate the configuration."""
+    """Validate the configuration.
+
+    This subcommand allows you to validate your configuration or a configuration
+    from a file if the -f flag is used. This avoids the need to start the bot just
+    to have it crash because of a configuration error.
+
+    This could also be helpful if you need to do changes to the configuration but
+    you are unsure if everything is set correct. You could have the new config
+    file located somewhere and test it before using it to start opsdroid.
+
+    Args:
+        ctx (:obj:`click.Context`): The current click cli context.
+        path (str): Path obtained by using the -f flag, if provided it will only
+        validate the config of the file.
+
+    Returns:
+        int: the exit code. Always returns 0 in this case.
+
+    """
     validate_config(ctx, path, "config")
 
 
@@ -74,48 +115,20 @@ def lint(ctx, path):
 @click.option(
     "-f",
     "path",
-    help="Validates opsdroid configuration from a path.",
+    help="Lists all modules active from a configuration loaded from a path.",
     type=click.Path(exists=True),
 )
-def list_connectors(ctx, path):
-    """Print out a list of all active connectors."""
-    list_modules(ctx, {"modules_type": "connectors", "path": path}, "config")
+def list_modules(ctx, path):
+    """Print out a list of all active modules.
 
+    This function will try to get information from the modules that are active in the
+    configuration file and print them as a table or will just print a sentence saying that
+    there are no active modules for that type.
 
-@config.command()
-@click.pass_context
-@click.option(
-    "-f",
-    "path",
-    help="Validates opsdroid configuration from a path.",
-    type=click.Path(exists=True),
-)
-def list_parsers(ctx, path):
-    """Print out a list of all active parsers."""
-    list_modules(ctx, {"modules_type": "parsers", "path": path}, "config")
+    Args:
+        ctx (:obj:`click.Context`): The current click cli context.
+        path (str): Path obtained by using the -f flag, if provided it will only list
+        the active modules of this file.
 
-
-@config.command()
-@click.pass_context
-@click.option(
-    "-f",
-    "path",
-    help="Validates opsdroid configuration from a path.",
-    type=click.Path(exists=True),
-)
-def list_databases(ctx, path):
-    """Print out a list of all active databases."""
-    list_modules(ctx, {"modules_type": "databases", "path": path}, "config")
-
-
-@config.command()
-@click.pass_context
-@click.option(
-    "-f",
-    "path",
-    help="Validates opsdroid configuration from a path.",
-    type=click.Path(exists=True),
-)
-def list_skills(ctx, path):
-    """Print out a list of all active skills."""
-    list_modules(ctx, {"modules_type": "skills", "path": path}, "config")
+    """
+    list_all_modules(ctx, path, "config")
