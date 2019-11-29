@@ -279,7 +279,7 @@ class ConnectorSlack(Connector):
                     ViewSubmission(
                         payload,
                         user=payload["user"]["id"],
-                        target=payload["channel"]["id"],
+                        target=payload["user"]["id"],
                         connector=self,
                     )
                 )
@@ -288,7 +288,7 @@ class ConnectorSlack(Connector):
                     ViewClosed(
                         payload,
                         user=payload["user"]["id"],
-                        target=payload["channel"]["id"],
+                        target=payload["user"]["id"],
                         connector=self,
                     )
                 )
