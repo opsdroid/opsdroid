@@ -494,18 +494,18 @@ class OpsDroid:
 
             tasks.append(self.eventloop.create_task(parse_always(self, event)))
 
-            unconstrained_skills = await self._constrain_skills(self.skills, event)
-            ranked_skills = await self.get_ranked_skills(unconstrained_skills, event)
-            if ranked_skills:
-                tasks.append(
-                    self.eventloop.create_task(
-                        self.run_skill(
-                            ranked_skills[0]["skill"],
-                            ranked_skills[0]["config"],
-                            ranked_skills[0]["message"],
-                        )
+        unconstrained_skills = await self._constrain_skills(self.skills, event)
+        ranked_skills = await self.get_ranked_skills(unconstrained_skills, event)
+        if ranked_skills:
+            tasks.append(
+                self.eventloop.create_task(
+                    self.run_skill(
+                        ranked_skills[0]["skill"],
+                        ranked_skills[0]["config"],
+                        ranked_skills[0]["message"],
                     )
                 )
+            )
 
         return tasks
 
