@@ -23,6 +23,13 @@ from opsdroid.loader import Loader
 
 _LOGGER = logging.getLogger("opsdroid")
 
+path_option = click.option(
+    "-f",
+    "path",
+    help="Load a configuration from a path instead of using the default location.",
+    type=click.Path(exists=True),
+)
+
 
 def edit_files(ctx, param, value):
     """Open config/log file with favourite editor.

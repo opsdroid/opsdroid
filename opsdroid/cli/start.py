@@ -5,7 +5,12 @@ import gettext
 import logging
 import click
 
-from opsdroid.cli.utils import check_dependencies, configure_lang, welcome_message
+from opsdroid.cli.utils import (
+    check_dependencies,
+    configure_lang,
+    welcome_message,
+    path_option,
+)
 from opsdroid.core import OpsDroid
 from opsdroid.configuration import load_config_file
 from opsdroid.logging import configure_logging
@@ -16,12 +21,7 @@ _LOGGER = logging.getLogger("opsdroid")
 
 
 @click.command()
-@click.option(
-    "-f",
-    "path",
-    help="Load opsdroid configuration from a path.",
-    type=click.Path(exists=True),
-)
+@path_option
 def start(path):
     """Start the opsdroid bot."""
     check_dependencies()

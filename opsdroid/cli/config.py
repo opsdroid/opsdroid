@@ -7,6 +7,7 @@ from opsdroid.cli.utils import (
     warn_deprecated_cli_option,
     validate_config,
     list_all_modules,
+    path_option,
 )
 from opsdroid.const import EXAMPLE_CONFIG_FILE
 
@@ -81,12 +82,7 @@ def edit(ctx):
 
 @config.command()
 @click.pass_context
-@click.option(
-    "-f",
-    "path",
-    help="Validates opsdroid configuration from a path.",
-    type=click.Path(exists=True),
-)
+@path_option
 def lint(ctx, path):
     """Validate the configuration.
 
@@ -112,12 +108,7 @@ def lint(ctx, path):
 
 @config.command()
 @click.pass_context
-@click.option(
-    "-f",
-    "path",
-    help="Lists all modules active from a configuration loaded from a path.",
-    type=click.Path(exists=True),
-)
+@path_option
 def list_modules(ctx, path):
     """Print out a list of all active modules.
 
