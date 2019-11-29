@@ -17,7 +17,7 @@ from opsdroid.events import Message, Reaction
 from opsdroid.connector.slack.events import (
     Blocks,
     BlockActions,
-    MessageActions,
+    MessageAction,
     ViewSubmission,
     ViewClosed,
 )
@@ -265,16 +265,16 @@ class ConnectorSlack(Connector):
                         connector=self,
                     )
                 )
-            elif payload["type"] == "message_actions":
+            elif payload["type"] == "message_action":
                 await self.opsdroid.parse(
-                    MessageActions(
+                    MessageAction(
                         payload,
                         user=payload["user"]["id"],
                         target=payload["channel"]["id"],
                         connector=self,
                     )
                 )
-            elif payload["type"] == "view_submissions":
+            elif payload["type"] == "view_submission":
                 await self.opsdroid.parse(
                     ViewSubmission(
                         payload,

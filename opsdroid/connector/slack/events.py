@@ -56,8 +56,8 @@ class BlockActions(Event):
             self.payload = json.dumps(self.payload)
 
 
-class MessageActions(Event):
-    """Event class to represent message_actions in Slack."""
+class MessageAction(Event):
+    """Event class to represent message_action in Slack."""
 
     def __init__(self, payload, *args, **kwargs):
         """Create object with minimum properties."""
