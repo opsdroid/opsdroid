@@ -281,7 +281,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
 
         mock_request = amock.CoroutineMock()
         mock_request.post = amock.CoroutineMock()
-        mock_request.post.return_value = req_ob
+        mock_request.post.return_value = json.dumps(req_ob)
 
         response = await connector.slack_interactions_handler(mock_request)
         self.assertTrue(connector.opsdroid.parse.called)
@@ -316,7 +316,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
 
         mock_request = amock.CoroutineMock()
         mock_request.post = amock.CoroutineMock()
-        mock_request.post.return_value = req_ob
+        mock_request.post.return_value = json.dumps(req_ob)
 
         response = await connector.slack_interactions_handler(mock_request)
         self.assertTrue(connector.opsdroid.parse.called)
@@ -357,7 +357,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
 
         mock_request = amock.CoroutineMock()
         mock_request.post = amock.CoroutineMock()
-        mock_request.post.return_value = req_ob
+        mock_request.post.return_value = json.dumps(req_ob)
 
         response = await connector.slack_interactions_handler(mock_request)
         self.assertTrue(connector.opsdroid.parse.called)
@@ -400,7 +400,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
 
         mock_request = amock.CoroutineMock()
         mock_request.post = amock.CoroutineMock()
-        mock_request.post.return_value = req_ob
+        mock_request.post.return_value = json.dumps(req_ob)
 
         response = await connector.slack_interactions_handler(mock_request)
         self.assertTrue(connector.opsdroid.parse.called)
