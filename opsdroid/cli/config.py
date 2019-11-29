@@ -63,7 +63,7 @@ def gen(ctx):
 @config.command()
 @click.pass_context
 def edit(ctx):
-    """"Open config file with your favourite editor.
+    """Open config file with your favourite editor.
 
     By default this command will open the configuration file with
     vi/vim. If you have a different editor that you would like to sure,

@@ -9,7 +9,7 @@ from opsdroid.cli.utils import edit_files
 @click.command()
 @click.pass_context
 def logs(ctx):
-    """"Open the log file with your favourite editor.
+    """Open the log file with your favourite editor.
 
     By default this command will open the configuration file with
     vi/vim. If you have a different editor that you would like to sure,
