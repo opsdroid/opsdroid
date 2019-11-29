@@ -106,12 +106,14 @@ When one of those entry points is triggered, a new aspect is introduced to the [
 
 For example, when you click a button in a rich Slack message or use a message action (a todo list app may have an "add to list" action that can be performed on any message) Slack will send an event to a separate webhook endpoint.
 
-To configure your Slack app for interactive events you need to:
+### Configure Slack App for Interactive Events
 
 - Open your app's [management dashboard](https://api.slack.com/apps)
 - Click on `Interactive Components` in the sidebar.
 - Toggle the `Interactivity` switch on.
-- Save the HTTPS URL (https://slackbot.yourdomain.com/connector/slack/interactions) of your bot's slack interactivity endpoint.
+- Save the HTTPS URL of your bot's slack interactivity endpoint (`/connector/slack/interactions`).
+
+*Note:* The bot's interactivity URL would be of the format: `https://slackbot.yourdomain.com/connector/slack/interactions`
 
 ### [block_actions](https://api.slack.com/reference/interaction-payloads/block-actions)
 
