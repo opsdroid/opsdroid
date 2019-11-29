@@ -6,6 +6,7 @@ import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock
 import slack
+import json
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector.slack import ConnectorSlack
