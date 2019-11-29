@@ -50,10 +50,7 @@ class BlockActions(Event):
     def __init__(self, payload, *args, **kwargs):
         """Create object with minimum properties."""
         super().__init__(*args, **kwargs)
-
         self.payload = payload
-        if isinstance(self.payload, list):
-            self.payload = json.dumps(self.payload)
 
 
 class MessageAction(Event):
@@ -62,10 +59,7 @@ class MessageAction(Event):
     def __init__(self, payload, *args, **kwargs):
         """Create object with minimum properties."""
         super().__init__(*args, **kwargs)
-
         self.payload = payload
-        if isinstance(self.payload, list):
-            self.payload = json.dumps(self.payload)
 
 
 class ViewSubmission(Event):
@@ -74,10 +68,7 @@ class ViewSubmission(Event):
     def __init__(self, payload, *args, **kwargs):
         """Create object with minimum properties."""
         super().__init__(*args, **kwargs)
-
         self.payload = payload
-        if isinstance(self.payload, list):
-            self.payload = json.dumps(self.payload)
 
 
 class ViewClosed(Event):
@@ -86,7 +77,4 @@ class ViewClosed(Event):
     def __init__(self, payload, *args, **kwargs):
         """Create object with minimum properties."""
         super().__init__(*args, **kwargs)
-
         self.payload = payload
-        if isinstance(self.payload, list):
-            self.payload = json.dumps(self.payload)
