@@ -97,3 +97,74 @@ class BlocksSkill(Skill):
 ```
 
 ![](https://user-images.githubusercontent.com/1610850/58658951-ac523300-8319-11e9-8c2a-011469a436d0.png)
+
+## Interactive Actions
+
+Slack apps can use [interactive features](https://api.slack.com/interactivity) to achieve much more than just one-way communication. Apps can implement a number of interaction entry points that allow users to intentionally invoke a response from the app.
+
+When one of those entry points is triggered, a new aspect is introduced to the [interaction transaction](https://api.slack.com/interactivity/handling) — the interaction payload. This payload is a bundle of information that explains the context of the user action, giving the app enough to construct a coherent response.
+
+For example, when you click a button in a rich Slack message or use a message action (a todo list app may have an "add to list" action that can be performed on any message) Slack will send an event to a separate webhook endpoint.
+
+To configure your Slack app for interactive events you need to:
+
+- Open your app's [management dashboard](https://api.slack.com/apps)
+- Click on `Interactive Components` in the sidebar.
+- Toggle the `Interactivity` switch on.
+- Save the HTTPS URL (https://slackbot.yourdomain.com/connector/slack/interactions) of your bot's slack interactivity endpoint.
+
+### [block_actions](https://api.slack.com/reference/interaction-payloads/block-actions)
+
+```python
+from opsdroid.skill import Skill
+from opsdroid.matchers import match_event
+from opsdroid.connector.slack.events import BlockActions
+
+class InteractionsSkill(Skill):
+
+    @match_event(BlockActions)
+    async def slack_interactions(self, payload):
+        await event.respond(Message("Block Actions interactivity has been triggered."))
+```
+
+### [message_action](https://api.slack.com/reference/interaction-payloads/actions)
+
+```python
+from opsdroid.skill import Skill
+from opsdroid.matchers import match_event
+from opsdroid.connector.slack.events import MessageAction
+
+class InteractionsSkill(Skill):
+
+    @match_event(MessageAction)
+    async def slack_interactions(self, payload):
+        await event.respond(Message("Message Action interactivity has been triggered."))
+```
+
+### [view_submission](https://api.slack.com/reference/interaction-payloads/views#view_submission)
+
+```python
+from opsdroid.skill import Skill
+from opsdroid.matchers import match_event
+from opsdroid.connector.slack.events import ViewSubmission
+
+class InteractionsSkill(Skill):
+
+    @match_event(ViewSubmission)
+    async def slack_interactions(self, payload):
+        await event.respond(Message("View Submission interactivity has been triggered."))
+```
+
+### [view_closed](https://api.slack.com/reference/interaction-payloads/views#view_closed)
+
+```python
+from opsdroid.skill import Skill
+from opsdroid.matchers import match_event
+from opsdroid.connector.slack.events import ViewClosed
+
+class InteractionsSkill(Skill):
+
+    @match_event(ViewClosed)
+    async def slack_interactions(self, payload):
+        await event.respond(Message("View Closed interactivity has been triggered."))
+```
