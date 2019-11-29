@@ -2,7 +2,7 @@
 
 import json
 
-from opsdroid.events import Message
+from opsdroid.events import Message, Event
 
 
 class Blocks(Message):
@@ -42,3 +42,51 @@ class Blocks(Message):
         self.blocks = blocks
         if isinstance(self.blocks, list):
             self.blocks = json.dumps(self.blocks)
+
+
+class BlockActions(Event):
+    """Event class to represent block_actions in Slack."""
+
+    def __init__(self, payload, *args, **kwargs):
+        """Create object with minimum properties."""
+        super().__init__(*args, **kwargs)
+
+        self.payload = payload
+        if isinstance(self.payload, list):
+            self.payload = json.dumps(self.payload)
+
+
+class MessageActions(Event):
+    """Event class to represent message_actions in Slack."""
+
+    def __init__(self, payload, *args, **kwargs):
+        """Create object with minimum properties."""
+        super().__init__(*args, **kwargs)
+
+        self.payload = payload
+        if isinstance(self.payload, list):
+            self.payload = json.dumps(self.payload)
+
+
+class ViewSubmission(Event):
+    """Event class to represent view_submission in Slack."""
+
+    def __init__(self, payload, *args, **kwargs):
+        """Create object with minimum properties."""
+        super().__init__(*args, **kwargs)
+
+        self.payload = payload
+        if isinstance(self.payload, list):
+            self.payload = json.dumps(self.payload)
+
+
+class ViewClosed(Event):
+    """Event class to represent view_closed in Slack."""
+
+    def __init__(self, payload, *args, **kwargs):
+        """Create object with minimum properties."""
+        super().__init__(*args, **kwargs)
+
+        self.payload = payload
+        if isinstance(self.payload, list):
+            self.payload = json.dumps(self.payload)
