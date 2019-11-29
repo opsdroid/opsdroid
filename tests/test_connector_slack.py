@@ -8,6 +8,8 @@ import asynctest.mock as amock
 import slack
 import json
 
+import aiohttp
+
 from opsdroid.core import OpsDroid
 from opsdroid.connector.slack import ConnectorSlack
 from opsdroid.connector.slack.events import Blocks
@@ -388,7 +390,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
                 "hash": "156663117.cd33ad1f",
             },
             "api_app_id": "AXXXXXX",
-            "is_cleared": false,
+            "is_cleared": False,
         }
 
         mock_request = amock.CoroutineMock()
