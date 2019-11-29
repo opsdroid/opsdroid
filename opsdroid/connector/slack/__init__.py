@@ -250,6 +250,7 @@ class ConnectorSlack(Connector):
             event every 20 seconds, until a 200 OK response is received.
             Failing to return a 200 OK may cause your webhook to be
             unsubscribed by the Messenger Platform.
+
         """
 
         req_data = await request.post()
