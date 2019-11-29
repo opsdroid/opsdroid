@@ -112,8 +112,7 @@ For example, when you click a button in a rich Slack message or use a message ac
 - Click on `Interactive Components` in the sidebar.
 - Toggle the `Interactivity` switch on.
 - Save the HTTPS URL of your bot's slack interactivity endpoint (`/connector/slack/interactions`).
-
-*Note:* The bot's interactivity URL would be of the format: `https://slackbot.yourdomain.com/connector/slack/interactions`
+    - *Example:* `https://slackbot.opsdroid.com/connector/slack/interactions`
 
 ### [block_actions](https://api.slack.com/reference/interaction-payloads/block-actions)
 
@@ -125,8 +124,8 @@ from opsdroid.connector.slack.events import BlockActions
 class InteractionsSkill(Skill):
 
     @match_event(BlockActions)
-    async def slack_interactions(self, payload):
-        await event.respond(Message("Block Actions interactivity has been triggered."))
+    async def slack_interactions(self, event):
+        await self.opsdroid.send(Message("Block Actions interactivity has been triggered."))
 ```
 
 ### [message_action](https://api.slack.com/reference/interaction-payloads/actions)
@@ -139,8 +138,8 @@ from opsdroid.connector.slack.events import MessageAction
 class InteractionsSkill(Skill):
 
     @match_event(MessageAction)
-    async def slack_interactions(self, payload):
-        await event.respond(Message("Message Action interactivity has been triggered."))
+    async def slack_interactions(self, event):
+        await self.opsdroid.send(Message("Message Action interactivity has been triggered."))
 ```
 
 ### [view_submission](https://api.slack.com/reference/interaction-payloads/views#view_submission)
@@ -153,8 +152,8 @@ from opsdroid.connector.slack.events import ViewSubmission
 class InteractionsSkill(Skill):
 
     @match_event(ViewSubmission)
-    async def slack_interactions(self, payload):
-        await event.respond(Message("View Submission interactivity has been triggered."))
+    async def slack_interactions(self, event):
+        await self.opsdroid.send(Message("View Submission interactivity has been triggered."))
 ```
 
 ### [view_closed](https://api.slack.com/reference/interaction-payloads/views#view_closed)
@@ -167,6 +166,6 @@ from opsdroid.connector.slack.events import ViewClosed
 class InteractionsSkill(Skill):
 
     @match_event(ViewClosed)
-    async def slack_interactions(self, payload):
-        await event.respond(Message("View Closed interactivity has been triggered."))
+    async def slack_interactions(self, event):
+        await self.opsdroid.send(Message("View Closed interactivity has been triggered."))
 ```
