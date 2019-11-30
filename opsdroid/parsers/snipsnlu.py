@@ -108,8 +108,8 @@ async def parse_snipsnlu(opsdroid, skills, message, config):
     result = await call_snipsnlu(message.text, config)
     if result:
         for skill in opsdroid.skills:
-            if "rasanlu_intent" in skill:
-                if skill['rasanlu_intent'] == result['intent']['name']:
+            if "snipsnlu_intent" in skill:
+                if skill['snipsnlu_intent'] == result['intent']['name']:
                     message.rasanlu = result
                     matched_skills.append({
                         "skill": skill["skill"],

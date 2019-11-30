@@ -29,7 +29,8 @@ REGEX_PARSE_SCORE_FACTOR = 0.6
 RASANLU_DEFAULT_URL = "http://localhost:5000"
 RASANLU_DEFAULT_PROJECT = "opsdroid"
 
-SNIPSNLU_DEFAULT_DIR = "/home/snipsmodel"
+DEFAULT_MODELS_PATH = os.path.join(DEFAULT_ROOT_PATH, 'models')
+SNIPSNLU_DEFAULT_DIR = os.path.join(DEFAULT_MODELS_PATH, 'snips')
 
 LUISAI_DEFAULT_URL = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/"
 
