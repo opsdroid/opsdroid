@@ -77,11 +77,20 @@ def edit_files(ctx, param, value):
 
 
 def validate_config(ctx, path, value):
-    """Open config/log file with favourite editor.
+    """Validate opsdroid configuration.
+
+    We load the configuration and modules from it to run the validation on them.
+    Only modules that contain the constant variable `CONFIG_SCHEMA` will be validated
+    the ones without it will just be silent.
+
+    Note that if the path doesn't exist or is a bad one click will throw an error telling
+    you that the path doesn't exist. Also, the file needs to be either a json or a yaml file.
+
 
     Args:
         ctx (:obj:`click.Context`): The current click cli context.
-        path (string): a string representing the path to load the config.
+        path (string): a string representing the path to load the config,
+            obtained from `ctx.obj`.
         value (string): the value of this parameter after invocation.
             It is either "config" or "log" depending on the program
             calling this function.

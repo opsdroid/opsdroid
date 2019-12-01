@@ -258,10 +258,10 @@ class TestCLI(unittest.TestCase):
             "opsdroid.configuration.load_config_file"
         ) as opsdroid_load:
             runner = CliRunner()
-            from opsdroid.cli.config import lint
+            from opsdroid.cli import config
 
             result = runner.invoke(
-                lint, ["-f", os.path.abspath("tests/configs/full_valid.yaml")]
+                config, ["-f", os.path.abspath("tests/configs/full_valid.yaml"), "lint"]
             )
             self.assertTrue(click_echo.called)
             self.assertFalse(opsdroid_load.called)

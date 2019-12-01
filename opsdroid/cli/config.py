@@ -26,6 +26,7 @@ def print_example_config(ctx, param, value):
         int: the exit code. Always returns 0 in this case.
 
     """
+    path = EXAMPLE_CONFIG_FILE
     if not value or ctx.resilient_parsing:
         return
     if ctx.command.name == "cli":
@@ -33,14 +34,17 @@ def print_example_config(ctx, param, value):
             "The flag --gen-config has been deprecated. "
             "Please run `opsdroid config gen` instead."
         )
-    with open(EXAMPLE_CONFIG_FILE, "r") as conf:
+    with open(path, "r") as conf:
         click.echo(conf.read())
     ctx.exit(0)
 
 
 @click.group()
-def config():
+@path_option
+@click.pass_context
+def config(ctx, path):
     """Subcommands related to opsdroid configuration."""
+    ctx.obj = path
 
 
 @config.command()
@@ -50,6 +54,8 @@ def gen(ctx):
 
     This is a pretty basic function that will simply open your opsdroid
     configuration file and prints the whole thing into the terminal.
+    You can also use the -f flag to generate a config from a path instead
+    of using the default config location.
 
     Args:
         ctx (:obj:`click.Context`): The current click cli context.
@@ -58,7 +64,7 @@ def gen(ctx):
         int: the exit code. Always returns 0 in this case.
 
     """
-    print_example_config(ctx, None, True)
+    print_example_config(ctx, ctx.obj, True)
 
 
 @config.command()
@@ -82,34 +88,30 @@ def edit(ctx):
 
 @config.command()
 @click.pass_context
-@path_option
-def lint(ctx, path):
+def lint(ctx):
     """Validate the configuration.
 
     This subcommand allows you to validate your configuration or a configuration
     from a file if the -f flag is used. This avoids the need to start the bot just
     to have it crash because of a configuration error.
 
-    This could also be helpful if you need to do changes to the configuration but
+    This command could also be helpful if you need to do changes to the configuration but
     you are unsure if everything is set correct. You could have the new config
     file located somewhere and test it before using it to start opsdroid.
 
     Args:
         ctx (:obj:`click.Context`): The current click cli context.
-        path (str): Path obtained by using the -f flag, if provided it will only
-        validate the config of the file.
 
     Returns:
         int: the exit code. Always returns 0 in this case.
 
     """
-    validate_config(ctx, path, "config")
+    validate_config(ctx, ctx.obj, "config")
 
 
 @config.command()
 @click.pass_context
-@path_option
-def list_modules(ctx, path):
+def list_modules(ctx):
     """Print out a list of all active modules.
 
     This function will try to get information from the modules that are active in the
@@ -118,8 +120,9 @@ def list_modules(ctx, path):
 
     Args:
         ctx (:obj:`click.Context`): The current click cli context.
-        path (str): Path obtained by using the -f flag, if provided it will only list
-        the active modules of this file.
+
+    Returns:
+        int: the exit code. Always returns 0 in this case.
 
     """
-    list_all_modules(ctx, path, "config")
+    list_all_modules(ctx, ctx.obj, "config")
