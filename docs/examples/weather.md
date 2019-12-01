@@ -1,4 +1,4 @@
-# Creating a Weather Skill
+# Weather
 
 We will create a skill, that will make opsdroid tell us the current weather in a town.
 

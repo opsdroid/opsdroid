@@ -1,4 +1,4 @@
-# Telegram connector
+# Telegram
 
 A connector for [Telegram](https://telegram.org/).
 
@@ -7,10 +7,8 @@ A connector for [Telegram](https://telegram.org/).
 - A Telegram account - to create a bot
 - A Bot API Token
 
-_Note: To register a new bot, open Telegram, write **@BotFather** and type `/newbot`. 
+_Note: To register a new bot, open Telegram, write **@BotFather** and type `/newbot`.
 Provide a name and username (ending in bot) and BotFather will give you your API Token._
-
-
 
 ## Configuration
 
@@ -30,7 +28,7 @@ connectors:
 ## Usage
 
 To talk with Opsdroid you will have to start a new private chat by searching for the name of your bot
-in the search bar. The telegram API doesn't include the name of a user when they send a message to a channel, 
+in the search bar. The telegram API doesn't include the name of a user when they send a message to a channel,
 so the connector is unable to trigger any commands sent from a channel.
 
 For example, if you named your bot: `MyAwesome_Bot` you can just search for that name and wait for the result to show up, then click on the name of your bot and a new chat window will start. You can now talk with your bot and give him commands.
@@ -67,10 +65,11 @@ If it doesn't, check that the bot is running before attempting to send another c
 ## White listing users
 
 This is an optional config option that you can include on your `config.yaml` to prevent unauthorized users to interact with your bot.
-Currently, you can specify a user `nickname` or a `userID`. Using the `userID` method is preferable as it will increase the security 
+Currently, you can specify a user `nickname` or a `userID`. Using the `userID` method is preferable as it will increase the security
 of the connector since users can't change this ID.
 
 Here is how you can whitelist a user:
+
 ```yaml
   telegram:
     token: <your bot token>
@@ -84,16 +83,18 @@ To find a `userID` by a private message, set the `logging` level to `debug` and 
 
 ```json
 {
-  'update_id': 539026743, 
-  'message': {
-    'message_id': 109, 
-    'from': {
-      'id': 4532189818, 
-      'is_bot': False, 
-      'first_name': 'user', 
-      'language_code': 'en'},
-    'chat': {}
- }}
+   "update_id": 539026743,
+   "message": {
+      "message_id": 109,
+      "from": {
+         "id": 4532189818,
+         "is_bot": false,
+         "first_name": "user",
+         "language_code": "en"
+      },
+      "chat": {}
+   }
+}
 ```
 
 Use the `id` value from the `message["from"]` field and add it to your `whitelisted-users` config option.
