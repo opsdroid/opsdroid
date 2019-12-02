@@ -2,6 +2,7 @@
 import asyncio
 from unittest import mock
 from copy import deepcopy
+import json
 
 import aiohttp
 import asynctest
@@ -553,6 +554,32 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
                 assert patched_send.called_once_with(
                     "!test:localhost", "m.reaction", content
                 )
+
+    async def test_alias_already_exists(self):
+
+        with amock.patch(api_string.format("set_room_alias")) as patched_alias:
+            patched_alias.side_effect = MatrixRequestError(409)
+
+            await self.connector._send_room_address(
+                events.RoomAddress(target="!test:localhost", address="hello")
+            )
+
+    async def test_already_in_room(self):
+
+        with amock.patch(api_string.format("invite_user")) as patched_invite:
+            patched_invite.side_effect = MatrixRequestError(
+                403, json.dumps({"error": "@neo.matrix.org is already in the room"})
+            )
+
+            await self.connector._send_user_invitation(
+                events.UserInvite(target="!test:localhost", user_id="@neo:matrix.org")
+            )
+
+    async def test_invalid_role(self):
+        with self.assertRaises(ValueError):
+            await self.connector._set_user_role(
+                events.UserRole("wibble", target="!test:localhost")
+            )
 
 
 class TestEventCreatorAsync(asynctest.TestCase):

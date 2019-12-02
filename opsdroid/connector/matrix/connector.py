@@ -389,7 +389,9 @@ class ConnectorMatrix(Connector):
             )
         except MatrixRequestError as err:
             if err.code == 409:
-                pass
+                _LOGGER.warning(
+                    f"A room with the alias {address_event.address} already exists."
+                )
 
     @register_event(events.JoinRoom)
     @ensure_room_id_and_send
@@ -401,12 +403,14 @@ class ConnectorMatrix(Connector):
     async def _send_user_invitation(self, invite_event):
         try:
             return await self.connection.invite_user(
-                invite_event.target, invite_event.user
+                invite_event.target, invite_event.user_id
             )
         except MatrixRequestError as err:
             content = json.loads(err.content)
             if err.code == 403 and "is already in the room" in content["error"]:
-                return
+                _LOGGER.info(
+                    f"{invite_event.user_id} is already in the room, ignoring."
+                )
 
     @register_event(events.RoomDescription)
     @ensure_room_id_and_send
