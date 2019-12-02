@@ -76,6 +76,7 @@ class MatrixEventCreator(events.EventCreator):
         return events.RoomDescription(
             description=event["content"]["topic"],
             user=await self.connector.get_nick(roomid, event["sender"]),
+            user_id=event["sender"],
             target=roomid,
             connector=self.connector,
             event_id=event["event_id"],
@@ -87,6 +88,7 @@ class MatrixEventCreator(events.EventCreator):
         return events.RoomName(
             name=event["content"]["name"],
             user=await self.connector.get_nick(roomid, event["sender"]),
+            user_id=event["sender"],
             target=roomid,
             connector=self.connector,
             event_id=event["event_id"],

@@ -565,6 +565,35 @@ class TestEventCreatorAsync(asynctest.TestCase):
         }
 
     @property
+    def room_name_json(self):
+        return {
+            "content": {"name": "Testing"},
+            "type": "m.room.name",
+            "unsigned": {
+                "prev_sender": "@neo:matrix.org",
+                "replaces_state": "$wzwL9bnZ3hQOIcOGzY5g55jYkFHMM6PmaGZ2n9w1IuY",
+                "age": 122,
+                "prev_content": {"name": "test"},
+            },
+            "origin_server_ts": 1575305934310,
+            "state_key": "",
+            "sender": "@neo:matrix.org",
+            "event_id": "$3r_PWCT9Vurlv-OFleAsf5gEnoZd-LEGHY6AGqZ5tJg",
+        }
+
+    @property
+    def room_description_json(self):
+        return {
+            "content": {"topic": "Hello world"},
+            "type": "m.room.topic",
+            "unsigned": {"age": 137},
+            "origin_server_ts": 1575306720044,
+            "state_key": "",
+            "sender": "@neo:matrix.org",
+            "event_id": "$bEg2XISusHMKLBw9b4lMNpB2r9qYoesp512rKvbo5LA",
+        }
+
+    @property
     def event_creator(self):
         connector = amock.MagicMock()
         patched_get_nick = amock.MagicMock()
@@ -583,6 +612,7 @@ class TestEventCreatorAsync(asynctest.TestCase):
         assert isinstance(event, events.Message)
         assert event.text == "I just did it manually."
         assert event.user == "Rabbit Hole"
+        assert event.user_id == "@neo:matrix.org"
         assert event.target == "hello"
         assert event.event_id == "$15573463541827394vczPd:matrix.org"
         assert event.raw_event == self.message_json
@@ -592,6 +622,7 @@ class TestEventCreatorAsync(asynctest.TestCase):
         assert isinstance(event, events.File)
         assert event.url == "mxc://aurl"
         assert event.user == "Rabbit Hole"
+        assert event.user_id == "@neo:matrix.org"
         assert event.target == "hello"
         assert event.event_id == "$1534013434516721kIgMV:matrix.org"
         assert event.raw_event == self.file_json
@@ -601,6 +632,7 @@ class TestEventCreatorAsync(asynctest.TestCase):
         assert isinstance(event, events.Image)
         assert event.url == "mxc://aurl"
         assert event.user == "Rabbit Hole"
+        assert event.user_id == "@neo:matrix.org"
         assert event.target == "hello"
         assert event.event_id == "$15548652221495790FYlHC:matrix.org"
         assert event.raw_event == self.image_json
@@ -616,3 +648,21 @@ class TestEventCreatorAsync(asynctest.TestCase):
         json["content"]["msgtype"] = "wibble"
         event = await self.event_creator.create_event(json, "hello")
         assert event is None
+
+    async def test_room_name(self):
+        event = await self.event_creator.create_event(self.room_name_json, "hello")
+        assert isinstance(event, events.RoomName)
+        assert event.user == "Rabbit Hole"
+        assert event.user_id == "@neo:matrix.org"
+        assert event.event_id == "$3r_PWCT9Vurlv-OFleAsf5gEnoZd-LEGHY6AGqZ5tJg"
+        assert event.raw_event == self.room_name_json
+
+    async def test_room_description(self):
+        event = await self.event_creator.create_event(
+            self.room_description_json, "hello"
+        )
+        assert isinstance(event, events.RoomDescription)
+        assert event.user == "Rabbit Hole"
+        assert event.user_id == "@neo:matrix.org"
+        assert event.event_id == "$bEg2XISusHMKLBw9b4lMNpB2r9qYoesp512rKvbo5LA"
+        assert event.raw_event == self.room_description_json
