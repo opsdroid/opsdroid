@@ -270,6 +270,29 @@ class Message(Event):
         return await super().respond(response)
 
 
+class EditedMessage(Message):
+    """
+    A class representing a `opsdroid.events.Message` which has been edited.
+
+    The arguments and attributes are inherited from `opsdroid.events.Message`,
+    with the addition of the following.
+
+    Args:
+        edited_event (string): The event id of the original event.
+        original_text (string, optional): String text of the original message
+
+    Attributes:
+        edited_event (string): The event id of the original event.
+        original_text (string, optional): String text of the original message
+    """
+
+    def __init__(self, edited_event, *args, original_text=None, **kwargs):
+        """Create object with minimum properties."""
+        super().__init__(*args, **kwargs)
+        self.edited_event = edited_event
+        self.original_text = original_text
+
+
 class Typing(Event):  # pragma: nocover
     """An event to set the user typing.
 
