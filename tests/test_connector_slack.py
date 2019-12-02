@@ -406,7 +406,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         """Test the respond method for interactive actions in Slack."""
 
         interactive_action = InteractiveAction(
-            {
+            payload={
                 "type": "message_action",
                 "team": {"id": "TXXXXXX", "domain": "coverbands"},
                 "user": {"id": "UXXXXXX", "name": "dreamweaver"},
@@ -415,16 +415,16 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         )
         requests = mock.MagicMock()
         requests.post = mock.MagicMock()
-        interactive_action.respond("Respond called with response_url")
+        await interactive_action.respond("Respond called with response_url")
         self.assertTrue(requests.post.called)
 
         interactive_action = InteractiveAction(
-            {
+            payload={
                 "type": "view_closed",
                 "team": {"id": "TXXXXXX", "domain": "coverbands"},
                 "user": {"id": "UXXXXXX", "name": "dreamweaver"},
             }
         )
         requests.post.reset_mock()
-        interactive_action.respond("Respond called without response_url")
+        await interactive_action.respond("Respond called without response_url")
         self.assertFalse(requests.post.called)
