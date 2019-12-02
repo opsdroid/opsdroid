@@ -258,14 +258,15 @@ class ConnectorSlack(Connector):
 
         if "type" in payload:
             if payload["type"] == "block_actions":
-                await self.opsdroid.parse(
-                    BlockActions(
+                for action in payload["actions"]:
+                    block_action = BlockActions(
                         payload,
                         user=payload["user"]["id"],
                         target=payload["channel"]["id"],
                         connector=self,
                     )
-                )
+                    block_action.update_entity("value", action["value"])
+                    await self.opsdroid.parse(block_action)
             elif payload["type"] == "message_action":
                 await self.opsdroid.parse(
                     MessageAction(
