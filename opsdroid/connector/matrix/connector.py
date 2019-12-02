@@ -56,13 +56,16 @@ class ConnectorMatrix(Connector):
 
         self._event_creator = MatrixEventCreator(self)
 
-    def message_type(room):
+    def message_type(self, room):
         if self.send_m_notice:
-            return True
+            return "m.notice"
         reverse_room_ids = {v: k for k, v in self.room_ids.items()}
         room = reverse_room_ids.get(room, room)
         if room in self.rooms:
-            return self.rooms[room].get("send_m_notice", False)
+            if self.rooms[room].get("send_m_notice", False):
+                return "m.notice"
+
+        return "m.text"
 
 
     def _process_rooms_dict(self, rooms):
