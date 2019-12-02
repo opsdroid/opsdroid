@@ -38,7 +38,7 @@ class MatrixEventCreator(events.EventCreator):
 
     async def create_message(self, event, roomid):
         """Send a Message event."""
-        return events.Message(
+        kwargs = dict(
             text=event["content"]["body"],
             user_id=event["sender"],
             user=await self.connector.get_nick(roomid, event["sender"]),
@@ -47,6 +47,16 @@ class MatrixEventCreator(events.EventCreator):
             event_id=event["event_id"],
             raw_event=event,
         )
+        # Detect an edit.
+        if (
+            "m.relates_to" in event["content"]
+            and event["content"]["m.relates_to"]["rel_type"] == "m.replace"
+        ):
+            kwargs["text"] = event["content"]["m.new_content"]["body"]
+            kwargs["edited_event"] = event["content"]["m.relates_to"]["event_id"]
+            return events.EditedMessage(**kwargs)
+        else:
+            return events.Message(**kwargs)
 
     async def _file_kwargs(self, event, roomid):
         url = self.connector.connection.get_download_url(event["content"]["url"])

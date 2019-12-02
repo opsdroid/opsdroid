@@ -3,6 +3,7 @@
 import re
 import json
 import logging
+import functools
 from concurrent.futures import CancelledError
 from urllib.parse import urlparse
 
@@ -31,6 +32,29 @@ CONFIG_SCHEMA = {
 }
 
 __all__ = ["ConnectorMatrix"]
+
+
+def ensure_room_id_and_send(func):
+    """
+    Ensure that the target for the event isn't a room name, it's a matrix room
+    id. Also retry the function call if the server disconnects.
+    """
+
+    @functools.wraps(func)
+    async def ensure_room_id(self, event):
+        if not event.target.startswith(("!", "#")):
+            event.target = self.room_ids[event.target]
+
+        if not event.target.startswith("!"):
+            event.target = await self.connection.get_room_id(event.target)
+
+        try:
+            return await func(self, event)
+        except aiohttp.client_exceptions.ServerDisconnectedError:
+            _LOGGER.debug(_("Server had disconnected, retrying send."))
+            return await func(self, event)
+
+    return ensure_room_id
 
 
 class ConnectorMatrix(Connector):
@@ -228,36 +252,36 @@ class ConnectorMatrix(Connector):
         }
 
     @register_event(events.Message)
+    @ensure_room_id_and_send
     async def _send_message(self, message):
         """Send `message.text` back to the chat service."""
-        if not message.target.startswith(("!", "#")):
-            room_id = self.room_ids[message.target]
-        else:
-            room_id = message.target
+        return await self.connection.send_message_event(
+            message.target,
+            "m.room.message",
+            self._get_formatted_message_body(
+                message.text, msgtype=self.message_type(message.target)
+            ),
+        )
 
-        # Ensure we have a room id not alias
-        if not room_id.startswith("!"):
-            room_id = await self.connection.get_room_id(room_id)
-        else:
-            room_id = room_id
+    @register_event(events.EditedMessage)
+    @ensure_room_id_and_send
+    async def _send_edit(self, message):
+        new_content = self._get_formatted_message_body(
+            message.text, msgtype=self.message_type(message.target)
+        )
 
-        try:
+        content = {
+            "msgtype": "m.text",
+            "m.new_content": new_content,
+            "body": f"* {new_content['body']}",
+            "m.relates_to": {"rel_type": "m.replace", "event_id": message.edited_event},
+        }
+
+        return (
             await self.connection.send_message_event(
-                room_id,
-                "m.room.message",
-                self._get_formatted_message_body(
-                    message.text, msgtype=self.message_type(room_id)
-                ),
-            )
-        except aiohttp.client_exceptions.ServerDisconnectedError:
-            _LOGGER.debug(_("Server had disconnected, retrying send."))
-            await self.connection.send_message_event(
-                room_id,
-                "m.room.message",
-                self._get_formatted_message_body(
-                    message.text, msgtype=self.message_type(room_id)
-                ),
-            )
+                message.target, "m.room.message", content
+            ),
+        )
 
     async def _get_image_info(self, image):
         width, height = await image.get_dimensions()
@@ -291,6 +315,7 @@ class ConnectorMatrix(Connector):
 
     @register_event(events.File)
     @register_event(events.Image)
+    @ensure_room_id_and_send
     async def _send_file(self, file_event):
         mxc_url, uploaded = await self._file_to_mxc_url(file_event)
 
@@ -324,6 +349,7 @@ class ConnectorMatrix(Connector):
         return room
 
     @register_event(events.NewRoom)
+    @ensure_room_id_and_send
     async def _send_room_creation(self, creation_event):
         params = creation_event.room_params
         params = params.get("matrix", params)
@@ -336,10 +362,12 @@ class ConnectorMatrix(Connector):
         return room_id
 
     @register_event(events.RoomName)
+    @ensure_room_id_and_send
     async def _send_room_name_set(self, name_event):
         return await self.connection.set_room_name(name_event.target, name_event.name)
 
     @register_event(events.RoomAddress)
+    @ensure_room_id_and_send
     async def _send_room_address(self, address_event):
         try:
             return await self.connection.set_room_alias(
@@ -350,10 +378,12 @@ class ConnectorMatrix(Connector):
                 pass
 
     @register_event(events.JoinRoom)
+    @ensure_room_id_and_send
     async def _send_join_room(self, join_event):
         return await self.connection.join_room(join_event.target)
 
     @register_event(events.UserInvite)
+    @ensure_room_id_and_send
     async def _send_user_invitation(self, invite_event):
         try:
             return await self.connection.invite_user(
@@ -365,17 +395,20 @@ class ConnectorMatrix(Connector):
                 return
 
     @register_event(events.RoomDescription)
+    @ensure_room_id_and_send
     async def _send_room_desciption(self, desc_event):
         return await self.connection.set_room_topic(
             desc_event.target, desc_event.description
         )
 
     @register_event(events.RoomImage)
+    @ensure_room_id_and_send
     async def _send_room_image(self, image_event):
         mxc_url, _ = await self._file_to_mxc_url(image_event.room_image)
         return await image_event.respond(matrixevents.MatrixRoomAvatar(mxc_url))
 
     @register_event(events.UserRole)
+    @ensure_room_id_and_send
     async def _set_user_role(self, role_event):
         role = role_event.role
         room_id = role_event.target
@@ -395,6 +428,7 @@ class ConnectorMatrix(Connector):
         return await role_event.respond(matrixevents.MatrixPowerLevels(power_levels))
 
     @register_event(matrixevents.MatrixStateEvent, include_subclasses=True)
+    @ensure_room_id_and_send
     async def _send_state_event(self, state_event):
         _LOGGER.debug(f"Sending State Event {state_event}")
         return await self.connection.send_state_event(

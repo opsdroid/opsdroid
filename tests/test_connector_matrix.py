@@ -231,6 +231,30 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
 
             return await self.connector._parse_sync_response(self.sync_return)
 
+    async def test_send_edited_message(self):
+        message = events.EditedMessage(
+            "$hello", text="New message", target="!test:localhost"
+        )
+        with amock.patch(api_string.format("send_message_event")) as patched_send:
+            patched_send.return_value = asyncio.Future()
+            patched_send.return_value.set_result({})
+            await self.connector.send(message)
+
+            new_content = self.connector._get_formatted_message_body(message.text)
+            content = {
+                "msgtype": "m.text",
+                "m.new_content": new_content,
+                "body": f"* {new_content['body']}",
+                "m.relates_to": {
+                    "rel_type": "m.replace",
+                    "event_id": message.edited_event,
+                },
+            }
+
+            patched_send.assert_called_once_with(
+                message.target, "m.room.message", content
+            )
+
     async def test_respond_retry(self):
         message = await self._get_message()
         with amock.patch(api_string.format("send_message_event")) as patched_send:
@@ -305,7 +329,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             b"\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00;"
         )
 
-        image = events.Image(file_bytes=gif_bytes)
+        image = events.Image(file_bytes=gif_bytes, target="!test:localhost")
         with amock.patch(
             api_string.format("send_content")
         ) as patched_send, amock.patch(
@@ -320,7 +344,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             await self.connector.send(image)
 
             patched_send.assert_called_once_with(
-                "#test:localhost",
+                "!test:localhost",
                 "mxc://aurl",
                 "opsdroid_upload",
                 "m.image",
@@ -333,7 +357,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             b"\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00;"
         )
 
-        image = events.Image(url="mxc://aurl")
+        image = events.Image(url="mxc://aurl", target="!test:localhost")
         with amock.patch(
             api_string.format("send_content")
         ) as patched_send, amock.patch(
@@ -348,11 +372,13 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             await self.connector.send(image)
 
             patched_send.assert_called_once_with(
-                "#test:localhost", "mxc://aurl", "opsdroid_upload", "m.image", {}
+                "!test:localhost", "mxc://aurl", "opsdroid_upload", "m.image", {}
             )
 
     async def test_respond_file(self):
-        file_event = events.File(file_bytes=b"aslkdjlaksdjlkajdlk")
+        file_event = events.File(
+            file_bytes=b"aslkdjlaksdjlkajdlk", target="!test:localhost"
+        )
         with amock.patch(
             api_string.format("send_content")
         ) as patched_send, amock.patch(
@@ -367,11 +393,11 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             await self.connector.send(file_event)
 
             patched_send.assert_called_once_with(
-                "#test:localhost", "mxc://aurl", "opsdroid_upload", "m.file", {}
+                "!test:localhost", "mxc://aurl", "opsdroid_upload", "m.file", {}
             )
 
     async def test_respond_new_room(self):
-        event = events.NewRoom(name="test", target="#test:localhost")
+        event = events.NewRoom(name="test", target="!test:localhost")
         with amock.patch(api_string.format("create_room")) as patched_send, amock.patch(
             api_string.format("set_room_name")
         ) as patched_name:
@@ -400,14 +426,17 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
 
     async def test_respond_join_room(self):
         event = events.JoinRoom(target="#test:localhost")
-        with amock.patch(api_string.format("join_room")) as patched_send:
-            patched_send.return_value = asyncio.Future()
-            patched_send.return_value.set_result({})
-            await self.connector.send(event)
-            assert patched_send.called_once_with("#test:localhost")
+        with amock.patch(api_string.format("get_room_id")) as patched_get_room_id:
+            patched_get_room_id.return_value = asyncio.Future()
+            patched_get_room_id.return_value.set_result("!test:localhost")
+            with amock.patch(api_string.format("join_room")) as patched_send:
+                patched_send.return_value = asyncio.Future()
+                patched_send.return_value.set_result({})
+                await self.connector.send(event)
+                assert patched_send.called_once_with("#test:localhost")
 
     async def test_respond_user_invite(self):
-        event = events.UserInvite("@test:localhost", target="#test:localhost")
+        event = events.UserInvite("@test:localhost", target="!test:localhost")
         with amock.patch(api_string.format("invite_user")) as patched_send:
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result({})
@@ -415,7 +444,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             assert patched_send.called_once_with("#test:localhost", "@test:localhost")
 
     async def test_respond_room_description(self):
-        event = events.RoomDescription("A test room", target="#test:localhost")
+        event = events.RoomDescription("A test room", target="!test:localhost")
         with amock.patch(api_string.format("set_room_topic")) as patched_send:
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result({})
@@ -424,7 +453,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
 
     async def test_respond_room_image(self):
         image = events.Image(url="mxc://aurl")
-        event = events.RoomImage(image, target="#test:localhost")
+        event = events.RoomImage(image, target="!test:localhost")
         with OpsDroid() as opsdroid, amock.patch(
             api_string.format("send_state_event")
         ) as patched_send:
@@ -594,6 +623,25 @@ class TestEventCreatorAsync(asynctest.TestCase):
         }
 
     @property
+    def message_edit_json(self):
+        return {
+            "content": {
+                "msgtype": "m.text",
+                "m.new_content": {"msgtype": "m.text", "body": "hello"},
+                "m.relates_to": {
+                    "rel_type": "m.replace",
+                    "event_id": "$MYO9kzuKrOwRdIfwumh2n2KfSBAYLifpK156nd0f_hY",
+                },
+                "body": " * hello",
+            },
+            "type": "m.room.message",
+            "unsigned": {"age": 80},
+            "origin_server_ts": 1575307305885,
+            "sender": "@neo:matrix.org",
+            "event_id": "$E8qj6GjtrxfRIH1apJGzDu-duUF-8D19zFQv0k4q1eM",
+        }
+
+    @property
     def event_creator(self):
         connector = amock.MagicMock()
         patched_get_nick = amock.MagicMock()
@@ -666,3 +714,14 @@ class TestEventCreatorAsync(asynctest.TestCase):
         assert event.user_id == "@neo:matrix.org"
         assert event.event_id == "$bEg2XISusHMKLBw9b4lMNpB2r9qYoesp512rKvbo5LA"
         assert event.raw_event == self.room_description_json
+
+    async def test_edited_message(self):
+        event = await self.event_creator.create_event(self.message_edit_json, "hello")
+        assert isinstance(event, events.EditedMessage)
+        assert event.edited_event == "$MYO9kzuKrOwRdIfwumh2n2KfSBAYLifpK156nd0f_hY"
+        assert event.text == "hello"
+        assert event.user == "Rabbit Hole"
+        assert event.user_id == "@neo:matrix.org"
+        assert event.target == "hello"
+        assert event.event_id == "$E8qj6GjtrxfRIH1apJGzDu-duUF-8D19zFQv0k4q1eM"
+        assert event.raw_event == self.message_edit_json
