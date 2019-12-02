@@ -1,6 +1,7 @@
 """Tests for the ConnectorMatrix class."""
 import asyncio
 from unittest import mock
+from copy import deepcopy
 
 import aiohttp
 import asynctest
@@ -9,7 +10,7 @@ from matrix_api_async import AsyncHTTPAPI
 from matrix_client.errors import MatrixRequestError
 
 from opsdroid.core import OpsDroid
-from opsdroid.events import Image, File, Message
+from opsdroid import events
 from opsdroid.connector.matrix import ConnectorMatrix
 from opsdroid.connector.matrix.create_events import MatrixEventCreator
 from opsdroid.cli.start import configure_lang  # noqa
@@ -89,16 +90,11 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
         with amock.patch(api_string.format("create_filter")) as patched_filter:
             patched_filter.return_value = asyncio.Future()
             patched_filter.return_value.set_result({"filter_id": "arbitrary string"})
-            test_rooms = ["!notaroom:matrix.org", "!notanotherroom:matrix.org"]
-            filter_id = await self.connector.make_filter(self.api, test_rooms)
+            filter_id = await self.connector.make_filter(self.api)
             assert filter_id == "arbitrary string"
 
             assert patched_filter.called
             assert patched_filter.call_args[1]["user_id"] == "@opsdroid:localhost"
-            assert (
-                patched_filter.call_args[1]["filter_params"]["room"]["rooms"]
-                == test_rooms
-            )
 
     async def test_connect(self):
         with amock.patch(api_string.format("login")) as patched_login, amock.patch(
@@ -113,7 +109,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             api_string.format("set_display_name")
         ) as patch_set_nick, amock.patch(
             "aiohttp.ClientSession"
-        ) as patch_cs, OpsDroid() as opsdroid:
+        ) as patch_cs, OpsDroid() as _:
 
             # Skip actually creating a client session
             patch_cs.return_value = amock.MagicMock()
@@ -288,20 +284,19 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
         assert self.connector.session.close.called
 
     def test_get_roomname(self):
-        self.connector.rooms = ["#notthisroom:localhost", "#thisroom:localhost"]
+        self.connector.rooms = {
+            "main": {"alias": "#notthisroom:localhost"},
+            "test": {"alias": "#thisroom:localhost"},
+        }
         self.connector.room_ids = dict(
             zip(
-                self.connector.rooms, ["!aroomid:localhost", "!anotherroomid:localhost"]
+                self.connector.rooms.keys(),
+                ["!aroomid:localhost", "!anotherroomid:localhost"],
             )
         )
 
-        assert (
-            self.connector.get_roomname("#thisroom:localhost") == "#thisroom:localhost"
-        )
-        assert (
-            self.connector.get_roomname("!anotherroomid:localhost")
-            == "#thisroom:localhost"
-        )
+        assert self.connector.get_roomname("#thisroom:localhost") == "test"
+        assert self.connector.get_roomname("!aroomid:localhost") == "main"
         assert self.connector.get_roomname("someroom") == "someroom"
 
     async def test_respond_image(self):
@@ -310,7 +305,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             b"\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00;"
         )
 
-        image = Image(file_bytes=gif_bytes)
+        image = events.Image(file_bytes=gif_bytes)
         with amock.patch(
             api_string.format("send_content")
         ) as patched_send, amock.patch(
@@ -338,7 +333,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             b"\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00;"
         )
 
-        image = Image(url="mxc://aurl")
+        image = events.Image(url="mxc://aurl")
         with amock.patch(
             api_string.format("send_content")
         ) as patched_send, amock.patch(
@@ -353,15 +348,11 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             await self.connector.send(image)
 
             patched_send.assert_called_once_with(
-                "#test:localhost",
-                "mxc://aurl",
-                "opsdroid_upload",
-                "m.image",
-                {"w": 1, "h": 1, "mimetype": "image/gif", "size": 26},
+                "#test:localhost", "mxc://aurl", "opsdroid_upload", "m.image", {}
             )
 
     async def test_respond_file(self):
-        file_event = File(file_bytes=b"aslkdjlaksdjlkajdlk")
+        file_event = events.File(file_bytes=b"aslkdjlaksdjlkajdlk")
         with amock.patch(
             api_string.format("send_content")
         ) as patched_send, amock.patch(
@@ -378,6 +369,134 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             patched_send.assert_called_once_with(
                 "#test:localhost", "mxc://aurl", "opsdroid_upload", "m.file", {}
             )
+
+    async def test_respond_new_room(self):
+        event = events.NewRoom(name="test", target="#test:localhost")
+        with amock.patch(api_string.format("create_room")) as patched_send, amock.patch(
+            api_string.format("set_room_name")
+        ) as patched_name:
+            patched_name.return_value = asyncio.Future()
+            patched_name.return_value.set_result(None)
+
+            patched_send.return_value = asyncio.Future()
+            patched_send.return_value.set_result({"room_id": "!test:localhost"})
+
+            resp = await self.connector.send(event)
+            assert resp == "!test:localhost"
+
+            assert patched_name.called_once_with("#test:localhost", "test")
+
+            assert patched_send.called_once_with()
+
+    async def test_respond_room_address(self):
+        event = events.RoomAddress("#test:localhost", target="!test:localhost")
+        with amock.patch(api_string.format("set_room_alias")) as patched_send:
+            patched_send.return_value = asyncio.Future()
+            patched_send.return_value.set_result({})
+
+            await self.connector.send(event)
+
+            assert patched_send.called_once_with("!test:localhost", "#test:localhost")
+
+    async def test_respond_join_room(self):
+        event = events.JoinRoom(target="#test:localhost")
+        with amock.patch(api_string.format("join_room")) as patched_send:
+            patched_send.return_value = asyncio.Future()
+            patched_send.return_value.set_result({})
+            await self.connector.send(event)
+            assert patched_send.called_once_with("#test:localhost")
+
+    async def test_respond_user_invite(self):
+        event = events.UserInvite("@test:localhost", target="#test:localhost")
+        with amock.patch(api_string.format("invite_user")) as patched_send:
+            patched_send.return_value = asyncio.Future()
+            patched_send.return_value.set_result({})
+            await self.connector.send(event)
+            assert patched_send.called_once_with("#test:localhost", "@test:localhost")
+
+    async def test_respond_room_description(self):
+        event = events.RoomDescription("A test room", target="#test:localhost")
+        with amock.patch(api_string.format("set_room_topic")) as patched_send:
+            patched_send.return_value = asyncio.Future()
+            patched_send.return_value.set_result({})
+            await self.connector.send(event)
+            assert patched_send.called_once_with("#test:localhost", "A test room")
+
+    async def test_respond_room_image(self):
+        image = events.Image(url="mxc://aurl")
+        event = events.RoomImage(image, target="#test:localhost")
+        with OpsDroid() as opsdroid, amock.patch(
+            api_string.format("send_state_event")
+        ) as patched_send:
+            patched_send.return_value = asyncio.Future()
+            patched_send.return_value.set_result({})
+            opsdroid.connectors = [self.connector]
+            await self.connector.send(event)
+            assert patched_send.called_once_with(
+                "#test:localhost",
+                "m.room.avatar",
+                {"url": "mxc://aurl"},
+                state_key=None,
+            )
+
+    async def test_respond_user_role(self):
+        existing_power_levels = {
+            "ban": 50,
+            "events": {"m.room.name": 100, "m.room.power_levels": 100},
+            "events_default": 0,
+            "invite": 50,
+            "kick": 50,
+            "notifications": {"room": 20},
+            "redact": 50,
+            "state_default": 50,
+            "users": {"@example:localhost": 100},
+            "users_default": 0,
+        }
+        role_events = [
+            (
+                events.UserRole(
+                    75, target="!test:localhost", user_id="@test:localhost"
+                ),
+                75,
+            ),
+            (
+                events.UserRole(
+                    "mod", target="!test:localhost", user_id="@test:localhost"
+                ),
+                50,
+            ),
+            (
+                events.UserRole(
+                    "admin", target="!test:localhost", user_id="@test:localhost"
+                ),
+                100,
+            ),
+        ]
+        for event, pl in role_events:
+            with OpsDroid() as opsdroid, amock.patch(
+                api_string.format("send_state_event")
+            ) as patched_send:
+                with amock.patch(
+                    api_string.format("get_power_levels")
+                ) as patched_power_levels:
+                    opsdroid.connectors = [self.connector]
+
+                    patched_power_levels.return_value = asyncio.Future()
+                    patched_power_levels.return_value.set_result(existing_power_levels)
+                    patched_send.return_value = asyncio.Future()
+                    patched_send.return_value.set_result({})
+
+                    await self.connector.send(event)
+
+                    modified_power_levels = deepcopy(existing_power_levels)
+                    modified_power_levels["users"]["@test:localhost"] = pl
+
+                    assert patched_send.called_once_with(
+                        "!test:localhost",
+                        "m.room.power_levels",
+                        existing_power_levels,
+                        state_key=None,
+                    )
 
 
 class TestEventCreatorAsync(asynctest.TestCase):
@@ -461,7 +580,7 @@ class TestEventCreatorAsync(asynctest.TestCase):
 
     async def test_create_message(self):
         event = await self.event_creator.create_event(self.message_json, "hello")
-        assert isinstance(event, Message)
+        assert isinstance(event, events.Message)
         assert event.text == "I just did it manually."
         assert event.user == "Rabbit Hole"
         assert event.target == "hello"
@@ -470,7 +589,7 @@ class TestEventCreatorAsync(asynctest.TestCase):
 
     async def test_create_file(self):
         event = await self.event_creator.create_event(self.file_json, "hello")
-        assert isinstance(event, File)
+        assert isinstance(event, events.File)
         assert event.url == "mxc://aurl"
         assert event.user == "Rabbit Hole"
         assert event.target == "hello"
@@ -479,7 +598,7 @@ class TestEventCreatorAsync(asynctest.TestCase):
 
     async def test_create_image(self):
         event = await self.event_creator.create_event(self.image_json, "hello")
-        assert isinstance(event, Image)
+        assert isinstance(event, events.Image)
         assert event.url == "mxc://aurl"
         assert event.user == "Rabbit Hole"
         assert event.target == "hello"

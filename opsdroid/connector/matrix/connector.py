@@ -292,7 +292,7 @@ class ConnectorMatrix(Connector):
     @register_event(events.File)
     @register_event(events.Image)
     async def _send_file(self, file_event):
-        mxc_url, uploaded = self._file_to_mxc_url(file_event)
+        mxc_url, uploaded = await self._file_to_mxc_url(file_event)
 
         if isinstance(file_event, events.Image):
             if uploaded:
@@ -316,10 +316,10 @@ class ConnectorMatrix(Connector):
     def get_roomname(self, room):
         """Get the name of a room from alias or room ID."""
         if room.startswith(("#", "!")):
-            for connroom in self.rooms:
-                conroom = conroom["alias"]
-                if room in (connroom, self.room_ids[connroom]):
-                    return connroom
+            for room_name, room_alias in self.rooms.items():
+                room_alias = room_alias["alias"]
+                if room in (room_alias, self.room_ids[room_name]):
+                    return room_name
 
         return room
 
@@ -379,9 +379,9 @@ class ConnectorMatrix(Connector):
     async def _set_user_role(self, role_event):
         role = role_event.role
         room_id = role_event.target
-        if role.lower() in ["mod", "moderator"]:
+        if isinstance(role, str) and role.lower() in ["mod", "moderator"]:
             power_level = 50
-        elif role.lower() in ["admin", "administrator"]:
+        elif isinstance(role, str) and role.lower() in ["admin", "administrator"]:
             power_level = 100
         else:
             try:
@@ -390,7 +390,7 @@ class ConnectorMatrix(Connector):
                 raise ValueError("Role must be one of 'mod', 'admin', or an integer")
 
         power_levels = await self.connection.get_power_levels(room_id)
-        power_levels["users"][role_event.user] = power_level
+        power_levels["users"][role_event.user_id] = power_level
 
         return await role_event.respond(matrixevents.MatrixPowerLevels(power_levels))
 
