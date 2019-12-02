@@ -12,7 +12,7 @@ import aiohttp
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector.slack import ConnectorSlack
-from opsdroid.connector.slack.events import Blocks
+from opsdroid.connector.slack.events import Blocks, InteractiveAction
 from opsdroid.events import Message, Reaction
 from opsdroid.cli.start import configure_lang
 
