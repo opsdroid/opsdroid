@@ -1,7 +1,7 @@
 """Classes to describe different kinds of Slack specific event."""
 
 import json
-import requests
+import aiohttp
 
 from opsdroid.events import Message, Event
 
@@ -53,16 +53,23 @@ class InteractiveAction(Event):
         super().__init__(*args, **kwargs)
         self.payload = payload
 
-    async def respond(self, message):
+    async def respond(self, response_event):
         """Respond to this message using the response_url field in the payload."""
 
-        if "response_url" in self.payload:
-            response = requests.post(
-                url=self.payload["response_url"], data=json.dumps({"text": message})
-            )
-            response_txt = response.text
+        if isinstance(response_event, str):
+            if "response_url" in self.payload:
+                async with aiohttp.ClientSession() as session:
+                    headers = {"Content-Type": "application/json"}
+                    response = await session.post(
+                        self.payload["response_url"],
+                        data=json.dumps(response_event),
+                        headers=headers,
+                    )
+                    response_txt = await response.json()
+            else:
+                response_txt = {"error": "Response URL not available in payload."}
         else:
-            response_txt = {"error": "Response URL not available in payload."}
+            response_txt = await super().respond(response_event)
 
         return response_txt
 

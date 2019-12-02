@@ -9,7 +9,6 @@ import slack
 import json
 
 import aiohttp
-import requests
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector.slack import ConnectorSlack
@@ -406,6 +405,10 @@ class TestConnectorSlackAsync(asynctest.TestCase):
     async def test_respond_on_interactive_actions(self):
         """Test the respond method for interactive actions in Slack."""
 
+        result = amock.Mock()
+        result.json = amock.CoroutineMock()
+        result.json.return_value = {"success": "payload sent."}
+
         payload = {
             "type": "message_action",
             "team": {"id": "TXXXXXX", "domain": "coverbands"},
@@ -414,9 +417,11 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         }
 
         interactive_action = InteractiveAction(payload)
-        requests.post = mock.MagicMock()
-        await interactive_action.respond("Respond called with response_url")
-        self.assertTrue(requests.post.called)
+        with amock.patch("aiohttp.ClientSession.post") as patched_request:
+            patched_request.return_value = asyncio.Future()
+            patched_request.return_value.set_result(result)
+            await interactive_action.respond("Respond called with response_url")
+            self.assertTrue(patched_request.called)
 
         payload = {
             "type": "view_closed",
@@ -425,6 +430,33 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         }
 
         interactive_action = InteractiveAction(payload)
-        requests.post = mock.MagicMock()
-        await interactive_action.respond("Respond called without response_url")
-        self.assertFalse(requests.post.called)
+        with amock.patch("aiohttp.ClientSession.post") as patched_request:
+            patched_request.return_value = asyncio.Future()
+            patched_request.return_value.set_result(result)
+            await interactive_action.respond("Respond called without response_url")
+            self.assertFalse(patched_request.called)
+
+        with OpsDroid() as opsdroid:
+            connector = ConnectorSlack({"token": "abc123"}, opsdroid=OpsDroid())
+            raw_message = {
+                "text": "Hello world",
+                "user_id": "user_id",
+                "user": "user",
+                "room": "default",
+            }
+            message = Message(
+                text="Hello world",
+                user_id="user_id",
+                user="user",
+                target="default",
+                connector=connector,
+                raw_event=raw_message,
+            )
+            opsdroid.send = amock.CoroutineMock()
+
+            with amock.patch("aiohttp.ClientSession.post") as patched_request:
+                patched_request.return_value = asyncio.Future()
+                patched_request.return_value.set_result(result)
+                await interactive_action.respond(message)
+                self.assertTrue(opsdroid.send.called)
+                self.assertFalse(patched_request.called)
