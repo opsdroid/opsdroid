@@ -6,7 +6,7 @@ Opsdroid can be extended by developing a new skill, connector, or database exten
 
 An extension can be something as simple as a small python module placed in your local path, or somewhere in `PYTHONPATH`.
 An extension module can also be put in a GitHub repository from which it can be automatically retrieved by opsdroid. Here are
-some examples on how to configure opsdroid to find extension modules, in this case skills:
+some examples on how to configure opsdroid to find extension modules, in this case, skills:
 
 ```yaml
 skills:
@@ -43,7 +43,7 @@ configuration file. There is **no additional lookup configuration required**: th
 
 To be dynamically discoverable, Opsdroid extensions developed and deployed as regular Python packages must define so-called
 [entry points](https://setuptools.readthedocs.io/en/latest/setuptools.html#dynamic-discovery-of-services-and-plugins),
-one for each individual opsdroid extension.
+one for each opsdroid extension.
 
 The entry points are grouped by extension type (skill, connector or database). The groups are called `opsdroid_skills`,
 `opsdroid_connectors` and `opsdroid_databases`.
@@ -62,14 +62,14 @@ package. For example:
 (an excerpt from `setup.py` file of the [opsdroid-zodb](https://github.com/koodaamo/opsdroid-zodb) extension package)
 
 In the above example, `entry_points` is just yet another named keyword argument to the `setup()` call found in `setup.py`.
-It defines a opsdroid [ZODB](http://www.zodb.org) database extension whose name is 'zodb'. It then declares that opsdroid
-should import the extension from the `database` module of a `opsdroid_zodb` package.
+It defines an opsdroid [ZODB](http://www.zodb.org) database extension whose name is 'zodb'. It then declares that opsdroid
+should import the extension from the `database` module of an `opsdroid_zodb` package.
 
 An extension package with the above entry point could be used from `configuration.yaml` simply thus:
 
 ```yaml
 databases:
-  ## From a installed Python package
+  ## From an installed Python package
   zodb: {}
 ```
 
