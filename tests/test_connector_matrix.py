@@ -527,6 +527,33 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
                         state_key=None,
                     )
 
+    async def test_send_reaction(self):
+        message = events.Message(
+            "hello",
+            event_id="$11111",
+            connector=self.connector,
+            target="!test:localhost",
+        )
+        reaction = events.Reaction("⭕")
+        with OpsDroid() as _:
+            with amock.patch(api_string.format("send_message_event")) as patched_send:
+                patched_send.return_value = asyncio.Future()
+                patched_send.return_value.set_result(None)
+
+                await message.respond(reaction)
+
+                content = {
+                    "m.relates_to": {
+                        "rel_type": "m.annotation",
+                        "event_id": "$11111",
+                        "key": reaction.emoji,
+                    }
+                }
+
+                assert patched_send.called_once_with(
+                    "!test:localhost", "m.reaction", content
+                )
+
 
 class TestEventCreatorAsync(asynctest.TestCase):
     @property
@@ -639,6 +666,23 @@ class TestEventCreatorAsync(asynctest.TestCase):
             "origin_server_ts": 1575307305885,
             "sender": "@neo:matrix.org",
             "event_id": "$E8qj6GjtrxfRIH1apJGzDu-duUF-8D19zFQv0k4q1eM",
+        }
+
+    @property
+    def reaction(self):
+        return {
+            "content": {
+                "m.relates_to": {
+                    "rel_type": "m.annotation",
+                    "event_id": "$MYO9kzuKrOwRdIfwumh2n2KfSBAYLifpK156nd0f_hY",
+                    "key": "👍",
+                }
+            },
+            "type": "m.reaction",
+            "unsigned": {"age": 90},
+            "origin_server_ts": 1575315194228,
+            "sender": "@neo:matrix.org",
+            "event_id": "$4KOPKFjdJ5urFGJdK4lnS-Fd3qcNWbPdR_rzSCZK_g0",
         }
 
     @property

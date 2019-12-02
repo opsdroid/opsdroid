@@ -314,13 +314,8 @@ class Reaction(Event):
 
     Args:
         emoji (string): The emoji to react with.
-        room (string, optional): String name of the room or chat channel in
-                                 which message was sent
-        connector (Connector, optional): Connector object used to interact with
-                                         given chat service
-        raw_event (dict, optional): Raw message as provided by chat service.
-                                    None by default
-
+        target (string, optional): The room in which the reaction should be sent.
+        linked_event (opsdroid.events.Event): The event to react to.
     """
 
     def __init__(self, emoji, *args, **kwargs):  # noqa: D107

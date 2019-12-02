@@ -152,6 +152,10 @@ class ConnectorMatrix(Connector):
             if display_name != self.nick:
                 await self.connection.set_display_name(self.mxid, self.nick)
 
+    async def disconnect(self):
+        """Close the matrix session."""
+        await self.session.close()
+
     async def _parse_sync_response(self, response):
         self.connection.sync_token = response["next_batch"]
 
@@ -226,6 +230,16 @@ class ConnectorMatrix(Connector):
                 logging.exception("Failed to lookup nick for %s.", mxid)
             return mxid
 
+    def get_roomname(self, room):
+        """Get the name of a room from alias or room ID."""
+        if room.startswith(("#", "!")):
+            for room_name, room_alias in self.rooms.items():
+                room_alias = room_alias["alias"]
+                if room in (room_alias, self.room_ids[room_name]):
+                    return room_name
+
+        return room
+
     @staticmethod
     def _get_formatted_message_body(message, body=None, msgtype="m.text"):
         """
@@ -283,6 +297,20 @@ class ConnectorMatrix(Connector):
             ),
         )
 
+    @register_event(events.Reaction)
+    @ensure_room_id_and_send
+    async def _send_reaction(self, reaction):
+        content = {
+            "m.relates_to": {
+                "rel_type": "m.annotation",
+                "event_id": reaction.linked_event.event_id,
+                "key": reaction.emoji,
+            }
+        }
+        return await self.connection.send_message_event(
+            reaction.target, "m.reaction", content
+        )
+
     async def _get_image_info(self, image):
         width, height = await image.get_dimensions()
         return {
@@ -333,20 +361,6 @@ class ConnectorMatrix(Connector):
         await self.connection.send_content(
             file_event.target, mxc_url, name, msg_type, extra_info
         )
-
-    async def disconnect(self):
-        """Close the matrix session."""
-        await self.session.close()
-
-    def get_roomname(self, room):
-        """Get the name of a room from alias or room ID."""
-        if room.startswith(("#", "!")):
-            for room_name, room_alias in self.rooms.items():
-                room_alias = room_alias["alias"]
-                if room in (room_alias, self.room_ids[room_name]):
-                    return room_name
-
-        return room
 
     @register_event(events.NewRoom)
     @ensure_room_id_and_send

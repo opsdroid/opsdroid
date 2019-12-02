@@ -206,7 +206,7 @@ class ConnectorSlack(Connector):
                 data={
                     "name": emoji,
                     "channel": reaction.target,
-                    "timestamp": reaction.linked_event.raw_event["ts"],
+                    "timestamp": reaction.linked_event.event_id,
                 },
             )
         except slack.errors.SlackApiError as error:
