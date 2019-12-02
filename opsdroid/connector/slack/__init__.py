@@ -265,7 +265,7 @@ class ConnectorSlack(Connector):
                         target=payload["channel"]["id"],
                         connector=self,
                     )
-                    block_action.update_entity("value", action["value"])
+                    await block_action.update_entity("value", action["value"])
                     await self.opsdroid.parse(block_action)
             elif payload["type"] == "message_action":
                 await self.opsdroid.parse(

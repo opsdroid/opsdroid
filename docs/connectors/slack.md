@@ -123,7 +123,7 @@ from opsdroid.connector.slack.events import BlockActions
 
 class InteractionsSkill(Skill):
 
-    @match_event(BlockActions)
+    @match_event(BlockActions, value="click_me_123")
     async def slack_interactions(self, event):
         await event.respond("Block Actions interactivity has been triggered.")
 ```

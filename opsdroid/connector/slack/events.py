@@ -2,6 +2,8 @@
 
 import json
 import aiohttp
+import ssl
+import certifi
 
 from opsdroid.events import Message, Event
 
@@ -64,6 +66,7 @@ class InteractiveAction(Event):
                         self.payload["response_url"],
                         data=json.dumps(response_event),
                         headers=headers,
+                        ssl=ssl.create_default_context(cafile=certifi.where()),
                     )
                     response_txt = await response.json()
             else:
