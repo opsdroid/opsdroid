@@ -36,8 +36,9 @@ __all__ = ["ConnectorMatrix"]
 
 def ensure_room_id_and_send(func):
     """
-    Ensure that the target for the event isn't a room name, it's a matrix room
-    id. Also retry the function call if the server disconnects.
+    Ensure that the target for the event is a matrix room id.
+
+    Also retry the function call if the server disconnects.
     """
 
     @functools.wraps(func)
@@ -81,6 +82,7 @@ class ConnectorMatrix(Connector):
         self._event_creator = MatrixEventCreator(self)
 
     def message_type(self, room):
+        """Subtype to use to send into a specific room."""
         if self.send_m_notice:
             return "m.notice"
         reverse_room_ids = {v: k for k, v in self.room_ids.items()}
@@ -321,9 +323,7 @@ class ConnectorMatrix(Connector):
         }
 
     async def _file_to_mxc_url(self, file_event):
-        """
-        Given a file event return the mxc url.
-        """
+        """Given a file event return the mxc url."""
         uploaded = False
         mxc_url = None
         if file_event.url:

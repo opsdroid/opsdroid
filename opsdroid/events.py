@@ -271,8 +271,7 @@ class Message(Event):
 
 
 class EditedMessage(Message):
-    """
-    A class representing a `opsdroid.events.Message` which has been edited.
+    """A  `opsdroid.events.Message` which has been edited.
 
     The arguments and attributes are inherited from `opsdroid.events.Message`,
     with the addition of the following.
@@ -284,6 +283,7 @@ class EditedMessage(Message):
     Attributes:
         edited_event (string): The event id of the original event.
         original_text (string, optional): String text of the original message
+
     """
 
     def __init__(self, edited_event, *args, original_text=None, **kwargs):
@@ -316,6 +316,7 @@ class Reaction(Event):
         emoji (string): The emoji to react with.
         target (string, optional): The room in which the reaction should be sent.
         linked_event (opsdroid.events.Event): The event to react to.
+
     """
 
     def __init__(self, emoji, *args, **kwargs):  # noqa: D107
@@ -396,7 +397,7 @@ class Image(File):
 class NewRoom(Event):
     """Event class to represent the creation of a new room."""
 
-    def __init__(self, name=None, params=None, *args, **kwargs):
+    def __init__(self, name=None, params=None, *args, **kwargs):  # noqa: D107
         super().__init__(*args, **kwargs)
         self.name = name
         self.room_params = params or {}
@@ -405,15 +406,15 @@ class NewRoom(Event):
 class RoomName(Event):
     """Event class to represent the naming of a room."""
 
-    def __init__(self, name, *args, **kwargs):
+    def __init__(self, name, *args, **kwargs):  # noqa: D107
         super().__init__(*args, **kwargs)
         self.name = name
 
 
 class RoomAddress(Event):
-    """Event class to represent a room's address being changed"""
+    """Event class to represent a room's address being changed."""
 
-    def __init__(self, address, *args, **kwargs):
+    def __init__(self, address, *args, **kwargs):  # noqa: D107
         super().__init__(*args, **kwargs)
         self.address = address
 
@@ -421,7 +422,7 @@ class RoomAddress(Event):
 class RoomImage(Event):
     """Event class to represent a room's display image being changed."""
 
-    def __init__(self, room_image, *args, **kwargs):
+    def __init__(self, room_image, *args, **kwargs):  # noqa: D107
         super().__init__(*args, **kwargs)
         if not isinstance(room_image, Image):
             raise TypeError("Room image must be an opsdroid.events.Image instance")
@@ -431,7 +432,7 @@ class RoomImage(Event):
 class RoomDescription(Event):
     """Event class to represent a room's description being changed."""
 
-    def __init__(self, description, *args, **kwargs):
+    def __init__(self, description, *args, **kwargs):  # noqa: D107
         super().__init__(*args, **kwargs)
         self.description = description
 
@@ -447,7 +448,7 @@ class UserInvite(Event):
 class UserRole(Event):
     """Event class to represent a user's role or powers in a room being changed."""
 
-    def __init__(self, role, *args, **kwargs):
+    def __init__(self, role, *args, **kwargs):  # noqa: D107
         super().__init__(*args, **kwargs)
         self.role = role
 
