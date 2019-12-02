@@ -1,6 +1,7 @@
 """Classes to describe different kinds of Slack specific event."""
 
 import json
+import requests
 
 from opsdroid.events import Message, Event
 
@@ -44,37 +45,55 @@ class Blocks(Message):
             self.blocks = json.dumps(self.blocks)
 
 
-class BlockActions(Event):
+class InteractiveAction(Event):
+    """Super class to represent Slack interactive actions."""
+
+    def __init__(self, payload, *args, **kwargs):
+        """Create object with minimum properties."""
+        super().__init__(*args, **kwargs)
+        self.payload = payload
+
+    async def respond(self, message):
+        """Respond to this message using the response_url field in the payload."""
+
+        if "response_url" in self.payload:
+            response = requests.post(
+                url=self.payload["response_url"], data=json.dumps({"text": message})
+            )
+            response_txt = response.text
+        else:
+            response_txt = {"error": "Response URL not available in payload."}
+
+        return response_txt
+
+
+class BlockActions(InteractiveAction):
     """Event class to represent block_actions in Slack."""
 
     def __init__(self, payload, *args, **kwargs):
         """Create object with minimum properties."""
-        super().__init__(*args, **kwargs)
-        self.payload = payload
+        super().__init__(payload, *args, **kwargs)
 
 
-class MessageAction(Event):
+class MessageAction(InteractiveAction):
     """Event class to represent message_action in Slack."""
 
     def __init__(self, payload, *args, **kwargs):
         """Create object with minimum properties."""
-        super().__init__(*args, **kwargs)
-        self.payload = payload
+        super().__init__(payload, *args, **kwargs)
 
 
-class ViewSubmission(Event):
+class ViewSubmission(InteractiveAction):
     """Event class to represent view_submission in Slack."""
 
     def __init__(self, payload, *args, **kwargs):
         """Create object with minimum properties."""
-        super().__init__(*args, **kwargs)
-        self.payload = payload
+        super().__init__(payload, *args, **kwargs)
 
 
-class ViewClosed(Event):
+class ViewClosed(InteractiveAction):
     """Event class to represent view_closed in Slack."""
 
     def __init__(self, payload, *args, **kwargs):
         """Create object with minimum properties."""
-        super().__init__(*args, **kwargs)
-        self.payload = payload
+        super().__init__(payload, *args, **kwargs)

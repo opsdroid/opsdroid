@@ -112,7 +112,7 @@ For example, when you click a button in a rich Slack message or use a message ac
 - Click on `Interactive Components` in the sidebar.
 - Toggle the `Interactivity` switch on.
 - Save the HTTPS URL of your bot's slack interactivity endpoint (`/connector/slack/interactions`).
-    - *Example:* `https://slackbot.opsdroid.com/connector/slack/interactions`
+    - *Example:* `https://slackbot.example.com/connector/slack/interactions`
 
 ### [block_actions](https://api.slack.com/reference/interaction-payloads/block-actions)
 
@@ -125,7 +125,7 @@ class InteractionsSkill(Skill):
 
     @match_event(BlockActions)
     async def slack_interactions(self, event):
-        await self.opsdroid.send(Message("Block Actions interactivity has been triggered."))
+        await event.respond("Block Actions interactivity has been triggered.")
 ```
 
 ### [message_action](https://api.slack.com/reference/interaction-payloads/actions)
@@ -139,7 +139,7 @@ class InteractionsSkill(Skill):
 
     @match_event(MessageAction)
     async def slack_interactions(self, event):
-        await self.opsdroid.send(Message("Message Action interactivity has been triggered."))
+        await event.respond("Message Action interactivity has been triggered.")
 ```
 
 ### [view_submission](https://api.slack.com/reference/interaction-payloads/views#view_submission)

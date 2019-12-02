@@ -401,3 +401,30 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         self.assertTrue(connector.opsdroid.parse.called)
         self.assertEqual(type(response), aiohttp.web.Response)
         self.assertEqual(response.status, 200)
+
+    async def test_respond_on_interactive_actions(self):
+        """Test the respond method for interactive actions in Slack."""
+
+        interactive_action = InteractiveAction(
+            {
+                "type": "message_action",
+                "team": {"id": "TXXXXXX", "domain": "coverbands"},
+                "user": {"id": "UXXXXXX", "name": "dreamweaver"},
+                "response_url": "https://hooks.slack.com/app-actions/T0MJR11A4/21974584944/yk1S9ndf35Q1flupVG5JbpM6",
+            }
+        )
+        requests = mock.MagicMock()
+        requests.post = mock.MagicMock()
+        interactive_action.respond("Respond called with response_url")
+        self.assertTrue(requests.post.called)
+
+        interactive_action = InteractiveAction(
+            {
+                "type": "view_closed",
+                "team": {"id": "TXXXXXX", "domain": "coverbands"},
+                "user": {"id": "UXXXXXX", "name": "dreamweaver"},
+            }
+        )
+        requests.post.reset_mock()
+        interactive_action.respond("Respond called without response_url")
+        self.assertFalse(requests.post.called)
