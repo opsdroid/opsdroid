@@ -669,7 +669,7 @@ class TestEventCreatorAsync(asynctest.TestCase):
         }
 
     @property
-    def reaction(self):
+    def reaction_json(self):
         return {
             "content": {
                 "m.relates_to": {
@@ -769,3 +769,13 @@ class TestEventCreatorAsync(asynctest.TestCase):
         assert event.target == "hello"
         assert event.event_id == "$E8qj6GjtrxfRIH1apJGzDu-duUF-8D19zFQv0k4q1eM"
         assert event.raw_event == self.message_edit_json
+
+    async def test_reaction(self):
+        event = await self.event_creator.create_event(self.reaction_json, "hello")
+        assert isinstance(event, events.Reaction)
+        assert event.emoji == "👍"
+        assert event.user == "Rabbit Hole"
+        assert event.user_id == "@neo:matrix.org"
+        assert event.target == "hello"
+        assert event.event_id == "$4KOPKFjdJ5urFGJdK4lnS-Fd3qcNWbPdR_rzSCZK_g0"
+        assert event.raw_event == self.reaction_json

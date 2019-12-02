@@ -16,6 +16,7 @@ class MatrixEventCreator(events.EventCreator):
         self.event_types["m.room.message"] = self.create_room_message
         self.event_types["m.room.topic"] = self.create_room_description
         self.event_types["m.room.name"] = self.create_room_name
+        self.event_types["m.reaction"] = self.create_reaction
 
         self.message_events = defaultdict(lambda: self.skip)
         self.message_events.update(
@@ -102,5 +103,19 @@ class MatrixEventCreator(events.EventCreator):
             target=roomid,
             connector=self.connector,
             event_id=event["event_id"],
+            raw_event=event,
+        )
+
+    async def create_reaction(self, event, roomid):
+        """Send a Reaction event."""
+        return events.Reaction(
+            emoji=event["content"]["m.relates_to"]["key"],
+            user=await self.connector.get_nick(roomid, event["sender"]),
+            user_id=event["sender"],
+            target=roomid,
+            connector=self.connector,
+            event_id=event["event_id"],
+            # TODO: Lookup this event and return the proper event class for it.
+            linked_event=event["content"]["m.relates_to"]["event_id"],
             raw_event=event,
         )
