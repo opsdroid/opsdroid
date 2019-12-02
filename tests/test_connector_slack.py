@@ -9,6 +9,7 @@ import slack
 import json
 
 import aiohttp
+import requests
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector.slack import ConnectorSlack
@@ -405,26 +406,25 @@ class TestConnectorSlackAsync(asynctest.TestCase):
     async def test_respond_on_interactive_actions(self):
         """Test the respond method for interactive actions in Slack."""
 
-        interactive_action = InteractiveAction(
-            payload={
-                "type": "message_action",
-                "team": {"id": "TXXXXXX", "domain": "coverbands"},
-                "user": {"id": "UXXXXXX", "name": "dreamweaver"},
-                "response_url": "https://hooks.slack.com/app-actions/T0MJR11A4/21974584944/yk1S9ndf35Q1flupVG5JbpM6",
-            }
-        )
-        requests = mock.MagicMock()
+        payload = {
+            "type": "message_action",
+            "team": {"id": "TXXXXXX", "domain": "coverbands"},
+            "user": {"id": "UXXXXXX", "name": "dreamweaver"},
+            "response_url": "https://hooks.slack.com/app-actions/T0MJR11A4/21974584944/yk1S9ndf35Q1flupVG5JbpM6",
+        }
+
+        interactive_action = InteractiveAction(payload)
         requests.post = mock.MagicMock()
         await interactive_action.respond("Respond called with response_url")
         self.assertTrue(requests.post.called)
 
-        interactive_action = InteractiveAction(
-            payload={
-                "type": "view_closed",
-                "team": {"id": "TXXXXXX", "domain": "coverbands"},
-                "user": {"id": "UXXXXXX", "name": "dreamweaver"},
-            }
-        )
-        requests.post.reset_mock()
+        payload = {
+            "type": "view_closed",
+            "team": {"id": "TXXXXXX", "domain": "coverbands"},
+            "user": {"id": "UXXXXXX", "name": "dreamweaver"},
+        }
+
+        interactive_action = InteractiveAction(payload)
+        requests.post = mock.MagicMock()
         await interactive_action.respond("Respond called without response_url")
         self.assertFalse(requests.post.called)
