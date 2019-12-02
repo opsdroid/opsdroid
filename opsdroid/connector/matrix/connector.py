@@ -41,9 +41,9 @@ class ConnectorMatrix(Connector):
         super().__init__(config, opsdroid=opsdroid)
 
         self.name = "matrix"  # The name of your connector
-        self.rooms = config["rooms"]
+        self.rooms = self._process_rooms_dict(config["rooms"])
         self.room_ids = {}
-        self.default_target = self.rooms["main"]
+        self.default_target = self.rooms["main"]['alias']
         self.mxid = config["mxid"]
         self.nick = config.get("nick", None)
         self.homeserver = config.get("homeserver", "https://matrix.org")
@@ -56,6 +56,14 @@ class ConnectorMatrix(Connector):
         self.connection = None
 
         self._event_creator = MatrixEventCreator(self)
+
+    def _process_rooms_dict(self, rooms):
+        out_rooms = {}
+        for name, room in rooms.items():
+            if isinstance(room, str):
+                room = {'alias': room}
+            out_rooms[name] = room
+        return out_rooms
 
     @property
     def filter_json(self):
@@ -90,7 +98,7 @@ class ConnectorMatrix(Connector):
         mapi.sync_token = None
 
         for roomname, room in self.rooms.items():
-            response = await mapi.join_room(room)
+            response = await mapi.join_room(room['alias'])
             self.room_ids[roomname] = response["room_id"]
         self.connection = mapi
 
@@ -209,7 +217,7 @@ class ConnectorMatrix(Connector):
     async def _send_message(self, message):
         """Send `message.text` back to the chat service."""
         if not message.target.startswith(("!", "#")):
-            room_id = self.rooms[message.target]
+            room_id = self.room_ids[message.target]
         else:
             room_id = message.target
 
@@ -291,6 +299,7 @@ class ConnectorMatrix(Connector):
         """Get the name of a room from alias or room ID."""
         if room.startswith(("#", "!")):
             for connroom in self.rooms:
+                conroom = conroom['alias']
                 if room in (connroom, self.room_ids[connroom]):
                     return connroom
 
