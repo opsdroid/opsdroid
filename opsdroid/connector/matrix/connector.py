@@ -43,7 +43,7 @@ class ConnectorMatrix(Connector):
         self.name = "matrix"  # The name of your connector
         self.rooms = self._process_rooms_dict(config["rooms"])
         self.room_ids = {}
-        self.default_target = self.rooms["main"]['alias']
+        self.default_target = self.rooms["main"]["alias"]
         self.mxid = config["mxid"]
         self.nick = config.get("nick", None)
         self.homeserver = config.get("homeserver", "https://matrix.org")
@@ -67,12 +67,11 @@ class ConnectorMatrix(Connector):
 
         return "m.text"
 
-
     def _process_rooms_dict(self, rooms):
         out_rooms = {}
         for name, room in rooms.items():
             if isinstance(room, str):
-                room = {'alias': room}
+                room = {"alias": room}
             out_rooms[name] = room
         return out_rooms
 
@@ -109,7 +108,7 @@ class ConnectorMatrix(Connector):
         mapi.sync_token = None
 
         for roomname, room in self.rooms.items():
-            response = await mapi.join_room(room['alias'])
+            response = await mapi.join_room(room["alias"])
             self.room_ids[roomname] = response["room_id"]
         self.connection = mapi
 
@@ -135,14 +134,18 @@ class ConnectorMatrix(Connector):
         # Emit Invite events for every room in the invite list.
         for roomid, room in response["rooms"]["invite"].items():
             # Process the invite list to extract the person who invited us.
-            invite_event = [e for e in room['invite_state']['events']
-                            if "invite" == e.get("content", {}).get("membership")][0]
-            sender = await self.get_nick(None, invite_event['sender'])
+            invite_event = [
+                e
+                for e in room["invite_state"]["events"]
+                if "invite" == e.get("content", {}).get("membership")
+            ][0]
+            sender = await self.get_nick(None, invite_event["sender"])
 
-            await self.opsdroid.parse(events.UserInvite(target=roomid,
-                                                        user=sender,
-                                                        connector=self,
-                                                        raw_event=invite_event))
+            await self.opsdroid.parse(
+                events.UserInvite(
+                    target=roomid, user=sender, connector=self, raw_event=invite_event
+                )
+            )
 
         for roomid, room in response["rooms"]["join"].items():
             if "timeline" in room:
@@ -242,14 +245,18 @@ class ConnectorMatrix(Connector):
             await self.connection.send_message_event(
                 room_id,
                 "m.room.message",
-                self._get_formatted_message_body(message.text, msgtype=self.message_type(room_id)),
+                self._get_formatted_message_body(
+                    message.text, msgtype=self.message_type(room_id)
+                ),
             )
         except aiohttp.client_exceptions.ServerDisconnectedError:
             _LOGGER.debug(_("Server had disconnected, retrying send."))
             await self.connection.send_message_event(
                 room_id,
                 "m.room.message",
-                self._get_formatted_message_body(message.text, msgtype=self.message_type(room_id)),
+                self._get_formatted_message_body(
+                    message.text, msgtype=self.message_type(room_id)
+                ),
             )
 
     async def _get_image_info(self, image):
@@ -277,7 +284,7 @@ class ConnectorMatrix(Connector):
                 await file_event.get_file_bytes(), await file_event.get_mimetype()
             )
 
-            mxc_url = mxc_url['content_uri']
+            mxc_url = mxc_url["content_uri"]
             uploaded = True
 
         return mxc_url, uploaded
@@ -310,7 +317,7 @@ class ConnectorMatrix(Connector):
         """Get the name of a room from alias or room ID."""
         if room.startswith(("#", "!")):
             for connroom in self.rooms:
-                conroom = conroom['alias']
+                conroom = conroom["alias"]
                 if room in (connroom, self.room_ids[connroom]):
                     return connroom
 
@@ -319,24 +326,25 @@ class ConnectorMatrix(Connector):
     @register_event(events.NewRoom)
     async def _send_room_creation(self, creation_event):
         params = creation_event.room_params
-        params = params.get('matrix', params)
+        params = params.get("matrix", params)
         response = await self.connection.create_room(**params)
-        room_id = response['room_id']
+        room_id = response["room_id"]
         if creation_event.name is not None:
-            await self._send_room_name_set(events.RoomName(creation_event.name,
-                                                           target=room_id))
+            await self._send_room_name_set(
+                events.RoomName(creation_event.name, target=room_id)
+            )
         return room_id
 
     @register_event(events.RoomName)
     async def _send_room_name_set(self, name_event):
-        return await self.connection.set_room_name(name_event.target,
-                                                   name_event.name)
+        return await self.connection.set_room_name(name_event.target, name_event.name)
 
     @register_event(events.RoomAddress)
     async def _send_room_address(self, address_event):
         try:
-            return await self.connection.set_room_alias(address_event.target,
-                                                        address_event.address)
+            return await self.connection.set_room_alias(
+                address_event.target, address_event.address
+            )
         except MatrixRequestError as err:
             if err.code == 409:
                 pass
@@ -348,18 +356,19 @@ class ConnectorMatrix(Connector):
     @register_event(events.UserInvite)
     async def _send_user_invitation(self, invite_event):
         try:
-            return await self.connection.invite_user(invite_event.target,
-                                                     invite_event.user)
+            return await self.connection.invite_user(
+                invite_event.target, invite_event.user
+            )
         except MatrixRequestError as err:
             content = json.loads(err.content)
-            if (err.code == 403 and
-                "is already in the room" in content["error"]):
+            if err.code == 403 and "is already in the room" in content["error"]:
                 return
 
     @register_event(events.RoomDescription)
     async def _send_room_desciption(self, desc_event):
-        return await self.connection.set_room_topic(desc_event.target,
-                                                    desc_event.description)
+        return await self.connection.set_room_topic(
+            desc_event.target, desc_event.description
+        )
 
     @register_event(events.RoomImage)
     async def _send_room_image(self, image_event):
@@ -381,14 +390,16 @@ class ConnectorMatrix(Connector):
                 raise ValueError("Role must be one of 'mod', 'admin', or an integer")
 
         power_levels = await self.connection.get_power_levels(room_id)
-        power_levels['users'][role_event.user] = power_level
+        power_levels["users"][role_event.user] = power_level
 
         return await role_event.respond(matrixevents.MatrixPowerLevels(power_levels))
 
     @register_event(matrixevents.MatrixStateEvent, include_subclasses=True)
     async def _send_state_event(self, state_event):
         _LOGGER.debug(f"Sending State Event {state_event}")
-        return await self.connection.send_state_event(state_event.target,
-                                                      state_event.key,
-                                                      state_event.content,
-                                                      state_key=state_event.state_key)
+        return await self.connection.send_state_event(
+            state_event.target,
+            state_event.key,
+            state_event.content,
+            state_key=state_event.state_key,
+        )

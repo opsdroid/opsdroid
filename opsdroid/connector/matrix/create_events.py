@@ -74,19 +74,21 @@ class MatrixEventCreator(events.EventCreator):
     async def create_room_description(self, event, roomid):
         """Send a RoomDescriptionEvent."""
         return events.RoomDescription(
-            description=event['content']['topic'],
-            user=await self.connector.get_nick(roomid, event['sender']),
+            description=event["content"]["topic"],
+            user=await self.connector.get_nick(roomid, event["sender"]),
             target=roomid,
             connector=self.connector,
             event_id=event["event_id"],
-            raw_event=event)
+            raw_event=event,
+        )
 
     async def create_room_name(self, event, roomid):
         """Send a RoomDescriptionEvent."""
         return events.RoomName(
-            name=event['content']['name'],
-            user=await self.connector.get_nick(roomid, event['sender']),
+            name=event["content"]["name"],
+            user=await self.connector.get_nick(roomid, event["sender"]),
             target=roomid,
             connector=self.connector,
             event_id=event["event_id"],
-            raw_event=event)
+            raw_event=event,
+        )

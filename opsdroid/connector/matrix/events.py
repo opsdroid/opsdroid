@@ -27,14 +27,14 @@ class MatrixPowerLevels(MatrixStateEvent):
 class MatrixJoinRules(MatrixStateEvent):
     def __init__(self, join_rule, *args, **kwargs):
         key = "m.room.join_rules"
-        content = {'join_rule': join_rule}
+        content = {"join_rule": join_rule}
         super().__init__(key, content, *args, **kwargs)
 
 
 class MatrixHistoryVisibility(MatrixStateEvent):
     def __init__(self, history_visibility, *args, **kwargs):
         key = "m.room.history_visibility"
-        content = {'history_visibility': history_visibility}
+        content = {"history_visibility": history_visibility}
         super().__init__(key, content, *args, **kwargs)
 
 
