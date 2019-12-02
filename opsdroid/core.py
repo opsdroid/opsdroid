@@ -369,7 +369,7 @@ class OpsDroid:
                     and cls is not Database
                 ):
                     _LOGGER.debug(_("Adding database: %s."), name)
-                    database = cls(database_module["config"])
+                    database = cls(database_module["config"], opsdroid=self)
                     self.memory.databases.append(database)
                     await database.connect()
 
