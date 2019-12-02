@@ -49,13 +49,21 @@ class ConnectorMatrix(Connector):
         self.homeserver = config.get("homeserver", "https://matrix.org")
         self.password = config["password"]
         self.room_specific_nicks = config.get("room_specific_nicks", False)
-        send_m_notice = config.get("send_m_notice", False)
-        self.message_type = "m.notice" if send_m_notice else "m.text"
+        self.send_m_notice = config.get("send_m_notice", False)
         self.session = None
         self.filter_id = None
         self.connection = None
 
         self._event_creator = MatrixEventCreator(self)
+
+    def message_type(room):
+        if self.send_m_notice:
+            return True
+        reverse_room_ids = {v: k for k, v in self.room_ids.items()}
+        room = reverse_room_ids.get(room, room)
+        if room in self.rooms:
+            return self.rooms[room].get("send_m_notice", False)
+
 
     def _process_rooms_dict(self, rooms):
         out_rooms = {}
@@ -231,14 +239,14 @@ class ConnectorMatrix(Connector):
             await self.connection.send_message_event(
                 room_id,
                 "m.room.message",
-                self._get_formatted_message_body(message.text, msgtype=self.message_type),
+                self._get_formatted_message_body(message.text, msgtype=self.message_type(room_id)),
             )
         except aiohttp.client_exceptions.ServerDisconnectedError:
             _LOGGER.debug(_("Server had disconnected, retrying send."))
             await self.connection.send_message_event(
                 room_id,
                 "m.room.message",
-                self._get_formatted_message_body(message.text, msgtype=self.message_type),
+                self._get_formatted_message_body(message.text, msgtype=self.message_type(room_id)),
             )
 
     async def _get_image_info(self, image):
