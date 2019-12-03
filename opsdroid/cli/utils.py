@@ -20,6 +20,8 @@ from opsdroid.const import (
 )
 from opsdroid.helper import get_config_option
 from opsdroid.loader import Loader
+from opsdroid.logging import configure_logging
+
 
 _LOGGER = logging.getLogger("opsdroid")
 
@@ -226,3 +228,41 @@ def list_all_modules(ctx, path, value):
                 )
 
     ctx.exit(0)
+
+
+def build_config(ctx, params, value):
+    """Load configuration, load modules and install dependencies.
+
+    This function loads the configuration and install all necessary
+    dependencies defined on a `requirements.txt` file inside the module.
+    If the flag `-d` is passed the logging level will be set as debug and
+    all logs will be shown to the user.
+
+
+    Args:
+        ctx (:obj:`click.Context`): The current click cli context.
+        params (dict): a dictionary of all parameters pass to the click
+            context when invoking this function as a callback.
+        value (string): the value of this parameter after invocation.
+            It is either "config" or "log" depending on the program
+            calling this function.
+
+    Returns:
+        int: the exit code. Always returns 0 in this case.
+
+    """
+    path = params.get("path")
+    check_dependencies()
+
+    config = load_config_file([path] if path else DEFAULT_CONFIG_LOCATIONS)
+
+    if params["verbose"]:
+        config["logging"] = {"level": "debug"}
+        configure_logging(config)
+
+    with OpsDroid(config=config) as opsdroid:
+        opsdroid.sync_load()
+        opsdroid.exit()
+
+        click.echo("Opsdroid modules successfully built from config.")
+        ctx.exit(0)

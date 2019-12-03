@@ -266,3 +266,30 @@ class TestCLI(unittest.TestCase):
             self.assertTrue(click_echo.called)
             self.assertFalse(opsdroid_load.called)
             self.assertEqual(result.exit_code, 0)
+
+    def test_config_build_from_path(self):
+        with mock.patch.object(click, "echo") as click_echo, mock.patch(
+            "opsdroid.configuration.load_config_file"
+        ) as opsdroid_load:
+            runner = CliRunner()
+            from opsdroid.cli import config
+
+            result = runner.invoke(
+                config,
+                ["-f", os.path.abspath("tests/configs/full_valid.yaml"), "build", "-d"],
+            )
+            self.assertTrue(click_echo.called)
+            self.assertFalse(opsdroid_load.called)
+            self.assertEqual(result.exit_code, 0)
+
+    def test_config_build(self):
+        with mock.patch.object(click, "echo") as click_echo, mock.patch(
+            "opsdroid.configuration.load_config_file"
+        ) as opsdroid_load:
+            runner = CliRunner()
+            from opsdroid.cli.config import build
+
+            result = runner.invoke(build, [])
+            self.assertTrue(click_echo.called)
+            self.assertFalse(opsdroid_load.called)
+            self.assertEqual(result.exit_code, 0)
