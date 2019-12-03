@@ -43,18 +43,9 @@ async def match_event(event, event_opts):
 
 async def parse_event_type(opsdroid, event):
     """Parse an event if it's of a certain type."""
-    matched_skills = []
     for skill in opsdroid.skills:
         for matcher in skill.matchers:
             event_opts = matcher.get("event_type", {})
             result = await match_event(event, event_opts)
             if result:
-                matched_skills.append(
-                    {
-                        "score": 1,
-                        "skill": skill,
-                        "config": skill.config,
-                        "message": event,
-                    }
-                )
-    return matched_skills
+                await opsdroid.run_skill(skill, skill.config, event)

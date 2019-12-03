@@ -419,7 +419,6 @@ class OpsDroid:
         if isinstance(message, events.Message):
             ranked_skills += await parse_regex(self, skills, message)
             ranked_skills += await parse_format(self, skills, message)
-        ranked_skills += await parse_event_type(self, message)
 
         if "parsers" in self.config:
             _LOGGER.debug(_("Processing parsers..."))
@@ -491,8 +490,8 @@ class OpsDroid:
         tasks = []
         if isinstance(event, events.Message):
             _LOGGER.debug(_("Parsing input: %s."), event)
-
             tasks.append(self.eventloop.create_task(parse_always(self, event)))
+            tasks.append(self.eventloop.create_task(parse_event_type(self, event)))
 
         unconstrained_skills = await self._constrain_skills(self.skills, event)
         ranked_skills = await self.get_ranked_skills(unconstrained_skills, event)
@@ -506,6 +505,8 @@ class OpsDroid:
                     )
                 )
             )
+
+        await asyncio.gather(*tasks)
 
         return tasks
 
