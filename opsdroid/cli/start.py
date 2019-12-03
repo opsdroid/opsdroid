@@ -5,24 +5,29 @@ import gettext
 import logging
 import click
 
-from opsdroid.cli.utils import check_dependencies, configure_lang, welcome_message
+from opsdroid.cli.utils import (
+    check_dependencies,
+    configure_lang,
+    welcome_message,
+    path_option,
+)
 from opsdroid.core import OpsDroid
 from opsdroid.configuration import load_config_file
 from opsdroid.logging import configure_logging
-from opsdroid.const import DEFAULT_CONFIG_PATH
+from opsdroid.const import DEFAULT_CONFIG_LOCATIONS
 
 gettext.install("opsdroid")
 _LOGGER = logging.getLogger("opsdroid")
 
 
 @click.command()
-def start():
+@path_option
+def start(path):
     """Start the opsdroid bot."""
     check_dependencies()
 
-    config = load_config_file(
-        ["configuration.yaml", DEFAULT_CONFIG_PATH, "/etc/opsdroid/configuration.yaml"]
-    )
+    config = load_config_file([path] if path else DEFAULT_CONFIG_LOCATIONS)
+
     configure_lang(config)
     configure_logging(config)
     welcome_message(config)

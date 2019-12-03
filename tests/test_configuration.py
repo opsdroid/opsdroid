@@ -8,7 +8,11 @@ import unittest.mock as mock
 
 from opsdroid.cli.start import configure_lang
 from opsdroid import loader as ld
-from opsdroid.configuration import create_default_config, load_config_file
+from opsdroid.configuration import (
+    create_default_config,
+    load_config_file,
+    validate_data_type,
+)
 from opsdroid.helper import del_rw
 
 
@@ -100,3 +104,17 @@ class TestConfiguration(unittest.TestCase):
         with mock.patch("sys.exit") as patched_sysexit:
             load_config_file([os.path.abspath("tests/configs/broken.yaml")])
             self.assertTrue(patched_sysexit.called)
+
+    def test_load_bad_config_broken(self):
+        with mock.patch("sys.exit") as mock_sysexit, mock.patch(
+            "opsdroid.configuration.validate_data_type"
+        ) as mocked_func:
+            mocked_func.side_effect = TypeError()
+            load_config_file(["file_which_does_not_exist"])
+            self.assertTrue(mocked_func.called)
+            self.assertLogs("_LOGGER", "critical")
+            self.assertTrue(mock_sysexit.called)
+
+    def test_validate_data_type(self):
+        with self.assertRaises(TypeError):
+            validate_data_type("bad config type")

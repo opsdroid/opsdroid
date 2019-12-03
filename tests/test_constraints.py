@@ -23,7 +23,6 @@ class TestConstraints(asynctest.TestCase):
 
     async def test_constrain_rooms_constrains(self):
         with OpsDroid() as opsdroid:
-            opsdroid.eventloop = mock.CoroutineMock()
             skill = await self.getMockSkill()
             skill = match_regex(r".*")(skill)
             skill = constraints.constrain_rooms(["#general"])(skill)
@@ -32,11 +31,10 @@ class TestConstraints(asynctest.TestCase):
             tasks = await opsdroid.parse(
                 Message(text="Hello", user="user", target="#random", connector=None)
             )
-            self.assertEqual(len(tasks), 1)  # Just match_always
+            self.assertEqual(len(tasks), 2)  # Just match_always and match_event
 
     async def test_constrain_rooms_skips(self):
         with OpsDroid() as opsdroid, mock.patch("opsdroid.parsers.always.parse_always"):
-            opsdroid.eventloop = mock.CoroutineMock()
             skill = await self.getMockSkill()
             skill = match_regex(r".*")(skill)
             skill = constraints.constrain_rooms(["#general"])(skill)
@@ -45,11 +43,10 @@ class TestConstraints(asynctest.TestCase):
             tasks = await opsdroid.parse(
                 Message(text="Hello", user="user", target="#general", connector=None)
             )
-            self.assertEqual(len(tasks), 2)  # match_always and the skill
+            self.assertEqual(len(tasks), 3)  # match_always, match_event and the skill
 
     async def test_constrain_rooms_inverted(self):
         with OpsDroid() as opsdroid:
-            opsdroid.eventloop = mock.CoroutineMock()
             skill = await self.getMockSkill()
             skill = match_regex(r".*")(skill)
             skill = constraints.constrain_rooms(["#general"], invert=True)(skill)
@@ -58,11 +55,10 @@ class TestConstraints(asynctest.TestCase):
             tasks = await opsdroid.parse(
                 Message(text="Hello", user="user", target="#general", connector=None)
             )
-            self.assertEqual(len(tasks), 1)  # match_always only
+            self.assertEqual(len(tasks), 2)  # Just match_always and match_event
 
     async def test_constrain_users_constrains(self):
         with OpsDroid() as opsdroid:
-            opsdroid.eventloop = mock.CoroutineMock()
             skill = await self.getMockSkill()
             skill = match_regex(r".*")(skill)
             skill = constraints.constrain_users(["user"])(skill)
@@ -73,11 +69,10 @@ class TestConstraints(asynctest.TestCase):
                     text="Hello", user="otheruser", target="#general", connector=None
                 )
             )
-            self.assertEqual(len(tasks), 1)  # Just match_always
+            self.assertEqual(len(tasks), 2)  # Just match_always and match_event
 
     async def test_constrain_users_skips(self):
         with OpsDroid() as opsdroid:
-            opsdroid.eventloop = mock.CoroutineMock()
             skill = await self.getMockSkill()
             skill = match_regex(r".*")(skill)
             skill = constraints.constrain_users(["user"])(skill)
@@ -86,11 +81,10 @@ class TestConstraints(asynctest.TestCase):
             tasks = await opsdroid.parse(
                 Message(text="Hello", user="user", target="#general", connector=None)
             )
-            self.assertEqual(len(tasks), 2)  # match_always and the skill
+            self.assertEqual(len(tasks), 3)  # match_always, match_event and the skill
 
     async def test_constrain_users_inverted(self):
         with OpsDroid() as opsdroid:
-            opsdroid.eventloop = mock.CoroutineMock()
             skill = await self.getMockSkill()
             skill = match_regex(r".*")(skill)
             skill = constraints.constrain_users(["user"], invert=True)(skill)
@@ -99,11 +93,10 @@ class TestConstraints(asynctest.TestCase):
             tasks = await opsdroid.parse(
                 Message(text="Hello", user="user", target="#general", connector=None)
             )
-            self.assertEqual(len(tasks), 1)  # match_always only
+            self.assertEqual(len(tasks), 2)  # Just match_always and match_event
 
     async def test_constrain_connectors_constrains(self):
         with OpsDroid() as opsdroid:
-            opsdroid.eventloop = mock.CoroutineMock()
             skill = await self.getMockSkill()
             skill = match_regex(r".*")(skill)
             skill = constraints.constrain_connectors(["slack"])(skill)
@@ -116,11 +109,10 @@ class TestConstraints(asynctest.TestCase):
                     text="Hello", user="user", target="#random", connector=connector
                 )
             )
-            self.assertEqual(len(tasks), 1)  # Just match_always
+            self.assertEqual(len(tasks), 2)  # Just match_always and match_event
 
     async def test_constrain_connectors_skips(self):
         with OpsDroid() as opsdroid:
-            opsdroid.eventloop = mock.CoroutineMock()
             skill = await self.getMockSkill()
             skill = match_regex(r".*")(skill)
             skill = constraints.constrain_connectors(["slack"])(skill)
@@ -133,11 +125,10 @@ class TestConstraints(asynctest.TestCase):
                     text="Hello", user="user", target="#general", connector=connector
                 )
             )
-            self.assertEqual(len(tasks), 2)  # match_always and the skill
+            self.assertEqual(len(tasks), 3)  # match_always, match_event and the skill
 
     async def test_constrain_connectors_inverted(self):
         with OpsDroid() as opsdroid:
-            opsdroid.eventloop = mock.CoroutineMock()
             skill = await self.getMockSkill()
             skill = match_regex(r".*")(skill)
             skill = constraints.constrain_connectors(["slack"], invert=True)(skill)
@@ -150,11 +141,10 @@ class TestConstraints(asynctest.TestCase):
                     text="Hello", user="user", target="#general", connector=connector
                 )
             )
-            self.assertEqual(len(tasks), 1)  # match_always only
+            self.assertEqual(len(tasks), 2)  # Just match_always and match_event
 
     async def test_constraint_can_be_called_after_skip(self):
         with OpsDroid() as opsdroid:
-            opsdroid.eventloop = mock.CoroutineMock()
             skill = await self.getMockSkill()
             skill = match_regex(r".*")(skill)
             skill = constraints.constrain_users(["user"])(skill)
@@ -163,16 +153,16 @@ class TestConstraints(asynctest.TestCase):
             tasks = await opsdroid.parse(
                 Message(text="Hello", user="user", target="#general", connector=None)
             )
-            self.assertEqual(len(tasks), 2)  # match_always and the skill
+            self.assertEqual(len(tasks), 3)  # match_always, match_event and the skill
 
             tasks = await opsdroid.parse(
                 Message(
                     text="Hello", user="otheruser", target="#general", connector=None
                 )
             )
-            self.assertEqual(len(tasks), 1)  # Just match_always
+            self.assertEqual(len(tasks), 2)  # Just match_always and match_event
 
             tasks = await opsdroid.parse(
                 Message(text="Hello", user="user", target="#general", connector=None)
             )
-            self.assertEqual(len(tasks), 2)  # match_always and the skill
+            self.assertEqual(len(tasks), 3)  # match_always, match_event and the skill
