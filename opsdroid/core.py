@@ -488,10 +488,10 @@ class OpsDroid:
         """
         self.stats["messages_parsed"] = self.stats["messages_parsed"] + 1
         tasks = []
+        tasks.append(self.eventloop.create_task(parse_always(self, event)))
         tasks.append(self.eventloop.create_task(parse_event_type(self, event)))
         if isinstance(event, events.Message):
             _LOGGER.debug(_("Parsing input: %s."), event)
-            tasks.append(self.eventloop.create_task(parse_always(self, event)))
 
             unconstrained_skills = await self._constrain_skills(self.skills, event)
             ranked_skills = await self.get_ranked_skills(unconstrained_skills, event)
