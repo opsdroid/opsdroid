@@ -10,16 +10,25 @@ import time
 import warnings
 
 from opsdroid.core import OpsDroid
-from opsdroid.loader import Loader
 from opsdroid.configuration import load_config_file
 from opsdroid.const import (
     DEFAULT_LOG_FILENAME,
     LOCALE_DIR,
     DEFAULT_LANGUAGE,
     DEFAULT_CONFIG_PATH,
+    DEFAULT_CONFIG_LOCATIONS,
 )
+from opsdroid.helper import get_config_option
+from opsdroid.loader import Loader
 
 _LOGGER = logging.getLogger("opsdroid")
+
+path_option = click.option(
+    "-f",
+    "path",
+    help="Load a configuration from a path instead of using the default location.",
+    type=click.Path(exists=True),
+)
 
 
 def edit_files(ctx, param, value):
@@ -67,13 +76,21 @@ def edit_files(ctx, param, value):
     ctx.exit(0)
 
 
-def validate_config(ctx, param, value):
-    """Open config/log file with favourite editor.
+def validate_config(ctx, path, value):
+    """Validate opsdroid configuration.
+
+    We load the configuration and modules from it to run the validation on them.
+    Only modules that contain the constant variable `CONFIG_SCHEMA` will be validated
+    the ones without it will just be silent.
+
+    Note that if the path doesn't exist or is a bad one click will throw an error telling
+    you that the path doesn't exist. Also, the file needs to be either a json or a yaml file.
+
 
     Args:
         ctx (:obj:`click.Context`): The current click cli context.
-        param (dict): a dictionary of all parameters pass to the click
-            context when invoking this function as a callback.
+        path (string): a string representing the path to load the config,
+            obtained from `ctx.obj`.
         value (string): the value of this parameter after invocation.
             It is either "config" or "log" depending on the program
             calling this function.
@@ -82,15 +99,15 @@ def validate_config(ctx, param, value):
         int: the exit code. Always returns 0 in this case.
 
     """
-    loader = Loader(OpsDroid)
-    config = load_config_file(
-        ["configuration.yaml", DEFAULT_CONFIG_PATH, "/etc/opsdroid/configuration.yaml"]
-    )
-    loader.load_modules_from_config(config)
-    if config:
+    with OpsDroid() as opsdroid:
+        loader = Loader(opsdroid)
+
+        config = load_config_file([path] if path else DEFAULT_CONFIG_LOCATIONS)
+
+        loader.load_modules_from_config(config)
         click.echo("Configuration validated - No errors founds!")
 
-    ctx.exit(0)
+        ctx.exit(0)
 
 
 def warn_deprecated_cli_option(text):
@@ -160,3 +177,52 @@ def welcome_message(config):
         _LOGGER.warning(
             _("'welcome-message: true/false' is missing in configuration.yaml")
         )
+
+
+def list_all_modules(ctx, path, value):
+    """List the active modules from config.
+
+    This function will try to get information from the modules that are active in the
+    configuration file and print them as a table or will just print a sentence saying that
+    there are no active modules for that type.
+
+    Args:
+        ctx (:obj:`click.Context`): The current click cli context.
+        path (str): a str that contains a path passed.
+        value (string): the value of this parameter after invocation.
+            It is either "config" or "log" depending on the program
+            calling this function.
+
+    Returns:
+        int: the exit code. Always returns 0 in this case.
+
+    """
+    config = load_config_file([path] if path else DEFAULT_CONFIG_LOCATIONS)
+
+    click.echo(
+        click.style(
+            f"{'NAME':15} {'TYPE':15} {'MODE':15} {'CACHED':15}  {'LOCATION':15}",
+            fg="blue",
+            bold=True,
+        )
+    )
+    for module_type, module in config.items():
+        if module_type in ("connectors", "databases", "parsers", "skills"):
+            for name, options in module.items():
+
+                mode = get_config_option(
+                    ["repo", "path", "gist"], options, True, "module"
+                )
+                cache = get_config_option(["no-cache"], options, "no", "yes")
+                location = get_config_option(
+                    ["repo", "path", "gist"],
+                    options,
+                    True,
+                    f"opsdroid.{module_type}.{name}",
+                )
+
+                click.echo(
+                    f"{name:15} {module_type:15} {mode[1]:15} {cache[0]:15}  {location[2]:15}"
+                )
+
+    ctx.exit(0)

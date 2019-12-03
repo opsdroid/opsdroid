@@ -17,6 +17,11 @@ DEFAULT_MODULE_DEPS_PATH = os.path.join(
 DEFAULT_CONFIG_PATH = os.path.join(
     user_config_dir(NAME, appauthor=False), "configuration.yaml"
 )
+DEFAULT_CONFIG_LOCATIONS = [
+    "configuration.yaml",
+    DEFAULT_CONFIG_PATH,
+    "/etc/opsdroid/configuration.yaml",
+]
 DEFAULT_MODULE_BRANCH = "master"
 DEFAULT_LANGUAGE = "en"
 LOCALE_DIR = os.path.join(MODULE_ROOT, "locale")
