@@ -9,7 +9,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def match_event(event, event_opts):
-    """Filters and matches the event."""
+    """Filter and matches the event."""
     event_type = event_opts.get("type", None)
     event_entitites = event.entities.get("value", {})
 
