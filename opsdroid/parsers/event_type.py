@@ -22,7 +22,7 @@ async def match_event(event, event_opts):
                     "{event_type} is not a valid opsdroid"
                     " event representation.".format(event_type=event_type)
                 )
-                event_type = et
+            event_type = et
 
         # TODO: Add option to match all subclasses as well
         # if isinstance(event, event_type):
