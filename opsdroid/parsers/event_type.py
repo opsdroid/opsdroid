@@ -11,7 +11,6 @@ _LOGGER = logging.getLogger(__name__)
 async def match_event(event, event_opts):
     """Filter and matches the event."""
     event_type = event_opts.get("type", None)
-    event_entitites = event.entities.get("value", {})
 
     if event_type:
         # The event type can be specified with a string
@@ -29,11 +28,15 @@ async def match_event(event, event_opts):
         # if isinstance(event, event_type):
         # pylint: disable=unidiomatic-typecheck
         if type(event) is event_type:
-            event_value = event_opts.get("value", None)
-            entity_value = event_entitites.get("value", None)
+            for key in event_opts.keys():
+                if key != "type":
+                    event_value = event_opts.get(key, None)
+                    entity_value = event.entities.get(key, {}).get("value", None)
 
-            if event_value == entity_value:
-                return True
+                    if event_value != entity_value:
+                        return False
+
+            return True
 
     return False
 
