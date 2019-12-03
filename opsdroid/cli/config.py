@@ -26,7 +26,6 @@ def print_example_config(ctx, param, value):
         int: the exit code. Always returns 0 in this case.
 
     """
-    path = EXAMPLE_CONFIG_FILE
     if not value or ctx.resilient_parsing:
         return
     if ctx.command.name == "cli":
@@ -34,7 +33,7 @@ def print_example_config(ctx, param, value):
             "The flag --gen-config has been deprecated. "
             "Please run `opsdroid config gen` instead."
         )
-    with open(path, "r") as conf:
+    with open(EXAMPLE_CONFIG_FILE, "r") as conf:
         click.echo(conf.read())
     ctx.exit(0)
 
