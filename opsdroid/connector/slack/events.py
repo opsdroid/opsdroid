@@ -65,7 +65,14 @@ class InteractiveAction(Event):
                     headers = {"Content-Type": "application/json"}
                     response = await session.post(
                         self.payload["response_url"],
-                        data=json.dumps({"text": response_event}),
+                        data=json.dumps(
+                            {
+                                "text": response_event,
+                                "replace_original": False,
+                                "delete_original": False,
+                                "response_type": "in_channel",
+                            }
+                        ),
                         headers=headers,
                         ssl=self.ssl_context,
                     )
