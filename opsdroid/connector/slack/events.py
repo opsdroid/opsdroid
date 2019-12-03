@@ -54,6 +54,7 @@ class InteractiveAction(Event):
         """Create object with minimum properties."""
         super().__init__(*args, **kwargs)
         self.payload = payload
+        self.ssl_context = ssl.create_default_context(cafile=certifi.where())
 
     async def respond(self, response_event):
         """Respond to this message using the response_url field in the payload."""
@@ -64,9 +65,9 @@ class InteractiveAction(Event):
                     headers = {"Content-Type": "application/json"}
                     response = await session.post(
                         self.payload["response_url"],
-                        data=json.dumps(response_event),
+                        data=json.dumps({"text": response_event}),
                         headers=headers,
-                        ssl=ssl.create_default_context(cafile=certifi.where()),
+                        ssl=self.ssl_context,
                     )
                     response_txt = await response.json()
             else:
