@@ -38,12 +38,10 @@ skills:
   hello: {}
 ```
 
-This tells opsdroid to use the built in [shell connector](https://github.com/opsdroid/connector-shell) and [hello skill](https://github.com/opsdroid/skill-hello) from the official module library.
+This tells opsdroid to use the built-in [shell connector](https://github.com/opsdroid/connector-shell) and [hello skill](https://github.com/opsdroid/skill-hello) from the official module library.
 
-In opsdroid modules can be git repositories which will be cloned locally the first time they are used. By default, if you do not specify a location for a module opsdroid will first look to see if it is built in to the core and then look at `https://github.com/opsdroid/<moduletype>-<modulename>.git` for a repository. Therefore in the above configuration, the `connector-shell` module is found at `opsdroid.connector.shell` and the hello skill is found in the `skill-hello` repository from the opsdroid organization on GitHub.
-
-You are of course encouraged to write your own modules and make them available on GitHub or any other repository host which is accessible by your opsdroid installation. We are especially keen for folks to contribute connectors and databses to the opsdroid core package.
-
+In opsdroid modules can be git repositories which will be cloned locally the first time they are used. By default, if you do not specify a location for a module opsdroid will first look to see if it is built into the core and then look at https://github.com/opsdroid/<moduletype>-<modulename>.git for a repository. Therefore in the above configuration, the connector-shell module is found at opsdroid.connector.shell and the hello skill is found in the skill-hello repository from the opsdroid organization on GitHub.
+You are of course encouraged to write your modules and make them available on GitHub or any other repository host which is accessible by your opsdroid installation. We are especially keen for folks to contribute connectors and databases to the opsdroid core package.
 A more advanced config would like similar to the following:
 
 ```yaml
@@ -100,8 +98,8 @@ connectors:
 
 Some connectors will allow you to specify a delay to simulate a real user, you just need to add the delay option under a connector in the `configuration.yaml` file.
 
-**Thinking Delay:** accepts a _int_, _float_ or a _list_ to delay reply by _x_ seconds.
-**Typing Delay:** accepts a _int_, _float_ or a _list_ to delay reply by _x_ seconds - this is calculated by the length of opsdroid response text so waiting time will be variable.
+**Thinking Delay:** accepts an _int_, _float_ or a _list_ to delay reply by _x_ seconds.
+**Typing Delay:** accepts an _int_, _float_ or a _list_ to delay reply by _x_ seconds - this is calculated by the length of opsdroid response text so waiting time will be variable.
 
 Example:
 

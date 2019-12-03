@@ -34,7 +34,7 @@
 
 ---
 
-This framework allows you to take events from chat services and other sources and execute Python functions (skills) based on their contents. Those functions can be anything you like, from simple conversational responses to running complex tasks. As events pass through opsdroid they can be augmented using a range of different parsing services, from Natural Language Understanding (NLU), to sentiment analytsis, to object recognition. This extra information allows you to make better decisions about how you handle those events and what actions you trigger as a result.
+This framework allows you to take events from chat services and other sources and execute Python functions (skills) based on their contents. Those functions can be anything you like, from simple conversational responses to running complex tasks. As events pass through opsdroid they can be augmented using a range of different parsing services, from Natural Language Understanding (NLU) to sentiment analysis, to object recognition. This extra information allows you to make better decisions about how you handle those events and what actions you trigger as a result.
 
 Help support opsdroid in one click by pressing [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Check%20out%20opsdroid,%20an%20awesome%20open%20source%20chatbot%20framework%20written%20in%20Python.&url=https://opsdroid.github.io/&via=opsdroid&hashtags=chatbots,chatops,devops,automation,opensource)
 
