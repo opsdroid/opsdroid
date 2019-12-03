@@ -488,23 +488,23 @@ class OpsDroid:
         """
         self.stats["messages_parsed"] = self.stats["messages_parsed"] + 1
         tasks = []
+        tasks.append(self.eventloop.create_task(parse_event_type(self, event)))
         if isinstance(event, events.Message):
             _LOGGER.debug(_("Parsing input: %s."), event)
             tasks.append(self.eventloop.create_task(parse_always(self, event)))
-            tasks.append(self.eventloop.create_task(parse_event_type(self, event)))
 
-        unconstrained_skills = await self._constrain_skills(self.skills, event)
-        ranked_skills = await self.get_ranked_skills(unconstrained_skills, event)
-        if ranked_skills:
-            tasks.append(
-                self.eventloop.create_task(
-                    self.run_skill(
-                        ranked_skills[0]["skill"],
-                        ranked_skills[0]["config"],
-                        ranked_skills[0]["message"],
+            unconstrained_skills = await self._constrain_skills(self.skills, event)
+            ranked_skills = await self.get_ranked_skills(unconstrained_skills, event)
+            if ranked_skills:
+                tasks.append(
+                    self.eventloop.create_task(
+                        self.run_skill(
+                            ranked_skills[0]["skill"],
+                            ranked_skills[0]["config"],
+                            ranked_skills[0]["message"],
+                        )
                     )
                 )
-            )
 
         await asyncio.gather(*tasks)
 
