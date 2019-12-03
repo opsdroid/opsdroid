@@ -58,3 +58,17 @@ def validate_configuration(config, schema):
             error.path[0],
         )
         sys.exit(1)
+
+
+def validate_data_type(data):
+    """Validate data type.
+
+    The configuration needs to be a dict. Since yaml loads any file
+    that can be decoded by utf-8, some files will be parsed and returned
+    as a single string. If data is not a dict we raise a TypeError.
+
+    """
+    if not isinstance(data, dict):
+        raise TypeError(
+            "Invalid type for the configuration, please check that configuration is of <type 'dict'>."
+        )
