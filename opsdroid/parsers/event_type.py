@@ -28,7 +28,7 @@ async def match_event(event, event_opts):
         # if isinstance(event, event_type):
         # pylint: disable=unidiomatic-typecheck
         if type(event) is event_type:
-            for key in event_opts.keys():
+            for key in event_opts:
                 if key != "type":
                     event_value = event_opts.get(key, None)
                     entity_value = event.entities.get(key, {}).get("value", None)
