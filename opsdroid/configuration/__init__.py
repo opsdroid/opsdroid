@@ -8,7 +8,11 @@ import logging
 import yaml
 
 from opsdroid.const import DEFAULT_CONFIG_PATH, ENV_VAR_REGEX, EXAMPLE_CONFIG_FILE
-from opsdroid.configuration.validation import validate_configuration, BASE_SCHEMA
+from opsdroid.configuration.validation import (
+    validate_configuration,
+    validate_data_type,
+    BASE_SCHEMA,
+)
 from opsdroid.helper import update_pre_0_17_config_format
 
 
@@ -108,6 +112,8 @@ def load_config_file(config_paths):
             _LOGGER.info(_("Loaded config from %s."), config_path)
 
             data = yaml.load(stream, Loader=yaml.SafeLoader)
+            validate_data_type(data)
+
             configuration = update_pre_0_17_config_format(data)
             validate_configuration(configuration, BASE_SCHEMA)
 
@@ -118,5 +124,9 @@ def load_config_file(config_paths):
         sys.exit(1)
 
     except FileNotFoundError as error:
+        _LOGGER.critical(error)
+        sys.exit(1)
+
+    except TypeError as error:
         _LOGGER.critical(error)
         sys.exit(1)
