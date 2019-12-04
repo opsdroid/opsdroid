@@ -286,11 +286,16 @@ class ConnectorMatrix(Connector):
             message.text, msgtype=self.message_type(message.target)
         )
 
+        if isinstance(message.linked_event, str):
+            edited_event_id = message.linked_event
+        else:
+            edited_event_id = message.linked_event.event_id
+
         content = {
             "msgtype": "m.text",
             "m.new_content": new_content,
             "body": f"* {new_content['body']}",
-            "m.relates_to": {"rel_type": "m.replace", "event_id": message.edited_event},
+            "m.relates_to": {"rel_type": "m.replace", "event_id": edited_event_id},
         }
 
         return (

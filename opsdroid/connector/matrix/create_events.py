@@ -9,6 +9,11 @@ __all__ = ["MatrixEventCreator"]
 class MatrixEventCreator(events.EventCreator):
     """Create opsdroid events from matrix ones."""
 
+    async def create_event_from_eventid(self, eventid, roomid):
+        """Return an ``Event`` based on an event id in a room."""
+        event_json = await self.connector.connection.get_event_in_room(roomid, eventid)
+        return await self.create_event(event_json, roomid)
+
     def __init__(self, connector, *args, **kwargs):
         """Initialise the event creator."""
         super().__init__(connector, *args, **kwargs)
@@ -48,16 +53,20 @@ class MatrixEventCreator(events.EventCreator):
             event_id=event["event_id"],
             raw_event=event,
         )
-        # Detect an edit.
-        if (
-            "m.relates_to" in event["content"]
-            and event["content"]["m.relates_to"]["rel_type"] == "m.replace"
-        ):
-            kwargs["text"] = event["content"]["m.new_content"]["body"]
-            kwargs["edited_event"] = event["content"]["m.relates_to"]["event_id"]
-            return events.EditedMessage(**kwargs)
-        else:
-            return events.Message(**kwargs)
+        if "m.relates_to" in event["content"]:
+            relates_to = event["content"]["m.relates_to"]
+            # Detect an edit.
+            if relates_to.get("rel_type", "") == "m.replace":
+                kwargs["text"] = event["content"]["m.new_content"]["body"]
+                kwargs["linked_event"] = await self.create_event_from_eventid(
+                    relates_to["event_id"], roomid
+                )
+                return events.EditedMessage(**kwargs)
+            # Detect a reply
+            # if relates_to.get("m.in_reply_to"):
+            #     pass
+
+        return events.Message(**kwargs)
 
     async def _file_kwargs(self, event, roomid):
         url = self.connector.connection.get_download_url(event["content"]["url"])
@@ -109,10 +118,7 @@ class MatrixEventCreator(events.EventCreator):
     async def create_reaction(self, event, roomid):
         """Send a Reaction event."""
         parent_event_id = event["content"]["m.relates_to"]["event_id"]
-        parent_event_json = await self.connector.connection.get_event_in_room(
-            roomid, parent_event_id
-        )
-        parent_event = await self.create_event(parent_event_json, roomid)
+        parent_event = await self.create_event_from_eventid(parent_event_id, roomid)
         return events.Reaction(
             emoji=event["content"]["m.relates_to"]["key"],
             user=await self.connector.get_nick(roomid, event["sender"]),

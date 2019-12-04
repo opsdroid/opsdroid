@@ -273,24 +273,13 @@ class Message(Event):
 class EditedMessage(Message):
     """A  `opsdroid.events.Message` which has been edited.
 
-    The arguments and attributes are inherited from `opsdroid.events.Message`,
-    with the addition of the following.
-
-    Args:
-        edited_event (string): The event id of the original event.
-        original_text (string, optional): String text of the original message
-
-    Attributes:
-        edited_event (string): The event id of the original event.
-        original_text (string, optional): String text of the original message
-
+    The ``linked_event`` property should hold either an `opsdroid.events.Event`
+    class or an id for an event to which the edit applies.
     """
 
-    def __init__(self, edited_event, *args, original_text=None, **kwargs):
+    def __init__(self, *args, **kwargs):
         """Create object with minimum properties."""
         super().__init__(*args, **kwargs)
-        self.edited_event = edited_event
-        self.original_text = original_text
 
 
 class Typing(Event):  # pragma: nocover

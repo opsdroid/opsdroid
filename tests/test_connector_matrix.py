@@ -234,7 +234,9 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
 
     async def test_send_edited_message(self):
         message = events.EditedMessage(
-            "$hello", text="New message", target="!test:localhost"
+            text="New message",
+            target="!test:localhost",
+            linked_event=events.Message("hello", event_id="$hello"),
         )
         with amock.patch(api_string.format("send_message_event")) as patched_send:
             patched_send.return_value = asyncio.Future()
@@ -248,7 +250,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
                 "body": f"* {new_content['body']}",
                 "m.relates_to": {
                     "rel_type": "m.replace",
-                    "event_id": message.edited_event,
+                    "event_id": message.linked_event.event_id,
                 },
             }
 
@@ -690,7 +692,7 @@ class TestEventCreatorAsync(asynctest.TestCase):
                 "m.new_content": {"msgtype": "m.text", "body": "hello"},
                 "m.relates_to": {
                     "rel_type": "m.replace",
-                    "event_id": "$MYO9kzuKrOwRdIfwumh2n2KfSBAYLifpK156nd0f_hY",
+                    "event_id": "$15573463541827394vczPd:matrix.org",
                 },
                 "body": " * hello",
             },
@@ -792,15 +794,22 @@ class TestEventCreatorAsync(asynctest.TestCase):
         assert event.raw_event == self.room_description_json
 
     async def test_edited_message(self):
-        event = await self.event_creator.create_event(self.message_edit_json, "hello")
+        with amock.patch(api_string.format("get_event_in_room")) as patched_send:
+            patched_send.return_value = asyncio.Future()
+            patched_send.return_value.set_result(self.message_json)
+            event = await self.event_creator.create_event(
+                self.message_edit_json, "hello"
+            )
+
         assert isinstance(event, events.EditedMessage)
-        assert event.edited_event == "$MYO9kzuKrOwRdIfwumh2n2KfSBAYLifpK156nd0f_hY"
         assert event.text == "hello"
         assert event.user == "Rabbit Hole"
         assert event.user_id == "@neo:matrix.org"
         assert event.target == "hello"
         assert event.event_id == "$E8qj6GjtrxfRIH1apJGzDu-duUF-8D19zFQv0k4q1eM"
         assert event.raw_event == self.message_edit_json
+
+        assert isinstance(event.linked_event, events.Message)
 
     async def test_reaction(self):
         with amock.patch(api_string.format("get_event_in_room")) as patched_send:
