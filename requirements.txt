@@ -25,3 +25,5 @@ ibm-watson==4.0.1
 websockets==8.1
 webexteamssdk==1.2
 voluptuous==0.11.7
+snips-nlu==0.20.1
+

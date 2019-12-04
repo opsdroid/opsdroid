@@ -68,7 +68,7 @@ async def _get_existing_models(config):
         
     return []
 
-async def train_rasanlu(config, skills):
+async def train_snipsnlu(config, skills):
     """Train a Snips NLU model based on the loaded skills."""
     _LOGGER.info("Starting Snips NLU training.")
     intents = await _get_all_intents(skills)
