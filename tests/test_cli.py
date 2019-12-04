@@ -276,7 +276,12 @@ class TestCLI(unittest.TestCase):
 
             result = runner.invoke(
                 config,
-                ["-f", os.path.abspath("tests/configs/full_valid.yaml"), "build", "-d"],
+                [
+                    "-f",
+                    os.path.abspath("tests/configs/full_valid.yaml"),
+                    "build",
+                    "--verbose",
+                ],
             )
             self.assertTrue(click_echo.called)
             self.assertFalse(opsdroid_load.called)

@@ -131,7 +131,7 @@ def list_modules(ctx):
 @config.command()
 @click.pass_context
 @click.option(
-    "-d",
+    "--verbose",
     "verbose",
     is_flag=True,
     help="Turns logging level to debug to see all logging messages.",
@@ -141,7 +141,7 @@ def build(ctx, verbose):
 
     This function loads the configuration and install all necessary
     dependencies defined on a `requirements.txt` file inside the module.
-    If the flag `-d` is passed the logging level will be set as debug and
+    If the flag `--verbose` is passed the logging level will be set as debug and
     all logs will be shown to the user.
 
 

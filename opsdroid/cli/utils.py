@@ -235,7 +235,7 @@ def build_config(ctx, params, value):
 
     This function loads the configuration and install all necessary
     dependencies defined on a `requirements.txt` file inside the module.
-    If the flag `-d` is passed the logging level will be set as debug and
+    If the flag `--verbose` is passed the logging level will be set as debug and
     all logs will be shown to the user.
 
 
@@ -251,6 +251,7 @@ def build_config(ctx, params, value):
         int: the exit code. Always returns 0 in this case.
 
     """
+    click.echo("Opsdroid will build modules from config.")
     path = params.get("path")
     check_dependencies()
 
@@ -261,8 +262,8 @@ def build_config(ctx, params, value):
         configure_logging(config)
 
     with OpsDroid(config=config) as opsdroid:
-        opsdroid.sync_load()
-        opsdroid.exit()
+        opsdroid.loader.load_modules_from_config(config)
 
         click.echo("Opsdroid modules successfully built from config.")
-        ctx.exit(0)
+
+        opsdroid.exit()
