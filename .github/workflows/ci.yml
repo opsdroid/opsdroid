@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@master
       - name: Get latest tag
         id: latest_tag
-        uses: jacobtomlinson/gha-get-docker-hub-tags
+        uses: jacobtomlinson/gha-get-docker-hub-tags@0.1.1
         with:
           org: 'opsdroid'  # Docker Hub user or organisation name
           repo: 'opsdroid'  # Docker Hub repository name
