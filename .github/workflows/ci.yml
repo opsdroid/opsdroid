@@ -33,6 +33,9 @@ jobs:
         with:
           org: 'opsdroid'  # Docker Hub user or organisation name
           repo: 'opsdroid'  # Docker Hub repository name
+      - name: Check outputs
+        run: |
+          echo "Latest image tag - ${{ steps.latest_tag.outputs.tag }}"
       - name: Setup python
         uses: actions/setup-python@v1
         with:
