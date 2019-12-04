@@ -1,8 +1,11 @@
 """Classes to describe different kinds of Slack specific event."""
 
 import json
+import aiohttp
+import ssl
+import certifi
 
-from opsdroid.events import Message
+from opsdroid.events import Message, Event
 
 
 class Blocks(Message):
@@ -42,3 +45,73 @@ class Blocks(Message):
         self.blocks = blocks
         if isinstance(self.blocks, list):
             self.blocks = json.dumps(self.blocks)
+
+
+class InteractiveAction(Event):
+    """Super class to represent Slack interactive actions."""
+
+    def __init__(self, payload, *args, **kwargs):
+        """Create object with minimum properties."""
+        super().__init__(*args, **kwargs)
+        self.payload = payload
+        self.ssl_context = ssl.create_default_context(cafile=certifi.where())
+
+    async def respond(self, response_event):
+        """Respond to this message using the response_url field in the payload."""
+
+        if isinstance(response_event, str):
+            if "response_url" in self.payload:
+                async with aiohttp.ClientSession() as session:
+                    headers = {"Content-Type": "application/json"}
+                    response = await session.post(
+                        self.payload["response_url"],
+                        data=json.dumps(
+                            {
+                                "text": response_event,
+                                "replace_original": False,
+                                "delete_original": False,
+                                "response_type": "in_channel",
+                            }
+                        ),
+                        headers=headers,
+                        ssl=self.ssl_context,
+                    )
+                    response_txt = await response.json()
+            else:
+                response_txt = {"error": "Response URL not available in payload."}
+        else:
+            response_txt = await super().respond(response_event)
+
+        return response_txt
+
+
+class BlockActions(InteractiveAction):
+    """Event class to represent block_actions in Slack."""
+
+    def __init__(self, payload, *args, **kwargs):
+        """Create object with minimum properties."""
+        super().__init__(payload, *args, **kwargs)
+
+
+class MessageAction(InteractiveAction):
+    """Event class to represent message_action in Slack."""
+
+    def __init__(self, payload, *args, **kwargs):
+        """Create object with minimum properties."""
+        super().__init__(payload, *args, **kwargs)
+
+
+class ViewSubmission(InteractiveAction):
+    """Event class to represent view_submission in Slack."""
+
+    def __init__(self, payload, *args, **kwargs):
+        """Create object with minimum properties."""
+        super().__init__(payload, *args, **kwargs)
+
+
+class ViewClosed(InteractiveAction):
+    """Event class to represent view_closed in Slack."""
+
+    def __init__(self, payload, *args, **kwargs):
+        """Create object with minimum properties."""
+        super().__init__(payload, *args, **kwargs)

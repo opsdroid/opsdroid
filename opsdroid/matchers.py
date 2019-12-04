@@ -8,13 +8,14 @@ from opsdroid.helper import add_skill_attributes
 _LOGGER = logging.getLogger(__name__)
 
 
-def match_event(event_type):
+def match_event(event_type, **kwargs):
     """Return event type matcher.
 
     Decorator that calls skill based on passed event_type.
 
     Args:
         event_type (str): opsdroidstarted, message, typing, reaction, file, image
+        **kwargs (dict): arbitrary kwargs to be added to the event matcher
     Returns:
         Decorated function
 
@@ -23,7 +24,7 @@ def match_event(event_type):
     def matcher(func):
         """Add decorated function to list for event matching."""
         func = add_skill_attributes(func)
-        func.matchers.append({"event_type": {"type": event_type}})
+        func.matchers.append({"event_type": dict(type=event_type, **kwargs)})
         return func
 
     return matcher

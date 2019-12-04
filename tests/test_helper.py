@@ -14,6 +14,7 @@ from opsdroid.helper import (
     JSONEncoder,
     JSONDecoder,
     convert_dictionary,
+    get_config_option,
 )
 
 
@@ -65,6 +66,39 @@ class TestHelper(unittest.TestCase):
         updated_modules = convert_dictionary(modules)
         self.assertEqual(updated_modules["telegram"].get("token"), "test")
         self.assertIn("token", updated_modules["mattermost"])
+
+    def test_get_config_option(self):
+        module_config = {"repo": "test"}
+
+        result = get_config_option(
+            ["repo", "path", "gist"],
+            module_config,
+            True,
+            f"opsdroid.connectors.websocket",
+        )
+
+        self.assertEqual(result, (True, "repo", "test"))
+
+    def test_get_config_no_option(self):
+        module_config = {
+            "bot-name": "mybot",
+            "max-connections": 10,
+            "connection-timeout": 10,
+        }
+
+        result = get_config_option(
+            ["repo", "path", "gist"], module_config, True, "module"
+        )
+
+        self.assertEqual(result, ("module", "module", "module"))
+
+    def test_get_config_option_exception(self):
+        module_config = None
+
+        result = get_config_option(
+            ["repo", "path", "gist"], module_config, True, "module"
+        )
+        self.assertEqual(result, ("module", "module", "module"))
 
 
 class TestJSONEncoder(unittest.TestCase):

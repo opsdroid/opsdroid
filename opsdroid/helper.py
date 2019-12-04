@@ -182,6 +182,30 @@ def add_skill_attributes(func):
     return func
 
 
+def get_config_option(options, config, found, not_found):
+    """Get config details and return useful information to list active modules.
+
+    When we list modules we have to do a lot of search and get, this function serves as an
+    helper to get all the needed information to show in a list format. Since we are using
+    different formats and need to get 3 different details from the config we will either
+    return them or use the placeholder from `not_found`.
+
+    Args:
+        options(list): list of all possible options to search in config.
+        config(dict): This will be a section of the configuration (connectors, parsers, skills, etc).
+        found(str, bool): Expected text if option exists in config.
+        not_found(str): expected text if option doesn't exist in config.
+
+    """
+    try:
+        for option in options:
+            if config.get(option):
+                return found, option, config.get(option)
+        return not_found, not_found, not_found
+    except (TypeError, AttributeError):
+        return not_found, not_found, not_found
+
+
 class JSONEncoder(json.JSONEncoder):
     """A extended JSONEncoder class.
 
