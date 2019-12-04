@@ -108,6 +108,11 @@ class MatrixEventCreator(events.EventCreator):
 
     async def create_reaction(self, event, roomid):
         """Send a Reaction event."""
+        parent_event_id = event["content"]["m.relates_to"]["event_id"]
+        parent_event_json = await self.connector.connection.get_event_in_room(
+            roomid, parent_event_id
+        )
+        parent_event = await self.create_event(parent_event_json, roomid)
         return events.Reaction(
             emoji=event["content"]["m.relates_to"]["key"],
             user=await self.connector.get_nick(roomid, event["sender"]),
@@ -115,7 +120,6 @@ class MatrixEventCreator(events.EventCreator):
             target=roomid,
             connector=self.connector,
             event_id=event["event_id"],
-            # TODO: Lookup this event and return the proper event class for it.
-            linked_event=event["content"]["m.relates_to"]["event_id"],
+            linked_event=parent_event,
             raw_event=event,
         )

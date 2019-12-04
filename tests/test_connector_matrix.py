@@ -583,6 +583,12 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
 
 
 class TestEventCreatorAsync(asynctest.TestCase):
+    def setUp(self):
+        """Basic setting up for tests"""
+        self.connector = setup_connector()
+        self.api = AsyncHTTPAPI("https://notaurl.com", None)
+        self.connector.connection = self.api
+
     @property
     def message_json(self):
         return {
@@ -714,17 +720,16 @@ class TestEventCreatorAsync(asynctest.TestCase):
 
     @property
     def event_creator(self):
-        connector = amock.MagicMock()
         patched_get_nick = amock.MagicMock()
         patched_get_nick.return_value = asyncio.Future()
         patched_get_nick.return_value.set_result("Rabbit Hole")
-        connector.get_nick = patched_get_nick
+        self.connector.get_nick = patched_get_nick
 
         patched_get_download_url = mock.Mock()
         patched_get_download_url.return_value = "mxc://aurl"
-        connector.connection.get_download_url = patched_get_download_url
+        self.connector.connection.get_download_url = patched_get_download_url
 
-        return MatrixEventCreator(connector)
+        return MatrixEventCreator(self.connector)
 
     async def test_create_message(self):
         event = await self.event_creator.create_event(self.message_json, "hello")
@@ -798,7 +803,11 @@ class TestEventCreatorAsync(asynctest.TestCase):
         assert event.raw_event == self.message_edit_json
 
     async def test_reaction(self):
-        event = await self.event_creator.create_event(self.reaction_json, "hello")
+        with amock.patch(api_string.format("get_event_in_room")) as patched_send:
+            patched_send.return_value = asyncio.Future()
+            patched_send.return_value.set_result(self.message_json)
+            event = await self.event_creator.create_event(self.reaction_json, "hello")
+
         assert isinstance(event, events.Reaction)
         assert event.emoji == "👍"
         assert event.user == "Rabbit Hole"
@@ -806,3 +815,5 @@ class TestEventCreatorAsync(asynctest.TestCase):
         assert event.target == "hello"
         assert event.event_id == "$4KOPKFjdJ5urFGJdK4lnS-Fd3qcNWbPdR_rzSCZK_g0"
         assert event.raw_event == self.reaction_json
+
+        assert isinstance(event.linked_event, events.Message)
