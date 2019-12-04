@@ -6,6 +6,20 @@ from opsdroid import events
 __all__ = ["MatrixEventCreator"]
 
 
+def trim_reply_fallback_text(text):
+    # Copyright (C) 2018 Tulir Asokan
+    # Borrowed from https://github.com/tulir/mautrix-telegram
+    # Having been given explicit permission to include it "under the terms of any OSI approved licence"
+    # https://matrix.to/#/!FPUfgzXYWTKgIrwKxW:matrix.org/$15365871364925maRqg:maunium.net
+
+    if not text.startswith("> ") or "\n" not in text:
+        return text
+    lines = text.split("\n")
+    while len(lines) > 0 and lines[0].startswith("> "):
+        lines.pop(0)
+    return "\n".join(lines).strip()
+
+
 class MatrixEventCreator(events.EventCreator):
     """Create opsdroid events from matrix ones."""
 
@@ -63,8 +77,12 @@ class MatrixEventCreator(events.EventCreator):
                 )
                 return events.EditedMessage(**kwargs)
             # Detect a reply
-            # if relates_to.get("m.in_reply_to"):
-            #     pass
+            if relates_to.get("m.in_reply_to"):
+                kwargs["text"] = trim_reply_fallback_text(kwargs["text"])
+                kwargs["linked_event"] = await self.create_event_from_eventid(
+                    relates_to["m.in_reply_to"]["event_id"], roomid
+                )
+                return events.Reply(**kwargs)
 
         return events.Message(**kwargs)
 

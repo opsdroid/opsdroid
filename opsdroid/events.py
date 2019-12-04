@@ -282,6 +282,14 @@ class EditedMessage(Message):
         super().__init__(*args, **kwargs)
 
 
+class Reply(Message):
+    """Event class representing a message sent in reply to another Message.
+
+    The ``linked_event`` property should hold either an `opsdroid.events.Event`
+    class or an id for an event to which this message is replying.
+    """
+
+
 class Typing(Event):  # pragma: nocover
     """An event to set the user typing.
 

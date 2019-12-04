@@ -282,22 +282,22 @@ class ConnectorMatrix(Connector):
     @register_event(events.EditedMessage)
     @ensure_room_id_and_send
     async def _send_edit(self, message):
-        new_content = self._get_formatted_message_body(
-            message.text, msgtype=self.message_type(message.target)
-        )
-
-        if isinstance(message.linked_event, str):
-            edited_event_id = message.linked_event
-        elif isinstance(message.linked_event, events.EditedMessage):
+        if isinstance(message.linked_event, events.EditedMessage):
             # If we are attempting to edit an edit, move up the tree and then
             # try again.
             message.linked_event = message.linked_event.linked_event
             return self._send_edit(message)
+        elif isinstance(message.linked_event, str):
+            edited_event_id = message.linked_event
         else:
             edited_event_id = message.linked_event.event_id
 
+        new_content = self._get_formatted_message_body(
+            message.text, msgtype=self.message_type(message.target)
+        )
+
         content = {
-            "msgtype": "m.text",
+            "msgtype": self.message_type(message.target),
             "m.new_content": new_content,
             "body": f"* {new_content['body']}",
             "m.relates_to": {"rel_type": "m.replace", "event_id": edited_event_id},
@@ -306,6 +306,27 @@ class ConnectorMatrix(Connector):
         return (
             await self.connection.send_message_event(
                 message.target, "m.room.message", content
+            ),
+        )
+
+    @register_event(events.Reply)
+    @ensure_room_id_and_send
+    async def _send_reply(self, reply):
+        if isinstance(reply.linked_event, str):
+            reply_event_id = reply.linked_event
+        else:
+            reply_event_id = reply.linked_event.event_id
+
+        # TODO: Insert reply fallback here
+        content = self._get_formatted_message_body(
+            reply.text, msgtype=self.message_type(reply.target)
+        )
+
+        content["m.relates_to"] = {"m.in_reply_to": {"event_id": reply_event_id}}
+
+        return (
+            await self.connection.send_message_event(
+                reply.target, "m.room.message", content
             ),
         )
 
