@@ -13,12 +13,6 @@ jobs:
     name: Unit tests - ${{ matrix.os }} ${{ matrix.python-version }}
     steps:
       - uses: actions/checkout@master
-      - name: Get latest tag
-        id: latest_tag
-        uses: jacobtomlinson/gha-get-docker-hub-tags@0.1.1
-        with:
-          org: 'opsdroid'  # Docker Hub user or organisation name
-          repo: 'opsdroid'  # Docker Hub repository name
       - name: Setup python
         uses: actions/setup-python@v1
         with:
@@ -33,6 +27,12 @@ jobs:
     name: Linting
     steps:
       - uses: actions/checkout@master
+      - name: Get latest tag
+        id: latest_tag
+        uses: jacobtomlinson/gha-get-docker-hub-tags@0.1.1
+        with:
+          org: 'opsdroid'  # Docker Hub user or organisation name
+          repo: 'opsdroid'  # Docker Hub repository name
       - name: Setup python
         uses: actions/setup-python@v1
         with:
