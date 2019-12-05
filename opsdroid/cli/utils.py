@@ -1,6 +1,7 @@
 """Utilities for the opsdroid CLI commands."""
 
 import click
+import contextlib
 import gettext
 import os
 import logging
@@ -253,17 +254,19 @@ def build_config(ctx, params, value):
     """
     click.echo("Opsdroid will build modules from config.")
     path = params.get("path")
-    check_dependencies()
 
-    config = load_config_file([path] if path else DEFAULT_CONFIG_LOCATIONS)
+    with contextlib.suppress(Exception):
+        check_dependencies()
 
-    if params["verbose"]:
-        config["logging"] = {"level": "debug"}
-        configure_logging(config)
+        config = load_config_file([path] if path else DEFAULT_CONFIG_LOCATIONS)
 
-    with OpsDroid(config=config) as opsdroid:
-        opsdroid.loader.load_modules_from_config(config)
+        if params["verbose"]:
+            config["logging"] = {"level": "debug"}
+            configure_logging(config)
 
-        click.echo("Opsdroid modules successfully built from config.")
+        with OpsDroid(config=config) as opsdroid:
 
-        opsdroid.exit()
+            opsdroid.loader.load_modules_from_config(config)
+
+            click.echo(click.style("SUCCESS:", bg="green", bold=True), nl=False)
+            click.echo(" Opsdroid modules successfully built from config.")

@@ -298,3 +298,16 @@ class TestCLI(unittest.TestCase):
             self.assertTrue(click_echo.called)
             self.assertFalse(opsdroid_load.called)
             self.assertEqual(result.exit_code, 0)
+
+    def test_config_build_exception(self):
+        with mock.patch.object(click, "echo") as click_echo, mock.patch(
+            "opsdroid.configuration.load_config_file"
+        ), mock.patch("opsdroid.loader") as mock_load:
+
+            mock_load.load_modules_from_config.side_effect = Exception()
+            runner = CliRunner()
+            from opsdroid.cli.config import build
+
+            result = runner.invoke(build, [])
+            self.assertTrue(click_echo.called)
+            self.assertEqual(result.exit_code, 0)
