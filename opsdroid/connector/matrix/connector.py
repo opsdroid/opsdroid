@@ -173,7 +173,11 @@ class ConnectorMatrix(Connector):
 
             await self.opsdroid.parse(
                 events.UserInvite(
-                    target=roomid, user=sender, connector=self, raw_event=invite_event
+                    target=roomid,
+                    user_id=invite_event["sender"],
+                    user=sender,
+                    connector=self,
+                    raw_event=invite_event,
                 )
             )
 

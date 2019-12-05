@@ -10,6 +10,7 @@ import asynctest.mock as amock
 from matrix_api_async import AsyncHTTPAPI
 from matrix_client.errors import MatrixRequestError
 
+import opsdroid.connector.matrix.events as matrix_events
 from opsdroid.core import OpsDroid
 from opsdroid import events
 from opsdroid.connector.matrix import ConnectorMatrix
@@ -79,6 +80,60 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
                 "leave": {},
             },
             "to_device": {"events": []},
+        }
+
+    @property
+    def sync_invite(self):
+        return {
+            "account_data": {"events": []},
+            "to_device": {"events": []},
+            "device_one_time_keys_count": {},
+            "rooms": {
+                "invite": {
+                    "!AWtmOvkBPTCSPbdaHn:localhost": {
+                        "invite_state": {
+                            "events": [
+                                {
+                                    "state_key": "@neo:matrix.org",
+                                    "content": {
+                                        "avatar_url": None,
+                                        "membership": "join",
+                                        "displayname": "stuart",
+                                    },
+                                    "sender": "@neo:matrix.org",
+                                    "type": "m.room.member",
+                                },
+                                {
+                                    "state_key": "",
+                                    "content": {"join_rule": "invite"},
+                                    "sender": "@neo:matrix.org",
+                                    "type": "m.room.join_rules",
+                                },
+                                {
+                                    "event_id": "$tibhPrUV0GJbb3-7Iad_LuYzTnB2vcdf4wBbHNXkQMc",
+                                    "sender": "@neo:matrix.org",
+                                    "content": {
+                                        "avatar_url": None,
+                                        "membership": "invite",
+                                        "is_direct": True,
+                                        "displayname": "Opsdroid",
+                                    },
+                                    "unsigned": {"age": 150},
+                                    "type": "m.room.member",
+                                    "state_key": "@opsdroid:opsdroid.dev",
+                                    "origin_server_ts": 1575509408883,
+                                },
+                            ]
+                        }
+                    }
+                },
+                "join": {},
+                "leave": {},
+            },
+            "groups": {"invite": {}, "join": {}, "leave": {}},
+            "next_batch": "s110_1482_2_21_3_1_1_39_1",
+            "device_lists": {"left": [], "changed": []},
+            "presence": {"events": []},
         }
 
     def setUp(self):
@@ -180,6 +235,23 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             ]["events"][0]
             assert returned_message.raw_event == raw_message
 
+    async def test_sync_parse_invites(self):
+        with amock.patch(api_string.format("get_display_name")) as patched_name:
+            self.connector.opsdroid = amock.MagicMock()
+            self.connector.opsdroid.parse.return_value = asyncio.Future()
+            self.connector.opsdroid.parse.return_value.set_result("")
+            patched_name.return_value = asyncio.Future()
+            patched_name.return_value.set_result("SomeUsersName")
+
+            await self.connector._parse_sync_response(self.sync_invite)
+
+            (invite,), _ = self.connector.opsdroid.parse.call_args
+
+            assert invite.target == "!AWtmOvkBPTCSPbdaHn:localhost"
+            assert invite.user == "SomeUsersName"
+            assert invite.user_id == "@neo:matrix.org"
+            assert invite.connector is self.connector
+
     async def test_get_nick(self):
         self.connector.room_specific_nicks = True
 
@@ -237,11 +309,13 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             text="New message",
             target="!test:localhost",
             linked_event=events.Message("hello", event_id="$hello"),
+            connector=self.connector,
         )
-        with amock.patch(api_string.format("send_message_event")) as patched_send:
+        with amock.patch(
+            api_string.format("send_message_event")
+        ) as patched_send, OpsDroid() as _:
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result({})
-            await self.connector.send(message)
 
             new_content = self.connector._get_formatted_message_body(message.text)
             content = {
@@ -254,9 +328,23 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
                 },
             }
 
+            await self.connector.send(message)
+
             patched_send.assert_called_once_with(
                 message.target, "m.room.message", content
             )
+
+            # Test linked event as event id
+            message.linked_event = "$hello"
+
+            await self.connector.send(message)
+
+            patched_send.assert_called_with(message.target, "m.room.message", content)
+
+            # Test responding to an edit
+            await message.respond(events.EditedMessage("hello"))
+
+            patched_send.assert_called_with(message.target, "m.room.message", content)
 
     async def test_respond_retry(self):
         message = await self._get_message()
@@ -557,6 +645,52 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
                     "!test:localhost", "m.reaction", content
                 )
 
+    async def test_send_reply(self):
+        message = events.Message(
+            "hello",
+            event_id="$11111",
+            connector=self.connector,
+            target="!test:localhost",
+        )
+        reply = events.Reply("reply")
+        with OpsDroid() as _:
+            with amock.patch(api_string.format("send_message_event")) as patched_send:
+                patched_send.return_value = asyncio.Future()
+                patched_send.return_value.set_result(None)
+
+                await message.respond(reply)
+
+                content = self.connector._get_formatted_message_body(
+                    reply.text, msgtype="m.text"
+                )
+
+                content["m.relates_to"] = {
+                    "m.in_reply_to": {"event_id": message.event_id}
+                }
+
+                assert patched_send.called_once_with(
+                    "!test:localhost", "m.room.message", content
+                )
+
+    async def test_send_reply_id(self):
+        reply = events.Reply("reply", linked_event="$hello", target="!hello:localhost")
+        with OpsDroid() as _:
+            with amock.patch(api_string.format("send_message_event")) as patched_send:
+                patched_send.return_value = asyncio.Future()
+                patched_send.return_value.set_result(None)
+
+                await self.connector.send(reply)
+
+                content = self.connector._get_formatted_message_body(
+                    reply.text, msgtype="m.text"
+                )
+
+                content["m.relates_to"] = {"m.in_reply_to": {"event_id": "$hello"}}
+
+                assert patched_send.called_once_with(
+                    "!test:localhost", "m.room.message", content
+                )
+
     async def test_alias_already_exists(self):
 
         with amock.patch(api_string.format("set_room_alias")) as patched_alias:
@@ -582,6 +716,28 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             await self.connector._set_user_role(
                 events.UserRole("wibble", target="!test:localhost")
             )
+
+    def test_m_notice(self):
+        self.connector.rooms["test"] = {
+            "alias": "#test:localhost",
+            "send_m_notice": True,
+        }
+
+        assert self.connector.message_type("main") == "m.text"
+        assert self.connector.message_type("test") == "m.notice"
+        self.connector.send_m_notice = True
+        assert self.connector.message_type("main") == "m.notice"
+
+        # Reset the state
+        self.connector.send_m_notice = False
+        del self.connector.rooms["test"]
+
+    def test_construct(self):
+        jr = matrix_events.MatrixJoinRules("hello")
+        assert jr.content["join_rule"] == "hello"
+
+        hv = matrix_events.MatrixHistoryVisibility("hello")
+        assert hv.content["history_visibility"] == "hello"
 
 
 class TestEventCreatorAsync(asynctest.TestCase):
@@ -721,6 +877,25 @@ class TestEventCreatorAsync(asynctest.TestCase):
         }
 
     @property
+    def reply_json(self):
+        return {
+            "type": "m.room.message",
+            "sender": "@neo:matrix.org",
+            "content": {
+                "msgtype": "m.text",
+                "body": "> <@morpheus:matrix.org> I just did it manually.\n\nhello",
+                "format": "org.matrix.custom.html",
+                "formatted_body": '<mx-reply><blockquote><a href="https://matrix.to/#/!sdhlkHsdskdkHG:matrix.org/$15573463541827394vczPd:matrix.org">In reply to</a> <a href="https://matrix.to/#/@morpheus:matrix.org">@morpheus:matrix.org</a><br>I just did it manually.</blockquote></mx-reply>hello',
+                "m.relates_to": {
+                    "m.in_reply_to": {"event_id": "$15573463541827394vczPd:matrix.org"}
+                },
+            },
+            "event_id": "$15755082701541RchcK:matrix.org",
+            "origin_server_ts": 1575508270019,
+            "unsigned": {"age": 501, "transaction_id": "m1575508269677.3"},
+        }
+
+    @property
     def event_creator(self):
         patched_get_nick = amock.MagicMock()
         patched_get_nick.return_value = asyncio.Future()
@@ -824,5 +999,21 @@ class TestEventCreatorAsync(asynctest.TestCase):
         assert event.target == "hello"
         assert event.event_id == "$4KOPKFjdJ5urFGJdK4lnS-Fd3qcNWbPdR_rzSCZK_g0"
         assert event.raw_event == self.reaction_json
+
+        assert isinstance(event.linked_event, events.Message)
+
+    async def test_reply(self):
+        with amock.patch(api_string.format("get_event_in_room")) as patched_send:
+            patched_send.return_value = asyncio.Future()
+            patched_send.return_value.set_result(self.message_json)
+            event = await self.event_creator.create_event(self.reply_json, "hello")
+
+        assert isinstance(event, events.Reply)
+        assert event.text == "hello"
+        assert event.user == "Rabbit Hole"
+        assert event.user_id == "@neo:matrix.org"
+        assert event.target == "hello"
+        assert event.event_id == "$15755082701541RchcK:matrix.org"
+        assert event.raw_event == self.reply_json
 
         assert isinstance(event.linked_event, events.Message)

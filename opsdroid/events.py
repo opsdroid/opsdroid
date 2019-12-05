@@ -422,7 +422,9 @@ class RoomImage(Event):
     def __init__(self, room_image, *args, **kwargs):  # noqa: D107
         super().__init__(*args, **kwargs)
         if not isinstance(room_image, Image):
-            raise TypeError("Room image must be an opsdroid.events.Image instance")
+            raise TypeError(
+                "Room image must be an opsdroid.events.Image instance"
+            )  # pragma: no cover
         self.room_image = room_image
 
 

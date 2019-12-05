@@ -3,6 +3,15 @@
 from opsdroid.events import Event
 
 
+__all__ = [
+    "MatrixRoomAvatar",
+    "MatrixHistoryVisibility",
+    "MatrixJoinRules",
+    "MatrixPowerLevels",
+    "MatrixStateEvent",
+]
+
+
 class MatrixStateEvent(Event):
     """A Generic matrix state event."""
 

@@ -13,7 +13,7 @@ def trim_reply_fallback_text(text):
     # https://matrix.to/#/!FPUfgzXYWTKgIrwKxW:matrix.org/$15365871364925maRqg:maunium.net
 
     if not text.startswith("> ") or "\n" not in text:
-        return text
+        return text  # pragma: no cover
     lines = text.split("\n")
     while len(lines) > 0 and lines[0].startswith("> "):
         lines.pop(0)
