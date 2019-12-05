@@ -270,3 +270,31 @@ def build_config(ctx, params, value):
 
             click.echo(click.style("SUCCESS:", bg="green", bold=True), nl=False)
             click.echo(" Opsdroid modules successfully built from config.")
+
+
+def clear_logs(ctx, params, value):
+    """Clear all logs.
+
+    Asks for the user confirmation if the logs should be cleared or not. If user chooses
+    yes then all logs will be clear otherwise the action will be aborted.
+
+
+    Args:
+        ctx (:obj:`click.Context`): The current click cli context.
+        params (dict): a dictionary of all parameters pass to the click
+            context when invoking this function as a callback.
+        value (string): the value of this parameter after invocation.
+            It is either "config" or "log" depending on the program
+            calling this function.
+
+    """
+    click.echo(click.style("WARNING:", bg="yellow", bold=True), nl=False)
+    click.confirm(
+        " Are you sure you wish to clear all your logs? This action cannot be undone.",
+        abort=True,
+    )
+
+    open(DEFAULT_LOG_FILENAME, "w").close()
+
+    click.echo(click.style("SUCCESS:", bg="green", bold=True), nl=False)
+    click.echo(" All logs cleared.")

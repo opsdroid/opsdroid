@@ -200,7 +200,7 @@ class TestCLI(unittest.TestCase):
             runner = CliRunner()
             from opsdroid.cli.logs import logs
 
-            result = runner.invoke(logs, [])
+            result = runner.invoke(logs, ["view"])
             self.assertTrue(click_echo.called)
             self.assertTrue(editor.called)
             self.assertEqual(result.exit_code, 0)
@@ -310,4 +310,16 @@ class TestCLI(unittest.TestCase):
 
             result = runner.invoke(build, [])
             self.assertTrue(click_echo.called)
+            self.assertEqual(result.exit_code, 0)
+
+    def test_clear_logs(self):
+        with mock.patch.object(click, "echo") as click_echo, mock.patch.object(
+            click, "confirm"
+        ) as click_confirms, mock.patch("builtins.open"):
+            runner = CliRunner()
+            from opsdroid.cli.logs import logs
+
+            result = runner.invoke(logs, ["clear"])
+            self.assertTrue(click_echo.called)
+            self.assertTrue(click_confirms.called)
             self.assertEqual(result.exit_code, 0)
