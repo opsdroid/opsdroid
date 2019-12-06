@@ -1,18 +1,17 @@
 """Classes to describe different kinds of possible event."""
-import io
 import asyncio
-from abc import ABCMeta
+import io
 import logging
-from random import randrange
-from datetime import datetime
+from abc import ABCMeta
 from collections import defaultdict
+from datetime import datetime
+from random import randrange
 
 import aiohttp
+
 import puremagic
 from get_image_size import get_image_size_from_bytesio
-
 from opsdroid.helper import get_opsdroid
-
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -271,6 +270,26 @@ class Message(Event):
         return await super().respond(response)
 
 
+class EditedMessage(Message):
+    """A  `opsdroid.events.Message` which has been edited.
+
+    The ``linked_event`` property should hold either an `opsdroid.events.Event`
+    class or an id for an event to which the edit applies.
+    """
+
+    def __init__(self, *args, **kwargs):
+        """Create object with minimum properties."""
+        super().__init__(*args, **kwargs)
+
+
+class Reply(Message):
+    """Event class representing a message sent in reply to another Message.
+
+    The ``linked_event`` property should hold either an `opsdroid.events.Event`
+    class or an id for an event to which this message is replying.
+    """
+
+
 class Typing(Event):  # pragma: nocover
     """An event to set the user typing.
 
@@ -292,12 +311,8 @@ class Reaction(Event):
 
     Args:
         emoji (string): The emoji to react with.
-        room (string, optional): String name of the room or chat channel in
-                                 which message was sent
-        connector (Connector, optional): Connector object used to interact with
-                                         given chat service
-        raw_event (dict, optional): Raw message as provided by chat service.
-                                    None by default
+        target (string, optional): The room in which the reaction should be sent.
+        linked_event (opsdroid.events.Event): The event to react to.
 
     """
 
@@ -374,3 +389,72 @@ class Image(File):
         """Return the image dimensions `(w,h)`."""
         fbytes = await self.get_file_bytes()
         return get_image_size_from_bytesio(io.BytesIO(fbytes), len(fbytes))
+
+
+class NewRoom(Event):
+    """Event class to represent the creation of a new room."""
+
+    def __init__(self, name=None, params=None, *args, **kwargs):  # noqa: D107
+        super().__init__(*args, **kwargs)
+        self.name = name
+        self.room_params = params or {}
+
+
+class RoomName(Event):
+    """Event class to represent the naming of a room."""
+
+    def __init__(self, name, *args, **kwargs):  # noqa: D107
+        super().__init__(*args, **kwargs)
+        self.name = name
+
+
+class RoomAddress(Event):
+    """Event class to represent a room's address being changed."""
+
+    def __init__(self, address, *args, **kwargs):  # noqa: D107
+        super().__init__(*args, **kwargs)
+        self.address = address
+
+
+class RoomImage(Event):
+    """Event class to represent a room's display image being changed."""
+
+    def __init__(self, room_image, *args, **kwargs):  # noqa: D107
+        super().__init__(*args, **kwargs)
+        if not isinstance(room_image, Image):
+            raise TypeError(
+                "Room image must be an opsdroid.events.Image instance"
+            )  # pragma: no cover
+        self.room_image = room_image
+
+
+class RoomDescription(Event):
+    """Event class to represent a room's description being changed."""
+
+    def __init__(self, description, *args, **kwargs):  # noqa: D107
+        super().__init__(*args, **kwargs)
+        self.description = description
+
+
+class JoinRoom(Event):
+    """Event class to represent a user joining a room."""
+
+
+class UserInvite(Event):
+    """Event class to represent a user being invited to a room."""
+
+
+class UserRole(Event):
+    """Event class to represent a user's role or powers in a room being changed."""
+
+    def __init__(self, role, *args, **kwargs):  # noqa: D107
+        super().__init__(*args, **kwargs)
+        self.role = role
+
+
+class JoinGroup(Event):
+    """
+    Event to represent joining a group (not a room).
+
+    The group could be a slack team or a matrix community.
+    """

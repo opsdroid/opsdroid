@@ -27,7 +27,7 @@ from opsdroid.database import Database
 
 class MyDatabase(Database):
 
-  async def connect(self, opsdroid):
+  async def connect(self):
     # Create connection object for database
     self.connection = await databaselibrary.connect()
 
