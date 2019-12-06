@@ -3,18 +3,12 @@
 
 import click
 
-from opsdroid.cli.utils import edit_files, clear_logs
+from opsdroid.cli.utils import edit_files
 
 
-@click.group()
+@click.command()
 @click.pass_context
 def logs(ctx):
-    """Subcommands related to opsdroid logs."""
-
-
-@logs.command()
-@click.pass_context
-def view(ctx):
     """Open the log file with your favourite editor.
 
     By default this command will open the configuration file with
@@ -33,19 +27,3 @@ def view(ctx):
 
     """
     edit_files(ctx, None, "log")
-
-
-@logs.command()
-@click.pass_context
-def clear(ctx):
-    """Clear all logs.
-
-    Asks for the user confirmation if the logs should be cleared or not. If user chooses
-    yes then all logs will be clear otherwise the action will be aborted.
-
-
-    Args:
-        ctx (:obj:`click.Context`): The current click cli context.
-
-    """
-    clear_logs(ctx, None, "log")

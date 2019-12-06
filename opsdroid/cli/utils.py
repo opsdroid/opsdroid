@@ -10,14 +10,16 @@ import sys
 import time
 import warnings
 
+from appdirs import user_log_dir
 from opsdroid.core import OpsDroid
 from opsdroid.configuration import load_config_file
 from opsdroid.const import (
     DEFAULT_LOG_FILENAME,
-    LOCALE_DIR,
     DEFAULT_LANGUAGE,
     DEFAULT_CONFIG_PATH,
     DEFAULT_CONFIG_LOCATIONS,
+    LOCALE_DIR,
+    NAME,
 )
 from opsdroid.helper import get_config_option
 from opsdroid.loader import Loader
@@ -59,6 +61,11 @@ def edit_files(ctx, param, value):
             )
     elif value == "log":
         file = DEFAULT_LOG_FILENAME
+        logs = load_config_file(DEFAULT_CONFIG_LOCATIONS).get("logging")
+
+        if logs and logs.get("path"):
+            file = os.path.join(user_log_dir(NAME, appauthor=False), logs.get("path"))
+
         if ctx.command.name == "cli":
             warn_deprecated_cli_option(
                 "The flag -l/--view-log has been deprecated. "
@@ -270,31 +277,3 @@ def build_config(ctx, params, value):
 
             click.echo(click.style("SUCCESS:", bg="green", bold=True), nl=False)
             click.echo(" Opsdroid modules successfully built from config.")
-
-
-def clear_logs(ctx, params, value):
-    """Clear all logs.
-
-    Asks for the user confirmation if the logs should be cleared or not. If user chooses
-    yes then all logs will be clear otherwise the action will be aborted.
-
-
-    Args:
-        ctx (:obj:`click.Context`): The current click cli context.
-        params (dict): a dictionary of all parameters pass to the click
-            context when invoking this function as a callback.
-        value (string): the value of this parameter after invocation.
-            It is either "config" or "log" depending on the program
-            calling this function.
-
-    """
-    click.echo(click.style("WARNING:", bg="yellow", bold=True), nl=False)
-    click.confirm(
-        " Are you sure you wish to clear all your logs? This action cannot be undone.",
-        abort=True,
-    )
-
-    open(DEFAULT_LOG_FILENAME, "w").close()
-
-    click.echo(click.style("SUCCESS:", bg="green", bold=True), nl=False)
-    click.echo(" All logs cleared.")
