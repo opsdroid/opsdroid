@@ -26,4 +26,4 @@ def logs(ctx):
         int: the exit code. Always returns 0 in this case.
 
     """
-    edit_files(ctx, None, "log")
+    edit_files(ctx, None)
