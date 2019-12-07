@@ -32,7 +32,7 @@ path_option = click.option(
 )
 
 
-def edit_files(ctx, path):
+def edit_config(ctx, path):
     """Open config/log file with favourite editor.
 
     Args:

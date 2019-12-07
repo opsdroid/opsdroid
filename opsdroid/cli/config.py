@@ -4,7 +4,7 @@ import click
 
 from opsdroid.cli.utils import (
     build_config,
-    edit_files,
+    edit_config,
     list_all_modules,
     path_option,
     validate_config,
@@ -59,7 +59,7 @@ def edit(ctx):
         int: the exit code. Always returns 0 in this case.
 
     """
-    edit_files(ctx, ctx.obj)
+    edit_config(ctx, ctx.obj)
 
 
 @config.command()

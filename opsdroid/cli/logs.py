@@ -3,8 +3,6 @@
 
 import click
 
-from opsdroid.cli.utils import edit_files
-
 
 @click.command()
 @click.pass_context
