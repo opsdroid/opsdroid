@@ -167,35 +167,7 @@ class TestCLI(unittest.TestCase):
             self.assertTrue(click_echo.called)
             self.assertEqual(result.exit_code, 0)
 
-    def test_print_files_log_head(self):
-        with mock.patch.object(click, "echo") as click_echo, mock.patch(
-            "tailer.head"
-        ) as tailer_head, mock.patch("builtins.open"):
-            runner = CliRunner()
-            from opsdroid.cli.logs import logs
-
-            tailer_head.return_value = ["line 1", "line 2"]
-
-            result = runner.invoke(logs, ["head"])
-            self.assertTrue(tailer_head.called)
-            self.assertTrue(click_echo.called)
-            self.assertEqual(result.exit_code, 0)
-
-    def test_print_files_log_tail(self):
-        with mock.patch.object(click, "echo") as click_echo, mock.patch(
-            "tailer.tail"
-        ) as tailer_tail, mock.patch("builtins.open"):
-            runner = CliRunner()
-            from opsdroid.cli.logs import logs
-
-            tailer_tail.return_value = ["line 1", "line 2"]
-
-            result = runner.invoke(logs, ["tail"])
-            self.assertTrue(tailer_tail.called)
-            self.assertTrue(click_echo.called)
-            self.assertEqual(result.exit_code, 0)
-
-    def test_print_files_log_tail_follow(self):
+    def test_print_files_log_follow(self):
         with mock.patch.object(click, "echo") as click_echo, mock.patch(
             "tailer.follow"
         ) as tailer_follow, mock.patch("builtins.open"):
@@ -204,7 +176,7 @@ class TestCLI(unittest.TestCase):
 
             tailer_follow.return_value = ["line 1", "line 2"]
 
-            runner.invoke(logs, ["tail", "-f"])
+            runner.invoke(logs, ["-f"])
             self.assertTrue(tailer_follow.called)
             self.assertTrue(click_echo.called)
 
