@@ -23,6 +23,35 @@ class MySkill(Skill):
         await message.respond('Hey')
 ```
 
+Here is a complete example of grabbing a list of users for authorization purposes. Note, you would need to reload should the group members change.
+
+```python
+import boto3
+from opsdroid.skill import Skill
+from opsdroid.matchers import match_regex
+from opsdroid.constraints import constrain_users
+
+def _get_admins():
+    admins = []
+    try:
+        groupname = "opsdroid_admins"
+        client = boto3.client("iam")
+        group = client.get_group(GroupName=groupname)
+        admins = [user.get("UserName") for user in group.get("Users")]
+    except Exception as e:
+        logging.exception("unable to get admin group members!")
+    return admins
+
+admins = _get_admins()
+
+class AdminSkill(Skill):
+    @match_regex(r'stop all the things!')
+    @constrain_users(admins)
+    async def stop_everything(self, message):
+        # do admin stuff
+        await message.respond('done!')
+```
+
 ## Constrain users
 
 The constraint `constrain_users(users)` allows you to restrict a skill to a specific set of users in your chat client.
@@ -32,13 +61,27 @@ The constraint `constrain_users(users)` allows you to restrict a skill to a spec
 The following skill will respond with 'Hey' if the users `alice` or `bob` say 'hi' but not if `charlie` says it.
 
 ```python
+import boto3
 from opsdroid.skill import Skill
 from opsdroid.matchers import match_regex
 from opsdroid.constraints import constrain_users
 
+def _get_admins():
+    admins = []
+    try:
+        groupname = "opsdroid_admins"
+        client = boto3.client("iam")
+        group = client.get_group(GroupName=groupname)
+        admins = [user.get("UserName") for user in group.get("Users")]
+    except Exception as e:
+        logging.exception("unable to get admin group members!")
+    return admins
+
+admins = _get_admins()
+
 class MySkill(Skill):
     @match_regex(r'hi')
-    @constrain_users(['alice', 'bob'])
+    @constrain_users(admins)
     async def hello(self, message):
         await message.respond('Hey')
 ```
