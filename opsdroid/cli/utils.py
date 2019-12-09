@@ -8,12 +8,10 @@ import logging
 import subprocess
 import sys
 import time
-import warnings
 
 from opsdroid.core import OpsDroid
 from opsdroid.configuration import load_config_file
 from opsdroid.const import (
-    DEFAULT_LOG_FILENAME,
     LOCALE_DIR,
     DEFAULT_LANGUAGE,
     DEFAULT_CONFIG_PATH,
@@ -34,52 +32,33 @@ path_option = click.option(
 )
 
 
-def edit_files(ctx, param, value):
+def edit_config(ctx, path):
     """Open config/log file with favourite editor.
 
     Args:
         ctx (:obj:`click.Context`): The current click cli context.
-        param (dict): a dictionary of all parameters pass to the click
-            context when invoking this function as a callback.
+        path (str or None): the path passed to the config option.
         value (string): the value of this parameter after invocation.
-            It is either "config" or "log" depending on the program
-            calling this function.
 
     Returns:
         int: the exit code. Always returns 0 in this case.
 
     """
-
-    if value == "config":
-        file = DEFAULT_CONFIG_PATH
-        if ctx.command.name == "cli":
-            warn_deprecated_cli_option(
-                "The flag -e/--edit-files has been deprecated. "
-                "Please run `opsdroid config edit` instead."
-            )
-    elif value == "log":
-        file = DEFAULT_LOG_FILENAME
-        if ctx.command.name == "cli":
-            warn_deprecated_cli_option(
-                "The flag -l/--view-log has been deprecated. "
-                "Please run `opsdroid logs` instead."
-            )
-    else:
-        return
-
+    file = path or DEFAULT_CONFIG_PATH
     editor = os.environ.get("EDITOR", "vi")
+
     if editor == "vi":
         click.echo(
             "You are about to edit a file in vim. \n"
             "Read the tutorial on vim at: https://bit.ly/2HRvvrB"
         )
-        time.sleep(3)
+        time.sleep(1.5)
 
     subprocess.run([editor, file])
     ctx.exit(0)
 
 
-def validate_config(ctx, path, value):
+def validate_config(ctx, path):
     """Validate opsdroid configuration.
 
     We load the configuration and modules from it to run the validation on them.
@@ -111,12 +90,6 @@ def validate_config(ctx, path, value):
         click.echo("Configuration validated - No errors founds!")
 
         ctx.exit(0)
-
-
-def warn_deprecated_cli_option(text):
-    """Warn users that the cli option they have used is deprecated."""
-    print(f"Warning: {text}")
-    warnings.warn(text, DeprecationWarning)
 
 
 def configure_lang(config):
@@ -182,7 +155,7 @@ def welcome_message(config):
         )
 
 
-def list_all_modules(ctx, path, value):
+def list_all_modules(ctx, path):
     """List the active modules from config.
 
     This function will try to get information from the modules that are active in the
@@ -192,9 +165,6 @@ def list_all_modules(ctx, path, value):
     Args:
         ctx (:obj:`click.Context`): The current click cli context.
         path (str): a str that contains a path passed.
-        value (string): the value of this parameter after invocation.
-            It is either "config" or "log" depending on the program
-            calling this function.
 
     Returns:
         int: the exit code. Always returns 0 in this case.
@@ -231,7 +201,7 @@ def list_all_modules(ctx, path, value):
     ctx.exit(0)
 
 
-def build_config(ctx, params, value):
+def build_config(ctx, params):
     """Load configuration, load modules and install dependencies.
 
     This function loads the configuration and install all necessary
@@ -244,9 +214,6 @@ def build_config(ctx, params, value):
         ctx (:obj:`click.Context`): The current click cli context.
         params (dict): a dictionary of all parameters pass to the click
             context when invoking this function as a callback.
-        value (string): the value of this parameter after invocation.
-            It is either "config" or "log" depending on the program
-            calling this function.
 
     Returns:
         int: the exit code. Always returns 0 in this case.

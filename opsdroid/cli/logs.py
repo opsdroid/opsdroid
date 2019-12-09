@@ -1,29 +1,33 @@
 """The logs subcommand for opsdroid cli."""
 
-
 import click
+import tailer
+from opsdroid.const import DEFAULT_LOG_FILENAME
 
-from opsdroid.cli.utils import edit_files
 
-
-@click.command()
+@click.group(invoke_without_command=True)
+@click.option("-f", "follow", is_flag=True, help="Print the logs in real time")
 @click.pass_context
-def logs(ctx):
-    """Open the log file with your favourite editor.
+def logs(ctx, follow):
+    """Print the content of the log file into the terminal.
 
-    By default this command will open the configuration file with
-    vi/vim. If you have a different editor that you would like to sure,
-    you need to change the environment variable - `EDITOR`.
-
-    This file will be updated if you are using the configuration option
-    `logging.path`. Notice that depending on your `logging.level` and how
-    long you run opsdroid, this file will grow quite quickly.
+    Open opsdroid logs and prints the contents of the file into the terminal.
+    If you wish to follow the logs in real time you can use the `-f` flag which
+    will allow you to do this.
 
     Args:
         ctx (:obj:`click.Context`): The current click cli context.
+        follow(bool): Set by the `-f` flag to trigger the print of the logs in real time.
 
     Returns:
         int: the exit code. Always returns 0 in this case.
 
     """
-    edit_files(ctx, None, "log")
+    with open(DEFAULT_LOG_FILENAME, "r") as log:
+        if follow:
+            click.echo("Now following logs in real time, press CTRL+C to stop.")
+            for line in tailer.follow(log):
+                click.echo(line)
+
+        click.echo(log.read())
+    ctx.exit(0)

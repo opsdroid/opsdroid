@@ -23,7 +23,13 @@ _LOGGER = logging.getLogger("opsdroid")
 @click.command()
 @path_option
 def start(path):
-    """Start the opsdroid bot."""
+    """Start the opsdroid bot.
+
+    If the `-f` flag is used with this command, opsdroid will load the
+    configuration specified on that path otherwise it will use the default
+    configuration.
+
+    """
     check_dependencies()
 
     config = load_config_file([path] if path else DEFAULT_CONFIG_LOCATIONS)

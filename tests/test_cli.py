@@ -1,6 +1,5 @@
 import unittest
 import unittest.mock as mock
-import pytest
 import os
 import sys
 import shutil
@@ -134,17 +133,6 @@ class TestCLI(unittest.TestCase):
             self.assertFalse(opsdroid_load.called)
             self.assertEqual(result.exit_code, 0)
 
-    def test_deprecated_gen_config(self):
-        with mock.patch.object(click, "echo") as click_echo, mock.patch(
-            "opsdroid.core.OpsDroid.load"
-        ) as opsdroid_load:
-            runner = CliRunner()
-            with pytest.warns(DeprecationWarning, match=".*opsdroid config gen.*"):
-                result = runner.invoke(opsdroid.cli.cli, ["--gen-config"])
-            self.assertTrue(click_echo.called)
-            self.assertFalse(opsdroid_load.called)
-            self.assertEqual(result.exit_code, 0)
-
     def test_print_version(self):
         with mock.patch.object(click, "echo") as click_echo, mock.patch(
             "opsdroid.core.OpsDroid.load"
@@ -153,18 +141,6 @@ class TestCLI(unittest.TestCase):
             from opsdroid.cli.version import version
 
             result = runner.invoke(version, [])
-            self.assertTrue(click_echo.called)
-            self.assertFalse(opsdroid_load.called)
-            self.assertTrue(__version__ in click_echo.call_args[0][0])
-            self.assertEqual(result.exit_code, 0)
-
-    def test_deprecated_print_version(self):
-        with mock.patch.object(click, "echo") as click_echo, mock.patch(
-            "opsdroid.core.OpsDroid.load"
-        ) as opsdroid_load:
-            runner = CliRunner()
-            with pytest.warns(DeprecationWarning, match=".*opsdroid version.*"):
-                result = runner.invoke(opsdroid.cli.cli, ["--version"])
             self.assertTrue(click_echo.called)
             self.assertFalse(opsdroid_load.called)
             self.assertTrue(__version__ in click_echo.call_args[0][0])
@@ -182,46 +158,34 @@ class TestCLI(unittest.TestCase):
             self.assertTrue(editor.called)
             self.assertEqual(result.exit_code, 0)
 
-    def test_deprecated_edit_files_config(self):
-        with mock.patch.object(click, "echo") as click_echo, mock.patch(
-            "subprocess.run"
-        ) as editor:
-            runner = CliRunner()
-            with pytest.warns(DeprecationWarning, match=".*opsdroid config edit.*"):
-                result = runner.invoke(opsdroid.cli.cli, ["--edit-config"], input="y")
-            self.assertTrue(click_echo.called)
-            self.assertTrue(editor.called)
-            self.assertEqual(result.exit_code, 0)
-
-    def test_edit_files_log(self):
-        with mock.patch.object(click, "echo") as click_echo, mock.patch(
-            "subprocess.run"
-        ) as editor:
+    def test_print_files_log(self):
+        with mock.patch.object(click, "echo") as click_echo:
             runner = CliRunner()
             from opsdroid.cli.logs import logs
 
             result = runner.invoke(logs, [])
             self.assertTrue(click_echo.called)
-            self.assertTrue(editor.called)
             self.assertEqual(result.exit_code, 0)
 
-    def test_deprecated_edit_files_log(self):
+    def test_print_files_log_follow(self):
         with mock.patch.object(click, "echo") as click_echo, mock.patch(
-            "subprocess.run"
-        ) as editor:
+            "tailer.follow"
+        ) as tailer_follow, mock.patch("builtins.open"):
             runner = CliRunner()
-            with pytest.warns(DeprecationWarning, match=".*opsdroid logs.*"):
-                result = runner.invoke(opsdroid.cli.cli, ["--view-log"])
+            from opsdroid.cli.logs import logs
+
+            tailer_follow.return_value = ["line 1", "line 2"]
+
+            runner.invoke(logs, ["-f"])
+            self.assertTrue(tailer_follow.called)
             self.assertTrue(click_echo.called)
-            self.assertTrue(editor.called)
-            self.assertEqual(result.exit_code, 0)
 
     def test_main(self):
-        with pytest.warns(DeprecationWarning, match=".*opsdroid start.*"):
-            runner = CliRunner()
-            with mock.patch.object(OpsDroid, "run") as mock_run:
-                runner.invoke(opsdroid.cli.cli, [])
-                assert mock_run.called
+        runner = CliRunner()
+
+        with mock.patch.object(OpsDroid, "run") as mock_run:
+            runner.invoke(opsdroid.cli.start, [])
+            assert mock_run.called
 
     def test_config_validate(self):
         with mock.patch.object(click, "echo") as click_echo, mock.patch(

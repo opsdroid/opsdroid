@@ -4,39 +4,12 @@ import click
 
 from opsdroid.cli.utils import (
     build_config,
-    edit_files,
+    edit_config,
     list_all_modules,
     path_option,
     validate_config,
-    warn_deprecated_cli_option,
 )
 from opsdroid.const import EXAMPLE_CONFIG_FILE
-
-
-def print_example_config(ctx, param, value):
-    """[Deprecated] Print out the example config.
-
-    Args:
-        ctx (:obj:`click.Context`): The current click cli context.
-        param (dict): a dictionary of all parameters pass to the click
-            context when invoking this function as a callback.
-        value (bool): the value of this parameter after invocation.
-            Defaults to False, set to True when this flag is called.
-
-    Returns:
-        int: the exit code. Always returns 0 in this case.
-
-    """
-    if not value or ctx.resilient_parsing:
-        return
-    if ctx.command.name == "cli":
-        warn_deprecated_cli_option(
-            "The flag --gen-config has been deprecated. "
-            "Please run `opsdroid config gen` instead."
-        )
-    with open(EXAMPLE_CONFIG_FILE, "r") as conf:
-        click.echo(conf.read())
-    ctx.exit(0)
 
 
 @click.group()
@@ -52,10 +25,10 @@ def config(ctx, path):
 def gen(ctx):
     """Print out the example config.
 
-    This is a pretty basic function that will simply open your opsdroid
-    configuration file and prints the whole thing into the terminal.
-    You can also use the -f flag to generate a config from a path instead
-    of using the default config location.
+    Open the example configuration file and print it into the terminal.
+    If the -f flag was used with the config command, then this path will be
+    set on `ctx.obj` and will be passed into this subcommand and the contents
+    of the file set in the path will be print into the terminal instead.
 
     Args:
         ctx (:obj:`click.Context`): The current click cli context.
@@ -64,7 +37,10 @@ def gen(ctx):
         int: the exit code. Always returns 0 in this case.
 
     """
-    print_example_config(ctx, ctx.obj, True)
+    path = ctx.obj or EXAMPLE_CONFIG_FILE
+    with open(path, "r") as conf:
+        click.echo(conf.read())
+    ctx.exit(0)
 
 
 @config.command()
@@ -83,7 +59,7 @@ def edit(ctx):
         int: the exit code. Always returns 0 in this case.
 
     """
-    edit_files(ctx, None, "config")
+    edit_config(ctx, ctx.obj)
 
 
 @config.command()
@@ -106,7 +82,7 @@ def lint(ctx):
         int: the exit code. Always returns 0 in this case.
 
     """
-    validate_config(ctx, ctx.obj, "config")
+    validate_config(ctx, ctx.obj)
 
 
 @config.command()
@@ -125,7 +101,7 @@ def list_modules(ctx):
         int: the exit code. Always returns 0 in this case.
 
     """
-    list_all_modules(ctx, ctx.obj, "config")
+    list_all_modules(ctx, ctx.obj)
 
 
 @config.command()
@@ -153,4 +129,4 @@ def build(ctx, verbose):
         int: the exit code. Always returns 0 in this case.
 
     """
-    build_config(ctx, {"path": ctx.obj, "verbose": verbose}, "config")
+    build_config(ctx, {"path": ctx.obj, "verbose": verbose})
