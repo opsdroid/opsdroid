@@ -127,10 +127,11 @@ class OpsDroid:
         self.exit()
 
     @staticmethod
-    def handle_async_exception(context):
+    def handle_async_exception(loop, context):
         """Handle exceptions from async coroutines.
 
         Args:
+            loop (asyncio.loop): Running loop that raised the exception.
             context (String): Describes the exception encountered.
 
         """
