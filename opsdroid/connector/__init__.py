@@ -94,6 +94,7 @@ class Connector:
         Args:
             config (dict): The config for this connector specified in the
                            `configuration.yaml` file.
+            opsdroid (OpsDroid): An instance of opsdroid.core.
 
         """
         self.name = ""

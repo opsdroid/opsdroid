@@ -26,6 +26,7 @@ class ConnectorTelegram(Connector):
         Args:
             config (dict): configuration settings from the
                 file config.yaml.
+            opsdroid (OpsDroid): An instance of opsdroid.core.
 
         """
         _LOGGER.debug(_("Loaded Telegram Connector"))

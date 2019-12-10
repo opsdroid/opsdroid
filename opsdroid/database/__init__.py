@@ -19,6 +19,7 @@ class Database:
         Args:
             config (dict): The config for this database specified in the
                            `configuration.yaml` file.
+            opsdroid (OpsDroid): An instance of opsdroid.core.
 
         """
         self.name = ""

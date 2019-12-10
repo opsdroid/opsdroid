@@ -131,6 +131,7 @@ class OpsDroid:
         """Handle exceptions from async coroutines.
 
         Args:
+            loop (asyncio.loop): Running loop that raised the exception.
             context (String): Describes the exception encountered.
 
         """
