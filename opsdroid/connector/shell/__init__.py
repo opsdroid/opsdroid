@@ -35,12 +35,12 @@ class ConnectorShell(Connector):
 
     @property
     def is_listening(self):
-        """Helper, gets listening."""
+        """Get listening status."""
         return self.listening
 
     @is_listening.setter
     def is_listening(self, val):
-        """Helper, sets listening."""
+        """Set listening status."""
         self.listening = val
 
     async def read_stdin(self):

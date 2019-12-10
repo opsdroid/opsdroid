@@ -32,6 +32,7 @@ class DatabaseSqlite(Database):
             config (dict): The configuration of the database which consists
                            of `file` and `table` name of the sqlite database
                            specified in `configuration.yaml` file.
+            opsdroid (OpsDroid): An instance of opsdroid.core.
 
         """
         super().__init__(config, opsdroid=opsdroid)

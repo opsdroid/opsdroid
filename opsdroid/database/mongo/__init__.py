@@ -19,9 +19,10 @@ class DatabaseMongo(Database):
         Set some basic properties from the database config such as the name
         of this database.
 
-        Attributes:
+        Args:
             config (dict): The config for this database specified in the
                            `configuration.yaml` file.
+             opsdroid (OpsDroid): An instance of opsdroid.core.
 
         """
         super().__init__(config, opsdroid=opsdroid)

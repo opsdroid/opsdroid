@@ -127,7 +127,7 @@ class OpsDroid:
         self.exit()
 
     @staticmethod
-    def handle_async_exception(loop, context):
+    def handle_async_exception(context):
         """Handle exceptions from async coroutines.
 
         Args:
