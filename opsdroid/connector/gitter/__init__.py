@@ -94,7 +94,7 @@ class ConnectorGitter(Connector):
 
     @register_event(Message)
     async def send_message(self, message):
-        """Recived parsed message and send it back to gitter room."""
+        """Received parsed message and send it back to gitter room."""
         # Send message.text back to the chat service
         url = self.build_url(GITTER_MESSAGE_BASE_API, message.target, "chatMessages")
         headers = {
