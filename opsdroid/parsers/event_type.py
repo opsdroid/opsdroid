@@ -33,6 +33,13 @@ async def match_event(event, event_opts):
                     event_value = event_opts.get(key, None)
                     entity_value = event.entities.get(key, {}).get("value", None)
 
+                    if (
+                        isinstance(event_value, list)
+                        and isinstance(entity_value, list)
+                        and sorted(event_value) != sorted(entity_value)
+                    ):
+                        return False
+
                     if event_value != entity_value:
                         return False
 

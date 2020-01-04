@@ -265,7 +265,19 @@ class ConnectorSlack(Connector):
                         target=payload["channel"]["id"],
                         connector=self,
                     )
-                    await block_action.update_entity("value", action["value"])
+
+                    action_value = None
+                    if action["type"] == "button":
+                        action_value = action["value"]
+                    elif action["type"] in ["overflow", "static_select"]:
+                        action_value = action["selected_option"]["value"]
+                    elif action["type"] == "datepicker":
+                        action_value = action["selected_date"]
+                    elif action["type"] == "multi_static_select":
+                        action_value = [v["value"] for v in action["selected_options"]]
+
+                    if action_value:
+                        await block_action.update_entity("value", action_value)
                     await self.opsdroid.parse(block_action)
             elif payload["type"] == "message_action":
                 await self.opsdroid.parse(
