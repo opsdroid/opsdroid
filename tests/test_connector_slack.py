@@ -276,7 +276,77 @@ class TestConnectorSlackAsync(asynctest.TestCase):
                     "value": "click_me_123",
                     "type": "button",
                     "action_ts": "1548426417.840180",
-                }
+                },
+                {
+                    "type": "overflow",
+                    "block_id": "B5XNP",
+                    "action_id": "BnhtF",
+                    "selected_option": {
+                        "text": {
+                            "type": "plain_text",
+                            "text": "Option 1",
+                            "emoji": True,
+                        },
+                        "value": "value-0",
+                    },
+                    "action_ts": "1576336883.317406",
+                },
+                {
+                    "type": "datepicker",
+                    "block_id": "CAwR",
+                    "action_id": "VS+",
+                    "selected_date": "2019-12-31",
+                    "initial_date": "1990-04-28",
+                    "action_ts": "1576337318.133466",
+                },
+                {
+                    "type": "multi_static_select",
+                    "block_id": "rOL",
+                    "action_id": "Cd9",
+                    "selected_options": [
+                        {
+                            "text": {
+                                "type": "plain_text",
+                                "text": "Choice 1",
+                                "emoji": True,
+                            },
+                            "value": "value-0",
+                        },
+                        {
+                            "text": {
+                                "type": "plain_text",
+                                "text": "Choice 2",
+                                "emoji": True,
+                            },
+                            "value": "value-1",
+                        },
+                    ],
+                    "placeholder": {
+                        "type": "plain_text",
+                        "text": "Select items",
+                        "emoji": True,
+                    },
+                    "action_ts": "1576337351.609054",
+                },
+                {
+                    "type": "static_select",
+                    "block_id": "OGN1",
+                    "action_id": "4jd",
+                    "selected_option": {
+                        "text": {
+                            "type": "plain_text",
+                            "text": "Choice 2",
+                            "emoji": True,
+                        },
+                        "value": "value-1",
+                    },
+                    "placeholder": {
+                        "type": "plain_text",
+                        "text": "Select an item",
+                        "emoji": True,
+                    },
+                    "action_ts": "1576337378.859991",
+                },
             ],
         }
 
@@ -286,6 +356,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
 
         response = await connector.slack_interactions_handler(mock_request)
         self.assertTrue(connector.opsdroid.parse.called)
+        self.assertEqual(connector.opsdroid.parse.call_count, len(req_ob["actions"]))
         self.assertEqual(type(response), aiohttp.web.Response)
         self.assertEqual(response.status, 200)
 
