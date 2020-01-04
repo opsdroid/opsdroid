@@ -97,7 +97,7 @@ class ConnectorWebsocket(Connector):
         self.active_connections[socket] = websocket
         async for msg in websocket:
             if msg.type == aiohttp.WSMsgType.TEXT:
-                message = Message(msg.data, None, None, self)
+                message = Message(text=msg.data, user=None, target=None, connector=self)
                 await self.opsdroid.parse(message)
             elif msg.type == aiohttp.WSMsgType.ERROR:
                 _LOGGER.error(
