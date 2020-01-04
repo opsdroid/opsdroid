@@ -1,4 +1,4 @@
-PyGithub==1.44.1
+PyGithub==1.45
 Jinja2==2.10.1
 Pygments==2.5.2
 mock==3.0.5
