@@ -180,13 +180,13 @@ class OpsDroid:
         """Load modules."""
         self.modules = self.loader.load_modules_from_config(self.config)
         _LOGGER.debug(_("Loaded %i skills."), len(self.modules["skills"]))
-        self.setup_skills(self.modules["skills"])
         self.web_server = Web(self)
-        self.web_server.setup_webhooks(self.skills)
-        await self.train_parsers(self.modules["skills"])
         if self.modules["databases"] is not None:
             await self.start_databases(self.modules["databases"])
         await self.start_connectors(self.modules["connectors"])
+        self.setup_skills(self.modules["skills"])
+        self.web_server.setup_webhooks(self.skills)
+        await self.train_parsers(self.modules["skills"])
         self.cron_task = self.eventloop.create_task(parse_crontab(self))
         self.eventloop.create_task(self.web_server.start())
 
