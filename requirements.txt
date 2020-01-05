@@ -11,11 +11,11 @@ emoji==0.5.4
 mattermostdriver==7.0.1
 matrix-api-async==0.1.0
 motor==2.0.0
-multidict==4.7.1
+multidict==4.7.3
 nbconvert==5.6.1
 nbformat==4.4.0
 opsdroid-get-image-size==0.2.2
-parse==1.12.1
+parse==1.14.0
 puremagic==1.6
 pycron==1.0.0
 pyyaml==5.2
