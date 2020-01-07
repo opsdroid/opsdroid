@@ -18,7 +18,7 @@ opsdroid-get-image-size==0.2.2
 parse==1.14.0
 puremagic==1.6
 pycron==1.0.0
-pyyaml==5.2
+pyyaml==5.3
 setuptools==44.0.0
 slackclient==2.5.0
 tailer==0.4.1
