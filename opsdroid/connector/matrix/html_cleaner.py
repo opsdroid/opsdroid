@@ -66,7 +66,12 @@ def clean(html, **kwargs):
     A version of `bleach.clean` but with Riot's allowed tags and ``strip=True``
     by default.
     """
-    defaults = {"strip": True, "tags": ALLOWED_TAGS, "attributes": ALLOWED_ATTRIBUTES}
+    defaults = {
+        "strip": True,
+        "tags": ALLOWED_TAGS,
+        "attributes": ALLOWED_ATTRIBUTES,
+        "protocols": ["https", "http", "mxc"],
+    }
     defaults.update(kwargs)
 
     return bleach.clean(html, **defaults)
