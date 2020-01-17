@@ -63,6 +63,8 @@ class ParsingFilter(logging.Filter):
 def configure_logging(config):
     """Configure the root logger based on user config."""
     rootlogger = logging.getLogger()
+    logging_config = config or {}
+
     while rootlogger.handlers:
         rootlogger.handlers.pop()
 
@@ -107,13 +109,14 @@ def configure_logging(config):
         if not os.path.isdir(logdir):
             os.makedirs(logdir)
 
-        with contextlib.suppress(KeyError):
-            file_handler = RotatingFileHandler(
-                logfile_path, maxBytes=config["logging"].get("file-size", 50e6)
-            )
+        file_handler = RotatingFileHandler(
+            logfile_path, maxBytes=logging_config.get("file-size", 50e6)
+        )
 
-            file_handler.setLevel(log_level)
-            file_handler.setFormatter(formatter)
+        file_handler.setLevel(log_level)
+        file_handler.setFormatter(formatter)
+
+        with contextlib.suppress(KeyError):
             file_handler.addFilter(ParsingFilter(config, config["logging"]["filter"]))
 
         rootlogger.addHandler(file_handler)
