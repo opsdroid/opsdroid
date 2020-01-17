@@ -4,6 +4,7 @@ import os
 import logging
 import contextlib
 
+from logging.handlers import RotatingFileHandler
 from opsdroid.const import DEFAULT_LOG_FILENAME, __version__
 
 _LOGGER = logging.getLogger(__name__)
@@ -112,6 +113,8 @@ def configure_logging(config):
         with contextlib.suppress(KeyError):
             file_handler.addFilter(ParsingFilter(config, config["logging"]["filter"]))
 
+        rotation_handler = RotatingFileHandler(logfile_path, maxBytes=config["logging"].get('file-size', 50))
+        rootlogger.addHandler(rotation_handler)
         rootlogger.addHandler(file_handler)
     _LOGGER.info("=" * 40)
     _LOGGER.info(_("Started opsdroid %s."), __version__)

@@ -9,6 +9,7 @@ logging = {
     Optional("level"): str,
     Optional("console"): bool,
     Optional("extended"): bool,
+    Optional("file-size"): int,
     Optional("filter"): {Optional("whitelist"): list, Optional("blacklist"): list},
 }
 

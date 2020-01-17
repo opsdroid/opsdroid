@@ -170,7 +170,7 @@ The default locations for the logs are:
 - Linux: `/home/<User>/.cache/opsdroid/log`
 - Windows: `C:\Users\<User>\AppData\Local\opsdroid\Logs\`
 
-If you are using one of the default paths for your log you can run the command `opsdroid logs` to open the logs with your favorite editor (taken from the environment variable `EDITOR`) or the default editor vim.
+If you are using one of the default paths for your log you can run the command `opsdroid logs` to print the logs into the terminal. 
 
 ```yaml
 logging:
@@ -189,6 +189,17 @@ skills:
 #### Optional logging arguments
 
 You can pass optional arguments to the logging configuration to extend the opsdroid logging.
+
+##### Logs rotation
+To keep the logs under control the file will grow to 50kb before being rotated back. You can change the default value by passing the `file-size` argument.
+
+```yaml
+logging:
+  level: info
+  file-size: 100
+```
+
+This will change the size of the file to 100kb before being rotated back to zero.
 
 ##### extended mode
 
