@@ -103,6 +103,7 @@ class TestLogging(unittest.TestCase):
         rootlogger = logging.getLogger()
         self.assertEqual(len(rootlogger.handlers), 1)
         self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
+        self.assertEqual(rootlogger.handlers[1].level, logging.ERROR)
         self.assertLogs("_LOGGER", None)
 
     def test_configure_console_whitelist(self):
