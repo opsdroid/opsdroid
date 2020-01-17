@@ -46,7 +46,9 @@ class TestLogging(unittest.TestCase):
         self.assertEqual(len(rootlogger.handlers), 2)
         self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
         self.assertEqual(rootlogger.handlers[0].level, logging.CRITICAL)
-        self.assertEqual(logging.FileHandler, type(rootlogger.handlers[1]))
+        self.assertEqual(
+            logging.handlers.RotatingFileHandler, type(rootlogger.handlers[1])
+        )
         self.assertEqual(rootlogger.handlers[1].level, logging.INFO)
 
     def test_configure_file_blacklist(self):
@@ -62,8 +64,9 @@ class TestLogging(unittest.TestCase):
         self.assertEqual(len(rootlogger.handlers), 2)
         self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
         self.assertEqual(rootlogger.handlers[0].level, logging.CRITICAL)
-        self.assertEqual(logging.FileHandler, type(rootlogger.handlers[1]))
-        self.assertEqual(rootlogger.handlers[1].level, logging.INFO)
+        self.assertEqual(
+            logging.handlers.RotatingFileHandler, type(rootlogger.handlers[1])
+        )
         self.assertLogs("_LOGGER", None)
 
     def test_configure_file_logging_directory_not_exists(self):
@@ -102,6 +105,7 @@ class TestLogging(unittest.TestCase):
         rootlogger = logging.getLogger()
         self.assertEqual(len(rootlogger.handlers), 1)
         self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
+        self.assertEqual(rootlogger.handlers[0].level, logging.ERROR)
         self.assertLogs("_LOGGER", None)
 
     def test_configure_console_whitelist(self):
@@ -140,7 +144,9 @@ class TestLogging(unittest.TestCase):
         self.assertEqual(len(rootlogger.handlers), 2)
         self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
         self.assertEqual(rootlogger.handlers[0].level, logging.INFO)
-        self.assertEqual(logging.FileHandler, type(rootlogger.handlers[1]))
+        self.assertEqual(
+            logging.handlers.RotatingFileHandler, type(rootlogger.handlers[1])
+        )
         self.assertEqual(rootlogger.handlers[1].level, logging.INFO)
         self.assertLogs("_LOGGER", "info")
 

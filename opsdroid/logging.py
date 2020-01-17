@@ -4,6 +4,7 @@ import os
 import logging
 import contextlib
 
+from logging.handlers import RotatingFileHandler
 from opsdroid.const import DEFAULT_LOG_FILENAME, __version__
 
 _LOGGER = logging.getLogger(__name__)
@@ -62,6 +63,8 @@ class ParsingFilter(logging.Filter):
 def configure_logging(config):
     """Configure the root logger based on user config."""
     rootlogger = logging.getLogger()
+    logging_config = config or {}
+
     while rootlogger.handlers:
         rootlogger.handlers.pop()
 
@@ -105,7 +108,11 @@ def configure_logging(config):
         logdir = os.path.dirname(os.path.realpath(logfile_path))
         if not os.path.isdir(logdir):
             os.makedirs(logdir)
-        file_handler = logging.FileHandler(logfile_path)
+
+        file_handler = RotatingFileHandler(
+            logfile_path, maxBytes=logging_config.get("file-size", 50e6)
+        )
+
         file_handler.setLevel(log_level)
         file_handler.setFormatter(formatter)
 
