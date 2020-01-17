@@ -106,16 +106,15 @@ def configure_logging(config):
         logdir = os.path.dirname(os.path.realpath(logfile_path))
         if not os.path.isdir(logdir):
             os.makedirs(logdir)
-        file_handler = logging.FileHandler(logfile_path)
-        file_handler.setLevel(log_level)
-        file_handler.setFormatter(formatter)
 
         with contextlib.suppress(KeyError):
-            file_handler.addFilter(ParsingFilter(config, config["logging"]["filter"]))
-
             file_handler = RotatingFileHandler(
                 logfile_path, maxBytes=config["logging"].get("file-size", 50e6)
             )
+
+            file_handler.setLevel(log_level)
+            file_handler.setFormatter(formatter)
+            file_handler.addFilter(ParsingFilter(config, config["logging"]["filter"]))
 
         rootlogger.addHandler(file_handler)
     _LOGGER.info("=" * 40)
