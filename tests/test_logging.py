@@ -62,7 +62,9 @@ class TestLogging(unittest.TestCase):
         self.assertEqual(len(rootlogger.handlers), 3)
         self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
         self.assertEqual(rootlogger.handlers[0].level, logging.CRITICAL)
-        self.assertEqual(logging.FileHandler, type(rootlogger.handlers[1]))
+        self.assertEqual(
+            logging.handlers.RotatingFileHandler, type(rootlogger.handlers[1])
+        )
         self.assertEqual(rootlogger.handlers[1].level, logging.INFO)
         self.assertLogs("_LOGGER", None)
 

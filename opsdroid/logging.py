@@ -113,8 +113,10 @@ def configure_logging(config):
         with contextlib.suppress(KeyError):
             file_handler.addFilter(ParsingFilter(config, config["logging"]["filter"]))
 
-            rotation_handler = RotatingFileHandler(logfile_path, maxBytes=config["logging"].get("file-size", 50e6))
-            rootlogger.addHandler(rotation_handler)
+            file_handler = RotatingFileHandler(
+                logfile_path, maxBytes=config["logging"].get("file-size", 50e6)
+            )
+
         rootlogger.addHandler(file_handler)
     _LOGGER.info("=" * 40)
     _LOGGER.info(_("Started opsdroid %s."), __version__)
