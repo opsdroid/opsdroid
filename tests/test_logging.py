@@ -59,7 +59,7 @@ class TestLogging(unittest.TestCase):
         }
         opsdroid.configure_logging(config)
         rootlogger = logging.getLogger()
-        self.assertEqual(len(rootlogger.handlers), 2)
+        self.assertEqual(len(rootlogger.handlers), 3)
         self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
         self.assertEqual(rootlogger.handlers[0].level, logging.CRITICAL)
         self.assertEqual(logging.FileHandler, type(rootlogger.handlers[1]))
