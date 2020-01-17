@@ -191,15 +191,15 @@ skills:
 You can pass optional arguments to the logging configuration to extend the opsdroid logging.
 
 ##### Logs rotation
-To keep the logs under control the file will grow to 50kb before being rotated back. You can change the default value by passing the `file-size` argument.
+To keep the logs under control the file will grow to 50MB before being rotated back. You can change the default value by passing the `file-size` argument.
 
 ```yaml
 logging:
   level: info
-  file-size: 100
+  file-size: 100e6
 ```
 
-This will change the size of the file to 100kb before being rotated back to zero.
+This will change the size of the file to 100MB before being rotated back to zero.
 
 ##### extended mode
 
