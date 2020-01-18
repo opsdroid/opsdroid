@@ -140,7 +140,7 @@ async def parse_watson(opsdroid, skills, message, config):
                                 result["output"]["entities"]
                             )
                             for key, value in entities.items():
-                                await message.update_entity(
+                                message.update_entity(
                                     key,
                                     value,
                                     result["output"]["intents"][0]["confidence"],

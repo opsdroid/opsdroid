@@ -36,6 +36,16 @@ class TestEvent(asynctest.TestCase):
         self.assertEqual(event.user, "user")
         self.assertEqual(event.target, "default")
 
+    async def test_entities(self):
+        opsdroid = amock.CoroutineMock()
+        mock_connector = Connector({}, opsdroid=opsdroid)
+        event = events.Event("user_id", "user", "default", mock_connector)
+
+        event.update_entity("city", "London", 0.8)
+        assert event.entities["city"]["value"] == "London"
+        assert event.entities["city"]["confidence"] == 0.8
+        assert event.get_entity("city") == "London"
+
     def test_unique_subclasses(self):
         with self.assertRaises(NameError):
 
