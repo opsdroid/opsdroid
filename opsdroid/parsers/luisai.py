@@ -83,7 +83,7 @@ async def parse_luisai(opsdroid, skills, message, config):
                             message.luisai = result
                             for entity in message.luisai["entities"]:
                                 if "role" in entity:
-                                    await message.update_entity(
+                                    message.update_entity(
                                         entity["role"],
                                         entity["entity"],
                                         result["topScoringIntent"]["score"],

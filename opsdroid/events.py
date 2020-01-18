@@ -154,18 +154,30 @@ class Event(metaclass=EventMetaClass):
 
         return result
 
-    async def update_entity(self, name, value, confidence=None):
+    def update_entity(self, name, value, confidence=None):
         """Add or update an entitiy.
 
         Adds or updates an entitiy entry for an event.
 
         Args:
-            name (string): String name of entity
-            value (string): String value of entity
+            name (string): Name of entity
+            value (string): Value of entity
             confidence (float, optional): Confidence that entity is correct
 
         """
         self.entities[name] = {"value": value, "confidence": confidence}
+
+    def get_entity(self, name):
+        """Get the value of an entity by name.
+
+        Args:
+            name (string): Name of entity
+
+        Returns:
+            The value of the entity. Returns ``None`` if no such entity.
+
+        """
+        return self.entities.get(name, {}).get("value", None)
 
 
 class OpsdroidStarted(Event):

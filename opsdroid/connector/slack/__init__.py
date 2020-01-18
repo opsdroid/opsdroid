@@ -277,7 +277,7 @@ class ConnectorSlack(Connector):
                         action_value = [v["value"] for v in action["selected_options"]]
 
                     if action_value:
-                        await block_action.update_entity("value", action_value)
+                        block_action.update_entity("value", action_value)
                     await self.opsdroid.parse(block_action)
             elif payload["type"] == "message_action":
                 await self.opsdroid.parse(

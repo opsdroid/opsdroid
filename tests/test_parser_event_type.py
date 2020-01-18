@@ -43,7 +43,7 @@ class TestParserEvent(asynctest.TestCase):
 
             mock_connector = amock.CoroutineMock()
             message1 = events.Message("Hello World", "user", "default", mock_connector)
-            await message1.update_entity("value", "click_me_123")
+            message1.update_entity("value", "click_me_123")
 
             await opsdroid.parse(message1)
             self.assertTrue(opsdroid.run_skill.called)
@@ -51,7 +51,7 @@ class TestParserEvent(asynctest.TestCase):
             opsdroid.run_skill.reset_mock()
 
             message2 = events.Message("Hello World", "user", "default", mock_connector)
-            await message2.update_entity("value", "click_me_456")
+            message2.update_entity("value", "click_me_456")
 
             await opsdroid.parse(message2)
             self.assertFalse(opsdroid.run_skill.called)

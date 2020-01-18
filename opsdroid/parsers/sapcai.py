@@ -77,7 +77,7 @@ async def parse_sapcai(opsdroid, skills, message, config):
                             for key, entity in (
                                 result["results"].get("entities", {}).items()
                             ):
-                                await message.update_entity(
+                                message.update_entity(
                                     key, entity[0]["raw"], entity[0]["confidence"]
                                 )
                             _LOGGER.debug(
