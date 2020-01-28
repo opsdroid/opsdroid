@@ -1,5 +1,5 @@
 PyGithub==1.45
-Jinja2==2.10.1
+Jinja2==2.11.0
 Pygments==2.5.2
 mock==3.0.5
 pillow==7.0.0
