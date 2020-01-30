@@ -49,7 +49,10 @@ def validate_configuration(config, schema):
     """
     validate = Schema(schema, extra=ALLOW_EXTRA)
     try:
-        return validate(config)
+        config = validate(config)
+        if config is None:
+            config = {}
+        return config
     except MultipleInvalid as error:
         _LOGGER.critical(
             _("Configuration for %s failed validation! %s - '%s'."),

@@ -281,8 +281,6 @@ class TestLoader(unittest.TestCase):
     def test_load_minimal_config_file(self):
         opsdroid, loader = self.setup()
         config = load_config_file([os.path.abspath("tests/configs/minimal.yaml")])
-        loader._install_module = mock.MagicMock()
-        loader.import_module = mock.MagicMock()
         modules = loader.load_modules_from_config(config)
         self.assertIsNotNone(modules["connectors"])
         self.assertIsNone(modules["databases"])
@@ -291,8 +289,6 @@ class TestLoader(unittest.TestCase):
 
     def test_load_minimal_config_file_2(self):
         opsdroid, loader = self.setup()
-        loader._install_module = mock.MagicMock()
-        loader.import_module = mock.MagicMock()
         config = load_config_file([os.path.abspath("tests/configs/minimal_2.yaml")])
         modules = loader.load_modules_from_config(config)
         self.assertIsNotNone(modules["connectors"])
@@ -679,7 +675,7 @@ class TestLoader(unittest.TestCase):
 
     def test_setup_module_bad_config(self):
         opsdroid, loader = self.setup()
-        with mock.patch("sys.exit") as mock_sysexit:
+        with mock.patch("sys.exit") as mock_sysexit, contextlib.suppress(TypeError):
             config = load_config_file(
                 [os.path.abspath("tests/configs/broken_modules.yaml")]
             )
