@@ -24,7 +24,7 @@ class CrontabSkill(Skill):
         room = connector.default_target
 
         # Create an empty message to respond to
-        message = Message("", None, room, connector)
+        message = Message(text="", target=room, connector=connector)
 
         # Respond
         await message.respond('Hey')
