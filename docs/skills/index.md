@@ -55,7 +55,7 @@ By adding this to the top of your skill you are specifying that you expect the u
 
 ## Matchers
 
-Opsdroid contains a vraiety of matchers you can use to make use of advanced parsing services such as natural language understanding APIs or non-chat events such as cron based scheduled tasks or webhooks.
+Opsdroid contains a variety of matchers you can use to make use of advanced parsing services such as natural language understanding APIs or non-chat events such as cron based scheduled tasks or webhooks.
 
 ```eval_rst
 .. toctree::
