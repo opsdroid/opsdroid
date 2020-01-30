@@ -115,7 +115,7 @@ def load_config_file(config_paths):
             validate_data_type(data)
 
             configuration = update_pre_0_17_config_format(data)
-            validate_configuration(configuration, BASE_SCHEMA)
+            configuration = validate_configuration(configuration, BASE_SCHEMA)
 
             return configuration
 

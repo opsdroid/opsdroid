@@ -34,6 +34,27 @@ class TestConfiguration(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self._tmp_dir, onerror=del_rw)
 
+    def test_schema(self):
+        import os.path
+        from opsdroid.core import OpsDroid
+
+        skill_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "mockmodules/skills/schema_skill",
+        )
+        example_config = {
+            "connectors": {"websocket": {}},
+            "skills": {"test": {"path": skill_path}},
+        }
+        with OpsDroid(config=example_config) as opsdroid:
+            opsdroid.setup_skills(
+                opsdroid.loader.load_modules_from_config(opsdroid.config)["skills"]
+            )
+            assert opsdroid.skills
+            assert len(opsdroid.skills) == 1
+            assert "foo" in opsdroid.skills[0].config
+            assert opsdroid.skills[0].config["foo"] == "bar"
+
     def test_load_config_file(self):
         config = load_config_file([os.path.abspath("tests/configs/minimal.yaml")])
         self.assertIsNotNone(config)

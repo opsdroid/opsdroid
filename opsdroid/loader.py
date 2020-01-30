@@ -471,7 +471,7 @@ class Loader:
 
             # Suppress exception if module doesn't contain CONFIG_SCHEMA
             with contextlib.suppress(AttributeError):
-                validate_configuration(config, module.CONFIG_SCHEMA)
+                config = validate_configuration(config, module.CONFIG_SCHEMA)
 
             # Load intents
             intents = self._load_intents(config)
