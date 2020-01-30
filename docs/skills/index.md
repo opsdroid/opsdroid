@@ -41,6 +41,18 @@ skills:
 
 For more information about the various ways you can package skills and other modules and tell opsdroid about them see the [packaging section](../packaging).
 
+It is also possible to specify your expected configuration schema by setting the `CONFIG_SCHEMA` constant within your skill. We use the [voluptuous](https://github.com/alecthomas/voluptuous) library for validating configuration.
+
+```python
+from voluptuous import Required
+
+CONFIG_SCHEMA = {
+  Required("foo", default="bar"): str,
+  Required("baz"): int}
+```
+
+By adding this to the top of your skill you are specifying that you expect the user to set `foo` and `baz` in their config. If they fail to specify `foo` it will use the default value of `bar`, but if they fail to specify `baz` the skill will fail to load.
+
 ## Matchers
 
 Opsdroid contains a vraiety of matchers you can use to make use of advanced parsing services such as natural language understanding APIs or non-chat events such as cron based scheduled tasks or webhooks.
@@ -100,4 +112,4 @@ You can also specify code to run when your skill is loaded. Perhaps you want to 
 
 For examples of the kind of skills you can build in opsdroid see the [examples section](../examples/index). Or continue reading about more of the features you can use to create your skills.
 
-*If you need help or if you are unsure about something join our* [matrix channel](https://riot.im/app/#/room/#opsdroid-general:matrix.org) *and ask away! We are more than happy to help you.*
+_If you need help or if you are unsure about something join our_ [matrix channel](https://riot.im/app/#/room/#opsdroid-general:matrix.org) _and ask away! We are more than happy to help you._
