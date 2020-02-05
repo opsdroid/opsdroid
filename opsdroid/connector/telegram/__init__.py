@@ -167,9 +167,13 @@ class ConnectorTelegram(Connector):
         """
         for result in response["result"]:
             _LOGGER.debug(result)
+
             if result.get("edited_message", None):
                 result["message"] = result.pop("edited_message")
-            if "channel" in result["message"]["chat"]["type"]:
+            if result.get("channel_post", None) or result.get(
+                "edited_channel_post", None
+            ):
+                self.latest_update = result["update_id"] + 1
                 _LOGGER.debug(
                     _("Channel message parsing not supported " "- Ignoring message.")
                 )
