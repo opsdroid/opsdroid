@@ -34,9 +34,9 @@ class ConnectorTelegram(Connector):
         self.name = "telegram"
         self.opsdroid = opsdroid
         self.latest_update = None
-        self.default_target = None
         self.listening = True
         self.default_user = config.get("default-user", None)
+        self.default_target = self.default_user
         self.whitelisted_users = config.get("whitelisted-users", None)
         self.update_interval = config.get("update-interval", 1)
         self.session = None
@@ -167,9 +167,13 @@ class ConnectorTelegram(Connector):
         """
         for result in response["result"]:
             _LOGGER.debug(result)
+
             if result.get("edited_message", None):
                 result["message"] = result.pop("edited_message")
-            if "channel" in result["message"]["chat"]["type"]:
+            if result.get("channel_post", None) or result.get(
+                "edited_channel_post", None
+            ):
+                self.latest_update = result["update_id"] + 1
                 _LOGGER.debug(
                     _("Channel message parsing not supported " "- Ignoring message.")
                 )
@@ -179,7 +183,7 @@ class ConnectorTelegram(Connector):
                     text=result["message"]["text"],
                     user=user,
                     user_id=user_id,
-                    target=result["message"]["chat"],
+                    target=result["message"]["chat"]["id"],
                     connector=self,
                 )
 
@@ -277,10 +281,12 @@ class ConnectorTelegram(Connector):
             message (object): An instance of Message.
 
         """
-        _LOGGER.debug(_("Responding with: %s."), message.text)
+        _LOGGER.debug(
+            _("Responding with: '%s' at target: '%s'"), message.text, message.target
+        )
 
         data = dict()
-        data["chat_id"] = message.target["id"]
+        data["chat_id"] = message.target
         data["text"] = message.text
         resp = await self.session.post(self.build_url("sendMessage"), data=data)
         if resp.status == 200:
