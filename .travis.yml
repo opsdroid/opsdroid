@@ -1,6 +1,6 @@
-sudo: true
+os: linux
 dist: xenial
-matrix:
+jobs:
   fast_finish: true
   include:
     - python: "3.6"
@@ -24,9 +24,9 @@ script: tox
 after_success: codecov
 deploy:
   provider: pypi
-  user: $PYPI_USER
+  username: $PYPI_USER
   password: $PYPI_PASSWORD
-  skip_cleanup: true
+  cleanup: true
   on:
     tags: true
     repo: opsdroid/opsdroid
