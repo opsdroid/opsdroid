@@ -1,26 +1,20 @@
 """A connector for Slack."""
 import logging
-import re
 import os
 import ssl
 import certifi
+import asyncio
 import json
+import re
 
 import aiohttp
-
-import slack
+import websockets
 from emoji import demojize
 from voluptuous import Required
 
 from opsdroid.connector import Connector, register_event
-from opsdroid.events import Message, Reaction
-from opsdroid.connector.slack.events import (
-    Blocks,
-    BlockActions,
-    MessageAction,
-    ViewSubmission,
-    ViewClosed,
-)
+import opsdroid.events
+from opsdroid.connector.slack.events import Blocks, SlackEventCreator
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -73,6 +67,16 @@ class ConnectorSlack(Connector):
 
         # Register callbacks
         slack.RTMClient.on(event="message", callback=self.process_message)
+        self._event_creator = SlackEventCreator(self)
+
+    async def get_user_id(self):
+        if self._user_id:
+            return self._user_id
+
+        auth = await self.slacker.auth.test()
+        self._user_id = auth.body["user_id"]
+
+        return self._user_id
 
     async def connect(self):
         """Connect to the chat service."""
@@ -94,6 +98,8 @@ class ConnectorSlack(Connector):
                 )
             ).data
             self.bot_id = self.user_info["user"]["profile"]["bot_id"]
+            connection = await self.slacker.rtm.start()
+            self.websocket = await websockets.connect(connection.body["url"])
 
             self.opsdroid.web_server.web_app.router.add_post(
                 "/connector/{}/interactions".format(self.name),
@@ -116,6 +122,16 @@ class ConnectorSlack(Connector):
             await self.disconnect()
             raise
 
+    async def reconnect(self, delay=None):
+        """Reconnect to the websocket."""
+        try:
+            self.reconnecting = True
+            if delay is not None:
+                await asyncio.sleep(delay)
+            await self.connect()
+        finally:
+            self.reconnecting = False
+
     async def disconnect(self):
         """Disconnect from Slack."""
         self.slack_rtm.stop()
@@ -123,90 +139,74 @@ class ConnectorSlack(Connector):
 
     async def listen(self):
         """Listen for and parse new messages."""
+        while self.listening:
+            try:
+                await self.receive_from_websocket()
+            except AttributeError:
+                break
 
-    async def process_message(self, **payload):
-        """Process a raw message and pass it to the parser."""
-        message = payload["data"]
-
-        # Ignore message edits
-        if "subtype" in message and message["subtype"] == "message_changed":
-            return
-
-        # Ignore own messages
-        if (
-            "subtype" in message
-            and message["subtype"] == "bot_message"
-            and message["bot_id"] == self.bot_id
-        ):
-            return
-
-        # Lookup username
-        _LOGGER.debug(_("Looking up sender username."))
+    async def receive_from_websocket(self):
+        """Get the next message from the websocket."""
         try:
-            user_info = await self.lookup_username(message["user"])
-        except ValueError:
-            return
+            content = await self.websocket.recv()
+            await self.process_message(json.loads(content))
+        except websockets.exceptions.ConnectionClosed:
+            _LOGGER.info("Slack websocket closed, reconnecting...")
+            await self.reconnect(5)
 
-        # Replace usernames in the message
-        _LOGGER.debug(_("Replacing userids in message with usernames."))
-        message["text"] = await self.replace_usernames(message["text"])
+    async def process_message(self, message):
+        """Process a raw message and pass it to the parser."""
+        if "type" in message:
+            if "user" in message:
+                # Ignore messages that come from us
+                self_id = await self.get_user_id()
+                if message["user"] == self_id:
+                    return
 
-        await self.opsdroid.parse(
-            Message(
-                text=message["text"],
-                user=user_info["name"],
-                target=message["channel"],
-                connector=self,
-                raw_event=message,
+            _LOGGER.debug(f"Processing event with content {message}")
+            event = await self._event_creator.create_event(
+                message, message.get("channel")
             )
-        )
+            await self.opsdroid.parse(event)
 
-    @register_event(Message)
-    async def send_message(self, message):
+    @register_event(opsdroid.events.Message)
+    async def _send_message(self, message):
         """Respond with a message."""
-        _LOGGER.debug(
-            _("Responding with: '%s' in room  %s."), message.text, message.target
-        )
-        await self.slack.api_call(
-            "chat.postMessage",
-            data={
-                "channel": message.target,
-                "text": message.text,
-                "as_user": self.chat_as_user,
-                "username": self.bot_name,
-                "icon_emoji": self.icon_emoji,
-            },
+        _LOGGER.debug("Responding with: '%s' in room  %s", message.text, message.target)
+        await self.slacker.chat.post_message(
+            message.target,
+            message.text,
+            as_user=False,
+            username=self.bot_name,
+            icon_emoji=self.icon_emoji,
         )
 
     @register_event(Blocks)
-    async def send_blocks(self, blocks):
+    async def _send_blocks(self, blocks):
         """Respond with structured blocks."""
-        _LOGGER.debug(
-            _("Responding with interactive blocks in room %s."), blocks.target
-        )
-        await self.slack.api_call(
+        _LOGGER.debug("Responding with interactive blocks in room  %s", blocks.target)
+        await self.slacker.chat.post(
             "chat.postMessage",
             data={
                 "channel": blocks.target,
-                "as_user": self.chat_as_user,
                 "username": self.bot_name,
                 "blocks": blocks.blocks,
                 "icon_emoji": self.icon_emoji,
             },
         )
 
-    @register_event(Reaction)
+    @register_event(opsdroid.events.Reaction)
     async def send_reaction(self, reaction):
         """React to a message."""
         emoji = demojize(reaction.emoji).replace(":", "")
-        _LOGGER.debug(_("Reacting with: %s."), emoji)
+        _LOGGER.debug("Reacting with: %s", emoji)
         try:
-            await self.slack.api_call(
+            await self.slacker.reactions.post(
                 "reactions.add",
                 data={
                     "name": emoji,
                     "channel": reaction.target,
-                    "timestamp": reaction.linked_event.event_id,
+                    "timestamp": reaction.linked_event.raw_event["ts"],
                 },
             )
         except slack.errors.SlackApiError as error:
@@ -215,13 +215,36 @@ class ConnectorSlack(Connector):
             else:
                 raise
 
+    async def keepalive_websocket(self):
+        """Keep pinging the websocket to keep it alive."""
+        while self.listening:
+            await self.ping_websocket()
+
+    async def ping_websocket(self):
+        """Ping the websocket."""
+        await asyncio.sleep(60)
+        self._message_id += 1
+        try:
+            await self.websocket.send(
+                json.dumps({"id": self._message_id, "type": "ping"})
+            )
+        except (
+            websockets.exceptions.InvalidState,
+            websockets.exceptions.ConnectionClosed,
+            aiohttp.ClientOSError,
+            TimeoutError,
+        ):
+            _LOGGER.info("Slack websocket closed, reconnecting...")
+            if not self.reconnecting:
+                await self.reconnect()
+
     async def lookup_username(self, userid):
         """Lookup a username and cache it."""
         if userid in self.known_users:
             user_info = self.known_users[userid]
         else:
-            response = await self.slack.users_info(user=userid)
-            user_info = response.data["user"]
+            response = await self.slacker.users.info(userid)
+            user_info = response.body["user"]
             if isinstance(user_info, dict):
                 self.known_users[userid] = user_info
             else:
@@ -308,3 +331,32 @@ class ConnectorSlack(Connector):
                 )
 
         return aiohttp.web.Response(text=json.dumps("Received"), status=200)
+
+    @register_event(opsdroid.events.NewRoom)
+    async def _send_room_creation(self, creation_event):
+        params = creation_event.room_params
+        params = params.get("slack", params)
+        resp = await self.slacker.channels.create(creation_event.name)
+        return resp.body["channel"]["id"]
+
+    @register_event(opsdroid.events.RoomName)
+    async def _send_room_name_set(self, name_event):
+        return await self.slacker.channels.rename(
+            name_event.target, name_event.name, "true"
+        )
+
+    @register_event(opsdroid.events.JoinRoom)
+    async def _send_join_room(self, join_event):
+        return await self.slacker.channels.join(join_event.target, "true")
+
+    @register_event(opsdroid.events.UserInvite)
+    async def _send_user_invitation(self, invite_event):
+        return await self.slacker.channels.invite(
+            invite_event.target, invite_event.user
+        )
+
+    @register_event(opsdroid.events.RoomDescription)
+    async def _send_room_desciption(self, desc_event):
+        return await self.slacker.channels.set_topic(
+            desc_event.target, desc_event.description
+        )

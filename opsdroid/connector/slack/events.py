@@ -4,11 +4,15 @@ import json
 import aiohttp
 import ssl
 import certifi
+import logging
+from collections import defaultdict
 
-from opsdroid.events import Message, Event
+from opsdroid import events
+
+_LOGGER = logging.getLogger(__name__)
 
 
-class Blocks(Message):
+class Blocks(events.Message):
     """A blocks object.
 
     Slack uses blocks to add advenced interactivity and formatting to messages.
@@ -47,7 +51,7 @@ class Blocks(Message):
             self.blocks = json.dumps(self.blocks)
 
 
-class InteractiveAction(Event):
+class InteractiveAction(events.Event):
     """Super class to represent Slack interactive actions."""
 
     def __init__(self, payload, *args, **kwargs):
@@ -115,3 +119,121 @@ class ViewClosed(InteractiveAction):
     def __init__(self, payload, *args, **kwargs):
         """Create object with minimum properties."""
         super().__init__(payload, *args, **kwargs)
+
+
+class ChannelArchived(events.Event):
+    """Event for when a slack channel is archived."""
+
+
+class ChannelUnarchived(events.Event):
+    """Event for when a slack channel is unarchived."""
+
+
+class SlackEventCreator(events.EventCreator):
+    """Create opsdroid events from Slack ones."""
+
+    def __init__(self, connector, *args, **kwargs):
+        """Initialise the event creator"""
+        super().__init__(connector, *args, **kwargs)
+        self.connector = connector
+
+        # Things for managing various types of message
+        self.event_types["message"] = self.create_room_message
+        self.event_types["channel_created"] = self.create_newroom
+        self.event_types["channel_archive"] = self.archive_room
+        self.event_types["channel_unarchive"] = self.unarchive_room
+
+        self.message_events = defaultdict(lambda: self.skip)
+        self.message_events.update(
+            {
+                "message": self.create_message,
+                "channel_topic": self.topic_changed,
+                "channel_name": self.channel_name_changed,
+            }
+        )
+
+        # Things for managing room-level events
+        self.event_types["channel_created"] = self.create_newroom
+
+    async def create_room_message(self, event, channel):
+        """Dispatch a message event of arbitrary subtype."""
+        msgtype = event["subtype"] if "subtype" in event.keys() else "message"
+        return await self.message_events[msgtype](event, channel)
+
+    async def get_username(self, user_id):
+        # Lookup username
+        _LOGGER.debug("Looking up sender username")
+        try:
+            user_info = await self.connector.lookup_username(user_id)
+            user_name = user_info.get("real_name", "") or user_info["name"]
+        except ValueError:
+            pass
+
+        return user_name
+
+    async def create_message(self, event, channel):
+        """Send a Message event."""
+        user_name = await self.get_username(event["user"])
+
+        _LOGGER.debug("Replacing userids in message with usernames")
+        text = await self.connector.replace_usernames(event["text"])
+
+        return events.Message(
+            text,
+            user_name,
+            channel,
+            self.connector,
+            event_id=event["ts"],
+            raw_event=event,
+        )
+
+    async def create_newroom(self, event, channel):
+        """Send a NewRoom event"""
+        user_name = await self.get_username(event["channel"]["creator"])
+        return events.NewRoom(
+            name=event["channel"].pop("name"),
+            params=None,
+            user=user_name,
+            target=channel["id"],
+            connector=self.connector,
+            event_id=event["event_ts"],
+            raw_event=event,
+        )
+
+    async def archive_room(self, event, channel):
+        """Send a ChannelArchived event"""
+        return ChannelArchived(
+            target=event["channel"],
+            connector=self.connector,
+            event_id=event["event_ts"],
+            raw_event=event,
+        )
+
+    async def unarchive_room(self, event, channel):
+        """Send a ChannelArchived event"""
+        return ChannelUnarchived(
+            target=event["channel"],
+            connector=self.connector,
+            event_id=event["event_ts"],
+            raw_event=event,
+        )
+
+    async def topic_changed(self, event, channel):
+        """Send a RoomDescription event"""
+        return events.RoomDescription(
+            description=event["topic"],
+            target=channel,
+            connector=self.connector,
+            event_id=event["ts"],
+            raw_event=event,
+        )
+
+    async def channel_name_changed(self, event, channel):
+        """Send a RoomName event"""
+        return events.RoomName(
+            name=event["name"],
+            target=channel,
+            connector=self.connector,
+            event_id=event["event_ts"],
+            raw_event=event,
+        )
