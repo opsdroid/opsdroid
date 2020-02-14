@@ -148,6 +148,11 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         await connector.process_message(data=message)
         self.assertFalse(connector.opsdroid.parse.called)
 
+        connector.opsdroid.parse.reset_mock()
+        connector.lookup_username.side_effect = KeyError
+        await connector.process_message(data=message)
+        self.assertFalse(connector.opsdroid.parse.called)
+
     async def test_lookup_username(self):
         """Test that looking up a username works and that it caches."""
         connector = ConnectorSlack({"token": "abc123"}, opsdroid=OpsDroid())
