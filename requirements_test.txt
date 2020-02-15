@@ -1,6 +1,6 @@
 flake8==3.7.9
 black==19.10b0
-coveralls==1.11.0
+coveralls==1.11.1
 dialogflow==0.7.2
 astroid==2.3.3
 pytest==5.3.5
