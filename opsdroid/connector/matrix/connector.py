@@ -108,11 +108,7 @@ class ConnectorMatrix(Connector):
             "event_format": "client",
             "account_data": {"limit": 0, "types": []},
             "presence": {"limit": 0, "types": []},
-            "room": {
-                "account_data": {"types": []},
-                "ephemeral": {"types": []},
-                "state": {"types": []},
-            },
+            "room": {"account_data": {"types": []}, "ephemeral": {"types": []}},
         }
 
     async def make_filter(self, api):

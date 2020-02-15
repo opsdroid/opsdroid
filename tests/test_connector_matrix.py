@@ -896,6 +896,23 @@ class TestEventCreatorAsync(asynctest.TestCase):
         }
 
     @property
+    def join_room_json(self):
+        return {
+            "content": {
+                "avatar_url": "mxc://example.org/SEsfnsuifSDFSSEF",
+                "displayname": "Alice Margatroid",
+                "membership": "join",
+            },
+            "event_id": "$143273582443PhrSn:example.org",
+            "origin_server_ts": 1432735824653,
+            "room_id": "!jEsUZKDJdhlrceRyVU:example.org",
+            "sender": "@example:example.org",
+            "state_key": "@alice:example.org",
+            "type": "m.room.member",
+            "unsigned": {"age": 1234},
+        }
+
+    @property
     def event_creator(self):
         patched_get_nick = amock.MagicMock()
         patched_get_nick.return_value = asyncio.Future()
@@ -1017,3 +1034,12 @@ class TestEventCreatorAsync(asynctest.TestCase):
         assert event.raw_event == self.reply_json
 
         assert isinstance(event.linked_event, events.Message)
+
+    async def test_create_joinroom(self):
+        event = await self.event_creator.create_event(self.join_room_json, "hello")
+        assert isinstance(event, events.JoinRoom)
+        assert event.user == "Rabbit Hole"
+        assert event.user_id == "@example:example.org"
+        assert event.target == "hello"
+        assert event.event_id == "$143273582443PhrSn:example.org"
+        assert event.raw_event == self.join_room_json
