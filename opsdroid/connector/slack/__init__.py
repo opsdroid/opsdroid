@@ -144,7 +144,8 @@ class ConnectorSlack(Connector):
         _LOGGER.debug(_("Looking up sender username."))
         try:
             user_info = await self.lookup_username(message["user"])
-        except ValueError:
+        except (ValueError, KeyError) as error:
+            _LOGGER.error(_("Username lookup failed for %s."), error)
             return
 
         # Replace usernames in the message
