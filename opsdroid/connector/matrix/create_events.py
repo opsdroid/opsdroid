@@ -25,7 +25,8 @@ class MatrixEventCreator(events.EventCreator):
 
     async def create_event_from_eventid(self, eventid, roomid):
         """Return an ``Event`` based on an event id in a room."""
-        event_json = await self.connector.connection.get_event_in_room(roomid, eventid)
+        room_context = await self.connector.connection.room_context(roomid, eventid, 1)
+        event_json = room_context.event
         return await self.create_event(event_json, roomid)
 
     def __init__(self, connector, *args, **kwargs):
