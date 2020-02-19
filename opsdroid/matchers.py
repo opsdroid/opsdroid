@@ -358,3 +358,25 @@ def match_always(func=None):
     if callable(func):
         return matcher(func)
     return matcher
+
+
+def match_mention(func=None):
+    """Return mention match decorator.
+
+    Decorator that calls the decorated function if the bot is mentioned.
+
+    Returns:
+        Decorated Function
+
+    """
+
+    def matcher(func):
+        """Add decorated function to skills list for always matching."""
+        func = add_skill_attributes(func)
+        func.matchers.append({"mention": True})
+        return func
+
+    # Allow for decorator with or without parenthesis as there are no args.
+    if callable(func):
+        return matcher(func)
+    return matcher

@@ -30,6 +30,7 @@ from opsdroid.parsers.witai import parse_witai
 from opsdroid.parsers.watson import parse_watson
 from opsdroid.parsers.rasanlu import parse_rasanlu, train_rasanlu
 from opsdroid.parsers.crontab import parse_crontab
+from opsdroid.parsers.mention import parse_mention
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -420,6 +421,7 @@ class OpsDroid:
         if isinstance(message, events.Message):
             ranked_skills += await parse_regex(self, skills, message)
             ranked_skills += await parse_format(self, skills, message)
+            ranked_skills += await parse_mention(self, skills, message)
 
         if "parsers" in self.config:
             _LOGGER.debug(_("Processing parsers..."))
