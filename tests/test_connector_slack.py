@@ -573,8 +573,8 @@ class TestEventCreatorAsync(asynctest.TestCase):
         event = await self.event_creator.create_event(self.test_message, "hello")
         assert isinstance(event, events.Message)
         assert event.text == "Hello, world!"
-        assert event.user == "U2147483697"
-        assert event.user_id == "testuser"
+        assert event.user == "testuser"
+        assert event.user_id == "U2147483697"
         assert event.target == "hello"
         assert event.event_id == "1355517523.000005"
         assert event.raw_event == self.test_message

@@ -180,8 +180,8 @@ class SlackEventCreator(events.EventCreator):
 
         return events.Message(
             text,
-            user=event["user"],
-            user_id=user_name,
+            user=user_name,
+            user_id=event["user"],
             target=channel,
             connector=self.connector,
             event_id=event["ts"],
@@ -190,11 +190,13 @@ class SlackEventCreator(events.EventCreator):
 
     async def create_newroom(self, event, channel):
         """Send a NewRoom event"""
-        user_name = await self.get_username(event["channel"]["creator"])
+        user_id = event["channel"]["creator"]
+        user_name = await self.get_username(user_id)
         return events.NewRoom(
             name=event["channel"].pop("name"),
             params=None,
             user=user_name,
+            user_id=user_id,
             target=channel["id"],
             connector=self.connector,
             event_id=event["event_ts"],
