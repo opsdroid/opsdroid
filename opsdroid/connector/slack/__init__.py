@@ -314,8 +314,6 @@ class ConnectorSlack(Connector):
 
     @register_event(opsdroid.events.NewRoom)
     async def _send_room_creation(self, creation_event):
-        params = creation_event.room_params
-        params = params.get("slack", params)
         resp = await self.slacker.channels.create(creation_event.name)
         return resp.body["channel"]["id"]
 
