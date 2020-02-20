@@ -166,8 +166,8 @@ class SlackEventCreator(events.EventCreator):
         try:
             user_info = await self.connector.lookup_username(user_id)
             user_name = user_info.get("real_name", "") or user_info["name"]
-        except ValueError:
-            pass
+        except ValueError:  # pragma: nocover
+            return user_id
 
         return user_name
 
@@ -180,9 +180,10 @@ class SlackEventCreator(events.EventCreator):
 
         return events.Message(
             text,
-            user_name,
-            channel,
-            self.connector,
+            user=event["user"],
+            user_id=user_name,
+            target=channel,
+            connector=self.connector,
             event_id=event["ts"],
             raw_event=event,
         )

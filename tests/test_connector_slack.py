@@ -12,8 +12,8 @@ import aiohttp
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector.slack import ConnectorSlack
-from opsdroid.connector.slack.events import Blocks, InteractiveAction
-from opsdroid.events import Message, Reaction
+from opsdroid.connector.slack import events as slackevents
+from opsdroid import events
 from opsdroid.cli.start import configure_lang
 
 
@@ -181,7 +181,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         connector = ConnectorSlack({"token": "abc123"}, opsdroid=OpsDroid())
         connector.slack.api_call = amock.CoroutineMock()
         await connector.send(
-            Message(text="test", user="user", target="room", connector=connector)
+            events.Message(text="test", user="user", target="room", connector=connector)
         )
         self.assertTrue(connector.slack.api_call.called)
 
@@ -189,7 +189,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         connector = ConnectorSlack({"token": "abc123"}, opsdroid=OpsDroid())
         connector.slack.api_call = amock.CoroutineMock()
         await connector.send(
-            Blocks(
+            slackevents.Blocks(
                 [{"type": "section", "text": {"type": "mrkdwn", "text": "*Test*"}}],
                 "user",
                 "room",
@@ -201,7 +201,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
     async def test_react(self):
         connector = ConnectorSlack({"token": "abc123"})
         connector.slack.api_call = amock.CoroutineMock()
-        prev_message = Message(
+        prev_message = events.Message(
             text="test",
             user="user",
             target="room",
@@ -209,7 +209,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
             raw_event={"ts": 0},
         )
         with OpsDroid():
-            await prev_message.respond(Reaction("😀"))
+            await prev_message.respond(events.Reaction("😀"))
         self.assertTrue(connector.slack.api_call)
         self.assertEqual(
             connector.slack.api_call.call_args[1]["data"]["name"], "grinning_face"
@@ -222,7 +222,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         connector.slack.api_call = amock.CoroutineMock(
             side_effect=slack.errors.SlackApiError("invalid_name", "invalid_name")
         )
-        prev_message = Message(
+        prev_message = events.Message(
             text="test",
             user="user",
             target="room",
@@ -230,7 +230,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
             raw_event={"ts": 0},
         )
         with OpsDroid():
-            await prev_message.respond(Reaction("😀"))
+            await prev_message.respond(events.Reaction("😀"))
         self.assertLogs("_LOGGER", "warning")
 
     async def test_react_unknown_error(self):
@@ -241,14 +241,14 @@ class TestConnectorSlackAsync(asynctest.TestCase):
             side_effect=slack.errors.SlackApiError("unknown", "unknown")
         )
         with self.assertRaises(slack.errors.SlackApiError), OpsDroid():
-            prev_message = Message(
+            prev_message = events.Message(
                 text="test",
                 user="user",
                 target="room",
                 connector=connector,
                 raw_event={"ts": 0},
             )
-            await prev_message.respond(Reaction("😀"))
+            await prev_message.respond(events.Reaction("😀"))
 
     async def test_replace_usernames(self):
         connector = ConnectorSlack({"token": "abc123"}, opsdroid=OpsDroid())
@@ -492,7 +492,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
             "response_url": "https://hooks.slack.com/app-actions/T0MJR11A4/21974584944/yk1S9ndf35Q1flupVG5JbpM6",
         }
 
-        interactive_action = InteractiveAction(payload)
+        interactive_action = slackevents.InteractiveAction(payload)
         with amock.patch("aiohttp.ClientSession.post") as patched_request:
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
@@ -505,7 +505,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
             "user": {"id": "UXXXXXX", "name": "dreamweaver"},
         }
 
-        interactive_action = InteractiveAction(payload)
+        interactive_action = slackevents.InteractiveAction(payload)
         with amock.patch("aiohttp.ClientSession.post") as patched_request:
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
@@ -520,7 +520,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
                 "user": "user",
                 "room": "default",
             }
-            message = Message(
+            message = events.Message(
                 text="Hello world",
                 user_id="user_id",
                 user="user",
@@ -536,3 +536,45 @@ class TestConnectorSlackAsync(asynctest.TestCase):
                 await interactive_action.respond(message)
                 self.assertTrue(opsdroid.send.called)
                 self.assertFalse(patched_request.called)
+
+
+class TestEventCreatorAsync(asynctest.TestCase):
+    def setUp(self):
+        self.connector = ConnectorSlack({"token": "abc123"}, opsdroid=OpsDroid())
+        opsdroid = amock.CoroutineMock()
+        opsdroid.eventloop = self.loop
+        self.connector.slack_rtm._connect_and_read = amock.CoroutineMock()
+        self.connector.slack.api_call = amock.CoroutineMock()
+        self.connector.opsdroid.web_server = amock.CoroutineMock()
+        self.connector.opsdroid.web_server.web_app = amock.CoroutineMock()
+        self.connector.opsdroid.web_server.web_app.router = amock.CoroutineMock()
+        self.connector.opsdroid.web_server.web_app.router.add_post = (
+            amock.CoroutineMock()
+        )
+        self.connector.lookup_username = amock.CoroutineMock()
+        self.connector.lookup_username.return_value = {"name": "testuser"}
+
+    @property
+    def test_message(self):
+        return {  # https://api.slack.com/events/message
+            "type": "message",
+            "channel": "C2147483705",
+            "user": "U2147483697",
+            "text": "Hello, world!",
+            "ts": "1355517523.000005",
+            "edited": {"user": "U2147483697", "ts": "1355517536.000001"},
+        }
+
+    @property
+    def event_creator(self):
+        return slackevents.SlackEventCreator(self.connector)
+
+    async def test_create_message(self):
+        event = await self.event_creator.create_event(self.test_message, "hello")
+        assert isinstance(event, events.Message)
+        assert event.text == "Hello, world!"
+        assert event.user == "U2147483697"
+        assert event.user_id == "testuser"
+        assert event.target == "hello"
+        assert event.event_id == "1355517523.000005"
+        assert event.raw_event == self.test_message
