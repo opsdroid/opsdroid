@@ -36,6 +36,7 @@ class MatrixEventCreator(events.EventCreator):
         self.event_types["m.room.topic"] = self.create_room_description
         self.event_types["m.room.name"] = self.create_room_name
         self.event_types["m.reaction"] = self.create_reaction
+        self.event_types["m.room.member"] = self.create_join_room
 
         self.message_events = defaultdict(lambda: self.skip)
         self.message_events.update(
@@ -147,3 +148,15 @@ class MatrixEventCreator(events.EventCreator):
             linked_event=parent_event,
             raw_event=event,
         )
+
+    async def create_join_room(self, event, roomid):
+        """Send a JoinRoomEvent."""
+        if event["content"]["membership"] == "join":
+            return events.JoinRoom(
+                user=await self.connector.get_nick(roomid, event["sender"]),
+                user_id=event["sender"],
+                target=roomid,
+                connector=self.connector,
+                event_id=event["event_id"],
+                raw_event=event,
+            )
