@@ -9,7 +9,7 @@ pytest-timeout==1.3.4
 pydocstyle==5.0.2
 asynctest==0.13.0
 mypy-lang==0.5.0
-sphinx==2.4.1
+sphinx==2.4.3
 sphinx-click==2.3.1
 recommonmark==0.6.0
 deadlinks==0.1.1
