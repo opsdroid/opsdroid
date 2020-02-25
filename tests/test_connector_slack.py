@@ -216,7 +216,6 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         )
 
     async def test_react_invalid_name(self):
-        import slack
 
         connector = ConnectorSlack({"token": "abc123"})
         connector.slack.api_call = amock.CoroutineMock(
@@ -234,7 +233,6 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         self.assertLogs("_LOGGER", "warning")
 
     async def test_react_unknown_error(self):
-        import slack
 
         connector = ConnectorSlack({"token": "abc123"})
         connector.slack.api_call = amock.CoroutineMock(
