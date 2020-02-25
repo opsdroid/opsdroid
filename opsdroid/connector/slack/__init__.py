@@ -145,7 +145,7 @@ class ConnectorSlack(Connector):
         # Lookup username
         _LOGGER.debug(_("Looking up sender username."))
         try:
-            user_info = await self.lookup_username(message["user"])
+            await self.lookup_username(message["user"])
         except (ValueError, KeyError) as error:
             _LOGGER.error(_("Username lookup failed for %s."), error)
             return
@@ -154,15 +154,9 @@ class ConnectorSlack(Connector):
         _LOGGER.debug(_("Replacing userids in message with usernames."))
         message["text"] = await self.replace_usernames(message["text"])
 
-        await self.opsdroid.parse(
-            opsdroid.events.Message(
-                text=message["text"],
-                user=user_info["name"],
-                target=message["channel"],
-                connector=self,
-                raw_event=message,
-            )
-        )
+        event = await self._event_creator.create_event(message, message["channel"])
+
+        await self.opsdroid.parse(event)
 
     @register_event(opsdroid.events.Message)
     async def _send_message(self, message):
