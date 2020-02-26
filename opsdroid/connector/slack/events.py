@@ -129,22 +129,36 @@ class ChannelUnarchived(events.Event):
     """Event for when a slack channel is unarchived."""
 
 
+def slack_to_creator(f):
+    """
+    Wrap a callback so that RTMClient can work.
+    """
+
+    async def wrapper(self, **kwargs):
+        event = kwargs["data"]
+        _LOGGER.debug(f"Got slack event: {event}")
+        channel = event.get("channel", None)
+        return await self.connector.opsdroid.parse(await f(self, event, channel))
+
+    return wrapper
+
+
 class SlackEventCreator(events.EventCreator):
     """Create opsdroid events from Slack ones."""
 
-    def __init__(self, connector, *args, **kwargs):
+    def __init__(self, connector, rtm_client, *args, **kwargs):
         """Initialise the event creator"""
         super().__init__(connector, *args, **kwargs)
         self.connector = connector
 
         # Things for managing various types of message
-        self.event_types["message"] = self.create_room_message
-        self.event_types["channel_created"] = self.create_newroom
-        self.event_types["channel_archive"] = self.archive_room
-        self.event_types["channel_unarchive"] = self.unarchive_room
+        rtm_client.on(event="message", callback=self.create_room_message)
+        rtm_client.on(event="channel_created", callback=self.create_newroom)
+        rtm_client.on(event="channel_archive", callback=self.archive_room)
+        rtm_client.on(event="channel_unarchive", callback=self.unarchive_room)
 
-        self.message_events = defaultdict(lambda: self.skip)
-        self.message_events.update(
+        self.message_subtypes = defaultdict(lambda: self.skip)
+        self.message_subtypes.update(
             {
                 "message": self.create_message,
                 "channel_topic": self.topic_changed,
@@ -152,13 +166,17 @@ class SlackEventCreator(events.EventCreator):
             }
         )
 
-        # Things for managing room-level events
-        self.event_types["channel_created"] = self.create_newroom
+    async def create_event(self, event, target):
+        # We don't use this, as we use the RTM client instead.
+        # It's implemented in the base class though, so do this to be safe.
+        raise NotImplementedError("you didn't want to call this")  # pragma: nocover
 
+    @slack_to_creator
     async def create_room_message(self, event, channel):
         """Dispatch a message event of arbitrary subtype."""
+        channel = event["channel"]
         msgtype = event["subtype"] if "subtype" in event.keys() else "message"
-        return await self.message_events[msgtype](event, channel)
+        return await self.message_subtypes[msgtype](event, channel)
 
     async def get_username(self, user_id):
         # Lookup username
@@ -188,6 +206,7 @@ class SlackEventCreator(events.EventCreator):
             raw_event=event,
         )
 
+    @slack_to_creator
     async def create_newroom(self, event, channel):
         """Send a NewRoom event"""
         user_id = event["channel"]["creator"]
@@ -197,25 +216,27 @@ class SlackEventCreator(events.EventCreator):
             params=None,
             user=user_name,
             user_id=user_id,
-            target=channel["id"],
+            target=event["channel"]["id"],
             connector=self.connector,
             event_id=event["event_ts"],
             raw_event=event,
         )
 
+    @slack_to_creator
     async def archive_room(self, event, channel):
         """Send a ChannelArchived event"""
         return ChannelArchived(
-            target=event["channel"],
+            target=channel,
             connector=self.connector,
             event_id=event["event_ts"],
             raw_event=event,
         )
 
+    @slack_to_creator
     async def unarchive_room(self, event, channel):
         """Send a ChannelArchived event"""
         return ChannelUnarchived(
-            target=event["channel"],
+            target=channel,
             connector=self.connector,
             event_id=event["event_ts"],
             raw_event=event,

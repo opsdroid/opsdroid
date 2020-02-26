@@ -72,9 +72,7 @@ class ConnectorSlack(Connector):
         self.listening = True
         self._message_id = 0
 
-        # Register callbacks
-        slack.RTMClient.on(event="message", callback=self.process_message)
-        self._event_creator = SlackEventCreator(self)
+        self._event_creator = SlackEventCreator(self, slack.RTMClient)
 
     async def connect(self):
         """Connect to the chat service."""
