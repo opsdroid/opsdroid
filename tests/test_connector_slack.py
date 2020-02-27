@@ -543,14 +543,18 @@ class TestEventCreatorAsync(asynctest.TestCase):
         self.connector = ConnectorSlack({"token": "abc123"}, opsdroid=OpsDroid())
 
     @property
-    def test_message(self):
-        return {  # https://api.slack.com/events/message
-            "type": "message",
-            "channel": "C2147483705",
-            "user": "U2147483697",
-            "text": "Hello, world!",
-            "ts": "1355517523.000005",
-            "edited": {"user": "U2147483697", "ts": "1355517536.000001"},
+    def message_event(self):
+        return {
+            "client_msg_id": "2db0a81b-a254-45d0-9549-61d933428d80",
+            "suppress_notification": False,
+            "text": "Hello World",
+            "user": "U9S8JGF45",
+            "team": "T9T6EKEEB",
+            "source_team": "T9T6EKEEB",
+            "user_team": "T9T6EKEEB",
+            "channel": "C9S8JGM2R",
+            "event_ts": "1582838099.000600",
+            "ts": "1582838099.000600",
         }
 
     @property
@@ -560,29 +564,21 @@ class TestEventCreatorAsync(asynctest.TestCase):
     async def test_create_message(self):
         with amock.patch(
             "opsdroid.connector.slack.ConnectorSlack.lookup_username"
-        ) as lookup:
+        ) as lookup, amock.patch("opsdroid.core.OpsDroid.parse") as parse:
             lookup.return_value = asyncio.Future()
             lookup.return_value.set_result({"name": "testuser"})
 
-            with amock.patch("opsdroid.core.OpsDroid.parse") as parse:
-                await self.connector.slack_rtm._dispatch_event(
-                    "message", self.test_message
-                )
-                (called_event,), _ = parse.call_args
-                self.assertTrue(isinstance(called_event, events.Message))
-                self.assertTrue(called_event.text == self.test_message["text"])
-                self.assertTrue(called_event.user_id == self.test_message["user"])
-                self.assertTrue(called_event.target == self.test_message["channel"])
-                self.assertTrue(called_event.event_id == self.test_message["ts"])
-
-        # self.assertTrue(self.connector.opsdroid.parse.called_once_with(event))
-        # assert isinstance(event, events.Message)
-        # assert event.text == "Hello, world!"
-        # assert event.user == "testuser"
-        # assert event.user_id == "U2147483697"
-        # assert event.target == "hello"
-        # assert event.event_id == "1355517523.000005"
-        # assert event.raw_event == self.test_message
+            await self.connector.slack_rtm._dispatch_event(
+                "message", self.message_event
+            )
+            (called_event,), _ = parse.call_args
+            self.assertTrue(isinstance(called_event, events.Message))
+            self.assertTrue(called_event.text == self.message_event["text"])
+            self.assertTrue(called_event.user == "testuser")
+            self.assertTrue(called_event.user_id == self.message_event["user"])
+            self.assertTrue(called_event.target == self.message_event["channel"])
+            self.assertTrue(called_event.event_id == self.message_event["ts"])
+            self.assertTrue(called_event.raw_event == self.message_event)
 
     async def test_create_channel_created_event(self):
         pass
@@ -593,8 +589,62 @@ class TestEventCreatorAsync(asynctest.TestCase):
     async def test_create_channel_unarchive_event(self):
         pass
 
+    @property
+    def join_event(self):
+        return {
+            "user": {
+                "id": "UULDMD9BJ",
+                "team_id": "T9T6EKEEB",
+                "name": "test3",
+                "deleted": False,
+                "color": "5b89d5",
+                "real_name": "test3",
+                "tz": "Europe/London",
+                "tz_label": "Greenwich Mean Time",
+                "tz_offset": 0,
+                "profile": {
+                    "title": "",
+                    "phone": "",
+                    "skype": "",
+                    "real_name": "test3",
+                    "real_name_normalized": "test3",
+                    "display_name": "test3",
+                    "display_name_normalized": "test3",
+                    "status_text_canonical": "",
+                    "team": "T9T6EKEEB",
+                },
+                "is_admin": False,
+                "is_owner": False,
+                "is_primary_owner": False,
+                "is_restricted": False,
+                "is_ultra_restricted": False,
+                "is_bot": False,
+                "is_app_user": False,
+                "updated": 1582824116,
+                "presence": "away",
+            },
+            "cache_ts": 1582824116,
+            "event_ts": "1582824117.006000",
+        }
+
+    async def test_user_join(self):
+        with amock.patch(
+            "opsdroid.connector.slack.ConnectorSlack.lookup_username"
+        ) as lookup, amock.patch("opsdroid.core.OpsDroid.parse") as parse:
+            lookup.return_value = asyncio.Future()
+            lookup.return_value.set_result({"name": "testuser"})
+
+            await self.connector.slack_rtm._dispatch_event("team_join", self.join_event)
+            (called_event,), _ = parse.call_args
+            assert isinstance(called_event, events.JoinGroup)
+            self.assertTrue(called_event.user == "testuser")
+            self.assertTrue(called_event.user_id == self.join_event["user"]["id"])
+            self.assertTrue(called_event.target == self.join_event["user"]["team_id"])
+            self.assertTrue(called_event.event_id == self.join_event["event_ts"])
+            self.assertTrue(called_event.raw_event == self.join_event)
+
     async def test_create_event_fails(self):
         # The create_event method of the event creator is redundant in slack because the RTM is
         # doing the heavy lifting on that. Check that it fails loudly if it gets called.
         with self.assertRaises(NotImplementedError):
-            await self.event_creator.create_event(self.test_message, "hello")
+            await self.event_creator.create_event(self.message_event, "hello")
