@@ -567,7 +567,7 @@ class TestEventCreatorAsync(asynctest.TestCase):
 
     @property
     def event_creator(self):
-        return slackevents.SlackEventCreator(self.connector)
+        return slackevents.SlackEventCreator(self.connector, self.connector.slack_rtm)
 
     async def test_create_message(self):
         event = await self.event_creator.create_event(self.test_message, "hello")
@@ -578,3 +578,9 @@ class TestEventCreatorAsync(asynctest.TestCase):
         assert event.target == "hello"
         assert event.event_id == "1355517523.000005"
         assert event.raw_event == self.test_message
+
+    async def test_create_event_fails(self):
+        # The create_event method of the event creator is redundant in slack because the RTM is
+        # doing the heavy lifting on that. Check that it fails loudly if it gets called.
+        with self.assertRaises(NotImplementedError):
+            await self.event_creator.create_event(self.test_message, "hello")

@@ -169,7 +169,9 @@ class SlackEventCreator(events.EventCreator):
     async def create_event(self, event, target):
         # We don't use this, as we use the RTM client instead.
         # It's implemented in the base class though, so do this to be safe.
-        raise NotImplementedError("you didn't want to call this")  # pragma: nocover
+        raise NotImplementedError(
+            "This method is obsolete in slack. Use connector.slack_rtm._dispatch_event() instead"
+        )
 
     @slack_to_creator
     async def create_room_message(self, event, channel):
