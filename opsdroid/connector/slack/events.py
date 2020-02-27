@@ -146,16 +146,21 @@ def slack_to_creator(f):
 class SlackEventCreator(events.EventCreator):
     """Create opsdroid events from Slack ones."""
 
-    def __init__(self, connector, rtm_client, *args, **kwargs):
+    def __init__(self, connector, *args, **kwargs):
         """Initialise the event creator"""
         super().__init__(connector, *args, **kwargs)
         self.connector = connector
 
         # Things for managing various types of message
-        rtm_client.on(event="message", callback=self.create_room_message)
-        rtm_client.on(event="channel_created", callback=self.create_newroom)
-        rtm_client.on(event="channel_archive", callback=self.archive_room)
-        rtm_client.on(event="channel_unarchive", callback=self.unarchive_room)
+        self.connector.slack_rtm.on(event="message", callback=self.create_room_message)
+        self.connector.slack_rtm.on(
+            event="channel_created", callback=self.create_newroom
+        )
+        self.connector.slack_rtm.on(event="channel_archive", callback=self.archive_room)
+        self.connector.slack_rtm.on(
+            event="channel_unarchive", callback=self.unarchive_room
+        )
+        self.connector.slack_rtm.on(event="team_join", callback=self.create_join_group)
 
         self.message_subtypes = defaultdict(lambda: self.create_message)
         self.message_subtypes.update(
@@ -171,7 +176,7 @@ class SlackEventCreator(events.EventCreator):
         # We don't use this, as we use the RTM client instead.
         # It's implemented in the base class though, so do this to be safe.
         raise NotImplementedError(
-            "This method is obsolete in slack. Use connector.slack_rtm._dispatch_event() instead"
+            "This method is not used with slack. Use connector.slack_rtm._dispatch_event() instead"
         )
 
     @slack_to_creator
@@ -194,7 +199,7 @@ class SlackEventCreator(events.EventCreator):
 
     async def create_message(self, event, channel):
         """Send a Message event."""
-        user_name = await self.get_username(event["user"])
+        user_name = await self.get_username(event.get("user", event.get("bot_id", "")))
 
         _LOGGER.debug("Replacing userids in message with usernames")
         text = await self.connector.replace_usernames(event["text"])
@@ -212,7 +217,7 @@ class SlackEventCreator(events.EventCreator):
     async def handle_bot_message(self, event, channel):
         """Check that a bot message isn't us then create the message."""
         if event["bot_id"] != self.connector.bot_id:
-            return await create_message(event, channel)
+            return await self.create_message(event, channel)
 
     @slack_to_creator
     async def create_newroom(self, event, channel):
@@ -248,6 +253,19 @@ class SlackEventCreator(events.EventCreator):
             connector=self.connector,
             event_id=event["event_ts"],
             raw_event=event,
+        )
+
+    @slack_to_creator
+    async def create_join_group(self, event, channel):
+        """Send a JoinGroup event"""
+        user_name = await self.get_username(event["user"]["id"])
+        return events.JoinGroup(
+            target=event["user"]["team_id"],
+            connector=self.connector,
+            event_id=event["event_ts"],
+            raw_event=event,
+            user_id=event["user"]["id"],
+            user=user_name,
         )
 
     async def topic_changed(self, event, channel):
