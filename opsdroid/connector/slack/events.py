@@ -147,17 +147,21 @@ def slack_to_creator(f):
 class SlackEventCreator(events.EventCreator):
     """Create opsdroid events from Slack ones."""
 
-    def __init__(self, connector, rtm_client, *args, **kwargs):
+    def __init__(self, connector, *args, **kwargs):
         """Initialise the event creator"""
         super().__init__(connector, *args, **kwargs)
         self.connector = connector
 
         # Things for managing various types of message
-        rtm_client.on(event="message", callback=self.create_room_message)
-        rtm_client.on(event="channel_created", callback=self.create_newroom)
-        rtm_client.on(event="channel_archive", callback=self.archive_room)
-        rtm_client.on(event="channel_unarchive", callback=self.unarchive_room)
-        rtm_client.on(event="team_join", callback=self.create_join_group)
+        self.connector.slack_rtm.on(event="message", callback=self.create_room_message)
+        self.connector.slack_rtm.on(
+            event="channel_created", callback=self.create_newroom
+        )
+        self.connector.slack_rtm.on(event="channel_archive", callback=self.archive_room)
+        self.connector.slack_rtm.on(
+            event="channel_unarchive", callback=self.unarchive_room
+        )
+        self.connector.slack_rtm.on(event="team_join", callback=self.create_join_group)
 
         self.message_subtypes = defaultdict(lambda: self.create_message)
         self.message_subtypes.update(
@@ -173,7 +177,7 @@ class SlackEventCreator(events.EventCreator):
         # We don't use this, as we use the RTM client instead.
         # It's implemented in the base class though, so do this to be safe.
         raise NotImplementedError(
-            "This method is obsolete in slack. Use connector.slack_rtm._dispatch_event() instead"
+            "This method is not used with slack. Use connector.slack_rtm._dispatch_event() instead"
         )
 
     @slack_to_creator
