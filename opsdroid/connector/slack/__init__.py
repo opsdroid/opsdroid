@@ -82,7 +82,9 @@ class ConnectorSlack(Connector):
             # seems to mess with the event loop's signal handlers which breaks opsdroid.
             # Therefore we need to directly call the private `_connect_and_read` method
             # instead. This method also blocks so we need to dispatch it to the loop as a task.
-            self.opsdroid.eventloop.create_task(self.slack_rtm._connect_and_read())
+            await self.opsdroid.eventloop.create_task(
+                self.slack_rtm._connect_and_read()
+            )
 
             self.auth_info = (await self.slack.api_call("auth.test")).data
             self.user_info = (
