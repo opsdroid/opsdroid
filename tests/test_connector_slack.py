@@ -93,7 +93,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         self.assertLogs("_LOGGER", "error")
 
     async def test_abort_on_connection_error(self):
-        connector = ConnectorSlack({"token": "abc123"})
+        connector = ConnectorSlack({"token": "abc123"}, opsdroid=OpsDroid())
         connector.slack_rtm._connect_and_read = amock.CoroutineMock()
         connector.slack_rtm._connect_and_read.side_effect = Exception()
         connector.slack_rtm.stop = amock.CoroutineMock()
@@ -199,7 +199,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         self.assertTrue(connector.slack.api_call.called)
 
     async def test_react(self):
-        connector = ConnectorSlack({"token": "abc123"})
+        connector = ConnectorSlack({"token": "abc123"}, opsdroid=OpsDroid())
         connector.slack.api_call = amock.CoroutineMock()
         prev_message = events.Message(
             text="test",
@@ -218,7 +218,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
     async def test_react_invalid_name(self):
         import slack
 
-        connector = ConnectorSlack({"token": "abc123"})
+        connector = ConnectorSlack({"token": "abc123"}, opsdroid=OpsDroid())
         connector.slack.api_call = amock.CoroutineMock(
             side_effect=slack.errors.SlackApiError("invalid_name", "invalid_name")
         )
@@ -236,7 +236,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
     async def test_react_unknown_error(self):
         import slack
 
-        connector = ConnectorSlack({"token": "abc123"})
+        connector = ConnectorSlack({"token": "abc123"}, opsdroid=OpsDroid())
         connector.slack.api_call = amock.CoroutineMock(
             side_effect=slack.errors.SlackApiError("unknown", "unknown")
         )
@@ -541,18 +541,6 @@ class TestConnectorSlackAsync(asynctest.TestCase):
 class TestEventCreatorAsync(asynctest.TestCase):
     def setUp(self):
         self.connector = ConnectorSlack({"token": "abc123"}, opsdroid=OpsDroid())
-        opsdroid = amock.CoroutineMock()
-        opsdroid.eventloop = self.loop
-        self.connector.slack_rtm._connect_and_read = amock.CoroutineMock()
-        self.connector.slack.api_call = amock.CoroutineMock()
-        self.connector.opsdroid.web_server = amock.CoroutineMock()
-        self.connector.opsdroid.web_server.web_app = amock.CoroutineMock()
-        self.connector.opsdroid.web_server.web_app.router = amock.CoroutineMock()
-        self.connector.opsdroid.web_server.web_app.router.add_post = (
-            amock.CoroutineMock()
-        )
-        self.event_creator.lookup_username = amock.CoroutineMock()
-        self.event_creator.lookup_username.return_value = {"name": "testuser"}
 
     @property
     def test_message(self):
@@ -570,15 +558,24 @@ class TestEventCreatorAsync(asynctest.TestCase):
         return slackevents.SlackEventCreator(self.connector, self.connector.slack_rtm)
 
     async def test_create_message(self):
-        self.connector.opsdroid.parse = amock.CoroutineMock()
-        # self.connector.opsdroid.eventloop = self.loop
-        # self.connector.lookup_username = amock.CoroutineMock()
-        # self.connector.lookup_username.return_value = {"name": "testuser"}
+        with amock.patch(
+            "opsdroid.connector.slack.ConnectorSlack.lookup_username"
+        ) as lookup:
+            lookup.return_value = asyncio.Future()
+            lookup.return_value.set_result({"name": "testuser"})
 
-        event = events.Message(self.test_message)
-        await self.connector.slack_rtm._dispatch_event("message", self.test_message)
+            with amock.patch("opsdroid.core.OpsDroid.parse") as parse:
+                await self.connector.slack_rtm._dispatch_event(
+                    "message", self.test_message
+                )
+                (called_event,), _ = parse.call_args
+                self.assertTrue(isinstance(called_event, events.Message))
+                self.assertTrue(called_event.text == self.test_message["text"])
+                self.assertTrue(called_event.user_id == self.test_message["user"])
+                self.assertTrue(called_event.target == self.test_message["channel"])
+                self.assertTrue(called_event.event_id == self.test_message["ts"])
 
-        self.assertTrue(self.connector.opsdroid.parse.called_once_with(event))
+        # self.assertTrue(self.connector.opsdroid.parse.called_once_with(event))
         # assert isinstance(event, events.Message)
         # assert event.text == "Hello, world!"
         # assert event.user == "testuser"
