@@ -588,11 +588,44 @@ class TestEventCreatorAsync(asynctest.TestCase):
             self.assertFalse(parse.called)
             self.connector.bot_id = None
 
+    @property
+    def channel_created_event(self):
+        return {
+            "channel": {
+                "id": "CUM24109W",
+                "is_channel": True,
+                "name": "test100",
+                "name_normalized": "test100",
+                "created": 1582843467,
+                "creator": "U9S8JGF45",
+                "is_shared": False,
+                "is_org_shared": False,
+            },
+            "event_ts": "1582843467.006500",
+        }
+
     async def test_create_channel_created_event(self):
         pass
 
+    @property
+    def channel_archive_event(self):
+        return {
+            "channel": "CULJAHTUL",
+            "user": "U9S8JGF45",
+            "is_moved": 0,
+            "event_ts": "1582843733.007500",
+        }
+
     async def test_create_channel_archive_event(self):
         pass
+
+    @property
+    def channel_unarchive_event(self):
+        return {
+            "channel": "CULJAHTUL",
+            "user": "U9S8JGF45",
+            "event_ts": "1582843808.007700",
+        }
 
     async def test_create_channel_unarchive_event(self):
         pass
