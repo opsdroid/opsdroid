@@ -322,7 +322,7 @@ class ConnectorSlack(Connector):
     @register_event(opsdroid.events.UserInvite)
     async def _send_user_invitation(self, invite_event):
         return await self.slacker.channels.invite(
-            invite_event.target, invite_event.user
+            invite_event.target, invite_event.user_id
         )
 
     @register_event(opsdroid.events.RoomDescription)
