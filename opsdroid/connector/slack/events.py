@@ -1,5 +1,6 @@
 """Classes to describe different kinds of Slack specific event."""
 
+import re
 import json
 import aiohttp
 import ssl
@@ -157,10 +158,11 @@ class SlackEventCreator(events.EventCreator):
         rtm_client.on(event="channel_archive", callback=self.archive_room)
         rtm_client.on(event="channel_unarchive", callback=self.unarchive_room)
 
-        self.message_subtypes = defaultdict(lambda: self.skip)
+        self.message_subtypes = defaultdict(lambda: self.create_message)
         self.message_subtypes.update(
             {
                 "message": self.create_message,
+                "bot_message": self.handle_bot_message,
                 "channel_topic": self.topic_changed,
                 "channel_name": self.channel_name_changed,
             }
@@ -189,12 +191,22 @@ class SlackEventCreator(events.EventCreator):
 
         return user_name
 
+    async def replace_usernames(self, message):
+        """Replace User ID with username in message text."""
+        userids = re.findall(r"\<\@([A-Z0-9]+)(?:\|.+)?\>", message)
+        for userid in userids:
+            user_info = await self.lookup_username(userid)
+            message = message.replace(
+                "<@{userid}>".format(userid=userid), user_info["name"]
+            )
+        return message
+
     async def create_message(self, event, channel):
         """Send a Message event."""
         user_name = await self.get_username(event["user"])
 
         _LOGGER.debug("Replacing userids in message with usernames")
-        text = await self.connector.replace_usernames(event["text"])
+        text = await self.replace_usernames(event["text"])
 
         return events.Message(
             text,
@@ -205,6 +217,11 @@ class SlackEventCreator(events.EventCreator):
             event_id=event["ts"],
             raw_event=event,
         )
+
+    async def handle_bot_message(self, event, channel):
+        """Check that a bot message isn't us then create the message."""
+        if event["bot_id"] != self.connector.bot_id:
+            return await create_message(event, channel)
 
     @slack_to_creator
     async def create_newroom(self, event, channel):

@@ -1,6 +1,5 @@
 """A connector for Slack."""
 import logging
-import re
 import os
 import ssl
 import certifi
@@ -124,38 +123,6 @@ class ConnectorSlack(Connector):
     async def listen(self):
         """Listen for and parse new messages."""
 
-    async def process_message(self, **payload):
-        """Process a raw message and pass it to the parser."""
-        message = payload["data"]
-
-        # Ignore message edits
-        if "subtype" in message and message["subtype"] == "message_changed":
-            return
-
-        # Ignore own messages
-        if (
-            "subtype" in message
-            and message["subtype"] == "bot_message"
-            and message["bot_id"] == self.bot_id
-        ):
-            return
-
-        # Lookup username
-        _LOGGER.debug(_("Looking up sender username."))
-        try:
-            await self.lookup_username(message["user"])
-        except (ValueError, KeyError) as error:
-            _LOGGER.error(_("Username lookup failed for %s."), error)
-            return
-
-        # Replace usernames in the message
-        _LOGGER.debug(_("Replacing userids in message with usernames."))
-        message["text"] = await self.replace_usernames(message["text"])
-
-        event = await self._event_creator.create_event(message, message["channel"])
-
-        await self.opsdroid.parse(event)
-
     @register_event(opsdroid.events.Message)
     async def _send_message(self, message):
         """Respond with a message."""
@@ -222,16 +189,6 @@ class ConnectorSlack(Connector):
             else:
                 raise ValueError("Returned user is not a dict.")
         return user_info
-
-    async def replace_usernames(self, message):
-        """Replace User ID with username in message text."""
-        userids = re.findall(r"\<\@([A-Z0-9]+)(?:\|.+)?\>", message)
-        for userid in userids:
-            user_info = await self.lookup_username(userid)
-            message = message.replace(
-                "<@{userid}>".format(userid=userid), user_info["name"]
-            )
-        return message
 
     async def slack_interactions_handler(self, request):
         """Handle interactive events in Slack.
