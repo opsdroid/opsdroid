@@ -714,6 +714,14 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
     async def test_invalid_role(self):
         with self.assertRaises(ValueError):
             await self.connector._set_user_role(
+                events.UserRole(
+                    "wibble", target="!test:localhost", user_id="@test:localhost"
+                )
+            )
+
+    async def test_no_user_id(self):
+        with self.assertRaises(ValueError):
+            await self.connector._set_user_role(
                 events.UserRole("wibble", target="!test:localhost")
             )
 

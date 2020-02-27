@@ -460,8 +460,7 @@ class ConnectorMatrix(Connector):
     @ensure_room_id_and_send
     async def _set_user_role(self, role_event):
         if not role_event.user_id:
-            _LOGGER.error("Can't send a UserRole without the user_id attribute set.")
-            return
+            raise ValueError("Can't send a UserRole without the user_id attribute set.")
 
         role = role_event.role
         room_id = role_event.target
