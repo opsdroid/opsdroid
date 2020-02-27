@@ -551,8 +551,8 @@ class TestEventCreatorAsync(asynctest.TestCase):
         self.connector.opsdroid.web_server.web_app.router.add_post = (
             amock.CoroutineMock()
         )
-        self.connector.lookup_username = amock.CoroutineMock()
-        self.connector.lookup_username.return_value = {"name": "testuser"}
+        self.event_creator.lookup_username = amock.CoroutineMock()
+        self.event_creator.lookup_username.return_value = {"name": "testuser"}
 
     @property
     def test_message(self):
@@ -570,14 +570,31 @@ class TestEventCreatorAsync(asynctest.TestCase):
         return slackevents.SlackEventCreator(self.connector, self.connector.slack_rtm)
 
     async def test_create_message(self):
-        event = await self.event_creator.create_event(self.test_message, "hello")
-        assert isinstance(event, events.Message)
-        assert event.text == "Hello, world!"
-        assert event.user == "testuser"
-        assert event.user_id == "U2147483697"
-        assert event.target == "hello"
-        assert event.event_id == "1355517523.000005"
-        assert event.raw_event == self.test_message
+        self.connector.opsdroid.parse = amock.CoroutineMock()
+        # self.connector.opsdroid.eventloop = self.loop
+        # self.connector.lookup_username = amock.CoroutineMock()
+        # self.connector.lookup_username.return_value = {"name": "testuser"}
+
+        event = events.Message(self.test_message)
+        await self.connector.slack_rtm._dispatch_event("message", self.test_message)
+
+        self.assertTrue(self.connector.opsdroid.parse.called_once_with(event))
+        # assert isinstance(event, events.Message)
+        # assert event.text == "Hello, world!"
+        # assert event.user == "testuser"
+        # assert event.user_id == "U2147483697"
+        # assert event.target == "hello"
+        # assert event.event_id == "1355517523.000005"
+        # assert event.raw_event == self.test_message
+
+    async def test_create_channel_created_event(self):
+        pass
+
+    async def test_create_channel_archive_event(self):
+        pass
+
+    async def test_create_channel_unarchive_event(self):
+        pass
 
     async def test_create_event_fails(self):
         # The create_event method of the event creator is redundant in slack because the RTM is
