@@ -195,7 +195,7 @@ class SlackEventCreator(events.EventCreator):
         """Replace User ID with username in message text."""
         userids = re.findall(r"\<\@([A-Z0-9]+)(?:\|.+)?\>", message)
         for userid in userids:
-            user_info = await self.lookup_username(userid)
+            user_info = await self.connector.lookup_username(userid)
             message = message.replace(
                 "<@{userid}>".format(userid=userid), user_info["name"]
             )
