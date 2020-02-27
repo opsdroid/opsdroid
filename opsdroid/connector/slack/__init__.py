@@ -1,4 +1,5 @@
 """A connector for Slack."""
+import re
 import logging
 import os
 import ssl
@@ -189,6 +190,16 @@ class ConnectorSlack(Connector):
             else:
                 raise ValueError("Returned user is not a dict.")
         return user_info
+
+    async def replace_usernames(self, message):
+        """Replace User ID with username in message text."""
+        userids = re.findall(r"\<\@([A-Z0-9]+)(?:\|.+)?\>", message)
+        for userid in userids:
+            user_info = await self.lookup_username(userid)
+            message = message.replace(
+                "<@{userid}>".format(userid=userid), user_info["name"]
+            )
+        return message
 
     async def slack_interactions_handler(self, request):
         """Handle interactive events in Slack.

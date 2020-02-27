@@ -1,6 +1,5 @@
 """Classes to describe different kinds of Slack specific event."""
 
-import re
 import json
 import aiohttp
 import ssl
@@ -193,22 +192,12 @@ class SlackEventCreator(events.EventCreator):
 
         return user_name
 
-    async def replace_usernames(self, message):
-        """Replace User ID with username in message text."""
-        userids = re.findall(r"\<\@([A-Z0-9]+)(?:\|.+)?\>", message)
-        for userid in userids:
-            user_info = await self.connector.lookup_username(userid)
-            message = message.replace(
-                "<@{userid}>".format(userid=userid), user_info["name"]
-            )
-        return message
-
     async def create_message(self, event, channel):
         """Send a Message event."""
         user_name = await self.get_username(event["user"])
 
         _LOGGER.debug("Replacing userids in message with usernames")
-        text = await self.replace_usernames(event["text"])
+        text = await self.connector.replace_usernames(event["text"])
 
         return events.Message(
             text,
