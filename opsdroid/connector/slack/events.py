@@ -172,6 +172,7 @@ class SlackEventCreator(events.EventCreator):
                 "bot_message": self.handle_bot_message,
                 "channel_topic": self.topic_changed,
                 "channel_name": self.channel_name_changed,
+                "message_changed": self.handle_edit,
             }
         )
 
@@ -275,7 +276,7 @@ class SlackEventCreator(events.EventCreator):
     @slack_to_creator
     async def create_join_group(self, event, channel):
         """Send a JoinGroup event"""
-        user_name = await self.get_username(event["user"]["id"])
+        user_name = await self._get_user_name(event)
         return events.JoinGroup(
             target=event["user"]["team_id"],
             connector=self.connector,
@@ -284,6 +285,10 @@ class SlackEventCreator(events.EventCreator):
             user_id=event["user"]["id"],
             user=user_name,
         )
+
+    async def handle_edit(self, event, channel):
+        # TODO: Make this return an EditedMessage event
+        return
 
     async def topic_changed(self, event, channel):
         """Send a RoomDescription event"""

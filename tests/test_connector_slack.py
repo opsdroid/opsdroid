@@ -107,50 +107,50 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         connector.listening = False
         await connector.listen()
 
-    async def test_process_message(self):
-        """Test processing a slack message."""
-        connector = ConnectorSlack({"token": "abc123"}, opsdroid=OpsDroid())
-        connector.lookup_username = amock.CoroutineMock()
-        connector.lookup_username.return_value = {"name": "testuser"}
-        connector.opsdroid = amock.CoroutineMock()
-        connector.opsdroid.parse = amock.CoroutineMock()
+    # async def test_process_message(self):
+    #     """Test processing a slack message."""
+    #     connector = ConnectorSlack({"token": "abc123"}, opsdroid=OpsDroid())
+    #     connector.lookup_username = amock.CoroutineMock()
+    #     connector.lookup_username.return_value = {"name": "testuser"}
+    #     connector.opsdroid = amock.CoroutineMock()
+    #     connector.opsdroid.parse = amock.CoroutineMock()
 
-        message = {  # https://api.slack.com/events/message
-            "type": "message",
-            "channel": "C2147483705",
-            "user": "U2147483697",
-            "text": "Hello, world!",
-            "ts": "1355517523.000005",
-            "edited": {"user": "U2147483697", "ts": "1355517536.000001"},
-        }
-        await connector.process_message(data=message)
-        self.assertTrue(connector.opsdroid.parse.called)
+    #     message = {  # https://api.slack.com/events/message
+    #         "type": "message",
+    #         "channel": "C2147483705",
+    #         "user": "U2147483697",
+    #         "text": "Hello, world!",
+    #         "ts": "1355517523.000005",
+    #         "edited": {"user": "U2147483697", "ts": "1355517536.000001"},
+    #     }
+    #     await connector.process_message(data=message)
+    #     self.assertTrue(connector.opsdroid.parse.called)
 
-        connector.opsdroid.parse.reset_mock()
-        message["bot_id"] = "abc"
-        message["subtype"] = "bot_message"
-        connector.bot_id = message["bot_id"]
-        await connector.process_message(data=message)
-        self.assertFalse(connector.opsdroid.parse.called)
-        del message["bot_id"]
-        del message["subtype"]
-        connector.bot_id = None
+    #     connector.opsdroid.parse.reset_mock()
+    #     message["bot_id"] = "abc"
+    #     message["subtype"] = "bot_message"
+    #     connector.bot_id = message["bot_id"]
+    #     await connector.process_message(data=message)
+    #     self.assertFalse(connector.opsdroid.parse.called)
+    #     del message["bot_id"]
+    #     del message["subtype"]
+    #     connector.bot_id = None
 
-        connector.opsdroid.parse.reset_mock()
-        message["subtype"] = "message_changed"
-        await connector.process_message(data=message)
-        self.assertFalse(connector.opsdroid.parse.called)
-        del message["subtype"]
+    #     connector.opsdroid.parse.reset_mock()
+    #     message["subtype"] = "message_changed"
+    #     await connector.process_message(data=message)
+    #     self.assertFalse(connector.opsdroid.parse.called)
+    #     del message["subtype"]
 
-        connector.opsdroid.parse.reset_mock()
-        connector.lookup_username.side_effect = ValueError
-        await connector.process_message(data=message)
-        self.assertFalse(connector.opsdroid.parse.called)
+    #     connector.opsdroid.parse.reset_mock()
+    #     connector.lookup_username.side_effect = ValueError
+    #     await connector.process_message(data=message)
+    #     self.assertFalse(connector.opsdroid.parse.called)
 
-        connector.opsdroid.parse.reset_mock()
-        connector.lookup_username.side_effect = KeyError
-        await connector.process_message(data=message)
-        self.assertFalse(connector.opsdroid.parse.called)
+    #     connector.opsdroid.parse.reset_mock()
+    #     connector.lookup_username.side_effect = KeyError
+    #     await connector.process_message(data=message)
+    #     self.assertFalse(connector.opsdroid.parse.called)
 
     async def test_lookup_username(self):
         """Test that looking up a username works and that it caches."""
@@ -555,27 +555,6 @@ class TestEventCreatorAsync(asynctest.TestCase):
         }
 
     @property
-    def bot_message_event(self):
-        return {
-            "subtype": "bot_message",
-            "text": "Hello",
-            "username": "Robot",
-            "bot_id": "BDATLJZKQ",
-            "team": "T9T6EKEEB",
-            "bot_profile": {
-                "id": "BDATLJZKQ",
-                "deleted": False,
-                "name": "rss",
-                "updated": 1539016312,
-                "app_id": "A0F81R7U7",
-                "team_id": "T9T6EKEEB",
-            },
-            "channel": "C9S8JGM2R",
-            "event_ts": "1582841283.001700",
-            "ts": "1582841283.001700",
-        }
-
-    @property
     def event_creator(self):
         return slackevents.SlackEventCreator(self.connector, self.connector.slack_rtm)
 
@@ -597,6 +576,27 @@ class TestEventCreatorAsync(asynctest.TestCase):
             self.assertTrue(called_event.target == self.message_event["channel"])
             self.assertTrue(called_event.event_id == self.message_event["ts"])
             self.assertTrue(called_event.raw_event == self.message_event)
+
+    @property
+    def bot_message_event(self):
+        return {
+            "subtype": "bot_message",
+            "text": "Hello",
+            "username": "Robot",
+            "bot_id": "BDATLJZKQ",
+            "team": "T9T6EKEEB",
+            "bot_profile": {
+                "id": "BDATLJZKQ",
+                "deleted": False,
+                "name": "rss",
+                "updated": 1539016312,
+                "app_id": "A0F81R7U7",
+                "team_id": "T9T6EKEEB",
+            },
+            "channel": "C9S8JGM2R",
+            "event_ts": "1582841283.001700",
+            "ts": "1582841283.001700",
+        }
 
     async def test_create_message_from_bot(self):
         # Skip this test until we have implemented bot user name lookup
@@ -695,6 +695,43 @@ class TestEventCreatorAsync(asynctest.TestCase):
             self.assertTrue(called_event.target == self.join_event["user"]["team_id"])
             self.assertTrue(called_event.event_id == self.join_event["event_ts"])
             self.assertTrue(called_event.raw_event == self.join_event)
+
+    @property
+    def edit_event(self):
+        return {
+            "subtype": "message_changed",
+            "hidden": True,
+            "message": {
+                "type": "message",
+                "text": "Hello World",
+                "user": "U9S8JGF45",
+                "team": "T9T6EKEEB",
+                "edited": {"user": "U9S8JGF45", "ts": "1582842709.000000"},
+                "ts": "1582842695.003200",
+                "source_team": "T9T6EKEEB",
+                "user_team": "T9T6EKEEB",
+            },
+            "channel": "C9S8JGM2R",
+            "previous_message": {
+                "type": "message",
+                "text": "Hi",
+                "user": "U9S8JGF45",
+                "ts": "1582842695.003200",
+                "team": "T9T6EKEEB",
+            },
+            "event_ts": "1582842709.003300",
+            "ts": "1582842709.003300",
+        }
+
+    async def test_create_message_from_edit(self):
+        with amock.patch(
+            "opsdroid.connector.slack.ConnectorSlack.lookup_username"
+        ) as lookup, amock.patch("opsdroid.core.OpsDroid.parse") as parse:
+            lookup.return_value = asyncio.Future()
+            lookup.return_value.set_result({"name": "testuser"})
+
+            await self.connector.slack_rtm._dispatch_event("message", self.edit_event)
+            assert parse.called is False
 
     async def test_create_event_fails(self):
         # The create_event method of the event creator is redundant in slack because the RTM is
