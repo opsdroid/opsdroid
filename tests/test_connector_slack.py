@@ -1,6 +1,5 @@
 """Tests for the ConnectorSlack class."""
 import asyncio
-
 import unittest
 import unittest.mock as mock
 import asynctest
@@ -545,8 +544,6 @@ class TestEventCreatorAsync(asynctest.TestCase):
     @property
     def message_event(self):
         return {
-            "client_msg_id": "2db0a81b-a254-45d0-9549-61d933428d80",
-            "suppress_notification": False,
             "text": "Hello World",
             "user": "U9S8JGF45",
             "team": "T9T6EKEEB",
@@ -555,6 +552,27 @@ class TestEventCreatorAsync(asynctest.TestCase):
             "channel": "C9S8JGM2R",
             "event_ts": "1582838099.000600",
             "ts": "1582838099.000600",
+        }
+
+    @property
+    def bot_message_event(self):
+        return {
+            "subtype": "bot_message",
+            "text": "Hello",
+            "username": "Robot",
+            "bot_id": "BDATLJZKQ",
+            "team": "T9T6EKEEB",
+            "bot_profile": {
+                "id": "BDATLJZKQ",
+                "deleted": False,
+                "name": "rss",
+                "updated": 1539016312,
+                "app_id": "A0F81R7U7",
+                "team_id": "T9T6EKEEB",
+            },
+            "channel": "C9S8JGM2R",
+            "event_ts": "1582841283.001700",
+            "ts": "1582841283.001700",
         }
 
     @property
@@ -579,6 +597,41 @@ class TestEventCreatorAsync(asynctest.TestCase):
             self.assertTrue(called_event.target == self.message_event["channel"])
             self.assertTrue(called_event.event_id == self.message_event["ts"])
             self.assertTrue(called_event.raw_event == self.message_event)
+
+    async def test_create_message_from_bot(self):
+        # Skip this test until we have implemented bot user name lookup
+        return
+        with amock.patch(
+            "opsdroid.connector.slack.ConnectorSlack.lookup_username"
+        ) as lookup, amock.patch("opsdroid.core.OpsDroid.parse") as parse:
+            lookup.return_value = asyncio.Future()
+            lookup.return_value.set_result({"name": "testuser"})
+
+            await self.connector.slack_rtm._dispatch_event(
+                "message", self.bot_message_event
+            )
+            (called_event,), _ = parse.call_args
+            self.assertTrue(isinstance(called_event, events.Message))
+            self.assertTrue(called_event.text == self.bot_message_event["text"])
+            self.assertTrue(called_event.user == "testuser")
+            self.assertTrue(called_event.user_id == self.bot_message_event["user"])
+            self.assertTrue(called_event.target == self.bot_message_event["channel"])
+            self.assertTrue(called_event.event_id == self.bot_message_event["ts"])
+            self.assertTrue(called_event.raw_event == self.bot_message_event)
+
+    async def test_ignore_own_bot_message(self):
+        self.connector.bot_id = self.bot_message_event["bot_id"]
+        with amock.patch(
+            "opsdroid.connector.slack.ConnectorSlack.lookup_username"
+        ) as lookup, amock.patch("opsdroid.core.OpsDroid.parse") as parse:
+            lookup.return_value = asyncio.Future()
+            lookup.return_value.set_result({"name": "testuser"})
+
+            await self.connector.slack_rtm._dispatch_event(
+                "message", self.bot_message_event
+            )
+            self.assertFalse(parse.called)
+            self.connector.bot_id = None
 
     async def test_create_channel_created_event(self):
         pass

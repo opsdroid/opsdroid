@@ -139,7 +139,9 @@ def slack_to_creator(f):
         event = kwargs["data"]
         _LOGGER.debug(f"Got slack event: {event}")
         channel = event.get("channel", None)
-        return await self.connector.opsdroid.parse(await f(self, event, channel))
+        event = await f(self, event, channel)
+        if event is not None:
+            return await self.connector.opsdroid.parse(event)
 
     return wrapper
 
@@ -187,17 +189,6 @@ class SlackEventCreator(events.EventCreator):
         msgtype = event["subtype"] if "subtype" in event.keys() else "message"
         return await self.message_subtypes[msgtype](event, channel)
 
-    async def get_username(self, user_id):
-        # Lookup username
-        _LOGGER.debug("Looking up sender username")
-        try:
-            user_info = await self.connector.lookup_username(user_id)
-            user_name = user_info.get("real_name", "") or user_info["name"]
-        except ValueError:  # pragma: nocover
-            return user_id
-
-        return user_name
-
     async def replace_usernames(self, message):
         """Replace User ID with username in message text."""
         userids = re.findall(r"\<\@([A-Z0-9]+)(?:\|.+)?\>", message)
@@ -208,9 +199,22 @@ class SlackEventCreator(events.EventCreator):
             )
         return message
 
-    async def create_message(self, event, channel):
+    async def _get_user_name(self, event):
+        try:
+            user_info = await self.connector.lookup_username(event["user"])
+        except (ValueError, KeyError) as error:
+            _LOGGER.error(_("Username lookup failed for %s."), error)
+            return
+        return user_info["name"]
+
+    async def create_message(self, event, channel, user_name=None):
         """Send a Message event."""
-        user_name = await self.get_username(event.get("user", event.get("bot_id", "")))
+
+        if user_name is None:
+            user_name = await self._get_user_name(event)
+
+        if user_name is None:
+            return
 
         _LOGGER.debug("Replacing userids in message with usernames")
         text = await self.replace_usernames(event["text"])
@@ -227,6 +231,8 @@ class SlackEventCreator(events.EventCreator):
 
     async def handle_bot_message(self, event, channel):
         """Check that a bot message isn't us then create the message."""
+        # TODO: Add a bot_id lookup here to get the display name of the bot and
+        # pass it through to create_message
         if event["bot_id"] != self.connector.bot_id:
             return await self.create_message(event, channel)
 
