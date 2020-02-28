@@ -24,7 +24,8 @@
 ---
 
 <p align="center">
-  <a href="https://docs.opsdroid.dev/en/stable/installation.html#quickstart">Quick Start</a> •  <a href="https://docs.opsdroid.dev">Documentation</a> •
+  <a href="https://docs.opsdroid.dev/en/stable/installation.html#quickstart">Quick Start</a> •  
+  <a href="https://docs.opsdroid.dev">Documentation</a> •
   <a href="https://medium.com/opsdroid">Blog</a> •
   <a href="https://riot.im/app/#/room/#opsdroid-general:matrix.org">Community</a>
 </p>
