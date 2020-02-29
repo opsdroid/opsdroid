@@ -605,7 +605,31 @@ class TestEventCreatorAsync(asynctest.TestCase):
         }
 
     async def test_create_channel_created_event(self):
-        pass
+        with amock.patch(
+            "opsdroid.connector.slack.ConnectorSlack.lookup_username"
+        ) as lookup, amock.patch("opsdroid.core.OpsDroid.parse") as parse:
+            lookup.return_value = asyncio.Future()
+            lookup.return_value.set_result({"name": "testuser"})
+
+            await self.connector.slack_rtm._dispatch_event(
+                "channel_created", self.channel_created_event
+            )
+            (called_event,), _ = parse.call_args
+            self.assertTrue(isinstance(called_event, events.NewRoom))
+            self.assertTrue(
+                called_event.user_id == self.channel_created_event["channel"]["creator"]
+            )
+            self.assertTrue(called_event.user == "testuser")
+            self.assertTrue(
+                called_event.target == self.channel_created_event["channel"]["id"]
+            )
+            self.assertTrue(called_event.connector == self.connector)
+            self.assertTrue(
+                called_event.event_id == self.channel_created_event["event_ts"]
+            )
+            self.assertTrue(
+                called_event.name == self.channel_created_event["channel"]["name"]
+            )
 
     @property
     def channel_archive_event(self):
