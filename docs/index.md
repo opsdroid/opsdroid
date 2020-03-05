@@ -91,7 +91,7 @@ $ opsdroid start
 
 ### Contributors
 
-This project exists thanks to all the people who contribute. [[Contribute](https://opsdroid.readthedocs.io/en/latest/contributing/)].
+This project exists thanks to all the people who contribute. [[Contribute](https://docs.opsdroid.dev/en/stable/contributing.html#contributing)].
 <a href="https://github.com/opsdroid/opsdroid/graphs/contributors"><img src="https://opencollective.com/opsdroid/contributors.svg?width=890" /></a>
 
 
