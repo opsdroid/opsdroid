@@ -130,9 +130,7 @@ class ChannelUnarchived(events.Event):
 
 
 def slack_to_creator(f):
-    """
-    Wrap a callback so that RTMClient can work.
-    """
+    """Wrap a callback so that RTMClient can work."""
 
     async def wrapper(self, **kwargs):
         event = kwargs["data"]
@@ -149,7 +147,7 @@ class SlackEventCreator(events.EventCreator):
     """Create opsdroid events from Slack ones."""
 
     def __init__(self, connector, *args, **kwargs):
-        """Initialise the event creator"""
+        """Initialise the event creator."""
         super().__init__(connector, *args, **kwargs)
         self.connector = connector
 
@@ -176,6 +174,7 @@ class SlackEventCreator(events.EventCreator):
         )
 
     async def create_event(self, event, target):
+        """Not Implemented."""
         # We don't use this, as we use the RTM client instead.
         # It's implemented in the base class though, so do this to be safe.
         raise NotImplementedError(
@@ -228,7 +227,7 @@ class SlackEventCreator(events.EventCreator):
 
     @slack_to_creator
     async def create_newroom(self, event, channel):
-        """Send a NewRoom event"""
+        """Send a NewRoom event."""
         user_id = event["channel"]["creator"]
         user_info = await self.connector.lookup_username(user_id)
 
@@ -245,7 +244,7 @@ class SlackEventCreator(events.EventCreator):
 
     @slack_to_creator
     async def archive_room(self, event, channel):
-        """Send a ChannelArchived event"""
+        """Send a ChannelArchived event."""
         return ChannelArchived(
             target=channel,
             connector=self.connector,
@@ -255,7 +254,7 @@ class SlackEventCreator(events.EventCreator):
 
     @slack_to_creator
     async def unarchive_room(self, event, channel):
-        """Send a ChannelArchived event"""
+        """Send a ChannelArchived event."""
         return ChannelUnarchived(
             target=channel,
             connector=self.connector,
@@ -265,7 +264,7 @@ class SlackEventCreator(events.EventCreator):
 
     @slack_to_creator
     async def create_join_group(self, event, channel):
-        """Send a JoinGroup event"""
+        """Send a JoinGroup event."""
         user_info = await self.connector.lookup_username(event["user"]["id"])
         return events.JoinGroup(
             target=event["user"]["team_id"],
@@ -277,11 +276,12 @@ class SlackEventCreator(events.EventCreator):
         )
 
     async def handle_edit(self, event, channel):
+        """Not Implemented."""
         # TODO: Make this return an EditedMessage event
         return
 
     async def topic_changed(self, event, channel):
-        """Send a RoomDescription event"""
+        """Send a RoomDescription event."""
         return events.RoomDescription(
             description=event["topic"],
             target=channel,
@@ -291,7 +291,7 @@ class SlackEventCreator(events.EventCreator):
         )
 
     async def channel_name_changed(self, event, channel):
-        """Send a RoomName event"""
+        """Send a RoomName event."""
         return events.RoomName(
             name=event["name"],
             target=channel,
