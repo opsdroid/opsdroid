@@ -93,7 +93,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         self.assertLogs("_LOGGER", "error")
 
     async def test_abort_on_connection_error(self):
-        connector = ConnectorSlack({"token": "abc123"}, opsdroid=OpsDroid())
+        connector = ConnectorSlack({"token": "abc123"})
         connector.slack_rtm._connect_and_read = amock.CoroutineMock()
         connector.slack_rtm._connect_and_read.side_effect = Exception()
         connector.slack_rtm.stop = amock.CoroutineMock()
