@@ -255,7 +255,7 @@ class SlackEventCreator(events.EventCreator):
 
     @slack_to_creator
     async def unarchive_room(self, event, channel):
-        """Send a ChannelArchived event"""
+        """Send a ChannelUnrchived event"""
         return ChannelUnarchived(
             target=channel,
             connector=self.connector,
