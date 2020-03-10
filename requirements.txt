@@ -6,7 +6,7 @@ arrow==0.15.5
 Babel==2.8.0
 bleach==3.1.1
 certifi==2019.11.28
-click==7.0
+click==7.1.1
 emoji==0.5.4
 mattermostdriver==7.0.1
 matrix-api-async==0.1.0
