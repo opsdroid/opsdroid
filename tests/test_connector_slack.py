@@ -6,6 +6,7 @@ import asynctest
 import asynctest.mock as amock
 import slack
 import json
+import collections
 
 import aiohttp
 
@@ -493,6 +494,9 @@ class TestConnectorSlackAsync(asynctest.TestCase):
 class TestEventCreatorAsync(asynctest.TestCase):
     def setUp(self):
         self.connector = ConnectorSlack({"token": "abc123"}, opsdroid=OpsDroid())
+
+    def tearDown(self):
+        slack.RTMClient._callbacks = collections.defaultdict(list)
 
     @property
     def message_event(self):
