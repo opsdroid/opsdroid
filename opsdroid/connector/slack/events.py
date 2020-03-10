@@ -266,14 +266,14 @@ class SlackEventCreator(events.EventCreator):
     @slack_to_creator
     async def create_join_group(self, event, channel):
         """Send a JoinGroup event"""
-        user_name = await self._get_user_name(event)
+        user_info = await self.connector.lookup_username(event["user"]["id"])
         return events.JoinGroup(
             target=event["user"]["team_id"],
             connector=self.connector,
             event_id=event["event_ts"],
             raw_event=event,
             user_id=event["user"]["id"],
-            user=user_name,
+            user=user_info["name"],
         )
 
     async def handle_edit(self, event, channel):
