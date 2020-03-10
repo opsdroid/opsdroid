@@ -26,7 +26,7 @@
 ---
 
 <p align="center">
-  <a href="https://docs.opsdroid.dev/installation.html#quickstart">Quick Start</a> •
+  <a href="https://docs.opsdroid.dev/en/stable/installation.html#quickstart">Quick Start</a> •
   <a href="https://docs.opsdroid.dev">Documentation</a> •
   <a href="https://medium.com/opsdroid">Blog</a> •
   <a href="https://riot.im/app/#/room/#opsdroid-general:matrix.org">Community</a>
@@ -91,7 +91,7 @@ $ opsdroid start
 
 ### Contributors
 
-This project exists thanks to all the people who contribute. [[Contribute](https://opsdroid.readthedocs.io/en/latest/contributing/)].
+This project exists thanks to all the people who contribute. [[Contribute](https://docs.opsdroid.dev/en/stable/contributing.html#contributing)].
 <a href="https://github.com/opsdroid/opsdroid/graphs/contributors"><img src="https://opencollective.com/opsdroid/contributors.svg?width=890" /></a>
 
 
