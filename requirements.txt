@@ -6,7 +6,7 @@ arrow==0.15.5
 Babel==2.8.0
 bleach==3.1.1
 certifi==2019.11.28
-click==7.0
+click==7.1.1
 emoji==0.5.4
 mattermostdriver==7.0.1
 matrix-api-async==0.1.0
@@ -19,7 +19,7 @@ parse==1.15.0
 puremagic==1.6
 pycron==1.0.0
 pyyaml==5.3
-setuptools==45.2.0
+setuptools==46.0.0
 slackclient==2.5.0
 tailer==0.4.1
 ibm-watson==4.3.0
