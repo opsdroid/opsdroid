@@ -6,6 +6,7 @@ import asynctest
 import asynctest.mock as amock
 import slack
 import json
+import collections
 
 import aiohttp
 
@@ -92,7 +93,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         self.assertLogs("_LOGGER", "error")
 
     async def test_abort_on_connection_error(self):
-        connector = ConnectorSlack({"token": "abc123"}, opsdroid=OpsDroid())
+        connector = ConnectorSlack({"token": "abc123"})
         connector.slack_rtm._connect_and_read = amock.CoroutineMock()
         connector.slack_rtm._connect_and_read.side_effect = Exception()
         connector.slack_rtm.stop = amock.CoroutineMock()
@@ -494,6 +495,9 @@ class TestEventCreatorAsync(asynctest.TestCase):
     def setUp(self):
         self.connector = ConnectorSlack({"token": "abc123"}, opsdroid=OpsDroid())
 
+    def tearDown(self):
+        slack.RTMClient._callbacks = collections.defaultdict(list)
+
     @property
     def message_event(self):
         return {
@@ -529,6 +533,7 @@ class TestEventCreatorAsync(asynctest.TestCase):
             self.assertTrue(called_event.target == self.message_event["channel"])
             self.assertTrue(called_event.event_id == self.message_event["ts"])
             self.assertTrue(called_event.raw_event == self.message_event)
+            lookup.assert_called_once_with("U9S8JGF45")
 
     @property
     def bot_message_event(self):
@@ -554,11 +559,7 @@ class TestEventCreatorAsync(asynctest.TestCase):
     async def test_create_message_from_bot(self):
         # Skip this test until we have implemented bot user name lookup
         return
-        with amock.patch(
-            "opsdroid.connector.slack.ConnectorSlack.lookup_username"
-        ) as lookup, amock.patch("opsdroid.core.OpsDroid.parse") as parse:
-            lookup.return_value = asyncio.Future()
-            lookup.return_value.set_result({"name": "testuser"})
+        with amock.patch("opsdroid.core.OpsDroid.parse") as parse:
 
             await self.connector.slack_rtm._dispatch_event(
                 "message", self.bot_message_event
@@ -574,11 +575,7 @@ class TestEventCreatorAsync(asynctest.TestCase):
 
     async def test_ignore_own_bot_message(self):
         self.connector.bot_id = self.bot_message_event["bot_id"]
-        with amock.patch(
-            "opsdroid.connector.slack.ConnectorSlack.lookup_username"
-        ) as lookup, amock.patch("opsdroid.core.OpsDroid.parse") as parse:
-            lookup.return_value = asyncio.Future()
-            lookup.return_value.set_result({"name": "testuser"})
+        with amock.patch("opsdroid.core.OpsDroid.parse") as parse:
 
             await self.connector.slack_rtm._dispatch_event(
                 "message", self.bot_message_event
@@ -628,6 +625,7 @@ class TestEventCreatorAsync(asynctest.TestCase):
             self.assertTrue(
                 called_event.name == self.channel_created_event["channel"]["name"]
             )
+            lookup.assert_called_once_with("U9S8JGF45")
 
     @property
     def channel_archive_event(self):
@@ -690,12 +688,12 @@ class TestEventCreatorAsync(asynctest.TestCase):
     def join_event(self):
         return {
             "user": {
-                "id": "UULDMD9BJ",
+                "id": "UV6E5JA5T",
                 "team_id": "T9T6EKEEB",
-                "name": "test3",
+                "name": "slack1",
                 "deleted": False,
-                "color": "5b89d5",
-                "real_name": "test3",
+                "color": "99a949",
+                "real_name": "test4",
                 "tz": "Europe/London",
                 "tz_label": "Greenwich Mean Time",
                 "tz_offset": 0,
@@ -703,10 +701,15 @@ class TestEventCreatorAsync(asynctest.TestCase):
                     "title": "",
                     "phone": "",
                     "skype": "",
-                    "real_name": "test3",
-                    "real_name_normalized": "test3",
-                    "display_name": "test3",
-                    "display_name_normalized": "test3",
+                    "real_name": "test4",
+                    "real_name_normalized": "test4",
+                    "display_name": "test4",
+                    "display_name_normalized": "test4",
+                    "fields": None,
+                    "status_text": "",
+                    "status_emoji": "",
+                    "status_expiration": 0,
+                    "avatar_hash": "gaa2e6c047a5",
                     "status_text_canonical": "",
                     "team": "T9T6EKEEB",
                 },
@@ -717,11 +720,11 @@ class TestEventCreatorAsync(asynctest.TestCase):
                 "is_ultra_restricted": False,
                 "is_bot": False,
                 "is_app_user": False,
-                "updated": 1582824116,
+                "updated": 1583879206,
                 "presence": "away",
             },
-            "cache_ts": 1582824116,
-            "event_ts": "1582824117.006000",
+            "cache_ts": 1583879206,
+            "event_ts": "1583879207.001200",
         }
 
     async def test_user_join(self):
@@ -732,6 +735,7 @@ class TestEventCreatorAsync(asynctest.TestCase):
             lookup.return_value.set_result({"name": "testuser"})
 
             await self.connector.slack_rtm._dispatch_event("team_join", self.join_event)
+            lookup.assert_called_with("UV6E5JA5T")
             (called_event,), _ = parse.call_args
             assert isinstance(called_event, events.JoinGroup)
             self.assertTrue(called_event.user == "testuser")
@@ -776,6 +780,7 @@ class TestEventCreatorAsync(asynctest.TestCase):
 
             await self.connector.slack_rtm._dispatch_event("message", self.edit_event)
             assert parse.called is False
+            # lookup.assert_called_once_with("U9S8JGF45")
 
     async def test_create_event_fails(self):
         # The create_event method of the event creator is redundant in slack because the RTM is
