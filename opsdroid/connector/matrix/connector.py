@@ -24,7 +24,7 @@ from . import events as matrixevents
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = {
     Required("mxid"): str,
-    Required("password"): str,
+    Required("token"): str,
     Required("rooms"): dict,
     "homeserver": str,
     "nick": str,
@@ -72,7 +72,7 @@ class ConnectorMatrix(Connector):
         self.mxid = config["mxid"]
         self.nick = config.get("nick", None)
         self.homeserver = config.get("homeserver", "https://matrix.org")
-        self.password = config["password"]
+        self.token = config["token"]
         self.room_specific_nicks = config.get("room_specific_nicks", False)
         self.send_m_notice = config.get("send_m_notice", False)
         self.session = None
@@ -123,10 +123,7 @@ class ConnectorMatrix(Connector):
         mapi = AsyncHTTPAPI(self.homeserver, session)
 
         self.session = session
-        login_response = await mapi.login(
-            "m.login.password", user=self.mxid, password=self.password
-        )
-        mapi.token = login_response["access_token"]
+        mapi.token = self.token
         mapi.sync_token = None
 
         for roomname, room in self.rooms.items():

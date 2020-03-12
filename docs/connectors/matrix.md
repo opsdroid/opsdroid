@@ -6,7 +6,7 @@ Maintained by [@SolarDrew](https://github.com/SolarDrew).
 
 ## Requirements
 
-To use this connector you will need to have a Matrix account, and login using your Matrix username (mxid) and password.
+To use this connector you will need to have a Matrix account, and login using your Matrix username (mxid) and access token. You can find the access token in the **Advanced** section of the **Help & About** tab in the **Settings** of the official <Riot.im> web client.
 
 ## Configuration
 
@@ -15,7 +15,7 @@ connectors:
   matrix:
     # Required
     mxid: "@username:matrix.org"
-    password: "mypassword"
+    token: "mytoken"
     # A dictionary of rooms to connect to
     # One of these have to be named 'main'
     rooms:

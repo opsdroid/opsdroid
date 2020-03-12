@@ -135,7 +135,7 @@ connectors:
 #  matrix:
 #    # Required
 #    mxid: "@username:matrix.org"
-#    password: "mypassword"
+#    token: "mytoken"
 #    # A dictionary of multiple rooms
 #    # One of these should be named 'main'
 #    rooms:
