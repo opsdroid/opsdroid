@@ -5,7 +5,7 @@ Connectors are a class which extends the base opsdroid Connector. The class has 
 #### configuration  (property)
 *configuration* is a class property of Connector. It's used to access the config parameters of a Connector. This can be used to retrieve specific parameters of a connector from `configuration.yaml`.
 
-#### connect
+#### connect
 *connect* is a method which connects to a specific chat service
 
 ### Methods
