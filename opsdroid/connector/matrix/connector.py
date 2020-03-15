@@ -23,8 +23,7 @@ from . import events as matrixevents
 
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = {
-    Required("mxid"): str,
-    Required("token"): str,
+    Required("credentials"): dict,
     Required("rooms"): dict,
     "homeserver": str,
     "nick": str,
@@ -69,10 +68,11 @@ class ConnectorMatrix(Connector):
         self.rooms = self._process_rooms_dict(config["rooms"])
         self.room_ids = {}
         self.default_target = self.rooms["main"]["alias"]
-        self.mxid = config["mxid"]
+        self.mxid = config["credentials"].get("mxid", None)
         self.nick = config.get("nick", None)
         self.homeserver = config.get("homeserver", "https://matrix.org")
-        self.token = config["token"]
+        self.password = config["credentials"].get("password", None)
+        self.token = config["credentials"].get("token", None)
         self.room_specific_nicks = config.get("room_specific_nicks", False)
         self.send_m_notice = config.get("send_m_notice", False)
         self.session = None
@@ -123,7 +123,15 @@ class ConnectorMatrix(Connector):
         mapi = AsyncHTTPAPI(self.homeserver, session)
 
         self.session = session
-        mapi.token = self.token
+        if self.mxid:
+            login_response = await mapi.login(
+                "m.login.password", user=self.mxid, password=self.password
+            )
+            mapi.token = login_response["access_token"]
+        else:
+            mapi.token = self.token
+            mxid_response = await mapi._send("GET", "/account/whoami")
+            self.mxid = mxid_response["user_id"]
         mapi.sync_token = None
 
         for roomname, room in self.rooms.items():

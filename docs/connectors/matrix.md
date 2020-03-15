@@ -14,8 +14,11 @@ To use this connector you will need to have a Matrix account, and login using yo
 connectors:
   matrix:
     # Required
-    mxid: "@username:matrix.org"
-    token: "mytoken"
+    credentials:
+      'token': 'mytoken'  # Your matrix Access Token
+      # Alternatively, you could use your matrix username and password (not recommended)
+      'mxid' : '@username:matrix.org'
+      'password': 'mypassword'
     # A dictionary of rooms to connect to
     # One of these have to be named 'main'
     rooms:

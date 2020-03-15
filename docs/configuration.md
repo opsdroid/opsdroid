@@ -544,8 +544,7 @@ Let's take the example of our matrix connector. Inside the module we set the con
 from voluptuous import Required
 
 CONFIG_SCHEMA = {
-    Required("mxid"): str,
-    Required("password"): str,
+    Required("credentials"): dict,
     Required("rooms"): dict,
     "homeserver": str,
     "nick": str,
@@ -553,7 +552,7 @@ CONFIG_SCHEMA = {
 }
 ```
 
-As you can see `mxid`, `password` and `rooms` are required fields for this connector and we expect them to be either strings or a dictionary.
+As you can see 'credentials` and `rooms` are required fields for this connector and we expect them to be dictionaries.
 
 Since we don't need to explicitly declare a value as Optional we can just write the expected value and type.
 
