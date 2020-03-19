@@ -325,3 +325,30 @@ register_json_type(
         dct["hour"], dct["minute"], dct["second"], dct["microsecond"]
     ),
 )
+
+
+def lookup_target(event, aliases):
+    """Convert room aliases to ID's.
+
+    Converts chat room aliases to room ID's with connector object of event.
+    Translation based on `event.connector.room_ids` dict object.
+
+    Args:
+        event (object): An Event object.
+        aliases (list): List of room aliases.
+
+    Returns:
+        list: List of room ID's.
+
+    """
+    if not hasattr(event.connector, "room_ids"):
+        return aliases
+
+    rooms = []
+    for alias in aliases:
+        try:
+            rooms.append(event.connector.room_ids[alias])
+        except (KeyError, TypeError):
+            rooms.append(alias)
+
+    return rooms
