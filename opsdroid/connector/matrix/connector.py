@@ -210,12 +210,10 @@ class ConnectorMatrix(Connector):
             except Exception:  # pylint: disable=W0703
                 _LOGGER.exception(_("Matrix sync error."))
 
-    def lookup_target(self, alias):
-        """Convert a room alias to the corresponding room ID."""
-        try:
-            return self.room_ids[alias]
-        except KeyError:
-            return alias
+    def lookup_target(self, room):
+        """Convert name or alias of a room to the corresponding room ID."""
+        room = self.get_roomname(room)
+        return self.room_ids.get(room, room)
 
     async def get_nick(self, roomid, mxid):
         """

@@ -32,9 +32,7 @@ def constrain_rooms(rooms, invert=False):
         def constraint_callback(message, rooms=rooms):
             """Check if the room is correct."""
             if hasattr(message.connector, "lookup_target"):
-                return message.target in list(
-                    map(message.connector.lookup_target, rooms)
-                )
+                rooms = list(map(message.connector.lookup_target, rooms))
 
             return message.target in rooms
 
