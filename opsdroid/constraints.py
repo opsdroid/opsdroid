@@ -7,7 +7,7 @@ having a matcher which matches the current message.
 import logging
 from functools import wraps
 
-from opsdroid.helper import add_skill_attributes, lookup_target
+from opsdroid.helper import add_skill_attributes
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -31,7 +31,12 @@ def constrain_rooms(rooms, invert=False):
 
         def constraint_callback(message, rooms=rooms):
             """Check if the room is correct."""
-            return message.target in lookup_target(message, rooms)
+            if hasattr(message.connector, "lookup_target"):
+                return message.target in list(
+                    map(message.connector.lookup_target, rooms)
+                )
+
+            return message.target in rooms
 
         func = add_skill_attributes(func)
         if invert:
