@@ -2,7 +2,7 @@
 
 import bleach
 
-__all__ = ['clean']
+__all__ = ["clean"]
 
 
 """
@@ -11,51 +11,51 @@ https://github.com/matrix-org/matrix-react-sdk/blob/master/src/HtmlUtils.js#L180
 """
 
 ALLOWED_TAGS = [
-    'font',  # custom to matrix for IRC-style font coloring
-    'del',  # for markdown
-    'h1',
-    'h2',
-    'h3',
-    'h4',
-    'h5',
-    'h6',
-    'blockquote',
-    'p',
-    'a',
-    'ul',
-    'ol',
-    'sup',
-    'sub',
-    'nl',
-    'li',
-    'b',
-    'i',
-    'u',
-    'strong',
-    'em',
-    'strike',
-    'code',
-    'hr',
-    'br',
-    'div',
-    'table',
-    'thead',
-    'caption',
-    'tbody',
-    'tr',
-    'th',
-    'td',
-    'pre',
-    'span',
-    'img',
+    "font",  # custom to matrix for IRC-style font coloring
+    "del",  # for markdown
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "blockquote",
+    "p",
+    "a",
+    "ul",
+    "ol",
+    "sup",
+    "sub",
+    "nl",
+    "li",
+    "b",
+    "i",
+    "u",
+    "strong",
+    "em",
+    "strike",
+    "code",
+    "hr",
+    "br",
+    "div",
+    "table",
+    "thead",
+    "caption",
+    "tbody",
+    "tr",
+    "th",
+    "td",
+    "pre",
+    "span",
+    "img",
 ]
 
 ALLOWED_ATTRIBUTES = {
-    'font': ['color', 'data-mx-bg-color', 'data-mx-color', 'style'],
-    'span': ['data-mx-bg-color', 'data-mx-color', 'style'],
-    'a': ['href', 'name', 'target', 'rel'],
-    'img': ['src', 'width', 'height', 'alt', 'title'],
-    'ol': ['start'],
+    "font": ["color", "data-mx-bg-color", "data-mx-color", "style"],
+    "span": ["data-mx-bg-color", "data-mx-color", "style"],
+    "a": ["href", "name", "target", "rel"],
+    "img": ["src", "width", "height", "alt", "title"],
+    "ol": ["start"],
 }
 
 
@@ -67,9 +67,10 @@ def clean(html, **kwargs):
     by default.
     """
     defaults = {
-        'strip': True,
-        'tags': ALLOWED_TAGS,
-        'attributes': ALLOWED_ATTRIBUTES
+        "strip": True,
+        "tags": ALLOWED_TAGS,
+        "attributes": ALLOWED_ATTRIBUTES,
+        "protocols": ["https", "http", "mxc"],
     }
     defaults.update(kwargs)
 

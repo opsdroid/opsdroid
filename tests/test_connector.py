@@ -4,11 +4,11 @@ import asyncio
 import asynctest
 import asynctest.mock as amock
 
-from opsdroid.__main__ import configure_lang
+from opsdroid.cli.start import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Event, Message, Reaction
-from opsdroid.__main__ import configure_lang
+from opsdroid.cli.start import configure_lang
 
 
 class TestConnectorBaseClass(unittest.TestCase):
@@ -62,9 +62,22 @@ class TestConnectorBaseClass(unittest.TestCase):
         with self.assertRaises(TypeError):
             MyConnector()
 
+    def test_event_subclasses(self):
+        class MyEvent(Message):
+            pass
+
+        class MyConnector(Connector):
+            @register_event(Message, include_subclasses=True)
+            def send_my_event(self, event):
+                pass
+
+        c = MyConnector({})
+        assert MyEvent in c.events
+
 
 class TestConnectorAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid connector base class."""
+
     async def setup(self):
         configure_lang({})
 

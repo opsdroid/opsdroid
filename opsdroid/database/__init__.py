@@ -19,6 +19,7 @@ class Database:
         Args:
             config (dict): The config for this database specified in the
                            `configuration.yaml` file.
+            opsdroid (OpsDroid): An instance of opsdroid.core.
 
         """
         self.name = ""
@@ -32,7 +33,7 @@ class Database:
 
         This method should connect to the given database using a native
         python library for that database. The library will most likely involve
-        a connection object which will be used by the put and get methods.
+        a connection object which will be used by the put, get and delete methods.
         This object should be stored in self.
 
         """
@@ -68,6 +69,19 @@ class Database:
 
         Args:
             key (string): The key to lookup in the database.
+
+        Returns:
+            object or None: The data object stored for that key, or None if no
+                            object found for that key.
+
+        """
+        raise NotImplementedError
+
+    async def delete(self, key):
+        """Delete a data object for a given key.
+
+        Args:
+            key (string): The key to delete in the database.
 
         Returns:
             object or None: The data object stored for that key, or None if no

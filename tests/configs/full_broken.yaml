@@ -1,0 +1,33 @@
+logging:
+  level: true
+welcome-message: no
+
+connectors:
+
+  facebook:
+    verify-token: aabbccddee
+    bot-name: "mybot"
+
+  github:
+    github-token: 1234
+
+databases:
+  mongo:
+    host: "my host"
+    port:  "12345"
+    database: "mydatabase"
+
+  redis:
+    host: "my host"
+    port:  "12345"
+    database: "7"
+
+  sqlite:
+    file: "my_file.db"
+    table: "my_table"
+
+skills:
+  dance: {}
+  hello: {}
+  loudnoises: {}
+  seen:

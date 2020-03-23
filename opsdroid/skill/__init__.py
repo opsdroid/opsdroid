@@ -25,6 +25,7 @@ class Skill:
             opsdroid (OpsDroid): The running opsdroid instance pointer.
             config (dict): The config for this database specified in the
                            `configuration.yaml` file.
+
         """
         super().__init__()
 
@@ -42,5 +43,5 @@ class Skill:
             except Exception:
                 continue
 
-            if hasattr(method, 'matchers'):
+            if hasattr(method, "matchers"):
                 setattr(self, name, _skill_decorator(method))

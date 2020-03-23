@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock
 
-from opsdroid.__main__ import configure_lang
+from opsdroid.cli.start import configure_lang
 from opsdroid.matchers import match_regex
 from opsdroid.skill import Skill
 
@@ -11,9 +11,9 @@ class _TestSkill(Skill):
     def erroneous_property(self):
         raise ValueError()
 
-    @match_regex(r'hello')
+    @match_regex(r"hello")
     def hello_skill(self, message):
-        message.respond('Hello')
+        message.respond("Hello")
 
 
 class TestSkill(unittest.TestCase):
@@ -40,7 +40,7 @@ class TestSkill(unittest.TestCase):
         """Test that matchers get registered on an object instance, not just on the class"""
 
         skill = _TestSkill(None, None)
-        self.assertTrue(hasattr(skill.hello_skill, 'matchers'))
+        self.assertTrue(hasattr(skill.hello_skill, "matchers"))
 
     def test_matcher_called(self):
         """Test that if the decorated skill is called, the skill function gets called"""

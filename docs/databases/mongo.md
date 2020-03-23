@@ -1,4 +1,4 @@
-# opsdroid database mongo
+# MongoDB
 
 A database module for [opsdroid](https://github.com/opsdroid/opsdroid) to persist memory in a [mongo database](https://www.mongodb.com/).
 
@@ -10,7 +10,7 @@ None.
 
 ```yaml
 databases:
-  - name: mongo
+  mongo:
     host:       "my host"     # (optional) default "localhost"
     port:       "12345"       # (optional) default "27017"
     database:   "mydatabase"  # (optional) default "opsdroid"

@@ -1,0 +1,36 @@
+welcome-message: true
+
+connectors:
+
+  websocket:
+    bot-name: "mybot"
+    max-connections: 10
+    connection-timeout: 10
+
+
+  Telegram:
+    token: "123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ-ZYXWVUT"  # Telegram bot token
+
+
+databases:
+
+  Mongo:
+    host: "my host"
+    port:  "12345"
+    database:  "mydatabase"
+
+parsers:
+
+  dialogflow:
+    project-id: "projectid123"
+    min-score: 0.6
+
+skills:
+
+  dance: {}
+
+  hello: {}
+
+  loudnoises: {}
+
+  seen: {}

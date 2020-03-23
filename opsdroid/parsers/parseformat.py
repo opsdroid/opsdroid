@@ -1,7 +1,6 @@
 """A helper function for parsing and executing parse_format skills."""
 
 import logging
-import copy
 
 from parse import parse, search
 
@@ -31,13 +30,18 @@ async def parse_format(opsdroid, skills, message):
                 opts = matcher["parse_format"]
                 result = await match_format(message.text, opts)
                 if result:
-                    new_message = copy.copy(message)
-                    new_message.parse_result = result
-                    matched_skills.append({
-                        "score": await calculate_score(
-                            opts["expression"], opts["score_factor"]),
-                        "skill": skill,
-                        "config": skill.config,
-                        "message": new_message
-                    })
+                    message.parse_result = result
+                    _LOGGER.debug(result.__dict__)
+                    for group, value in result.named.items():
+                        message.update_entity(group, value, None)
+                    matched_skills.append(
+                        {
+                            "score": await calculate_score(
+                                opts["expression"], opts["score_factor"]
+                            ),
+                            "skill": skill,
+                            "config": skill.config,
+                            "message": message,
+                        }
+                    )
     return matched_skills

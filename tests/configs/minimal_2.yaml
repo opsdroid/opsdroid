@@ -1,9 +1,9 @@
 connectors:
-  shell:
+  shell: {}
 
 skills:
-  hello:
-  seen:
+  hello: {}
+  seen: {}
 
 databases:
 

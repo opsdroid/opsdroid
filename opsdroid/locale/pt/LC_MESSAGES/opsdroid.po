@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: opsdroid 0.11.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-02-20 13:29+0000\n"
+"POT-Creation-Date: 2019-10-21 16:27+0100\n"
 "PO-Revision-Date: 2018-01-28 16:05+0100\n"
 "Last-Translator: FabioRosado <fabiorosado@outlook.com>\n"
 "Language: pt\n"
@@ -16,303 +16,808 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.5.3\n"
+"Generated-By: Babel 2.7.0\n"
 
-#: opsdroid/__main__.py:71
-msgid "Started application"
-msgstr "A aplicacão iniciou"
-
-#: opsdroid/__main__.py:99
-msgid "Whoops! opsdroid requires python 3.5 or above."
-msgstr "Whoops! opsdroid precisa que a tua versão de python seja 3.5 ou superior."
-
-#: opsdroid/__main__.py:108
-msgid "You can customise your opsdroid by modifying your configuration.yaml"
-msgstr "Podes personalizar o teu opsdroid modificando o ficheiro configuration.yaml  "
-
-#: opsdroid/__main__.py:110
-msgid "Read more at: http://opsdroid.readthedocs.io/#configuration"
-msgstr "Le mais: http://opsdroid.readthedocs.io/#configuration "
-
-#: opsdroid/__main__.py:112
-msgid "Watch the Get Started Videos at: http://bit.ly/2fnC0Fh"
-msgstr "Vê os vídeos de iniciação: http://bit.ly/2fnC0Fh"
-
-#: opsdroid/__main__.py:114
-msgid ""
-"Install Opsdroid Desktop at: \n"
-"https://github.com/opsdroid/opsdroid-desktop/releases"
-msgstr "Instala Opsdroid Desktop: \n"
-"https://github.com/opsdroid/opsdroid-desktop/releases"
-
-#: opsdroid/__main__.py:119
-msgid "'welcome-message: true/false' is missing in configuration.yaml"
-msgstr "Parâmetro 'welcome-message: true/false' não esta especificado no ficheiro configuration.yaml"
-
-#: opsdroid/core.py:90
+#: opsdroid/core.py:111
 #, python-format
 msgid "Exiting application with return code %s"
 msgstr "A sair da aplicação com o código %s"
 
-#: opsdroid/core.py:123
-msgid "Keyboard interrupt, exiting."
-msgstr "Interrupção de teclado, a sair da aplicação."
+#: opsdroid/core.py:155
+msgid "Opsdroid is now running, press ctrl+c to exit."
+msgstr "Opsdroid está agora a correr, carrega ctrl+c para sair."
 
-#: opsdroid/core.py:137
+#: opsdroid/core.py:166
+msgid "Bye!"
+msgstr "Adeus!"
+
+#: opsdroid/core.py:169
+msgid "Oops! Opsdroid is already running."
+msgstr "Oops! O Opsdroid já está a ser executado."
+
+#: opsdroid/core.py:178
 #, python-format
 msgid "Loaded %i skills"
 msgstr "%i habilidades carregadas"
 
+#: opsdroid/core.py:193
+msgid "Received stop signal, exiting."
+msgstr "Recebido sinal para parar. A fechar a aplicação"
+
+#: opsdroid/core.py:195
+msgid "Removing skills..."
+msgstr "A remover habilidades..."
+
+#: opsdroid/core.py:197
+#, python-format
+msgid "Removed %s"
+msgstr "Removido %s"
+
 #: opsdroid/core.py:201
-msgid "All databases failed to load"
-msgstr "Não foi possível carregar as base de dados."
+#, python-format
+msgid "Stopping connector %s..."
+msgstr "A parar connector %s..."
+
+#: opsdroid/core.py:204
+#, python-format
+msgid "Stopped connector %s"
+msgstr "Connector %s parado"
 
 #: opsdroid/core.py:207
+#, fuzzy, python-format
+msgid "Stopping database %s..."
+msgstr "A parar base de dados: %s"
+
+#: opsdroid/core.py:210
+#, fuzzy, python-format
+msgid "Stopped database %s"
+msgstr "Base de dados %s parada"
+
+#: opsdroid/core.py:212
+msgid "Stopping web server..."
+msgstr "A parar servidor..."
+
+#: opsdroid/core.py:215
+msgid "Stopped web server"
+msgstr "Servidor parado"
+
+#: opsdroid/core.py:217
+msgid "Stopping cron..."
+msgstr "A parar tarefa cron..."
+
+#: opsdroid/core.py:220
+msgid "Stopped cron"
+msgstr "Tarefa cron parada"
+
+#: opsdroid/core.py:222
+msgid "Stopping pending tasks..."
+msgstr "A parar tarefas pendentes..."
+
+#: opsdroid/core.py:227
+msgid "Stopped pending tasks"
+msgstr "Tarefas pendentes paradas"
+
+#: opsdroid/core.py:362
+msgid "All databases failed to load"
+msgstr "Não foi possível carregar nenhuma base de dados."
+
+#: opsdroid/core.py:370
 #, python-format
 msgid "Adding database: %s"
 msgstr "A adicionar base de dados: %s"
 
-#: opsdroid/core.py:222
-msgid "Whoops there has been an error"
-msgstr "Whoops! Ocorreu um erro"
-
-#: opsdroid/core.py:223
-msgid "Check the log for details"
-msgstr "Verifica o log para mais detalhes"
-
-#: opsdroid/core.py:224
+#: opsdroid/core.py:398
 #, python-format
 msgid "Exception when running skill '%s' "
 msgstr "Ocorreu uma excepção ao executar a habilidade '%s' "
 
-#: opsdroid/core.py:233
+#: opsdroid/core.py:401
+msgid "Whoops there has been an error"
+msgstr "Whoops! Ocorreu um erro"
+
+#: opsdroid/core.py:402
+msgid "Check the log for details"
+msgstr "Verifica o log para mais detalhes"
+
+#: opsdroid/core.py:422
 msgid "Processing parsers..."
 msgstr "A processar interpretadores..."
 
-#: opsdroid/core.py:243
-msgid ""
-"Api.ai is now called Dialogflow. This parser will stop working in the "
-"future please swap: 'name: apiai' for 'name: dialogflow' in "
-"configuration.yaml"
-msgstr "Api.ai é agora chamada de Dialogflow. Este interpretador vai parar "
-"de funcionar no futuro. Por favor mudar 'name: apiai' por 'name:dialogflow' "
-"no ficheiro configuration.yaml"
-
-#: opsdroid/core.py:251
+#: opsdroid/core.py:430
 msgid "Checking dialogflow..."
 msgstr "A verificar Dialogflow..."
 
-#: opsdroid/core.py:267
-msgid "Checking Recast.AI..."
-msgstr "A verificar Recast.AI..."
+#: opsdroid/core.py:439
+#, fuzzy
+msgid "Checking luisai..."
+msgstr "A verificar wit.ai..."
 
-#: opsdroid/core.py:275
+#: opsdroid/core.py:446
+#, fuzzy
+msgid "Checking SAPCAI..."
+msgstr "A verificar wit.ai..."
+
+#: opsdroid/core.py:453
 msgid "Checking wit.ai..."
 msgstr "A verificar wit.ai..."
 
-#: opsdroid/core.py:283
+#: opsdroid/core.py:460
+#, fuzzy
+msgid "Checking IBM Watson..."
+msgstr "A verificar wit.ai..."
+
+#: opsdroid/core.py:467
 msgid "Checking Rasa NLU..."
 msgstr "A verificar Rasa NLU..."
 
-#: opsdroid/core.py:294
+#: opsdroid/core.py:503
 #, python-format
 msgid "Parsing input: %s"
 msgstr "A interpretar: %s"
 
-#: opsdroid/loader.py:31
+#: opsdroid/helper.py:78
+#, python-format
+msgid "File %s copied from %s to %s run opsdroid -e to edit the main config file"
+msgstr ""
+"O ficheiro %s foi copiado de %s para %s. Usa o comando opsdroid -e para "
+"editar o ficheiro de configuração"
+
+#: opsdroid/loader.py:51
+#, fuzzy
 msgid "Loaded loader"
 msgstr "Loader carregado"
 
-#: opsdroid/loader.py:52 opsdroid/loader.py:59
+#: opsdroid/loader.py:90
+#, python-format
+msgid "Loading entry point-defined module for %s"
+msgstr "A carregar o ponto de entrada para o módulo %s "
+
+#: opsdroid/loader.py:110
 #, python-format
 msgid "Loaded %s: %s"
 msgstr "'%s: %s' carregado com sucesso"
 
-#: opsdroid/loader.py:63
+#: opsdroid/loader.py:113
 #, python-format
 msgid "Failed to load %s: %s"
 msgstr "Carregamento de %s falhou: %s"
 
-#: opsdroid/loader.py:73
+#: opsdroid/loader.py:125
 #, python-format
 msgid "'no-cache' set, removing %s"
 msgstr "Parâmetro 'no-cache' definido, a remover %s"
 
-#: opsdroid/loader.py:126
+#: opsdroid/loader.py:250
 msgid "Couldn't find the command 'pip', trying again with command 'pip3'"
-msgstr "Não foi possivel encontrar o comando 'pip', a tentar novamente com o comando 'pip3'"
+msgstr ""
+"Não foi possivel encontrar o comando 'pip', a tentar novamente com o "
+"comando 'pip3'"
 
-#: opsdroid/loader.py:136
+#: opsdroid/loader.py:263
 #, python-format
 msgid "Couldn't find the command 'pip3', install of %s will be skipped."
 msgstr "Não foi encontrar o comando 'pip3', a instalação de %s será ignorada."
 
-#: opsdroid/loader.py:141
+#: opsdroid/loader.py:271
 msgid "Pip and pip3 not found, exiting..."
 msgstr "Os comandos pip e pip3 não foram encontrados. A sair da aplicação..."
 
-#: opsdroid/loader.py:179
-#, python-format
-msgid "Reloading module %s"
-msgstr "A recarregar o módulo %s"
-
-#: opsdroid/loader.py:187
+#: opsdroid/loader.py:331
 #, python-format
 msgid "Config file %s not found."
 msgstr "Ficheiro de configuração %s não foi encontrado."
 
-#: opsdroid/loader.py:193
-msgid "No configuration files found."
-msgstr "Nenhum ficheiro de configuração encontrado."
+#: opsdroid/loader.py:341
+#, fuzzy, python-format
+msgid "No configuration files found. Creating %s"
+msgstr "Nenhum ficheiro de configuração encontrado. criando %s"
 
-#: opsdroid/loader.py:219
+#: opsdroid/loader.py:367
 #, python-format
 msgid "Loaded config from %s."
 msgstr "Configuração carregada de %s."
 
-#: opsdroid/loader.py:243
+#: opsdroid/loader.py:418
 msgid "Loading modules from config..."
 msgstr "A carregar módulos da configuração.... "
 
-#: opsdroid/loader.py:252
+#: opsdroid/loader.py:428
+#, fuzzy
 msgid ""
 "No databases in configuration.This will cause skills which store things "
-"inmemory to lose data when opsdroid is restarted."
-msgstr "Não há bases de dados na configuração. Isso causará habilidades que armazenam dados "
-"em memória sejam perdidos quando o opsdroid é reiniciado."
+"in memory to lose data when opsdroid is restarted."
+msgstr ""
+"Não há bases de dados na configuração. Isso causará habilidades que "
+"armazenam dados em memória sejam perdidos quando o opsdroid é reiniciado."
 
-#: opsdroid/loader.py:263
+#: opsdroid/loader.py:441
 msgid "No skills in configuration, at least 1 required"
-msgstr "Não existem habilidades especificadas na configuração, pelo menos uma é necessária"
+msgstr ""
+"Não existem habilidades especificadas na configuração, pelo menos uma é "
+"necessária"
 
-#: opsdroid/loader.py:269
+#: opsdroid/loader.py:448
 msgid "No connectors in configuration, at least 1 required"
-msgstr "Não existem conectores especificados na configuração, pelo menos um é necessário"
+msgstr ""
+"Não existem conectores especificados na configuração, pelo menos um é "
+"necessário"
 
-#: opsdroid/loader.py:276
+#: opsdroid/loader.py:465
 #, python-format
 msgid "Loading %s modules..."
 msgstr "A carregar módulos - %s"
 
-#: opsdroid/loader.py:325
+#: opsdroid/loader.py:478
+#, python-format
+msgid "Found installed package for %s '%s' support"
+msgstr "Pacote de supporte para %s '%s' encontrado"
+
+#: opsdroid/loader.py:531
 #, python-format
 msgid "Module %s failed to import."
 msgstr "O carregamento do módulo %s falhou."
 
-#: opsdroid/loader.py:332
+#: opsdroid/loader.py:542
 #, python-format
 msgid "Installing %s..."
 msgstr "A instalar %s..."
 
-#: opsdroid/loader.py:340
+#: opsdroid/loader.py:553
 #, python-format
 msgid "Installed %s to %s"
 msgstr "%s instalado em %s"
 
-#: opsdroid/loader.py:343
+#: opsdroid/loader.py:556
 #, python-format
 msgid "Install of %s failed."
 msgstr "A instalação de %s falhou."
 
-#: opsdroid/loader.py:349
+#: opsdroid/loader.py:568
 #, python-format
 msgid "Updating %s..."
 msgstr "A actualizar %s..."
 
-#: opsdroid/loader.py:352
+#: opsdroid/loader.py:571
 msgid "Local modules are not updated, skipping."
 msgstr "Módulos locais não são actualizados, a ignorar."
 
-#: opsdroid/loader.py:384
+#: opsdroid/loader.py:604
+msgid "'no-dep' set in configuration, skipping the install of dependencies."
+msgstr ""
+"Parametro 'no-dep' encontrado na configuração, nenhuma dependência será "
+"instalada. "
+
+#: opsdroid/loader.py:617
+msgid "Couldn't find the file requirements.txt, skipping."
+msgstr "Não foi possível encontrar o ficheiro 'requirements.txt'"
+
+#: opsdroid/loader.py:636
 #, python-format
 msgid "Cloning %s from remote repository"
 msgstr "A clonar %s pelo repositório remoto"
 
-#: opsdroid/loader.py:390
+#: opsdroid/loader.py:641
 #, python-format
 msgid "Cloning %s from local repository"
 msgstr "A clonar %s pelo repositório local"
 
-#: opsdroid/loader.py:395
+#: opsdroid/loader.py:644
 #, python-format
 msgid "Could not find local git repo %s"
 msgstr "Não foi possivel encontrar repositorio git %s"
 
-#: opsdroid/matchers.py:35
+#: opsdroid/logging.py:25
 msgid ""
-"Api.ai is now called Dialogflow, this matcher will stop working in the "
-"future. Use match_dialogflow_action instead."
-msgstr "Api.ai é agora chamado Dialogflow, este matcher irá para de funcionar "
-"no futuro. Usa match_dialogflow_action no teu código"
+"Both whitelist and blacklist filters found in configuration. Only one can"
+" be used at a time - only the whitelist filter will be used."
+msgstr ""
+"Ambos filtros 'whitelist' e 'backlist' encontrados na configuracao. "
+"Apenas um pode ser usado. O filtro 'whitelist' vai ser usado por "
+"definição"
 
-#: opsdroid/matchers.py:50
+#: opsdroid/logging.py:119
+#, python-format
+msgid "Started opsdroid %s"
+msgstr "Opsdroid %s iniciou"
+
+#: opsdroid/matchers.py:127
+#, fuzzy
 msgid ""
-"Api.ai is now called Dialogflow, this matcher will stop working in the "
-"future. Use match_dialogflow_intent instead."
-msgstr "Api.ai é agora chamado Dialogflow, este matcher irá para de funcionar "
-"no futuro. Usa match_dialogflow_action no teu código"
+"Recast.AI is now called SAP Conversational AI, this matcher  will stop "
+"working in the future. Use match_sapcai instead."
+msgstr ""
+"Api.ai é agora chamado Dialogflow, este matcher irá para de funcionar no "
+"futuro. Usa match_dialogflow_action no teu código"
 
-#: opsdroid/memory.py:19
+#: opsdroid/memory.py:37
 #, python-format
 msgid "Getting %s from memory."
 msgstr "A obter %s da memória."
 
-#: opsdroid/memory.py:30
+#: opsdroid/memory.py:56
 #, python-format
 msgid "Putting %s to memory"
 msgstr "A colocar %s na memória"
 
-#: opsdroid/web.py:61
+#: opsdroid/web.py:87
 msgid "Cannot find ssl cert or key."
 msgstr "Não foi possivel encontrar o certificado ou chave SSL"
 
-#: opsdroid/web.py:68
+#: opsdroid/web.py:95
 #, python-format
-msgid "Starting web server with host %s and port %s"
-msgstr "A iniciar servidor web com o host %s e porta %s"
+msgid "Started web server on %s://%s%s"
+msgstr "Servidor iniciado no endereço: %s://%s%s"
+
+#: opsdroid/web.py:131
+#, python-format
+msgid "Running skill %s via webhook"
+msgstr "A executar habilidade %s através de webhook"
+
+#: opsdroid/cli/utils.py:77
+msgid "Whoops! opsdroid requires python 3.6 or above."
+msgstr "Whoops! opsdroid precisa que a tua versão de python seja 3.6 ou superior."
+
+#: opsdroid/cli/utils.py:95
+msgid "You can customise your opsdroid by modifying your configuration.yaml"
+msgstr ""
+"Podes personalizar o teu opsdroid modificando o ficheiro "
+"configuration.yaml  "
+
+#: opsdroid/cli/utils.py:101
+msgid "Read more at: http://opsdroid.readthedocs.io/#configuration"
+msgstr "Le mais: http://opsdroid.readthedocs.io/#configuration "
+
+#: opsdroid/cli/utils.py:103
+msgid "Watch the Get Started Videos at: http://bit.ly/2fnC0Fh"
+msgstr "Vê os vídeos de iniciação: http://bit.ly/2fnC0Fh"
+
+#: opsdroid/cli/utils.py:105
+msgid ""
+"Install Opsdroid Desktop at: \n"
+"https://github.com/opsdroid/opsdroid-desktop/releases"
+msgstr ""
+"Instala Opsdroid Desktop: \n"
+"https://github.com/opsdroid/opsdroid-desktop/releases"
+
+#: opsdroid/cli/utils.py:114
+msgid "'welcome-message: true/false' is missing in configuration.yaml"
+msgstr ""
+"Parâmetro 'welcome-message: true/false' não esta especificado no ficheiro"
+" configuration.yaml"
+
+#: opsdroid/connector/facebook/__init__.py:35
+msgid "Starting facebook connector"
+msgstr "A iniciar o conector do facebook"
+
+#: opsdroid/connector/facebook/__init__.py:103
+msgid "Responding to facebook"
+msgstr "A responder ao facebook"
+
+#: opsdroid/connector/facebook/__init__.py:113
+#, python-format
+msgid "Responded with: %s"
+msgstr "Respondido com: %s"
+
+#: opsdroid/connector/facebook/__init__.py:117
+msgid "Unable to respond to facebook"
+msgstr "Não foi possível responder ao facebook"
+
+#: opsdroid/connector/github/__init__.py:26
+msgid "Missing auth token!You must set 'token' in your config"
+msgstr ""
+"Falta o token de autenticação! Tens que definir 'token' na configuração "
+"do conector"
+
+#: opsdroid/connector/github/__init__.py:38
+#, python-format
+msgid "Error connecting to github: %s"
+msgstr "Erro ao conectar ao github: %s"
+
+#: opsdroid/connector/github/__init__.py:40
+msgid "Reading bot information..."
+msgstr "A ler informação do bot..."
+
+#: opsdroid/connector/github/__init__.py:42
+msgid "Done."
+msgstr "Feito."
+
+#: opsdroid/connector/github/__init__.py:74
+msgid "No message to respond to."
+msgstr "Nenhuma mensagem para responder."
+
+#: opsdroid/connector/github/__init__.py:90
+#, python-format
+msgid "Key %s not found in payload"
+msgstr "Chave %s não encontrada no payload"
+
+#: opsdroid/connector/github/__init__.py:100
+msgid "Responding via GitHub"
+msgstr "Responder através do Github"
+
+#: opsdroid/connector/github/__init__.py:107
+msgid "Message sent."
+msgstr "Mensagem enviada."
+
+#: opsdroid/connector/gitter/__init__.py:22
+msgid "Starting Gitter connector"
+msgstr "A iniciar o conector para Gitter"
+
+#: opsdroid/connector/gitter/__init__.py:37
+msgid "Connecting with gitter stream"
+msgstr "Conectando com gitter Stream"
+
+#: opsdroid/connector/gitter/__init__.py:59
+msgid "Listening with gitter stream"
+msgstr "Ouvindo com gitter stream"
+
+#: opsdroid/connector/gitter/__init__.py:85
+#, python-format
+msgid "Unable to parse message %s"
+msgstr "Não foi possível analisar a mensagem %s"
+
+#: opsdroid/connector/gitter/__init__.py:101
+#: opsdroid/connector/rocketchat/__init__.py:194
+#: opsdroid/connector/telegram/__init__.py:273
+msgid "Successfully responded"
+msgstr "Respondido com sucesso"
+
+#: opsdroid/connector/gitter/__init__.py:103
+#: opsdroid/connector/telegram/__init__.py:275
+msgid "Unable to respond."
+msgstr "Não foi possível responder."
+
+#: opsdroid/connector/matrix/connector.py:126
+msgid "matrix sync request returned"
+msgstr "Pedido para matrix sync retornado"
+
+#: opsdroid/connector/matrix/connector.py:135
+#, python-format
+msgid "Matrix Sync Timeout (code: %d)"
+msgstr "Matrix Sync Timeout (codigo: %d)"
+
+#: opsdroid/connector/matrix/connector.py:138
+#: opsdroid/connector/matrix/connector.py:142
+msgid "Matrix Sync Error"
+msgstr "Matrix Sync Error"
+
+#: opsdroid/connector/matrix/connector.py:212
+msgid "Server had disconnected, retrying send."
+msgstr "Servidor desconectado, tentando enviar novamente."
+
+#: opsdroid/connector/rocketchat/__init__.py:48
+msgid ""
+"Unable to login: Access token is missing. Rocket.Chat connector will not "
+"be available."
+msgstr ""
+"Não foi possível fazer o login: o token de acesso não está definido. O "
+"conector Rocket.Chat não irá estar disponivel."
+
+#: opsdroid/connector/rocketchat/__init__.py:80
+msgid "Connecting to Rocket.Chat"
+msgstr "A conectar ao Rocket.Chat"
+
+#: opsdroid/connector/rocketchat/__init__.py:84
+#, fuzzy
+msgid "Unable to connect."
+msgstr "Não foi possivel conectar"
+
+#: opsdroid/connector/rocketchat/__init__.py:85
+#: opsdroid/connector/rocketchat/__init__.py:136
+#, python-format
+msgid "Rocket.Chat error %s, %s"
+msgstr "Erro %s, %s no conector Rocket.Chat"
+
+#: opsdroid/connector/rocketchat/__init__.py:88
+#, python-format
+msgid "Connected to Rocket.Chat as %s"
+msgstr "Conectado ao serviço Rocket.Chat como %s"
+
+#: opsdroid/connector/rocketchat/__init__.py:105
+#, python-format
+msgid "Received message from Rocket.Chat %s"
+msgstr "Mensagem de Rocket.Chat recebida %s"
+
+#: opsdroid/connector/rocketchat/__init__.py:182
+#: opsdroid/connector/shell/__init__.py:125
+#: opsdroid/connector/telegram/__init__.py:266
+#, fuzzy, python-format
+msgid "Responding with: %s"
+msgstr "A responder com: %s"
+
+#: opsdroid/connector/rocketchat/__init__.py:196
+#, python-format
+msgid "Error - %s: Unable to respond"
+msgstr "Erro - %s: Incapaz de responder"
+
+#: opsdroid/connector/shell/__init__.py:19
+msgid "Loaded shell connector"
+msgstr "Conector 'shell' carregado"
+
+#: opsdroid/connector/shell/__init__.py:112
+msgid "Connecting to shell"
+msgstr "A conectar a shell"
+
+#: opsdroid/connector/slack/__init__.py:22
+msgid "Starting Slack connector"
+msgstr "A iniciar o conector Slack"
+
+#: opsdroid/connector/slack/__init__.py:46
+msgid "Connecting to Slack"
+msgstr "Conectado ao Slack"
+
+#: opsdroid/connector/slack/__init__.py:65
+#, python-format
+msgid "Connected as %s"
+msgstr "Conectado como %s"
+
+#: opsdroid/connector/slack/__init__.py:66
+#, fuzzy, python-format
+msgid "Using icon %s"
+msgstr "A interpretar: %s"
+
+#: opsdroid/connector/slack/__init__.py:67
+#, python-format
+msgid "Default room is %s"
+msgstr "A sala padrão é %s"
+
+#: opsdroid/connector/slack/__init__.py:68
+msgid "Connected successfully"
+msgstr "Connectado com sucesso"
+
+#: opsdroid/connector/slack/__init__.py:71
+#, python-format
+msgid ""
+"Unable to connect to Slack due to %s - The Slack Connector will not be "
+"available."
+msgstr ""
+"Não foi possível conectar-se ao Slack devido a %s - o conector para Slack"
+" não estará disponível"
+
+#: opsdroid/connector/slack/__init__.py:102
+msgid "Looking up sender username"
+msgstr "A procurar o nome de usuário do remetente"
+
+#: opsdroid/connector/slack/__init__.py:109
+msgid "Replacing userids in message with usernames"
+msgstr "Substituindo userids na messagem por nomes de usuarios"
+
+#: opsdroid/connector/slack/__init__.py:126
+#, python-format
+msgid "Responding with: '%s' in room  %s"
+msgstr "Respondendo com: '%s' na sala %s"
+
+#: opsdroid/connector/slack/__init__.py:143
+#, python-format
+msgid "Responding with interactive blocks in room  %s"
+msgstr "Respondendo com blocos interativos na sala %s"
+
+#: opsdroid/connector/slack/__init__.py:159
+#, fuzzy, python-format
+msgid "Reacting with: %s"
+msgstr "A reagir com: %s"
+
+#: opsdroid/connector/slack/__init__.py:171
+#, python-format
+msgid "Slack does not support the emoji %s"
+msgstr "O Slack não suporta o emoji %s"
+
+#: opsdroid/connector/telegram/__init__.py:24
+#, fuzzy
+msgid "Loaded Telegram Connector"
+msgstr "Conector para telegram carregado"
+
+#: opsdroid/connector/telegram/__init__.py:42
+msgid ""
+"Unable to login: Access token is missing. Telegram connector will be "
+"unavailable."
+msgstr ""
+"Não foi possível fazer o login: o token de acesso não está presente na "
+"configuração. O conector de telegrama estará indisponível."
+
+#: opsdroid/connector/telegram/__init__.py:110
+msgid "Sending deleteWebhook request to Telegram..."
+msgstr "A enviar pedido 'deleteWebhook' para o Telegram..."
+
+#: opsdroid/connector/telegram/__init__.py:114
+msgid "Telegram webhook deleted successfully."
+msgstr "Webhook do Telegram apagado com sucesso."
+
+#: opsdroid/connector/telegram/__init__.py:116
+msgid "Unable to delete webhook."
+msgstr "Não foi possível  apagar o webhook."
+
+#: opsdroid/connector/telegram/__init__.py:126
+#, fuzzy
+msgid "Connecting to Telegram"
+msgstr "A conectar ao telegram."
+
+#: opsdroid/connector/telegram/__init__.py:131
+#, fuzzy
+msgid "Unable to connect"
+msgstr "Não foi possivel conectar"
+
+#: opsdroid/connector/telegram/__init__.py:132
+#: opsdroid/connector/telegram/__init__.py:221
+#, python-format
+msgid "Telegram error %s, %s"
+msgstr "Erro do Telegram %s, %s"
+
+#: opsdroid/connector/telegram/__init__.py:136
+#, fuzzy, python-format
+msgid "Connected to Telegram as %s"
+msgstr "Conectado ao Telegram como %s"
+
+#: opsdroid/connector/telegram/__init__.py:162
+msgid "Channel message parsing not supported - Ignoring message"
+msgstr "Análise de mensagem do canal não suportada - Ignorando mensagem"
+
+#: opsdroid/connector/telegram/__init__.py:185
+msgid "Emoji message parsing not supported - Ignoring message"
+msgstr "Análise de mensagem Emoji não suportada - Ignorando mensagem"
+
+#: opsdroid/connector/telegram/__init__.py:188
+msgid "Unable to parse the message."
+msgstr "Não foi possível analisar a mensagem."
+
+#: opsdroid/connector/telegram/__init__.py:212
+msgid ""
+"Can't get updates because previous webhook is still active. Will try to "
+"delete webhook."
+msgstr ""
+"Não é possível obter atualizações porque o webhook anterior ainda está "
+"ativo. Vamos tentar apagar o webhook."
+
+#: opsdroid/connector/telegram/__init__.py:297
+#, python-format
+msgid "Sent %s image successfully"
+msgstr "Imagem %s enviada com sucesso"
+
+#: opsdroid/connector/telegram/__init__.py:299
+#, python-format
+msgid "Unable to send image - Status Code %s"
+msgstr "Não foi possível enviar a imagem - Código %s"
+
+#: opsdroid/connector/webexteams/__init__.py:22
+msgid "Loaded webex teams connector"
+msgstr "Conector webex teams carregado."
+
+#: opsdroid/connector/webexteams/__init__.py:38
+msgid "Must set access-token for webex teams connector!"
+msgstr "É necessário definir o token de acesso para o conector webex teams!"
+
+#: opsdroid/connector/webexteams/__init__.py:47
+msgid "Handling message from Webex Teams"
+msgstr "A analisar mensagem de Webex Teams"
+
+#: opsdroid/connector/webexteams/__init__.py:77
+msgid "Creating Webex Teams webhook"
+msgstr "A criar webhook para Webex Teams"
+
+#: opsdroid/connector/websocket/__init__.py:25
+msgid "Starting Websocket connector"
+msgstr "A iniciar o conector Websocket"
+
+#: opsdroid/connector/websocket/__init__.py:91
+#, python-format
+msgid "User connected to %s"
+msgstr "Usuário conectado a %s"
+
+#: opsdroid/connector/websocket/__init__.py:103
+#, python-format
+msgid "Websocket connection closed with exception %s"
+msgstr "Conexão Websocket fechada com exceção %s"
+
+#: opsdroid/connector/websocket/__init__.py:107
+msgid "websocket connection closed"
+msgstr "Conexão websocket fechada"
+
+#: opsdroid/connector/websocket/__init__.py:127
+#, python-format
+msgid "Responding with: '%s' in target %s"
+msgstr "A responder com: '%s' em %s"
+
+#: opsdroid/connector/websocket/__init__.py:131
+#, python-format
+msgid "No active socket for target %s"
+msgstr "Nenhum websocket activo para %s"
+
+#: opsdroid/database/redis/__init__.py:36
+msgid "Loaded redis database connector."
+msgstr "Base de dados redis carregada."
+
+#: opsdroid/database/redis/__init__.py:54
+#, python-format
+msgid "Connected to redis database %s from %s on port %s"
+msgstr "Conectado com a base de dados redis %s no endereço %s na porta %s"
+
+#: opsdroid/database/redis/__init__.py:61
+#, python-format
+msgid "Unable to connect to redis database on address: %s port: %s"
+msgstr ""
+"Não foi possível conectar a base de dados redis no endereço: %s e porta: "
+"%s"
+
+#: opsdroid/database/redis/__init__.py:75
+#, fuzzy, python-format
+msgid "Putting %s into redis"
+msgstr "A colocar %s na memória"
+
+#: opsdroid/database/redis/__init__.py:90
+#, fuzzy, python-format
+msgid "Getting %s from redis"
+msgstr "A obter %s da memória."
+
+#: opsdroid/database/sqlite/__init__.py:42
+msgid "Loaded sqlite database connector"
+msgstr "Base de dados sqlite carregada"
+
+#: opsdroid/database/sqlite/__init__.py:68
+#, python-format
+msgid "Connected to sqlite %s"
+msgstr "Conectado a base de dados sqlite %s"
+
+#: opsdroid/database/sqlite/__init__.py:82
+#, fuzzy, python-format
+msgid "Putting %s into sqlite"
+msgstr "A colocar %s na memória"
+
+#: opsdroid/database/sqlite/__init__.py:105
+#, fuzzy, python-format
+msgid "Getting %s from sqlite"
+msgstr "A obter %s da memória."
 
 #: opsdroid/parsers/crontab.py:17
-msgid "Running crontab skills"
-msgstr "A executar habilidades de crontab"
+#, fuzzy, python-format
+msgid "Running crontab skills at %s "
+msgstr "A executar habilidades de crontab %s "
 
-#: opsdroid/parsers/dialogflow.py:33
-#, python-format
-msgid "Dialogflow response - %s"
-msgstr "Resposta de Dialogflow - %s"
+#: opsdroid/parsers/dialogflow.py:54
+msgid ""
+"Authentication file not found or 'project-id' not in configuration, "
+"dialogflow parser will not be available"
+msgstr ""
+"Arquivo de autenticação não encontrado ou 'id do projeto' não está na "
+"configuração, dialogflow não estará disponível"
 
-#: opsdroid/parsers/dialogflow.py:47
-msgid "No response from Dialogflow, check your network."
-msgstr "Não foi possível obter resposta de Dialogflow. Verifica a tua conexão."
+#: opsdroid/parsers/dialogflow.py:60
+msgid ""
+"Unable to find dialogflow dependency. Please install dialogflow with the "
+"command pip install dialogflow if you want to use this parser."
+msgstr ""
+"Não foi possível encontrar a dependência para dialogflow. Instale a "
+"dependencia com o comando pip install dialogflow se quizeres usar este "
+"analisador."
 
-#: opsdroid/parsers/dialogflow.py:52
-#, python-format
-msgid "Dialogflow error - %s  - %s"
-msgstr "Erro de Dialogflow - %s - %s"
+#: opsdroid/parsers/dialogflow.py:97
+#, fuzzy
+msgid "Dialogflow confidence lower than min-score"
+msgstr "Pontuação de confiança do Dialogflow inferior ao min-score"
 
-#: opsdroid/parsers/dialogflow.py:59
-msgid "Dialogflow score lower than min-score"
-msgstr "Pontuação do Dialogflow inferior ao min-score"
-
-#: opsdroid/parsers/dialogflow.py:76 opsdroid/parsers/recastai.py:66
+#: opsdroid/parsers/dialogflow.py:115 opsdroid/parsers/sapcai.py:82
 #, python-format
 msgid "Matched against skill %s"
 msgstr "Comparado com a habilidade %s"
 
-#: opsdroid/parsers/luisai.py:26
+#: opsdroid/parsers/dialogflow.py:130
+#, fuzzy, python-format
+msgid "There was an error while parsing to dialogflow - %s"
+msgstr "Houve um erro ao analisar para o dialogflow - %s"
+
+#: opsdroid/parsers/luisai.py:32
 #, python-format
 msgid "luis.ai response - %s"
 msgstr "Resposta luis.ai - %s"
 
-#: opsdroid/parsers/luisai.py:38
+#: opsdroid/parsers/luisai.py:44
 msgid "No response from luis.ai, check your network."
 msgstr "Não foi possível obter resposta de luis.ai. Verifica a tua conexão."
 
-#: opsdroid/parsers/luisai.py:47
+#: opsdroid/parsers/luisai.py:54
 #, python-format
 msgid "luis.ai error - %s %s"
 msgstr "Erro de luis.ai - %s %s"
 
-#: opsdroid/parsers/luisai.py:56
+#: opsdroid/parsers/luisai.py:63
 msgid "luis.ai score lower than min-score"
 msgstr "Pontuação do luis.ai inferior ao min-score"
 
@@ -329,98 +834,128 @@ msgstr "Iniciação falhou, o treino falhou..."
 msgid "Initialisation complete in %s seconds."
 msgstr "Inicialização completa em %s segundos."
 
-#: opsdroid/parsers/rasanlu.py:82
+#: opsdroid/parsers/rasanlu.py:85
 msgid "Starting Rasa NLU training."
 msgstr "A iniciar treino Rasa NLU"
 
-#: opsdroid/parsers/rasanlu.py:85
+#: opsdroid/parsers/rasanlu.py:88
 msgid "No intents found, skipping training."
 msgstr "Nenhuma intenção encontrada, a saltar treino."
 
-#: opsdroid/parsers/rasanlu.py:90
+#: opsdroid/parsers/rasanlu.py:93
 msgid "This model already exists, skipping training..."
 msgstr "Este modelo já existe, a saltar treino..."
 
-#: opsdroid/parsers/rasanlu.py:95
+#: opsdroid/parsers/rasanlu.py:98
 msgid "Now training the model. This may take a while..."
 msgstr "A treinar o modelo agora. Isto pode demorar um pouco..."
 
-#: opsdroid/parsers/rasanlu.py:103
+#: opsdroid/parsers/rasanlu.py:113
 msgid "Unable to connect to Rasa NLU, training failed."
 msgstr "Não foi possível conectar com Rasa NLU, o treino falhou."
 
-#: opsdroid/parsers/rasanlu.py:110
+#: opsdroid/parsers/rasanlu.py:122 opsdroid/parsers/rasanlu.py:134
 #, python-format
 msgid "Rasa NLU training completed in %s seconds."
 msgstr "Treino de Rasa NLU demorou %s segundos."
 
-#: opsdroid/parsers/rasanlu.py:117 opsdroid/parsers/rasanlu.py:145
+#: opsdroid/parsers/rasanlu.py:152 opsdroid/parsers/rasanlu.py:179
 #, python-format
 msgid "Bad Rasa NLU response - %s"
 msgstr "Má resposta de Rasa NLU - %s"
 
-#: opsdroid/parsers/rasanlu.py:118
+#: opsdroid/parsers/rasanlu.py:153
 msgid "Rasa NLU training failed."
 msgstr "Treino de Rasa NLU falhou."
 
-#: opsdroid/parsers/rasanlu.py:138
+#: opsdroid/parsers/rasanlu.py:172
 msgid "Unable to connect to Rasa NLU"
 msgstr "Não foi possivel conectar a Rasa NLU"
 
-#: opsdroid/parsers/rasanlu.py:142
+#: opsdroid/parsers/rasanlu.py:176
 #, python-format
 msgid "Rasa NLU response - %s"
 msgstr "Resposta de Rasa NLU - %s"
 
-#: opsdroid/parsers/rasanlu.py:156
+#: opsdroid/parsers/rasanlu.py:190
 msgid "No response from Rasa NLU, check your network."
 msgstr "Não foi possível obter resposta de Rasa NLU. Verifica a tua conexão."
 
-#: opsdroid/parsers/rasanlu.py:160
+#: opsdroid/parsers/rasanlu.py:194
 msgid "Rasa NLU error - Unauthorised request.Check your 'token'."
 msgstr "Erro de Rasa NLU - Pedido não autorizado. Confirma o teu 'token'."
 
-#: opsdroid/parsers/rasanlu.py:165
+#: opsdroid/parsers/rasanlu.py:199
 msgid "Rasa NLU error - No intent found. Did you forget to create one?"
-msgstr "Error de Rasa NLU - Nenhuma intenção encontrada. Esqueceste-te de criar uma?"
+msgstr ""
+"Error de Rasa NLU - Nenhuma intenção encontrada. Esqueceste-te de criar "
+"uma?"
 
-#: opsdroid/parsers/rasanlu.py:171
+#: opsdroid/parsers/rasanlu.py:205
 msgid "Rasa NLU score lower than min-score"
 msgstr "Pontuação de Rasa NLU inferior ao min-score"
 
-#: opsdroid/parsers/recastai.py:29
-#, python-format
-msgid "Recastai response - %s"
+#: opsdroid/parsers/sapcai.py:26
+#, fuzzy, python-format
+msgid "SAP Conversational AI response - %s"
 msgstr "Resposta de Recastai - %s"
 
-#: opsdroid/parsers/recastai.py:43
-msgid "No response from Recast.AI, check your network."
-msgstr "Sem resposta de Recast.AI, verifica a tua conexão."
+#: opsdroid/parsers/sapcai.py:41
+#, fuzzy
+msgid "No response from SAP Conversational.AI, check your network."
+msgstr "Sem resposta de wit.ai, verifica a tua conexão."
 
-#: opsdroid/parsers/recastai.py:47
+#: opsdroid/parsers/sapcai.py:46
 #, python-format
-msgid "Recast.AI error - %s"
-msgstr "Erro de Recast.AI - %s"
+msgid "SAP Conversational AI error - %s"
+msgstr "Erro do analisador SAP Conversational AI - %s"
 
-#: opsdroid/parsers/recastai.py:50
+#: opsdroid/parsers/sapcai.py:51
+#, fuzzy, python-format
+msgid "SAP Conversational AI error - No intent found for the message %s"
+msgstr "Erro do analisador SAP Conversational AI - Nenhuma intenção encontrada "
+"para a mensagem %s"
+
+#: opsdroid/parsers/sapcai.py:63
+#, fuzzy
+msgid "SAP Conversational AI score lower than min-score"
+msgstr "Pontuação de confiança de SAP Conversational AI inferior ao min-score"
+
+#: opsdroid/parsers/watson.py:75
+#, fuzzy, python-format
+msgid "Watson response - %s"
+msgstr "Resposta do analisador - %s"
+
+#: opsdroid/parsers/watson.py:109
+#, fuzzy
+msgid "Watson - No intent found. Did you forget to create one?"
+msgstr "Erro - Nenhuma intenção encontrada. Esqueceste-te de criar uma?"
+
+#: opsdroid/parsers/watson.py:118
+#, fuzzy
+msgid "Watson score lower than min-score"
+msgstr "Pontuação de confiancça inferior ao min-score"
+
+#: opsdroid/parsers/watson.py:153
 #, python-format
-msgid "Recast.AI error - No intent found for the message %s"
-msgstr "Erro de Recast.AI - Nenhuma intenção encontrada para a mensagem %s"
+msgid "Error: %s . You are probably missing some configuration parameter."
+msgstr "Erro: %s. Provavelmente há algum parametro de configuração em falta."
 
-#: opsdroid/parsers/recastai.py:57
-msgid "Recast.AI score lower than min-score"
-msgstr "Pontuação de Recast.AI inferior ao min-score"
+#: opsdroid/parsers/watson.py:157
+#, fuzzy, python-format
+msgid "Watson Api error - %d:%s"
+msgstr "Erro - %d:%s"
 
-#: opsdroid/parsers/witai.py:27
+#: opsdroid/parsers/witai.py:24
 #, python-format
 msgid "wit.ai response - %s"
 msgstr "Resposta de wit-ai - %s"
 
-#: opsdroid/parsers/witai.py:38
+#: opsdroid/parsers/witai.py:35
 msgid "No response from wit.ai, check your network."
 msgstr "Sem resposta de wit.ai, verifica a tua conexão."
 
-#: opsdroid/parsers/witai.py:42
+#: opsdroid/parsers/witai.py:40
 #, python-format
 msgid "wit.ai error - %s %s"
 msgstr "Erro de wit.ai - %s %s"
@@ -433,36 +968,74 @@ msgstr "Erro de wit.ai - Nenhuma intenção encontrada. Esqueceste-te de criar u
 msgid "wit.ai score lower than min-score"
 msgstr "Pontuação de wit.ai inferior ao min-score"
 
-msgid "opsdroid has already been started"
-msgstr "opsdroid já iniciou"
+#~ msgid "Keyboard interrupt, exiting."
+#~ msgstr "Interrupção de teclado, a sair da aplicação."
 
-msgid "All connectors failed to load"
-msgstr "O carregamento de todos os conectores falharam"
+#~ msgid "Reloading module %s"
+#~ msgstr "A recarregar o módulo %s"
 
-msgid "Creating %s."
-msgstr "A creat %s."
+#~ msgid "Starting web server with host %s and port %s"
+#~ msgstr "A iniciar servidor web com o host %s e porta %s"
 
-msgid "Install of %s failed."
-msgstr "A instalação de %s falhou"
+#~ msgid "No response from Recast.AI, check your network."
+#~ msgstr "Sem resposta de Recast.AI, verifica a tua conexão."
 
-msgid "'no-cache' set, removing %s"
-msgstr "Parâmetro 'no-cache' activo, a remover %s"
+#~ msgid "Recast.AI error - %s"
+#~ msgstr "Erro de Recast.AI - %s"
 
-msgid "Module %s failed to import."
-msgstr "O módulo %s não foi importado."
+#~ msgid "Recast.AI score lower than min-score"
+#~ msgstr "Pontuação de Recast.AI inferior ao min-score"
 
-msgid "Installing %s..."
-msgstr "A instalar %s..."
+#~ msgid "opsdroid has already been started"
+#~ msgstr "opsdroid já iniciou"
 
-msgid "Updating %s..."
-msgstr "A actualizar %s..."
+#~ msgid "All connectors failed to load"
+#~ msgstr "O carregamento de todos os conectores falharam"
 
-msgid "Cloning %s from remote repository"
-msgstr "A clonar %s do repositorio remoto"
+#~ msgid "Creating %s."
+#~ msgstr "A creat %s."
 
-msgid "Cloning %s from local repository"
-msgstr "A clonar %s do repositorio local"
+#~ msgid ""
+#~ "Api.ai is now called Dialogflow. This"
+#~ " parser will stop working in the "
+#~ "future please swap: 'name: apiai' for"
+#~ " 'name: dialogflow' in configuration.yaml"
+#~ msgstr ""
+#~ "Api.ai é agora chamada de Dialogflow."
+#~ " Este interpretador vai parar de "
+#~ "funcionar no futuro. Por favor mudar "
+#~ "'name: apiai' por 'name:dialogflow' no "
+#~ "ficheiro configuration.yaml"
 
-msgid "Matched against skill %s"
-msgstr "Correspondido com a habilidade %s"
+#~ msgid "Checking Recast.AI..."
+#~ msgstr "A verificar Recast.AI..."
+
+#~ msgid ""
+#~ "Api.ai is now called Dialogflow, this"
+#~ " matcher will stop working in the "
+#~ "future. Use match_dialogflow_action instead."
+#~ msgstr ""
+#~ "Api.ai é agora chamado Dialogflow, este"
+#~ " matcher irá para de funcionar no "
+#~ "futuro. Usa match_dialogflow_action no teu "
+#~ "código"
+
+#~ msgid ""
+#~ "Api.ai is now called Dialogflow, this"
+#~ " matcher will stop working in the "
+#~ "future. Use match_dialogflow_intent instead."
+#~ msgstr ""
+#~ "Api.ai é agora chamado Dialogflow, este"
+#~ " matcher irá para de funcionar no "
+#~ "futuro. Usa match_dialogflow_action no teu "
+#~ "código"
+
+#~ msgid "Dialogflow response - %s"
+#~ msgstr "Resposta de Dialogflow - %s"
+
+#~ msgid "No response from Dialogflow, check your network."
+#~ msgstr "Não foi possível obter resposta de Dialogflow. Verifica a tua conexão."
+
+#~ msgid "Dialogflow error - %s  - %s"
+#~ msgstr "Erro de Dialogflow - %s - %s"
 

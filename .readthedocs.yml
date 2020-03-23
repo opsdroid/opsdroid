@@ -4,3 +4,13 @@ version: 2
 
 python:
   version: 3.6
+  install:
+    - requirements: requirements.txt
+    - requirements: requirements_test.txt
+    - requirements: requirements_dev.txt
+    - method: pip
+      path: .
+
+sphinx:
+  configuration: docs/conf.py
+  fail_on_warning: true

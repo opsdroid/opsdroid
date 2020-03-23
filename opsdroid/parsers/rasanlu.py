@@ -12,16 +12,16 @@ import arrow
 from opsdroid.const import RASANLU_DEFAULT_URL, RASANLU_DEFAULT_PROJECT
 
 _LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {"url": str, "project": str, "token": str, "min-score": float}
 
 
 async def _get_all_intents(skills):
     """Get all skill intents and concatenate into a single markdown string."""
-    intents = [skill["intents"] for skill in skills
-               if skill["intents"] is not None]
+    intents = [skill["intents"] for skill in skills if skill["intents"] is not None]
     if not intents:
         return None
     intents = "\n\n".join(intents)
-    return unicodedata.normalize("NFKD", intents).encode('ascii')
+    return unicodedata.normalize("NFKD", intents).encode("ascii")
 
 
 async def _get_intents_fingerprint(intents):
@@ -34,7 +34,8 @@ async def _build_training_url(config):
     url = "{}/train?project={}&fixed_model_name={}".format(
         config.get("url", RASANLU_DEFAULT_URL),
         config.get("project", RASANLU_DEFAULT_PROJECT),
-        config["model"])
+        config["model"],
+    )
 
     if "token" in config:
         url += "&token={}".format(config["token"])
@@ -67,7 +68,7 @@ async def _init_model(config):
 async def _get_existing_models(config):
     """Get a list of models already trained in the Rasa NLU project."""
     project = config.get("project", RASANLU_DEFAULT_PROJECT)
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(trust_env=True) as session:
         try:
             resp = await session.get(await _build_status_url(config))
             if resp.status == 200:
@@ -94,7 +95,7 @@ async def train_rasanlu(config, skills):
         await _init_model(config)
         return True
 
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(trust_env=True) as session:
         _LOGGER.info(_("Now training the model. This may take a while..."))
 
         url = await _build_training_url(config)
@@ -104,7 +105,7 @@ async def train_rasanlu(config, skills):
         # application/x-yml regardless of wether you use
         # json or md for the data format. Do not send json as
         # application/json for example.+
-        headers = {'content-type': 'application/x-yml'}
+        headers = {"content-type": "application/x-yml"}
 
         try:
             training_start = arrow.now()
@@ -114,45 +115,69 @@ async def train_rasanlu(config, skills):
             return False
 
         if resp.status == 200:
-            result = await resp.json()
-            if "info" in result and "new model trained" in result["info"]:
+            if resp.content_type == "application/json":
+                result = await resp.json()
+                if "info" in result and "new model trained" in result["info"]:
+                    time_taken = (arrow.now() - training_start).total_seconds()
+                    _LOGGER.info(
+                        _("Rasa NLU training completed in %s seconds."), int(time_taken)
+                    )
+                    await _init_model(config)
+                    return True
+
+                _LOGGER.debug(result)
+            if (
+                resp.content_type == "application/zip"
+                and resp.content_disposition.type == "attachment"
+            ):
                 time_taken = (arrow.now() - training_start).total_seconds()
-                _LOGGER.info(_("Rasa NLU training completed in %s seconds."),
-                             int(time_taken))
+                _LOGGER.info(
+                    _("Rasa NLU training completed in %s seconds."), int(time_taken)
+                )
                 await _init_model(config)
+                """
+                As inditated in the issue #886, returned zip file is ignored, this can be changed
+                This can be changed in future release if needed
+                Saving model.zip file example :
+                try:
+                    output_file = open("/target/directory/model.zip","wb")
+                    data = await resp.read()
+                    output_file.write(data)
+                    output_file.close()
+                    _LOGGER.debug("Rasa taining model file saved to /target/directory/model.zip")
+                except:
+                    _LOGGER.error("Cannot save rasa taining model file to /target/directory/model.zip")
+                """
                 return True
 
-            _LOGGER.debug(result)
-
-        _LOGGER.error(_("Bad Rasa NLU response - %s"), await resp.text())
+        _LOGGER.error(_("Bad Rasa NLU response - %s."), await resp.text())
         _LOGGER.error(_("Rasa NLU training failed."))
         return False
 
 
 async def call_rasanlu(text, config):
     """Call the Rasa NLU api and return the response."""
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(trust_env=True) as session:
         headers = {}
         data = {
             "q": text,
             "project": config.get("project", "default"),
-            "model": config.get("model", "fallback")
+            "model": config.get("model", "fallback"),
         }
         if "token" in config:
             data["token"] = config["token"]
         url = config.get("url", RASANLU_DEFAULT_URL) + "/parse"
         try:
-            resp = await session.post(url, data=json.dumps(data),
-                                      headers=headers)
+            resp = await session.post(url, data=json.dumps(data), headers=headers)
         except aiohttp.client_exceptions.ClientConnectorError:
-            _LOGGER.error(_("Unable to connect to Rasa NLU"))
+            _LOGGER.error(_("Unable to connect to Rasa NLU."))
             return None
         if resp.status == 200:
             result = await resp.json()
-            _LOGGER.debug(_("Rasa NLU response - %s"), json.dumps(result))
+            _LOGGER.debug(_("Rasa NLU response - %s."), json.dumps(result))
         else:
             result = await resp.text()
-            _LOGGER.error(_("Bad Rasa NLU response - %s"), result)
+            _LOGGER.error(_("Bad Rasa NLU response - %s."), result)
 
         return result
 
@@ -166,18 +191,18 @@ async def parse_rasanlu(opsdroid, skills, message, config):
         _LOGGER.error(_("No response from Rasa NLU, check your network."))
         return matched_skills
 
-    if result == 'unauthorized':
-        _LOGGER.error(_("Rasa NLU error - Unauthorised request."
-                        "Check your 'token'."))
+    if result == "unauthorized":
+        _LOGGER.error(_("Rasa NLU error - Unauthorised request. Check your 'token'."))
         return matched_skills
 
-    if result is None or 'intent' not in result or result['intent'] is None:
-        _LOGGER.error(_("Rasa NLU error - No intent found. Did you "
-                        "forget to create one?"))
+    if result is None or "intent" not in result or result["intent"] is None:
+        _LOGGER.error(
+            _("Rasa NLU error - No intent found. Did you forget to create one?")
+        )
         return matched_skills
 
-    confidence = result['intent']['confidence']
-    if "min-score" in config and confidence < config['min-score']:
+    confidence = result["intent"]["confidence"]
+    if "min-score" in config and confidence < config["min-score"]:
         _LOGGER.info(_("Rasa NLU score lower than min-score"))
         return matched_skills
 
@@ -185,13 +210,19 @@ async def parse_rasanlu(opsdroid, skills, message, config):
         for skill in skills:
             for matcher in skill.matchers:
                 if "rasanlu_intent" in matcher:
-                    if matcher['rasanlu_intent'] == result['intent']['name']:
+                    if matcher["rasanlu_intent"] == result["intent"]["name"]:
                         message.rasanlu = result
-                        matched_skills.append({
-                            "score": confidence,
-                            "skill": skill,
-                            "config": skill.config,
-                            "message": message
-                        })
+                        for entity in result["entities"]:
+                            message.update_entity(
+                                entity["entity"], entity["value"], entity["confidence"]
+                            )
+                        matched_skills.append(
+                            {
+                                "score": confidence,
+                                "skill": skill,
+                                "config": skill.config,
+                                "message": message,
+                            }
+                        )
 
     return matched_skills

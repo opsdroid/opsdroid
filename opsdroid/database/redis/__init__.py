@@ -1,18 +1,23 @@
 """Module for storing data within Redis."""
-from datetime import date, datetime
 import json
-import time
+import logging
 
-import asyncio_redis
+import aioredis
+from aioredis import parser
+from voluptuous import Any
 
 from opsdroid.database import Database
+from opsdroid.helper import JSONEncoder, JSONDecoder
+
+_LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {"host": str, "port": Any(int, str), "database": int, "password": str}
 
 
 class RedisDatabase(Database):
     """Database class for storing data within a Redis instance."""
 
     def __init__(self, config, opsdroid=None):
-        """Initialise the sqlite database.
+        """Initialise the redis database.
 
         Set basic properties of the database. Initialise properties like
         name, connection arguments, database file, table name and config.
@@ -21,6 +26,7 @@ class RedisDatabase(Database):
             config (dict): The configuration of the database which consists
                            of `file` and `table` name of the sqlite database
                            specified in `configuration.yaml` file.
+            opsdroid (OpsDroid): An instance of opsdroid.core.
 
         """
         super().__init__(config, opsdroid=opsdroid)
@@ -30,7 +36,7 @@ class RedisDatabase(Database):
         self.port = self.config.get("port", 6379)
         self.database = self.config.get("database", 0)
         self.password = self.config.get("password", None)
-        self.reconnect = self.config.get("reconnect", False)
+        _LOGGER.debug(_("Loaded Redis database connector."))
 
     async def connect(self):
         """Connect to the database.
@@ -39,13 +45,26 @@ class RedisDatabase(Database):
         connect to Redis on localhost on port 6379
 
         """
-        self.client = await asyncio_redis.Connection.create(
-            host=self.host,
-            port=self.port,
-            db=self.database,
-            auto_reconnect=self.reconnect,
-            password=self.password,
-        )
+        try:
+            self.client = await aioredis.create_pool(
+                address=(self.host, int(self.port)),
+                db=self.database,
+                password=self.password,
+                parser=parser.PyReader,
+            )
+
+            _LOGGER.info(
+                _("Connected to Redis database %s from %s on port %s."),
+                self.database,
+                self.host,
+                self.port,
+            )
+        except OSError:
+            _LOGGER.warning(
+                _("Unable to connect to Redis database on address: %s port: %s."),
+                self.host,
+                self.port,
+            )
 
     async def put(self, key, data):
         """Store the data object in Redis against the key.
@@ -55,8 +74,9 @@ class RedisDatabase(Database):
             data (object): The data object to store.
 
         """
-        data = self.convert_object_to_timestamp(data)
-        await self.client.set(key, json.dumps(data))
+        if self.client:
+            _LOGGER.debug(_("Putting %s into Redis."), key)
+            await self.client.execute("SET", key, json.dumps(data, cls=JSONEncoder))
 
     async def get(self, key):
         """Get data from Redis for a given key.
@@ -69,57 +89,27 @@ class RedisDatabase(Database):
                             object found for that key.
 
         """
-        data = await self.client.get(key)
+        if self.client:
+            _LOGGER.debug(_("Getting %s from Redis."), key)
+            data = await self.client.execute("GET", key)
 
-        if data:
-            return self.convert_timestamp_to_object(json.loads(data))
+            if data:
+                return json.loads(data, encoding=JSONDecoder)
 
-        return None
+            return None
+
+    async def delete(self, key):
+        """Delete data from Redis for a given key.
+
+        Args:
+            key (string): The key to delete in the database.
+
+        """
+        if self.client:
+            _LOGGER.debug(_("Deleting %s from Redis."), key)
+            await self.client.execute("DEL", key)
 
     async def disconnect(self):
         """Disconnect from the database."""
-        self.client.close()
-
-    @staticmethod
-    def convert_object_to_timestamp(data):
-        """
-        Serialize dict before storing into Redis.
-
-        Args:
-            dict: Dict to serialize
-
-        Returns:
-            dict: Dict from redis to unserialize
-
-        """
-        for k, value in data.items():
-            if isinstance(value, (datetime, date)):
-                value = '::'.join([
-                    type(value).__name__,
-                    '%d' % time.mktime(value.timetuple())
-                ])
-                data[k] = value
-        return data
-
-    @staticmethod
-    def convert_timestamp_to_object(data):
-        """
-        Unserialize data from Redis.
-
-        Args:
-            dict: Dict from redis to unserialize
-
-        Returns:
-            dict: Dict to serialize
-
-        """
-        for k, value in data.items():
-            value_type = value.split('::', 1)[0]
-            if value_type == 'datetime':
-                timestamp = int(value.split('::', 1)[1])
-                value = datetime.fromtimestamp(timestamp)
-            elif value_type == 'date':
-                timestamp = int(value.split('::', 1)[1])
-                value = date.fromtimestamp(timestamp)
-            data[k] = value
-        return data
+        if self.client:
+            self.client.close()
