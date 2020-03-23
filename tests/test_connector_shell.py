@@ -161,7 +161,7 @@ class TestConnectorShellAsync(asynctest.TestCase):
         with contextlib.redirect_stdout(f):
             await self.connector.respond(message)
             prompt = f.getvalue()
-            self.assertEqual(prompt.strip(), "Hi\nopsdroid>")
+            self.assertEqual(prompt.strip(), "Hi")
 
     async def test_disconnect(self):
         connector = ConnectorShell({}, opsdroid=OpsDroid())
