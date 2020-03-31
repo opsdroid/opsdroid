@@ -554,14 +554,14 @@ CONFIG_SCHEMA = Any(
     {
         Required("token"): str,
         Required("rooms"): dict,
-        "homeserver": str,
+        Required("homeserver"): str,
         "nick": str,
         "room_specific_nicks": bool,
     },
 )
 ```
 
-As you can see 'mxid`, 'password', 'token' and `rooms` are required fields for this connector and we expect them to be strings and a dictionary.
+As you can see 'mxid`, 'password', 'token', 'rooms' and `homeserver` are required fields for this connector and we expect them to be strings and a dictionary.
 
 You can use the Any() method to return one of either dictionaries to provide alternative required fields
 

@@ -34,7 +34,7 @@ CONFIG_SCHEMA = Any(
     {
         Required("token"): str,
         Required("rooms"): dict,
-        "homeserver": str,
+        Required("homeserver"): str,
         "nick": str,
         "room_specific_nicks": bool,
     },

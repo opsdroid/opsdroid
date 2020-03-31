@@ -134,17 +134,17 @@ connectors:
 #  ## Matrix (core)
 #  matrix:
 #    # Required
-#    'token': 'mytoken'  # Your matrix Access Token
-#    # Alternatively, you could use your matrix username and password
 #    'mxid' : '@username:matrix.org'
 #    'password': 'mypassword'
+#    # Alternatively, you could use your matrix access token
+#    'token': 'mytoken'
 #    # A dictionary of multiple rooms
 #    # One of these should be named 'main'
 #    rooms:
 #      'main': '#matrix:matrix.org'
 #      'other': '#riot:matrix.org'
+#    homeserver: "https://matrix.org" # Optional if you've specified mxid and password or if the homeserver is https://matrix.org
 #    # Optional
-#    homeserver: "https://matrix.org"
 #    nick: "Botty McBotface"  # The nick will be set on startup
 #    room_specific_nicks: False  # Look up room specific nicknames of senders (expensive in large rooms)
 #
