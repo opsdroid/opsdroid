@@ -143,7 +143,7 @@ connectors:
 #    rooms:
 #      'main': '#matrix:matrix.org'
 #      'other': '#riot:matrix.org'
-#    homeserver: "https://matrix.org" # Optional if you've specified mxid and password or if the homeserver is https://matrix.org
+#    homeserver: "https://matrix.org" # Optional if the homeserver is https://matrix.org
 #    # Optional
 #    nick: "Botty McBotface"  # The nick will be set on startup
 #    room_specific_nicks: False  # Look up room specific nicknames of senders (expensive in large rooms)
