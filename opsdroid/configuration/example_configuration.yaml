@@ -134,11 +134,10 @@ connectors:
 #  ## Matrix (core)
 #  matrix:
 #    # Required
-#    credentials:
-#      'token': 'mytoken'  # Your matrix Access Token
-#      # Alternatively, you could use your matrix username and password (not recommended)
-#      'mxid' : '@username:matrix.org'
-#      'password': 'mypassword'
+#    'token': 'mytoken'  # Your matrix Access Token
+#    # Alternatively, you could use your matrix username and password
+#    'mxid' : '@username:matrix.org'
+#    'password': 'mypassword'
 #    # A dictionary of multiple rooms
 #    # One of these should be named 'main'
 #    rooms:

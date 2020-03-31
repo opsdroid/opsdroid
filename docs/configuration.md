@@ -542,17 +542,28 @@ Let's take the example of our matrix connector. Inside the module we set the con
 
 ```python
 from voluptuous import Required
-
-CONFIG_SCHEMA = {
-    Required("credentials"): dict,
-    Required("rooms"): dict,
-    "homeserver": str,
-    "nick": str,
-    "room_specific_nicks": bool,
-}
+CONFIG_SCHEMA = Any(
+    {
+        Required("mxid"): str,
+        Required("password"): str,
+        Required("rooms"): dict,
+        "homeserver": str,
+        "nick": str,
+        "room_specific_nicks": bool,
+    },
+    {
+        Required("token"): str,
+        Required("rooms"): dict,
+        "homeserver": str,
+        "nick": str,
+        "room_specific_nicks": bool,
+    },
+)
 ```
 
-As you can see 'credentials` and `rooms` are required fields for this connector and we expect them to be dictionaries.
+As you can see 'mxid`, 'password', 'token' and `rooms` are required fields for this connector and we expect them to be strings and a dictionary.
+
+You can use the Any() method to return one of either dictionaries to provide alternative required fields
 
 Since we don't need to explicitly declare a value as Optional we can just write the expected value and type.
 

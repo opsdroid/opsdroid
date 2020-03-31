@@ -20,16 +20,25 @@ from opsdroid.cli.start import configure_lang  # noqa
 api_string = "matrix_api_async.AsyncHTTPAPI.{}"
 
 
-def setup_connector():
+def setup_connector(type="password"):
     """Initiate a basic connector setup for testing on"""
-    connector = ConnectorMatrix(
-        {
-            "rooms": {"main": "#test:localhost"},
-            "mxid": "@opsdroid:localhost",
-            "password": "hello",
-            "homeserver": "http://localhost:8008",
-        }
-    )
+    if type == "password":
+        connector = ConnectorMatrix(
+            {
+                "rooms": {"main": "#test:localhost"},
+                "mxid": "@opsdroid:localhost",
+                "password": "hello",
+                "homeserver": "http://localhost:8008",
+            }
+        )
+    else:
+        connector = ConnectorMatrix(
+            {
+                "rooms": {"main": "#test:localhost"},
+                "token": "arbitrary string1",
+                "homeserver": "http://localhost:8008",
+            }
+        )
     return connector
 
 
@@ -139,8 +148,10 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
     def setUp(self):
         """Basic setting up for tests"""
         self.connector = setup_connector()
+        self.token_connector = setup_connector("token")
         self.api = AsyncHTTPAPI("https://notaurl.com", None)
         self.connector.connection = self.api
+        self.token_connector.connection = self.api
 
     async def test_make_filter(self):
         with amock.patch(api_string.format("create_filter")) as patched_filter:
@@ -154,6 +165,8 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
 
     async def test_connect(self):
         with amock.patch(api_string.format("login")) as patched_login, amock.patch(
+            api_string.format("_send")
+        ) as patched_request, amock.patch(
             api_string.format("join_room")
         ) as patched_join_room, amock.patch(
             api_string.format("create_filter")
@@ -173,6 +186,9 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             patched_login.return_value = asyncio.Future()
             patched_login.return_value.set_result({"access_token": "arbitrary string1"})
 
+            patched_request.return_value = asyncio.Future()
+            patched_request.return_value.set_result({"user_id": "@opsdroid:localhost"})
+
             patched_join_room.return_value = asyncio.Future()
             patched_join_room.return_value.set_result({"room_id": "!aroomid:localhost"})
 
@@ -183,21 +199,37 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             patched_sync.return_value.set_result({"next_batch": "arbitrary string2"})
 
             await self.connector.connect()
+            await self.token_connector.connect()
 
             assert "!aroomid:localhost" in self.connector.room_ids.values()
+            assert "!aroomid:localhost" in self.token_connector.room_ids.values()
 
             assert self.connector.connection.token == "arbitrary string1"
 
+            assert self.token_connector.mxid == "@opsdroid:localhost"
+
             assert self.connector.filter_id == "arbitrary string"
+            assert self.token_connector.filter_id == "arbitrary string"
 
             assert self.connector.connection.sync_token == "arbitrary string2"
+            assert self.token_connector.connection.sync_token == "arbitrary string2"
 
             self.connector.nick = "Rabbit Hole"
 
             patched_get_nick.return_value = asyncio.Future()
             patched_get_nick.return_value.set_result("Rabbit Hole")
 
+            self.token_connector.nick = "Rabbit Hole"
+
+            patched_get_nick.return_value = asyncio.Future()
+            patched_get_nick.return_value.set_result("Rabbit Hole")
+
             await self.connector.connect()
+
+            assert patched_get_nick.called
+            assert not patch_set_nick.called
+
+            await self.token_connector.connect()
 
             assert patched_get_nick.called
             assert not patch_set_nick.called

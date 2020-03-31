@@ -11,7 +11,7 @@ import aiohttp
 
 from matrix_api_async.api_asyncio import AsyncHTTPAPI
 from matrix_client.errors import MatrixRequestError
-from voluptuous import Required
+from voluptuous import Required, Any
 
 from opsdroid.connector import Connector, register_event
 from opsdroid import events
@@ -22,13 +22,23 @@ from . import events as matrixevents
 
 
 _LOGGER = logging.getLogger(__name__)
-CONFIG_SCHEMA = {
-    Required("credentials"): dict,
-    Required("rooms"): dict,
-    "homeserver": str,
-    "nick": str,
-    "room_specific_nicks": bool,
-}
+CONFIG_SCHEMA = Any(
+    {
+        Required("mxid"): str,
+        Required("password"): str,
+        Required("rooms"): dict,
+        "homeserver": str,
+        "nick": str,
+        "room_specific_nicks": bool,
+    },
+    {
+        Required("token"): str,
+        Required("rooms"): dict,
+        "homeserver": str,
+        "nick": str,
+        "room_specific_nicks": bool,
+    },
+)
 
 __all__ = ["ConnectorMatrix"]
 
@@ -68,11 +78,11 @@ class ConnectorMatrix(Connector):
         self.rooms = self._process_rooms_dict(config["rooms"])
         self.room_ids = {}
         self.default_target = self.rooms["main"]["alias"]
-        self.mxid = config["credentials"].get("mxid", None)
-        self.nick = config.get("nick", None)
+        self.mxid = config.get("mxid")
+        self.nick = config.get("nick")
         self.homeserver = config.get("homeserver", "https://matrix.org")
-        self.password = config["credentials"].get("password", None)
-        self.token = config["credentials"].get("token", None)
+        self.password = config.get("password")
+        self.token = config.get("token")
         self.room_specific_nicks = config.get("room_specific_nicks", False)
         self.send_m_notice = config.get("send_m_notice", False)
         self.session = None
