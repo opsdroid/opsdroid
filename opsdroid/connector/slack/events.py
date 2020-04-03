@@ -130,9 +130,7 @@ class ChannelUnarchived(events.Event):
 
 
 def slack_to_creator(f):
-    """
-    Wrap a callback so that RTMClient can work.
-    """
+    """Wrap a callback so that RTMClient can work."""
 
     async def wrapper(self, **kwargs):
         event = kwargs["data"]
@@ -149,7 +147,7 @@ class SlackEventCreator(events.EventCreator):
     """Create opsdroid events from Slack ones."""
 
     def __init__(self, connector, *args, **kwargs):
-        """Initialise the event creator"""
+        """Initialise the event creator."""
         super().__init__(connector, *args, **kwargs)
         self.connector = connector
 
@@ -256,7 +254,7 @@ class SlackEventCreator(events.EventCreator):
 
     @slack_to_creator
     async def unarchive_room(self, event, channel):
-        """Send a ChannelUnarchived event"""
+        """Send a ChannelUnarchived event."""
         return ChannelUnarchived(
             target=channel,
             connector=self.connector,
