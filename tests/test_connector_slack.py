@@ -787,3 +787,18 @@ class TestEventCreatorAsync(asynctest.TestCase):
         # doing the heavy lifting on that. Check that it fails loudly if it gets called.
         with self.assertRaises(NotImplementedError):
             await self.event_creator.create_event(self.message_event, "hello")
+
+    async def test_get_user_name(self):
+        # Check that username lookup works with a username
+        with amock.patch("opsdroid.connector.slack.ConnectorSlack.lookup_username") as lookup:
+            lookup.return_value = asyncio.Future()
+            lookup.return_value.set_result({"name": "testuser"})
+            username = await self.event_creator._get_user_name(self.message_event)
+            assert username == "testuser"
+
+    async def test_get_user_name_fails(self):
+        # Check that username lookup works without a username
+        userless_event = self.message_event
+        del userless_event["user"]
+        user_info = await self.event_creator._get_user_name(userless_event)
+        assert user_info is None
