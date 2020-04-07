@@ -535,6 +535,15 @@ class TestEventCreatorAsync(asynctest.TestCase):
             self.assertTrue(called_event.raw_event == self.message_event)
             lookup.assert_called_once_with("U9S8JGF45")
 
+    async def test_create_message_no_user(self):
+        with amock.patch("opsdroid.connector.slack.events.SlackEventCreator._get_user_name") as getuser, amock.patch("opsdroid.core.OpsDroid.parse") as parse:
+            getuser.return_value = asyncio.Future()
+            getuser.return_value.set_result(None)
+
+            await self.connector.slack_rtm._dispatch_event("message", self.message_event)
+
+            parse.assert_not_called()
+
     @property
     def bot_message_event(self):
         return {
