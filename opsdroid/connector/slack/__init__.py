@@ -281,8 +281,12 @@ class ConnectorSlack(Connector):
 
     @register_event(opsdroid.events.RoomName)
     async def _send_room_name_set(self, name_event):
-        return await self.slacker.channels.rename(
-            name_event.target, name_event.name, "true"
+        _LOGGER.debug(
+            _("Renaming room %s to '%s'."), name_event.target, name_event.name
+        )
+        return await self.slack.api_call(
+            "conversations.rename",
+            data={"channel": name_event.target, "name": name_event.name},
         )
 
     @register_event(opsdroid.events.JoinRoom)
