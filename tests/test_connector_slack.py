@@ -490,6 +490,14 @@ class TestConnectorSlackAsync(asynctest.TestCase):
                 self.assertTrue(opsdroid.send.called)
                 self.assertFalse(patched_request.called)
 
+    async def test_send_room_creation(self):
+        connector = ConnectorSlack({"token": "abc123"}, opsdroid=OpsDroid())
+        connector.slack.api_call = amock.CoroutineMock()
+        await connector.send(events.NewRoom(name="mynewroom"))
+        connector.slack.api_call.assert_called_once_with(
+            "conversations.create", data={"name": "mynewroom"}
+        )
+
 
 class TestEventCreatorAsync(asynctest.TestCase):
     def setUp(self):
@@ -536,11 +544,15 @@ class TestEventCreatorAsync(asynctest.TestCase):
             lookup.assert_called_once_with("U9S8JGF45")
 
     async def test_create_message_no_user(self):
-        with amock.patch("opsdroid.connector.slack.events.SlackEventCreator._get_user_name") as getuser, amock.patch("opsdroid.core.OpsDroid.parse") as parse:
+        with amock.patch(
+            "opsdroid.connector.slack.events.SlackEventCreator._get_user_name"
+        ) as getuser, amock.patch("opsdroid.core.OpsDroid.parse") as parse:
             getuser.return_value = asyncio.Future()
             getuser.return_value.set_result(None)
 
-            await self.connector.slack_rtm._dispatch_event("message", self.message_event)
+            await self.connector.slack_rtm._dispatch_event(
+                "message", self.message_event
+            )
 
             parse.assert_not_called()
 
@@ -799,7 +811,9 @@ class TestEventCreatorAsync(asynctest.TestCase):
 
     async def test_get_user_name(self):
         # Check that username lookup works with a username
-        with amock.patch("opsdroid.connector.slack.ConnectorSlack.lookup_username") as lookup:
+        with amock.patch(
+            "opsdroid.connector.slack.ConnectorSlack.lookup_username"
+        ) as lookup:
             lookup.return_value = asyncio.Future()
             lookup.return_value.set_result({"name": "testuser"})
             username = await self.event_creator._get_user_name(self.message_event)
