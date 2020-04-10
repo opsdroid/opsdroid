@@ -291,7 +291,9 @@ class ConnectorSlack(Connector):
 
     @register_event(opsdroid.events.JoinRoom)
     async def _send_join_room(self, join_event):
-        return await self.slacker.channels.join(join_event.target, "true")
+        return await self.slack.api_call(
+            "conversations.join", data={"channel": join_event.target}
+        )
 
     @register_event(opsdroid.events.UserInvite)
     async def _send_user_invitation(self, invite_event):
