@@ -298,7 +298,7 @@ class ConnectorSlack(Connector):
     @register_event(opsdroid.events.UserInvite)
     async def _send_user_invitation(self, invite_event):
         _LOGGER.debug(
-            _("Inviting user %s to room '%s'."), invite_event.name, invite_event.target
+            _("Inviting user %s to room '%s'."), invite_event.user, invite_event.target
         )
         return await self.slack.api_call(
             "conversations.invite",
