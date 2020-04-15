@@ -414,6 +414,15 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
         assert self.connector.get_roomname("!aroomid:localhost") == "main"
         assert self.connector.get_roomname("someroom") == "someroom"
 
+    def test_lookup_target(self):
+        self.connector.room_ids = {"main": "!aroomid:localhost"}
+
+        assert self.connector.lookup_target("main") == "!aroomid:localhost"
+        assert self.connector.lookup_target("#test:localhost") == "!aroomid:localhost"
+        assert (
+            self.connector.lookup_target("!aroomid:localhost") == "!aroomid:localhost"
+        )
+
     async def test_respond_image(self):
         gif_bytes = (
             b"GIF89a\x01\x00\x01\x00\x00\xff\x00,"

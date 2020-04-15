@@ -125,7 +125,6 @@ class ConnectorShell(Connector):
         _LOGGER.debug(_("Responding with: %s."), message.text)
         self.clear_prompt()
         print(message.text)
-        self.draw_prompt()
 
     async def disconnect(self):
         """Disconnects the connector."""
