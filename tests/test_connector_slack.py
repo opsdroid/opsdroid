@@ -530,6 +530,19 @@ class TestConnectorSlackAsync(asynctest.TestCase):
             "conversations.join", data={"channel": "an-existing-room"}
         )
 
+    async def test_send_room_description(self):
+        connector = ConnectorSlack({"token": "abc123"}, opsdroid=OpsDroid())
+        connector.slack.api_call = amock.CoroutineMock()
+        await connector.send(
+            events.RoomDescription(
+                target="an-existing-room", description="A new description"
+            )
+        )
+        connector.slack.api_call.assert_called_once_with(
+            "conversations.setTopic",
+            data={"channel": "an-existing-room", "topic": "A new description"},
+        )
+
 
 class TestEventCreatorAsync(asynctest.TestCase):
     def setUp(self):

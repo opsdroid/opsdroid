@@ -307,6 +307,7 @@ class ConnectorSlack(Connector):
 
     @register_event(opsdroid.events.RoomDescription)
     async def _send_room_desciption(self, desc_event):
-        return await self.slacker.channels.set_topic(
-            desc_event.target, desc_event.description
+        return await self.slack.api_call(
+            "conversations.setTopic",
+            data={"channel": desc_event.target, "topic": desc_event.description},
         )
