@@ -880,9 +880,15 @@ class TestEventCreatorAsync(asynctest.TestCase):
 
     async def test_topic_changed(self):
         with amock.patch("opsdroid.core.OpsDroid.parse") as parse:
-            await self.connector.slack_rtm._dispatch_event("channel_topic", self.topic_change_event)
+            await self.connector.slack_rtm._dispatch_event(
+                "channel_topic", self.topic_change_event
+            )
             (called_event,), _ = parse.call_args
             assert isinstance(called_event, events.RoomDescription)
-            self.assertTrue(called_event.target == self.topic_change_event["channel"]["id"])
-            self.assertTrue(called_event.event_id == self.topic_change_event["event_ts"])
+            self.assertTrue(
+                called_event.target == self.topic_change_event["channel"]["id"]
+            )
+            self.assertTrue(
+                called_event.event_id == self.topic_change_event["event_ts"]
+            )
             self.assertTrue(called_event.raw_event == self.topic_change_event)
