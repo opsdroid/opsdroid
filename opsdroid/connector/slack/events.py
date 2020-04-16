@@ -280,6 +280,7 @@ class SlackEventCreator(events.EventCreator):
         # TODO: Make this return an EditedMessage event
         return
 
+    @slack_to_creator
     async def topic_changed(self, event, channel):
         """Send a RoomDescription event."""
         return events.RoomDescription(
