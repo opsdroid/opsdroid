@@ -6,6 +6,7 @@ from opsdroid.core import OpsDroid
 from opsdroid.matchers import match_event
 from opsdroid import events
 from opsdroid.parsers.event_type import parse_event_type
+from opsdroid.constraints import constrain_rooms
 
 
 class TestParserEvent(asynctest.TestCase):
@@ -55,6 +56,23 @@ class TestParserEvent(asynctest.TestCase):
 
             await opsdroid.parse(message2)
             self.assertFalse(opsdroid.run_skill.called)
+
+    async def test_parse_event_with_constraint(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.run_skill = amock.CoroutineMock()
+            mock_skill = await self.getMockSkill()
+            mock_skill = match_event(events.JoinRoom)(mock_skill)
+            mock_skill = constrain_rooms(["#general"])(mock_skill)
+            opsdroid.skills.append(mock_skill)
+
+            mock_connector = amock.CoroutineMock()
+            mock_connector.lookup_target = amock.Mock(return_value="some_room_id")
+            message = events.JoinRoom(
+                user="user", target="some_room_id", connector=mock_connector
+            )
+
+            await opsdroid.parse(message)
+            self.assertTrue(opsdroid.run_skill.called)
 
     async def test_parse_str_event(self):
         with OpsDroid() as opsdroid:
