@@ -82,15 +82,14 @@ def configure_logging(config):
         log_level = logging.INFO
 
     rootlogger.setLevel(log_level)
-        
-        
+
     formatter = logging.Formatter("%(levelname)s %(name)s: %(message)s")
 
     with contextlib.suppress(KeyError):
         if config["logging"]["extended"]:
             formatter = logging.Formatter(
                 "%(levelname)s %(name)s.%(funcName)s(): %(message)s"
-                )
+            )
 
     console_handler = logging.StreamHandler()
     console_handler.setLevel(log_level)
