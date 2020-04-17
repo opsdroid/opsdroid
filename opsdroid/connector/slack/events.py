@@ -167,7 +167,6 @@ class SlackEventCreator(events.EventCreator):
             {
                 "message": self.create_message,
                 "bot_message": self.handle_bot_message,
-                "channel_topic": self.topic_changed,
                 "channel_name": self.channel_name_changed,
                 "message_changed": self.handle_edit,
             }
@@ -279,17 +278,6 @@ class SlackEventCreator(events.EventCreator):
         """Not Implemented."""
         # TODO: Make this return an EditedMessage event
         return
-
-    @slack_to_creator
-    async def topic_changed(self, event, channel):
-        """Send a RoomDescription event."""
-        return events.RoomDescription(
-            description=event["topic"],
-            target=channel,
-            connector=self.connector,
-            event_id=event["ts"],
-            raw_event=event,
-        )
 
     async def channel_name_changed(self, event, channel):
         """Send a RoomName event."""
