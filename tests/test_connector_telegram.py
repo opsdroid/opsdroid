@@ -7,7 +7,7 @@ import asynctest.mock as amock
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector.telegram import ConnectorTelegram
-from opsdroid.events import Message, Image
+from opsdroid.events import Message, Image, File
 from opsdroid.cli.start import configure_lang
 
 
@@ -508,6 +508,38 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
             patched_request.return_value.set_result(post_response)
 
             await self.connector.send_image(image)
+            self.assertLogs("_LOOGER", "debug")
+
+    async def test_respond_file(self):
+        post_response = amock.Mock()
+        post_response.status = 200
+
+        file_bytes = b'plain text file example'
+
+        file = File(file_bytes=file_bytes, target={"id": "123"})
+
+        with amock.patch.object(self.connector.session, "post") as patched_request:
+
+            patched_request.return_value = asyncio.Future()
+            patched_request.return_value.set_result(post_response)
+
+            await self.connector.send_file(file)
+            self.assertTrue(patched_request.called)
+
+    async def test_respond_file_failure(self):
+        post_response = amock.Mock()
+        post_response.status = 400
+
+        file_bytes = b'plain text file example'
+
+        file = File(file_bytes=file_bytes, target={"id": "123"})
+
+        with amock.patch.object(self.connector.session, "post") as patched_request:
+
+            patched_request.return_value = asyncio.Future()
+            patched_request.return_value.set_result(post_response)
+
+            await self.connector.send_file(file)
             self.assertLogs("_LOOGER", "debug")
 
     async def test_listen(self):
