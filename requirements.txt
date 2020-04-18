@@ -1,11 +1,11 @@
 aiohttp==3.6.2
 aioredis==1.3.1
-aiosqlite==0.10.0
+aiosqlite==0.12.0
 appdirs==1.4.3
 arrow==0.15.5
 Babel==2.8.0
 bleach==3.1.4
-certifi==2019.11.28
+certifi==2020.4.5.1
 click==7.1.1
 emoji==0.5.4
 mattermostdriver==7.0.1
