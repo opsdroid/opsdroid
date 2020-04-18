@@ -311,3 +311,23 @@ class ConnectorSlack(Connector):
             "conversations.setTopic",
             data={"channel": desc_event.target, "topic": desc_event.description},
         )
+
+    @register_event(opsdroid.events.PinMessage)
+    async def _send_pin_message(self, pin_event):
+        return await self.slack.api_call(
+            "pins.add",
+            data={
+                "channel": pin_event.target,
+                "timestamp": pin_event.linked_event.event_id,
+            },
+        )
+
+    @register_event(opsdroid.events.UnpinMessage)
+    async def _send_unpin_message(self, unpin_event):
+        return await self.slack.api_call(
+            "pins.remove",
+            data={
+                "channel": unpin_event.target,
+                "timestamp": unpin_event.linked_event.event_id,
+            },
+        )

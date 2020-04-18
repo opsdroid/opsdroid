@@ -543,6 +543,48 @@ class TestConnectorSlackAsync(asynctest.TestCase):
             data={"channel": "an-existing-room", "topic": "A new description"},
         )
 
+    async def test_send_pin_added(self):
+        connector = ConnectorSlack({"token": "abc123"}, opsdroid=OpsDroid())
+        connector.slack.api_call = amock.CoroutineMock()
+        await connector.send(
+            events.PinMessage(
+                target="an-existing-room",
+                linked_event=events.Message(
+                    "An important message",
+                    user="User McUserface",
+                    user_id="U9S8JGF45",
+                    target="an-existing-room",
+                    connector=connector,
+                    event_id="1582838099.000600",
+                ),
+            )
+        )
+        connector.slack.api_call.assert_called_once_with(
+            "pins.add",
+            data={"channel": "an-existing-room", "timestamp": "1582838099.000600"},
+        )
+
+    async def test_send_pin_removed(self):
+        connector = ConnectorSlack({"token": "abc123"}, opsdroid=OpsDroid())
+        connector.slack.api_call = amock.CoroutineMock()
+        await connector.send(
+            events.UnpinMessage(
+                target="an-existing-room",
+                linked_event=events.Message(
+                    "An important message",
+                    user="User McUserface",
+                    user_id="U9S8JGF45",
+                    target="an-existing-room",
+                    connector=connector,
+                    event_id="1582838099.000600",
+                ),
+            )
+        )
+        connector.slack.api_call.assert_called_once_with(
+            "pins.remove",
+            data={"channel": "an-existing-room", "timestamp": "1582838099.000600"},
+        )
+
 
 class TestEventCreatorAsync(asynctest.TestCase):
     def setUp(self):
@@ -893,4 +935,54 @@ class TestEventCreatorAsync(asynctest.TestCase):
             assert called_event.target == self.channel_name_event["channel"]["id"]
             assert called_event.connector == self.connector
             assert called_event.event_id == self.channel_name_event["event_ts"]
+            lookup.assert_not_called()
+
+    @property
+    def pin_added_event(self):
+        return {
+            "type": "pin_added",
+            "user": "U024BE7LH",
+            "channel_id": "C02ELGNBH",
+            "item": self.message_event,
+            "event_ts": "1582842709.003301",
+        }
+
+    async def test_pin_message(self):
+        with amock.patch(
+            "opsdroid.connector.slack.ConnectorSlack.lookup_username"
+        ) as lookup, amock.patch("opsdroid.core.OpsDroid.parse") as parse:
+            await self.connector.slack_rtm._dispatch_event(
+                "pin_added", self.pin_added_event
+            )
+            (called_event,), _ = parse.call_args
+            assert isinstance(called_event, events.PinMessage)
+            assert called_event.target == self.pin_added_event["channel_id"]
+            assert called_event.connector == self.connector
+            assert called_event.event_id == self.pin_added_event["event_ts"]
+            assert called_event.linked_event == self.message_event
+            lookup.assert_not_called()
+
+    @property
+    def pin_removed_event(self):
+        return {
+            "type": "pin_removed",
+            "user": "U024BE7LH",
+            "channel_id": "C02ELGNBH",
+            "item": self.message_event,
+            "event_ts": "1582842709.003302",
+        }
+
+    async def test_unpin_message(self):
+        with amock.patch(
+            "opsdroid.connector.slack.ConnectorSlack.lookup_username"
+        ) as lookup, amock.patch("opsdroid.core.OpsDroid.parse") as parse:
+            await self.connector.slack_rtm._dispatch_event(
+                "pin_removed", self.pin_removed_event
+            )
+            (called_event,), _ = parse.call_args
+            assert isinstance(called_event, events.UnpinMessage)
+            assert called_event.target == self.pin_removed_event["channel_id"]
+            assert called_event.connector == self.connector
+            assert called_event.event_id == self.pin_removed_event["event_ts"]
+            assert called_event.linked_event == self.message_event
             lookup.assert_not_called()

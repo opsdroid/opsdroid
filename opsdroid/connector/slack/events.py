@@ -164,6 +164,8 @@ class SlackEventCreator(events.EventCreator):
         self.connector.slack_rtm.on(
             event="channel_rename", callback=self.channel_name_changed
         )
+        self.connector.slack_rtm.on(event="pin_added", callback=self.message_pinned)
+        self.connector.slack_rtm.on(event="pin_removed", callback=self.message_unpinned)
 
         self.message_subtypes = defaultdict(lambda: self.create_message)
         self.message_subtypes.update(
@@ -287,6 +289,30 @@ class SlackEventCreator(events.EventCreator):
         return events.RoomName(
             name=channel["name"],
             target=channel["id"],
+            connector=self.connector,
+            event_id=event["event_ts"],
+            raw_event=event,
+        )
+
+    @slack_to_creator
+    async def message_pinned(self, event, channel):
+        """Send a PinMessage event."""
+        # Note that the pin_added event in slack doesn't have a "channel" keyword.
+        return events.PinMessage(
+            linked_event=event["item"],
+            target=event["channel_id"],
+            connector=self.connector,
+            event_id=event["event_ts"],
+            raw_event=event,
+        )
+
+    @slack_to_creator
+    async def message_unpinned(self, event, channel):
+        """Send an UnpinMessage event."""
+        # Note that the pin_removed event in slack doesn't have a "channel" keyword.
+        return events.UnpinMessage(
+            linked_event=event["item"],
+            target=event["channel_id"],
             connector=self.connector,
             event_id=event["event_ts"],
             raw_event=event,

@@ -470,3 +470,11 @@ class JoinGroup(Event):
 
     The group could be a slack team or a matrix community.
     """
+
+
+class PinMessage(Event):
+    """Event to represent pinning a message or other event."""
+
+
+class UnpinMessage(Event):
+    """Event to represent unpinning a message or other event."""
