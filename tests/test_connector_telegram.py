@@ -514,7 +514,7 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
         post_response = amock.Mock()
         post_response.status = 200
 
-        file_bytes = b'plain text file example'
+        file_bytes = b"plain text file example"
 
         file = File(file_bytes=file_bytes, target={"id": "123"})
 
@@ -530,7 +530,7 @@ class TestConnectorTelegramAsync(asynctest.TestCase):
         post_response = amock.Mock()
         post_response.status = 400
 
-        file_bytes = b'plain text file example'
+        file_bytes = b"plain text file example"
 
         file = File(file_bytes=file_bytes, target={"id": "123"})
 
