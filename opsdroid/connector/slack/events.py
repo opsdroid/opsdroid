@@ -285,7 +285,7 @@ class SlackEventCreator(events.EventCreator):
     async def channel_name_changed(self, event, channel):
         """Send a RoomName event."""
         return events.RoomName(
-            name=event["channel"]["name"],
+            name=channel["name"],
             target=channel["id"],
             connector=self.connector,
             event_id=event["event_ts"],
