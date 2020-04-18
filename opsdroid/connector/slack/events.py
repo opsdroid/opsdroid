@@ -161,13 +161,15 @@ class SlackEventCreator(events.EventCreator):
             event="channel_unarchive", callback=self.unarchive_room
         )
         self.connector.slack_rtm.on(event="team_join", callback=self.create_join_group)
+        self.connector.slack_rtm.on(
+            event="channel_rename", callback=self.channel_name_changed
+        )
 
         self.message_subtypes = defaultdict(lambda: self.create_message)
         self.message_subtypes.update(
             {
                 "message": self.create_message,
                 "bot_message": self.handle_bot_message,
-                "channel_name": self.channel_name_changed,
                 "message_changed": self.handle_edit,
             }
         )
@@ -221,7 +223,7 @@ class SlackEventCreator(events.EventCreator):
         """Check that a bot message isn't us then create the message."""
         # TODO: Add a bot_id lookup here to get the display name of the bot and
         # pass it through to create_message
-        if event["bot_id"] != self.connector.bot_id:
+        if event["bot_id"] != self.connector.bot_id:  # pragma: nocover
             return await self.create_message(event, channel)
 
     @slack_to_creator
@@ -279,10 +281,11 @@ class SlackEventCreator(events.EventCreator):
         # TODO: Make this return an EditedMessage event
         return
 
+    @slack_to_creator
     async def channel_name_changed(self, event, channel):
         """Send a RoomName event."""
         return events.RoomName(
-            name=event["name"],
+            name=event["channel"]["name"],
             target=channel,
             connector=self.connector,
             event_id=event["event_ts"],

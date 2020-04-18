@@ -870,3 +870,27 @@ class TestEventCreatorAsync(asynctest.TestCase):
         del userless_event["user"]
         user_info = await self.event_creator._get_user_name(userless_event)
         assert user_info is None
+
+    @property
+    def channel_name_event(self):
+        return {
+            "type": "channel_rename",
+            "channel": {"id": "C02ELGNBH", "name": "new_name", "created": 1360782804},
+            "event_ts": "1582842709.003300",
+            "ts": "1582842709.003300",
+        }
+
+    async def test_channel_rename(self):
+        with amock.patch(
+            "opsdroid.connector.slack.ConnectorSlack.lookup_username"
+        ) as lookup, amock.patch("opsdroid.core.OpsDroid.parse") as parse:
+            await self.connector.slack_rtm._dispatch_event(
+                "channel_rename", self.channel_name_event
+            )
+            (called_event,), _ = parse.call_args
+            assert isinstance(called_event, events.RoomName)
+            assert called_event.name == self.channel_name_event["name"]
+            assert called_event.target == self.channel_name_event["channel"]["id"]
+            assert called_event.connector == self.connector
+            assert called_event.event_id == self.channel_created_event["event_ts"]
+            lookup.assert_not_called()
