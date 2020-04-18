@@ -889,8 +889,8 @@ class TestEventCreatorAsync(asynctest.TestCase):
             )
             (called_event,), _ = parse.call_args
             assert isinstance(called_event, events.RoomName)
-            assert called_event.name == self.channel_name_event["name"]
+            assert called_event.name == self.channel_name_event["channel"]["name"]
             assert called_event.target == self.channel_name_event["channel"]["id"]
             assert called_event.connector == self.connector
-            assert called_event.event_id == self.channel_created_event["event_ts"]
+            assert called_event.event_id == self.channel_name_event["event_ts"]
             lookup.assert_not_called()

@@ -286,7 +286,7 @@ class SlackEventCreator(events.EventCreator):
         """Send a RoomName event."""
         return events.RoomName(
             name=event["channel"]["name"],
-            target=channel,
+            target=channel["id"],
             connector=self.connector,
             event_id=event["event_ts"],
             raw_event=event,
