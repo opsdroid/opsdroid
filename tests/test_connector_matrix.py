@@ -748,6 +748,20 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
         hv = matrix_events.MatrixHistoryVisibility("hello")
         assert hv.content["history_visibility"] == "hello"
 
+    async def test_send_generic_event(self):
+        event = matrix_events.GenericMatrixRoomEvent(
+            "opsdroid.dev", {"hello": "world"}, target="!test:localhost",
+        )
+        with OpsDroid() as _:
+            with amock.patch(api_string.format("send_message_event")) as patched_send:
+                patched_send.return_value = asyncio.Future()
+                patched_send.return_value.set_result(None)
+
+                await self.connector.send(event)
+                assert patched_send.called_once_with(
+                    "!test:localhost", "opsdroid.dev", {"hello": "world"}
+                )
+
 
 class TestEventCreatorAsync(asynctest.TestCase):
     def setUp(self):
@@ -1052,3 +1066,28 @@ class TestEventCreatorAsync(asynctest.TestCase):
         assert event.target == "hello"
         assert event.event_id == "$143273582443PhrSn:example.org"
         assert event.raw_event == self.join_room_json
+
+    @property
+    def custom_json(self):
+        return {
+            "content": {"hello": "world"},
+            "event_id": "$15573463541827394vczPd:localhost",
+            "origin_server_ts": 1557346354253,
+            "room_id": "!test:localhost",
+            "sender": "@neo:matrix.org",
+            "type": "opsdroid.dev",
+            "unsigned": {"age": 48926251},
+            "user_id": "@nso:matrix.org",
+            "age": 48926251,
+        }
+
+    async def test_create_generic(self):
+        event = await self.event_creator.create_event(self.custom_json, "hello")
+        assert isinstance(event, matrix_events.GenericMatrixRoomEvent)
+        assert event.user == "Rabbit Hole"
+        assert event.user_id == "@neo:matrix.org"
+        assert event.target == "hello"
+        assert event.event_id == "$15573463541827394vczPd:localhost"
+        assert event.raw_event == self.custom_json
+        assert event.content == {"hello": "world"}
+        assert event.event_type == "opsdroid.dev"
