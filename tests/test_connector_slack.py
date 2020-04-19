@@ -986,3 +986,32 @@ class TestEventCreatorAsync(asynctest.TestCase):
             assert called_event.event_id == self.pin_removed_event["event_ts"]
             assert called_event.linked_event == self.message_event
             lookup.assert_not_called()
+
+    @property
+    def topic_changed_event(self):
+        return {
+            "type": "message",
+            "subtype": "channel_topic",
+            "user": "U9S8JGF45",
+            "text": "<@U9S8JGF45> set the channel topic: New topic",
+            "topic": "New topic",
+            "team": "T9T6EKEEB",
+            "channel": "CUTKP9FDG",
+            "event_ts": "1587296471.000100",
+            "ts": "1587296471.000100",
+        }
+
+    async def test_topic_change(self):
+        with amock.patch(
+            "opsdroid.connector.slack.ConnectorSlack.lookup_username"
+        ) as lookup, amock.patch("opsdroid.core.OpsDroid.parse") as parse:
+            await self.connector.slack_rtm._dispatch_event(
+                "channel_topic", self.topic_changed_event
+            )
+            (called_event,), _ = parse.call_args
+            assert isinstance(called_event, events.RoomDescription)
+            assert called_event.target == self.topic_changed_event["channel"]
+            assert called_event.connector == self.connector
+            assert called_event.event_id == self.topic_changed_event["event_ts"]
+            assert called_event.description == self.topic_changed_event["topic"]
+            lookup.assert_not_called()
