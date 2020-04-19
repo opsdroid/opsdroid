@@ -487,14 +487,14 @@ class ConnectorMatrix(Connector):
         _LOGGER.debug(f"Sending State Event {state_event}")
         return await self.connection.send_state_event(
             state_event.target,
-            state_event.key,
+            state_event.event_type,
             state_event.content,
             state_key=state_event.state_key,
         )
 
     @register_event(matrixevents.UnknownMatrixRoomEvent)
     @ensure_room_id_and_send
-    async def _send_unknown_event(self, unknown):
+    async def _send_generic_event(self, event):
         return await self.connection.send_message_event(
-            unknown.target, unknown.event_type, unknown.content
+            event.target, event.event_type, event.content
         )
