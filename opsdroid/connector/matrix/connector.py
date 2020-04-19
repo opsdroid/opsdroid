@@ -491,3 +491,10 @@ class ConnectorMatrix(Connector):
             state_event.content,
             state_key=state_event.state_key,
         )
+
+    @register_event(matrixevents.UnknownMatrixRoomEvent)
+    @ensure_room_id_and_send
+    async def _send_unknown_event(self, unknown):
+        return await self.connection.send_message_event(
+            unknown.target, unknown.event_type, unknown.content
+        )

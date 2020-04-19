@@ -1,7 +1,12 @@
 """A helper module to create opsdroid events from matrix events."""
+import logging
 from collections import defaultdict
+
 from opsdroid import events
 
+from . import events as matrix_events
+
+_LOGGER = logging.getLogger(__name__)
 
 __all__ = ["MatrixEventCreator"]
 
@@ -51,6 +56,25 @@ class MatrixEventCreator(events.EventCreator):
                 # 'm.location':
             }
         )
+
+    async def skip(self, event, roomid):
+        """Attempt to generate an UnknownMatrixEvent."""
+        try:
+            return matrix_events.UnknownMatrixRoomEvent(
+                content=event["content"],
+                event_type=event["type"],
+                user_id=event["sender"],
+                user=await self.connector.get_nick(roomid, event["sender"]),
+                target=roomid,
+                connector=self.connector,
+                raw_event=event,
+                event_id=event["event_id"],
+            )
+        except Exception as e:
+            _LOGGER.debug(
+                f"Matrix connector failed to parse event {event} as a room event.\n{e}"
+            )
+            return None
 
     async def create_room_message(self, event, roomid):
         """Dispatch a m.room.message event."""

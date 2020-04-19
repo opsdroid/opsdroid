@@ -59,3 +59,12 @@ class MatrixRoomAvatar(MatrixStateEvent):
         key = "m.room.avatar"
         content = {"url": url}
         super().__init__(key, content, *args, **kwargs)
+
+
+class UnknownMatrixRoomEvent(Event):
+    """A matrix event which we don't understand."""
+
+    def __init__(self, event_type, content, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.content = content
+        self.event_type = event_type
