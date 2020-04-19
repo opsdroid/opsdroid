@@ -5,6 +5,7 @@ import unittest
 import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock
+from tweepy import OAuthHandler
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector.twitter import ConnectorTwitter, StdOutListener
@@ -69,12 +70,14 @@ class TestConnectorTwitter(asynctest.TestCase):
                 "oauth_token_secret": "testoauthtokensecret",
             }
         )
+        self.connector.auth = amock.CoroutineMock()
+        self.connector.auth.get_username = amock.CoroutineMock()
+        self.connector.auth.get_username.name.return_value = ""
 
-    async def test_connect(self):
+    @amock.patch("opsdroid.connector.twitter.API")
+    async def test_connect(self,mocked_api):
         await self.connector.connect(OpsDroid())
+        self.assertLogs("_LOGGER", "debug")
 
-    # async def test_response_dm(self):
-    #     self.connector.api = amock.CoroutineMock()
-    #     self.connector.api.send_direct_message = amock.CoroutineMock()
-    #     self.connector.respond({"room": {"type": "dm"}})
-    #     self.assertTrue(self.connector.api.send_direct_message.called)
+    async def test_clean_tweet(self):
+        assert("testtweet",self.connector.clean_tweet("test@{}tweet "))

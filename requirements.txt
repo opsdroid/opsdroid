@@ -26,4 +26,4 @@ ibm-watson==4.3.0
 websockets==8.1
 webexteamssdk==1.2
 voluptuous==0.11.7
-tweepy==3.5.0
+tweepy==3.8.0
