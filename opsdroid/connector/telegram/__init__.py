@@ -5,7 +5,7 @@ import aiohttp
 from voluptuous import Required
 
 from opsdroid.connector import Connector, register_event
-from opsdroid.events import Message, Image
+from opsdroid.events import Message, Image, File
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -317,6 +317,30 @@ class ConnectorTelegram(Connector):
             _LOGGER.debug(_("Sent %s image successfully."), file_event.name)
         else:
             _LOGGER.debug(_("Unable to send image - Status Code %s."), resp.status)
+
+    @register_event(File)
+    async def send_file(self, file_event):
+        """Send File to Telegram.
+
+        Gets the chat id from the channel and then
+        sends the bytes of the file as multipart/form-data.
+
+        """
+        data = aiohttp.FormData()
+        data.add_field(
+            "chat_id", str(file_event.target["id"]), content_type="multipart/form-data"
+        )
+        data.add_field(
+            "document",
+            await file_event.get_file_bytes(),
+            content_type="multipart/form-data",
+        )
+
+        resp = await self.session.post(self.build_url("sendDocument"), data=data)
+        if resp.status == 200:
+            _LOGGER.debug(_("Sent %s file successfully."), file_event.name)
+        else:
+            _LOGGER.debug(_("Unable to send file - Status Code %s."), resp.status)
 
     async def disconnect(self):
         """Disconnect from Telegram.
