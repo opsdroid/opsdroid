@@ -60,7 +60,7 @@ class MatrixEventCreator(events.EventCreator):
     async def skip(self, event, roomid):
         """Attempt to generate an UnknownMatrixEvent."""
         try:
-            return matrix_events.GenericMatrixRoomEvent(
+            event = matrix_events.GenericMatrixRoomEvent(
                 content=event["content"],
                 event_type=event["type"],
                 user_id=event["sender"],
@@ -70,6 +70,8 @@ class MatrixEventCreator(events.EventCreator):
                 raw_event=event,
                 event_id=event["event_id"],
             )
+            _LOGGER.debug(f"Got {event}")
+            return event
         except Exception as e:  # pragma: nocover
             _LOGGER.debug(
                 f"Matrix connector failed to parse event {event} as a room event.\n{e}"
