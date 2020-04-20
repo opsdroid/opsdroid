@@ -70,6 +70,10 @@ class TestConnectorTwitter(asynctest.TestCase):
                 "oauth_token_secret": "testoauthtokensecret",
             }
         )
+        self.connector.opsdroid = amock.CoroutineMock()
+        self.connector.opsdroid.eventloop.run_in_executor = amock.CoroutineMock()
+        self.connector.opsdroid.eventloop.create_task = amock.CoroutineMock()
+        self.connector.opsdroid.parse = amock.CoroutineMock()
         self.connector.auth = amock.CoroutineMock()
         self.connector.auth.get_username = amock.CoroutineMock()
         self.connector.auth.get_username.name.return_value = ""
@@ -79,5 +83,32 @@ class TestConnectorTwitter(asynctest.TestCase):
         await self.connector.connect(OpsDroid())
         self.assertLogs("_LOGGER", "debug")
 
+    @amock.patch("opsdroid.connector.twitter.Stream")
+    async def test_listen(self, mocked_stream):
+        await self.connector.listen(self.connector.opsdroid)
+        self.assertTrue(self.connector.opsdroid.eventloop.run_in_executor.called)
+
     async def test_clean_tweet(self):
         assert("testtweet",self.connector.clean_tweet("test@{}tweet "))
+
+    def test_process_tweet(self):
+        dm = {"text":"1","user":{"screen_name":"2"},"id":"3"}
+        self.connector.process_tweet(dm)
+        self.assertLogs("_LOGGER", "debug")
+        self.assertTrue(self.connector.opsdroid.parse.called)
+        self.assertTrue(self.connector.opsdroid.eventloop.create_task.called)
+
+    def test_process_dm(self):
+        dm = {"text":"1","sender":{"screen_name":"2"},"id":"3"}
+        self.connector.process_dm(dm)
+        self.assertLogs("_LOGGER", "debug")
+        self.assertTrue(self.connector.opsdroid.parse.called)
+        self.assertTrue(self.connector.opsdroid.eventloop.create_task.called)
+
+
+
+
+
+
+
+
