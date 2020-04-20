@@ -89,3 +89,24 @@ class Database:
 
         """
         raise NotImplementedError
+
+
+class InMemoryDatabase(Database):
+    """A simple in memory implementation of the database API."""
+
+    def __init__(self, config={}, opsdroid=None):  # noqa: D107
+        super().__init__(config, opsdroid)
+        self.memory = {}
+
+    async def connect(self):  # noqa: D102
+        pass
+
+    async def get(self, key):  # noqa: D102
+        return self.memory.get(key)
+
+    async def put(self, key, value):  # noqa: D102
+        self.memory[key] = value
+
+    async def delete(self, key):  # noqa: D102
+        if key in self.memory:
+            del self.memory[key]
