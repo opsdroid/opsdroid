@@ -59,17 +59,22 @@ class MatrixEventCreator(events.EventCreator):
 
     async def skip(self, event, roomid):
         """Attempt to generate an UnknownMatrixEvent."""
+        kwargs = dict(
+            content=event["content"],
+            event_type=event["type"],
+            user_id=event["sender"],
+            user=await self.connector.get_nick(roomid, event["sender"]),
+            target=roomid,
+            connector=self.connector,
+            raw_event=event,
+            event_id=event["event_id"],
+        )
+        event_type = matrix_events.GenericMatrixRoomEvent
+        if "state_key" in event:
+            event_type = matrix_events.MatrixStateEvent
+            kwargs["state_key"] = event["state_key"]
         try:
-            event = matrix_events.GenericMatrixRoomEvent(
-                content=event["content"],
-                event_type=event["type"],
-                user_id=event["sender"],
-                user=await self.connector.get_nick(roomid, event["sender"]),
-                target=roomid,
-                connector=self.connector,
-                raw_event=event,
-                event_id=event["event_id"],
-            )
+            event = event_type(**kwargs)
             _LOGGER.debug(f"Got {event}")
             return event
         except Exception as e:  # pragma: nocover
