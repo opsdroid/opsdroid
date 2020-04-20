@@ -78,7 +78,7 @@ class Memory:
 
         """
         if not self.databases:
-            return None
+            return None  # pragma: nocover
 
         results = []
         for database in self.databases:

@@ -99,7 +99,7 @@ class InMemoryDatabase(Database):
         self.memory = {}
 
     async def connect(self):  # noqa: D102
-        pass
+        pass  # pragma: nocover
 
     async def get(self, key):  # noqa: D102
         return self.memory.get(key)
