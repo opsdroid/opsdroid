@@ -166,7 +166,6 @@ class SlackEventCreator(events.EventCreator):
         )
         self.connector.slack_rtm.on(event="pin_added", callback=self.message_pinned)
         self.connector.slack_rtm.on(event="pin_removed", callback=self.message_unpinned)
-        self.connector.slack_rtm.on(event="channel_topic", callback=self.topic_changed)
 
         self.message_subtypes = defaultdict(lambda: self.create_message)
         self.message_subtypes.update(
@@ -174,6 +173,7 @@ class SlackEventCreator(events.EventCreator):
                 "message": self.create_message,
                 "bot_message": self.handle_bot_message,
                 "message_changed": self.handle_edit,
+                "channel_topic": self.topic_changed,
             }
         )
 
@@ -319,9 +319,10 @@ class SlackEventCreator(events.EventCreator):
             raw_event=event,
         )
 
-    @slack_to_creator
     async def topic_changed(self, event, channel):
         """Send a RoomDescription event."""
+        _LOGGER.debug(_("New description: %s"), event["topic"])
+        _LOGGER.debug(_("Target channel: %s"), event["channel"])
         return events.RoomDescription(
             description=event["topic"],
             target=channel,

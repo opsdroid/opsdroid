@@ -990,7 +990,6 @@ class TestEventCreatorAsync(asynctest.TestCase):
     @property
     def topic_changed_event(self):
         return {
-            "type": "message",
             "subtype": "channel_topic",
             "user": "U9S8JGF45",
             "text": "<@U9S8JGF45> set the channel topic: New topic",
@@ -1006,7 +1005,7 @@ class TestEventCreatorAsync(asynctest.TestCase):
             "opsdroid.connector.slack.ConnectorSlack.lookup_username"
         ) as lookup, amock.patch("opsdroid.core.OpsDroid.parse") as parse:
             await self.connector.slack_rtm._dispatch_event(
-                "channel_topic", self.topic_changed_event
+                "message", self.topic_changed_event
             )
             (called_event,), _ = parse.call_args
             assert isinstance(called_event, events.RoomDescription)
