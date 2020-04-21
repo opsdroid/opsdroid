@@ -780,7 +780,6 @@ class TestEventCreatorAsync(asynctest.TestCase):
             "sender": "@neo:matrix.org",
             "type": "m.room.message",
             "unsigned": {"age": 48926251},
-            "user_id": "@nso:matrix.org",
             "age": 48926251,
         }
 
@@ -799,7 +798,6 @@ class TestEventCreatorAsync(asynctest.TestCase):
             "room_id": "!MeRdFpEonLoCwhoHeT:matrix.org",
             "type": "m.room.message",
             "unsigned": {"age": 23394532373},
-            "user_id": "@neo:matrix.org",
             "age": 23394532373,
         }
 
@@ -830,7 +828,6 @@ class TestEventCreatorAsync(asynctest.TestCase):
             "sender": "@neo:matrix.org",
             "type": "m.room.message",
             "unsigned": {"age": 2542608318},
-            "user_id": "@neo:matrix.org",
             "age": 2542608318,
         }
 
@@ -982,13 +979,15 @@ class TestEventCreatorAsync(asynctest.TestCase):
         json = self.message_json
         json["type"] = "wibble"
         event = await self.event_creator.create_event(json, "hello")
-        assert event is None
+        assert isinstance(event, matrix_events.GenericMatrixRoomEvent)
+        assert event.event_type == "wibble"
 
     async def test_unsupported_message_type(self):
         json = self.message_json
         json["content"]["msgtype"] = "wibble"
         event = await self.event_creator.create_event(json, "hello")
-        assert event is None
+        assert isinstance(event, matrix_events.GenericMatrixRoomEvent)
+        assert event.content["msgtype"] == "wibble"
 
     async def test_room_name(self):
         event = await self.event_creator.create_event(self.room_name_json, "hello")
@@ -1077,7 +1076,6 @@ class TestEventCreatorAsync(asynctest.TestCase):
             "sender": "@neo:matrix.org",
             "type": "opsdroid.dev",
             "unsigned": {"age": 48926251},
-            "user_id": "@nso:matrix.org",
             "age": 48926251,
         }
 
