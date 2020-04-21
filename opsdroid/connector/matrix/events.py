@@ -51,12 +51,12 @@ class MatrixPowerLevels(MatrixStateEvent):
         warnings.warn(
             "key has been renamed event_type to reduce confusion with state_key",
             DeprecationWarning,
-        )
-        return self.event_type
+        )  # pragma: nocover
+        return self.event_type  # pragma: nocover
 
     @key.setter
     def _(self, val):
-        self.event_type = key
+        self.event_type = key  # pragma: nocover
 
     def __init__(self, power_levels, *args, **kwargs):  # noqa: D107
         event_type = "m.room.power_levels"

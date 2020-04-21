@@ -981,6 +981,9 @@ class TestEventCreatorAsync(asynctest.TestCase):
         event = await self.event_creator.create_event(json, "hello")
         assert isinstance(event, matrix_events.GenericMatrixRoomEvent)
         assert event.event_type == "wibble"
+        assert "wibble" in repr(event)
+        assert event.target in repr(event)
+        assert str(event.content) in repr(event)
 
     async def test_unsupported_message_type(self):
         json = self.message_json
@@ -1089,3 +1092,27 @@ class TestEventCreatorAsync(asynctest.TestCase):
         assert event.raw_event == self.custom_json
         assert event.content == {"hello": "world"}
         assert event.event_type == "opsdroid.dev"
+
+    @property
+    def custom_state_json(self):
+        return {
+            "content": {"hello": "world"},
+            "type": "wibble.opsdroid.dev",
+            "unsigned": {"age": 137},
+            "origin_server_ts": 1575306720044,
+            "state_key": "",
+            "sender": "@neo:matrix.org",
+            "event_id": "$bEg2XISusHMKLBw9b4lMNpB2r9qYoesp512rKvbo5LA",
+        }
+
+    async def test_create_generic_state(self):
+        event = await self.event_creator.create_event(self.custom_state_json, "hello")
+        assert isinstance(event, matrix_events.MatrixStateEvent)
+        assert event.user == "Rabbit Hole"
+        assert event.user_id == "@neo:matrix.org"
+        assert event.target == "hello"
+        assert event.event_id == "$bEg2XISusHMKLBw9b4lMNpB2r9qYoesp512rKvbo5LA"
+        assert event.raw_event == self.custom_state_json
+        assert event.content == {"hello": "world"}
+        assert event.event_type == "wibble.opsdroid.dev"
+        assert event.state_key == ""
