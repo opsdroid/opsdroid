@@ -21,12 +21,12 @@ class GenericMatrixRoomEvent(Event):
     matrix specific events.
     """
 
-    def __init__(self, event_type, content, *args, **kwargs):
+    def __init__(self, event_type, content, *args, **kwargs):  # noqa: D107
         super().__init__(*args, **kwargs)
         self.content = content
         self.event_type = event_type
 
-    def __repr__(self):  # noqa: D107
+    def __repr__(self):  # noqa: D105
         return f"<GenericMatrixRoomEvent(room_id={self.target}, event_type={self.event_type}, content={self.content})>"
 
 
@@ -37,7 +37,7 @@ class MatrixStateEvent(GenericMatrixRoomEvent):
         super().__init__(*args, **kwargs)
         self.state_key = state_key
 
-    def __repr__(self):  # noqa: D107
+    def __repr__(self):  # noqa: D105
         return f"<MatrixStateEvent(room_id={self.target}, event_type={self.event_type}, state_key={self.state_key}, content={self.content})>"
 
 
@@ -46,7 +46,8 @@ class MatrixPowerLevels(MatrixStateEvent):
 
     # Deprecate old name for event_type
     @property
-    def key(self):
+    def key(self):  # noqa: D401
+        """Deprecated alias for event_type."""
         warnings.warn(
             "key has been renamed event_type to reduce confusion with state_key",
             DeprecationWarning,
