@@ -756,6 +756,20 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
         hv = matrix_events.MatrixHistoryVisibility("hello")
         assert hv.content["history_visibility"] == "hello"
 
+    async def test_send_generic_event(self):
+        event = matrix_events.GenericMatrixRoomEvent(
+            "opsdroid.dev", {"hello": "world"}, target="!test:localhost",
+        )
+        with OpsDroid() as _:
+            with amock.patch(api_string.format("send_message_event")) as patched_send:
+                patched_send.return_value = asyncio.Future()
+                patched_send.return_value.set_result(None)
+
+                await self.connector.send(event)
+                assert patched_send.called_once_with(
+                    "!test:localhost", "opsdroid.dev", {"hello": "world"}
+                )
+
 
 class TestEventCreatorAsync(asynctest.TestCase):
     def setUp(self):
@@ -774,7 +788,6 @@ class TestEventCreatorAsync(asynctest.TestCase):
             "sender": "@neo:matrix.org",
             "type": "m.room.message",
             "unsigned": {"age": 48926251},
-            "user_id": "@nso:matrix.org",
             "age": 48926251,
         }
 
@@ -793,7 +806,6 @@ class TestEventCreatorAsync(asynctest.TestCase):
             "room_id": "!MeRdFpEonLoCwhoHeT:matrix.org",
             "type": "m.room.message",
             "unsigned": {"age": 23394532373},
-            "user_id": "@neo:matrix.org",
             "age": 23394532373,
         }
 
@@ -824,7 +836,6 @@ class TestEventCreatorAsync(asynctest.TestCase):
             "sender": "@neo:matrix.org",
             "type": "m.room.message",
             "unsigned": {"age": 2542608318},
-            "user_id": "@neo:matrix.org",
             "age": 2542608318,
         }
 
@@ -976,13 +987,18 @@ class TestEventCreatorAsync(asynctest.TestCase):
         json = self.message_json
         json["type"] = "wibble"
         event = await self.event_creator.create_event(json, "hello")
-        assert event is None
+        assert isinstance(event, matrix_events.GenericMatrixRoomEvent)
+        assert event.event_type == "wibble"
+        assert "wibble" in repr(event)
+        assert event.target in repr(event)
+        assert str(event.content) in repr(event)
 
     async def test_unsupported_message_type(self):
         json = self.message_json
         json["content"]["msgtype"] = "wibble"
         event = await self.event_creator.create_event(json, "hello")
-        assert event is None
+        assert isinstance(event, matrix_events.GenericMatrixRoomEvent)
+        assert event.content["msgtype"] == "wibble"
 
     async def test_room_name(self):
         event = await self.event_creator.create_event(self.room_name_json, "hello")
@@ -1060,3 +1076,51 @@ class TestEventCreatorAsync(asynctest.TestCase):
         assert event.target == "hello"
         assert event.event_id == "$143273582443PhrSn:example.org"
         assert event.raw_event == self.join_room_json
+
+    @property
+    def custom_json(self):
+        return {
+            "content": {"hello": "world"},
+            "event_id": "$15573463541827394vczPd:localhost",
+            "origin_server_ts": 1557346354253,
+            "room_id": "!test:localhost",
+            "sender": "@neo:matrix.org",
+            "type": "opsdroid.dev",
+            "unsigned": {"age": 48926251},
+            "age": 48926251,
+        }
+
+    async def test_create_generic(self):
+        event = await self.event_creator.create_event(self.custom_json, "hello")
+        assert isinstance(event, matrix_events.GenericMatrixRoomEvent)
+        assert event.user == "Rabbit Hole"
+        assert event.user_id == "@neo:matrix.org"
+        assert event.target == "hello"
+        assert event.event_id == "$15573463541827394vczPd:localhost"
+        assert event.raw_event == self.custom_json
+        assert event.content == {"hello": "world"}
+        assert event.event_type == "opsdroid.dev"
+
+    @property
+    def custom_state_json(self):
+        return {
+            "content": {"hello": "world"},
+            "type": "wibble.opsdroid.dev",
+            "unsigned": {"age": 137},
+            "origin_server_ts": 1575306720044,
+            "state_key": "",
+            "sender": "@neo:matrix.org",
+            "event_id": "$bEg2XISusHMKLBw9b4lMNpB2r9qYoesp512rKvbo5LA",
+        }
+
+    async def test_create_generic_state(self):
+        event = await self.event_creator.create_event(self.custom_state_json, "hello")
+        assert isinstance(event, matrix_events.MatrixStateEvent)
+        assert event.user == "Rabbit Hole"
+        assert event.user_id == "@neo:matrix.org"
+        assert event.target == "hello"
+        assert event.event_id == "$bEg2XISusHMKLBw9b4lMNpB2r9qYoesp512rKvbo5LA"
+        assert event.raw_event == self.custom_state_json
+        assert event.content == {"hello": "world"}
+        assert event.event_type == "wibble.opsdroid.dev"
+        assert event.state_key == ""
