@@ -15,7 +15,7 @@ from opsdroid.const import DEFAULT_CONFIG_PATH
 from opsdroid.memory import Memory
 from opsdroid.connector import Connector
 from opsdroid.configuration import load_config_file
-from opsdroid.database import Database
+from opsdroid.database import Database, InMemoryDatabase
 from opsdroid.skill import Skill
 from opsdroid.loader import Loader
 from opsdroid.web import Web
@@ -181,8 +181,7 @@ class OpsDroid:
         self.modules = self.loader.load_modules_from_config(self.config)
         _LOGGER.debug(_("Loaded %i skills."), len(self.modules["skills"]))
         self.web_server = Web(self)
-        if self.modules["databases"] is not None:
-            await self.start_databases(self.modules["databases"])
+        await self.start_databases(self.modules["databases"])
         await self.start_connectors(self.modules["connectors"])
         self.setup_skills(self.modules["skills"])
         self.web_server.setup_webhooks(self.skills)
@@ -360,8 +359,9 @@ class OpsDroid:
 
         """
         if not databases:
-            _LOGGER.debug(databases)
-            _LOGGER.warning(_("All databases failed to load."))
+            self.memory.databases = [InMemoryDatabase()]
+            return
+
         for database_module in databases:
             for name, cls in database_module["module"].__dict__.items():
                 if (
