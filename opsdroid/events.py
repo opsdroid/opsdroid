@@ -402,6 +402,9 @@ class Image(File):
         fbytes = await self.get_file_bytes()
         return get_image_size_from_bytesio(io.BytesIO(fbytes), len(fbytes))
 
+class Video(File):
+    """Event class specifically for mp4 files."""
+    #TODO To be finished after initial PR
 
 class NewRoom(Event):
     """Event class to represent the creation of a new room."""
