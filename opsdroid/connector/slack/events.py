@@ -235,8 +235,9 @@ class SlackEventCreator(events.EventCreator):
         user_id = event["channel"]["creator"]
         user_info = await self.connector.lookup_username(user_id)
 
+        name = event["channel"].get("name_normalized", event["channel"].get("name"))
         return events.NewRoom(
-            name=event["channel"].pop("name_normalized"),
+            name=name,
             params=None,
             user=user_info["name"],
             user_id=user_id,
