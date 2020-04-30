@@ -1,13 +1,8 @@
 import asyncio
-import unittest
-import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock
 import slack
-import json
 import collections
-
-import aiohttp
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector.slack import ConnectorSlack
@@ -18,6 +13,7 @@ from opsdroid.cli.start import configure_lang
 
 class TestEventCreatorAsync(asynctest.TestCase):
     def setUp(self):
+        configure_lang({})
         self.od = OpsDroid()
         self.od.__enter__()
         self.connector = ConnectorSlack({"token": "abc123"}, opsdroid=self.od)
@@ -63,7 +59,7 @@ class TestEventCreatorAsync(asynctest.TestCase):
             self.assertTrue(called_event.target == self.message_event["channel"])
             self.assertTrue(called_event.event_id == self.message_event["ts"])
             self.assertTrue(called_event.raw_event == self.message_event)
-            lookup.assert_called_once_with("U9S8JGF45")
+            lookup.assert_called_with("U9S8JGF45")
 
     async def test_create_message_no_user(self):
         with amock.patch(
@@ -168,7 +164,7 @@ class TestEventCreatorAsync(asynctest.TestCase):
             self.assertTrue(
                 called_event.name == self.channel_created_event["channel"]["name"]
             )
-            lookup.assert_called_once_with("U9S8JGF45")
+            lookup.assert_called_with("U9S8JGF45")
 
     @property
     def channel_archive_event(self):
