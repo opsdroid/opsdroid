@@ -10,6 +10,8 @@ categories:
   - title: 'Documentation and code quality'
     labels:
       - 'documentation'
+exclude-labels:
+  - 'skip-changelog'
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 template: |
   ## Changes
