@@ -1,16 +1,16 @@
 """A helper function for parsing and executing regex skills."""
 
 import logging
-import re
+import regex
 
 _LOGGER = logging.getLogger(__name__)
 
 
-async def calculate_score(regex, score_factor):
+async def calculate_score(expression, score_factor):
     """Calculate the score of a regex."""
     # The score asymptotically approaches the max score
     # based on the length of the expression.
-    return (1 - (1 / ((len(regex) + 1) ** 2))) * score_factor
+    return (1 - (1 / ((len(expression) + 1) ** 2))) * score_factor
 
 
 async def match_regex(text, opts):
@@ -19,15 +19,15 @@ async def match_regex(text, opts):
     def is_case_sensitive():
         if opts["case_sensitive"]:
             return False
-        return re.IGNORECASE
+        return regex.IGNORECASE
 
     if opts["matching_condition"].lower() == "search":
-        regex = re.search(opts["expression"], text, is_case_sensitive())
+        matched_regex = regex.search(opts["expression"], text, is_case_sensitive())
     elif opts["matching_condition"].lower() == "fullmatch":
-        regex = re.fullmatch(opts["expression"], text, is_case_sensitive())
+        matched_regex = regex.fullmatch(opts["expression"], text, is_case_sensitive())
     else:
-        regex = re.match(opts["expression"], text, is_case_sensitive())
-    return regex
+        matched_regex = regex.match(opts["expression"], text, is_case_sensitive())
+    return matched_regex
 
 
 async def parse_regex(opsdroid, skills, message):
@@ -37,10 +37,10 @@ async def parse_regex(opsdroid, skills, message):
         for matcher in skill.matchers:
             if "regex" in matcher:
                 opts = matcher["regex"]
-                regex = await match_regex(message.text, opts)
-                if regex:
-                    message.regex = regex
-                    for regroup, value in regex.groupdict().items():
+                matched_regex = await match_regex(message.text, opts)
+                if matched_regex:
+                    message.regex = matched_regex
+                    for regroup, value in matched_regex.groupdict().items():
                         message.update_entity(regroup, value, None)
                     matched_skills.append(
                         {
