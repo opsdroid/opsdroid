@@ -442,14 +442,17 @@ class ConnectorMatrix(Connector):
     @register_event(events.RoomAddress)
     @ensure_room_id_and_send
     async def _send_room_address(self, address_event):
-        return await self.connection.room_put_state(
+        res = await self.connection.room_put_state(
             address_event.target, "m.room.aliases", address_event.address
         )
-        # except MatrixRequestError as err:
-        #    if err.code == 409:
-        #        _LOGGER.warning(
-        #            f"A room with the alias {address_event.address} already exists."
-        #        )
+
+        if isinstance(res, nio.RoomPutStateError):
+            print("Error setting room address: " + res.message)
+            if res.staus_code == 409:
+                _LOGGER.warning(
+                    f"A room with the alias {address_event.address} already exists."
+                )
+        return res
 
     @register_event(events.JoinRoom)
     @ensure_room_id_and_send
@@ -459,16 +462,17 @@ class ConnectorMatrix(Connector):
     @register_event(events.UserInvite)
     @ensure_room_id_and_send
     async def _send_user_invitation(self, invite_event):
-        # try:
-        return await self.connection.room_invite(
+        res = await self.connection.room_invite(
             invite_event.target, invite_event.user_id
         )
-        # except MatrixRequestError as err:
-        #    content = json.loads(err.content)
-        #    if err.code == 403 and "is already in the room" in content["error"]:
-        #        _LOGGER.info(
-        #            f"{invite_event.user_id} is already in the room, ignoring."
-        #        )
+
+        if isinstance(res, nio.RoomInviteError):
+            if res.status_code == 403 and "is already in the room" in res.message:
+                _LOGGER.info(
+                    f"{invite_event.user_id} is already in the room, ignoring."
+                )
+
+        return res
 
     @register_event(events.RoomDescription)
     @ensure_room_id_and_send
