@@ -148,3 +148,19 @@ class TestParserRegex(asynctest.TestCase):
             self.assertEqual(len(parsed_message.entities.keys()), 1)
             self.assertTrue("name" in parsed_message.entities.keys())
             self.assertEqual(parsed_message.entities["name"]["value"], "opsdroid")
+
+    async def test_parse_regex_identically_named_groups_entities(self):
+        with OpsDroid() as opsdroid:
+            regex = r"Hello (?P<name>.*)|Hi (?P<name>.*)"
+
+            mock_skill_named_groups = await self.getMockSkill()
+            opsdroid.skills.append(match_regex(regex)(mock_skill_named_groups))
+
+            mock_connector = amock.CoroutineMock()
+            message = Message("Hello opsdroid", "user", "default", mock_connector)
+
+            [skill] = await opsdroid.get_ranked_skills(opsdroid.skills, message)
+            parsed_message = skill["message"]
+            self.assertEqual(len(parsed_message.entities.keys()), 1)
+            self.assertTrue("name" in parsed_message.entities.keys())
+            self.assertEqual(parsed_message.entities["name"]["value"], "opsdroid")
