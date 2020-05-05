@@ -4,7 +4,7 @@ aiosqlite==0.12.0
 appdirs==1.4.3
 arrow==0.15.6
 Babel==2.8.0
-bleach==3.1.4
+bleach==3.1.5
 certifi==2020.4.5.1
 click==7.1.1
 emoji==0.5.4
