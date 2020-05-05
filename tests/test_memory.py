@@ -2,13 +2,16 @@ import asynctest
 import asynctest.mock as mock
 
 from opsdroid.memory import Memory
+from opsdroid.database import InMemoryDatabase
 
 
 class TestMemory(asynctest.TestCase):
     """Test the opsdroid memory class."""
 
     def setup(self):
-        return Memory()
+        mem = Memory()
+        mem.databases = [InMemoryDatabase()]
+        return mem
 
     async def test_memory(self):
         memory = self.setup()
