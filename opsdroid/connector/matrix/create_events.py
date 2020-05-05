@@ -1,7 +1,12 @@
 """A helper module to create opsdroid events from matrix events."""
+import logging
 from collections import defaultdict
+
 from opsdroid import events
 
+from . import events as matrix_events
+
+_LOGGER = logging.getLogger(__name__)
 
 __all__ = ["MatrixEventCreator"]
 
@@ -37,6 +42,7 @@ class MatrixEventCreator(events.EventCreator):
         self.event_types["m.room.topic"] = self.create_room_description
         self.event_types["m.room.name"] = self.create_room_name
         self.event_types["m.reaction"] = self.create_reaction
+        self.event_types["m.room.member"] = self.create_join_room
 
         self.message_events = defaultdict(lambda: self.skip)
         self.message_events.update(
@@ -51,6 +57,31 @@ class MatrixEventCreator(events.EventCreator):
                 # 'm.location':
             }
         )
+
+    async def skip(self, event, roomid):
+        """Generate a generic event (state event if appropriate)."""
+        kwargs = dict(
+            content=event["content"],
+            event_type=event["type"],
+            user_id=event["sender"],
+            user=await self.connector.get_nick(roomid, event["sender"]),
+            target=roomid,
+            connector=self.connector,
+            raw_event=event,
+            event_id=event["event_id"],
+        )
+        event_type = matrix_events.GenericMatrixRoomEvent
+        if "state_key" in event:
+            event_type = matrix_events.MatrixStateEvent
+            kwargs["state_key"] = event["state_key"]
+        try:
+            event = event_type(**kwargs)
+            return event
+        except Exception:  # pragma: nocover
+            _LOGGER.exception(
+                f"Matrix connector failed to parse event {event} as a room event."
+            )
+            return None
 
     async def create_room_message(self, event, roomid):
         """Dispatch a m.room.message event."""
@@ -148,3 +179,15 @@ class MatrixEventCreator(events.EventCreator):
             linked_event=parent_event,
             raw_event=event,
         )
+
+    async def create_join_room(self, event, roomid):
+        """Send a JoinRoomEvent."""
+        if event["content"]["membership"] == "join":
+            return events.JoinRoom(
+                user=await self.connector.get_nick(roomid, event["sender"]),
+                user_id=event["sender"],
+                target=roomid,
+                connector=self.connector,
+                event_id=event["event_id"],
+                raw_event=event,
+            )

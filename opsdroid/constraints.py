@@ -31,6 +31,9 @@ def constrain_rooms(rooms, invert=False):
 
         def constraint_callback(message, rooms=rooms):
             """Check if the room is correct."""
+            if hasattr(message.connector, "lookup_target"):
+                rooms = list(map(message.connector.lookup_target, rooms))
+
             return message.target in rooms
 
         func = add_skill_attributes(func)
