@@ -12,6 +12,7 @@ import aiohttp
 import puremagic
 from get_image_size import get_image_size_from_bytesio
 from opsdroid.helper import get_opsdroid
+from bitstring import BitArray
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -403,8 +404,21 @@ class Image(File):
         return get_image_size_from_bytesio(io.BytesIO(fbytes), len(fbytes))
 
 class Video(File):
-    """Event class specifically for mp4 files."""
-    #TODO To be finished after initial PR
+    """Event class specifically for video files."""
+    async def get_bitarray(self):
+        """ 
+        Return a bitarray of the bytes. This enable the video bytes to be converted to hex/bin
+        Doc: https://github.com/scott-griffiths/bitstring/blob/master/doc/bitarray.rst
+        """
+        fbytes = await self.get_file_bytes()
+        return BitArray(fbytes)
+
+    async def get_bin(self):
+        """ Return the binary representation of video """
+        return self.get_bitarray().bin
+    
+    
+
 
 class NewRoom(Event):
     """Event class to represent the creation of a new room."""
