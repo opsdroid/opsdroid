@@ -406,7 +406,10 @@ class Image(File):
 class Video(File):
     """Event class specifically for video files."""
     async def get_bitarray(self):
-        """ 
+        """Return a bitarray of the video bytes.
+        This method enable video bytes to be converted to hex/bin.
+        Doc: https://github.com/scott-griffiths/bitstring/blob/master/doc/bitarray.rst
+        """
         Return a bitarray of the bytes. This enable the video bytes to be converted to hex/bin
         Doc: https://github.com/scott-griffiths/bitstring/blob/master/doc/bitarray.rst
         """
