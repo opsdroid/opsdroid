@@ -243,6 +243,10 @@ class TestCoreAsync(asynctest.TestCase):
             opsdroid.cron_task.cancel = amock.CoroutineMock()
             mock_cron_task = opsdroid.cron_task
 
+            opsdroid.path_watch_task = amock.CoroutineMock()
+            opsdroid.path_watch_task.cancel = amock.CoroutineMock()
+            mock_path_watch_task = opsdroid.path_watch_task
+
             async def task():
                 await asyncio.sleep(0.5)
 
@@ -256,6 +260,7 @@ class TestCoreAsync(asynctest.TestCase):
             self.assertTrue(mock_web_server.stop.called)
             self.assertTrue(opsdroid.web_server is None)
             self.assertTrue(mock_cron_task.cancel.called)
+            self.assertTrue(mock_path_watch_task.cancel.called)
             self.assertTrue(opsdroid.cron_task is None)
             self.assertFalse(opsdroid.connectors)
             self.assertFalse(opsdroid.memory.databases)
