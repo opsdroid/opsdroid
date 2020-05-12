@@ -6,7 +6,7 @@ Connectors are a class which extends the base opsdroid Connector. The class has 
 *configuration* is a class property of Connector. It's used to access the config parameters of a Connector. This can be used to retrieve specific parameters of a connector from `configuration.yaml`.
 
 #### connect
-*connect* is a method which connects to a specific chat service
+connect is a method which connects to a specific chat service
 
 ### Methods
 
@@ -31,7 +31,7 @@ This decorator is used to define a method (coroutine) on the connector class for
 ```python
 
 @register_event(Message)
-async def send_message(self, message):
+async def send(self, message):
     await myservice.send(message.text)
 
 ```
@@ -53,17 +53,18 @@ from opsdroid.events import Message
 
 class MyConnector(Connector):
 
-  def __init__(self, config):
+  def __init__(self, config, opsdroid):
     # Init the config for the connector
     self.name = "MyConnector" # The name of your connector
     self.config = config # The config dictionary to be accessed later
     self.default_target = "MyDefaultRoom" # The default room for messages to go
+    self.opsdroid = opsdroid # An instance of opsdroid.core.
 
   async def connect(self, opsdroid):
     # Create connection object with chat library
     self.connection = await chatlibrary.connect()
 
-  async def listen(self, opsdroid):
+  async def listen(self):
     # Listen for new messages from the chat service
     while True:
       # Get raw message from chat
@@ -80,12 +81,12 @@ class MyConnector(Connector):
       await opsdroid.parse(message)
 
   @register_event(Message)
-  async def send_message(self, message):
+  async def send(self, message):
     # Send message.text back to the chat service
     await self.connection.send(message.text, message.user,
                                message.target)
 
-  async def disconnect(self, opsdroid):
+  async def disconnect(self):
     # Disconnect from the chat service
     await self.connection.disconnect()
 
