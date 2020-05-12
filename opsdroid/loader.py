@@ -12,6 +12,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import traceback
 import urllib.request
 from collections.abc import Mapping
 from pkg_resources import iter_entry_points
@@ -104,7 +105,12 @@ class Loader:
             try:
                 module = Loader.import_module_from_spec(module_spec)
             except Exception as e:
-                _LOGGER.error("Exception raised while importing skill - %s", str(e))
+                _LOGGER.error(
+                    "The following exception was raised while importing %s %s",
+                    config["type"],
+                    config["module_path"],
+                )
+                _LOGGER.error(str(e))
             else:
                 _LOGGER.debug(
                     _("Loaded %s: %s."), config["type"], config["module_path"]
