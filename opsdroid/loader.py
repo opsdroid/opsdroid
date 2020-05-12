@@ -104,7 +104,7 @@ class Loader:
             try:
                 module = Loader.import_module_from_spec(module_spec)
             except Exception as e:
-                _LOGGER.error(str(e))
+                _LOGGER.error("Exception raised while importing skill - %s", str(e))
             else:
                 _LOGGER.debug(
                     _("Loaded %s: %s."), config["type"], config["module_path"]
