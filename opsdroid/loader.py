@@ -12,7 +12,6 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import traceback
 import urllib.request
 from collections.abc import Mapping
 from pkg_resources import iter_entry_points
