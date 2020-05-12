@@ -101,9 +101,15 @@ class Loader:
                 continue
 
         if module_spec:
-            module = Loader.import_module_from_spec(module_spec)
-            _LOGGER.debug(_("Loaded %s: %s."), config["type"], config["module_path"])
-            return module
+            try:
+                module = Loader.import_module_from_spec(module_spec)
+            except Exception as e:
+                _LOGGER.error(str(e))
+            else:
+                _LOGGER.debug(
+                    _("Loaded %s: %s."), config["type"], config["module_path"]
+                )
+                return module
 
         _LOGGER.error(
             _("Failed to load %s: %s."), config["type"], config["module_path"]
@@ -595,8 +601,7 @@ class Loader:
             else:
                 _LOGGER.error(_("Could not find local git repo %s."), git_url)
 
-    @staticmethod
-    def _install_local_module(config):
+    def _install_local_module(self, config):
         """Install a module from a local path.
 
         Args:
@@ -625,6 +630,8 @@ class Loader:
 
         if not installed:
             _LOGGER.error("Failed to install from %s.", str(config["path"]))
+        else:
+            self.opsdroid.reload_paths.append(config["path"])
 
     def _install_gist_module(self, config):
         """Install a module from gist path.
