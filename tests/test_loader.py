@@ -8,6 +8,7 @@ import unittest.mock as mock
 from types import ModuleType
 
 import pkg_resources
+from opsdroid.core import OpsDroid
 from opsdroid.cli.start import configure_lang
 from opsdroid.configuration import load_config_file
 from opsdroid.const import ENV_VAR_REGEX
@@ -253,6 +254,19 @@ class TestLoader(unittest.TestCase):
             mock_iter_entry_points.return_value = (ep,)
             loaded = loader._load_modules("database", modules)
             self.assertEqual(loaded[0]["config"]["name"], "myep")
+
+    def test_import_broken_module(self):
+        skill_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "mockmodules/skills/broken_skill.py",
+        )
+        config = {
+            "connectors": {"websocket": {}},
+            "skills": {"test": {"path": skill_path}},
+        }
+        with OpsDroid(config=config) as opsdroid:
+            opsdroid.sync_load()
+            assert len(opsdroid.skills) == 0
 
     def test_load_config(self):
         opsdroid, loader = self.setup()
