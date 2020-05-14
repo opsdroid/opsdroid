@@ -27,3 +27,4 @@ websockets==8.1
 webexteamssdk==1.3
 voluptuous==0.11.7
 regex==2020.5.7
+watchgod==0.6
