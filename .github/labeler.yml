@@ -1,0 +1,41 @@
+connector:
+  - opsdroid/connector/**/*
+connector/facebook:
+  - opsdroid/connector/facebook/**/*
+connector/github:
+  - opsdroid/connector/github/**/*
+connector/gitter:
+  - opsdroid/connector/gitter/**/*
+connector/matrix:
+  - opsdroid/connector/matrix/**/*
+connector/rocketchat:
+  - opsdroid/connector/rocketchat/**/*
+connector/slack:
+  - opsdroid/connector/slack/**/*
+connector/telegram:
+  - opsdroid/connector/telegram/**/*
+connector/webexteams:
+  - opsdroid/connector/webexteams/**/*
+connector/websocket:
+  - opsdroid/connector/websocket/**/*
+
+database:
+  - opsdroid/database/**/*
+
+parser:
+  - opsdroid/parsers/**/*
+
+dependencies:
+  - requirements*.txt
+
+documentation:
+  - '**/*.md'
+
+installation/packaging:
+  - MANIFEST.in
+  - setup.py
+  - setup.cfg
+  - Dockerfile
+
+tests:
+  - tests/**/*
