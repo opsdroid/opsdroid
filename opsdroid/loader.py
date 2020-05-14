@@ -104,8 +104,8 @@ class Loader:
             try:
                 module = Loader.import_module_from_spec(module_spec)
             except Exception as e:
-                _LOGGER.error(_("The following exception was raised while importing %s %s"), config["type"], config["module_path"])
-                    "The following exception was raised while importing %s %s",
+                _LOGGER.error(
+                    _("The following exception was raised while importing %s %s"),
                     config["type"],
                     config["module_path"],
                 )
