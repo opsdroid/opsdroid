@@ -9,6 +9,7 @@ import weakref
 import asyncio
 import contextlib
 import inspect
+from watchgod import awatch, PythonWatcher
 
 from opsdroid import events
 from opsdroid.const import DEFAULT_CONFIG_PATH
@@ -74,6 +75,8 @@ class OpsDroid:
         }
         self.web_server = None
         self.stored_path = []
+        self.reload_paths = []
+        self.path_watch_task = None
 
     def __enter__(self):
         """Add self to existing instances."""
@@ -184,6 +187,7 @@ class OpsDroid:
         await self.start_databases(self.modules["databases"])
         await self.start_connectors(self.modules["connectors"])
         self.setup_skills(self.modules["skills"])
+        self.path_watch_task = self.eventloop.create_task(self.watch_paths())
         self.web_server.setup_webhooks(self.skills)
         await self.train_parsers(self.modules["skills"])
         self.cron_task = self.eventloop.create_task(parse_crontab(self))
@@ -199,6 +203,8 @@ class OpsDroid:
         for skill in self.skills:
             _LOGGER.info(_("Removed %s."), skill.config["name"])
             self.skills.remove(skill)
+        if self.path_watch_task:
+            self.path_watch_task.cancel()
 
         for connector in self.connectors:
             _LOGGER.info(_("Stopping connector %s..."), connector.name)
@@ -281,6 +287,25 @@ class OpsDroid:
             for skill in skills:
                 skill["module"].setup(self, self.config)
 
+    async def watch_paths(self):
+        """Watch locally installed skill paths for file changes and reload on change.
+
+        If a file within a locally installed skill is modified then opsdroid should be
+        reloaded to pick up this change.
+
+        When skills are loaded all local skills have their paths registered in
+        ``self.reload_paths`` so we will watch those paths for changes.
+
+        """
+
+        async def watch_and_reload(opsdroid, path):
+            async for _ in awatch(path, watcher_cls=PythonWatcher):
+                await opsdroid.reload()
+
+        await asyncio.gather(
+            *[watch_and_reload(self, path) for path in self.reload_paths]
+        )
+
     async def train_parsers(self, skills):
         """Train the parsers.
 
@@ -316,7 +341,7 @@ class OpsDroid:
 
         if connectors:
             for connector in self.connectors:
-                await self.eventloop.create_task(connector.connect())
+                await connector.connect()
 
             for connector in self.connectors:
                 task = self.eventloop.create_task(connector.listen())
