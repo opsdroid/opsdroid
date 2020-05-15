@@ -63,7 +63,7 @@ class OpsDroid:
         self.modules = {}
         self.cron_task = None
         self.loader = Loader(self)
-        self.config_path = [config_path] if config_path else DEFAULT_CONFIG_LOCATIONS
+        self.config_path = config_path if config_path else DEFAULT_CONFIG_LOCATIONS
         if config is None:
             self.config = {}
         else:
