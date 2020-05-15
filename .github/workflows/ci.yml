@@ -23,7 +23,6 @@ jobs:
       run: tox
     - name: Upload coverage report
       uses: codecov/codecov-action@v1
-      if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.8' }}
       with:
         file: ./cov.xml
 
