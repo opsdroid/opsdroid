@@ -32,11 +32,12 @@ def start(path):
     """
     check_dependencies()
 
-    config = load_config_file([path] if path else DEFAULT_CONFIG_LOCATIONS)
+    config_path = [path] if path else DEFAULT_CONFIG_LOCATIONS
+    config = load_config_file(config_path)
 
     configure_lang(config)
     configure_logging(config)
     welcome_message(config)
 
-    with OpsDroid(config=config) as opsdroid:
+    with OpsDroid(config=config, config_path=config_path) as opsdroid:
         opsdroid.run()
