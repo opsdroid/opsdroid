@@ -5,6 +5,7 @@ import shutil
 import sys
 import re
 import logging
+import tempfile
 import yaml
 
 from opsdroid.const import DEFAULT_CONFIG_PATH, ENV_VAR_REGEX, EXAMPLE_CONFIG_FILE
@@ -75,16 +76,6 @@ def get_config_path(config_paths):
     return config_path
 
 
-env_var_pattern = re.compile(ENV_VAR_REGEX)
-
-
-def envvar_constructor(loader, node):
-    """Yaml parser for env vars."""
-    value = loader.construct_scalar(node)
-    [env_var] = env_var_pattern.match(value).groups()
-    return os.environ[env_var]
-
-
 def load_config_file(config_paths):
     """Load a yaml config file from path.
 
@@ -103,8 +94,13 @@ def load_config_file(config_paths):
     """
 
     config_path = get_config_path(config_paths)
+    env_var_pattern = re.compile(ENV_VAR_REGEX)
 
-    yaml.SafeLoader.add_implicit_resolver("!envvar", env_var_pattern, first="$")
+    def envvar_constructor(loader, node):
+        """Yaml parser for env vars."""
+        return os.path.expandvars(node.value)
+
+    yaml.SafeLoader.add_implicit_resolver("!envvar", env_var_pattern, None)
     yaml.SafeLoader.add_constructor("!envvar", envvar_constructor)
 
     try:
@@ -112,6 +108,16 @@ def load_config_file(config_paths):
             _LOGGER.info(_("Loaded config from %s."), config_path)
 
             data = yaml.load(stream, Loader=yaml.SafeLoader)
+
+            # Resolvers do not run correctly on JSON so if the config is a JSON
+            # file dump it to a temporary file as YAML and read it back in again.
+            if config_path.endswith(".json"):
+                with tempfile.NamedTemporaryFile() as tmp:
+                    with open(tmp.name, "w") as fh:
+                        yaml.dump(data, fh, allow_unicode=True)
+                    with open(tmp.name, "r") as fh:
+                        data = yaml.load(fh, Loader=yaml.SafeLoader)
+
             validate_data_type(data)
 
             configuration = update_pre_0_17_config_format(data)
