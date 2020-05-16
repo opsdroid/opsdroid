@@ -112,11 +112,10 @@ def load_config_file(config_paths):
             # Resolvers do not run correctly on JSON so if the config is a JSON
             # file dump it to a temporary file as YAML and read it back in again.
             if config_path.endswith(".json"):
-                with tempfile.NamedTemporaryFile() as tmp:
-                    with open(tmp.name, "w") as fh:
-                        yaml.dump(data, fh, allow_unicode=True)
-                    with open(tmp.name, "r") as fh:
-                        data = yaml.load(fh, Loader=yaml.SafeLoader)
+                with tempfile.NamedTemporaryFile("r+") as tmp:
+                    yaml.dump(data, tmp, allow_unicode=True)
+                    tmp.seek(0)
+                    data = yaml.load(tmp, Loader=yaml.SafeLoader)
 
             validate_data_type(data)
 
