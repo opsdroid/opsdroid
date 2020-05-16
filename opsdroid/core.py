@@ -12,7 +12,7 @@ import inspect
 from watchgod import awatch, PythonWatcher
 
 from opsdroid import events
-from opsdroid.const import DEFAULT_CONFIG_PATH
+from opsdroid.const import DEFAULT_CONFIG_LOCATIONS
 from opsdroid.memory import Memory
 from opsdroid.connector import Connector
 from opsdroid.configuration import load_config_file
@@ -44,7 +44,7 @@ class OpsDroid:
 
     instances = []
 
-    def __init__(self, config=None):
+    def __init__(self, config=None, config_path=None):
         """Start opsdroid."""
         self.bot_name = "opsdroid"
         self._running = False
@@ -63,6 +63,7 @@ class OpsDroid:
         self.modules = {}
         self.cron_task = None
         self.loader = Loader(self)
+        self.config_path = config_path if config_path else DEFAULT_CONFIG_LOCATIONS
         if config is None:
             self.config = {}
         else:
@@ -238,13 +239,7 @@ class OpsDroid:
     async def reload(self):
         """Reload opsdroid."""
         await self.unload()
-        self.config = load_config_file(
-            [
-                "configuration.yaml",
-                DEFAULT_CONFIG_PATH,
-                "/etc/opsdroid/configuration.yaml",
-            ]
-        )
+        self.config = load_config_file(self.config_path)
         await self.load()
 
     def setup_skills(self, skills):
