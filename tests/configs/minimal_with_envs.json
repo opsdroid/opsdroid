@@ -1,0 +1,10 @@
+{
+    "connectors": {
+        "shell": {
+            "bot-name": "$ENVVAR"
+        }
+    },
+    "skills": {
+        "hello": {}
+    }
+}
