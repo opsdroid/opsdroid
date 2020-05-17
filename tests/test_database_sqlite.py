@@ -25,14 +25,13 @@ class TestDatabaseSqlite(unittest.TestCase):
 
         This method will test the initialisation of the database
         class. It will assert if the database class properties are
-        declared and equated to None.
+        declared.
 
         """
-        database = DatabaseSqlite({"file": "sqlite.db"})
+        database = DatabaseSqlite({"path": "sqlite.db"})
         self.assertEqual(None, database.client)
-        self.assertEqual(None, database.database)
-        self.assertEqual(None, database.db_file)
-        self.assertEqual(None, database.table)
+        self.assertEqual("sqlite.db", database.db_file)
+        self.assertEqual("opsdroid", database.table)
         self.assertEqual({"isolation_level": None}, database.conn_args)
 
 
@@ -50,7 +49,7 @@ class TestDatabaseSqliteAsync(asynctest.TestCase):
         As the database is created `opsdroid` table is created first.
 
         """
-        database = DatabaseSqlite({"file": "sqlite.db"})
+        database = DatabaseSqlite({"path": "sqlite.db"})
         opsdroid = amock.CoroutineMock()
         opsdroid.eventloop = self.loop
 
@@ -71,7 +70,7 @@ class TestDatabaseSqliteAsync(asynctest.TestCase):
         This method will test the database disconnection of sqlite database.
 
         """
-        database = DatabaseSqlite({"file": "sqlite.db"})
+        database = DatabaseSqlite({"path": "sqlite.db"})
         opsdroid = amock.CoroutineMock()
         opsdroid.eventloop = self.loop
 
@@ -92,7 +91,7 @@ class TestDatabaseSqliteAsync(asynctest.TestCase):
         followed by the `delete` operation which deletes the key.
 
         """
-        database = DatabaseSqlite({"file": "sqlite.db"})
+        database = DatabaseSqlite({"path": "sqlite.db"})
         opsdroid = amock.CoroutineMock()
         opsdroid.eventloop = self.loop
 
@@ -110,3 +109,7 @@ class TestDatabaseSqliteAsync(asynctest.TestCase):
             self.assertEqual("opsdroid", table)
             self.assertEqual({}, data)
             self.assertEqual("Connection", client)
+
+    async def test_deprecated_path(self):
+        database = DatabaseSqlite({"file": "sqlite.db"})
+        assert database.db_file == "sqlite.db"
