@@ -297,9 +297,16 @@ class OpsDroid:
             async for _ in awatch(path, watcher_cls=PythonWatcher):
                 await opsdroid.reload()
 
-        await asyncio.gather(
-            *[watch_and_reload(self, path) for path in self.reload_paths]
-        )
+        if self.config.get("autoreload", False):
+            _LOGGER.warning(
+                _(
+                    "Watching module files for changes. "
+                    "Warning autoreload is an experimental feature."
+                ),
+            )
+            await asyncio.gather(
+                *[watch_and_reload(self, path) for path in self.reload_paths]
+            )
 
     async def train_parsers(self, skills):
         """Train the parsers.

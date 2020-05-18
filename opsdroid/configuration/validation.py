@@ -25,6 +25,7 @@ BASE_SCHEMA = {
     "logging": logging,
     "module-path": str,
     "welcome-message": bool,
+    "autoreload": bool,
     "web": web,
 }
 
