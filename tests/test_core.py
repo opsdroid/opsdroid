@@ -558,6 +558,7 @@ class TestCoreAsync(asynctest.TestCase):
             "mockmodules/skills/skill/skilltest",
         )
         example_config = {
+            "autoreload": True,
             "connectors": {"websocket": {}},
             "skills": {"test": {"path": skill_path}},
         }
