@@ -4,7 +4,7 @@ Contributing to the opsdroid ecosystem is strongly encouraged and every little b
 
   - Write code to [solve issues](https://github.com/opsdroid/opsdroid/issues) in the opsdroid core repository
   - Improve the [documentation](https://github.com/opsdroid/opsdroid/tree/master/docs) to help others get started
-  - Write [skills](http://opsdroid.readthedocs.io/en/latest/extending/skills/), [connectors](http://opsdroid.readthedocs.io/en/latest/extending/connectors/) or [database](http://opsdroid.readthedocs.io/en/latest/extending/databases/) modules
+  - Write [skills](https://docs.opsdroid.dev/en/stable/connectors/custom.html), [connectors](http://opsdroid.readthedocs.io/en/latest/extending/connectors/) or [database](https://docs.opsdroid.dev/en/stable/databases/custom.html/) modules
   - Contribute to the [opsdroid home page](https://github.com/opsdroid/opsdroid.github.io) (it’s a Jekyll website)
   - Post about your experience using opsdroid on your own blog
   - Contribute to [opsdroid audio](https://github.com/opsdroid/opsdroid-audio) (Python voice client for opsdroid)
