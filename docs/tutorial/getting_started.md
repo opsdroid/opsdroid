@@ -10,7 +10,7 @@ Opsdroid is a framework to make creating and extending your ChatOps workflows po
 pip install opsdroid
 ```
 
-For Windows and Docker installation, see the installation page.
+For Windows and Docker installation, see the [installation page](https://docs.opsdroid.dev/en/stable/installation.html).
 
 ## Using Opsdroid
 
