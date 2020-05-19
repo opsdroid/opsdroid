@@ -16,7 +16,7 @@ For Windows and Docker installation, see the [installation page](https://docs.op
 
 ### Configuration
 
-As we mentioned earlier, Opsdroid is modular and built on a event loop. Connectors, parsers, and skills are setup in the `configuration.yaml` file, which is the backbone of any Opsdroid project.
+Opsdroid is modular and built on an event loop. Connectors, parsers, and skills are setup in the `configuration.yaml` file, which is the backbone of any Opsdroid project.
 
 First, we'll setup a shell connector. To do this add a list of connectors, then add shell.
 
