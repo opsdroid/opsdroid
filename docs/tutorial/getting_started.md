@@ -1,18 +1,10 @@
-# Tutorial
+# Getting Started
 
-```eval_rst
-.. contents::
-```
-
-This guide is meant to give you a simple overview of how to use opsdroid, and to kickstart you projects. It is in no way complete, and I highly recommend checking out the docs for more advanced usage, and a more in-depth overview.
-
-## Getting Started
-
-### What is Opsdroid
+## What is Opsdroid
 
 Opsdroid is a framework to make creating and extending your ChatOps workflows powerful but simple. Opsdroid is a modular framework. It's event loop is power by the `asyncio` framework. The event loop starts with connectors, which allow Opsdroid to interface with services like Slack and Telegram, then Opsdroid sends the event to parsers and matchers, which will determine which skill to run.
 
-### Installing Opsdroid
+## Installing Opsdroid
 
 ```bash
 pip install opsdroid
@@ -20,9 +12,9 @@ pip install opsdroid
 
 For Windows and Docker installation, see the installation page.
 
-### Using Opsdroid
+## Using Opsdroid
 
-#### Configuration
+### Configuration
 
 As we mentioned earlier, Opsdroid is modular and built on a event loop. Connectors, parsers, and skills are setup in the `configuration.yaml` file, which is the backbone of any Opsdroid project.
 
