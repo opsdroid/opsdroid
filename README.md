@@ -6,8 +6,7 @@
 
 <p align=center>
 <a href="https://pypi.python.org/pypi"><img src="https://img.shields.io/pypi/v/opsdroid.svg" alt="Current version of pypi" /></a>
-<a href="https://travis-ci.org/opsdroid/opsdroid"><img src="https://img.shields.io/travis/opsdroid/opsdroid/master.svg?logo=travis" alt="Build Status" /></a>
-<a href="https://ci.appveyor.com/project/opsdroid/opsdroid/branch/master"><img src="https://img.shields.io/appveyor/ci/opsdroid/opsdroid/master.svg?logo=appveyor" alt="Build status" /></a>
+<a href="https://github.com/opsdroid/opsdroid/actions"><img src="https://github.com/opsdroid/opsdroid/workflows/CI/badge.svg?event=push" alt="Github CI Status"></img></a>
 <a href="https://codecov.io/gh/opsdroid/opsdroid"><img src="https://img.shields.io/codecov/c/github/opsdroid/opsdroid.svg" alt="codecov" /></a>
 <a href="https://bettercodehub.com/"><img src="https://bettercodehub.com/edge/badge/opsdroid/opsdroid?branch=master" alt="BCH compliance" /></a>
 <a href="https://pyup.io/repos/github/opsdroid/opsdroid/"><img src="https://pyup.io/repos/github/opsdroid/opsdroid/shield.svg" alt="Updates" /></a>
