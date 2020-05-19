@@ -12,8 +12,8 @@
 <a href="https://bettercodehub.com/"><img src="https://bettercodehub.com/edge/badge/opsdroid/opsdroid?branch=master" alt="BCH compliance" /></a>
 <a href="https://pyup.io/repos/github/opsdroid/opsdroid/"><img src="https://pyup.io/repos/github/opsdroid/opsdroid/shield.svg" alt="Updates" /></a>
 <a href="https://hub.docker.com/r/opsdroid/opsdroid/builds/"><img src="https://img.shields.io/docker/build/opsdroid/opsdroid.svg" alt="Docker Build" /></a>
-<a href="https://hub.docker.com/r/opsdroid/opsdroid/"><img src="https://img.shields.io/microbadger/image-size/opsdroid/opsdroid.svg" alt="Docker Image" /></a>
-<a href="https://microbadger.com/#/images/opsdroid/opsdroid"><img src="https://img.shields.io/microbadger/layers/opsdroid/opsdroid.svg" alt="Docker Layers" /></a>
+<img alt="Docker Image Version (latest semver)" src="https://img.shields.io/docker/v/opsdroid/opsdroid?sort=semver">
+<img alt="Docker Image Size (latest by date)" src="https://img.shields.io/docker/image-size/opsdroid/opsdroid?label=image%20size"><a href="https://microbadger.com/#/images/opsdroid/opsdroid"><img src="https://img.shields.io/microbadger/layers/opsdroid/opsdroid.svg" alt="Docker Layers" /></a>
 <a href="http://opsdroid.readthedocs.io/en/stable/?badge=stable"><img src="https://img.shields.io/readthedocs/opsdroid/latest.svg" alt="Documentation Status" /></a>
 <a href="https://riot.im/app/#/room/#opsdroid-general:matrix.org"><img src="https://img.shields.io/matrix/opsdroid-general:matrix.org.svg?logo=matrix" alt="Matrix Chat" /></a>
 <a href="#backers"><img src="https://opencollective.com/opsdroid/backers/badge.svg" alt="Backers on Open Collective" /></a>
