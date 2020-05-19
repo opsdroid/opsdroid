@@ -20,12 +20,13 @@ CONFIG_SCHEMA = {
 }
 
 
-class SMSConnector(Connector):
+class ConnectorSMS(Connector):
     """A connector for Twilio-powered SMS"""
 
     def __init__(self, config, opsdroid):
         super().__init__(config, opsdroid=opsdroid)
-        self.name = config["name"]
+        self.name = self.config.get("name", "sms")
+        self.bot_name = config.get("bot-name", "opsdroid")
         self.config = config
 
     async def connect(self):
