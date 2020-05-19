@@ -33,7 +33,7 @@ logging:
   console: false
 ```
 
-Next, we'll create a basic skill. We'll learn more about this later in the tutorial. Create a file called \_\_init\_\_.py, and import these libraries:
+Next, we'll create a basic skill. We'll learn more about this later in the tutorial. Create a file called hello.py, and import these libraries:
 
 ```python
 from opsdroid.skill import Skill
@@ -62,8 +62,6 @@ Then add your skill to you yaml file like this:
 ```yaml
 skills:
   - name: exampleskill
-    path: /path/to/my/example.py
-    # Or /path/to/my/skill/ if you created a directory
-    # with an __init__.py file in it
+    path: /path/to/my/hello.py
 ```
 Amazing! You have created a bot! Run it with `opsdroid start`.
