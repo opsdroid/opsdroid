@@ -70,7 +70,7 @@ Then add your skill to you yaml file like this:
 ```yaml
 skills:
   - name: exampleskill
-    path: /path/to/my/skill.py
+    path: /path/to/my/example.py
     # Or /path/to/my/skill/ if you created a directory
     # with an __init__.py file in it
 ```
