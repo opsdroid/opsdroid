@@ -496,6 +496,7 @@ class OpsDroid:
 
         Returns:
             connector (opsdroid.connector.Connector): An opsdroid connector.
+
         """
         try:
             [connector] = [
@@ -515,6 +516,7 @@ class OpsDroid:
 
         Returns:
             database (opsdroid.database.Database): An opsdroid database.
+
         """
         try:
             [database] = [
