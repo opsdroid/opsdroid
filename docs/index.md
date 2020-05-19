@@ -50,8 +50,8 @@ $ opsdroid start
 ```eval_rst
 .. toctree::
    :maxdepth: 2
-
    overview
+   getting_started
    installation
    skills/index
    connectors/index
