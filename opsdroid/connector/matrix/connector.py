@@ -236,17 +236,19 @@ class ConnectorMatrix(Connector):
         setting.
         """
         if self.room_specific_nicks:
-            try:
-                res = await self.connection.get_displayname(mxid)
-                if isinstance(res, nio.ProfileGetDisplayNameError):
-                    logging.exception("Failed to lookup nick for %s.", mxid)
-                    return mxid
-                if res.displayname is None:
-                    return mxid
-                return res.displayname
-            except Exception:  # pylint: disable=W0703
-                # Fallback to the non-room specific one
-                logging.exception("Failed to lookup room specific nick for %s.", mxid)
+            if roomid is None:
+                return mxid
+
+            res = await self.connection.joined_members(roomid)
+            if isinstance(res, nio.JoinedMembersError):
+                logging.exception("Failed to lookup room members for %s.", roomid)
+                return mxid
+
+            for member in res.members:
+                if member.user_id == mxid:
+                    return member.display_name
+
+            return mxid
 
         res = await self.connection.get_displayname(mxid)
         if isinstance(res, nio.ProfileGetDisplayNameError):
