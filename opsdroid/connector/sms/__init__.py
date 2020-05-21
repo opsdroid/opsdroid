@@ -4,6 +4,7 @@
 # Opsdroid Imports
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
+from voluptuous import Required
 import logging
 
 # Twilio Imports
@@ -12,11 +13,9 @@ from twilio.rest import Client
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = {
     "name": str,
-    "account_sid": str,
-    "auth_token": str,
-    "phone_number": str,
-    "host": str,
-    "port": int,
+    Required("account_sid"): str,
+    Required("auth_token"): str,
+    Required("phone_number"): str,
 }
 
 
