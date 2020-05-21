@@ -16,6 +16,8 @@ CONFIG_SCHEMA = {
     Required("account_sid"): str,
     Required("auth_token"): str,
     Required("phone_number"): str,
+    Required("is_trial"): bool,
+    "approved_trial_numbers": list,
 }
 
 
@@ -27,6 +29,9 @@ class ConnectorSMS(Connector):
         self.name = self.config.get("name", "sms")
         self.bot_name = config.get("bot-name", "opsdroid")
         self.config = config
+
+        if self.config["is_trial"] and len(self.config["approved_trial_numbers"]) == 0:
+            _LOGGER.warn("[WARNING] Please Set Approved Trial Numbers")
 
     async def connect(self):
         """Connect to Twilio and setup webhooks"""
@@ -52,13 +57,16 @@ class ConnectorSMS(Connector):
 
     @register_event(Message)
     async def send_message(self, message):
-        try:
+        if (
+            self.config["isTrial"]
+            and message.user not in self.config["allowed_trial_users"]
+        ):
+            _LOGGER.error(
+                "[ERROR] This number is not verified for use with your Twilio Trial Account"
+            )
+        else:
             self.connection.messages.create(
                 from_=self.config["number"], to=message.user, body=message.text
-            )
-        except Exception as e:
-            _LOGGER.error(
-                f"{str(self.name).upper} COULD NOT SEND MESSAGE \n [ERROR]: {e}"
             )
 
     async def listen(self):
