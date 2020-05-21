@@ -297,9 +297,16 @@ class OpsDroid:
             async for _ in awatch(path, watcher_cls=PythonWatcher):
                 await opsdroid.reload()
 
-        await asyncio.gather(
-            *[watch_and_reload(self, path) for path in self.reload_paths]
-        )
+        if self.config.get("autoreload", False):
+            _LOGGER.warning(
+                _(
+                    "Watching module files for changes. "
+                    "Warning autoreload is an experimental feature."
+                ),
+            )
+            await asyncio.gather(
+                *[watch_and_reload(self, path) for path in self.reload_paths]
+            )
 
     async def train_parsers(self, skills):
         """Train the parsers.
@@ -478,6 +485,46 @@ class OpsDroid:
                 ranked_skills += await parse_rasanlu(self, skills, message, rasanlu)
 
         return sorted(ranked_skills, key=lambda k: k["score"], reverse=True)
+
+    def get_connector(self, name):
+        """Get a connector object.
+
+        Get a specific connector by name from the list of active connectors.
+
+        Args:
+            name (string): Name of the connector we want to access.
+
+        Returns:
+            connector (opsdroid.connector.Connector): An opsdroid connector.
+
+        """
+        try:
+            [connector] = [
+                connector for connector in self.connectors if connector.name == name
+            ]
+            return connector
+        except ValueError:
+            return None
+
+    def get_database(self, name):
+        """Get a database object.
+
+        Get a specific database by name from the list of active databases.
+
+        Args:
+            name (string): Name of the database we want to access.
+
+        Returns:
+            database (opsdroid.database.Database): An opsdroid database.
+
+        """
+        try:
+            [database] = [
+                database for database in self.memory.databases if database.name == name
+            ]
+            return database
+        except ValueError:
+            return None
 
     async def _constrain_skills(self, skills, message):
         """Remove skills with contraints which prohibit them from running.
