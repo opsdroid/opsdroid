@@ -107,11 +107,7 @@ class ConnectorMatrix(Connector):
             "event_format": "client",
             "account_data": {"limit": 0, "types": []},
             "presence": {"limit": 0, "types": []},
-            "room": {
-                "account_data": {"types": []},
-                "ephemeral": {"types": []},
-                "state": {"types": []},
-            },
+            "room": {"account_data": {"types": []}, "ephemeral": {"types": []}},
         }
 
     async def make_filter(self, api, fjson):
@@ -227,6 +223,11 @@ class ConnectorMatrix(Connector):
                 raise
             except Exception:  # pylint: disable=W0703
                 _LOGGER.exception(_("Matrix sync error."))
+
+    def lookup_target(self, room):
+        """Convert name or alias of a room to the corresponding room ID."""
+        room = self.get_roomname(room)
+        return self.room_ids.get(room, room)
 
     async def get_nick(self, roomid, mxid):
         """
@@ -493,6 +494,9 @@ class ConnectorMatrix(Connector):
     @register_event(events.UserRole)
     @ensure_room_id_and_send
     async def _set_user_role(self, role_event):
+        if not role_event.user_id:
+            raise ValueError("Can't send a UserRole without the user_id attribute set.")
+
         role = role_event.role
         room_id = role_event.target
         if isinstance(role, str) and role.lower() in ["mod", "moderator"]:
@@ -518,7 +522,14 @@ class ConnectorMatrix(Connector):
         _LOGGER.debug(f"Sending State Event {state_event}")
         return await self.connection.room_put_state(
             state_event.target,
-            state_event.key,
+            state_event.event_type,
             state_event.content,
             state_key=state_event.state_key,
+        )
+
+    @register_event(matrixevents.GenericMatrixRoomEvent)
+    @ensure_room_id_and_send
+    async def _send_generic_event(self, event):
+        return await self.connection.send_message_event(
+            event.target, event.event_type, event.content
         )

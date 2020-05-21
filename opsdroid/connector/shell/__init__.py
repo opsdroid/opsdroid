@@ -84,7 +84,7 @@ class ConnectorShell(Connector):
         """Parseloop moved out for testing."""
         self.draw_prompt()
         user_input = await self.async_input()
-        message = Message(user_input, self.user, None, self)
+        message = Message(text=user_input, user=self.user, target=None, connector=self)
         await self.opsdroid.parse(message)
 
     async def _parse_message(self):
@@ -125,7 +125,6 @@ class ConnectorShell(Connector):
         _LOGGER.debug(_("Responding with: %s."), message.text)
         self.clear_prompt()
         print(message.text)
-        self.draw_prompt()
 
     async def disconnect(self):
         """Disconnects the connector."""

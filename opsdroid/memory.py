@@ -19,7 +19,6 @@ class Memory:
 
     def __init__(self):
         """Create object with minimum properties."""
-        self.memory = {}
         self.databases = []
 
     async def get(self, key):
@@ -35,13 +34,7 @@ class Memory:
 
         """
         _LOGGER.debug(_("Getting %s from memory."), key)
-        database_result = await self._get_from_database(key)
-        if database_result is not None:
-            self.memory[key] = database_result
-        if key in self.memory:
-            return self.memory[key]
-
-        return None
+        return await self._get_from_database(key)
 
     async def put(self, key, data):
         """Put a data object to a given key.
@@ -54,8 +47,7 @@ class Memory:
 
         """
         _LOGGER.debug(_("Putting %s to memory."), key)
-        self.memory[key] = data
-        await self._put_to_database(key, self.memory[key])
+        await self._put_to_database(key, data)
 
     async def delete(self, key):
         """Delete data object for a given key.
@@ -67,8 +59,6 @@ class Memory:
 
         """
         _LOGGER.debug(_("Deleting %s from memory."), key)
-        if key in self.memory:
-            del self.memory[key]
         await self._delete_from_database(key)
 
     async def _get_from_database(self, key):
@@ -88,7 +78,7 @@ class Memory:
 
         """
         if not self.databases:
-            return None
+            return None  # pragma: nocover
 
         results = []
         for database in self.databases:

@@ -4,10 +4,9 @@ import asyncio
 import asynctest
 import asynctest.mock as amock
 
-from opsdroid.cli.start import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid.connector import Connector, register_event
-from opsdroid.events import Event, Message, Reaction
+from opsdroid.events import Message, Reaction
 from opsdroid.cli.start import configure_lang
 
 
