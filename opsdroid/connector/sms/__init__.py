@@ -40,7 +40,12 @@ class ConnectorSMS(Connector):
     async def handle_messages(self, request):
         req_data = await request.json()
         try:
-            message = Message(req_data["Body"], req_data["From"], None, self,)
+            message = Message(
+                text=req_data["Body"],
+                user=req_data["From"],
+                user_id=req_data["From"],
+                connector=self,
+            )
             await self.opsdroid.parse(message)
         except Exception as e:
             _LOGGER.error(f"ERROR: {e}")
