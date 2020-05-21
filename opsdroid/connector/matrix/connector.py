@@ -76,6 +76,7 @@ class ConnectorMatrix(Connector):
         self.session = None
         self.filter_id = None
         self.connection = None
+        self.device_name = config.get("device_name", "opsdroid")
 
         self._event_creator = MatrixEventCreator(self)
 
@@ -128,7 +129,7 @@ class ConnectorMatrix(Connector):
         mapi = nio.AsyncClient(self.homeserver, self.mxid, config=config)
 
         login_response = await mapi.login(
-            password=self.password, device_name="opsdroid"
+            password=self.password, device_name=self.device_name
         )
         if isinstance(login_response, nio.LoginError):
             print("Error while logging in: " + login_response.message)
