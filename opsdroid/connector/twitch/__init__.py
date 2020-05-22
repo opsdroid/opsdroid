@@ -13,15 +13,15 @@ from opsdroid.connector.twitch.events import DeleteMessage, BanUser
 from opsdroid.const import TWITCH_API_ENDPOINT, DEFAULT_ROOT_PATH
 
 _LOGGER = logging.getLogger(__name__)
-TWITCH_JSON = os.join.path(DEFAULT_ROOT_PATH, 'twitch.json')
+TWITCH_JSON = os.path.join(DEFAULT_ROOT_PATH, 'twitch.json')
 
 
-def build_api_url(client_id, client_secret, authorization):
+def build_api_url(client_id, client_secret, authorization, redirect):
     """Build api url to authenticate and refresh token."""
     clientid = f"?client_id={client_id}"
     secret = f"&client_secret={client_secret}"
     grant = f"&grant_type={authorization}"
-    redirect = f"&redirect_uri=http://localhost"
+    redirect = f"&redirect_uri={redirect}"
 
     return f"{TWITCH_API_ENDPOINT}{clientid}{secret}{grant}{redirect}"
 
@@ -36,10 +36,11 @@ class ConnectorTwitch(Connector):
         self._closing = asyncio.Event()
         self.loop = asyncio.get_event_loop()
         self.default_target = config["channel"]
-        self.token = config['token']
+        self.token = None
         self.code = config['code']
         self.client_id = config['client-id']
         self.client_secret = config['client-secret']
+        self.redirect = config.get("redirect", "http://localhost")
         self.bot_name = config.get("bot-name", "opsdroid")
         self.websocket = None
         # TODO: Allow usage of SSL connection
@@ -48,37 +49,33 @@ class ConnectorTwitch(Connector):
     
     def save_authentication_data(self, data):
         with open(TWITCH_JSON, 'w') as file:
-            file.write(data)
+            json.dump(data, file)
     
-    def get_refresh_token(self):
+    def get_authorization_data(self):
         with open(TWITCH_JSON, 'r') as file:
-            data = json.load(file.read())
-            _LOGGER.info(data)
-            return data['refresh_token']
+            data = json.load(file)
+            return data
             
     async def request_oauth_token(self):
         """Calls Twitch and requests new oauth token."""
-        with aiohttp.ClientSession() as session:
-            url = build_api_url(self.client_id, self.client_secret, 'authorization_code') + f"&code={self.code}"
-            
-            _LOGGER.info(url)
+        async with aiohttp.ClientSession() as session:
+            code = f"&code={self.code}"
+            url = build_api_url(self.client_id, self.client_secret, 'authorization_code', self.redirect) + code
 
             resp = await session.post(url)
-            _LOGGER.info(resp)
             data = await resp.json()
-            
-            _LOGGER.info(data)
 
             self.token = data['access_token']
             self.save_authentication_data(data)
             
     async def refresh_token(self):
         """Attempt to refresh the oauth token."""
-        refresh_token = self.get_refresh_token()
+        refresh_token = self.get_authorization_data()['refresh_token']
         
-        with aiohttp.ClientSession() as session:
-            url = build_api_url(self.client_id, self.client_secret, 'refresh_token') + f"refresh_token={refresh_token}"
+        async with aiohttp.ClientSession() as session:
+            url = build_api_url(self.client_id, self.client_secret, 'refresh_token', self.redirect) + f"refresh_token={refresh_token}"
 
+            _LOGGER.info(url)
             resp = await session.post(url)
             data = await resp.json()
             
@@ -87,13 +84,16 @@ class ConnectorTwitch(Connector):
 
     async def connect_websocket(self):
         """Connect to the irc chat through websockets."""
+        _LOGGER.info(_("Connecting to Twitch IRC Server."))
         self.websocket = await websockets.connect(f"{self.server}:{self.port}")
         try:
             await self.websocket.send(f"PASS oauth:{self.token}")
         except websockets.ConnectionClosed:
+            _LOGGER.info("Oauth token expired. Attempting to refresh token.")
             await self.refresh_token()
+            await self.websocket.send(f"PASS oauth:{self.token}")
 
-        await self.websocket.send(f"NICK fabiorosado")
+        await self.websocket.send(f"NICK {self.bot_name}")
         await self.websocket.send(f"JOIN #{self.default_target}")
         await self.websocket.send("CAP REQ :twitch.tv/commands")
         await self.websocket.send("CAP REQ :twitch.tv/tags")
@@ -105,12 +105,14 @@ class ConnectorTwitch(Connector):
     
     async def connect(self):
         """Connect to the chat service"""
-        # TODO: Create logic to refresh oauth token - log if token expired.
         # TODO: Call api to trigger specific events such as - gone live
         if not os.path.isfile(TWITCH_JSON):
-            self.request_oauth_token()
+            _LOGGER.info("No previous authorization data found, requesting new oauth token.")
+            await self.request_oauth_token()
+        else:
+            _LOGGER.info("Found previous authorization data, getting oauth token and attempting to connect.")
+            self.token = self.get_authorization_data()['access_token']
 
-        _LOGGER.info(_("Connecting to Twitch."))
         await self.connect_websocket()
     
     async def reconnect(self):
@@ -120,9 +122,10 @@ class ConnectorTwitch(Connector):
     
     async def listen(self):
         # TODO: Figure out if we need to this this bit of code since its a websocket.
-        message_getter = self.loop.create_task(await self.get_messages_loop())
-        await self._closing.wait()
-        message_getter.cancel()
+        # message_getter = self.loop.create_task(await self.get_messages_loop())
+        # await self._closing.wait()
+        # message_getter.cancel()
+        await self.get_messages_loop()
    
     async def get_messages_loop(self):
         while self.listening:
@@ -133,8 +136,10 @@ class ConnectorTwitch(Connector):
         try:
             resp = await self.websocket.recv()
         except websockets.ConnectionClosed:
-            await self.connect()
+            await self.reconnect()
             resp = await self.websocket.recv()
+        
+        _LOGGER.info(f"\n {resp} \n")
 
         chat_message = re.match(r'@.*;id=(?P<message_id>.*);m.*user-id=(?P<user_id>.*);user-type=.*:(?P<user>.*?)!.*?:(?P<message>.*)', resp)
 
