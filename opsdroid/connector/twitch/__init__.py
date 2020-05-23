@@ -25,6 +25,29 @@ def build_api_url(client_id, client_secret, authorization, redirect):
 
     return f"{TWITCH_API_ENDPOINT}{clientid}{secret}{grant}{redirect}"
 
+async def get_user_id(channel, token, client_id):
+    """Calls twitch api to get broadcaster user id.
+    
+    A lot of webhooks expect you to pass your user id in order to get the 
+    notification when a user subscribes or folllows the broadcaster
+    channel.
+    
+    """
+    url = f"https://api.twitch.tv/helix/users?login={channel}"
+    async with aiohttp.ClientSession() as session:
+        response = await session.get(url, headers={
+            'Authorization': f"Bearer {token}",
+            'Client-ID': client_id
+        })
+        
+        if response.status != 200:
+            _LOGGER.warning(_("Unable to receive broadcaster id: %s."), response.text())
+        
+        data = await response.json()
+        
+        return data['data'][0]['id']
+    
+
 
 class ConnectorTwitch(Connector):
     """A connector for Twitch."""
@@ -169,7 +192,53 @@ class ConnectorTwitch(Connector):
     
     async def subscribe_webhook(self):
         """Subscribe to Twitch webhooks."""
-        #TODO
+        _LOGGER.info("Attempting to connect to webhook.")
+        
+        self.opsdroid.web_server.web_app.router.add_get(f"/connector/{self.name}/follows", self.handle_challenge)
+        self.opsdroid.web_server.web_app.router.add_post(
+            f"/connector/{self.name}/follows", self.twitch_webhook_handler
+        )
+        user_id = await get_user_id(self.default_target, self.token, self.client_id)
+        
+        _LOGGER.info(user_id)
+        
+        followers_topic = f"https://api.twitch.tv/helix/users/follows?to_id={user_id}&first=1"
+        
+        headers = {'Client-ID': self.client_id, 'Authorization': f"Bearer {self.token}"}
+        data = {
+            "hub.callback": 'https://7b5d0dc2.ngrok.io/connector/twitch/follows',
+            "hub.mode": 'subscribe',
+            "hub.topic": followers_topic,
+            "hub.lease_seconds": 60 * 60 * 4,
+        }
+        
+        _LOGGER.info(headers)
+        _LOGGER.info(data)
+        async with aiohttp.ClientSession() as session:
+            response = await session.post(TWITCH_API_ENDPOINT, headers=headers, data=data)
+            
+            resp = await response.text()
+            _LOGGER.info(f'got: {resp}')
+    
+    async def handle_challenge(self, request):
+        _LOGGER.info(request)
+        _LOGGER.info(request.rel_url)
+        _LOGGER.info(request.rel_url.query)
+        
+        challenge = request.rel_url.query.get('hub.challenge')
+        _LOGGER.info(challenge)
+        if challenge:
+            return aiohttp.web.Response(text=challenge)
+        return aiohttp.web.Response(text=request.query.get('hub.challenge'))
+    
+    async def twitch_webhook_handler(self, request):
+        """Handle event from Twitch webhooks."""
+        req = await request.post()
+        payload = json.loads(req)
+        
+        _LOGGER.info(payload)
+        
+        await self.websockets.send(f"PRIVMSG #{self.default_target} : Thanks for the follow {payload['data'][0]['from_name']}")
     
     async def connect(self):
         """Connect to Twitch services.
@@ -190,7 +259,8 @@ class ConnectorTwitch(Connector):
             _LOGGER.info("Found previous authorization data, getting oauth token and attempting to connect.")
             self.token = self.get_authorization_data()['access_token']
 
-        await self.connect_websocket()
+        # await self.connect_websocket()
+        await self.subscribe_webhook()
     
     async def reconnect(self):
         """Attempt to reconnect to the server.
@@ -209,7 +279,8 @@ class ConnectorTwitch(Connector):
         # message_getter = self.loop.create_task(await self.get_messages_loop())
         # await self._closing.wait()
         # message_getter.cancel()
-        await self.get_messages_loop()
+        # await self.get_messages_loop()
+        pass
    
     async def get_messages_loop(self):
         while self.listening:
