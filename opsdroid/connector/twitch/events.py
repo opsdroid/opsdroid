@@ -35,9 +35,27 @@ class UserSubscribed(events.Event):
         self.subscribed_at = subscribed_at
         self.message = message
 
+
 class StreamStarted(events.Event):
     """Event class that triggers when streamer started broadcasting."""
+    def __init__(self, title, viewers, started_at, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.title = title
+        self.viewers = viewers
+        self.started_at = started_at
 
 
 class StreamEnded(events.Event):
     """Event class that triggers when streamer stoppped broadcasting."""
+
+
+class CreateClip(events.Event):
+    def __init__(self, id, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.id = id
+
+
+class UpdateTitle(events.Event):
+    def __init__(self, status, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.status = status

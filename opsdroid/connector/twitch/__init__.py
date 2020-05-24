@@ -459,6 +459,54 @@ class ConnectorTwitch(Connector):
         """
         await self.websocket.send(f"PRIVMSG #{self.default_target} :/ban {event.user}")
 
+    @register_event(CreateClip)
+    async def create_clip(self):
+        """Create clip from broadcast.
+        
+        We send a post request to twitch to create a clip from the broadcast, Twitch will
+        return a response containing a clip `id` and `edit_url`. TWitch mentions that the
+        way to check if the clip was created successfully is by making a `get` request
+        to the `clips` API enpoint and query by the `id` obtained from the previous 
+        request.
+        
+        """
+        async with aiohttp.ClientSession() as session:
+            headers = {"Client-ID": self.client_id, "Authorization": f"Bearer {self.token}"}
+            resp = await session.post(
+                f"https://api.twitch.tv/helix/clips?broadcaster_id={self.user_id}",
+                headers=headers
+            )
+            resp = await resp.json()
+
+            clip_data = await session.get(
+                f"https://api.twitch.tv/helix/clips?id={resp['data'][0]['id']}",
+                headers=headers
+            )
+            
+            clip = await clip_data.json()
+            
+            await self.websocket.send(f"PRIVMSG #{self.default_target} : {clip['data'][0]['embed_url']}")
+
+    @register_event(UpdateTitle)
+    async def update_stream_title(self, event):
+        """Update Twitch title."""
+        async with aiohttp.ClientSession() as session:
+            headers = {
+                "Client-ID": self.client_id, 
+                "Authorization": f"OAuth {self.token}",
+                "Accept": "application/vnd.twitchtv.v5+json"
+            
+            }
+            status = event.status.replace(" ", "+")
+            url = f"https://api.twitch.tv/kraken/channels/{self.user_id}?channel[status]={status}"
+            resp = await session.put(
+                url,
+                headers=headers,
+            )
+            resp = await resp.json()
+            
+            _LOGGER.debug(_(f"Twitch channel title updated to {event.status}"))
+
     async def disconnect(self):
         """Disconnect from twitch.
         
