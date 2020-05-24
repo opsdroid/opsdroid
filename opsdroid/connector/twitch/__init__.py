@@ -9,7 +9,7 @@ import json
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
 
-from opsdroid.connector.twitch.events import DeleteMessage, BanUser
+from opsdroid.connector.twitch.events import DeleteMessage, BanUser, UserFollowed, StreamStarted, StreamEnded, UserSubscribed, CreateClip, UpdateTitle
 from opsdroid.const import TWITCH_API_ENDPOINT, TWITCH_WEBHOOK_ENDPOINT, DEFAULT_ROOT_PATH
 
 _LOGGER = logging.getLogger(__name__)
@@ -41,11 +41,11 @@ async def get_user_id(channel, token, client_id):
         })
         
         if response.status != 200:
-            _LOGGER.warning(_("Unable to receive broadcaster id: %s."), response.text())
+            _LOGGER.warning(_("Unable to receive broadcaster id - Error: %s, %s."), response['status'], response['message'])
         
         data = await response.json()
         
-        return data['data'][0]['id']
+    return data['data'][0]['id']
     
 
 
@@ -67,21 +67,31 @@ class ConnectorTwitch(Connector):
         self.redirect = config.get("redirect", "http://localhost")
         self.bot_name = config.get("bot-name", "opsdroid")
         self.websocket = None
+        self.user_id = None
         # TODO: Allow usage of SSL connection
         self.server = "ws://irc-ws.chat.twitch.tv"
         self.port = "80"
-    
+        # TODO: Remove before pushing to master - used to test webhook.
+        self.forward_url = 'https://9e0928b5.ngrok.io'
+        # Setup routes for webhooks subscription
+        self.opsdroid.web_server.web_app.router.add_get(
+            f"/connector/{self.name}", self.handle_challenge
+        )
+        self.opsdroid.web_server.web_app.router.add_post(
+            f"/connector/{self.name}", self.twitch_webhook_handler
+        )
+
     def save_authentication_data(self, data):
         """Save data obtained from requesting authentication token."""
         with open(TWITCH_JSON, 'w') as file:
             json.dump(data, file)
-    
+
     def get_authorization_data(self):
         """Opens file containing authentication data."""
         with open(TWITCH_JSON, 'r') as file:
             data = json.load(file)
             return data
-            
+
     async def request_oauth_token(self):
         """Calls Twitch and requests new oauth token.
         
@@ -106,7 +116,7 @@ class ConnectorTwitch(Connector):
 
             self.token = data['access_token']
             self.save_authentication_data(data)
-            
+  
     async def refresh_token(self):
         """Attempt to refresh the oauth token.
         
@@ -114,6 +124,9 @@ class ConnectorTwitch(Connector):
         to get a new token when ours expires. The refresh token is already saved on the `twitch.json`
         file so we can just open that file, get the appropriate token and then update the file with the 
         new received data.
+        
+        We are setting our webhook lease to expire after a day as well, so we should subscribe to the webhooks
+        again when the oauth token expired since the token expires after a day.
         
         """
         refresh_token = self.get_authorization_data()['refresh_token']
@@ -126,8 +139,10 @@ class ConnectorTwitch(Connector):
             
             self.token = data['access_token']
             self.save_authentication_data(data)
-            
-    
+        
+        await self.webhook('follows', 'subscribe')
+        await self.webhook('stream changed', 'subscribe')
+
     async def send_handshake(self):
         """Send needed data to the websockets to be able to make a connection.
         
@@ -190,56 +205,132 @@ class ConnectorTwitch(Connector):
         await self.websocket.send("CAP REQ :twitch.tv/tags")
         await self.websocket.send("CAP REQ :twitch.tv/membership")
     
-    async def subscribe_webhook(self):
-        """Subscribe to Twitch webhooks."""
+    async def webhook(self, topic, mode):
+        """Subscribe to a specific webhook.
+        
+        Twitch has different webhooks that you can subscribe to, when you subscribe to a
+        particular webhook, a `post` request needs to be made containing a `JSON` payload,
+        that tells Twitch what subscription you are attempting to do. 
+        
+        When you submit the `post` request to `TWITCH_WEBHOOK_ENDPOINT`, twitch will send back
+        a `get` request to your `callback` url (`hub.callback`) with a challenge. Twitch will 
+        then await for a response containing only the challenge in plain text.
+        
+        With this in mind, that is the reason why we open two routes (`get` and `post`) that link 
+        to `/connector/<connector name>`.
+        
+        The `hub.topic` represents the webhook that we want to suscribe from twitch.
+        The `hub.lease_seconds` defines the number of seconds until the subscription expires, maximum
+        is 864000 seconds (10 days), but we will set up a day as our expiration since our app oauth 
+        tokens seem to expire after a day.
+        
+        Args:
+            topic (string): Twitch webhook url to subscribe/unsubscribe to.
+            mode (string): subscribe or unsuscribe to the webhook.
+        
+        """
         _LOGGER.info("Attempting to connect to webhook.")
         
-        self.opsdroid.web_server.web_app.router.add_get(f"/connector/{self.name}/follows", self.handle_challenge)
-        self.opsdroid.web_server.web_app.router.add_post(
-            f"/connector/{self.name}/follows", self.twitch_webhook_handler
-        )
-        user_id = await get_user_id(self.default_target, self.token, self.client_id)
+        if topic == 'follows':
+            topic = f"https://api.twitch.tv/helix/users/follows?to_id={self.user_id}&first=1"
         
-        _LOGGER.info(user_id)
+        if topic == 'stream changed':
+            topic = "https://api.twitch.tv/helix/streams?user_id={self.user_id}"
+
+        headers = {"Client-ID": self.client_id, "Authorization": f"Bearer {self.token}"}
         
-        followers_topic = f"https://api.twitch.tv/helix/users/follows?to_id={user_id}&first=1"
-        
-        headers = {'Client-ID': self.client_id, 'Authorization': f"Bearer {self.token}"}
-        data = {
-            "hub.callback": 'https://7b5d0dc2.ngrok.io/connector/twitch/follows',
-            "hub.mode": 'subscribe',
-            "hub.topic": followers_topic,
-            "hub.lease_seconds": 60 * 60 * 4,
-        }
-        
-        _LOGGER.info(headers)
-        _LOGGER.info(data)
         async with aiohttp.ClientSession() as session:
-            response = await session.post(TWITCH_API_ENDPOINT, headers=headers, data=data)
             
-            resp = await response.text()
-            _LOGGER.info(f'got: {resp}')
-    
+            payload = {
+                "hub.callback": f"{self.forward_url}/connector/{self.name}", 
+                "hub.mode": mode,
+                "hub.topic": topic,
+                "hub.lease_seconds": 60 * 60 * 24,
+            }
+            
+            response = await session.post(
+                TWITCH_WEBHOOK_ENDPOINT, 
+                headers=headers, 
+                json=payload
+            )
+
     async def handle_challenge(self, request):
-        _LOGGER.info(request)
-        _LOGGER.info(request.rel_url)
-        _LOGGER.info(request.rel_url.query)
+        """Challenge handler for get request made by Twitch.
+        
+        Upon subscription to a Twitch webhook, Twitch will do a get request to the 
+        `callback` url provided to check if the url exists. Twitch will do a get request
+        with a challenge and expects the `callback` url to return that challenge in plain-text
+        back to Twitch.
+        
+        This is what we are doing here, we are getting `hub.challenge` from the request and return
+        it in plain-text, if we can't find that challenge we will return a status code 500.
+        
+        Args:
+            request (aiohttp.web.Request): Request made to the get route created for webhook subscription.
+        
+        Returns:
+           aiohttp.web.Response: if request contains `hub.challenge` we return it, otherwise return status 500.
+        
+        """
         
         challenge = request.rel_url.query.get('hub.challenge')
-        _LOGGER.info(challenge)
+
         if challenge:
             return aiohttp.web.Response(text=challenge)
-        return aiohttp.web.Response(text=request.query.get('hub.challenge'))
-    
+        return aiohttp.web.Response(status=500)
+
     async def twitch_webhook_handler(self, request):
-        """Handle event from Twitch webhooks."""
-        req = await request.post()
-        payload = json.loads(req)
+        """Handle event from Twitch webhooks.
         
-        _LOGGER.info(payload)
+        This method will handle events when they are pushed to the webhook post route. Each webhook will
+        send a different kind of payload so we can handle each event and trigger the right opsdroid event
+        for the received payload.
         
-        await self.websockets.send(f"PRIVMSG #{self.default_target} : Thanks for the follow {payload['data'][0]['from_name']}")
-    
+        For follow events the payload will contain `from_id`(broadcaster id), `from_username`(broadcaster username)
+        `to_id`(follower id), `to_name` (follower name) and `followed_at` (timestamp).
+        
+        For stream changes a lot more things are returned but we only really care about `type`(if live/offline), 
+        `title`(stream title).
+        
+        For subscriptions events we will want to know `event_type`, `timestamp`, `event_data.plan_name`, `event_data.is_gift`,
+        `event_data.tier`, `event_data.username` and `event_data.gifter_name`.
+        
+        Args:
+            request (aiohttp.web.Request): Request made to the post route created for webhook subscription.
+
+        Return:
+            aiohttp.web.Response: Send a `received` message and status 200 - Twitch will keep sending the event if 
+            it doesn't get the 200 status code. 
+
+        """
+        payload = await request.json()
+        data = payload.get('data')[0]
+
+        try:
+            if data.get('followed_at'):
+                user_followed = UserFollowed(
+                    follower = data['from_name'],
+                    followed_at = data['followed_at'],
+                    connector=self,
+                )
+                await self.opsdroid.parse(user_followed)
+            
+            if data.get('started_at'):
+                stream_started = StreamStarted(
+                    title = data['title'],
+                    viewer = data['viewer_count'],
+                    started_at = data['started_at'],
+                    connector = self
+                )
+
+                await self.opsdroid.parse(stream_started)
+        except KeyError:
+            if not payload.get('data'):
+                # When the stream goes offline, Twitch will return `data: []`
+                # if data is none we assume the streamer whent offline
+                stream_ended = StreamEnded(connector=self)
+        return aiohttp.web.Response(text=json.dumps("Received"), status=200)
+
     async def connect(self):
         """Connect to Twitch services.
         
@@ -259,30 +350,40 @@ class ConnectorTwitch(Connector):
             _LOGGER.info("Found previous authorization data, getting oauth token and attempting to connect.")
             self.token = self.get_authorization_data()['access_token']
 
-        # await self.connect_websocket()
-        await self.subscribe_webhook()
-    
+        
+        await self.connect_websocket()
+        
+        self.user_id = await get_user_id(self.default_target, self.token, self.client_id)
+        await self.webhook('follows', 'subscribe')
+        await self.webhook('stream changed', 'subscribe')
+
     async def reconnect(self):
         """Attempt to reconnect to the server.
         
         Occasionally the Twitch will send a `RECONNECT` command before closing the connection,
         when this happens we have to connect to the server once more and go through the whole 
-        connection process again. This method will simply log a message and call `self.connect()`
-        it was created mostly to improve some readibility within the code.
+        connection process again.
+        
+        So if the websocket connection drops we will call the `self.connect_websocket` method
+        to attempt to reconnect to the websocket.
         
         """
         _LOGGER.info("Connection to Twitch dropped. Attempting reconnect...")
-        await self.connect()
-    
+        await self.connect_websocket()
+
     async def listen(self):
-        # TODO: Figure out if we need to this this bit of code since its a websocket.
-        # message_getter = self.loop.create_task(await self.get_messages_loop())
-        # await self._closing.wait()
-        # message_getter.cancel()
-        # await self.get_messages_loop()
-        pass
-   
+        """Listen method of the connector.
+
+        Every connector has to implement the listen method. When an
+        infinite loop is running, it becomes hard to cancel this task.
+        So we are creating a task and set it on a variable so we can
+        cancel the task.
+
+        """
+        await self.get_messages_loop()
+
     async def get_messages_loop(self):
+        """Listen for and parse events."""
         while self.listening:
             await self._get_messages()
     
@@ -323,7 +424,7 @@ class ConnectorTwitch(Connector):
             )
     
             await self.opsdroid.parse(message)
- 
+
     @register_event(Message)
     async def send_message(self, message):
         """Send message to twitch.
@@ -334,7 +435,7 @@ class ConnectorTwitch(Connector):
         
         """
         await self.websocket.send(f"PRIVMSG #{self.default_target} :{message.text}")
-    
+
     @register_event(DeleteMessage)
     async def remove_message(self, event):
         """Remove message from the chat.
@@ -346,7 +447,7 @@ class ConnectorTwitch(Connector):
         
         """
         await self.websocket.send(f"PRIVMSG #{self.default_target} :/delete {event.id}")
-    
+
     @register_event(BanUser)
     async def ban_user(self, event):
         """Ban user from the channel.
@@ -359,10 +460,24 @@ class ConnectorTwitch(Connector):
         await self.websocket.send(f"PRIVMSG #{self.default_target} :/ban {event.user}")
 
     async def disconnect(self):
-        """Disconnect from twitch."""
+        """Disconnect from twitch.
+        
+        Before opsdroid exists we will want to disconnect the Twitch connector, we need to
+        do some clean up. We first set the while loop flag to False to stop the loop and then
+        try to unsubscribe from all the webhooks that we subscribed to on connect - we want to
+        do that because when we start opsdroid and the `connect` method is called we will send 
+        another subscribe request to Twitch. After we will send a `PART` command to leave the 
+        channel that we joined on connect.
+        
+        Finally we try to close the websocket connection.
+        
+        """
         # TODO: Figure out why we are getting exception when closing bot
+        
         self.listening = False
         self._closing.set()
+        await self.webhook('follows', 'unsubscribe')
+        await self.webhook('stream changed', 'unsubscribe')
         await self.websocket.send(f"PART #{self.default_target}")
         await self.websocket.close()
         await self.websocket.await_close()
