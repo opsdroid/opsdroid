@@ -23,10 +23,29 @@ async def match_regex(text, opts):
 
     if opts["matching_condition"].lower() == "search":
         matched_regex = regex.search(opts["expression"], text, is_case_sensitive())
+        if matched_regex != None:
+            matched_regex = matched_regex.groupdict()
     elif opts["matching_condition"].lower() == "fullmatch":
         matched_regex = regex.fullmatch(opts["expression"], text, is_case_sensitive())
+        if matched_regex != None:
+            matched_regex = matched_regex.groupdict()
+    elif opts["matching_condition"].lower() == "findall":
+        matched_regex = regex.findall(opts["expression"], text, is_case_sensitive())
+        if len(matched_regex) == 0:
+            matched_regex = None
+        else:
+            # creating a dictionary
+            d = dict()
+            i = 0
+            for el in matched_regex:
+                d[f"value{i}"] = el
+                i += 1
+            matched_regex = d
     else:
         matched_regex = regex.match(opts["expression"], text, is_case_sensitive())
+        if matched_regex != None:
+            matched_regex = matched_regex.groupdict()
+
     return matched_regex
 
 
@@ -40,7 +59,7 @@ async def parse_regex(opsdroid, skills, message):
                 matched_regex = await match_regex(message.text, opts)
                 if matched_regex:
                     message.regex = matched_regex
-                    for regroup, value in matched_regex.groupdict().items():
+                    for regroup, value in matched_regex.items():
                         message.update_entity(regroup, value, None)
                     matched_skills.append(
                         {
