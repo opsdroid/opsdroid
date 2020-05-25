@@ -50,12 +50,30 @@ class StreamEnded(events.Event):
 
 
 class CreateClip(events.Event):
+    """Event class that creates a clip once triggered."""
     def __init__(self, id, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.id = id
 
 
 class UpdateTitle(events.Event):
+    """Event class that updates channel title."""
     def __init__(self, status, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.status = status
+
+
+class UserSubscribed(event.Event):
+    """Event class that triggers whenever a user subscribes to the channel."""
+    def __init__(self, username, message, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.username = username
+        self.message = message
+
+
+class UserGiftedSubscription(event.Event):
+    """Event class that triggers when a user gifts a subscription to someone."""
+    def __init__(self, gifter_name, gifted_named, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.gifter_name = gifter_name
+        self.gifted_name = gifted_named

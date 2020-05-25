@@ -6,11 +6,24 @@ import aiohttp
 import websockets
 import json
 
+from voluptuous import Required
+
+import opsdroid.connector.twitch.events as twitch_event
+
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
-
-from opsdroid.connector.twitch.events import DeleteMessage, BanUser, UserFollowed, StreamStarted, StreamEnded, UserSubscribed, CreateClip, UpdateTitle
 from opsdroid.const import TWITCH_API_ENDPOINT, TWITCH_WEBHOOK_ENDPOINT, DEFAULT_ROOT_PATH
+
+
+CONFIG_SCHEMA = {
+    Required("code"): str,
+    Required("client-id"): str,
+    Required("client-secret"): str,
+    Required("channel"): str,
+    "redirect": str,
+    "forward-url": str
+}
+
 
 _LOGGER = logging.getLogger(__name__)
 TWITCH_JSON = os.path.join(DEFAULT_ROOT_PATH, 'twitch.json')
@@ -57,8 +70,6 @@ class ConnectorTwitch(Connector):
         self.name = "twitch"
         self.opsdroid = opsdroid
         self.listening = True
-        self._closing = asyncio.Event()
-        self.loop = asyncio.get_event_loop()
         self.default_target = config["channel"]
         self.token = None
         self.code = config['code']
@@ -71,8 +82,7 @@ class ConnectorTwitch(Connector):
         # TODO: Allow usage of SSL connection
         self.server = "ws://irc-ws.chat.twitch.tv"
         self.port = "80"
-        # TODO: Remove before pushing to master - used to test webhook.
-        self.forward_url = 'https://9e0928b5.ngrok.io'
+        self.forward_url = config['forward-url']
         # Setup routes for webhooks subscription
         self.opsdroid.web_server.web_app.router.add_get(
             f"/connector/{self.name}", self.handle_challenge
@@ -236,6 +246,9 @@ class ConnectorTwitch(Connector):
         
         if topic == 'stream changed':
             topic = "https://api.twitch.tv/helix/streams?user_id={self.user_id}"
+        
+        if topic == "subscribers":
+            topic = f"https://api.twitch.tv/helix/subscriptions/events?broadcaster_id={self.user_id}&first=1"
 
         headers = {"Client-ID": self.client_id, "Authorization": f"Bearer {self.token}"}
         
@@ -308,7 +321,7 @@ class ConnectorTwitch(Connector):
 
         try:
             if data.get('followed_at'):
-                user_followed = UserFollowed(
+                user_followed = twitch_event.UserFollowed(
                     follower = data['from_name'],
                     followed_at = data['followed_at'],
                     connector=self,
@@ -316,19 +329,44 @@ class ConnectorTwitch(Connector):
                 await self.opsdroid.parse(user_followed)
             
             if data.get('started_at'):
-                stream_started = StreamStarted(
+                stream_started = twitch_event.StreamStarted(
                     title = data['title'],
                     viewer = data['viewer_count'],
                     started_at = data['started_at'],
                     connector = self
                 )
-
+                
                 await self.opsdroid.parse(stream_started)
+            
+            if data.get('event_type') == "subscriptions.subscribe":
+                user_subscription = twitch_event.UserSubscribed(
+                    username=data['event_data']['user_name'],
+                    message=None
+                )
+                
+                await self.opsdroid.parse(user_subscription)
+            
+            if data.get('event_type') == "subscriptions.subscribe" and data['event_data'].get('is_gift'):
+                gifted_subscription = twitch_event.UserGiftedSubscription(
+                    gifter_name=data['event_data']['gifter_name'],
+                    gifted_named=data['event_data']['user_name']
+                )
+                
+                await self.opsdroid.parse(gifted_subscription)
+            
+            if data.get('event_type') == "subscriptions.notification":
+                user_subscription = twitch_event.UserSubscribed(
+                    username=data['event_data']['user_name'],
+                    message=data['event_data']['message']
+                )
+                
+                await self.opsdroid.parse(user_subscription)
+                
         except KeyError:
             if not payload.get('data'):
                 # When the stream goes offline, Twitch will return `data: []`
                 # if data is none we assume the streamer whent offline
-                stream_ended = StreamEnded(connector=self)
+                stream_ended = twitch_event.StreamEnded(connector=self)
         return aiohttp.web.Response(text=json.dumps("Received"), status=200)
 
     async def connect(self):
@@ -342,7 +380,6 @@ class ConnectorTwitch(Connector):
         attempt to connect to the websockets and subscribe to the Twitch events webhook.
         
         """
-
         if not os.path.isfile(TWITCH_JSON):
             _LOGGER.info("No previous authorization data found, requesting new oauth token.")
             await self.request_oauth_token()
@@ -436,7 +473,7 @@ class ConnectorTwitch(Connector):
         """
         await self.websocket.send(f"PRIVMSG #{self.default_target} :{message.text}")
 
-    @register_event(DeleteMessage)
+    @register_event(twitch_event.DeleteMessage)
     async def remove_message(self, event):
         """Remove message from the chat.
         
@@ -448,7 +485,7 @@ class ConnectorTwitch(Connector):
         """
         await self.websocket.send(f"PRIVMSG #{self.default_target} :/delete {event.id}")
 
-    @register_event(BanUser)
+    @register_event(twitch_event.BanUser)
     async def ban_user(self, event):
         """Ban user from the channel.
         
@@ -459,7 +496,7 @@ class ConnectorTwitch(Connector):
         """
         await self.websocket.send(f"PRIVMSG #{self.default_target} :/ban {event.user}")
 
-    @register_event(CreateClip)
+    @register_event(twitch_event.CreateClip)
     async def create_clip(self):
         """Create clip from broadcast.
         
@@ -487,9 +524,18 @@ class ConnectorTwitch(Connector):
             
             await self.websocket.send(f"PRIVMSG #{self.default_target} : {clip['data'][0]['embed_url']}")
 
-    @register_event(UpdateTitle)
+    @register_event(twitch_event.UpdateTitle)
     async def update_stream_title(self, event):
-        """Update Twitch title."""
+        """Update Twitch title.
+        
+        To update your channel details you need to use Twitch API V5(kraken). The so called "New Twitch API"
+        doesn't have an enpoint to update the channel. To update your channel details you need to do a put
+        request and pass your title into the url. 
+        
+        Args:
+            event (twitch.events.UpdateTitle): opsdroid event containing `status` (your title). 
+
+        """
         async with aiohttp.ClientSession() as session:
             headers = {
                 "Client-ID": self.client_id, 
@@ -523,7 +569,6 @@ class ConnectorTwitch(Connector):
         # TODO: Figure out why we are getting exception when closing bot
         
         self.listening = False
-        self._closing.set()
         await self.webhook('follows', 'unsubscribe')
         await self.webhook('stream changed', 'unsubscribe')
         await self.websocket.send(f"PART #{self.default_target}")
