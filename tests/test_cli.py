@@ -147,14 +147,11 @@ class TestCLI(unittest.TestCase):
             self.assertEqual(result.exit_code, 0)
 
     def test_edit_files_config(self):
-        with mock.patch.object(click, "echo") as click_echo, mock.patch(
-            "subprocess.run"
-        ) as editor:
+        with mock.patch.object(click, "echo"), mock.patch("subprocess.run") as editor:
             runner = CliRunner()
             from opsdroid.cli.config import edit
 
             result = runner.invoke(edit, [], input="y")
-            self.assertTrue(click_echo.called)
             self.assertTrue(editor.called)
             self.assertEqual(result.exit_code, 0)
 
