@@ -14,7 +14,7 @@ from opsdroid.events import Message
 
 
 _LOGGER = logging.getLogger(__name__)
-CONFIG_SCHEMA = {Required("webhook-url"): Url, Required("token"): str}
+CONFIG_SCHEMA = {Required("webhook-url"): Url(), Required("token"): str}
 
 
 class ConnectorWebexTeams(Connector):

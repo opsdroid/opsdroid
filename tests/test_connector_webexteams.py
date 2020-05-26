@@ -24,6 +24,10 @@ class TestConnectorCiscoWebexTeams(unittest.TestCase):
         self.assertEqual("webexteams", connector.name)
         self.assertEqual("opsdroid", connector.bot_name)
 
+    def test_webhook_url_is_valid(self):
+        connector = ConnectorWebexTeams({"webhook-url": "https://example.com"})
+        assert connector.config.get("webhook-url").startswith("https")
+
     def test_missing_api_key(self):
         """Test that creating without an API without config raises an error."""
         with self.assertRaises(TypeError):
