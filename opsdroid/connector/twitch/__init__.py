@@ -17,7 +17,6 @@ from opsdroid.const import (
     DEFAULT_ROOT_PATH, 
     TWITCH_IRC_MESSAGE_REGEX,
     TWITCH_API_V5_ENDPOINT
-    
     )
 
 
@@ -44,7 +43,6 @@ async def get_user_id(channel, token, client_id):
     channel.
     
     """
-    
     async with aiohttp.ClientSession() as session:
         response = await session.get("https://api.twitch.tv/helix/users", 
             headers={
@@ -56,11 +54,11 @@ async def get_user_id(channel, token, client_id):
             })
         
         if response.status >= 400:
-            _LOGGER.warning(_("Unable to receive broadcaster id - Error: %s, %s."), response['status'], response['message'])
+            _LOGGER.warning(_("Unable to receive broadcaster id - Error: %s, %s."), response.status, response.message)
         
-        [data] = await response.json()
+        response = await response.json()
         
-    return data['id']
+    return response['data'][0]['id']
     
 
 
@@ -268,7 +266,7 @@ class ConnectorTwitch(Connector):
             topic = f"https://api.twitch.tv/helix/users/follows?to_id={self.user_id}&first=1"
         
         if topic == 'stream changed':
-            topic = "https://api.twitch.tv/helix/streams?user_id={self.user_id}"
+            topic = f"https://api.twitch.tv/helix/streams?user_id={self.user_id}"
         
         if topic == "subscribers":
             topic = f"https://api.twitch.tv/helix/subscriptions/events?broadcaster_id={self.user_id}&first=1"
@@ -289,6 +287,10 @@ class ConnectorTwitch(Connector):
                 headers=headers, 
                 json=payload
             )
+            
+            if response.status >= 400:
+
+                _LOGGER.info('Error: %s - %s', response.status, response.message)
 
     async def handle_challenge(self, request):
         """Challenge handler for get request made by Twitch.
@@ -308,8 +310,7 @@ class ConnectorTwitch(Connector):
            aiohttp.web.Response: if request contains `hub.challenge` we return it, otherwise return status 500.
         
         """
-        json = await request.json()
-        _LOGGER.debug(json)
+        _LOGGER.debug(request)
         challenge = request.rel_url.query.get('hub.challenge')
 
         if challenge:
@@ -429,8 +430,12 @@ class ConnectorTwitch(Connector):
         self.opsdroid.web_server.web_app.router.add_post(
             f"/connector/{self.name}", self.twitch_webhook_handler
         )
+        
         await self.webhook('follows', 'subscribe')
         await self.webhook('stream changed', 'subscribe')
+        
+        if self.is_live:
+            await self.connect_websocket()
 
     async def reconnect(self):
         """Attempt to reconnect to the server.
@@ -503,7 +508,7 @@ class ConnectorTwitch(Connector):
             await self.opsdroid.parse(message)
 
     @register_event(Message)
-    async def send_message(self, message):
+    async def _send_message(self, message):
         """Send message to twitch.
         
         This method sends a text message to the chat service. We can't use the
@@ -553,14 +558,16 @@ class ConnectorTwitch(Connector):
                 f"https://api.twitch.tv/helix/clips?broadcaster_id={self.user_id}",
                 headers=headers
             )
-            [data] = await resp.json()
+            response = await resp.json()
 
             clip_data = await session.get(
-                f"https://api.twitch.tv/helix/clips?id={data['id']}",
+                f"https://api.twitch.tv/helix/clips?id={response['data'][0]['id']}",
                 headers=headers
             )
             
-            [data] = await clip_data.json()
+            resp = await clip_data.json()
+            
+            [data] = resp.get('data')
             
             await self.send_message(data['embed_url'])
 
@@ -583,16 +590,18 @@ class ConnectorTwitch(Connector):
                 "Accept": "application/vnd.twitchtv.v5+json"
             
             }
-            status = event.status.replace(" ", "+")
-            url = f"{TWITCH_API_V5_ENDPOINT}{self.user_id}?channel[status]={status}"
+            
+            param = {"channel[status]": event.status}
             resp = await session.put(
-                url,
+                f"{TWITCH_API_V5_ENDPOINT}/channels/{self.user_id}",
                 headers=headers,
+                params=param
             )
             
-            # TODO: Log failure if it happens
-            
-            _LOGGER.debug(_(f"Twitch channel title updated to {event.status}"))
+            if resp.status == 200:
+                _LOGGER.debug(_("Twitch channel title updated to %s"), event.status)
+            else:
+                _LOGGER.debug(_("Failed to update Twitch channel title. Error %s - %s"), resp.status, resp.message)
 
     async def disconnect_websockets(self):
         """Disconnect from the websocket."""
