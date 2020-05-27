@@ -147,11 +147,42 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             to_device_events={"events": []},
         )
 
+    @property
+    def filter_json(self):
+        return {
+            "event_format": "client",
+            "account_data": {"limit": 0, "types": []},
+            "presence": {"limit": 0, "types": []},
+            "room": {
+                "account_data": {"types": []},
+                "ephemeral": {"types": []},
+                "state": {"types": []},
+            },
+        }
+
     def setUp(self):
         """Basic setting up for tests"""
         self.connector = setup_connector()
         self.api = nio.AsyncClient("https://notaurl.com", None)
         self.connector.connection = self.api
+
+    async def test_make_filter(self):
+        with amock.patch(api_string.format("send")) as patched_filter:
+
+            connect_response = amock.Mock()
+            connect_response.status = 200
+            connect_response.json = amock.CoroutineMock()
+            connect_response.json.return_value = {"filter_id": "arbitrary string"}
+
+            self.api.token = "abc"
+
+            patched_filter.return_value = asyncio.Future()
+            patched_filter.return_value.set_result(connect_response)
+
+            filter_id = await self.connector.make_filter(self.api, self.filter_json)
+
+            assert filter_id == "arbitrary string"
+            assert patched_filter.called
 
     async def test_connect(self):
         with amock.patch(api_string.format("login")) as patched_login, amock.patch(
@@ -159,6 +190,8 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
         ) as patched_join, amock.patch(
             api_string.format("sync")
         ) as patched_sync, amock.patch(
+            api_string.format("send")
+        ) as patched_filter, amock.patch(
             api_string.format("get_displayname")
         ) as patched_get_nick, amock.patch(
             api_string.format("set_displayname")
@@ -193,6 +226,14 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
                     to_device_events={"events": []},
                 )
             )
+
+            connect_response = amock.Mock()
+            connect_response.status = 200
+            connect_response.json = amock.CoroutineMock()
+            connect_response.return_value = {"filter_id": 1}
+
+            patched_filter.return_value = asyncio.Future()
+            patched_filter.return_value.set_result(connect_response)
 
             patch_set_nick.return_value = asyncio.Future()
             patch_set_nick.return_value.set_result(nio.ProfileSetDisplayNameResponse())
@@ -270,7 +311,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             assert invite.connector is self.connector
 
     async def test_get_nick(self):
-        self.connector.room_specific_nicks = True
+        self.connector.room_specific_nicks = False
 
         with amock.patch(api_string.format("get_displayname")) as patched_globname:
 
@@ -285,8 +326,43 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
                 == "notaperson"
             )
 
-    async def test_get_nick_not_set(self):
+    async def test_get_room_specific_nick(self):
         self.connector.room_specific_nicks = True
+
+        with amock.patch(
+            api_string.format("get_displayname")
+        ) as patched_globname, amock.patch(
+            api_string.format("joined_members")
+        ) as patched_joined:
+
+            mxid = "@notaperson:matrix.org"
+
+            patched_globname.return_value = asyncio.Future()
+            patched_globname.return_value.set_result(
+                nio.ProfileGetDisplayNameResponse(displayname="notaperson")
+            )
+
+            patched_joined.return_value = asyncio.Future()
+            patched_joined.return_value.set_result(
+                nio.JoinedMembersResponse(
+                    members=[
+                        nio.RoomMember(
+                            user_id="@notaperson:matrix.org",
+                            display_name="notaperson",
+                            avatar_url="",
+                        )
+                    ],
+                    room_id="notanid",
+                )
+            )
+
+            assert (
+                await self.connector.get_nick("#notaroom:localhost", mxid)
+                == "notaperson"
+            )
+
+    async def test_get_nick_not_set(self):
+        self.connector.room_specific_nicks = False
 
         with amock.patch(api_string.format("get_displayname")) as patched_globname:
 
@@ -300,7 +376,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             assert await self.connector.get_nick("#notaroom:localhost", mxid) == mxid
 
     async def test_get_nick_error(self):
-        self.connector.room_specific_nicks = True
+        self.connector.room_specific_nicks = False
 
         with amock.patch(api_string.format("get_displayname")) as patched_globname:
 
@@ -818,10 +894,10 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
 
     async def test_send_generic_event(self):
         event = matrix_events.GenericMatrixRoomEvent(
-            "opsdroid.dev", {"hello": "world"}, target="!test:localhost",
+            "opsdroid.dev", {"hello": "world"}, target="!test:localhost"
         )
         with OpsDroid() as _:
-            with amock.patch(api_string.format("send_message_event")) as patched_send:
+            with amock.patch(api_string.format("room_send")) as patched_send:
                 patched_send.return_value = asyncio.Future()
                 patched_send.return_value.set_result(None)
 

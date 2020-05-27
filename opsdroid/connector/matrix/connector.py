@@ -18,6 +18,7 @@ from .create_events import MatrixEventCreator
 from . import events as matrixevents
 
 import nio
+import json
 
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = {
@@ -103,12 +104,18 @@ class ConnectorMatrix(Connector):
     @property
     def filter_json(self):
         """Define JSON filter to apply to incoming events."""
-        return {
-            "event_format": "client",
-            "account_data": {"limit": 0, "types": []},
-            "presence": {"limit": 0, "types": []},
-            "room": {"account_data": {"types": []}, "ephemeral": {"types": []}},
-        }
+        return json.dumps(
+            {
+                "event_format": "client",
+                "account_data": {"limit": 0, "types": []},
+                "presence": {"limit": 0, "types": []},
+                "room": {
+                    "account_data": {"types": []},
+                    "ephemeral": {"types": []},
+                    "state": {"types": []},
+                },
+            }
+        )
 
     async def make_filter(self, api, fjson):
         """Make a filter on the server for future syncs."""
@@ -143,15 +150,13 @@ class ConnectorMatrix(Connector):
         self.connection = mapi
 
         # Create a filter now, saves time on each later sync
-        # self.filter_id = await self.make_filter(mapi, self.filter_json)
-
-        # first_filter_id = await self.make_filter(mapi, '{ "room": { "timeline" : { "limit" : 1 } } }')
-        # print(first_filter_id)
+        self.filter_id = await self.make_filter(mapi, self.filter_json)
+        first_filter_id = await self.make_filter(
+            mapi, '{ "room": { "timeline" : { "limit" : 1 } } }'
+        )
 
         # Do initial sync so we don't get old messages later.
-        response = await self.connection.sync(
-            timeout=3000  # sync_filter=first_filter_id
-        )
+        response = await self.connection.sync(timeout=3000, sync_filter=first_filter_id)
 
         if isinstance(response, nio.SyncError):
             print("Error during initial sync: " + response.message)
@@ -209,9 +214,13 @@ class ConnectorMatrix(Connector):
             try:
                 response = await self.connection.sync(
                     timeout=int(60 * 1e3),  # 1m in ms
-                    sync_filter=self.filter_json,
+                    sync_filter=self.filter_id,
                     since=self.connection.sync_token,
                 )
+                if isinstance(response, nio.SyncError):
+                    print("Error during sync: " + response.message)
+                    return
+
                 _LOGGER.debug(_("Matrix sync request returned."))
 
                 message = await self._parse_sync_response(response)
@@ -530,6 +539,6 @@ class ConnectorMatrix(Connector):
     @register_event(matrixevents.GenericMatrixRoomEvent)
     @ensure_room_id_and_send
     async def _send_generic_event(self, event):
-        return await self.connection.send_message_event(
+        return await self.connection.room_send(
             event.target, event.event_type, event.content
         )
