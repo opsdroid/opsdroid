@@ -85,13 +85,6 @@ class ConnectorTwitch(Connector):
         self.server = "ws://irc-ws.chat.twitch.tv"
         self.port = "80"
         self.forward_url = config['forward-url']
-        # Setup routes for webhooks subscription
-        self.opsdroid.web_server.web_app.router.add_get(
-            f"/connector/{self.name}", self.handle_challenge
-        )
-        self.opsdroid.web_server.web_app.router.add_post(
-            f"/connector/{self.name}", self.twitch_webhook_handler
-        )
 
     async def send_message(self, message):
         """Sends message throught websocket.
@@ -427,9 +420,15 @@ class ConnectorTwitch(Connector):
             _LOGGER.info("Found previous authorization data, getting oauth token and attempting to connect.")
             self.token = self.get_authorization_data()['access_token']
         
-        await self.connect_websocket()
-        
         self.user_id = await get_user_id(self.default_target, self.token, self.client_id)
+        
+        # Setup routes for webhooks subscription
+        self.opsdroid.web_server.web_app.router.add_get(
+            f"/connector/{self.name}", self.handle_challenge
+        )
+        self.opsdroid.web_server.web_app.router.add_post(
+            f"/connector/{self.name}", self.twitch_webhook_handler
+        )
         await self.webhook('follows', 'subscribe')
         await self.webhook('stream changed', 'subscribe')
 
