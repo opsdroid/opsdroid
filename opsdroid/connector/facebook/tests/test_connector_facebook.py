@@ -4,10 +4,8 @@ import asynctest.mock as amock
 import asyncio
 
 from opsdroid.cli.start import configure_lang
-from opsdroid.core import OpsDroid
 from opsdroid.connector.facebook import ConnectorFacebook
 from opsdroid.events import Message
-from opsdroid.cli.start import configure_lang
 
 
 configure_lang({})
