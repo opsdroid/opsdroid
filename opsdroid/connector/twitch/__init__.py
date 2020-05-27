@@ -372,6 +372,15 @@ class ConnectorTwitch(Connector):
                 
                 await self.opsdroid.parse(stream_started)
             
+            if data.get('event_type') == "subscriptions.notification":
+                _LOGGER.debug(_("Subscriber event received by Twitch."))
+                user_subscription = twitch_event.UserSubscribed(
+                    username=data['event_data']['user_name'],
+                    message=data['event_data']['message']
+                )
+                
+                await self.opsdroid.parse(user_subscription)
+            
             if data.get('event_type') == "subscriptions.subscribe":
                 _LOGGER.debug(_("Subscriber event received by Twitch."))
                 user_subscription = twitch_event.UserSubscribed(
@@ -433,6 +442,7 @@ class ConnectorTwitch(Connector):
         
         await self.webhook('follows', 'subscribe')
         await self.webhook('stream changed', 'subscribe')
+        await self.webhook('subscribers', 'subscribe')
         
         if self.is_live:
             await self.connect_websocket()
@@ -621,9 +631,10 @@ class ConnectorTwitch(Connector):
         
         Finally we try to close the websocket connection.
         
-        """ 
+        """
+        if self.is_live:
+            await self.disconnect_websockets()
         self.is_live = False
         await self.webhook('follows', 'unsubscribe')
         await self.webhook('stream changed', 'unsubscribe')
-        await self.disconnect_websockets()
-
+        await self.webhook('subscribers', 'unsubscribe')
