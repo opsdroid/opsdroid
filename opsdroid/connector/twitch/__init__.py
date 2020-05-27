@@ -228,7 +228,7 @@ class ConnectorTwitch(Connector):
         status = await self.websocket.recv()
         
         if "authentication failed" in status:
-            _LOGGER.info("Oauth token expired, attempting to refresh token.")
+            _LOGGER.info(_("Oauth token expired, attempting to refresh token."))
             await self.refresh_token()
             await self.send_handshake()
 
@@ -260,7 +260,7 @@ class ConnectorTwitch(Connector):
             mode (string): subscribe or unsuscribe to the webhook.
         
         """
-        _LOGGER.info("Attempting to connect to webhook.")
+        _LOGGER.info(_("Attempting to connect to webhook %s."), topic)
         
         if topic == 'follows':
             topic = f"https://api.twitch.tv/helix/users/follows?to_id={self.user_id}&first=1"
@@ -290,7 +290,7 @@ class ConnectorTwitch(Connector):
             
             if response.status >= 400:
 
-                _LOGGER.info('Error: %s - %s', response.status, response.message)
+                _LOGGER.debug(_('Error: %s - %s'), response.status, response.message)
 
     async def handle_challenge(self, request):
         """Challenge handler for get request made by Twitch.
@@ -310,7 +310,6 @@ class ConnectorTwitch(Connector):
            aiohttp.web.Response: if request contains `hub.challenge` we return it, otherwise return status 500.
         
         """
-        _LOGGER.debug(request)
         challenge = request.rel_url.query.get('hub.challenge')
 
         if challenge:
@@ -424,10 +423,10 @@ class ConnectorTwitch(Connector):
         
         """
         if not os.path.isfile(TWITCH_JSON):
-            _LOGGER.info("No previous authorization data found, requesting new oauth token.")
+            _LOGGER.info(_("No previous authorization data found, requesting new oauth token."))
             await self.request_oauth_token()
         else:
-            _LOGGER.info("Found previous authorization data, getting oauth token and attempting to connect.")
+            _LOGGER.info(_("Found previous authorization data, getting oauth token and attempting to connect."))
             self.token = self.get_authorization_data()['access_token']
         
         self.user_id = await get_user_id(self.default_target, self.token, self.client_id)
@@ -459,7 +458,7 @@ class ConnectorTwitch(Connector):
         
         """
         if self.is_live:
-            _LOGGER.info("Connection to Twitch dropped. Attempting reconnect...")
+            _LOGGER.debug(_("Connection to Twitch dropped. Attempting reconnect..."))
             await self.connect_websocket()
 
     async def listen(self):
