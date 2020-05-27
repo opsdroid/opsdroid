@@ -6,6 +6,7 @@ graft opsdroid
 include opsdroid/configuration/example_configuration.yaml
 recursive-exclude * *.py[co]
 recursive-exclude tests *
+exclude conftest.py
 include versioneer.py
 include opsdroid/_version.py
 include opsdroid/configuration/schema.yaml
