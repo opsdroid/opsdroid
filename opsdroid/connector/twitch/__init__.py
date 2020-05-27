@@ -11,7 +11,14 @@ import opsdroid.connector.twitch.events as twitch_event
 
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
-from opsdroid.const import TWITCH_API_ENDPOINT, TWITCH_WEBHOOK_ENDPOINT, DEFAULT_ROOT_PATH
+from opsdroid.const import (
+    TWITCH_API_ENDPOINT, 
+    TWITCH_WEBHOOK_ENDPOINT, 
+    DEFAULT_ROOT_PATH, 
+    TWITCH_IRC_MESSAGE_REGEX,
+    TWITCH_API_V5_ENDPOINT
+    
+    )
 
 
 CONFIG_SCHEMA = {
@@ -37,19 +44,23 @@ async def get_user_id(channel, token, client_id):
     channel.
     
     """
-    url = f"https://api.twitch.tv/helix/users?login={channel}"
+    
     async with aiohttp.ClientSession() as session:
-        response = await session.get(url, headers={
-            'Authorization': f"Bearer {token}",
-            'Client-ID': client_id
-        })
+        response = await session.get("https://api.twitch.tv/helix/users", 
+            headers={
+                'Authorization': f"Bearer {token}",
+                'Client-ID': client_id
+            },
+            params={
+                'login': channel
+            })
         
-        if response.status != 200:
+        if response.status >= 400:
             _LOGGER.warning(_("Unable to receive broadcaster id - Error: %s, %s."), response['status'], response['message'])
         
-        data = await response.json()
+        [data] = await response.json()
         
-    return data['data'][0]['id']
+    return data['id']
     
 
 
@@ -310,6 +321,8 @@ class ConnectorTwitch(Connector):
 
         if challenge:
             return aiohttp.web.Response(text=challenge)
+        
+        _LOGGER.debug(_("Failed to get challenge from GET Request made by Twitch."))
         return aiohttp.web.Response(status=500)
 
     async def twitch_webhook_handler(self, request):
@@ -471,9 +484,11 @@ class ConnectorTwitch(Connector):
             resp = await self.websocket.recv()
         except websockets.ConnectionClosed:
             await self.reconnect()
+            return
+        else:
             resp = await self.websocket.recv()
 
-        chat_message = re.match(r'@.*;id=(?P<message_id>.*);m.*user-id=(?P<user_id>.*);user-type=.*:(?P<user>.*?)!.*?:(?P<message>.*)', resp)
+        chat_message = re.match(TWITCH_IRC_MESSAGE_REGEX, resp)
 
         if chat_message:
             message = Message(
@@ -570,7 +585,7 @@ class ConnectorTwitch(Connector):
             
             }
             status = event.status.replace(" ", "+")
-            url = f"https://api.twitch.tv/kraken/channels/{self.user_id}?channel[status]={status}"
+            url = f"{TWITCH_API_V5_ENDPOINT}{self.user_id}?channel[status]={status}"
             resp = await session.put(
                 url,
                 headers=headers,
