@@ -575,11 +575,16 @@ class ConnectorTwitch(Connector):
                 headers=headers
             )
             
-            resp = await clip_data.json()
+            if clip_data.status == 200:
+                resp = await clip_data.json()
+                [data] = resp.get('data')
+                
+                _LOGGER.debug(_("Twitch clip created successfully."))
             
-            [data] = resp.get('data')
-            
-            await self.send_message(data['embed_url'])
+                await self.send_message(data['embed_url'])
+                
+                return
+            _LOGGER.debug(_("Failed to create Twitch clip %s"), response)
 
     @register_event(twitch_event.UpdateTitle)
     async def update_stream_title(self, event):
@@ -610,8 +615,10 @@ class ConnectorTwitch(Connector):
             
             if resp.status == 200:
                 _LOGGER.debug(_("Twitch channel title updated to %s"), event.status)
-            else:
-                _LOGGER.debug(_("Failed to update Twitch channel title. Error %s - %s"), resp.status, resp.message)
+                
+                return
+
+            _LOGGER.debug(_("Failed to update Twitch channel title. Error %s - %s"), resp.status, resp.message)
 
     async def disconnect_websockets(self):
         """Disconnect from the websocket."""
