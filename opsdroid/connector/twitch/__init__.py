@@ -1,7 +1,6 @@
 import os
 import re
 import logging
-import asyncio
 import aiohttp
 import websockets
 import json
@@ -21,7 +20,8 @@ CONFIG_SCHEMA = {
     Required("client-secret"): str,
     Required("channel"): str,
     "redirect": str,
-    "forward-url": str
+    "forward-url": str,
+    "always-listening": bool,
 }
 
 
@@ -69,7 +69,7 @@ class ConnectorTwitch(Connector):
         _LOGGER.debug(_("Starting Twitch connector."))
         self.name = "twitch"
         self.opsdroid = opsdroid
-        self.listening = True
+        self.is_live = config.get("always-listening", False)
         self.default_target = config["channel"]
         self.token = None
         self.code = config['code']
@@ -90,6 +90,21 @@ class ConnectorTwitch(Connector):
         self.opsdroid.web_server.web_app.router.add_post(
             f"/connector/{self.name}", self.twitch_webhook_handler
         )
+
+    async def send_message(self, message):
+        """Sends message throught websocket.
+        
+        To send a message to the Twitch IRC server through websocket we need to use the
+        same style, we will always send the command `PRIVMSG` and the channel we want to
+        send the message to. The message also comes after :.
+        
+        Args:
+            message(string): Text message that should be sent to Twitch chat.
+        
+        """
+        
+        await self.websocket.send(f"PRIVMSG #{self.default_target} :{message}")
+        
 
     def save_authentication_data(self, data):
         """Save data obtained from requesting authentication token."""
@@ -285,7 +300,8 @@ class ConnectorTwitch(Connector):
            aiohttp.web.Response: if request contains `hub.challenge` we return it, otherwise return status 500.
         
         """
-        
+        json = await request.json()
+        _LOGGER.debug(json)
         challenge = request.rel_url.query.get('hub.challenge')
 
         if challenge:
@@ -317,10 +333,13 @@ class ConnectorTwitch(Connector):
 
         """
         payload = await request.json()
-        data = payload.get('data')[0]
+        [data] = payload.get('data')
+        
+        _LOGGER.info(_("Got event from Twitch - %s") % data)
 
         try:
             if data.get('followed_at'):
+                _LOGGER.debug(_("Follower event received by Twitch."))
                 user_followed = twitch_event.UserFollowed(
                     follower = data['from_name'],
                     followed_at = data['followed_at'],
@@ -329,6 +348,10 @@ class ConnectorTwitch(Connector):
                 await self.opsdroid.parse(user_followed)
             
             if data.get('started_at'):
+                _LOGGER.debug(_("Broadcaster went live event received by Twitch."))
+                self.is_live = True
+                await self.connect_websocket()
+                
                 stream_started = twitch_event.StreamStarted(
                     title = data['title'],
                     viewer = data['viewer_count'],
@@ -339,6 +362,7 @@ class ConnectorTwitch(Connector):
                 await self.opsdroid.parse(stream_started)
             
             if data.get('event_type') == "subscriptions.subscribe":
+                _LOGGER.debug(_("Subscriber event received by Twitch."))
                 user_subscription = twitch_event.UserSubscribed(
                     username=data['event_data']['user_name'],
                     message=None
@@ -347,26 +371,25 @@ class ConnectorTwitch(Connector):
                 await self.opsdroid.parse(user_subscription)
             
             if data.get('event_type') == "subscriptions.subscribe" and data['event_data'].get('is_gift'):
+                _LOGGER.debug(_("Gifted subscriber event received by Twitch."))
                 gifted_subscription = twitch_event.UserGiftedSubscription(
                     gifter_name=data['event_data']['gifter_name'],
                     gifted_named=data['event_data']['user_name']
                 )
                 
                 await self.opsdroid.parse(gifted_subscription)
-            
-            if data.get('event_type') == "subscriptions.notification":
-                user_subscription = twitch_event.UserSubscribed(
-                    username=data['event_data']['user_name'],
-                    message=data['event_data']['message']
-                )
-                
-                await self.opsdroid.parse(user_subscription)
-                
+               
         except KeyError:
             if not payload.get('data'):
                 # When the stream goes offline, Twitch will return `data: []`
                 # if data is none we assume the streamer whent offline
                 stream_ended = twitch_event.StreamEnded(connector=self)
+                await self.opsdroid.parse(stream_ended)
+                
+                if not self.config.get("always-listening"):
+                    self.is_live = False
+                    self.disconnect_websockets()
+
         return aiohttp.web.Response(text=json.dumps("Received"), status=200)
 
     async def connect(self):
@@ -386,7 +409,6 @@ class ConnectorTwitch(Connector):
         else:
             _LOGGER.info("Found previous authorization data, getting oauth token and attempting to connect.")
             self.token = self.get_authorization_data()['access_token']
-
         
         await self.connect_websocket()
         
@@ -405,8 +427,9 @@ class ConnectorTwitch(Connector):
         to attempt to reconnect to the websocket.
         
         """
-        _LOGGER.info("Connection to Twitch dropped. Attempting reconnect...")
-        await self.connect_websocket()
+        if self.is_live:
+            _LOGGER.info("Connection to Twitch dropped. Attempting reconnect...")
+            await self.connect_websocket()
 
     async def listen(self):
         """Listen method of the connector.
@@ -421,7 +444,7 @@ class ConnectorTwitch(Connector):
 
     async def get_messages_loop(self):
         """Listen for and parse events."""
-        while self.listening:
+        while self.is_live:
             await self._get_messages()
     
     async def _get_messages(self):
@@ -440,7 +463,6 @@ class ConnectorTwitch(Connector):
         received matches a text message.
         
         """
-        
         try:
             resp = await self.websocket.recv()
         except websockets.ConnectionClosed:
@@ -459,7 +481,7 @@ class ConnectorTwitch(Connector):
                 event_id=chat_message.group("message_id"),
                 connector=self,
             )
-    
+
             await self.opsdroid.parse(message)
 
     @register_event(Message)
@@ -471,7 +493,7 @@ class ConnectorTwitch(Connector):
         within this connector.
         
         """
-        await self.websocket.send(f"PRIVMSG #{self.default_target} :{message.text}")
+        await self.send_message(message.text)
 
     @register_event(twitch_event.DeleteMessage)
     async def remove_message(self, event):
@@ -483,7 +505,7 @@ class ConnectorTwitch(Connector):
         that message.
         
         """
-        await self.websocket.send(f"PRIVMSG #{self.default_target} :/delete {event.id}")
+        await self.send_message(f"/delete {event.id}")
 
     @register_event(twitch_event.BanUser)
     async def ban_user(self, event):
@@ -494,7 +516,7 @@ class ConnectorTwitch(Connector):
         to worry about removing a lot of mensages.
         
         """
-        await self.websocket.send(f"PRIVMSG #{self.default_target} :/ban {event.user}")
+        await self.send_message(f"/ban {event.user}")
 
     @register_event(twitch_event.CreateClip)
     async def create_clip(self):
@@ -513,16 +535,16 @@ class ConnectorTwitch(Connector):
                 f"https://api.twitch.tv/helix/clips?broadcaster_id={self.user_id}",
                 headers=headers
             )
-            resp = await resp.json()
+            [data] = await resp.json()
 
             clip_data = await session.get(
-                f"https://api.twitch.tv/helix/clips?id={resp['data'][0]['id']}",
+                f"https://api.twitch.tv/helix/clips?id={data['id']}",
                 headers=headers
             )
             
-            clip = await clip_data.json()
+            [data] = await clip_data.json()
             
-            await self.websocket.send(f"PRIVMSG #{self.default_target} : {clip['data'][0]['embed_url']}")
+            await self.send_message(data['embed_url'])
 
     @register_event(twitch_event.UpdateTitle)
     async def update_stream_title(self, event):
@@ -549,10 +571,17 @@ class ConnectorTwitch(Connector):
                 url,
                 headers=headers,
             )
-            resp = await resp.json()
+            
+            # TODO: Log failure if it happens
             
             _LOGGER.debug(_(f"Twitch channel title updated to {event.status}"))
 
+    async def disconnect_websockets(self):
+        """Disconnect from the websocket."""
+        await self.websocket.send(f"PART #{self.default_target}")
+        await self.websocket.close()
+        await self.websocket.await_close()
+    
     async def disconnect(self):
         """Disconnect from twitch.
         
@@ -565,12 +594,9 @@ class ConnectorTwitch(Connector):
         
         Finally we try to close the websocket connection.
         
-        """
-        # TODO: Figure out why we are getting exception when closing bot
-        
-        self.listening = False
+        """ 
+        self.is_live = False
         await self.webhook('follows', 'unsubscribe')
         await self.webhook('stream changed', 'unsubscribe')
-        await self.websocket.send(f"PART #{self.default_target}")
-        await self.websocket.close()
-        await self.websocket.await_close()
+        await self.disconnect_websockets()
+

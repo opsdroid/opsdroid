@@ -27,14 +27,6 @@ class UserFollowed(events.Event):
         self.followed_at = followed_at
 
 
-class UserSubscribed(events.Event):
-    """Event class to trigger when a user subscribes to a channel."""
-    def __init__(self, user, subscribed_at, message, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.user = user
-        self.subscribed_at = subscribed_at
-        self.message = message
-
 
 class StreamStarted(events.Event):
     """Event class that triggers when streamer started broadcasting."""
@@ -63,7 +55,7 @@ class UpdateTitle(events.Event):
         self.status = status
 
 
-class UserSubscribed(event.Event):
+class UserSubscribed(events.Event):
     """Event class that triggers whenever a user subscribes to the channel."""
     def __init__(self, username, message, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -71,7 +63,7 @@ class UserSubscribed(event.Event):
         self.message = message
 
 
-class UserGiftedSubscription(event.Event):
+class UserGiftedSubscription(events.Event):
     """Event class that triggers when a user gifts a subscription to someone."""
     def __init__(self, gifter_name, gifted_named, *args, **kwargs):
         super().__init__(*args, **kwargs)
