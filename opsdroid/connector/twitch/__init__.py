@@ -29,15 +29,6 @@ _LOGGER = logging.getLogger(__name__)
 TWITCH_JSON = os.path.join(DEFAULT_ROOT_PATH, 'twitch.json')
 
 
-def build_api_url(client_id, client_secret, authorization, redirect):
-    """Build api url to authenticate and refresh token."""
-    clientid = f"?client_id={client_id}"
-    secret = f"&client_secret={client_secret}"
-    grant = f"&grant_type={authorization}"
-    redirect = f"&redirect_uri={redirect}"
-
-    return f"{TWITCH_API_ENDPOINT}{clientid}{secret}{grant}{redirect}"
-
 async def get_user_id(channel, token, client_id):
     """Calls twitch api to get broadcaster user id.
     
@@ -133,10 +124,16 @@ class ConnectorTwitch(Connector):
         
         """
         async with aiohttp.ClientSession() as session:
-            code = f"&code={self.code}"
-            url = build_api_url(self.client_id, self.client_secret, 'authorization_code', self.redirect) + code
 
-            resp = await session.post(url)
+            params= {
+                "client_id": self.client_id,
+                "client_secret": self.client_secret,
+                "grant_type": 'authorization_code',
+                "redirect_uri": self.redirect,
+                "code": self.code
+            }
+            
+            resp = await session.post(TWITCH_API_ENDPOINT, params=params)
             data = await resp.json()
 
             self.token = data['access_token']
@@ -157,9 +154,16 @@ class ConnectorTwitch(Connector):
         refresh_token = self.get_authorization_data()['refresh_token']
         
         async with aiohttp.ClientSession() as session:
-            url = build_api_url(self.client_id, self.client_secret, 'refresh_token', self.redirect) + f"&refresh_token={refresh_token}"
-
-            resp = await session.post(url)
+            
+            params= {
+                "client_id": self.client_id,
+                "client_secret": self.client_secret,
+                "grant_type": 'refresh_token',
+                "redirect_uri": self.redirect,
+                "refresh_token": refresh_token
+            }
+            
+            resp = await session.post(TWITCH_API_ENDPOINT, params=params)
             data = await resp.json()
             
             self.token = data['access_token']
