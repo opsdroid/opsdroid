@@ -11,7 +11,7 @@ emoji==0.5.4
 mattermostdriver==7.0.1
 matrix-api-async==0.1.0
 motor==2.1.0
-multidict==4.7.5
+multidict==4.7.6
 nbconvert==5.6.1
 nbformat==5.0.6
 opsdroid-get-image-size==0.2.2

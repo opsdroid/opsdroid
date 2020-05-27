@@ -558,6 +558,7 @@ class TestCoreAsync(asynctest.TestCase):
             "mockmodules/skills/skill/skilltest",
         )
         example_config = {
+            "autoreload": True,
             "connectors": {"websocket": {}},
             "skills": {"test": {"path": skill_path}},
         }
@@ -581,3 +582,21 @@ class TestCoreAsync(asynctest.TestCase):
                 )
 
             assert opsdroid.reload.called
+
+    async def test_get_connector_database(self):
+        skill_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "mockmodules/skills/skill/skilltest",
+        )
+        example_config = {
+            "connectors": {"websocket": {}},
+            "skills": {"test": {"path": skill_path}},
+        }
+        with OpsDroid(config=example_config) as opsdroid:
+            await opsdroid.load()
+
+            assert opsdroid.get_connector("websocket") is not None
+            assert opsdroid.get_connector("slack") is None
+
+            assert opsdroid.get_database("inmem") is not None
+            assert opsdroid.get_database("redis") is None
