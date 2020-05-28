@@ -119,8 +119,8 @@ class ConnectorMatrix(Connector):
 
     async def make_filter(self, api, fjson):
         """Make a filter on the server for future syncs."""
-        path = "/_matrix/client/r0/user/" + self.mxid + "/filter"
-        headers = {"Authorization": "Bearer " + api.token}
+        path = f"/_matrix/client/r0/user/{self.mxid}/filter"
+        headers = {"Authorization": "Bearer {api.token}"}
         resp = await api.send(method="post", path=path, data=fjson, headers=headers)
 
         resp_json = await resp.json()
@@ -135,7 +135,7 @@ class ConnectorMatrix(Connector):
             password=self.password, device_name=self.device_name
         )
         if isinstance(login_response, nio.LoginError):
-            print("Error while logging in: " + login_response.message)
+            raise login_response
 
         mapi.token = login_response.access_token
         mapi.sync_token = None
@@ -143,7 +143,7 @@ class ConnectorMatrix(Connector):
         for roomname, room in self.rooms.items():
             response = await mapi.join(room["alias"])
             if isinstance(response, nio.JoinError):
-                print("Error while joining room: " + roomname)
+                _LOGGER.info("Error while joining room: " + roomname)
             else:
                 self.room_ids[roomname] = response.room_id
 
@@ -159,7 +159,7 @@ class ConnectorMatrix(Connector):
         response = await self.connection.sync(timeout=3000, sync_filter=first_filter_id)
 
         if isinstance(response, nio.SyncError):
-            print("Error during initial sync: " + response.message)
+            _LOGGER.error(f"Error during initial sync: {response.message}")
             return
 
         self.connection.sync_token = response.next_batch
@@ -218,8 +218,8 @@ class ConnectorMatrix(Connector):
                     since=self.connection.sync_token,
                 )
                 if isinstance(response, nio.SyncError):
-                    print("Error during sync: " + response.message)
-                    return
+                    _LOGGER.error(f"Error during sync: {response.message}")
+                    continue
 
                 _LOGGER.debug(_("Matrix sync request returned."))
 
@@ -252,7 +252,14 @@ class ConnectorMatrix(Connector):
             res = await self.connection.joined_members(roomid)
             if isinstance(res, nio.JoinedMembersError):
                 logging.exception("Failed to lookup room members for %s.", roomid)
-                return mxid
+                # fallback to profile
+                res = await self.connection.get_displayname(mxid)
+                if isinstance(res, nio.ProfileGetDisplayNameError):
+                    _LOGGER.error("Failed to lookup nick for %s.", mxid)
+                    return mxid
+                if res.displayname is None:
+                    return mxid
+                return res.displayname
 
             for member in res.members:
                 if member.user_id == mxid:
@@ -262,7 +269,7 @@ class ConnectorMatrix(Connector):
 
         res = await self.connection.get_displayname(mxid)
         if isinstance(res, nio.ProfileGetDisplayNameError):
-            logging.exception("Failed to lookup nick for %s.", mxid)
+            _LOGGER.error("Failed to lookup nick for %s.", mxid)
             return mxid
         if res.displayname is None:
             return mxid
@@ -437,7 +444,7 @@ class ConnectorMatrix(Connector):
         params = params.get("matrix", params)
         response = await self.connection.room_create(**params)
         if isinstance(response, nio.RoomCreateError):
-            print("Error while creating the room")
+            _LOGGER.error("Error while creating the room")
         room_id = response.room_id
         if creation_event.name is not None:
             await self._send_room_name_set(
@@ -460,8 +467,9 @@ class ConnectorMatrix(Connector):
         )
 
         if isinstance(res, nio.RoomPutStateError):
-            print("Error setting room address: " + res.message)
-            if res.staus_code == 409:
+            if res.status_code != 409:
+                raise res
+            else:
                 _LOGGER.warning(
                     f"A room with the alias {address_event.address} already exists."
                 )
@@ -484,6 +492,8 @@ class ConnectorMatrix(Connector):
                 _LOGGER.info(
                     f"{invite_event.user_id} is already in the room, ignoring."
                 )
+            else:
+                raise res
 
         return res
 
