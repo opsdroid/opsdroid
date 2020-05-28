@@ -9,7 +9,7 @@ from opsdroid.database import Database
 from opsdroid.helper import JSONEncoder, JSONDecoder
 
 _LOGGER = logging.getLogger(__name__)
-CONFIG_SCHEMA = {"file": str, "table": str}
+CONFIG_SCHEMA = {"path": str, "file": str, "table": str}
 
 # pylint: disable=too-few-public-methods
 # As the current module needs only one public method to register json types
@@ -39,8 +39,14 @@ class DatabaseSqlite(Database):
         self.name = "sqlite"
         self.config = config
         self.conn_args = {"isolation_level": None}
-        self.db_file = None
-        self.table = None
+        if "file" in self.config:
+            self.db_file = self.config["file"]
+            _LOGGER.warn("The option 'file' is deprecated, please use 'path' instead.")
+        else:
+            self.db_file = self.config.get(
+                "path", os.path.join(DEFAULT_ROOT_PATH, "sqlite.db")
+            )
+        self.table = self.config.get("table", "opsdroid")
         _LOGGER.debug(_("Loaded sqlite database connector"))
 
     async def connect(self):
@@ -55,11 +61,6 @@ class DatabaseSqlite(Database):
             opsdroid (OpsDroid): An instance of opsdroid core.
 
         """
-        self.db_file = self.config.get(
-            "file", os.path.join(DEFAULT_ROOT_PATH, "sqlite.db")
-        )
-        self.table = self.config.get("table", "opsdroid")
-
         self.client = await aiosqlite.connect(self.db_file, **self.conn_args)
 
         cur = await self.client.cursor()
