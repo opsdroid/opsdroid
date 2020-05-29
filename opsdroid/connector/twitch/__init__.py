@@ -4,6 +4,8 @@ import logging
 import aiohttp
 import websockets
 import json
+import secrets
+import hashlib
 
 from voluptuous import Required
 
@@ -42,6 +44,24 @@ async def get_user_id(channel, token, client_id):
     notification when a user subscribes or folllows the broadcaster
     channel.
     
+    Since we are calling the Twitch API to get our `self.user_id` on connect,
+    we will use this method to handle when a token has expired, so if we get a
+    401 status back from Twitch we will raise a ClientResponseError and send back
+    the status and the message Unauthorized, that way we can refresh the oauth token
+    on connect if the exception is raised.
+    
+    Args:
+        channel (string): Channel that we wish to get the broadcaster id from.
+        token (string): OAuth token obtained from previous authentication.
+        client_id (string): Client ID obtained from creating a Twitch App to iteract with opsdroid.
+    
+    Return:
+        string: Broadcaster/user id received from Twitch
+    
+    Raises:
+        aiohttp.ClientResponseError: Raised exception if we got an unauthorized code from twitch. Our
+        oauth token probably expired.
+
     """
     async with aiohttp.ClientSession() as session:
         response = await session.get("https://api.twitch.tv/helix/users", 
@@ -52,6 +72,9 @@ async def get_user_id(channel, token, client_id):
             params={
                 'login': channel
             })
+        
+        if response.status == 401:
+            raise aiohttp.ClientResponseError(status=401, message="Unauthorized")
         
         if response.status >= 400:
             _LOGGER.warning(_("Unable to receive broadcaster id - Error: %s, %s."), response.status, response.message)
@@ -79,6 +102,7 @@ class ConnectorTwitch(Connector):
         self.bot_name = config.get("bot-name", "opsdroid")
         self.websocket = None
         self.user_id = None
+        self.webhook_secret = secrets.token_urlsafe(18)
         # TODO: Allow usage of SSL connection
         self.server = "ws://irc-ws.chat.twitch.tv"
         self.port = "80"
@@ -149,9 +173,6 @@ class ConnectorTwitch(Connector):
         file so we can just open that file, get the appropriate token and then update the file with the 
         new received data.
         
-        We are setting our webhook lease to expire after a day as well, so we should subscribe to the webhooks
-        again when the oauth token expired since the token expires after a day.
-        
         """
         refresh_token = self.get_authorization_data()['refresh_token']
         
@@ -170,30 +191,6 @@ class ConnectorTwitch(Connector):
             
             self.token = data['access_token']
             self.save_authentication_data(data)
-        
-        await self.webhook('follows', 'subscribe')
-        await self.webhook('stream changed', 'subscribe')
-
-    async def send_handshake(self):
-        """Send needed data to the websockets to be able to make a connection.
-        
-        If we try to connect to Twitch with an expired oauth token, we need to 
-        request a new token. The problem is that Twitch doesn't close the websocket
-        and will only notify the user that the login authentication failed after
-        we sent the `PASS`, `NICK` and `JOIN` command to the websocket.
-        
-        So we need to send the initial commands to Twitch, await for a status with
-        `await self.websockets.recv()` and there will be our notification that the 
-        authentication failed in the form of `:tmi.twitch.tv NOTICE * :Login authentication failed`
-        
-        This method was created to prevent us from having to copy the same commands
-        and send them to the websocket. If there is an authentication issue, then we
-        will have to send the same commands again - just with a new token.
-        
-        """
-        await self.websocket.send(f"PASS oauth:{self.token}")
-        await self.websocket.send(f"NICK {self.bot_name}")
-        await self.websocket.send(f"JOIN #{self.default_target}")
 
     async def connect_websocket(self):
         """Connect to the irc chat through websockets.
@@ -204,8 +201,7 @@ class ConnectorTwitch(Connector):
         the websocket connection.
         
         In this method we attempt to connect to the websocket and use the previously
-        saved oauth token to join a twitch channel. If we get an `authentication failed`
-        `NOTICE` we will attempt to refresh the token.
+        saved oauth token to join a twitch channel.
         
         Once we are logged in and on a Twitch channel, we will request access to special
         features from Twitch.
@@ -224,13 +220,9 @@ class ConnectorTwitch(Connector):
         _LOGGER.info(_("Connecting to Twitch IRC Server."))
         self.websocket = await websockets.connect(f"{self.server}:{self.port}")
 
-        await self.send_handshake()
-        status = await self.websocket.recv()
-        
-        if "authentication failed" in status:
-            _LOGGER.info(_("Oauth token expired, attempting to refresh token."))
-            await self.refresh_token()
-            await self.send_handshake()
+        await self.websocket.send(f"PASS oauth:{self.token}")
+        await self.websocket.send(f"NICK {self.bot_name}")
+        await self.websocket.send(f"JOIN #{self.default_target}")
 
         await self.websocket.send("CAP REQ :twitch.tv/commands")
         await self.websocket.send("CAP REQ :twitch.tv/tags")
@@ -280,6 +272,7 @@ class ConnectorTwitch(Connector):
                 "hub.mode": mode,
                 "hub.topic": topic,
                 "hub.lease_seconds": 60 * 60 * 24,
+                "hub.secret": self.webhook_secret,
             }
             
             response = await session.post(
@@ -310,6 +303,8 @@ class ConnectorTwitch(Connector):
            aiohttp.web.Response: if request contains `hub.challenge` we return it, otherwise return status 500.
         
         """
+
+        
         challenge = request.rel_url.query.get('hub.challenge')
 
         if challenge:
@@ -429,7 +424,13 @@ class ConnectorTwitch(Connector):
             _LOGGER.info(_("Found previous authorization data, getting oauth token and attempting to connect."))
             self.token = self.get_authorization_data()['access_token']
         
-        self.user_id = await get_user_id(self.default_target, self.token, self.client_id)
+        try:
+            self.user_id = await get_user_id(self.default_target, self.token, self.client_id)
+        except aiohttp.ClientResponseError:
+            _LOGGER.info(_("Oauth token expired, attempting to refresh token."))
+            await self.refresh_token()
+            
+            self.user_id = await get_user_id(self.default_target, self.token, self.client_id)
         
         # Setup routes for webhooks subscription
         self.opsdroid.web_server.web_app.router.add_get(
