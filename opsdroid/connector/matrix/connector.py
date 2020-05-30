@@ -135,7 +135,10 @@ class ConnectorMatrix(Connector):
             password=self.password, device_name=self.device_name
         )
         if isinstance(login_response, nio.LoginError):
-            raise login_response
+            _LOGGER.error(
+                f"Error while connecting: {res.message} (status code {res.status_code})"
+            )
+            raise
 
         mapi.token = login_response.access_token
         mapi.sync_token = None
@@ -468,7 +471,10 @@ class ConnectorMatrix(Connector):
 
         if isinstance(res, nio.RoomPutStateError):
             if res.status_code != 409:
-                raise res
+                _LOGGER.error(
+                    f"Error while setting room alias: {res.message} (status code {res.status_code})"
+                )
+                raise
             else:
                 _LOGGER.warning(
                     f"A room with the alias {address_event.address} already exists."
@@ -493,7 +499,9 @@ class ConnectorMatrix(Connector):
                     f"{invite_event.user_id} is already in the room, ignoring."
                 )
             else:
-                raise res
+                _LOGGER.error(
+                    f"Error while inviting user {invite_event.user_id} to room {invite_event.target}: {res.message} (status code {res.status_code})"
+                )
 
         return res
 
