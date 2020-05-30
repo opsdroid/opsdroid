@@ -89,6 +89,15 @@ async def get_user_id(channel, token, client_id):
 
 
 async def validate_request(request, secret):
+    """Compute sha256 hash of request and secret. 
+    
+    Twitch suggests that we should always validate the requests made to our webhook callback url,
+    that way we protect ourselves from received an event that wasn't sent by Twitch. After sending
+    `hub.secret` on our webhook subscribe, Twitch will use that secret to send the `x-hub-signature` 
+    header, that is the hash that we should compare with our own computed one, if they don't match
+    then the request is not valid and shouldn't be parsed. 
+    
+    """
     signature = request.headers.get("x-hub-signature").replace("sha256=", "")
 
     payload = await request.read()
@@ -96,9 +105,6 @@ async def validate_request(request, secret):
     computed_hash = hmac.new(
         secret.encode(), msg=payload, digestmod=hashlib.sha256
     ).hexdigest()
-
-    _LOGGER.info(signature)
-    _LOGGER.info(computed_hash)
 
     return signature == computed_hash
 
@@ -401,7 +407,7 @@ class ConnectorTwitch(Connector):
 
                     stream_started = twitch_event.StreamStarted(
                         title=data["title"],
-                        viewer=data["viewer_count"],
+                        viewers=data["viewer_count"],
                         started_at=data["started_at"],
                         connector=self,
                     )
@@ -553,12 +559,12 @@ class ConnectorTwitch(Connector):
         except websockets.ConnectionClosed:
             await self.reconnect()
             return
-        else:
-            resp = await self.websocket.recv()
 
         chat_message = re.match(TWITCH_IRC_MESSAGE_REGEX, resp)
+        join_event = re.match(r":(?P<user>.*)!.*JOIN", resp)
 
         if chat_message:
+
             message = Message(
                 text=chat_message.group("message").rstrip(),
                 user=chat_message.group("user"),
@@ -570,6 +576,16 @@ class ConnectorTwitch(Connector):
             )
 
             await self.opsdroid.parse(message)
+
+        if join_event:
+            joined = twitch_event.UserJoinedChat(
+                user=join_event.group("user"),
+                raw_event=resp,
+                target=f"#{self.default_target}",
+                connector=self,
+            )
+
+            await self.opsdroid.parse(joined)
 
     @register_event(Message)
     async def _send_message(self, message):

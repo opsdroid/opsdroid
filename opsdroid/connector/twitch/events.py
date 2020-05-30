@@ -21,6 +21,14 @@ class BanUser(events.Event):
         self.user = user
 
 
+class UserJoinedChat(events.Event):
+    """Event class to trigger when a user joins the chat - but might not be watching the stream."""
+
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+
+
 class UserFollowed(events.Event):
     """Event class to trigger when a user follows the streamer."""
 
