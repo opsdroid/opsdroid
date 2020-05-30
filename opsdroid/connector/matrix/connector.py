@@ -146,7 +146,7 @@ class ConnectorMatrix(Connector):
         for roomname, room in self.rooms.items():
             response = await mapi.join(room["alias"])
             if isinstance(response, nio.JoinError):
-                _LOGGER.info("Error while joining room: " + roomname)
+                _LOGGER.error("Error while joining room: " + roomname)
             else:
                 self.room_ids[roomname] = response.room_id
 
