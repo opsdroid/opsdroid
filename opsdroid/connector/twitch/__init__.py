@@ -131,7 +131,8 @@ class ConnectorTwitch(Connector):
         # TODO: Allow usage of SSL connection
         self.server = "ws://irc-ws.chat.twitch.tv"
         self.port = "80"
-        self.forward_url = config["forward-url"]
+        self.forward_url = config.get("forward-url", config['web']['host'])
+
 
     async def send_message(self, message):
         """Sends message throught websocket.
