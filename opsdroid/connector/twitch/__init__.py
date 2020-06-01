@@ -10,8 +10,6 @@ import hmac
 
 from voluptuous import Required
 
-import opsdroid.connector.twitch.events as twitch_event
-
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
 from opsdroid.const import (
@@ -21,6 +19,8 @@ from opsdroid.const import (
     TWITCH_IRC_MESSAGE_REGEX,
     TWITCH_API_V5_ENDPOINT,
 )
+
+from . import events as twitch_event
 
 
 CONFIG_SCHEMA = {
@@ -80,7 +80,7 @@ async def get_user_id(channel, token, client_id):
             _LOGGER.warning(
                 _("Unable to receive broadcaster id - Error: %s, %s."),
                 response.status,
-                response.message,
+                response.text,
             )
 
         response = await response.json()
@@ -131,7 +131,7 @@ class ConnectorTwitch(Connector):
         # TODO: Allow usage of SSL connection
         self.server = "ws://irc-ws.chat.twitch.tv"
         self.port = "80"
-        self.forward_url = config.get("forward-url", config['web']['host'])
+        self.forward_url = config.get("forward-url")
 
 
     async def send_message(self, message):
@@ -330,8 +330,7 @@ class ConnectorTwitch(Connector):
             )
 
             if response.status >= 400:
-
-                _LOGGER.debug(_("Error: %s - %s"), response.status, response.message)
+                _LOGGER.debug(_("Error: %s - %s"), response.status, response.text)
 
     async def handle_challenge(self, request):
         """Challenge handler for get request made by Twitch.
@@ -559,7 +558,7 @@ class ConnectorTwitch(Connector):
             resp = await self.websocket.recv()
         except websockets.ConnectionClosed:
             await self.reconnect()
-            return
+            resp = await self.websocket.recv()
 
         chat_message = re.match(TWITCH_IRC_MESSAGE_REGEX, resp)
         join_event = re.match(r":(?P<user>.*)!.*JOIN", resp)
