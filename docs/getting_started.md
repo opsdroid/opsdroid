@@ -1,5 +1,10 @@
 # Getting Started
 
+```eval_rst
+.. note::
+    This tutorial is not complete. It will give you a basic understanding of opsdroid, but we are always improving it. If you see a mistake, please let us know.
+```
+
 ## Installing Opsdroid
 
 ```bash
@@ -63,4 +68,4 @@ skills:
     path: /path/to/my/hello.py
 ```
 
-Amazing! You have created a bot! Run it with `opsdroid start`.
+Amazing! You have created a bot! Run it with `opsdroid start`. You should then see a prompt which says `opsdroid >`. If you type `hi`, the bot will respond "Hey". Currently, we are working on adding more tutorials, including custom skills and matchers, additionally, check out the Examples section to learn more!
