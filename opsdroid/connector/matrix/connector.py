@@ -3,7 +3,6 @@
 import re
 import logging
 import functools
-from concurrent.futures import CancelledError
 from urllib.parse import urlparse
 
 import aiohttp
@@ -136,9 +135,9 @@ class ConnectorMatrix(Connector):
         )
         if isinstance(login_response, nio.LoginError):
             _LOGGER.error(
-                f"Error while connecting: {res.message} (status code {res.status_code})"
+                f"Error while connecting: {login_response.message} (status code {login_response.status_code})"
             )
-            raise
+            return
 
         mapi.token = login_response.access_token
         mapi.sync_token = None
@@ -146,7 +145,10 @@ class ConnectorMatrix(Connector):
         for roomname, room in self.rooms.items():
             response = await mapi.join(room["alias"])
             if isinstance(response, nio.JoinError):
-                _LOGGER.error("Error while joining room: " + roomname)
+                _LOGGER.error(
+                    f"Error while joining room: {room['alias']}, Message: {response.message} (status code {response.status_code})"
+                )
+
             else:
                 self.room_ids[roomname] = response.room_id
 
@@ -162,7 +164,9 @@ class ConnectorMatrix(Connector):
         response = await self.connection.sync(timeout=3000, sync_filter=first_filter_id)
 
         if isinstance(response, nio.SyncError):
-            _LOGGER.error(f"Error during initial sync: {response.message}")
+            _LOGGER.error(
+                f"Error during initial sync: {response.message} (status code {response.status_code})"
+            )
             return
 
         self.connection.sync_token = response.next_batch
@@ -214,27 +218,21 @@ class ConnectorMatrix(Connector):
     async def listen(self):  # pragma: no cover
         """Listen for new messages from the chat service."""
         while True:  # pylint: disable=R1702
-            try:
-                response = await self.connection.sync(
-                    timeout=int(60 * 1e3),  # 1m in ms
-                    sync_filter=self.filter_id,
-                    since=self.connection.sync_token,
-                )
-                if isinstance(response, nio.SyncError):
-                    _LOGGER.error(f"Error during sync: {response.message}")
-                    continue
+            response = await self.connection.sync(
+                timeout=int(60 * 1e3),  # 1m in ms
+                sync_filter=self.filter_id,
+                since=self.connection.sync_token,
+            )
+            if isinstance(response, nio.SyncError):
+                _LOGGER.error(f"Error during sync: {response.message}")
+                continue
 
-                _LOGGER.debug(_("Matrix sync request returned."))
+            _LOGGER.debug(_("Matrix sync request returned."))
 
-                message = await self._parse_sync_response(response)
+            message = await self._parse_sync_response(response)
 
-                if message:
-                    await self.opsdroid.parse(message)
-
-            except CancelledError:
-                raise
-            except Exception:  # pylint: disable=W0703
-                _LOGGER.exception(_("Matrix sync error."))
+            if message:
+                await self.opsdroid.parse(message)
 
     def lookup_target(self, room):
         """Convert name or alias of a room to the corresponding room ID."""
@@ -447,7 +445,10 @@ class ConnectorMatrix(Connector):
         params = params.get("matrix", params)
         response = await self.connection.room_create(**params)
         if isinstance(response, nio.RoomCreateError):
-            _LOGGER.error("Error while creating the room")
+            _LOGGER.error(
+                f"Error while creating the room. Reason: {response.message} (status code {response.status_code})"
+            )
+            return
         room_id = response.room_id
         if creation_event.name is not None:
             await self._send_room_name_set(
@@ -474,7 +475,6 @@ class ConnectorMatrix(Connector):
                 _LOGGER.error(
                     f"Error while setting room alias: {res.message} (status code {res.status_code})"
                 )
-                raise
             else:
                 _LOGGER.warning(
                     f"A room with the alias {address_event.address} already exists."

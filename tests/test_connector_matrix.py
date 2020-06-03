@@ -8,6 +8,7 @@ import asynctest
 import asynctest.mock as amock
 
 import nio
+import pytest
 
 import opsdroid.connector.matrix.events as matrix_events
 from opsdroid.core import OpsDroid
@@ -34,6 +35,10 @@ def setup_connector():
 
 class TestConnectorMatrixAsync(asynctest.TestCase):
     """Test the async methods of the opsdroid Matrix connector class."""
+
+    @pytest.fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
 
     @property
     def sync_return(self):
@@ -266,6 +271,52 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             assert patched_get_nick.called
             patch_set_nick.assert_called_once_with("Rabbit Hole")
 
+            error_message = "Some error message"
+            error_code = 400
+
+            # test sync error
+            patched_sync.return_value = asyncio.Future()
+            patched_sync.return_value.set_result(
+                nio.SyncError(message=error_message, status_code=error_code)
+            )
+            self._caplog.clear()
+            await self.connector.connect()
+            assert [
+                f"Error during initial sync: {error_message} (status code {error_code})"
+            ] == [rec.message for rec in self._caplog.records]
+
+            # test join error
+            patched_sync.return_value = asyncio.Future()
+            patched_sync.return_value.set_result(
+                nio.SyncResponse(
+                    next_batch="arbitrary string2",
+                    rooms={},
+                    device_key_count={"signed_curve25519": 50},
+                    device_list={"changed": [], "left": []},
+                    to_device_events={"events": []},
+                )
+            )
+            patched_join.return_value = asyncio.Future()
+            patched_join.return_value.set_result(
+                nio.JoinError(message=error_message, status_code=error_code)
+            )
+            self._caplog.clear()
+            await self.connector.connect()
+            assert [
+                f"Error while joining room: {self.connector.rooms['main']['alias']}, Message: {error_message} (status code {error_code})"
+            ] == [rec.message for rec in self._caplog.records]
+
+            # test login error
+            patched_login.return_value = asyncio.Future()
+            patched_login.return_value.set_result(
+                nio.LoginError(message=error_message, status_code=error_code)
+            )
+            self._caplog.clear()
+            await self.connector.connect()
+            assert [
+                f"Error while connecting: {error_message} (status code {error_code})"
+            ] == [rec.message for rec in self._caplog.records]
+
     async def test_parse_sync_response(self):
         self.connector.room_ids = {"main": "!aroomid:localhost"}
         self.connector.filter_id = "arbitrary string"
@@ -359,6 +410,51 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             assert (
                 await self.connector.get_nick("#notaroom:localhost", mxid)
                 == "notaperson"
+            )
+
+            assert await self.connector.get_nick(None, mxid) == mxid
+
+            # test member not in list
+            patched_joined.return_value = asyncio.Future()
+            patched_joined.return_value.set_result(
+                nio.JoinedMembersResponse(members=[], room_id="notanid")
+            )
+            assert await self.connector.get_nick("#notaroom:localhost", mxid) == mxid
+
+            # test JoinedMembersError
+            patched_joined.return_value = asyncio.Future()
+            patched_joined.return_value.set_result(
+                nio.JoinedMembersError(message="Some error", status_code=400)
+            )
+            self._caplog.clear()
+            assert (
+                await self.connector.get_nick("#notaroom:localhost", mxid)
+                == "notaperson"
+            )
+            assert [f"Failed to lookup room members for #notaroom:localhost."] == [
+                rec.message for rec in self._caplog.records
+            ]
+
+            # test displayname is not set
+            patched_globname.return_value = asyncio.Future()
+            patched_globname.return_value.set_result(
+                nio.ProfileGetDisplayNameResponse(displayname=None)
+            )
+            self._caplog.clear()
+            assert await self.connector.get_nick("#notaroom:localhost", mxid) == mxid
+            assert [f"Failed to lookup room members for #notaroom:localhost."] == [
+                rec.message for rec in self._caplog.records
+            ]
+
+            # test ProfileGetDisplayNameError
+            patched_globname.return_value = asyncio.Future()
+            patched_globname.return_value.set_result(
+                nio.ProfileGetDisplayNameError(message="Some error", status_code=400)
+            )
+            self._caplog.clear()
+            assert await self.connector.get_nick("#notaroom:localhost", mxid) == mxid
+            assert (
+                f"Failed to lookup nick for {mxid}." == self._caplog.records[1].message
             )
 
     async def test_get_nick_not_set(self):
@@ -633,6 +729,19 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
 
             assert patched_send.called_once_with(name="test")
 
+            # test error
+            error_message = "Some error message"
+            error_code = 400
+            patched_send.return_value = asyncio.Future()
+            patched_send.return_value.set_result(
+                nio.RoomCreateError(message=error_message, status_code=error_code)
+            )
+            self._caplog.clear()
+            resp = await self.connector.send(event)
+            assert [
+                f"Error while creating the room. Reason: {error_message} (status code {error_code})"
+            ] == [rec.message for rec in self._caplog.records]
+
     async def test_respond_room_address(self):
         event = events.RoomAddress("#test:localhost", target="!test:localhost")
 
@@ -833,27 +942,73 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
     async def test_alias_already_exists(self):
 
         with amock.patch(api_string.format("room_put_state")) as patched_alias:
-            # TODO test error
             patched_alias.return_value = asyncio.Future()
-            patched_alias.return_value.set_result({})
-
-            await self.connector._send_room_address(
-                events.RoomAddress(target="!test:localhost", address="hello")
+            patched_alias.return_value.set_result(
+                nio.RoomPutStateResponse(event_id="some_id", room_id="!test:localhost")
             )
 
-    async def test_already_in_room(self):
+            resp = await self.connector._send_room_address(
+                events.RoomAddress(target="!test:localhost", address="hello")
+            )
+            assert resp.event_id == "some_id"
+            assert resp.room_id == "!test:localhost"
 
+            # test error
+            error_message = "some error message"
+            error_code = 400
+            patched_alias.return_value = asyncio.Future()
+            patched_alias.return_value.set_result(
+                nio.RoomPutStateError(message=error_message, status_code=error_code)
+            )
+            self._caplog.clear()
+            resp = await self.connector._send_room_address(
+                events.RoomAddress(target="!test:localhost", address="hello")
+            )
+            assert [
+                f"Error while setting room alias: {error_message} (status code {error_code})"
+            ] == [rec.message for rec in self._caplog.records]
+
+            error_code = 409
+            patched_alias.return_value = asyncio.Future()
+            patched_alias.return_value.set_result(
+                nio.RoomPutStateError(message=error_message, status_code=error_code)
+            )
+            self._caplog.clear()
+            resp = await self.connector._send_room_address(
+                events.RoomAddress(target="!test:localhost", address="hello")
+            )
+            assert [f"A room with the alias hello already exists."] == [
+                rec.message for rec in self._caplog.records
+            ]
+
+    async def test_already_in_room(self):
         with amock.patch(api_string.format("room_invite")) as patched_invite:
 
             patched_invite.return_value = asyncio.Future()
             patched_invite.return_value.set_result(
-                nio.RoomInviteError(message="@neo.matrix.org is already in the room")
+                nio.RoomInviteError(
+                    message="@neo.matrix.org is already in the room", status_code=400
+                )
             )
 
+            self._caplog.clear()
             resp = await self.connector._send_user_invitation(
                 events.UserInvite(target="!test:localhost", user_id="@neo:matrix.org")
             )
+            assert resp.message == "@neo.matrix.org is already in the room"
+            assert [
+                f"Error while inviting user @neo:matrix.org to room !test:localhost: @neo.matrix.org is already in the room (status code 400)"
+            ] == [rec.message for rec in self._caplog.records]
 
+            patched_invite.return_value = asyncio.Future()
+            patched_invite.return_value.set_result(
+                nio.RoomInviteError(
+                    message="@neo.matrix.org is already in the room", status_code=403
+                )
+            )
+            resp = await self.connector._send_user_invitation(
+                events.UserInvite(target="!test:localhost", user_id="@neo:matrix.org")
+            )
             assert resp.message == "@neo.matrix.org is already in the room"
 
     async def test_invalid_role(self):
