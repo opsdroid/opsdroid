@@ -17,11 +17,11 @@ For Windows and Docker installation, see the [installation page](https://docs.op
 
 ### Configuration
 
-Opsdroid is modular and built on an event loop. Connectors, parsers, and skills are setup in the `configuration.yaml` file, which is the backbone of any Opsdroid project.
+Opsdroid is modular and built on an event loop. Connectors, parsers, and skills are setup in the `configuration.YAML` file, which is the backbone of any Opsdroid project.
 
 First, we'll setup a shell connector. To do this add a list of connectors to the configuration, then add shell. To see a list of avalible connectors, [check out this page](https://docs.opsdroid.dev/en/stable/connectors/index.html)
 
-```yaml
+```YAML
 connectors:
   shell:
     bot-name: "mybot"
@@ -29,7 +29,7 @@ connectors:
 
 because `shell` prints to, well, the shell, let's disable logging
 
-```yaml
+```YAML
 logging:
   console: false
 ```
@@ -41,7 +41,7 @@ from opsdroid.skill import Skill
 from opsdroid.matchers import match_regex
 ```
 
-Then create a class that inherits from Skill like this:
+Then create a class that inherits from `Skill` like this:
 
 ```python
 class HelloSkill(Skill):
@@ -60,9 +60,9 @@ class HelloSkill(Skill):
         await message.respond('Hey')
 ```
 
-Then add your skill to you yaml file like this:
+Then add your skill to you YAML file like this:
 
-```yaml
+```YAML
 skills:
   - name: exampleskill
     path: /path/to/my/hello.py
