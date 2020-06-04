@@ -119,7 +119,7 @@ class ConnectorMatrix(Connector):
     async def make_filter(self, api, fjson):
         """Make a filter on the server for future syncs."""
         path = f"/_matrix/client/r0/user/{self.mxid}/filter"
-        headers = {"Authorization": "Bearer {api.token}"}
+        headers = {"Authorization": f"Bearer {api.token}"}
         resp = await api.send(method="post", path=path, data=fjson, headers=headers)
 
         resp_json = await resp.json()
