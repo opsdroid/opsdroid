@@ -45,7 +45,13 @@ def ensure_room_id_and_send(func):
             event.target = self.room_ids[event.target]
 
         if not event.target.startswith("!"):
-            event.target = await self.connection.request_room_key(event.target)
+            response = await self.connection.room_resolve_alias(event.target)
+            if isinstance(response, nio.RoomResolveAliasError):
+                _LOGGER.error(
+                    f"Error resolving room id for {event.target}: {response.message} (status code {response.status_code})"
+                )
+            else:
+                event.target = response.room_id
 
         try:
             return await func(self, event)
@@ -127,7 +133,9 @@ class ConnectorMatrix(Connector):
 
     async def connect(self):
         """Create connection object with chat library."""
-        config = nio.ClientConfig(encryption_enabled=False, pickle_key="")
+        config = nio.AsyncClientConfig(
+            nio.ClientConfig(encryption_enabled=False, pickle_key="")
+        )
         mapi = nio.AsyncClient(self.homeserver, self.mxid, config=config)
 
         login_response = await mapi.login(
@@ -190,7 +198,7 @@ class ConnectorMatrix(Connector):
                 e
                 for e in roomInfo.invite_state
                 if isinstance(e, nio.InviteMemberEvent)
-                if "invite" == e.membership
+                if e.membership == "invite"
             ][0]
             sender = await self.get_nick(None, invite_event.sender)
 
@@ -208,9 +216,10 @@ class ConnectorMatrix(Connector):
             if roomInfo.timeline:
                 for event in roomInfo.timeline.events:
                     if event.sender != self.mxid:
-                        if isinstance(event, nio.MegolmEvent):
-                            # event is encrypted
-                            event = await self.connection.decrypt_event(event)
+                        # if isinstance(event, nio.MegolmEvent):
+                        # event is encrypted
+                        # event = await self.connection.decrypt_event(event)
+
                         return await self._event_creator.create_event(
                             event.source, roomid
                         )
@@ -246,27 +255,17 @@ class ConnectorMatrix(Connector):
         Get the nickname of a sender depending on the room specific config
         setting.
         """
-        if self.room_specific_nicks:
-            if roomid is None:
-                return mxid
+        if self.room_specific_nicks and roomid is not None:
 
             res = await self.connection.joined_members(roomid)
             if isinstance(res, nio.JoinedMembersError):
                 logging.exception("Failed to lookup room members for %s.", roomid)
-                # fallback to profile
-                res = await self.connection.get_displayname(mxid)
-                if isinstance(res, nio.ProfileGetDisplayNameError):
-                    _LOGGER.error("Failed to lookup nick for %s.", mxid)
-                    return mxid
-                if res.displayname is None:
-                    return mxid
-                return res.displayname
-
-            for member in res.members:
-                if member.user_id == mxid:
-                    return member.display_name
-
-            return mxid
+                # fallback to global profile
+            else:
+                for member in res.members:
+                    if member.user_id == mxid:
+                        return member.display_name
+                return mxid
 
         res = await self.connection.get_displayname(mxid)
         if isinstance(res, nio.ProfileGetDisplayNameError):

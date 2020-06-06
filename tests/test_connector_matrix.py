@@ -322,6 +322,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
         self.connector.filter_id = "arbitrary string"
 
         with amock.patch(api_string.format("get_displayname")) as patched_name:
+
             patched_name.return_value = asyncio.Future()
             patched_name.return_value.set_result(
                 nio.ProfileGetDisplayNameResponse("SomeUsersName")
@@ -412,7 +413,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
                 == "notaperson"
             )
 
-            assert await self.connector.get_nick(None, mxid) == mxid
+            assert await self.connector.get_nick(None, mxid) == "notaperson"
 
             # test member not in list
             patched_joined.return_value = asyncio.Future()
@@ -755,14 +756,38 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
 
     async def test_respond_join_room(self):
         event = events.JoinRoom(target="#test:localhost")
-        with amock.patch(api_string.format("request_room_key")) as patched_get_room_id:
+        with amock.patch(
+            api_string.format("room_resolve_alias")
+        ) as patched_get_room_id, amock.patch(
+            api_string.format("join")
+        ) as patched_send:
+
             patched_get_room_id.return_value = asyncio.Future()
-            patched_get_room_id.return_value.set_result("!test:localhost")
-            with amock.patch(api_string.format("join")) as patched_send:
-                patched_send.return_value = asyncio.Future()
-                patched_send.return_value.set_result({})
-                await self.connector.send(event)
-                assert patched_send.called_once_with("#test:localhost")
+            patched_get_room_id.return_value.set_result(
+                nio.RoomResolveAliasResponse(
+                    room_alias="aroom", room_id="!aroomid:localhost", servers=[]
+                )
+            )
+
+            patched_send.return_value = asyncio.Future()
+            patched_send.return_value.set_result({})
+            await self.connector.send(event)
+            assert patched_send.called_once_with("#test:localhost")
+
+            # test error
+            error_message = "Some error message"
+            error_code = 400
+            patched_get_room_id.return_value = asyncio.Future()
+            patched_get_room_id.return_value.set_result(
+                nio.RoomResolveAliasError(message=error_message, status_code=error_code)
+            )
+            self._caplog.clear()
+            await self.connector.send(event)
+            assert patched_send.called_once_with("#test:localhost")
+            assert patched_get_room_id.called_once_with("#test:localhost")
+            assert [
+                f"Error resolving room id for #test:localhost: {error_message} (status code {error_code})"
+            ] == [rec.message for rec in self._caplog.records]
 
     async def test_respond_user_invite(self):
         event = events.UserInvite("@test:localhost", target="!test:localhost")
