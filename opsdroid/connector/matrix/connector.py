@@ -233,7 +233,7 @@ class ConnectorMatrix(Connector):
                 since=self.connection.sync_token,
             )
             if isinstance(response, nio.SyncError):
-                _LOGGER.error(f"Error during sync: {response.message}")
+                _LOGGER.error(f"Error during sync: {response.message} (status code {response.status_code})")
                 continue
 
             _LOGGER.debug(_("Matrix sync request returned."))
