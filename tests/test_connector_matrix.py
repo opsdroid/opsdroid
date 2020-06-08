@@ -432,7 +432,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
                 await self.connector.get_nick("#notaroom:localhost", mxid)
                 == "notaperson"
             )
-            assert [f"Failed to lookup room members for #notaroom:localhost."] == [
+            assert ["Failed to lookup room members for #notaroom:localhost."] == [
                 rec.message for rec in self._caplog.records
             ]
 
@@ -443,7 +443,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             )
             self._caplog.clear()
             assert await self.connector.get_nick("#notaroom:localhost", mxid) == mxid
-            assert [f"Failed to lookup room members for #notaroom:localhost."] == [
+            assert ["Failed to lookup room members for #notaroom:localhost."] == [
                 rec.message for rec in self._caplog.records
             ]
 
@@ -774,6 +774,17 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             await self.connector.send(event)
             assert patched_send.called_once_with("#test:localhost")
 
+    async def test_respond_join_room_error(self):
+        event = events.JoinRoom(target="#test:localhost")
+        with amock.patch(
+            api_string.format("room_resolve_alias")
+        ) as patched_get_room_id, amock.patch(
+            api_string.format("join")
+        ) as patched_send:
+
+            patched_send.return_value = asyncio.Future()
+            patched_send.return_value.set_result({})
+
             # test error
             error_message = "Some error message"
             error_code = 400
@@ -1002,7 +1013,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             resp = await self.connector._send_room_address(
                 events.RoomAddress(target="!test:localhost", address="hello")
             )
-            assert [f"A room with the alias hello already exists."] == [
+            assert ["A room with the alias hello already exists."] == [
                 rec.message for rec in self._caplog.records
             ]
 
@@ -1022,7 +1033,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             )
             assert resp.message == "@neo.matrix.org is already in the room"
             assert [
-                f"Error while inviting user @neo:matrix.org to room !test:localhost: @neo.matrix.org is already in the room (status code 400)"
+                "Error while inviting user @neo:matrix.org to room !test:localhost: @neo.matrix.org is already in the room (status code 400)"
             ] == [rec.message for rec in self._caplog.records]
 
             patched_invite.return_value = asyncio.Future()
