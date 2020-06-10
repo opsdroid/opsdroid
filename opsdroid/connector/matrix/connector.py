@@ -129,7 +129,7 @@ class ConnectorMatrix(Connector):
         resp = await api.send(method="post", path=path, data=fjson, headers=headers)
 
         resp_json = await resp.json()
-        return resp_json["filter_id"]
+        return int(resp_json["filter_id"])
 
     async def connect(self):
         """Create connection object with chat library."""
@@ -233,7 +233,9 @@ class ConnectorMatrix(Connector):
                 since=self.connection.sync_token,
             )
             if isinstance(response, nio.SyncError):
-                _LOGGER.error(f"Error during sync: {response.message} (status code {response.status_code})")
+                _LOGGER.error(
+                    f"Error during sync: {response.message} (status code {response.status_code})"
+                )
                 continue
 
             _LOGGER.debug(_("Matrix sync request returned."))
