@@ -31,7 +31,7 @@ class MatrixEventCreator(events.EventCreator):
     async def create_event_from_eventid(self, eventid, roomid):
         """Return an ``Event`` based on an event id in a room."""
         room_context = await self.connector.connection.room_context(roomid, eventid, 1)
-        event_json = room_context.event
+        event_json = room_context.event.source
         return await self.create_event(event_json, roomid)
 
     def __init__(self, connector, *args, **kwargs):
@@ -119,7 +119,7 @@ class MatrixEventCreator(events.EventCreator):
         return events.Message(**kwargs)
 
     async def _file_kwargs(self, event, roomid):
-        url = self.connector.connection.get_download_url(event["content"]["url"])
+        url = event["content"]["url"]
         return dict(
             url=url,
             name=event["content"]["body"],

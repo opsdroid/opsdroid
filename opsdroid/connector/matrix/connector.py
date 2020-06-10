@@ -220,6 +220,9 @@ class ConnectorMatrix(Connector):
                         # event is encrypted
                         # event = await self.connection.decrypt_event(event)
 
+                        if event.source["type"] == "m.room.member":
+                            event.source["content"]["membership"] = event.membership
+
                         return await self._event_creator.create_event(
                             event.source, roomid
                         )
@@ -461,7 +464,7 @@ class ConnectorMatrix(Connector):
     @ensure_room_id_and_send
     async def _send_room_name_set(self, name_event):
         return await self.connection.room_put_state(
-            name_event.target, "m.room.name", name_event.name
+            name_event.target, "m.room.name", {"name": name_event.name}
         )
 
     @register_event(events.RoomAddress)
@@ -510,7 +513,7 @@ class ConnectorMatrix(Connector):
     @ensure_room_id_and_send
     async def _send_room_desciption(self, desc_event):
         return await self.connection.room_put_state(
-            desc_event.target, "m.room.topic", desc_event.description
+            desc_event.target, "m.room.topic", {"topic": desc_event.description}
         )
 
     @register_event(events.RoomImage)

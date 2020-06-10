@@ -1,6 +1,5 @@
 """Tests for the ConnectorMatrix class."""
 import asyncio
-from unittest import mock
 from copy import deepcopy
 
 import aiohttp
@@ -177,7 +176,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             connect_response = amock.Mock()
             connect_response.status = 200
             connect_response.json = amock.CoroutineMock()
-            connect_response.json.return_value = {"filter_id": "arbitrary string"}
+            connect_response.json.return_value = {"filter_id": 10}
 
             self.api.token = "abc"
 
@@ -186,7 +185,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
 
             filter_id = await self.connector.make_filter(self.api, self.filter_json)
 
-            assert filter_id == "arbitrary string"
+            assert filter_id == 10
             assert patched_filter.called
 
     async def test_connect(self):
@@ -1274,10 +1273,6 @@ class TestEventCreatorMatrixAsync(asynctest.TestCase):
         patched_get_nick.return_value.set_result("Rabbit Hole")
         self.connector.get_nick = patched_get_nick
 
-        patched_get_download_url = mock.Mock()
-        patched_get_download_url.return_value = "mxc://aurl"
-        self.connector.connection.get_download_url = patched_get_download_url
-
         return MatrixEventCreator(self.connector)
 
     async def test_create_message(self):
@@ -1293,7 +1288,7 @@ class TestEventCreatorMatrixAsync(asynctest.TestCase):
     async def test_create_file(self):
         event = await self.event_creator.create_event(self.file_json, "hello")
         assert isinstance(event, events.File)
-        assert event.url == "mxc://aurl"
+        assert event.url == "mxc://matrix.org/vtgAIrGtuYJQCXNKRGhVfSMX"
         assert event.user == "Rabbit Hole"
         assert event.user_id == "@neo:matrix.org"
         assert event.target == "hello"
@@ -1303,7 +1298,7 @@ class TestEventCreatorMatrixAsync(asynctest.TestCase):
     async def test_create_image(self):
         event = await self.event_creator.create_event(self.image_json, "hello")
         assert isinstance(event, events.Image)
-        assert event.url == "mxc://aurl"
+        assert event.url == "mxc://matrix.org/iDHKYJSQZZrrhOxAkMBMOaeo"
         assert event.user == "Rabbit Hole"
         assert event.user_id == "@neo:matrix.org"
         assert event.target == "hello"
@@ -1350,7 +1345,7 @@ class TestEventCreatorMatrixAsync(asynctest.TestCase):
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result(
                 nio.RoomContextResponse(
-                    event=self.message_json,
+                    event=nio.Event(source=self.message_json),
                     room_id="",
                     start="",
                     end="",
@@ -1378,7 +1373,7 @@ class TestEventCreatorMatrixAsync(asynctest.TestCase):
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result(
                 nio.RoomContextResponse(
-                    event=self.message_json,
+                    event=nio.Event(source=self.message_json),
                     room_id="",
                     start="",
                     end="",
@@ -1404,7 +1399,7 @@ class TestEventCreatorMatrixAsync(asynctest.TestCase):
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result(
                 nio.RoomContextResponse(
-                    event=self.message_json,
+                    event=nio.Event(source=self.message_json),
                     room_id="",
                     start="",
                     end="",
@@ -1426,6 +1421,20 @@ class TestEventCreatorMatrixAsync(asynctest.TestCase):
         assert isinstance(event.linked_event, events.Message)
 
     async def test_create_joinroom(self):
+        with amock.patch(api_string.format("room_context")) as patched_send:
+            patched_send.return_value = asyncio.Future()
+            patched_send.return_value.set_result(
+                nio.RoomContextResponse(
+                    event=nio.Event(source=self.message_json),
+                    room_id="",
+                    start="",
+                    end="",
+                    events_before=[],
+                    events_after=[],
+                    state=[],
+                )
+            )
+
         event = await self.event_creator.create_event(self.join_room_json, "hello")
         assert isinstance(event, events.JoinRoom)
         assert event.user == "Rabbit Hole"
