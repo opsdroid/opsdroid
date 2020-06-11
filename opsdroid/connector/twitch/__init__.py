@@ -270,39 +270,12 @@ class ConnectorTwitch(Connector):
         
         """
         _LOGGER.info(_("Connecting to Twitch IRC Server."))
-        # self.websocket = await websockets.connect(f"{self.server}:{self.port}")
 
-        # await self.send_handshake()
-        # status = await self.websocket.recv()
-
-        try:
-            async with aiohttp.ClientSession() as session:
-                async with session.ws_connect("ws://irc-ws.chat.twitch.tv:80") as websocket:
-                    self.websocket = websocket
-                    await self.send_handshake()
-                    await self.get_messages_loop()
-
-        except Exception as e:
-            _LOGGER.info('got error %s', e)
-            await self.refresh_token()
-            await self.send_handshake()
-            raise e
-            
-        _LOGGER.info('sending  commands')
-        # await self.websocket.send_str("CAP REQ :twitch.tv/commands")
-        # await self.websocket.send_str("CAP REQ :twitch.tv/tags")
-        # await self.websocket.send_str("CAP REQ :twitch.tv/membership")
-
-        # msg = await self.websocket.receive()
-        # _LOGGER.info('inside loop \n %s', msg)
-        # if msg.type == aiohttp.WSMsgType.TEXT:
-        #     await self._get_messages(msg.data)
-        # if msg.type == aiohttp.WSMsgType.PING:
-        #     await self.websocket.pong()
-        # if msg.data == 'close' or msg.type == aiohttp.WSMsgType.CLOSED:
-        #     await self.websocket.close()
-        #     self.is_live = False
-
+        async with aiohttp.ClientSession() as session:
+            async with session.ws_connect(f"{self.server}:{self.port}", heartbeat=600) as websocket:
+                self.websocket = websocket
+                await self.send_handshake()
+                await self.get_messages_loop()
 
     async def webhook(self, topic, mode):
         """Subscribe to a specific webhook.
@@ -530,21 +503,6 @@ class ConnectorTwitch(Connector):
         await self.webhook("stream changed", "subscribe")
         await self.webhook("subscribers", "subscribe")
 
-    async def reconnect(self):
-        """Attempt to reconnect to the server.
-        
-        Occasionally the Twitch will send a `RECONNECT` command before closing the connection,
-        when this happens we have to connect to the server once more and go through the whole 
-        connection process again.
-        
-        So if the websocket connection drops we will call the `self.connect_websocket` method
-        to attempt to reconnect to the websocket.
-        
-        """
-        if self.is_live:
-            _LOGGER.debug(_("Connection to Twitch dropped. Attempting reconnect..."))
-            await self.connect_websocket()
-
     async def listen(self):
         """Listen method of the connector.
 
@@ -555,28 +513,50 @@ class ConnectorTwitch(Connector):
 
         """
         if self.is_live:
-            await self.connect_websocket()
-        # await self.get_messages_loop()
-
+            try:
+                await self.connect_websocket()
+            
+            except aiohttp.ServerDisconnectedError:
+                _LOGGER.warning("Connection to the chat server dropped. Reconnecting...")
+                await self.connect_websocket()
+            except Exception as e:
+                _LOGGER.info('got error %s', e)
+            raise e
 
     async def get_messages_loop(self):
         """Listen for and parse events."""
         while self.is_live:
             try:
-                msg = await self.websocket.receive()
+                msg = await self.websocket.receive(timeout=1)
             except Exception as e:
                 _LOGGER.info(e)
-            # except asyncio.TimeoutError:
-            #     if not self.websocket.closed:
-            #         continue
-            # _LOGGER.info('inside loop %s', msg)
+            except asyncio.TimeoutError:
+                if not self.websocket.closed:
+                    continue
+            _LOGGER.info('inside loop %s', msg)
             if msg.type == aiohttp.WSMsgType.TEXT:
                 if 'PING' in msg.data:
                     _LOGGER.info('sending pong')
                     await self.websocket.pong('PONG')
                 await self._get_messages(msg.data)
+            
+            if msg.type == aiohttp.WSMsgType.CLOSING and self.is_live:
+                _LOGGER.info("Received closing request, attempting to close websocket connect and reconnect.")
+                await self.websocket.close()
 
+                raise aiohttp.ServerDisconnectedError("Connection to websocket is closing.")
+                break
+            
+            if msg.type == aiohttp.WSMsgType.CLOSE and self.is_live:
+                # TODO: This is to test if the message type we receive is CLOSE.
+                _LOGGER.info("Received CLOSE request, attempting to close websocket connect and reconnect.")
+                await self.websocket.close()
+
+                raise aiohttp.ServerDisconnectedError("Connection to websocket is closing.")
+                break
+            
             if msg.data == 'close' or msg.type == aiohttp.WSMsgType.CLOSED:
+                _LOGGER.info("Websocket is closed, breaking loop.")
                 await self.websocket.close()
                 break
 
@@ -743,9 +723,8 @@ class ConnectorTwitch(Connector):
 
     async def disconnect_websockets(self):
         """Disconnect from the websocket."""
-        # await self.websocket.send_str(f"PART #{self.default_target}")
-        # await self.websocket.close()
-        # await self.websocket.await_close()
+        self.is_live = False
+
         futures = []
         close_method = getattr(self.websocket, "close", None)
         if callable(close_method):
@@ -774,11 +753,9 @@ class ConnectorTwitch(Connector):
 
         if self.is_live:
             await self.disconnect_websockets()
-        self.is_live = False
-        await self.listen()
-
         
-        return
         await self.webhook("follows", "unsubscribe")
         await self.webhook("stream changed", "unsubscribe")
         await self.webhook("subscribers", "unsubscribe")
+
+        return
