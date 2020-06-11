@@ -147,7 +147,6 @@ class ConnectorTwitch(Connector):
             message(string): Text message that should be sent to Twitch chat.
         
         """
-        _LOGGER.info('sending %s', message)
         await self.websocket.send_str(f"PRIVMSG #{self.default_target} :{message}")
 
     def save_authentication_data(self, data):
@@ -516,48 +515,33 @@ class ConnectorTwitch(Connector):
             try:
                 await self.connect_websocket()
             
-            except aiohttp.ServerDisconnectedError:
-                _LOGGER.warning("Connection to the chat server dropped. Reconnecting...")
+            except aiohttp.client_exceptions.ServerDisconnectedError:
+                _LOGGER.debug(_("Connection to the chat server dropped. Reconnecting..."))
                 await self.connect_websocket()
             except Exception as e:
                 _LOGGER.info('got error %s', e)
-            raise e
+                raise e
 
     async def get_messages_loop(self):
         """Listen for and parse events."""
         while self.is_live:
             try:
-                msg = await self.websocket.receive(timeout=1)
+                msg = await self.websocket.receive()
             except Exception as e:
                 _LOGGER.info(e)
             except asyncio.TimeoutError:
                 if not self.websocket.closed:
                     continue
-            _LOGGER.info('inside loop %s', msg)
             if msg.type == aiohttp.WSMsgType.TEXT:
                 if 'PING' in msg.data:
-                    _LOGGER.info('sending pong')
                     await self.websocket.pong('PONG')
                 await self._get_messages(msg.data)
-            
-            if msg.type == aiohttp.WSMsgType.CLOSING and self.is_live:
-                _LOGGER.info("Received closing request, attempting to close websocket connect and reconnect.")
-                await self.websocket.close()
-
-                raise aiohttp.ServerDisconnectedError("Connection to websocket is closing.")
-                break
-            
-            if msg.type == aiohttp.WSMsgType.CLOSE and self.is_live:
-                # TODO: This is to test if the message type we receive is CLOSE.
-                _LOGGER.info("Received CLOSE request, attempting to close websocket connect and reconnect.")
-                await self.websocket.close()
-
-                raise aiohttp.ServerDisconnectedError("Connection to websocket is closing.")
-                break
             
             if msg.data == 'close' or msg.type == aiohttp.WSMsgType.CLOSED:
                 _LOGGER.info("Websocket is closed, breaking loop.")
                 await self.websocket.close()
+                if self.is_live:
+                    raise aiohttp.ServerDisconnectedError
                 break
 
     async def _get_messages(self, resp):
@@ -576,12 +560,7 @@ class ConnectorTwitch(Connector):
         received matches a text message.
         
         """
-        # try:
-        #     resp = await self.websocket.receive()
-        # except websockets.ConnectionClosed:
-        #     await self.reconnect()
-        #     resp = await self.websocket.receive()
-        _LOGGER.info('Got message from websocket %s', resp)
+        _LOGGER.debug(_('Got message from Twitch Connector chat -  %s'), resp)
 
         chat_message = re.match(TWITCH_IRC_MESSAGE_REGEX, resp)
         join_event = re.match(r":(?P<user>.*)!.*JOIN", resp)
@@ -597,7 +576,6 @@ class ConnectorTwitch(Connector):
                 event_id=chat_message.group("message_id"),
                 connector=self,
             )
-            _LOGGER.info(type(message))
 
             await self.opsdroid.parse(message)
 
@@ -712,7 +690,6 @@ class ConnectorTwitch(Connector):
 
             if resp.status == 200:
                 _LOGGER.debug(_("Twitch channel title updated to %s"), event.status)
-
                 return
 
             _LOGGER.debug(
