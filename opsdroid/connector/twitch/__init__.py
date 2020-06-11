@@ -1,3 +1,4 @@
+import asyncio
 import os
 import re
 import logging
@@ -132,6 +133,7 @@ class ConnectorTwitch(Connector):
         self.server = "ws://irc-ws.chat.twitch.tv"
         self.port = "80"
         self.forward_url = config.get("forward-url")
+        self.loop = asyncio.get_event_loop()
 
 
     async def send_message(self, message):
@@ -145,8 +147,8 @@ class ConnectorTwitch(Connector):
             message(string): Text message that should be sent to Twitch chat.
         
         """
-
-        await self.websocket.send(f"PRIVMSG #{self.default_target} :{message}")
+        _LOGGER.info('sending %s', message)
+        await self.websocket.send_str(f"PRIVMSG #{self.default_target} :{message}")
 
     def save_authentication_data(self, data):
         """Save data obtained from requesting authentication token."""
@@ -234,9 +236,13 @@ class ConnectorTwitch(Connector):
         will have to send the same commands again - just with a new token.
         
         """
-        await self.websocket.send(f"PASS oauth:{self.token}")
-        await self.websocket.send(f"NICK {self.bot_name}")
-        await self.websocket.send(f"JOIN #{self.default_target}")
+        await self.websocket.send_str(f"PASS oauth:{self.token}")
+        await self.websocket.send_str(f"NICK {self.bot_name}")
+        await self.websocket.send_str(f"JOIN #{self.default_target}")
+        
+        await self.websocket.send_str("CAP REQ :twitch.tv/commands")
+        await self.websocket.send_str("CAP REQ :twitch.tv/tags")
+        await self.websocket.send_str("CAP REQ :twitch.tv/membership")
 
     async def connect_websocket(self):
         """Connect to the irc chat through websockets.
@@ -264,19 +270,39 @@ class ConnectorTwitch(Connector):
         
         """
         _LOGGER.info(_("Connecting to Twitch IRC Server."))
-        self.websocket = await websockets.connect(f"{self.server}:{self.port}")
+        # self.websocket = await websockets.connect(f"{self.server}:{self.port}")
 
-        await self.send_handshake()
-        status = await self.websocket.recv()
+        # await self.send_handshake()
+        # status = await self.websocket.recv()
 
-        if "authentication failed" in status:
-            _LOGGER.info("Oauth token expired, attempting to refresh token.")
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.ws_connect("ws://irc-ws.chat.twitch.tv:80") as websocket:
+                    self.websocket = websocket
+                    await self.send_handshake()
+                    await self.get_messages_loop()
+
+        except Exception as e:
+            _LOGGER.info('got error %s', e)
             await self.refresh_token()
             await self.send_handshake()
+            raise e
+            
+        _LOGGER.info('sending  commands')
+        # await self.websocket.send_str("CAP REQ :twitch.tv/commands")
+        # await self.websocket.send_str("CAP REQ :twitch.tv/tags")
+        # await self.websocket.send_str("CAP REQ :twitch.tv/membership")
 
-        await self.websocket.send("CAP REQ :twitch.tv/commands")
-        await self.websocket.send("CAP REQ :twitch.tv/tags")
-        await self.websocket.send("CAP REQ :twitch.tv/membership")
+        # msg = await self.websocket.receive()
+        # _LOGGER.info('inside loop \n %s', msg)
+        # if msg.type == aiohttp.WSMsgType.TEXT:
+        #     await self._get_messages(msg.data)
+        # if msg.type == aiohttp.WSMsgType.PING:
+        #     await self.websocket.pong()
+        # if msg.data == 'close' or msg.type == aiohttp.WSMsgType.CLOSED:
+        #     await self.websocket.close()
+        #     self.is_live = False
+
 
     async def webhook(self, topic, mode):
         """Subscribe to a specific webhook.
@@ -500,12 +526,9 @@ class ConnectorTwitch(Connector):
             f"/connector/{self.name}", self.twitch_webhook_handler
         )
 
-        await self.webhook("follows", "subscribe")
-        await self.webhook("stream changed", "subscribe")
-        await self.webhook("subscribers", "subscribe")
-
-        if self.is_live:
-            await self.connect_websocket()
+        # await self.webhook("follows", "subscribe")
+        # await self.webhook("stream changed", "subscribe")
+        # await self.webhook("subscribers", "subscribe")
 
     async def reconnect(self):
         """Attempt to reconnect to the server.
@@ -531,14 +554,33 @@ class ConnectorTwitch(Connector):
         cancel the task.
 
         """
-        await self.get_messages_loop()
+        if self.is_live:
+            await self.connect_websocket()
+        # await self.get_messages_loop()
+
 
     async def get_messages_loop(self):
         """Listen for and parse events."""
         while self.is_live:
-            await self._get_messages()
+            try:
+                msg = await self.websocket.receive()
+            except Exception as e:
+                _LOGGER.info(e)
+            # except asyncio.TimeoutError:
+            #     if not self.websocket.closed:
+            #         continue
+            # _LOGGER.info('inside loop %s', msg)
+            if msg.type == aiohttp.WSMsgType.TEXT:
+                if 'PING' in msg.data:
+                    _LOGGER.info('sending pong')
+                    await self.websocket.pong('PONG')
+                await self._get_messages(msg.data)
 
-    async def _get_messages(self):
+            if msg.data == 'close' or msg.type == aiohttp.WSMsgType.CLOSED:
+                await self.websocket.close()
+                break
+
+    async def _get_messages(self, resp):
         """Receive data from websocket connection.
         
         We handle the case where the connection is dropped, if that happens for some
@@ -554,11 +596,12 @@ class ConnectorTwitch(Connector):
         received matches a text message.
         
         """
-        try:
-            resp = await self.websocket.recv()
-        except websockets.ConnectionClosed:
-            await self.reconnect()
-            resp = await self.websocket.recv()
+        # try:
+        #     resp = await self.websocket.receive()
+        # except websockets.ConnectionClosed:
+        #     await self.reconnect()
+        #     resp = await self.websocket.receive()
+        _LOGGER.info('Got message from websocket %s', resp)
 
         chat_message = re.match(TWITCH_IRC_MESSAGE_REGEX, resp)
         join_event = re.match(r":(?P<user>.*)!.*JOIN", resp)
@@ -574,6 +617,7 @@ class ConnectorTwitch(Connector):
                 event_id=chat_message.group("message_id"),
                 connector=self,
             )
+            _LOGGER.info(type(message))
 
             await self.opsdroid.parse(message)
 
@@ -596,6 +640,7 @@ class ConnectorTwitch(Connector):
         within this connector.
         
         """
+        _LOGGER.info("Attempting to send message to websocket!")
         await self.send_message(message.text)
 
     @register_event(twitch_event.DeleteMessage)
@@ -698,9 +743,20 @@ class ConnectorTwitch(Connector):
 
     async def disconnect_websockets(self):
         """Disconnect from the websocket."""
-        await self.websocket.send(f"PART #{self.default_target}")
-        await self.websocket.close()
-        await self.websocket.await_close()
+        # await self.websocket.send_str(f"PART #{self.default_target}")
+        # await self.websocket.close()
+        # await self.websocket.await_close()
+        futures = []
+        close_method = getattr(self.websocket, "close", None)
+        if callable(close_method):
+            future = asyncio.ensure_future(close_method(), loop=self.loop)
+            futures.append(future)
+        self.websocket = None
+        event_f = asyncio.ensure_future(
+            self._dispatch_event(event="close"), loop=self.loop
+        )
+        futures.append(event_f)
+        return futures
 
     async def disconnect(self):
         """Disconnect from twitch.
@@ -715,9 +771,12 @@ class ConnectorTwitch(Connector):
         Finally we try to close the websocket connection.
         
         """
-        if self.is_live:
-            await self.disconnect_websockets()
         self.is_live = False
-        await self.webhook("follows", "unsubscribe")
-        await self.webhook("stream changed", "unsubscribe")
-        await self.webhook("subscribers", "unsubscribe")
+        # if self.is_live:
+        await self.disconnect_websockets()
+        self.is_live = False
+        
+        return
+        # await self.webhook("follows", "unsubscribe")
+        # await self.webhook("stream changed", "unsubscribe")
+        # await self.webhook("subscribers", "unsubscribe")
