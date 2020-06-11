@@ -526,9 +526,9 @@ class ConnectorTwitch(Connector):
             f"/connector/{self.name}", self.twitch_webhook_handler
         )
 
-        # await self.webhook("follows", "subscribe")
-        # await self.webhook("stream changed", "subscribe")
-        # await self.webhook("subscribers", "subscribe")
+        await self.webhook("follows", "subscribe")
+        await self.webhook("stream changed", "subscribe")
+        await self.webhook("subscribers", "subscribe")
 
     async def reconnect(self):
         """Attempt to reconnect to the server.
@@ -771,12 +771,14 @@ class ConnectorTwitch(Connector):
         Finally we try to close the websocket connection.
         
         """
+
+        if self.is_live:
+            await self.disconnect_websockets()
         self.is_live = False
-        # if self.is_live:
-        await self.disconnect_websockets()
-        self.is_live = False
+        await self.listen()
+
         
         return
-        # await self.webhook("follows", "unsubscribe")
-        # await self.webhook("stream changed", "unsubscribe")
-        # await self.webhook("subscribers", "unsubscribe")
+        await self.webhook("follows", "unsubscribe")
+        await self.webhook("stream changed", "unsubscribe")
+        await self.webhook("subscribers", "unsubscribe")
