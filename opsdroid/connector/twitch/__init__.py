@@ -319,7 +319,7 @@ class ConnectorTwitch(Connector):
                 "hub.callback": f"{self.forward_url}/connector/{self.name}",
                 "hub.mode": mode,
                 "hub.topic": topic,
-                "hub.lease_seconds": 60 * 60 * 24,
+                "hub.lease_seconds": 60 * 60 * 24 * 9,
                 "hub.secret": self.webhook_secret,
             }
 
@@ -532,13 +532,13 @@ class ConnectorTwitch(Connector):
             except asyncio.TimeoutError:
                 if not self.websocket.closed:
                     continue
+
             if msg.type == aiohttp.WSMsgType.TEXT:
                 if 'PING' in msg.data:
                     await self.websocket.pong('PONG')
                 await self._get_messages(msg.data)
-            
+
             if msg.data == 'close' or msg.type == aiohttp.WSMsgType.CLOSED:
-                _LOGGER.info("Websocket is closed, breaking loop.")
                 await self.websocket.close()
                 if self.is_live:
                     raise aiohttp.ServerDisconnectedError
