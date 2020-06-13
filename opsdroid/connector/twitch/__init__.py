@@ -535,7 +535,7 @@ class ConnectorTwitch(Connector):
                     await self.websocket.send_str("PONG :tmi.twitch.tv")
                 await self._handle_message(msg.data)
 
-            if msg.data == "close" or msg.type == aiohttp.WSMsgType.CLOSED:
+            if msg.type == aiohttp.WSMsgType.CLOSED:
                 await self.websocket.close()
                 if self.is_live:
                     raise ConnectionError(
