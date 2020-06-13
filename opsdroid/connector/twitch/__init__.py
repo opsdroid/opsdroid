@@ -132,9 +132,8 @@ class ConnectorTwitch(Connector):
         # TODO: Allow usage of SSL connection
         self.server = "ws://irc-ws.chat.twitch.tv"
         self.port = "80"
-        self.forward_url = config.get("forward-url")
+        self.base_url = config.get("base-url")
         self.loop = asyncio.get_event_loop()
-
 
     async def send_message(self, message):
         """Sends message throught websocket.
@@ -200,6 +199,7 @@ class ConnectorTwitch(Connector):
         new received data.
         
         """
+        _LOGGER.warning(_("Oauth token expired, attempting to refresh token."))
         refresh_token = self.get_authorization_data()["refresh_token"]
 
         async with aiohttp.ClientSession() as session:
@@ -238,7 +238,7 @@ class ConnectorTwitch(Connector):
         await self.websocket.send_str(f"PASS oauth:{self.token}")
         await self.websocket.send_str(f"NICK {self.bot_name}")
         await self.websocket.send_str(f"JOIN #{self.default_target}")
-        
+
         await self.websocket.send_str("CAP REQ :twitch.tv/commands")
         await self.websocket.send_str("CAP REQ :twitch.tv/tags")
         await self.websocket.send_str("CAP REQ :twitch.tv/membership")
@@ -271,7 +271,9 @@ class ConnectorTwitch(Connector):
         _LOGGER.info(_("Connecting to Twitch IRC Server."))
 
         async with aiohttp.ClientSession() as session:
-            async with session.ws_connect(f"{self.server}:{self.port}", heartbeat=600) as websocket:
+            async with session.ws_connect(
+                f"{self.server}:{self.port}", heartbeat=600
+            ) as websocket:
                 self.websocket = websocket
                 await self.send_handshake()
                 await self.get_messages_loop()
@@ -316,10 +318,10 @@ class ConnectorTwitch(Connector):
         async with aiohttp.ClientSession() as session:
 
             payload = {
-                "hub.callback": f"{self.forward_url}/connector/{self.name}",
+                "hub.callback": f"{self.base_url}/connector/{self.name}",
                 "hub.mode": mode,
                 "hub.topic": topic,
-                "hub.lease_seconds": 60 * 60 * 24 * 9,
+                "hub.lease_seconds": 60 * 60 * 24 * 9, # Expire after 9 days
                 "hub.secret": self.webhook_secret,
             }
 
@@ -483,7 +485,6 @@ class ConnectorTwitch(Connector):
                 self.default_target, self.token, self.client_id
             )
         except aiohttp.ClientResponseError:
-            _LOGGER.info(_("Oauth token expired, attempting to refresh token."))
             await self.refresh_token()
 
             self.user_id = await get_user_id(
@@ -514,56 +515,67 @@ class ConnectorTwitch(Connector):
         if self.is_live:
             try:
                 await self.connect_websocket()
-            
-            except aiohttp.client_exceptions.ServerDisconnectedError:
-                _LOGGER.debug(_("Connection to the chat server dropped. Reconnecting..."))
+            except ConnectionError as e:
+                _LOGGER.debug(e)
                 await self.connect_websocket()
-            except Exception as e:
-                _LOGGER.info('got error %s', e)
-                raise e
 
     async def get_messages_loop(self):
-        """Listen for and parse events."""
-        while self.is_live:
-            try:
-                msg = await self.websocket.receive()
-            except Exception as e:
-                _LOGGER.info(e)
-            except asyncio.TimeoutError:
-                if not self.websocket.closed:
-                    continue
-
+        """Listen for and parse messages.
+        
+        Since we are using aiohttp websockets support we need to manually send a 
+        pong response every time Twitch asks for it. We also need to handle if 
+        the connection was closed and if it was closed but we are still live, then 
+        a ConnectionError exception is raised so we can attempt to reconnect to the
+        chat server again.
+        
+        """
+        async for msg in self.websocket:
             if msg.type == aiohttp.WSMsgType.TEXT:
-                if 'PING' in msg.data:
-                    await self.websocket.pong('PONG')
-                await self._get_messages(msg.data)
+                if "PING" in msg.data:
+                    await self.websocket.send_str("PONG :tmi.twitch.tv")
+                await self._handle_message(msg.data)
 
-            if msg.data == 'close' or msg.type == aiohttp.WSMsgType.CLOSED:
+            if msg.data == "close" or msg.type == aiohttp.WSMsgType.CLOSED:
                 await self.websocket.close()
                 if self.is_live:
-                    raise aiohttp.ServerDisconnectedError
-                break
+                    raise ConnectionError(
+                        "Connection to Twitch Chat Server dropped, reconnecting..."
+                    )
 
-    async def _get_messages(self, resp):
-        """Receive data from websocket connection.
-        
-        We handle the case where the connection is dropped, if that happens for some
-        reason we attempt to reconnect to the websocket service. This method is being
-        run through the infinite while loop.
+    async def _handle_message(self, resp):
+        """Handle message from websocket connection.
         
         The message that we get from Twitch contains a lot of metadata, so we are using 
         regex named groups to get only the data that we need in order to parse a message
         received.
         
         We also need to check if whatever we received from the websocket is indeed a text
-        message that we need to parse, so we use a simple if statement to check if the data
-        received matches a text message.
+        message or an event that we need to parse. We do a few checks to decide what should 
+        be done with the message. 
+        
+        If opsdroid is running for a long time, the OAuth token will expire and the connection
+        to the websockets will send us back a `:tmi.twitch.tv NOTICE * :Login authentication failed`
+        so if we receive that NOTICE we will attempt to refresh the token.
+        
+        Twitch websockets send all the messages as strings, this includes PINGs, that means we will
+        keep getting PINGs as long as our connection is active, these messages tell us nothing important
+        so we made the decision to just hide them from the logs.
         
         """
-        _LOGGER.debug(_('Got message from Twitch Connector chat -  %s'), resp)
+        if not "PING" in resp:
+            _LOGGER.debug(_("Got message from Twitch Connector chat -  %s"), resp)
 
         chat_message = re.match(TWITCH_IRC_MESSAGE_REGEX, resp)
         join_event = re.match(r":(?P<user>.*)!.*JOIN", resp)
+        authentication_failed = re.match(
+            r":tmi.twitch.tv NOTICE \* :Login authentication failed", resp
+        )
+
+        if authentication_failed:
+            self.refresh_token()
+            raise ConnectionError(
+                "OAuth token expire, need to reconnect to the chat service."
+            )
 
         if chat_message:
 
@@ -730,7 +742,7 @@ class ConnectorTwitch(Connector):
 
         if self.is_live:
             await self.disconnect_websockets()
-        
+
         await self.webhook("follows", "unsubscribe")
         await self.webhook("stream changed", "unsubscribe")
         await self.webhook("subscribers", "unsubscribe")
