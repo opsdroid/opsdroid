@@ -134,6 +134,7 @@ class ConnectorTwitch(Connector):
         self.port = "80"
         self.base_url = config.get("base-url")
         self.loop = asyncio.get_event_loop()
+        self.reconnections = 0
 
     async def send_message(self, message):
         """Sends message throught websocket.
@@ -321,7 +322,7 @@ class ConnectorTwitch(Connector):
                 "hub.callback": f"{self.base_url}/connector/{self.name}",
                 "hub.mode": mode,
                 "hub.topic": topic,
-                "hub.lease_seconds": 60 * 60 * 24 * 9, # Expire after 9 days
+                "hub.lease_seconds": 60 * 60 * 24 * 9,  # Expire after 9 days
                 "hub.secret": self.webhook_secret,
             }
 
@@ -382,76 +383,75 @@ class ConnectorTwitch(Connector):
             it doesn't get the 200 status code. 
 
         """
-        payload = await request.json()
-        [data] = payload.get("data")
-
-        _LOGGER.debug(_("Got event from Twitch - %s") % data)
 
         valid = await validate_request(request, self.webhook_secret)
+        payload = await request.json()
 
         if valid:
             try:
-                if data.get("followed_at"):
-                    _LOGGER.debug(_("Follower event received by Twitch."))
-                    user_followed = twitch_event.UserFollowed(
-                        follower=data["from_name"],
-                        followed_at=data["followed_at"],
-                        connector=self,
-                    )
-                    await self.opsdroid.parse(user_followed)
+                [data] = payload.get("data")
+            except ValueError:
+                # When the stream goes offline, Twitch will return `data: []`
+                # that will raise ValueError since it can't unpack empty list
+                stream_ended = twitch_event.StreamEnded(connector=self)
+                await self.opsdroid.parse(stream_ended)
 
-                if data.get("started_at"):
-                    _LOGGER.debug(_("Broadcaster went live event received by Twitch."))
-                    self.is_live = True
-                    await self.connect_websocket()
+                if not self.config.get("always-listening"):
+                    self.is_live = False
+                    self.disconnect_websockets()
 
-                    stream_started = twitch_event.StreamStarted(
-                        title=data["title"],
-                        viewers=data["viewer_count"],
-                        started_at=data["started_at"],
-                        connector=self,
-                    )
+            _LOGGER.debug(_("Got event from Twitch - %s") % data)
 
-                    await self.opsdroid.parse(stream_started)
+            if data.get("followed_at"):
+                _LOGGER.debug(_("Follower event received by Twitch."))
+                user_followed = twitch_event.UserFollowed(
+                    follower=data["from_name"],
+                    followed_at=data["followed_at"],
+                    connector=self,
+                )
+                await self.opsdroid.parse(user_followed)
 
-                if data.get("event_type") == "subscriptions.notification":
-                    _LOGGER.debug(_("Subscriber event received by Twitch."))
-                    user_subscription = twitch_event.UserSubscribed(
-                        username=data["event_data"]["user_name"],
-                        message=data["event_data"]["message"],
-                    )
+            if data.get("started_at"):
+                _LOGGER.debug(_("Broadcaster went live event received by Twitch."))
+                self.is_live = True
+                await self.connect_websocket()
 
-                    await self.opsdroid.parse(user_subscription)
+                stream_started = twitch_event.StreamStarted(
+                    title=data["title"],
+                    viewers=data["viewer_count"],
+                    started_at=data["started_at"],
+                    connector=self,
+                )
 
-                if data.get("event_type") == "subscriptions.subscribe":
-                    _LOGGER.debug(_("Subscriber event received by Twitch."))
-                    user_subscription = twitch_event.UserSubscribed(
-                        username=data["event_data"]["user_name"], message=None
-                    )
+                await self.opsdroid.parse(stream_started)
 
-                    await self.opsdroid.parse(user_subscription)
+            if data.get("event_type") == "subscriptions.notification":
+                _LOGGER.debug(_("Subscriber event received by Twitch."))
+                user_subscription = twitch_event.UserSubscribed(
+                    username=data["event_data"]["user_name"],
+                    message=data["event_data"]["message"],
+                )
 
-                if data.get("event_type") == "subscriptions.subscribe" and data[
-                    "event_data"
-                ].get("is_gift"):
-                    _LOGGER.debug(_("Gifted subscriber event received by Twitch."))
-                    gifted_subscription = twitch_event.UserGiftedSubscription(
-                        gifter_name=data["event_data"]["gifter_name"],
-                        gifted_named=data["event_data"]["user_name"],
-                    )
+                await self.opsdroid.parse(user_subscription)
 
-                    await self.opsdroid.parse(gifted_subscription)
+            if data.get("event_type") == "subscriptions.subscribe":
+                _LOGGER.debug(_("Subscriber event received by Twitch."))
+                user_subscription = twitch_event.UserSubscribed(
+                    username=data["event_data"]["user_name"], message=None
+                )
 
-            except KeyError:
-                if not payload.get("data"):
-                    # When the stream goes offline, Twitch will return `data: []`
-                    # if data is none we assume the streamer whent offline
-                    stream_ended = twitch_event.StreamEnded(connector=self)
-                    await self.opsdroid.parse(stream_ended)
+                await self.opsdroid.parse(user_subscription)
 
-                    if not self.config.get("always-listening"):
-                        self.is_live = False
-                        self.disconnect_websockets()
+            if data.get("event_type") == "subscriptions.subscribe" and data[
+                "event_data"
+            ].get("is_gift"):
+                _LOGGER.debug(_("Gifted subscriber event received by Twitch."))
+                gifted_subscription = twitch_event.UserGiftedSubscription(
+                    gifter_name=data["event_data"]["gifter_name"],
+                    gifted_named=data["event_data"]["user_name"],
+                )
+
+                await self.opsdroid.parse(gifted_subscription)
 
             return aiohttp.web.Response(text=json.dumps("Received"), status=200)
         return aiohttp.web.Response(text=json.dumps("Unauthorized"), status=401)
@@ -510,13 +510,19 @@ class ConnectorTwitch(Connector):
         infinite loop is running, it becomes hard to cancel this task.
         So we are creating a task and set it on a variable so we can
         cancel the task.
+        
+        If we need to reconnect to Twitch, Twitch will allow us to reconnect
+        immediatly on the first reconnect and then expects us to wait exponentially
+        to reconnect to the websocket. 
 
         """
-        if self.is_live:
+        while self.is_live:
             try:
                 await self.connect_websocket()
             except ConnectionError as e:
                 _LOGGER.debug(e)
+                await asyncio.sleep(2 ** self.reconnections)
+                self.reconnections += 1
                 await self.connect_websocket()
 
     async def get_messages_loop(self):
