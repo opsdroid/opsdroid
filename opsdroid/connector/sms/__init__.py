@@ -58,7 +58,7 @@ class ConnectorSMS(Connector):
     @register_event(Message)
     async def send_message(self, message):
         if (
-            self.config["isTrial"]
+            self.config["is_trial"]
             and message.user not in self.config["allowed_trial_users"]
         ):
             _LOGGER.error(
