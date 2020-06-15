@@ -97,6 +97,7 @@ class InMemoryDatabase(Database):
     def __init__(self, config={}, opsdroid=None):  # noqa: D107
         super().__init__(config, opsdroid)
         self.memory = {}
+        self.name = "inmem"
 
     async def connect(self):  # noqa: D102
         pass  # pragma: nocover

@@ -81,7 +81,10 @@ class ConnectorFacebook(Connector):
                         )
                         await self.opsdroid.parse(message)
                     except KeyError as error:
-                        _LOGGER.error(error)
+                        _LOGGER.error(
+                            "Unable to process message. Invalid payload. See the debug log for more information."
+                        )
+                        _LOGGER.debug(error)
 
         return aiohttp.web.Response(text=json.dumps("Received"), status=200)
 
