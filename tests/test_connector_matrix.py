@@ -1273,6 +1273,11 @@ class TestEventCreatorMatrixAsync(asynctest.TestCase):
         patched_get_nick.return_value.set_result("Rabbit Hole")
         self.connector.get_nick = patched_get_nick
 
+        patched_mxc = amock.MagicMock()
+        patched_mxc.return_value = asyncio.Future()
+        patched_mxc.return_value.set_result("http://somefileurl")
+        self.connector.mxc_to_http = patched_mxc
+
         return MatrixEventCreator(self.connector)
 
     async def test_create_message(self):
@@ -1288,7 +1293,7 @@ class TestEventCreatorMatrixAsync(asynctest.TestCase):
     async def test_create_file(self):
         event = await self.event_creator.create_event(self.file_json, "hello")
         assert isinstance(event, events.File)
-        assert event.url == "mxc://matrix.org/vtgAIrGtuYJQCXNKRGhVfSMX"
+        assert event.url == "http://somefileurl"
         assert event.user == "Rabbit Hole"
         assert event.user_id == "@neo:matrix.org"
         assert event.target == "hello"
@@ -1298,7 +1303,7 @@ class TestEventCreatorMatrixAsync(asynctest.TestCase):
     async def test_create_image(self):
         event = await self.event_creator.create_event(self.image_json, "hello")
         assert isinstance(event, events.Image)
-        assert event.url == "mxc://matrix.org/iDHKYJSQZZrrhOxAkMBMOaeo"
+        assert event.url == "http://somefileurl"
         assert event.user == "Rabbit Hole"
         assert event.user_id == "@neo:matrix.org"
         assert event.target == "hello"
