@@ -1,4 +1,3 @@
-# Based on the Facebook tests
 import unittest
 import asyncio
 
@@ -11,7 +10,7 @@ from opsdroid.cli.start import configure_lang
 
 
 class TestConnectorSMS(unittest.TestCase):
-    """Test the opsdroid Facebook connector class."""
+    """Test the opsdroid SMS connector class."""
 
     def setUp(self):
         self.loop = asyncio.new_event_loop()
@@ -19,7 +18,6 @@ class TestConnectorSMS(unittest.TestCase):
     def test_init(self):
         opsdroid = amock.CoroutineMock()
         connector = ConnectorSMS({}, opsdroid=opsdroid)
-        self.assertEqual(None, connector.default_target)
         self.assertEqual("sms", connector.name)
 
     def test_property(self):
