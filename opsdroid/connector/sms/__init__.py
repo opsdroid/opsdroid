@@ -28,8 +28,10 @@ class ConnectorSMS(Connector):
         self.bot_name = config.get("bot-name", "opsdroid")
         self.config = config
 
-        if self.config["is_trial"] and len(self.config["approved_trial_numbers"]) == 0:
-            _LOGGER.warn("[WARNING] Please Set Approved Trial Numbers")
+        for key in range(len(list(CONFIG_SCHEMA.keys()).remove('name')) - 1 ): # loop through all the keys except the last one
+            assert(self.config.get(list(CONFIG_SCHEMA.keys()).remove('name')[key]) != None)
+        
+        assert(len(config.get('approved_trial_numbers' != 0 )), 'Please set approved_trial_numbers') if self.config['is_trial'] == True
 
     async def connect(self):
         """Connect to Twilio and setup webhooks"""
