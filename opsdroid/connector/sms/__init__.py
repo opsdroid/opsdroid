@@ -1,6 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
+'''A SMS connector for opsdroid'''
 # Opsdroid Imports
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
@@ -22,7 +20,7 @@ CONFIG_SCHEMA = {
 
 
 class ConnectorSMS(Connector):
-    """A connector for Twilio-powered SMS"""
+    """A connector for SMS."""
 
     def __init__(self, config, opsdroid):
         super().__init__(config, opsdroid=opsdroid)
