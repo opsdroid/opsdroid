@@ -8,11 +8,11 @@ In addition to this we will also endeavour to support new minor versions of Pyth
 
 ## Support table
 
-| Version | Start Support | End Support   | Status              |
-|---------|---------------|---------------|---------------------|
-| 3.5.0   | March 2016    | March 2019    | No longer supported |
-| 3.6.0   | June 2017     | June 2020     | Supported           |
-| 3.7.0   | December 2018 | December 2021 | Supported           |
-| 3.8.0   | April 2019    | April 2022    | Not yet supported   |
+| Version | Release Date   | Start Support | End Support   | Status              |
+|---------|----------------|---------------|---------------|---------------------|
+| 3.5.0   | September 2015 | March 2016    | March 2019    | No longer supported |
+| 3.6.0   | December 2016  | June 2017     | June 2020     | Supported           |
+| 3.7.0   | June 2018      | December 2018 | December 2021 | Supported           |
+| 3.8.0   | October 2019   | April 2020    | April 2023    | Not yet supported   |
 
 _If you think this table may be out of date please help by raising a [Pull Request](https://github.com/opsdroid/opsdroid/edit/master/docs/project/supported-python-versions.md) to fix it._
