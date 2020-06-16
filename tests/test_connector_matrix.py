@@ -82,6 +82,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             device_key_count={"signed_curve25519": 50},
             device_list={"changed": [], "left": []},
             to_device_events={"events": []},
+            presence_events={"events": []},
         )
 
     @property
@@ -149,6 +150,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             device_key_count={},
             device_list={"changed": [], "left": []},
             to_device_events={"events": []},
+            presence_events={"events": []},
         )
 
     @property
@@ -228,6 +230,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
                     device_key_count={"signed_curve25519": 50},
                     device_list={"changed": [], "left": []},
                     to_device_events={"events": []},
+                    presence_events={"events": []},
                 )
             )
 
@@ -293,6 +296,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
                     device_key_count={"signed_curve25519": 50},
                     device_list={"changed": [], "left": []},
                     to_device_events={"events": []},
+                    presence_events={"events": []},
                 )
             )
             patched_join.return_value = asyncio.Future()
@@ -633,21 +637,21 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
         ) as patched_upload:
 
             patched_upload.return_value = asyncio.Future()
-            patched_upload.return_value.set_result({"content_uri": "mxc://aurl"})
+            patched_upload.return_value.set_result([nio.UploadResponse({"content_uri": "mxc://aurl"})])
 
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result(None)
             await self.connector.send(image)
 
             patched_send.assert_called_once_with(
+                room_id="!test:localhost",
+                message_type="m.room.message",
                 content={
                     "body": "opsdroid_upload",
                     "info": {"w": 1, "h": 1, "mimetype": "image/gif", "size": 26},
                     "msgtype": "m.image",
-                    "url": "mxc://aurl",
+                    "url": {"content_uri": "mxc://aurl"},
                 },
-                message_type="m.room.message",
-                room_id="!test:localhost",
             )
 
     async def test_respond_mxc(self):
@@ -688,21 +692,21 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
         ) as patched_upload:
 
             patched_upload.return_value = asyncio.Future()
-            patched_upload.return_value.set_result({"content_uri": "mxc://aurl"})
+            patched_upload.return_value.set_result([nio.UploadResponse({"content_uri": "mxc://aurl"})])
 
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result(None)
             await self.connector.send(file_event)
 
             patched_send.assert_called_once_with(
+                room_id="!test:localhost",
+                message_type="m.room.message",
                 content={
                     "body": "opsdroid_upload",
                     "info": {},
                     "msgtype": "m.file",
-                    "url": "mxc://aurl",
+                    "url": {"content_uri": "mxc://aurl"},
                 },
-                message_type="m.room.message",
-                room_id="!test:localhost",
             )
 
     async def test_respond_new_room(self):
