@@ -4,6 +4,7 @@ import re
 import logging
 import functools
 from urllib.parse import urlparse
+from io import BytesIO, BufferedReader
 
 import aiohttp
 
@@ -133,9 +134,7 @@ class ConnectorMatrix(Connector):
 
     async def connect(self):
         """Create connection object with chat library."""
-        config = nio.AsyncClientConfig(
-            nio.ClientConfig(encryption_enabled=False, pickle_key="")
-        )
+        config = nio.AsyncClientConfig(encryption_enabled=False, pickle_key="")
         mapi = nio.AsyncClient(self.homeserver, self.mxid, config=config)
 
         login_response = await mapi.login(
@@ -221,7 +220,7 @@ class ConnectorMatrix(Connector):
                         # event = await self.connection.decrypt_event(event)
 
                         if event.source["type"] == "m.room.member":
-                            event.source["content"]["membership"] = event.membership
+                            event.source["content"] = event.content
 
                         return await self._event_creator.create_event(
                             event.source, roomid
@@ -405,11 +404,14 @@ class ConnectorMatrix(Connector):
                 mxc_url = file_event.url
 
         if not mxc_url:
+            upload_file = await file_event.get_file_bytes()
+            if isinstance(upload_file, bytes):
+                upload_file = BufferedReader(BytesIO(upload_file))
             mxc_url = await self.connection.upload(
-                await file_event.get_file_bytes(), await file_event.get_mimetype()
+                upload_file, await file_event.get_mimetype()
             )
 
-            mxc_url = mxc_url["content_uri"]
+            mxc_url = mxc_url[0].content_uri
             uploaded = True
 
         return mxc_url, uploaded
