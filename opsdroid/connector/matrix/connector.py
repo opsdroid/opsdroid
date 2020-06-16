@@ -1,16 +1,12 @@
 """Connector for Matrix (https://matrix.org)."""
 
 import re
-import json
 import logging
 import functools
-from concurrent.futures import CancelledError
 from urllib.parse import urlparse
 
 import aiohttp
 
-from matrix_api_async.api_asyncio import AsyncHTTPAPI
-from matrix_client.errors import MatrixRequestError
 from voluptuous import Required
 
 from opsdroid.connector import Connector, register_event
@@ -20,6 +16,8 @@ from .html_cleaner import clean
 from .create_events import MatrixEventCreator
 from . import events as matrixevents
 
+import nio
+import json
 
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = {
@@ -47,7 +45,13 @@ def ensure_room_id_and_send(func):
             event.target = self.room_ids[event.target]
 
         if not event.target.startswith("!"):
-            event.target = await self.connection.get_room_id(event.target)
+            response = await self.connection.room_resolve_alias(event.target)
+            if isinstance(response, nio.RoomResolveAliasError):
+                _LOGGER.error(
+                    f"Error resolving room id for {event.target}: {response.message} (status code {response.status_code})"
+                )
+            else:
+                event.target = response.room_id
 
         try:
             return await func(self, event)
@@ -78,6 +82,7 @@ class ConnectorMatrix(Connector):
         self.session = None
         self.filter_id = None
         self.connection = None
+        self.device_name = config.get("device_name", "opsdroid")
 
         self._event_creator = MatrixEventCreator(self)
 
@@ -104,111 +109,144 @@ class ConnectorMatrix(Connector):
     @property
     def filter_json(self):
         """Define JSON filter to apply to incoming events."""
-        return {
-            "event_format": "client",
-            "account_data": {"limit": 0, "types": []},
-            "presence": {"limit": 0, "types": []},
-            "room": {"account_data": {"types": []}, "ephemeral": {"types": []}},
-        }
+        return json.dumps(
+            {
+                "event_format": "client",
+                "account_data": {"limit": 0, "types": []},
+                "presence": {"limit": 0, "types": []},
+                "room": {
+                    "account_data": {"types": []},
+                    "ephemeral": {"types": []},
+                    "state": {"types": []},
+                },
+            }
+        )
 
-    async def make_filter(self, api):
+    async def make_filter(self, api, fjson):
         """Make a filter on the server for future syncs."""
-        fjson = self.filter_json
-        resp = await api.create_filter(user_id=self.mxid, filter_params=fjson)
-        return resp["filter_id"]
+        path = f"/_matrix/client/r0/user/{self.mxid}/filter"
+        headers = {"Authorization": f"Bearer {api.token}"}
+        resp = await api.send(method="post", path=path, data=fjson, headers=headers)
+
+        resp_json = await resp.json()
+        return int(resp_json["filter_id"])
 
     async def connect(self):
         """Create connection object with chat library."""
-        session = aiohttp.ClientSession(trust_env=True)
-        mapi = AsyncHTTPAPI(self.homeserver, session)
-
-        self.session = session
-        login_response = await mapi.login(
-            "m.login.password", user=self.mxid, password=self.password
+        config = nio.AsyncClientConfig(
+            nio.ClientConfig(encryption_enabled=False, pickle_key="")
         )
-        mapi.token = login_response["access_token"]
+        mapi = nio.AsyncClient(self.homeserver, self.mxid, config=config)
+
+        login_response = await mapi.login(
+            password=self.password, device_name=self.device_name
+        )
+        if isinstance(login_response, nio.LoginError):
+            _LOGGER.error(
+                f"Error while connecting: {login_response.message} (status code {login_response.status_code})"
+            )
+            return
+
+        mapi.token = login_response.access_token
         mapi.sync_token = None
 
         for roomname, room in self.rooms.items():
-            response = await mapi.join_room(room["alias"])
-            self.room_ids[roomname] = response["room_id"]
+            response = await mapi.join(room["alias"])
+            if isinstance(response, nio.JoinError):
+                _LOGGER.error(
+                    f"Error while joining room: {room['alias']}, Message: {response.message} (status code {response.status_code})"
+                )
+
+            else:
+                self.room_ids[roomname] = response.room_id
+
         self.connection = mapi
 
         # Create a filter now, saves time on each later sync
-        self.filter_id = await self.make_filter(mapi)
+        self.filter_id = await self.make_filter(mapi, self.filter_json)
+        first_filter_id = await self.make_filter(
+            mapi, '{ "room": { "timeline" : { "limit" : 1 } } }'
+        )
 
         # Do initial sync so we don't get old messages later.
-        response = await self.connection.sync(
-            timeout_ms=3000,
-            filter='{ "room": { "timeline" : { "limit" : 1 } } }',
-            set_presence="online",
-        )
-        self.connection.sync_token = response["next_batch"]
+        response = await self.connection.sync(timeout=3000, sync_filter=first_filter_id)
+
+        if isinstance(response, nio.SyncError):
+            _LOGGER.error(
+                f"Error during initial sync: {response.message} (status code {response.status_code})"
+            )
+            return
+
+        self.connection.sync_token = response.next_batch
 
         if self.nick:
-            display_name = await self.connection.get_display_name(self.mxid)
+            display_name = await self.connection.get_displayname(self.mxid)
             if display_name != self.nick:
-                await self.connection.set_display_name(self.mxid, self.nick)
+                await self.connection.set_displayname(self.nick)
 
     async def disconnect(self):
         """Close the matrix session."""
-        await self.session.close()
+        await self.connection.close()
 
     async def _parse_sync_response(self, response):
-        self.connection.sync_token = response["next_batch"]
+        self.connection.sync_token = response.next_batch
 
         # Emit Invite events for every room in the invite list.
-        for roomid, room in response["rooms"]["invite"].items():
+        for roomid, roomInfo in response.rooms.invite.items():
             # Process the invite list to extract the person who invited us.
             invite_event = [
                 e
-                for e in room["invite_state"]["events"]
-                if "invite" == e.get("content", {}).get("membership")
+                for e in roomInfo.invite_state
+                if isinstance(e, nio.InviteMemberEvent)
+                if e.membership == "invite"
             ][0]
-            sender = await self.get_nick(None, invite_event["sender"])
+            sender = await self.get_nick(None, invite_event.sender)
 
             await self.opsdroid.parse(
                 events.UserInvite(
                     target=roomid,
-                    user_id=invite_event["sender"],
+                    user_id=invite_event.sender,
                     user=sender,
                     connector=self,
                     raw_event=invite_event,
                 )
             )
 
-        for roomid, room in response["rooms"]["join"].items():
-            if "timeline" in room:
-                for event in room["timeline"]["events"]:
-                    if event["sender"] != self.mxid:
-                        return await self._event_creator.create_event(event, roomid)
+        for roomid, roomInfo in response.rooms.join.items():
+            if roomInfo.timeline:
+                for event in roomInfo.timeline.events:
+                    if event.sender != self.mxid:
+                        # if isinstance(event, nio.MegolmEvent):
+                        # event is encrypted
+                        # event = await self.connection.decrypt_event(event)
+
+                        if event.source["type"] == "m.room.member":
+                            event.source["content"]["membership"] = event.membership
+
+                        return await self._event_creator.create_event(
+                            event.source, roomid
+                        )
 
     async def listen(self):  # pragma: no cover
         """Listen for new messages from the chat service."""
         while True:  # pylint: disable=R1702
-            try:
-                response = await self.connection.sync(
-                    self.connection.sync_token,
-                    timeout_ms=int(60 * 1e3),  # 1m in ms
-                    filter=self.filter_id,
+            response = await self.connection.sync(
+                timeout=int(60 * 1e3),  # 1m in ms
+                sync_filter=self.filter_id,
+                since=self.connection.sync_token,
+            )
+            if isinstance(response, nio.SyncError):
+                _LOGGER.error(
+                    f"Error during sync: {response.message} (status code {response.status_code})"
                 )
-                _LOGGER.debug(_("Matrix sync request returned."))
-                message = await self._parse_sync_response(response)
-                if message:
-                    await self.opsdroid.parse(message)
+                continue
 
-            except MatrixRequestError as mre:
-                # We can safely ignore timeout errors. The non-standard error
-                # codes are returned by Cloudflare.
-                if mre.code in [504, 522, 524]:
-                    _LOGGER.info(_("Matrix sync timeout (code: %d)."), mre.code)
-                    continue
+            _LOGGER.debug(_("Matrix sync request returned."))
 
-                _LOGGER.exception(_("Matrix sync error."))
-            except CancelledError:
-                raise
-            except Exception:  # pylint: disable=W0703
-                _LOGGER.exception(_("Matrix sync error."))
+            message = await self._parse_sync_response(response)
+
+            if message:
+                await self.opsdroid.parse(message)
 
     def lookup_target(self, room):
         """Convert name or alias of a room to the corresponding room ID."""
@@ -222,20 +260,25 @@ class ConnectorMatrix(Connector):
         Get the nickname of a sender depending on the room specific config
         setting.
         """
-        if self.room_specific_nicks:
-            try:
-                return await self.connection.get_room_displayname(roomid, mxid)
-            except Exception:  # pylint: disable=W0703
-                # Fallback to the non-room specific one
-                logging.exception("Failed to lookup room specific nick for %s.", mxid)
+        if self.room_specific_nicks and roomid is not None:
 
-        try:
-            return await self.connection.get_display_name(mxid)
-        except MatrixRequestError as mre:
-            # Log the error if it's not the 404 from the user not having a nick
-            if mre.code != 404:
-                logging.exception("Failed to lookup nick for %s.", mxid)
+            res = await self.connection.joined_members(roomid)
+            if isinstance(res, nio.JoinedMembersError):
+                logging.exception("Failed to lookup room members for %s.", roomid)
+                # fallback to global profile
+            else:
+                for member in res.members:
+                    if member.user_id == mxid:
+                        return member.display_name
+                return mxid
+
+        res = await self.connection.get_displayname(mxid)
+        if isinstance(res, nio.ProfileGetDisplayNameError):
+            _LOGGER.error("Failed to lookup nick for %s.", mxid)
             return mxid
+        if res.displayname is None:
+            return mxid
+        return res.displayname
 
     def get_roomname(self, room):
         """Get the name of a room from alias or room ID."""
@@ -276,7 +319,7 @@ class ConnectorMatrix(Connector):
     @ensure_room_id_and_send
     async def _send_message(self, message):
         """Send `message.text` back to the chat service."""
-        return await self.connection.send_message_event(
+        return await self.connection.room_send(
             message.target,
             "m.room.message",
             self._get_formatted_message_body(
@@ -309,9 +352,7 @@ class ConnectorMatrix(Connector):
         }
 
         return (
-            await self.connection.send_message_event(
-                message.target, "m.room.message", content
-            ),
+            await self.connection.room_send(message.target, "m.room.message", content),
         )
 
     @register_event(events.Reply)
@@ -330,9 +371,7 @@ class ConnectorMatrix(Connector):
         content["m.relates_to"] = {"m.in_reply_to": {"event_id": reply_event_id}}
 
         return (
-            await self.connection.send_message_event(
-                reply.target, "m.room.message", content
-            ),
+            await self.connection.room_send(reply.target, "m.room.message", content),
         )
 
     @register_event(events.Reaction)
@@ -345,9 +384,7 @@ class ConnectorMatrix(Connector):
                 "key": reaction.emoji,
             }
         }
-        return await self.connection.send_message_event(
-            reaction.target, "m.reaction", content
-        )
+        return await self.connection.room_send(reaction.target, "m.reaction", content)
 
     async def _get_image_info(self, image):
         width, height = await image.get_dimensions()
@@ -368,7 +405,7 @@ class ConnectorMatrix(Connector):
                 mxc_url = file_event.url
 
         if not mxc_url:
-            mxc_url = await self.connection.media_upload(
+            mxc_url = await self.connection.upload(
                 await file_event.get_file_bytes(), await file_event.get_mimetype()
             )
 
@@ -394,8 +431,15 @@ class ConnectorMatrix(Connector):
             msg_type = "m.file"
 
         name = file_event.name or "opsdroid_upload"
-        await self.connection.send_content(
-            file_event.target, mxc_url, name, msg_type, extra_info
+        await self.connection.room_send(
+            room_id=file_event.target,
+            message_type="m.room.message",
+            content={
+                "body": name,
+                "info": extra_info,
+                "msgtype": msg_type,
+                "url": mxc_url,
+            },
         )
 
     @register_event(events.NewRoom)
@@ -403,8 +447,13 @@ class ConnectorMatrix(Connector):
     async def _send_room_creation(self, creation_event):
         params = creation_event.room_params
         params = params.get("matrix", params)
-        response = await self.connection.create_room(**params)
-        room_id = response["room_id"]
+        response = await self.connection.room_create(**params)
+        if isinstance(response, nio.RoomCreateError):
+            _LOGGER.error(
+                f"Error while creating the room. Reason: {response.message} (status code {response.status_code})"
+            )
+            return
+        room_id = response.room_id
         if creation_event.name is not None:
             await self._send_room_name_set(
                 events.RoomName(creation_event.name, target=room_id)
@@ -414,45 +463,57 @@ class ConnectorMatrix(Connector):
     @register_event(events.RoomName)
     @ensure_room_id_and_send
     async def _send_room_name_set(self, name_event):
-        return await self.connection.set_room_name(name_event.target, name_event.name)
+        return await self.connection.room_put_state(
+            name_event.target, "m.room.name", {"name": name_event.name}
+        )
 
     @register_event(events.RoomAddress)
     @ensure_room_id_and_send
     async def _send_room_address(self, address_event):
-        try:
-            return await self.connection.set_room_alias(
-                address_event.target, address_event.address
-            )
-        except MatrixRequestError as err:
-            if err.code == 409:
+        res = await self.connection.room_put_state(
+            address_event.target, "m.room.aliases", address_event.address
+        )
+
+        if isinstance(res, nio.RoomPutStateError):
+            if res.status_code != 409:
+                _LOGGER.error(
+                    f"Error while setting room alias: {res.message} (status code {res.status_code})"
+                )
+            else:
                 _LOGGER.warning(
                     f"A room with the alias {address_event.address} already exists."
                 )
+        return res
 
     @register_event(events.JoinRoom)
     @ensure_room_id_and_send
     async def _send_join_room(self, join_event):
-        return await self.connection.join_room(join_event.target)
+        return await self.connection.join(join_event.target)
 
     @register_event(events.UserInvite)
     @ensure_room_id_and_send
     async def _send_user_invitation(self, invite_event):
-        try:
-            return await self.connection.invite_user(
-                invite_event.target, invite_event.user_id
-            )
-        except MatrixRequestError as err:
-            content = json.loads(err.content)
-            if err.code == 403 and "is already in the room" in content["error"]:
+        res = await self.connection.room_invite(
+            invite_event.target, invite_event.user_id
+        )
+
+        if isinstance(res, nio.RoomInviteError):
+            if res.status_code == 403 and "is already in the room" in res.message:
                 _LOGGER.info(
                     f"{invite_event.user_id} is already in the room, ignoring."
                 )
+            else:
+                _LOGGER.error(
+                    f"Error while inviting user {invite_event.user_id} to room {invite_event.target}: {res.message} (status code {res.status_code})"
+                )
+
+        return res
 
     @register_event(events.RoomDescription)
     @ensure_room_id_and_send
     async def _send_room_desciption(self, desc_event):
-        return await self.connection.set_room_topic(
-            desc_event.target, desc_event.description
+        return await self.connection.room_put_state(
+            desc_event.target, "m.room.topic", {"topic": desc_event.description}
         )
 
     @register_event(events.RoomImage)
@@ -479,8 +540,10 @@ class ConnectorMatrix(Connector):
             except ValueError:
                 raise ValueError("Role must be one of 'mod', 'admin', or an integer")
 
-        power_levels = await self.connection.get_power_levels(room_id)
-        power_levels["users"][role_event.user_id] = power_level
+        power_levels = await self.connection.room_get_state_event(
+            room_id, "m.room.power_levels"
+        )
+        power_levels.content["users"][role_event.user_id] = power_level
 
         return await role_event.respond(matrixevents.MatrixPowerLevels(power_levels))
 
@@ -488,7 +551,7 @@ class ConnectorMatrix(Connector):
     @ensure_room_id_and_send
     async def _send_state_event(self, state_event):
         _LOGGER.debug(f"Sending State Event {state_event}")
-        return await self.connection.send_state_event(
+        return await self.connection.room_put_state(
             state_event.target,
             state_event.event_type,
             state_event.content,
@@ -498,6 +561,6 @@ class ConnectorMatrix(Connector):
     @register_event(matrixevents.GenericMatrixRoomEvent)
     @ensure_room_id_and_send
     async def _send_generic_event(self, event):
-        return await self.connection.send_message_event(
+        return await self.connection.room_send(
             event.target, event.event_type, event.content
         )

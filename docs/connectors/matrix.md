@@ -23,6 +23,7 @@ connectors:
       'other': '#riot:matrix.org'
     # Optional
     homeserver: "https://matrix.org"
+    device_name: "opsdroid"
     nick: "Botty McBotface"  # The nick will be set on startup
     room_specific_nicks: False  # Look up room specific nicknames of senders (expensive in large rooms)
 ```
