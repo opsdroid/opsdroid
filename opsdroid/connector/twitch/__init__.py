@@ -414,7 +414,7 @@ class ConnectorTwitch(Connector):
             if data.get("started_at"):
                 _LOGGER.debug(_("Broadcaster went live event received by Twitch."))
                 self.is_live = True
-                await self.connect_websocket()
+                await self.listen()
 
                 stream_started = twitch_event.StreamStarted(
                     title=data["title"],
