@@ -390,6 +390,8 @@ class ConnectorTwitch(Connector):
         if valid:
             try:
                 [data] = payload.get("data")
+                _LOGGER.debug(_("Got event from Twitch - %s") % data)
+
             except ValueError:
                 # When the stream goes offline, Twitch will return `data: []`
                 # that will raise ValueError since it can't unpack empty list
@@ -399,8 +401,6 @@ class ConnectorTwitch(Connector):
                 if not self.config.get("always-listening"):
                     self.is_live = False
                     self.disconnect_websockets()
-
-            _LOGGER.debug(_("Got event from Twitch - %s") % data)
 
             if data.get("followed_at"):
                 _LOGGER.debug(_("Follower event received by Twitch."))
