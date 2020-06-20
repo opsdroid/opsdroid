@@ -692,19 +692,19 @@ class ConnectorTwitch(Connector):
         """
         async with aiohttp.ClientSession() as session:
             headers = {
-                "Client-ID": self.client_id,
-                "Authorization": f"OAuth {self.token}",
-                "Accept": "application/vnd.twitchtv.v5+json",
+                "client-id": self.client_id,
+                "Authorization": f"Bearer {self.token}",
+                "Content-Type": "application/json",
             }
 
-            param = {"channel[status]": event.status}
-            resp = await session.put(
-                f"{TWITCH_API_V5_ENDPOINT}/channels/{self.user_id}",
+            param = {"title": event.status, "broadcaster_id": self.user_id}
+            resp = await session.patch(
+                f"{TWITCH_API_ENDPOINT}/channels",
                 headers=headers,
                 params=param,
             )
 
-            if resp.status == 200:
+            if resp.status == 204:
                 _LOGGER.debug(_("Twitch channel title updated to %s"), event.status)
                 return
 
