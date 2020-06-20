@@ -52,3 +52,4 @@ TWITCH_API_ENDPOINT = "https://id.twitch.tv/oauth2/token"
 TWITCH_WEBHOOK_ENDPOINT = "https://api.twitch.tv/helix/webhooks/hub"
 TWITCH_API_V5_ENDPOINT = "https://api.twitch.tv/kraken"
 TWITCH_IRC_MESSAGE_REGEX = r"@.*;id=(?P<message_id>.*);m.*user-id=(?P<user_id>.*);user-type=.*:(?P<user>.*?)!.*PRIVMSG.*:(?P<message>.*)"
+TWITCH_JSON = os.path.join(DEFAULT_ROOT_PATH, "twitch.json")
