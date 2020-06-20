@@ -13,10 +13,10 @@ from voluptuous import Required
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
 from opsdroid.const import (
-    TWITCH_API_ENDPOINT,
+    TWITCH_API_ENDPOINT
+    TWITCH_OAUTH_ENDPOINT,
     TWITCH_WEBHOOK_ENDPOINT,
     TWITCH_IRC_MESSAGE_REGEX,
-    TWITCH_API_V5_ENDPOINT,
     TWITCH_JSON,
 )
 
@@ -65,7 +65,7 @@ async def get_user_id(channel, token, client_id):
     """
     async with aiohttp.ClientSession() as session:
         response = await session.get(
-            "https://api.twitch.tv/helix/users",
+            f"{TWITCH_API_ENDPOINT}/users",
             headers={"Authorization": f"Bearer {token}", "Client-ID": client_id},
             params={"login": channel},
         )
@@ -183,7 +183,7 @@ class ConnectorTwitch(Connector):
                 "code": self.code,
             }
 
-            resp = await session.post(TWITCH_API_ENDPOINT, params=params)
+            resp = await session.post(TWITCH_OAUTH_ENDPOINT, params=params)
             data = await resp.json()
 
             self.token = data["access_token"]
@@ -211,7 +211,7 @@ class ConnectorTwitch(Connector):
                 "refresh_token": refresh_token["refresh_token"],
             }
 
-            resp = await session.post(TWITCH_API_ENDPOINT, params=params)
+            resp = await session.post(TWITCH_OAUTH_ENDPOINT, params=params)
             data = await resp.json()
 
             self.token = data["access_token"]
@@ -304,13 +304,13 @@ class ConnectorTwitch(Connector):
         _LOGGER.info(_("Attempting to connect to webhook %s."), topic)
 
         if topic == "follows":
-            topic = f"https://api.twitch.tv/helix/users/follows?to_id={self.user_id}&first=1"
+            topic = f"{TWITCH_API_ENDPOINT}/users/follows?to_id={self.user_id}&first=1"
 
         if topic == "stream changed":
-            topic = f"https://api.twitch.tv/helix/streams?user_id={self.user_id}"
+            topic = f"{TWITCH_API_ENDPOINT}/streams?user_id={self.user_id}"
 
         if topic == "subscribers":
-            topic = f"https://api.twitch.tv/helix/subscriptions/events?broadcaster_id={self.user_id}&first=1"
+            topic = f"{TWITCH_API_ENDPOINT}/subscriptions/events?broadcaster_id={self.user_id}&first=1"
 
         headers = {"Client-ID": self.client_id, "Authorization": f"Bearer {self.token}"}
 
@@ -657,13 +657,13 @@ class ConnectorTwitch(Connector):
                 "Authorization": f"Bearer {self.token}",
             }
             resp = await session.post(
-                f"https://api.twitch.tv/helix/clips?broadcaster_id={self.user_id}",
+                f"{TWITCH_API_ENDPOINT}/clips?broadcaster_id={self.user_id}",
                 headers=headers,
             )
             response = await resp.json()
 
             clip_data = await session.get(
-                f"https://api.twitch.tv/helix/clips?id={response['data'][0]['id']}",
+                f"{TWITCH_API_ENDPOINT}/clips?id={response['data'][0]['id']}",
                 headers=headers,
             )
 
