@@ -637,7 +637,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
         ) as patched_upload:
 
             patched_upload.return_value = asyncio.Future()
-            patched_upload.return_value.set_result([nio.UploadResponse({"content_uri": "mxc://aurl"})])
+            patched_upload.return_value.set_result([nio.UploadResponse("mxc://aurl")])
 
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result(None)
@@ -650,7 +650,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
                     "body": "opsdroid_upload",
                     "info": {"w": 1, "h": 1, "mimetype": "image/gif", "size": 26},
                     "msgtype": "m.image",
-                    "url": {"content_uri": "mxc://aurl"},
+                    "url": "mxc://aurl",
                 },
             )
 
@@ -692,7 +692,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
         ) as patched_upload:
 
             patched_upload.return_value = asyncio.Future()
-            patched_upload.return_value.set_result([nio.UploadResponse({"content_uri": "mxc://aurl"})])
+            patched_upload.return_value.set_result([nio.UploadResponse("mxc://aurl")])
 
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result(None)
@@ -705,7 +705,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
                     "body": "opsdroid_upload",
                     "info": {},
                     "msgtype": "m.file",
-                    "url": {"content_uri": "mxc://aurl"},
+                    "url": "mxc://aurl",
                 },
             )
 

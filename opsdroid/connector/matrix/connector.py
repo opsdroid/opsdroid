@@ -405,10 +405,8 @@ class ConnectorMatrix(Connector):
 
         if not mxc_url:
             upload_file = await file_event.get_file_bytes()
-            if isinstance(upload_file, bytes):
-                upload_file = BufferedReader(BytesIO(upload_file))
             mxc_url = await self.connection.upload(
-                upload_file, await file_event.get_mimetype()
+                    lambda x, y: upload_file, await file_event.get_mimetype()
             )
 
             mxc_url = mxc_url[0].content_uri
