@@ -4,7 +4,6 @@ import re
 import logging
 import functools
 from urllib.parse import urlparse
-from io import BytesIO, BufferedReader
 
 import aiohttp
 
