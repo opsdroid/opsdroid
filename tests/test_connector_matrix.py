@@ -82,6 +82,54 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             device_key_count={"signed_curve25519": 50},
             device_list={"changed": [], "left": []},
             to_device_events={"events": []},
+            presence_events={"events": []},
+        )
+
+    @property
+    def sync_return_join(self):
+        """Define some mock json to return from the sync method"""
+        rooms = nio.Rooms(
+            invite={},
+            join={
+                "!aroomid:localhost": nio.RoomInfo(
+                    account_data={"events": []},
+                    ephemeral={"events": []},
+                    state={"events": []},
+                    summary={},
+                    timeline=nio.Timeline(
+                        events=[
+                            nio.RoomMemberEvent(
+                                source={
+                                    "origin_server_ts": 1591876480893,
+                                    "sender": "@user:matrix.org",
+                                    "type": "m.room.member",
+                                    "unsigned": {
+                                        "prev_content": {"membership": "invite"},
+                                        "prev_sender": "@user:matrix.org",
+                                    },
+                                    "event_id": "$eventid:localhost",
+                                },
+                                state_key="@user:matrix.org",
+                                membership="join",
+                                prev_membership="invite",
+                                content={"membership": "join"},
+                                prev_content={"membership": "invite"},
+                            )
+                        ],
+                        limited=False,
+                        prev_batch="s801873709",
+                    ),
+                )
+            },
+            leave={},
+        )
+        return nio.SyncResponse(
+            next_batch="s801873745",
+            rooms=rooms,
+            device_key_count={"signed_curve25519": 50},
+            device_list={"changed": [], "left": []},
+            to_device_events={"events": []},
+            presence_events={"events": []},
         )
 
     @property
@@ -149,6 +197,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
             device_key_count={},
             device_list={"changed": [], "left": []},
             to_device_events={"events": []},
+            presence_events={"events": []},
         )
 
     @property
@@ -228,6 +277,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
                     device_key_count={"signed_curve25519": 50},
                     device_list={"changed": [], "left": []},
                     to_device_events={"events": []},
+                    presence_events={"events": []},
                 )
             )
 
@@ -293,6 +343,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
                     device_key_count={"signed_curve25519": 50},
                     device_list={"changed": [], "left": []},
                     to_device_events={"events": []},
+                    presence_events={"events": []},
                 )
             )
             patched_join.return_value = asyncio.Future()
@@ -331,6 +382,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
                 self.sync_return
             )
 
+            assert isinstance(returned_message, events.Message)
             assert returned_message.text == "LOUD NOISES"
             assert returned_message.user == "SomeUsersName"
             assert returned_message.target == "!aroomid:localhost"
@@ -340,6 +392,22 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
                 .timeline.events[0]
                 .source
             )
+            assert returned_message.raw_event == raw_message
+
+            returned_message = await self.connector._parse_sync_response(
+                self.sync_return_join
+            )
+
+            assert isinstance(returned_message, events.JoinRoom)
+            assert returned_message.user == "SomeUsersName"
+            assert returned_message.target == "!aroomid:localhost"
+            assert returned_message.connector == self.connector
+            raw_message = (
+                self.sync_return_join.rooms.join["!aroomid:localhost"]
+                .timeline.events[0]
+                .source
+            )
+            raw_message["content"] = {"membership": "join"}
             assert returned_message.raw_event == raw_message
 
     async def test_sync_parse_invites(self):
@@ -633,21 +701,21 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
         ) as patched_upload:
 
             patched_upload.return_value = asyncio.Future()
-            patched_upload.return_value.set_result({"content_uri": "mxc://aurl"})
+            patched_upload.return_value.set_result([nio.UploadResponse("mxc://aurl")])
 
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result(None)
             await self.connector.send(image)
 
             patched_send.assert_called_once_with(
+                room_id="!test:localhost",
+                message_type="m.room.message",
                 content={
                     "body": "opsdroid_upload",
                     "info": {"w": 1, "h": 1, "mimetype": "image/gif", "size": 26},
                     "msgtype": "m.image",
                     "url": "mxc://aurl",
                 },
-                message_type="m.room.message",
-                room_id="!test:localhost",
             )
 
     async def test_respond_mxc(self):
@@ -688,21 +756,21 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
         ) as patched_upload:
 
             patched_upload.return_value = asyncio.Future()
-            patched_upload.return_value.set_result({"content_uri": "mxc://aurl"})
+            patched_upload.return_value.set_result([nio.UploadResponse("mxc://aurl")])
 
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result(None)
             await self.connector.send(file_event)
 
             patched_send.assert_called_once_with(
+                room_id="!test:localhost",
+                message_type="m.room.message",
                 content={
                     "body": "opsdroid_upload",
                     "info": {},
                     "msgtype": "m.file",
                     "url": "mxc://aurl",
                 },
-                message_type="m.room.message",
-                room_id="!test:localhost",
             )
 
     async def test_respond_new_room(self):
