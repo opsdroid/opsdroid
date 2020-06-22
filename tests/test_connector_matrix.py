@@ -382,6 +382,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
                 self.sync_return
             )
 
+            assert isinstance(returned_message, events.Message)
             assert returned_message.text == "LOUD NOISES"
             assert returned_message.user == "SomeUsersName"
             assert returned_message.target == "!aroomid:localhost"
@@ -397,6 +398,7 @@ class TestConnectorMatrixAsync(asynctest.TestCase):
                 self.sync_return_join
             )
 
+            assert isinstance(returned_message, events.JoinRoom)
             assert returned_message.user == "SomeUsersName"
             assert returned_message.target == "!aroomid:localhost"
             assert returned_message.connector == self.connector
