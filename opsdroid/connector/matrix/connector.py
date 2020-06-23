@@ -74,7 +74,7 @@ class ConnectorMatrix(Connector):
         self.room_ids = {}
         self.default_target = self.rooms["main"]["alias"]
         self.mxid = config["mxid"]
-        self.nick = config.get("nick", None)
+        self.nick = config.get("nick")
         self.homeserver = config.get("homeserver", "https://matrix.org")
         self.password = config["password"]
         self.room_specific_nicks = config.get("room_specific_nicks", False)
@@ -83,6 +83,11 @@ class ConnectorMatrix(Connector):
         self.filter_id = None
         self.connection = None
         self.device_name = config.get("device_name", "opsdroid")
+        self.device_id = config.get("device_id")
+        self.ignore_unverified = config.get("ignore_unverified_devices", True)
+        self.verify_users = config.get("verify_users")
+        self.verify_users.append(self.mxid)
+        self.store_path = config.get("store_path")
 
         self._event_creator = MatrixEventCreator(self)
 
@@ -133,8 +138,17 @@ class ConnectorMatrix(Connector):
 
     async def connect(self):
         """Create connection object with chat library."""
-        config = nio.AsyncClientConfig(encryption_enabled=False, pickle_key="")
-        mapi = nio.AsyncClient(self.homeserver, self.mxid, config=config)
+
+        config = nio.AsyncClientConfig(
+            encryption_enabled=True, pickle_key="", store_name="test_store"
+        )
+        mapi = nio.AsyncClient(
+            self.homeserver,
+            self.mxid,
+            config=config,
+            store_path=self.store_path,
+            device_id=self.device_id,
+        )
 
         login_response = await mapi.login(
             password=self.password, device_name=self.device_name
@@ -144,6 +158,11 @@ class ConnectorMatrix(Connector):
                 f"Error while connecting: {login_response.message} (status code {login_response.status_code})"
             )
             return
+
+        if not self.device_id:
+            _LOGGER.error(
+                f"No device ID provided, new device created with ID {mapi.device_id}, put this in your opsdroid config for encryption to work"
+            )
 
         mapi.token = login_response.access_token
         mapi.sync_token = None
@@ -167,7 +186,9 @@ class ConnectorMatrix(Connector):
         )
 
         # Do initial sync so we don't get old messages later.
-        response = await self.connection.sync(timeout=3000, sync_filter=first_filter_id)
+        response = await self.connection.sync(
+            timeout=3000, sync_filter=first_filter_id, full_state=True
+        )
 
         if isinstance(response, nio.SyncError):
             _LOGGER.error(
@@ -176,6 +197,23 @@ class ConnectorMatrix(Connector):
             return
 
         self.connection.sync_token = response.next_batch
+
+        for user in self.verify_users:
+            for olm_device in mapi.device_store[user].values():
+                if not olm_device.verified:
+                    mapi.verify_device(olm_device)
+
+        await mapi.send_to_device_messages()
+        if mapi.should_upload_keys:
+            await mapi.keys_upload()
+        if mapi.should_query_keys:
+            await mapi.keys_query()
+
+        for room_id in self.room_ids.values():
+            try:
+                await mapi.keys_claim(mapi.get_missing_sessions(room_id))
+            except nio.LocalProtocolError:
+                continue
 
         if self.nick:
             display_name = await self.connection.get_displayname(self.mxid)
@@ -214,13 +252,8 @@ class ConnectorMatrix(Connector):
             if roomInfo.timeline:
                 for event in roomInfo.timeline.events:
                     if event.sender != self.mxid:
-                        # if isinstance(event, nio.MegolmEvent):
-                        # event is encrypted
-                        # event = await self.connection.decrypt_event(event)
-
                         if event.source["type"] == "m.room.member":
                             event.source["content"] = event.content
-
                         return await self._event_creator.create_event(
                             event.source, roomid
                         )
@@ -240,6 +273,17 @@ class ConnectorMatrix(Connector):
                 continue
 
             _LOGGER.debug(_("Matrix sync request returned."))
+
+            await self.connection.send_to_device_messages()
+
+            if self.connection.should_upload_keys:
+                await self.connection.keys_upload()
+            if self.connection.should_query_keys:
+                await self.connection.keys_query()
+            if self.connection.should_claim_keys:
+                await self.connection.keys_claim(
+                    self.connection.get_users_for_key_claiming()
+                )
 
             message = await self._parse_sync_response(response)
 
@@ -323,6 +367,7 @@ class ConnectorMatrix(Connector):
             self._get_formatted_message_body(
                 message.text, msgtype=self.message_type(message.target)
             ),
+            ignore_unverified_devices=self.ignore_unverified,
         )
 
     @register_event(events.EditedMessage)
@@ -349,8 +394,11 @@ class ConnectorMatrix(Connector):
             "m.relates_to": {"rel_type": "m.replace", "event_id": edited_event_id},
         }
 
-        return (
-            await self.connection.room_send(message.target, "m.room.message", content),
+        return await self.connection.room_send(
+            message.target,
+            "m.room.message",
+            content,
+            ignore_unverified_devices=self.ignore_unverified,
         )
 
     @register_event(events.Reply)
@@ -368,8 +416,11 @@ class ConnectorMatrix(Connector):
 
         content["m.relates_to"] = {"m.in_reply_to": {"event_id": reply_event_id}}
 
-        return (
-            await self.connection.room_send(reply.target, "m.room.message", content),
+        return await self.connection.room_send(
+            reply.target,
+            "m.room.message",
+            content,
+            ignore_unverified_devices=self.ignore_unverified,
         )
 
     @register_event(events.Reaction)
@@ -382,7 +433,12 @@ class ConnectorMatrix(Connector):
                 "key": reaction.emoji,
             }
         }
-        return await self.connection.room_send(reaction.target, "m.reaction", content)
+        return await self.connection.room_send(
+            reaction.target,
+            "m.reaction",
+            content,
+            ignore_unverified_devices=self.ignore_unverified,
+        )
 
     async def _get_image_info(self, image):
         width, height = await image.get_dimensions()
@@ -439,6 +495,7 @@ class ConnectorMatrix(Connector):
                 "msgtype": msg_type,
                 "url": mxc_url,
             },
+            ignore_unverified_devices=self.ignore_unverified,
         )
 
     @register_event(events.NewRoom)

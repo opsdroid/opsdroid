@@ -141,10 +141,16 @@ connectors:
 #    rooms:
 #      'main': '#matrix:matrix.org'
 #      'other': '#riot:matrix.org'
+#    store_path: "path/to/store/" # Path to the directory where the matrix store will be saved
 #    # Optional
 #    homeserver: "https://matrix.org"
 #    nick: "Botty McBotface"  # The nick will be set on startup
 #    room_specific_nicks: False  # Look up room specific nicknames of senders (expensive in large rooms)
+#    device_id: "mydevice" # To get a device ID for opsdroid run it once with the matrix connector enabled
+#    ignore_unverified_devices: True  # Ignore unverified devices while sending encrypted messages
+#    verify_users:  # If not ignoring unverified devices list usernames whose devices should be verified
+#      - user1
+#      - user2
 #
 #  ## Mattermost (core)
 #  mattermost:
