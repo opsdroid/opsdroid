@@ -32,16 +32,20 @@ class ConnectorGitHub(Connector):
 
     async def connect(self):
         """Connect to GitHub."""
-        url = "{}/user?access_token={}".format(GITHUB_API_URL, self.github_token)
-        async with aiohttp.ClientSession(trust_env=True) as session:
-            response = await session.get(url)
-            if response.status >= 300:
-                _LOGGER.error(_("Error connecting to GitHub: %s."), response.text())
+        url = "{}".format(GITHUB_API_URL)
+        headers = {"Authorization": "token {}".format(self.github_token)}
+        async with aiohttp.ClientSession(trust_env=True, headers=headers) as session:
+            auth_response = await session.get(url)
+            if auth_response.status >= 300:
+                response_text = await auth_response.text()
+                _LOGGER.error(_("Error connecting to GitHub: %s."), response_text)
                 return False
+            user_url = "{}/user".format(GITHUB_API_URL)
+            user_response = await session.get(user_url)
             _LOGGER.debug(_("Reading bot information..."))
-            bot_data = await response.json()
-        _LOGGER.debug(_("Done."))
-        self.github_username = bot_data["login"]
+            bot_data = await user_response.json()
+            _LOGGER.debug(_("Done."))
+            self.github_username = bot_data["login"]
 
         self.opsdroid.web_server.web_app.router.add_post(
             "/connector/{}".format(self.name), self.github_message_handler
