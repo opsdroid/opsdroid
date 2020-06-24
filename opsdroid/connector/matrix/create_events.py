@@ -119,7 +119,13 @@ class MatrixEventCreator(events.EventCreator):
         return events.Message(**kwargs)
 
     async def _file_kwargs(self, event, roomid):
-        url = await self.connector.connection.mxc_to_http(event["content"]["url"])
+
+        if "url" in event["content"]:
+            url = event["content"]["url"]
+        else:
+            url = event["content"]["file"]["url"]
+
+        url = await self.connector.connection.mxc_to_http(url)
         user = await self.connector.get_nick(roomid, event["sender"])
 
         return dict(

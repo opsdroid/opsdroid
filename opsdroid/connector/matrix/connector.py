@@ -24,9 +24,11 @@ CONFIG_SCHEMA = {
     Required("mxid"): str,
     Required("password"): str,
     Required("rooms"): dict,
+    Required("store_path"): str,
     "homeserver": str,
     "nick": str,
     "room_specific_nicks": bool,
+    "device_id": str,
 }
 
 __all__ = ["ConnectorMatrix"]
@@ -84,9 +86,6 @@ class ConnectorMatrix(Connector):
         self.connection = None
         self.device_name = config.get("device_name", "opsdroid")
         self.device_id = config.get("device_id")
-        self.ignore_unverified = config.get("ignore_unverified_devices", True)
-        self.verify_users = config.get("verify_users")
-        self.verify_users.append(self.mxid)
         self.store_path = config.get("store_path")
 
         self._event_creator = MatrixEventCreator(self)
@@ -161,7 +160,7 @@ class ConnectorMatrix(Connector):
 
         if not self.device_id:
             _LOGGER.error(
-                f"No device ID provided, new device created with ID {mapi.device_id}, put this in your opsdroid config for encryption to work"
+                f"No device ID provided, new device {mapi.device_id} and its database created in store directory. Put the device ID in the config to avoid creating a new database every restart"
             )
 
         mapi.token = login_response.access_token
@@ -198,10 +197,11 @@ class ConnectorMatrix(Connector):
 
         self.connection.sync_token = response.next_batch
 
-        for user in self.verify_users:
-            for olm_device in mapi.device_store[user].values():
-                if not olm_device.verified:
-                    mapi.verify_device(olm_device)
+        # TODO: Device verification
+        # for user in self.verify_users:
+        #    for olm_device in mapi.device_store[user].values():
+        #        if not olm_device.verified:
+        #            mapi.verify_device(olm_device)
 
         await mapi.send_to_device_messages()
         if mapi.should_upload_keys:
@@ -367,7 +367,7 @@ class ConnectorMatrix(Connector):
             self._get_formatted_message_body(
                 message.text, msgtype=self.message_type(message.target)
             ),
-            ignore_unverified_devices=self.ignore_unverified,
+            ignore_unverified_devices=True,
         )
 
     @register_event(events.EditedMessage)
@@ -395,10 +395,7 @@ class ConnectorMatrix(Connector):
         }
 
         return await self.connection.room_send(
-            message.target,
-            "m.room.message",
-            content,
-            ignore_unverified_devices=self.ignore_unverified,
+            message.target, "m.room.message", content, ignore_unverified_devices=True,
         )
 
     @register_event(events.Reply)
@@ -417,10 +414,7 @@ class ConnectorMatrix(Connector):
         content["m.relates_to"] = {"m.in_reply_to": {"event_id": reply_event_id}}
 
         return await self.connection.room_send(
-            reply.target,
-            "m.room.message",
-            content,
-            ignore_unverified_devices=self.ignore_unverified,
+            reply.target, "m.room.message", content, ignore_unverified_devices=True,
         )
 
     @register_event(events.Reaction)
@@ -434,10 +428,7 @@ class ConnectorMatrix(Connector):
             }
         }
         return await self.connection.room_send(
-            reaction.target,
-            "m.reaction",
-            content,
-            ignore_unverified_devices=self.ignore_unverified,
+            reaction.target, "m.reaction", content, ignore_unverified_devices=True,
         )
 
     async def _get_image_info(self, image):
@@ -460,11 +451,17 @@ class ConnectorMatrix(Connector):
 
         if not mxc_url:
             upload_file = await file_event.get_file_bytes()
-            mxc_url = await self.connection.upload(
+            response = await self.connection.upload(
                 lambda x, y: upload_file, await file_event.get_mimetype()
             )
+            response = response[0]
 
-            mxc_url = mxc_url[0].content_uri
+            if isinstance(response, nio.UploadError):
+                _LOGGER.error(
+                    f"Error while sending the file. Reason: {response.message} (status code {response.status_code})"
+                )
+
+            mxc_url = response.content_uri
             uploaded = True
 
         return mxc_url, uploaded
@@ -495,7 +492,7 @@ class ConnectorMatrix(Connector):
                 "msgtype": msg_type,
                 "url": mxc_url,
             },
-            ignore_unverified_devices=self.ignore_unverified,
+            ignore_unverified_devices=True,
         )
 
     @register_event(events.NewRoom)
