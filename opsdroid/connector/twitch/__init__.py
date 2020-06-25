@@ -37,56 +37,6 @@ CONFIG_SCHEMA = {
 _LOGGER = logging.getLogger(__name__)
 
 
-async def get_user_id(channel, token, client_id):
-    """Call twitch api to get broadcaster user id.
-
-    A lot of webhooks expect you to pass your user id in order to get the
-    notification when a user subscribes or folllows the broadcaster
-    channel.
-
-    Since we are calling the Twitch API to get our `self.user_id` on connect,
-    we will use this method to handle when a token has expired, so if we get a
-    401 status back from Twitch we will raise a ClientResponseError and send back
-    the status and the message Unauthorized, that way we can refresh the oauth token
-    on connect if the exception is raised.
-
-    Args:
-        channel (string): Channel that we wish to get the broadcaster id from.
-        token (string): OAuth token obtained from previous authentication.
-        client_id (string): Client ID obtained from creating a Twitch App to iteract with opsdroid.
-
-    Return:
-        string: Broadcaster/user id received from Twitch
-
-    Raises:
-        aiohttp.ClientResponseError: Raised exception if we got an unauthorized code from twitch. Our
-        oauth token probably expired.
-
-    """
-    async with aiohttp.ClientSession() as session:
-        response = await session.get(
-            f"{TWITCH_API_ENDPOINT}/users",
-            headers={"Authorization": f"Bearer {token}", "Client-ID": client_id},
-            params={"login": channel},
-        )
-
-        if response.status == 401:
-            raise aiohttp.ClientResponseError(
-                status=401, message="Unauthorized", history=(), request_info=response
-            )
-
-        if response.status >= 400:
-            _LOGGER.warning(
-                _("Unable to receive broadcaster id - Error: %s, %s."),
-                response.status,
-                response.text,
-            )
-
-        response = await response.json()
-
-    return response["data"][0]["id"]
-
-
 class ConnectorTwitch(Connector):
     """A connector for Twitch."""
 
@@ -135,6 +85,53 @@ class ConnectorTwitch(Connector):
         ).hexdigest()
 
         return signature == computed_hash
+
+    async def get_user_id(self, channel, token, client_id):
+        """Call twitch api to get broadcaster user id.
+
+        A lot of webhooks expect you to pass your user id in order to get the
+        notification when a user subscribes or folllows the broadcaster
+        channel.
+
+        Since we are calling the Twitch API to get our `self.user_id` on connect,
+        we will use this method to handle when a token has expired, so if we get a
+        401 status back from Twitch we will raise a ClientResponseError and send back
+        the status and the message Unauthorized, that way we can refresh the oauth token
+        on connect if the exception is raised.
+
+        Args:
+            channel (string): Channel that we wish to get the broadcaster id from.
+            token (string): OAuth token obtained from previous authentication.
+            client_id (string): Client ID obtained from creating a Twitch App to iteract with opsdroid.
+
+        Return:
+            string: Broadcaster/user id received from Twitch
+
+        Raises:
+            ConnectionError: Raised exception if we got an unauthorized code from twitch. Our
+            oauth token probably expired.
+
+        """
+        async with aiohttp.ClientSession() as session:
+            response = await session.get(
+                f"{TWITCH_API_ENDPOINT}/users",
+                headers={"Authorization": f"Bearer {token}", "Client-ID": client_id},
+                params={"login": channel},
+            )
+
+            if response.status == 401:
+                raise ConnectionError("Unauthorized")
+
+            if response.status >= 400:
+                _LOGGER.warning(
+                    _("Unable to receive broadcaster id - Error: %s, %s."),
+                    response.status,
+                    response.text,
+                )
+
+            response = await response.json()
+
+        return response["data"][0]["id"]
 
     async def send_message(self, message):
         """Send message throught websocket.
@@ -481,13 +478,13 @@ class ConnectorTwitch(Connector):
             self.token = self.get_authorization_data()["access_token"]
 
         try:
-            self.user_id = await get_user_id(
+            self.user_id = await self.get_user_id(
                 self.default_target, self.token, self.client_id
             )
-        except aiohttp.ClientResponseError:
+        except ConnectionError:
             await self.refresh_token()
 
-            self.user_id = await get_user_id(
+            self.user_id = await self.get_user_id(
                 self.default_target, self.token, self.client_id
             )
 

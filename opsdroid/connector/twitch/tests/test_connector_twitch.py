@@ -14,7 +14,6 @@ from opsdroid.cli.start import configure_lang
 from opsdroid.connector.twitch import (
     ConnectorTwitch,
     events,
-    get_user_id,
 )
 from opsdroid.events import Message
 
@@ -56,7 +55,8 @@ async def test_validate_request(opsdroid):
 
 
 @pytest.mark.asyncio
-async def test_get_user_id():
+async def test_get_user_id(opsdroid):
+    connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
     get_response = amock.Mock()
     get_response.status = 200
     get_response.json = amock.CoroutineMock()
@@ -68,13 +68,14 @@ async def test_get_user_id():
         patched_request.return_value = asyncio.Future()
         patched_request.return_value.set_result(get_response)
 
-        response = await get_user_id("theflyingdev", "token", "client-id")
+        response = await connector.get_user_id("theflyingdev", "token", "client-id")
 
         assert response == "test-bot"
 
 
 @pytest.mark.asyncio
-async def test_get_user_id_failure(caplog):
+async def test_get_user_id_failure(opsdroid, caplog):
+    connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
     get_response = amock.Mock()
     get_response.status = 404
     get_response.json = amock.CoroutineMock()
@@ -85,13 +86,14 @@ async def test_get_user_id_failure(caplog):
         patched_request.return_value = asyncio.Future()
         patched_request.return_value.set_result(get_response)
 
-        await get_user_id("theflyingdev", "token", "client-id")
+        await connector.get_user_id("theflyingdev", "token", "client-id")
 
         assert "Unable to receive broadcaster id - Error" in caplog.text
 
 
 @pytest.mark.asyncio
-async def test_get_user_id_unauthorized():
+async def test_get_user_id_unauthorized(opsdroid):
+    connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
     get_response = amock.Mock()
     get_response.status = 401
 
@@ -101,8 +103,8 @@ async def test_get_user_id_unauthorized():
         patched_request.return_value = asyncio.Future()
         patched_request.return_value.set_result(get_response)
 
-        with pytest.raises(aiohttp.ClientResponseError) as exception:
-            await get_user_id("theflyingdev", "token", "client-id")
+        with pytest.raises(ConnectionError) as exception:
+            await connector.get_user_id("theflyingdev", "token", "client-id")
             assert "Unauthorized" in exception.message
 
 
@@ -233,6 +235,24 @@ async def test_connect_no_auth_data(opsdroid, caplog):
         assert connector.request_oauth_token.called
         assert opsdroid.web_server.web_app.router.add_get.called
         assert connector.webhook.called
+
+
+@pytest.mark.asyncio
+async def test_connect_refresh_token(opsdroid):
+
+    connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
+    connector.webhook = amock.CoroutineMock()
+    connector.get_user_id = amock.CoroutineMock(side_effect=ConnectionError)
+    connector.refresh_token = amock.CoroutineMock()
+
+    opsdroid.web_server = amock.Mock()
+
+    with pytest.raises(ConnectionError):
+        await connector.connect()
+
+        assert connector.webhook.called
+        assert opsdroid.web_server.web_app.router.add_get.called
+        assert connector.refresh_token.called
 
 
 @pytest.mark.asyncio
@@ -603,6 +623,13 @@ async def test_followed_event(opsdroid, caplog):
     assert twitch_event.UserFollowed.called
     assert "awesome_follower" in follow_event.follower
     assert "today" in follow_event.followed_at
+
+
+def test_user_subscribed():
+    event = twitch_event.UserSubscribed("user_mc_user", "Hello!")
+
+    assert "user_mc_user" in event.username
+    assert "Hello!" in event.message
 
 
 @pytest.mark.asyncio
