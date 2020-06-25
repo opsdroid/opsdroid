@@ -10,7 +10,7 @@ import aiohttp
 from voluptuous import Required
 
 from opsdroid.connector import Connector, register_event
-from opsdroid import events
+from opsdroid import events, const
 
 from .html_cleaner import clean
 from .create_events import MatrixEventCreator
@@ -18,17 +18,18 @@ from . import events as matrixevents
 
 import nio
 import json
+from pathlib import Path
 
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = {
     Required("mxid"): str,
     Required("password"): str,
     Required("rooms"): dict,
-    Required("store_path"): str,
     "homeserver": str,
     "nick": str,
     "room_specific_nicks": bool,
     "device_id": str,
+    "store_path": str,
 }
 
 __all__ = ["ConnectorMatrix"]
@@ -86,7 +87,10 @@ class ConnectorMatrix(Connector):
         self.connection = None
         self.device_name = config.get("device_name", "opsdroid")
         self.device_id = config.get("device_id")
-        self.store_path = config.get("store_path")
+        self.store_path = config.get(
+            "store_path", str(Path(const.DEFAULT_ROOT_PATH).joinpath("matrix"))
+        )
+        self.__ignore_unverified__ = True
 
         self._event_creator = MatrixEventCreator(self)
 
@@ -137,6 +141,9 @@ class ConnectorMatrix(Connector):
 
     async def connect(self):
         """Create connection object with chat library."""
+
+        if not Path(self.store_path).is_dir():
+            Path(self.store_path).mkdir()
 
         config = nio.AsyncClientConfig(
             encryption_enabled=True, pickle_key="", store_name="test_store"
@@ -196,12 +203,6 @@ class ConnectorMatrix(Connector):
             return
 
         self.connection.sync_token = response.next_batch
-
-        # TODO: Device verification
-        # for user in self.verify_users:
-        #    for olm_device in mapi.device_store[user].values():
-        #        if not olm_device.verified:
-        #            mapi.verify_device(olm_device)
 
         await mapi.send_to_device_messages()
         if mapi.should_upload_keys:
@@ -367,7 +368,7 @@ class ConnectorMatrix(Connector):
             self._get_formatted_message_body(
                 message.text, msgtype=self.message_type(message.target)
             ),
-            ignore_unverified_devices=True,
+            ignore_unverified_devices=self.__ignore_unverified__,
         )
 
     @register_event(events.EditedMessage)
@@ -395,7 +396,10 @@ class ConnectorMatrix(Connector):
         }
 
         return await self.connection.room_send(
-            message.target, "m.room.message", content, ignore_unverified_devices=True,
+            message.target,
+            "m.room.message",
+            content,
+            ignore_unverified_devices=self.__ignore_unverified__,
         )
 
     @register_event(events.Reply)
@@ -414,7 +418,10 @@ class ConnectorMatrix(Connector):
         content["m.relates_to"] = {"m.in_reply_to": {"event_id": reply_event_id}}
 
         return await self.connection.room_send(
-            reply.target, "m.room.message", content, ignore_unverified_devices=True,
+            reply.target,
+            "m.room.message",
+            content,
+            ignore_unverified_devices=self.__ignore_unverified__,
         )
 
     @register_event(events.Reaction)
@@ -428,7 +435,10 @@ class ConnectorMatrix(Connector):
             }
         }
         return await self.connection.room_send(
-            reaction.target, "m.reaction", content, ignore_unverified_devices=True,
+            reaction.target,
+            "m.reaction",
+            content,
+            ignore_unverified_devices=self.__ignore_unverified__,
         )
 
     async def _get_image_info(self, image):
@@ -492,7 +502,7 @@ class ConnectorMatrix(Connector):
                 "msgtype": msg_type,
                 "url": mxc_url,
             },
-            ignore_unverified_devices=True,
+            ignore_unverified_devices=self.__ignore_unverified__,
         )
 
     @register_event(events.NewRoom)

@@ -141,12 +141,12 @@ connectors:
 #    rooms:
 #      'main': '#matrix:matrix.org'
 #      'other': '#riot:matrix.org'
-#    store_path: "path/to/store/" # Path to the directory where the matrix store will be saved
 #    # Optional
 #    homeserver: "https://matrix.org"
 #    nick: "Botty McBotface"  # The nick will be set on startup
 #    room_specific_nicks: False  # Look up room specific nicknames of senders (expensive in large rooms)
 #    device_id: "mydevice" # To get a device ID for opsdroid run it once with the matrix connector enabled
+#    store_path: "path/to/store/" # Path to the directory where the matrix store will be saved
 #
 #  ## Mattermost (core)
 #  mattermost:
