@@ -32,11 +32,13 @@ class ConnectorGitHub(Connector):
 
     async def connect(self):
         """Connect to GitHub."""
-        url = "{}/user?access_token={}".format(GITHUB_API_URL, self.github_token)
-        async with aiohttp.ClientSession(trust_env=True) as session:
+        headers = {"Authorization": f"token {self.github_token}"}
+        async with aiohttp.ClientSession(trust_env=True, headers=headers) as session:
+            url = f"{GITHUB_API_URL}/user"
             response = await session.get(url)
             if response.status >= 300:
-                _LOGGER.error(_("Error connecting to GitHub: %s."), response.text())
+                response_text = await response.text()
+                _LOGGER.error(_("Error connecting to GitHub: %s."), response_text)
                 return False
             _LOGGER.debug(_("Reading bot information..."))
             bot_data = await response.json()
