@@ -21,7 +21,7 @@ from opsdroid.events import Message
 import opsdroid.connector.twitch.events as twitch_event
 
 
-AUTH_FILE = os.path.join(tempfile.gettempdir(), "opsdroid_tests", 'twitch.json')
+AUTH_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'twitch.json')
 
 connector_config = {
     "code": "yourcode",
@@ -116,12 +116,12 @@ def test_save_authentication_data(opsdroid, tmpdir):
     connector.auth_file = AUTH_FILE
 
     connector.save_authentication_data(
-        {"access_token": "token", "refresh_token": "refresh_token"}
+        {"access_token": "token123", "refresh_token": "refresh_token123"}
     )
 
     details = connector.get_authorization_data()
 
-    assert details == {"access_token": "token", "refresh_token": "refresh_token"}
+    assert details == {"access_token": "token123", "refresh_token": "refresh_token123"}
 
 
 @pytest.mark.asyncio
@@ -173,7 +173,6 @@ async def test_refresh_oauth_token(opsdroid):
 
         connector.save_authentication_data = amock.CoroutineMock()
 
-        # TODO: Use tempfile for the test - its changing live twitch.json
         response = await connector.refresh_token()
 
         assert connector.token is not None
