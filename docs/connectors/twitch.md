@@ -14,7 +14,7 @@ A connector for [Twitch](https://twitch.tv/).
 connectors:
   twitch:
     # required
-    code: "hfu923hfks02nd2821jfislf"  # Code obtained from the first oauth step
+    code: "hfu923hfks02nd2821jfislf" # Code obtained from the first OAuth step
     client-id: "e0asdj48jfkspod0284"
     client-secret: "kdksd0458j93847j"
     channel: theflyingdev # Broadcaster channel
@@ -65,14 +65,179 @@ https://id.twitch.tv/oauth2/authorize?client_id=<your client id>&redirect_uri=ht
 
 ## Usage
 
-The connector will subscribe to three webhooks - follower alert, stream status and subscribers. These webhooks allow Twitch to make a post request with data of certain actions, these actions will trigger events specific to the Twitch connector. By default, opsdroid will only connect to the chat service when the streamer is live, but you can set the optional configuration setting `always-listening` to true and make opsdroid connect to the chat whenever opsdroid is active.
+The connector will subscribe to followers alerts, stream status (live/offline) and subscriber alerts, it will also connect to the chat service whenever the stream status notification is triggered and the `StreamStarted` event is triggered by opsdroid. If you wish you can set the optional config parameter `always-listening: True` to connect to the chat whenever opsdroid is started.
 
-You can write your skills to interact with the connector and with all the events triggered by the connector, or you can use the [Twitch Skill](https://github.com/FabioRosado/skill-twitch).
+### Events Available
 
+The Twitch Connector contains 10 events that you can use on your custom made skill. Some of these events are triggered automatically whenever an action happens on twitch - for example when a user follows your channel. Others you will have to trigger on a skill - for example, to delete a specific message.
+
+#### Automatic Events
+
+These events are triggered by opsdroid whenever something happens on twitch.
+
+- **UserJoinedChat** - Received from the chat service and will be fired whenever a new user joins your chat. Note that this doesn't mean that the user is watching the broadcast.
+  - `user` allows you to know the username of the user that joined the chat
+- **UserFollowed** - Event-triggered whenever a user follows your channel.
+   - `follower` username of the follower
+   - `followed_at` timestamp of the following
+- **UserSubscribed** - Triggered whenever a user subscribes to your channel
+   - `user` username of the user that subscribed to your channel
+   - `message` message sent by the subscriber, it can be `None` if the subscriber didn't send a message
+- **UserGiftedSubscription** - Sometimes subscribers offer viewers subscriptions to your channel, this is when this event is triggered.
+   - `gifter_name` username of the person that gifted the subscription
+   - `gifted_name` username of the viewer that was gifted the subscription
+- **StreamStarted** - This event is triggered a few minutes after you start streaming if `always-listening` config flag is not set opsdroid will connect to the chat service.
+   - `title` your broadcast title
+   - `viewers` total number of viewers that your channel has
+   - `started_at` timestamp when you went live
+- **StreamEnded** - Triggered when you stop broadcasting.
+
+#### Manual Events
+
+These events will have to be triggered by you with an opsdroid skill.
+
+- **UpdateTitle** - Updates your channel title
+   - `status` the new title for your broadcast
+- **CreateClip** - Creates a clip from your broacast
+   - `id` your streamer id
+- **DeleteMessage** - Deletes a specific message
+   - `id` message id to be deleted
+- **BanUser** - Bans user from your channel
+   - `user` username of tbe banned from your channel
+
+## Examples
+
+You can write your custom skills to interact with the Twitch connector, here are a few examples of what you can do. You can also use the [Twitch Skill](https://github.com/FabioRosado/skill-twitch) to interact with the connector.
+
+### StreamStarted event
+
+Let's say that you want to send a message to another connector whenever you go live, you can achieve this by writing that will be triggered when the **StreamStarted** event is triggered.
+
+```python
+from opsdroid.skill import Skill
+from opsdroid.matchers import match_event
+from opsdroid.connector.twitch.events import StreamStarted
+
+
+class TwitchSkill(Skill):
+ """opsdroid skill for Twitch."""
+    def __init__(self, opsdroid, config, *args, **kwargs):
+        super().__init__(opsdroid, config, *args, **kwargs)
+        self.rocketchat_connector = self.opsdroid.get_connector('rocketchat')
+
+    @match_event(StreamStarted)
+    async def stream_started_skill(event):
+    """Send message to rocketchat channel."""
+        await self.rocketchat_connector.send(Message(f"I'm live on twitch, come see me work on {event.title}"))
+
+```
+
+
+### UserFollowed event
+
+Some bots will send a thank you message to the chat whenever a user follows your channel. You can do the same with opsdroid by using the **UserFollowed** event.
+
+```python
+from opsdroid.skill import Skill
+from opsdroid.matchers import match_event
+from opsdroid.connector.twitch.events import UserFollowed
+
+
+class TwitchSkill(Skill):
+ """opsdroid skill for Twitch."""
+    def __init__(self, opsdroid, config, *args, **kwargs):
+        super().__init__(opsdroid, config, *args, **kwargs)
+        self.connector = self.opsdroid.get_connector('twitch')
+
+    @match_event(UserFollowed)
+    async def say_thank_you(event):
+    """Send message to rocketchat channel."""
+        await self.connector.send(Message(f"Thank you so much for the follow {event.follower}, you are awesome!"))
+
+```
+
+### BanUser event
+
+We have seen how to send messages to the chat, how about we remove a spam message and ban bots from trying to sell you followers, subs and viewers?
+
+```python
+from opsdroid.skill import Skill
+from opsdroid.matchers import match_regex
+from opsdroid.connector.twitch.events import BanUser, DeleteMessage
+
+
+class TwitchSkill(Skill):
+ """opsdroid skill for Twitch."""
+    def __init__(self, opsdroid, config, *args, **kwargs):
+        super().__init__(opsdroid, config, *args, **kwargs)
+        self.connector = self.opsdroid.get_connector('twitch')
+
+    @match_regex(r'famous\? Buy followers', case_sensitive=False)
+    async def goodbye_spam_bot(self, message):
+        await self.connector.send(BanUser(user=message.user))
+        deletion = DeleteMessage(id=message.event_id)
+        await self.connector.send(deletion)
+```
+
+### UpdateTitle event
+
+You need to be careful on how you set this skill, you should have a list of users that are allowed to change your broadcast title otherwise it can be abused while you are streaming. 
+
+```python
+from opsdroid.skill import Skill
+from opsdroid.constraints import constrain_users
+from opsdroid.matchers import match_regex
+from opsdroid.connector.twitch.events import UpdateTitle
+
+
+class TwitchSkill(Skill):
+ """opsdroid skill for Twitch."""
+    def __init__(self, opsdroid, config, *args, **kwargs):
+        super().__init__(opsdroid, config, *args, **kwargs)
+        self.connector = self.opsdroid.get_connector('twitch')
+
+    @match_regex(r'\!title (.*)')
+    @constrain_users(your_awesome_twitch_username)
+    async def change_title(self, message):
+        _LOGGER.info("Attempt to change title")
+        await self.connector.send(UpdateTitle(status=message.regex.group(1)))
+```
+
+You could also add a `whitelisted` config param to your skill and then read the configuration to check if the user that tried to change the title is in that list.
+
+```yaml
+skills:
+  - twitch:
+    whitelisted: 
+      - your_username_on_twitch
+      - your_username_on_another_connector
+```
+
+```python
+from opsdroid.skill import Skill
+from opsdroid.constraints import constrain_users
+from opsdroid.matchers import match_regex
+from opsdroid.connector.twitch.events import UpdateTitle
+
+
+class TwitchSkill(Skill):
+ """opsdroid skill for Twitch."""
+    def __init__(self, opsdroid, config, *args, **kwargs):
+        super().__init__(opsdroid, config, *args, **kwargs)
+        self.connector = self.opsdroid.get_connector('twitch')
+
+    @match_regex(r'\!title (.*)')
+    async def change_title(self, message):
+        if message.user in self.config.get('whitelisted', []):
+        await self.connector.send(UpdateTitle(status=message.regex.group(1)))
+```
+
+
+## Reference
 
 ```eval_rst
-.. automodule:: opsdroid.connectors.twitch
-    :members:
+.. autoclass:: opsdroid.connector.twitch.ConnectorTwitch
+ :members:
 ```
 
 
