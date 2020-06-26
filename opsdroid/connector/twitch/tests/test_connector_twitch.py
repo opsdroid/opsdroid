@@ -4,6 +4,7 @@ import contextlib
 import asyncio
 import aiohttp
 import pytest
+import tempfile
 import asynctest.mock as amock
 
 
@@ -19,6 +20,8 @@ from opsdroid.events import Message
 
 import opsdroid.connector.twitch.events as twitch_event
 
+
+AUTH_FILE = os.path.join(tempfile.gettempdir(), "opsdroid_tests", 'twitch.json')
 
 connector_config = {
     "code": "yourcode",
@@ -110,23 +113,21 @@ async def test_get_user_id_unauthorized(opsdroid):
 
 def test_save_authentication_data(opsdroid, tmpdir):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
+    connector.auth_file = AUTH_FILE
 
-    # TODO: Figure out how to set TWITCH.JSON to temp file
-    with amock.patch("opsdroid.const.TWITCH_JSON") as mocked_path:
-        mocked_path = os.path.join(tmpdir, "twitch.json")
+    connector.save_authentication_data(
+        {"access_token": "token", "refresh_token": "refresh_token"}
+    )
 
-        connector.save_authentication_data(
-            {"access_token": "token", "refresh_token": "refresh_token"}
-        )
+    details = connector.get_authorization_data()
 
-        details = connector.get_authorization_data()
-
-        assert details == {"access_token": "token", "refresh_token": "refresh_token"}
+    assert details == {"access_token": "token", "refresh_token": "refresh_token"}
 
 
 @pytest.mark.asyncio
-async def test_request_oauth_token(opsdroid):
+async def test_request_oauth_token(opsdroid, tmpdir):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
+    connector.auth_file = AUTH_FILE
 
     post_response = amock.Mock()
     post_response.status = 200
@@ -144,7 +145,6 @@ async def test_request_oauth_token(opsdroid):
 
         connector.save_authentication_data = amock.CoroutineMock()
 
-        # TODO: Use tempfile for the test - its changing live twitch.json
         response = await connector.request_oauth_token()
 
         assert connector.token is not None
@@ -155,6 +155,7 @@ async def test_request_oauth_token(opsdroid):
 @pytest.mark.asyncio
 async def test_refresh_oauth_token(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
+    connector.auth_file = AUTH_FILE
 
     post_response = amock.Mock()
     post_response.status = 200
@@ -181,7 +182,8 @@ async def test_refresh_oauth_token(opsdroid):
 
 
 @pytest.mark.asyncio
-async def test_connect(opsdroid, caplog):
+async def test_connect(opsdroid, caplog, tmpdir):
+    print(tmpdir)
     caplog.set_level(logging.INFO)
 
     get_response = amock.Mock()
@@ -190,6 +192,7 @@ async def test_connect(opsdroid, caplog):
     get_response.json.return_value = {"data": [{"id": "test-bot"}]}
 
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
+    connector.auth_file = AUTH_FILE
     connector.webhook = amock.CoroutineMock()
 
     opsdroid.web_server = amock.Mock()
@@ -208,7 +211,8 @@ async def test_connect(opsdroid, caplog):
 
 
 @pytest.mark.asyncio
-async def test_connect_no_auth_data(opsdroid, caplog):
+async def test_connect_no_auth_data(opsdroid, caplog, tmpdir):
+    print(tmpdir)
     caplog.set_level(logging.INFO)
     get_response = amock.Mock()
     get_response.status = 200
@@ -216,6 +220,7 @@ async def test_connect_no_auth_data(opsdroid, caplog):
     get_response.json.return_value = {"data": [{"id": "test-bot"}]}
 
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
+    connector.auth_file = AUTH_FILE
     connector.webhook = amock.CoroutineMock()
     connector.request_oauth_token = amock.CoroutineMock()
 
@@ -239,8 +244,8 @@ async def test_connect_no_auth_data(opsdroid, caplog):
 
 @pytest.mark.asyncio
 async def test_connect_refresh_token(opsdroid):
-
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
+    connector.auth_file = AUTH_FILE
     connector.webhook = amock.CoroutineMock()
     connector.get_user_id = amock.CoroutineMock(side_effect=ConnectionError)
     connector.refresh_token = amock.CoroutineMock()
@@ -628,7 +633,7 @@ async def test_followed_event(opsdroid, caplog):
 def test_user_subscribed():
     event = twitch_event.UserSubscribed("user_mc_user", "Hello!")
 
-    assert "user_mc_user" in event.username
+    assert "user_mc_user" in event.user
     assert "Hello!" in event.message
 
 

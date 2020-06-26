@@ -1,3 +1,4 @@
+"""A connector for Twitch."""
 import asyncio
 import os
 import re
@@ -62,6 +63,7 @@ class ConnectorTwitch(Connector):
         self.base_url = config.get("base-url")
         self.loop = asyncio.get_event_loop()
         self.reconnections = 0
+        self.auth_file = TWITCH_JSON
 
     async def validate_request(self, request, secret):
         """Compute sha256 hash of request and secret.
@@ -148,12 +150,12 @@ class ConnectorTwitch(Connector):
 
     def save_authentication_data(self, data):
         """Save data obtained from requesting authentication token."""
-        with open(TWITCH_JSON, "w") as file:
+        with open(self.auth_file, "w") as file:
             json.dump(data, file)
 
     def get_authorization_data(self):
         """Open file containing authentication data."""
-        with open(TWITCH_JSON, "r") as file:
+        with open(self.auth_file, "r") as file:
             data = json.load(file)
             return data
 
@@ -415,7 +417,7 @@ class ConnectorTwitch(Connector):
                 if data.get("event_type") == "subscriptions.notification":
                     _LOGGER.debug(_("Subscriber event received by Twitch."))
                     user_subscription = twitch_event.UserSubscribed(
-                        username=data["event_data"]["user_name"],
+                        user=data["event_data"]["user_name"],
                         message=data["event_data"]["message"],
                     )
 
@@ -424,7 +426,7 @@ class ConnectorTwitch(Connector):
                 if data.get("event_type") == "subscriptions.subscribe":
                     _LOGGER.debug(_("Subscriber event received by Twitch."))
                     user_subscription = twitch_event.UserSubscribed(
-                        username=data["event_data"]["user_name"], message=None
+                        user=data["event_data"]["user_name"], message=None
                     )
 
                     await self.opsdroid.parse(user_subscription)
@@ -464,7 +466,7 @@ class ConnectorTwitch(Connector):
         attempt to connect to the websockets and subscribe to the Twitch events webhook.
 
         """
-        if not os.path.isfile(TWITCH_JSON):
+        if not os.path.isfile(self.auth_file):
             _LOGGER.info(
                 _("No previous authorization data found, requesting new oauth token.")
             )

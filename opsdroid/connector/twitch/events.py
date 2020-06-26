@@ -1,3 +1,4 @@
+"""Events for Twitch Connector."""
 import logging
 
 from opsdroid import events
@@ -71,9 +72,9 @@ class UpdateTitle(events.Event):
 class UserSubscribed(events.Event):
     """Event class that triggers whenever a user subscribes to the channel."""
 
-    def __init__(self, username, message, *args, **kwargs):
+    def __init__(self, user, message, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.username = username
+        self.user = user
         self.message = message
 
 
