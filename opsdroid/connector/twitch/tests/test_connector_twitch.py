@@ -21,7 +21,7 @@ from opsdroid.events import Message
 import opsdroid.connector.twitch.events as twitch_event
 
 
-AUTH_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'twitch.json')
+AUTH_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "twitch.json")
 
 connector_config = {
     "code": "yourcode",

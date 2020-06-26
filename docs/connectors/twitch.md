@@ -75,35 +75,59 @@ The Twitch Connector contains 10 events that you can use on your custom made ski
 
 These events are triggered by opsdroid whenever something happens on twitch.
 
-- **UserJoinedChat** - Received from the chat service and will be fired whenever a new user joins your chat. Note that this doesn't mean that the user is watching the broadcast.
-  - `user` allows you to know the username of the user that joined the chat
-- **UserFollowed** - Event-triggered whenever a user follows your channel.
-   - `follower` username of the follower
-   - `followed_at` timestamp of the following
-- **UserSubscribed** - Triggered whenever a user subscribes to your channel
-   - `user` username of the user that subscribed to your channel
-   - `message` message sent by the subscriber, it can be `None` if the subscriber didn't send a message
-- **UserGiftedSubscription** - Sometimes subscribers offer viewers subscriptions to your channel, this is when this event is triggered.
-   - `gifter_name` username of the person that gifted the subscription
-   - `gifted_name` username of the viewer that was gifted the subscription
-- **StreamStarted** - This event is triggered a few minutes after you start streaming if `always-listening` config flag is not set opsdroid will connect to the chat service.
-   - `title` your broadcast title
-   - `viewers` total number of viewers that your channel has
-   - `started_at` timestamp when you went live
-- **StreamEnded** - Triggered when you stop broadcasting.
+```eval_rst
+.. autoclass:: opsdroid.connector.twitch.events.UserJoinedChat
+    :members:
+```
+
+```eval_rst
+.. autoclass:: opsdroid.connector.twitch.events.UserFollowed
+    :members:
+```
+
+```eval_rst
+.. autoclass:: opsdroid.connector.twitch.events.UserSubscribed
+    :members:
+```
+
+```eval_rst
+.. autoclass:: opsdroid.connector.twitch.events.UserGiftedSubscription
+    :members:
+```
+
+```eval_rst
+.. autoclass:: opsdroid.connector.twitch.events.StreamStarted
+    :members:
+```
+
+```eval_rst
+.. autoclass:: opsdroid.connector.twitch.events.StreamEnded
+    :members:
+```
 
 #### Manual Events
 
 These events will have to be triggered by you with an opsdroid skill.
 
-- **UpdateTitle** - Updates your channel title
-   - `status` the new title for your broadcast
-- **CreateClip** - Creates a clip from your broacast
-   - `id` your streamer id
-- **DeleteMessage** - Deletes a specific message
-   - `id` message id to be deleted
-- **BanUser** - Bans user from your channel
-   - `user` username of tbe banned from your channel
+```eval_rst
+.. autoclass:: opsdroid.connector.twitch.events.UpdateTitle
+    :members:
+```
+
+```eval_rst
+.. autoclass:: opsdroid.connector.twitch.events.CreateClip
+    :members:
+```
+
+```eval_rst
+.. autoclass:: opsdroid.connector.twitch.events.DeleteMessage
+    :members:
+```
+
+```eval_rst
+.. autoclass:: opsdroid.connector.twitch.events.BanUser
+    :members:
+```
 
 ## Examples
 
@@ -239,5 +263,3 @@ class TwitchSkill(Skill):
 .. autoclass:: opsdroid.connector.twitch.ConnectorTwitch
  :members:
 ```
-
-
