@@ -1,5 +1,4 @@
 """Connector for Matrix (https://matrix.org)."""
-
 import re
 import logging
 import functools
@@ -90,7 +89,7 @@ class ConnectorMatrix(Connector):
         self.store_path = config.get(
             "store_path", str(Path(const.DEFAULT_ROOT_PATH).joinpath("matrix"))
         )
-        self.__ignore_unverified__ = True
+        self._ignore_unverified = True
 
         self._event_creator = MatrixEventCreator(self)
 
@@ -368,7 +367,7 @@ class ConnectorMatrix(Connector):
             self._get_formatted_message_body(
                 message.text, msgtype=self.message_type(message.target)
             ),
-            ignore_unverified_devices=self.__ignore_unverified__,
+            ignore_unverified_devices=self._ignore_unverified,
         )
 
     @register_event(events.EditedMessage)
@@ -399,7 +398,7 @@ class ConnectorMatrix(Connector):
             message.target,
             "m.room.message",
             content,
-            ignore_unverified_devices=self.__ignore_unverified__,
+            ignore_unverified_devices=self._ignore_unverified,
         )
 
     @register_event(events.Reply)
@@ -421,7 +420,7 @@ class ConnectorMatrix(Connector):
             reply.target,
             "m.room.message",
             content,
-            ignore_unverified_devices=self.__ignore_unverified__,
+            ignore_unverified_devices=self._ignore_unverified,
         )
 
     @register_event(events.Reaction)
@@ -438,32 +437,41 @@ class ConnectorMatrix(Connector):
             reaction.target,
             "m.reaction",
             content,
-            ignore_unverified_devices=self.__ignore_unverified__,
+            ignore_unverified_devices=self._ignore_unverified,
         )
 
-    async def _get_image_info(self, image):
-        width, height = await image.get_dimensions()
-        return {
-            "w": width,
-            "h": height,
-            "mimetype": await image.get_mimetype(),
-            "size": len(await image.get_file_bytes()),
-        }
+    async def _get_file_info(self, file_event):
+        info_dict = {}
+        if isinstance(file_event, events.Image):
+            info_dict["w"], info_dict["h"] = await file_event.get_dimensions()
+
+        info_dict["mimetype"] = await file_event.get_mimetype()
+        info_dict["size"] = len(await file_event.get_file_bytes())
+
+        return info_dict
 
     async def _file_to_mxc_url(self, file_event):
         """Given a file event return the mxc url."""
         uploaded = False
         mxc_url = None
+        file_dict = None
         if file_event.url:
             url = urlparse(file_event.url)
             if url.scheme == "mxc":
                 mxc_url = file_event.url
 
         if not mxc_url:
-            upload_file = await file_event.get_file_bytes()
-            response = await self.connection.upload(
-                lambda x, y: upload_file, await file_event.get_mimetype()
+            encrypt_file = (
+                file_event.target in self.connection.store.load_encrypted_rooms()
             )
+            upload_file = await file_event.get_file_bytes()
+            mimetype = await file_event.get_mimetype()
+
+            response = await self.connection.upload(
+                lambda x, y: upload_file, content_type=mimetype, encrypt=encrypt_file
+            )
+
+            file_dict = response[1]
             response = response[0]
 
             if isinstance(response, nio.UploadError):
@@ -474,35 +482,41 @@ class ConnectorMatrix(Connector):
             mxc_url = response.content_uri
             uploaded = True
 
-        return mxc_url, uploaded
+            if file_dict:
+                file_dict["url"] = mxc_url
+                file_dict["mimetype"] = mimetype
+
+        return mxc_url, uploaded, file_dict
 
     @register_event(events.File)
     @register_event(events.Image)
     @ensure_room_id_and_send
     async def _send_file(self, file_event):
-        mxc_url, uploaded = await self._file_to_mxc_url(file_event)
-
-        if isinstance(file_event, events.Image):
-            if uploaded:
-                extra_info = await self._get_image_info(file_event)
-            else:
-                extra_info = {}
-            msg_type = "m.image"
-        else:
-            extra_info = {}
-            msg_type = "m.file"
+        mxc_url, uploaded, file_dict = await self._file_to_mxc_url(file_event)
 
         name = file_event.name or "opsdroid_upload"
+        if uploaded:
+            extra_info = await self._get_file_info(file_event)
+        else:
+            extra_info = {}
+        msg_type = f"m.{file_event.__class__.__name__}".lower()
+
+        content = {
+            "body": name,
+            "info": extra_info,
+            "msgtype": msg_type,
+            "url": mxc_url,
+        }
+
+        if file_dict:
+            content["file"] = file_dict
+            del content["url"]
+
         await self.connection.room_send(
             room_id=file_event.target,
             message_type="m.room.message",
-            content={
-                "body": name,
-                "info": extra_info,
-                "msgtype": msg_type,
-                "url": mxc_url,
-            },
-            ignore_unverified_devices=self.__ignore_unverified__,
+            content=content,
+            ignore_unverified_devices=self._ignore_unverified,
         )
 
     @register_event(events.NewRoom)
