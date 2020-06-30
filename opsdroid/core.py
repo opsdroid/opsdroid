@@ -201,19 +201,19 @@ class OpsDroid:
         _LOGGER.info(_("Received stop signal, exiting."))
 
         _LOGGER.info(_("Removing skills..."))
-        for skill in self.skills:
+        for skill in self.skills[:]:
             _LOGGER.info(_("Removed %s."), skill.config["name"])
             self.skills.remove(skill)
         if self.path_watch_task:
             self.path_watch_task.cancel()
 
-        for connector in self.connectors:
+        for connector in self.connectors[:]:
             _LOGGER.info(_("Stopping connector %s..."), connector.name)
             await connector.disconnect()
             self.connectors.remove(connector)
             _LOGGER.info(_("Stopped connector %s."), connector.name)
 
-        for database in self.memory.databases:
+        for database in self.memory.databases[:]:
             _LOGGER.info(_("Stopping database %s..."), database.name)
             await database.disconnect()
             self.memory.databases.remove(database)
