@@ -85,7 +85,7 @@ class ConnectorMatrix(Connector):
         self.filter_id = None
         self.connection = None
         self.device_name = config.get("device_name", "opsdroid")
-        self.device_id = config.get("device_id", "OPSDROID")
+        self.device_id = config.get("device_id", "opsdroid")
         self.store_path = config.get(
             "store_path", str(Path(const.DEFAULT_ROOT_PATH, "matrix"))
         )
@@ -145,10 +145,7 @@ class ConnectorMatrix(Connector):
             Path(self.store_path).mkdir()
 
         config = nio.AsyncClientConfig(
-            encryption_enabled=True,
-            pickle_key="",
-            store=nio.store.SqliteStore,
-            store_name="test_store",
+            encryption_enabled=True, pickle_key="", store_name="opsdroid.db",
         )
         mapi = nio.AsyncClient(
             self.homeserver,
@@ -220,9 +217,6 @@ class ConnectorMatrix(Connector):
 
     async def disconnect(self):
         """Close the matrix session."""
-        if self.device_id == "OPSDROID":
-            await self.connection.logout()
-            Path(self.store_path, "test_store").unlink()
         await self.connection.close()
 
     async def _parse_sync_response(self, response):

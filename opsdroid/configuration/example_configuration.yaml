@@ -145,9 +145,7 @@ connectors:
 #    homeserver: "https://matrix.org"
 #    nick: "Botty McBotface"  # The nick will be set on startup
 #    room_specific_nicks: False  # Look up room specific nicknames of senders (expensive in large rooms)
-#    # A unique string to use as an ID for a persistent opsdroid device
-#    # If not specified opsdroid will create a new device(OPSDROID) every restart and remove it once closed
-#    device_id: "mydevice"
+#    device_id: "opsdroid" # A unique string to use as an ID for a persistent opsdroid device
 #    store_path: "path/to/store/" # Path to the directory where the matrix store will be saved
 #
 #  ## Mattermost (core)
