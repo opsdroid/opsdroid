@@ -1,5 +1,6 @@
 import os
 import asyncio
+import contextlib
 import unittest
 import unittest.mock as mock
 import asynctest
@@ -242,6 +243,10 @@ class TestCoreAsync(asynctest.TestCase):
             opsdroid.cron_task.cancel = amock.CoroutineMock()
             mock_cron_task = opsdroid.cron_task
 
+            opsdroid.path_watch_task = amock.CoroutineMock()
+            opsdroid.path_watch_task.cancel = amock.CoroutineMock()
+            mock_path_watch_task = opsdroid.path_watch_task
+
             async def task():
                 await asyncio.sleep(0.5)
 
@@ -255,6 +260,7 @@ class TestCoreAsync(asynctest.TestCase):
             self.assertTrue(mock_web_server.stop.called)
             self.assertTrue(opsdroid.web_server is None)
             self.assertTrue(mock_cron_task.cancel.called)
+            self.assertTrue(mock_path_watch_task.cancel.called)
             self.assertTrue(opsdroid.cron_task is None)
             self.assertFalse(opsdroid.connectors)
             self.assertFalse(opsdroid.memory.databases)
@@ -523,3 +529,74 @@ class TestCoreAsync(asynctest.TestCase):
             opsdroid.config["parsers"] = {"rasanlu": {"enabled": True}}
             with amock.patch("opsdroid.parsers.rasanlu.train_rasanlu"):
                 await opsdroid.train_parsers({})
+
+    async def test_watchdog_works(self):
+        from watchgod import awatch, PythonWatcher
+        from tempfile import TemporaryDirectory
+        import os.path
+        import asyncio
+
+        async def watch_dirs(directories):
+            async def watch_dir(directory):
+                async for changes in awatch(directory, watcher_cls=PythonWatcher):
+                    assert changes
+                    break
+
+            await asyncio.gather(*[watch_dir(directory) for directory in directories])
+
+        async def modify_dir(directory):
+            await asyncio.sleep(0.1)
+            with open(os.path.join(directory, "test.py"), "w") as fh:
+                fh.write("")
+
+        with TemporaryDirectory() as directory:
+            await asyncio.gather(watch_dirs([directory]), modify_dir(directory))
+
+    async def test_watchdog(self):
+        skill_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "mockmodules/skills/skill/skilltest",
+        )
+        example_config = {
+            "autoreload": True,
+            "connectors": {"websocket": {}},
+            "skills": {"test": {"path": skill_path}},
+        }
+
+        async def modify_dir(opsdroid, directory):
+            await asyncio.sleep(0.1)
+            mock_file_path = os.path.join(directory, "mock.py")
+            with open(mock_file_path, "w") as fh:
+                fh.write("")
+            await asyncio.sleep(0.5)
+            opsdroid.path_watch_task.cancel()
+            os.remove(mock_file_path)
+
+        with OpsDroid(config=example_config) as opsdroid:
+            opsdroid.reload = amock.CoroutineMock()
+            await opsdroid.load()
+
+            with contextlib.suppress(asyncio.CancelledError):
+                await asyncio.gather(
+                    opsdroid.path_watch_task, modify_dir(opsdroid, skill_path)
+                )
+
+            assert opsdroid.reload.called
+
+    async def test_get_connector_database(self):
+        skill_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "mockmodules/skills/skill/skilltest",
+        )
+        example_config = {
+            "connectors": {"websocket": {}},
+            "skills": {"test": {"path": skill_path}},
+        }
+        with OpsDroid(config=example_config) as opsdroid:
+            await opsdroid.load()
+
+            assert opsdroid.get_connector("websocket") is not None
+            assert opsdroid.get_connector("slack") is None
+
+            assert opsdroid.get_database("inmem") is not None
+            assert opsdroid.get_database("redis") is None

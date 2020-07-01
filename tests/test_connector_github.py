@@ -4,12 +4,10 @@ import os.path
 
 import asyncio
 import unittest
-import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock
 
 from opsdroid.cli.start import configure_lang
-from opsdroid.core import OpsDroid
 from opsdroid.connector.github import ConnectorGitHub
 from opsdroid.events import Message
 
@@ -56,16 +54,14 @@ class TestConnectorGitHubAsync(asynctest.TestCase):
             )
 
     async def test_connect_failure(self):
-        result = amock.MagicMock()
-        result.status = 401
-
-        with OpsDroid() as opsdroid, amock.patch(
-            "aiohttp.ClientSession.get"
-        ) as patched_request:
-
+        with amock.patch("aiohttp.ClientSession.get") as patched_request:
+            mockresponse = amock.CoroutineMock()
+            mockresponse.status = 401
+            mockresponse.text = amock.CoroutineMock(
+                return_value='{"message": "Bad credentials", "documentation_url": "https://developer.github.com/v3"}'
+            )
             patched_request.return_value = asyncio.Future()
-            patched_request.return_value.set_result(result)
-
+            patched_request.return_value.set_result(mockresponse)
             await self.connector.connect()
             self.assertLogs("_LOGGER", "error")
 

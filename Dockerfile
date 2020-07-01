@@ -13,10 +13,10 @@ COPY README.md README.md
 COPY MANIFEST.in MANIFEST.in
 
 RUN apk update \
-&& apk add --no-cache gcc musl-dev git openssh-client \
+&& apk add --no-cache gcc g++ linux-headers musl-dev git openssh-client \
 && pip3 install --upgrade pip \
 && pip3 install --no-cache-dir --no-use-pep517 . \
-&& apk del gcc musl-dev
+&& apk del gcc g++ linux-headers musl-dev
 
 EXPOSE 8080
 
