@@ -182,6 +182,27 @@ def add_skill_attributes(func):
     return func
 
 
+def get_parser_config(name, modules):
+    """Get parser from modules list.
+
+    After the change to the configuration we are adding the "enabled" flag to each 
+    active module, this allows us to disable to module if there is any problem with
+    it. This helper method helps getting the config from the list of active parsers.
+
+    Args:
+        name (string): Name of the parser to be fetched.
+        modules (list): List of all active modules.
+    
+    Returns:
+        dict or None: The module config or None if not found.
+    """
+    if modules:
+        for parser in modules:
+            if parser["config"]["name"] == name:
+                return parser["config"]
+    return None
+
+
 def get_config_option(options, config, found, not_found):
     """Get config details and return useful information to list active modules.
 
