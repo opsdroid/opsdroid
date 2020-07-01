@@ -325,9 +325,18 @@ class TestCoreAsync(asynctest.TestCase):
     async def test_parse_dialogflow(self):
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "path/test.json"
         with OpsDroid() as opsdroid:
-            opsdroid.config["parsers"] = {
-                "dialogflow": {"project-id": "test", "enabled": True}
+            opsdroid.modules = {
+                "parsers": [
+                    {
+                        "config": {
+                            "name": "dialogflow",
+                            "project-id": "test",
+                            "enabled": True,
+                        }
+                    }
+                ]
             }
+
             dialogflow_action = "smalltalk.greetings.whatsup"
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
@@ -349,7 +358,9 @@ class TestCoreAsync(asynctest.TestCase):
 
     async def test_parse_luisai(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config["parsers"] = {"luisai": {"enabled": True}}
+            opsdroid.modules = {
+                "parsers": [{"config": {"name": "luisai", "enabled": True}}]
+            }
             luisai_intent = ""
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
@@ -366,7 +377,11 @@ class TestCoreAsync(asynctest.TestCase):
 
     async def test_parse_rasanlu(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config["parsers"] = {"rasanlu": {"enabled": True}}
+            opsdroid.modules = {
+                "parsers": [
+                    {"config": {"name": "rasanlu", "module": "", "enabled": True}}
+                ]
+            }
             rasanlu_intent = ""
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
@@ -380,7 +395,9 @@ class TestCoreAsync(asynctest.TestCase):
 
     async def test_parse_sapcai(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config["parsers"] = {"sapcai": {"enabled": True}}
+            opsdroid.modules = {
+                "parsers": [{"config": {"name": "sapcai", "enabled": True}}]
+            }
             sapcai_intent = ""
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
@@ -394,7 +411,9 @@ class TestCoreAsync(asynctest.TestCase):
 
     async def test_parse_watson(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config["parsers"] = {"watson": {"enabled": True}}
+            opsdroid.modules = {
+                "parsers": [{"config": {"name": "watson", "enabled": True}}]
+            }
             watson_intent = ""
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
@@ -406,7 +425,9 @@ class TestCoreAsync(asynctest.TestCase):
 
     async def test_parse_witai(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config["parsers"] = {"witai": {"enabled": True}}
+            opsdroid.modules = {
+                "parsers": [{"config": {"name": "witai", "enabled": True}}]
+            }
             witai_intent = ""
             skill = amock.CoroutineMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
@@ -526,7 +547,9 @@ class TestCoreAsync(asynctest.TestCase):
 
     async def test_train_rasanlu(self):
         with OpsDroid() as opsdroid:
-            opsdroid.config["parsers"] = {"rasanlu": {"enabled": True}}
+            opsdroid.modules = {
+                "parsers": [{"config": {"name": "rasanlu", "enabled": True}}]
+            }
             with amock.patch("opsdroid.parsers.rasanlu.train_rasanlu"):
                 await opsdroid.train_parsers({})
 
