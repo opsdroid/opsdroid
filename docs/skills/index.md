@@ -108,6 +108,25 @@ You can also specify code to run when your skill is loaded. Perhaps you want to 
    setup
 ```
 
+## Helper functions
+
+When you have a skill there will automatically be a pointer to the core opsdroid object. This object has helper functions which enable you to access different things within opsdroid.
+
+For example if you wish to get a pointer to a connector or database object by name you can use the convenience functions.
+
+```python
+from opsdroid.skill import Skill
+from opsdroid.matchers import match_regex
+
+class HelloSkill(Skill):
+    @match_regex(r'hi')
+    async def hello(self, message):
+        slack = self.opsdroid.get_connector("slack")
+        redis = self.opsdroid.get_database("redis")
+```
+
+If you try to access a connector or database which has not been configured these functions will return `None.`.
+
 ## Examples
 
 For examples of the kind of skills you can build in opsdroid see the [examples section](../examples/index). Or continue reading about more of the features you can use to create your skills.
