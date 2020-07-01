@@ -16,7 +16,7 @@ from opsdroid.helper import (
     JSONDecoder,
     convert_dictionary,
     get_config_option,
-    get_parser_config
+    get_parser_config,
 )
 
 
@@ -174,42 +174,42 @@ class TestJSONDecoder(unittest.TestCase):
 def test_get_parser_config():
     parsers = [
         {
-            'name': 'dialogflow',
-            'module': "",
-            'config': {
-                'name': 'dialogflow',
-                'module': '',
-                'project-id': 'test-ddd33',
-                'type': 'parsers',
-                'enabled': True,
-                'entrypoint': None,
-                'is_builtin': "",
-                'module_path': 'opsdroid.parsers.dialogflow',
-                'install_path': '',
-                'branch': 'master'
+            "name": "dialogflow",
+            "module": "",
+            "config": {
+                "name": "dialogflow",
+                "module": "",
+                "project-id": "test-ddd33",
+                "type": "parsers",
+                "enabled": True,
+                "entrypoint": None,
+                "is_builtin": "",
+                "module_path": "opsdroid.parsers.dialogflow",
+                "install_path": "",
+                "branch": "master",
             },
-            'intents': None
-        }, 
+            "intents": None,
+        },
         {
-            'name': 'regex', 
-            'module': "",
-            'config': {
-                'name': 'regex',
-                'module': '',
-                'type': 'parsers',
-                'enabled': True,
-                'entrypoint': None,
-                'is_builtin': "",
-                'module_path': 'opsdroid.parsers.regex',
-                'install_path': '',
-                'branch': 'master'
-                },
-            'intents': None
-        }
+            "name": "regex",
+            "module": "",
+            "config": {
+                "name": "regex",
+                "module": "",
+                "type": "parsers",
+                "enabled": True,
+                "entrypoint": None,
+                "is_builtin": "",
+                "module_path": "opsdroid.parsers.regex",
+                "install_path": "",
+                "branch": "master",
+            },
+            "intents": None,
+        },
     ]
 
     dialogflow_config = get_parser_config("dialogflow", parsers)
-    
+
     assert dialogflow_config
     assert dialogflow_config["name"] == "dialogflow"
 
