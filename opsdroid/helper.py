@@ -195,6 +195,7 @@ def get_parser_config(name, modules):
     
     Returns:
         dict or None: The module config or None if not found.
+
     """
     if modules:
         for parser in modules:
