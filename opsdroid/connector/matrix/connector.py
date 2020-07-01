@@ -85,9 +85,9 @@ class ConnectorMatrix(Connector):
         self.filter_id = None
         self.connection = None
         self.device_name = config.get("device_name", "opsdroid")
-        self.device_id = config.get("device_id")
+        self.device_id = config.get("device_id", "OPSDROID")
         self.store_path = config.get(
-            "store_path", str(Path(const.DEFAULT_ROOT_PATH).joinpath("matrix"))
+            "store_path", str(Path(const.DEFAULT_ROOT_PATH, "matrix"))
         )
         self._ignore_unverified = True
 
@@ -145,7 +145,10 @@ class ConnectorMatrix(Connector):
             Path(self.store_path).mkdir()
 
         config = nio.AsyncClientConfig(
-            encryption_enabled=True, pickle_key="", store_name="test_store"
+            encryption_enabled=True,
+            pickle_key="",
+            store=nio.store.SqliteStore,
+            store_name="test_store",
         )
         mapi = nio.AsyncClient(
             self.homeserver,
@@ -163,11 +166,6 @@ class ConnectorMatrix(Connector):
                 f"Error while connecting: {login_response.message} (status code {login_response.status_code})"
             )
             return
-
-        if not self.device_id:
-            _LOGGER.error(
-                f"No device ID provided, new device {mapi.device_id} and its database created in store directory. Put the device ID in the config to avoid creating a new database every restart"
-            )
 
         mapi.token = login_response.access_token
         mapi.sync_token = None
@@ -222,6 +220,9 @@ class ConnectorMatrix(Connector):
 
     async def disconnect(self):
         """Close the matrix session."""
+        if self.device_id == "OPSDROID":
+            await self.connection.logout()
+            Path(self.store_path, "test_store").unlink()
         await self.connection.close()
 
     async def _parse_sync_response(self, response):
