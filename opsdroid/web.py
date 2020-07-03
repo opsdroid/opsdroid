@@ -89,6 +89,14 @@ class Web:
         except KeyError:
             return None
 
+    @property
+    def base_url(self):
+        """Return the base url of the opsdroid web server."""
+        if self.config.get("base_url"):
+            return self.config.get("base_url")
+        protocol = "http" if self.get_ssl_context is None else "https"
+        return f"{protocol}://{self.get_host}:{self.get_port}"
+
     async def start(self):
         """Start web servers."""
         _LOGGER.info(

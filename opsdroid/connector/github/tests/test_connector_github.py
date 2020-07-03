@@ -1,13 +1,15 @@
 """Tests for the GitHub class."""
 import pytest
-import asynctest
-import asynctest.mock as amock
+from asynctest.mock import CoroutineMock
 
 import os.path
+
 
 from opsdroid.cli.start import configure_lang
 from opsdroid.connector.github import ConnectorGitHub
 from opsdroid.events import Message
+from opsdroid.matchers import match_event
+from opsdroid.testing import call_endpoint, run_unit_test
 
 
 configure_lang({})
@@ -15,22 +17,20 @@ configure_lang({})
 
 @pytest.fixture
 async def connector(opsdroid, mock_api):
-    connector = ConnectorGitHub(
-        {"name": "github", "token": "abc123"}, opsdroid=opsdroid
-    )
-    opsdroid.web_server = amock.CoroutineMock()
-    opsdroid.web_server.web_app = amock.CoroutineMock()
-    opsdroid.web_server.web_app.router = amock.CoroutineMock()
-    opsdroid.web_server.web_app.router.add_get = amock.CoroutineMock()
-    opsdroid.web_server.web_app.router.add_post = amock.CoroutineMock()
-
-    connector.github_api_url = mock_api.base_url
-
-    return connector
+    opsdroid.config["connectors"] = {
+        "github": {"token": "abc123", "api_base_url": mock_api.base_url}
+    }
+    await opsdroid.load()
+    return opsdroid.get_connector("github")
 
 
 def get_response_path(response):
     return os.path.join(os.path.dirname(__file__), "responses", response)
+
+
+def get_webhook_payload(path):
+    with open(get_response_path(path), "r") as fh:
+        return {"payload": fh.read()}
 
 
 def test_init():
@@ -165,98 +165,128 @@ async def test_do_not_send_to_self(opsdroid, connector, mock_api):
     await mock_api.run_test(test)
 
 
-class TestConnectorGitHubAsync(asynctest.TestCase):
-    """Test the async methods of the opsdroid github connector class."""
+@pytest.mark.asyncio
+async def test_receive_comment(opsdroid, connector, mock_api):
+    """Test a comment create event creates a message and parses it."""
+    mock_api.add_response(
+        "/user", "GET", get_response_path("github_user.json"), status=200
+    )
 
-    def setUp(self):
-        opsdroid = amock.CoroutineMock()
-        self.connector = ConnectorGitHub(
-            {"name": "github", "token": "test"}, opsdroid=opsdroid
+    @match_event(Message)
+    async def test_skill(opsdroid, config, event):
+        assert event.connector.name == "github"
+        assert event.text == "hello"
+        assert event.target == "opsdroid/opsdroid#237"
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async def test():
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/github",
+            "POST",
+            data=get_webhook_payload("github_comment_payload.json"),
         )
+        assert resp.status == 201
 
-    async def test_get_comment(self):
-        """Test a comment create event creates a message and parses it."""
-        with open(
-            os.path.join(
-                os.path.dirname(__file__), "responses", "github_comment_payload.json"
-            ),
-            "r",
-        ) as f:
-            mock_request = amock.CoroutineMock()
-            mock_request.post = amock.CoroutineMock(return_value={"payload": f.read()})
-            self.connector.opsdroid = amock.CoroutineMock()
-            self.connector.opsdroid.parse = amock.CoroutineMock()
-            await self.connector.github_message_handler(mock_request)
-            message = self.connector.opsdroid.parse.call_args[0][0]
-            self.assertEqual(message.connector.name, "github")
-            self.assertEqual(message.text, "hello")
-            self.assertEqual(message.target, "opsdroid/opsdroid#237")
-            self.assertTrue(self.connector.opsdroid.parse.called)
+    await mock_api.run_test(run_unit_test, opsdroid, test)
 
-    async def test_get_pr(self):
-        """Test a PR create event creates a message and parses it."""
-        with open(
-            os.path.join(
-                os.path.dirname(__file__), "responses", "github_pr_payload.json"
-            ),
-            "r",
-        ) as f:
-            mock_request = amock.CoroutineMock()
-            mock_request.post = amock.CoroutineMock(return_value={"payload": f.read()})
-            self.connector.opsdroid = amock.CoroutineMock()
-            self.connector.opsdroid.parse = amock.CoroutineMock()
-            await self.connector.github_message_handler(mock_request)
-            message = self.connector.opsdroid.parse.call_args[0][0]
-            self.assertEqual(message.connector.name, "github")
-            self.assertEqual(message.text, "hello world")
-            self.assertEqual(message.target, "opsdroid/opsdroid-audio#175")
-            self.assertTrue(self.connector.opsdroid.parse.called)
 
-    async def test_get_issue(self):
-        """Test an issue create event creates a message and parses it."""
-        with open(
-            os.path.join(
-                os.path.dirname(__file__), "responses", "github_issue_payload.json"
-            ),
-            "r",
-        ) as f:
-            mock_request = amock.CoroutineMock()
-            mock_request.post = amock.CoroutineMock(return_value={"payload": f.read()})
-            self.connector.opsdroid = amock.CoroutineMock()
-            self.connector.opsdroid.parse = amock.CoroutineMock()
-            await self.connector.github_message_handler(mock_request)
-            message = self.connector.opsdroid.parse.call_args[0][0]
-            self.assertEqual(message.connector.name, "github")
-            self.assertEqual(message.text, "test")
-            self.assertEqual(message.target, "opsdroid/opsdroid#740")
-            self.assertTrue(self.connector.opsdroid.parse.called)
+@pytest.mark.asyncio
+async def test_receive_pr(opsdroid, connector, mock_api):
+    """Test a PR create event creates a message and parses it."""
+    mock_api.add_response(
+        "/user", "GET", get_response_path("github_user.json"), status=200
+    )
 
-    async def test_get_label(self):
-        """Test a label create event doesn't create a message and parse it."""
-        with open(
-            os.path.join(
-                os.path.dirname(__file__), "responses", "github_label_payload.json"
-            ),
-            "r",
-        ) as f:
-            mock_request = amock.CoroutineMock()
-            mock_request.post = amock.CoroutineMock(return_value={"payload": f.read()})
-            self.connector.opsdroid = amock.CoroutineMock()
-            self.connector.opsdroid.parse = amock.CoroutineMock()
-            await self.connector.github_message_handler(mock_request)
-            self.assertFalse(self.connector.opsdroid.parse.called)
+    @match_event(Message)
+    async def test_skill(opsdroid, config, event):
+        assert event.connector.name == "github"
+        assert event.text == "hello world"
+        assert event.target == "opsdroid/opsdroid-audio#175"
 
-    async def test_get_no_action(self):
-        """Test a status event doesn't create a message and parse it."""
-        with open(
-            os.path.join(
-                os.path.dirname(__file__), "responses", "github_status_payload.json"
-            ),
-            "r",
-        ) as f:
-            mock_request = amock.CoroutineMock()
-            mock_request.post = amock.CoroutineMock(return_value={"payload": f.read()})
-            self.connector.opsdroid = amock.CoroutineMock()
-            self.connector.opsdroid.parse = amock.CoroutineMock()
-            await self.connector.github_message_handler(mock_request)
-            self.assertFalse(self.connector.opsdroid.parse.called)
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async def test():
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/github",
+            "POST",
+            data=get_webhook_payload("github_pr_payload.json"),
+        )
+        assert resp.status == 201
+
+    await mock_api.run_test(run_unit_test, opsdroid, test)
+
+
+@pytest.mark.asyncio
+async def test_receive_issue(opsdroid, connector, mock_api):
+    """Test a PR create event creates a message and parses it."""
+    mock_api.add_response(
+        "/user", "GET", get_response_path("github_user.json"), status=200
+    )
+
+    @match_event(Message)
+    async def test_skill(opsdroid, config, event):
+        assert event.connector.name == "github"
+        assert event.text == "test"
+        assert event.target == "opsdroid/opsdroid#740"
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async def test():
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/github",
+            "POST",
+            data=get_webhook_payload("github_issue_payload.json"),
+        )
+        assert resp.status == 201
+
+    await mock_api.run_test(run_unit_test, opsdroid, test)
+
+
+@pytest.mark.asyncio
+async def test_receive_label(opsdroid, connector, mock_api):
+    """Test a PR create event creates a message and parses it."""
+    mock_api.add_response(
+        "/user", "GET", get_response_path("github_user.json"), status=200
+    )
+
+    test_skill = match_event(Message)(CoroutineMock())
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async def test():
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/github",
+            "POST",
+            data=get_webhook_payload("github_label_payload.json"),
+        )
+        assert resp.status == 200
+
+    await mock_api.run_test(run_unit_test, opsdroid, test)
+    assert not test_skill.called
+
+
+@pytest.mark.asyncio
+async def test_receive_status(opsdroid, connector, mock_api):
+    """Test a PR create event creates a message and parses it."""
+    mock_api.add_response(
+        "/user", "GET", get_response_path("github_user.json"), status=200
+    )
+
+    test_skill = match_event(Message)(CoroutineMock())
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async def test():
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/github",
+            "POST",
+            data=get_webhook_payload("github_status_payload.json"),
+        )
+        assert resp.status == 201
+
+    await mock_api.run_test(run_unit_test, opsdroid, test)
+    assert not test_skill.called

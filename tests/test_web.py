@@ -43,6 +43,17 @@ class TestWeb(asynctest.TestCase):
             app = web.Web(opsdroid)
             self.assertEqual(app.get_host, "127.0.0.1")
 
+    async def test_web_get_base_url(self):
+        """Check the base_url getter."""
+        with OpsDroid() as opsdroid:
+            opsdroid.config["web"] = {}
+            app = web.Web(opsdroid)
+            self.assertEqual(app.base_url, "http://0.0.0.0:8080")
+
+            opsdroid.config["web"] = {"base_url": "https://someremoteurl.com"}
+            app = web.Web(opsdroid)
+            self.assertEqual(app.base_url, "https://someremoteurl.com")
+
     async def test_web_get_ssl(self):
         """Check the host getter."""
         with OpsDroid() as opsdroid:

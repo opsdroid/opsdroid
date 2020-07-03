@@ -34,7 +34,9 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
+    "sphinx.ext.intersphinx",
     "sphinx_click.ext",
+    "sphinx_autodoc_typehints",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -44,6 +46,9 @@ templates_path = ["_templates"]
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+
+# Mappings for intersphinx
+intersphinx_mapping = {"aiohttp": ("https://docs.aiohttp.org/en/stable/", None)}
 
 
 # -- Options for HTML output -------------------------------------------------

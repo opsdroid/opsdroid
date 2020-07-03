@@ -29,7 +29,7 @@ class ConnectorGitHub(Connector):
         self.name = self.config.get("name", "github")
         self.opsdroid = opsdroid
         self.github_username = None
-        self.github_api_url = GITHUB_API_URL
+        self.github_api_url = self.config.get("api_base_url", GITHUB_API_URL)
 
     async def connect(self):
         """Connect to GitHub."""

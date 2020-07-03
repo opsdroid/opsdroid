@@ -57,6 +57,21 @@ class TestParserEvent(asynctest.TestCase):
             await opsdroid.parse(message2)
             self.assertFalse(opsdroid.run_skill.called)
 
+    async def test_parse_event_with_args_list(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.run_skill = amock.CoroutineMock()
+            mock_skill = await self.getMockSkill()
+            opsdroid.skills.append(
+                match_event(events.Message, value=["click_me_123"])(mock_skill)
+            )
+
+            mock_connector = amock.CoroutineMock()
+            message1 = events.Message("Hello World", "user", "default", mock_connector)
+            message1.update_entity("value", ["click_me_123"])
+
+            await opsdroid.parse(message1)
+            self.assertTrue(opsdroid.run_skill.called)
+
     async def test_parse_event_with_constraint(self):
         with OpsDroid() as opsdroid:
             opsdroid.run_skill = amock.CoroutineMock()

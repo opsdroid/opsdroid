@@ -75,6 +75,7 @@ $ opsdroid start
 
    examples/index
    packaging
+   testing
 ```
 
 ```eval_rst
@@ -87,20 +88,18 @@ $ opsdroid start
    why
 ```
 
--------
+---
 
 ### Contributors
 
 This project exists thanks to all the people who contribute. [[Contribute](https://docs.opsdroid.dev/en/stable/contributing.html#contributing)].
 <a href="https://github.com/opsdroid/opsdroid/graphs/contributors"><img src="https://opencollective.com/opsdroid/contributors.svg?width=890" /></a>
 
-
 ## Backers
 
 Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/opsdroid#backer)]
 
 <a href="https://opencollective.com/opsdroid#backers" target="_blank"><img src="https://opencollective.com/opsdroid/backers.svg?width=890"></a>
-
 
 ## Sponsors
 
