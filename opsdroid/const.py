@@ -36,9 +36,6 @@ RASANLU_DEFAULT_PROJECT = "opsdroid"
 
 LUISAI_DEFAULT_URL = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/"
 
-DIALOGFLOW_API_ENDPOINT = "https://api.dialogflow.com/v1/query"
-DIALOGFLOW_API_VERSION = "20150910"
-
 WITAI_DEFAULT_VERSION = "20170307"
 WITAI_API_ENDPOINT = "https://api.wit.ai/message?"
 
