@@ -107,3 +107,4 @@ site/
 Pipfile
 Pipfile.lock
 .icloud
+*.swp
