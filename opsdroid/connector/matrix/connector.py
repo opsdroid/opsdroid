@@ -591,7 +591,7 @@ class ConnectorMatrix(Connector):
     @register_event(events.RoomImage)
     @ensure_room_id_and_send
     async def _send_room_image(self, image_event):
-        mxc_url, _ = await self._file_to_mxc_url(image_event.room_image)
+        mxc_url, _, _ = await self._file_to_mxc_url(image_event.room_image)
         return await image_event.respond(matrixevents.MatrixRoomAvatar(mxc_url))
 
     @register_event(events.UserRole)
