@@ -3,5 +3,4 @@ source = opsdroid
 
 [report]
 show_missing = True
-omit =
-    opsdroid/_version.py
+omit = opsdroid/_version.py, */tests/*
