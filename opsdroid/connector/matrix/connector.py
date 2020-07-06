@@ -473,6 +473,7 @@ class ConnectorMatrix(Connector):
                 _LOGGER.error(
                     f"Error while sending the file. Reason: {response.message} (status code {response.status_code})"
                 )
+                return response, None, None
 
             mxc_url = response.content_uri
             uploaded = True
@@ -488,6 +489,9 @@ class ConnectorMatrix(Connector):
     @ensure_room_id_and_send
     async def _send_file(self, file_event):
         mxc_url, uploaded, file_dict = await self._file_to_mxc_url(file_event)
+
+        if isinstance(mxc_url, nio.UploadError):
+            return
 
         name = file_event.name or "opsdroid_upload"
         if uploaded:

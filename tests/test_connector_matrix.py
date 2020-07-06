@@ -241,7 +241,7 @@ class TestConnectorMatrixAsync:
             assert filter_id == 10
             assert patched_filter.called
 
-    async def test_connect(self):
+    async def test_connect(self, caplog):
         with amock.patch(api_string.format("login")) as patched_login, amock.patch(
             api_string.format("join")
         ) as patched_join, amock.patch(
@@ -253,6 +253,20 @@ class TestConnectorMatrixAsync:
         ) as patched_get_nick, amock.patch(
             api_string.format("set_displayname")
         ) as patch_set_nick, amock.patch(
+            api_string.format("send_to_device_messages")
+        ) as patched_send_to_device, amock.patch(
+            api_string.format("should_upload_keys")
+        ) as patched_should_upload, amock.patch(
+            api_string.format("should_query_keys")
+        ) as patched_should_query, amock.patch(
+            api_string.format("keys_upload")
+        ) as patched_keys_upload, amock.patch(
+            api_string.format("keys_query")
+        ) as patched_keys_query, amock.patch(
+            "pathlib.Path.mkdir"
+        ) as patched_mkdir, amock.patch(
+            "pathlib.Path.is_dir"
+        ) as patched_is_dir, amock.patch(
             "aiohttp.ClientSession"
         ) as patch_cs, OpsDroid() as _:
 
@@ -296,7 +310,27 @@ class TestConnectorMatrixAsync:
             patch_set_nick.return_value = asyncio.Future()
             patch_set_nick.return_value.set_result(nio.ProfileSetDisplayNameResponse())
 
+            patched_is_dir.return_value = False
+            patched_mkdir.return_value = None
+
+            patched_send_to_device.return_value = asyncio.Future()
+            patched_send_to_device.return_value.set_result(None)
+
+            patched_should_upload.return_value = True
+            patched_keys_upload.return_value = asyncio.Future()
+            patched_keys_upload.return_value.set_result(None)
+
+            patched_should_query.return_value = True
+            patched_keys_query.return_value = asyncio.Future()
+            patched_keys_query.return_value.set_result(None)
+
             await self.connector.connect()
+
+            assert patched_mkdir.called
+
+            assert patched_send_to_device.called
+            assert patched_keys_upload.called
+            assert patched_keys_query.called
 
             assert "!aroomid:localhost" in self.connector.room_ids.values()
 
@@ -716,7 +750,7 @@ class TestConnectorMatrixAsync:
             self.connector.lookup_target("!aroomid:localhost") == "!aroomid:localhost"
         )
 
-    async def test_respond_image(self, mocker):
+    async def test_respond_image(self, mocker, caplog):
         gif_bytes = (
             b"GIF89a\x01\x00\x01\x00\x00\xff\x00,"
             b"\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00;"
@@ -729,10 +763,13 @@ class TestConnectorMatrixAsync:
         )
         patched_send.return_value.set_result(None)
 
-        async def patched_file_to_mxc(image):
-            return "mxc://aurl", True, {}
+        self.connector.connection.store = mocker.MagicMock()
+        self.connector.connection.store.load_encrypted_rooms.return_value = []
 
-        mocker.patch.object(self.connector, "_file_to_mxc_url", patched_file_to_mxc)
+        patched_upload = mocker.patch(
+            api_string.format("upload"), return_value=asyncio.Future()
+        )
+        patched_upload.return_value.set_result([nio.UploadResponse("mxc://aurl"), None])
 
         await self.connector.send(image)
 
@@ -748,25 +785,27 @@ class TestConnectorMatrixAsync:
             ignore_unverified_devices=True,
         )
 
-        async def patched_encrypted_file_to_mxc(image):
-            file_dict = {
-                "v": "v2",
-                "key": {
-                    "kty": "oct",
-                    "alg": "A256CTR",
-                    "ext": True,
-                    "key_ops": ["encrypt", "decrypt"],
-                    "k": "randomkey",
-                },
-                "iv": "randomiv",
-                "hashes": {"sha256": "shakey"},
-                "url": "mxc://aurl",
-                "mimetype": "image/gif",
-            }
-            return "mxc://aurl", True, file_dict
+        file_dict = {
+            "v": "v2",
+            "key": {
+                "kty": "oct",
+                "alg": "A256CTR",
+                "ext": True,
+                "key_ops": ["encrypt", "decrypt"],
+                "k": "randomkey",
+            },
+            "iv": "randomiv",
+            "hashes": {"sha256": "shakey"},
+            "url": "mxc://aurl",
+            "mimetype": "image/gif",
+        }
 
-        mocker.patch.object(
-            self.connector, "_file_to_mxc_url", patched_encrypted_file_to_mxc
+        self.connector.connection.store.load_encrypted_rooms.return_value = [
+            "!test:localhost"
+        ]
+        patched_upload.return_value = asyncio.Future()
+        patched_upload.return_value.set_result(
+            [nio.UploadResponse("mxc://aurl"), file_dict]
         )
 
         await self.connector.send(image)
@@ -778,23 +817,24 @@ class TestConnectorMatrixAsync:
                 "body": "opsdroid_upload",
                 "info": {"w": 1, "h": 1, "mimetype": "image/gif", "size": 26},
                 "msgtype": "m.image",
-                "file": {
-                    "v": "v2",
-                    "key": {
-                        "kty": "oct",
-                        "alg": "A256CTR",
-                        "ext": True,
-                        "key_ops": ["encrypt", "decrypt"],
-                        "k": "randomkey",
-                    },
-                    "iv": "randomiv",
-                    "hashes": {"sha256": "shakey"},
-                    "url": "mxc://aurl",
-                    "mimetype": "image/gif",
-                },
+                "file": file_dict,
             },
             ignore_unverified_devices=True,
         )
+
+        error_message = "Some error message"
+        error_code = 400
+        self.connector.connection.store.load_encrypted_rooms.return_value = []
+        patched_upload.return_value = asyncio.Future()
+        patched_upload.return_value.set_result(
+            [nio.UploadError(message=error_message, status_code=error_code), None]
+        )
+
+        caplog.clear()
+        await self.connector.send(image)
+        assert [
+            f"Error while sending the file. Reason: {error_message} (status code {error_code})"
+        ] == [rec.message for rec in caplog.records]
 
     async def test_respond_mxc(self):
         gif_bytes = (
@@ -838,10 +878,13 @@ class TestConnectorMatrixAsync:
         )
         patched_send.return_value.set_result(None)
 
-        async def patched_file_to_mxc(image):
-            return "mxc://aurl", True, {}
+        self.connector.connection.store = mocker.MagicMock()
+        self.connector.connection.store.load_encrypted_rooms.return_value = []
 
-        mocker.patch.object(self.connector, "_file_to_mxc_url", patched_file_to_mxc)
+        patched_upload = mocker.patch(
+            api_string.format("upload"), return_value=asyncio.Future()
+        )
+        patched_upload.return_value.set_result([nio.UploadResponse("mxc://aurl"), None])
 
         await self.connector.send(file_event)
 
@@ -857,25 +900,27 @@ class TestConnectorMatrixAsync:
             ignore_unverified_devices=True,
         )
 
-        async def patched_encrypted_file_to_mxc(image):
-            file_dict = {
-                "v": "v2",
-                "key": {
-                    "kty": "oct",
-                    "alg": "A256CTR",
-                    "ext": True,
-                    "key_ops": ["encrypt", "decrypt"],
-                    "k": "randomkey",
-                },
-                "iv": "randomiv",
-                "hashes": {"sha256": "shakey"},
-                "url": "mxc://aurl",
-                "mimetype": "text/plain",
-            }
-            return "mxc://aurl", True, file_dict
+        file_dict = {
+            "v": "v2",
+            "key": {
+                "kty": "oct",
+                "alg": "A256CTR",
+                "ext": True,
+                "key_ops": ["encrypt", "decrypt"],
+                "k": "randomkey",
+            },
+            "iv": "randomiv",
+            "hashes": {"sha256": "shakey"},
+            "url": "mxc://aurl",
+            "mimetype": "text/plain",
+        }
 
-        mocker.patch.object(
-            self.connector, "_file_to_mxc_url", patched_encrypted_file_to_mxc
+        self.connector.connection.store.load_encrypted_rooms.return_value = [
+            "!test:localhost"
+        ]
+        patched_upload.return_value = asyncio.Future()
+        patched_upload.return_value.set_result(
+            [nio.UploadResponse("mxc://aurl"), file_dict]
         )
 
         await self.connector.send(file_event)
@@ -887,20 +932,7 @@ class TestConnectorMatrixAsync:
                 "body": "opsdroid_upload",
                 "info": {"mimetype": "text/plain", "size": 19},
                 "msgtype": "m.file",
-                "file": {
-                    "v": "v2",
-                    "key": {
-                        "kty": "oct",
-                        "alg": "A256CTR",
-                        "ext": True,
-                        "key_ops": ["encrypt", "decrypt"],
-                        "k": "randomkey",
-                    },
-                    "iv": "randomiv",
-                    "hashes": {"sha256": "shakey"},
-                    "url": "mxc://aurl",
-                    "mimetype": "text/plain",
-                },
+                "file": file_dict,
             },
             ignore_unverified_devices=True,
         )
