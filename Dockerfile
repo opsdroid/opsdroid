@@ -8,7 +8,6 @@ COPY opsdroid opsdroid
 COPY setup.py setup.py
 COPY versioneer.py versioneer.py
 COPY setup.cfg setup.cfg
-COPY requirements.txt requirements.txt
 COPY README.md README.md
 COPY MANIFEST.in MANIFEST.in
 
