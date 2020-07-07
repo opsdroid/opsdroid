@@ -33,6 +33,14 @@ class UserJoinedChat(events.Event):
         self.user = user
 
 
+class UserLeftChat(events.Event):
+     """Event class to trigger when a user leaves the chat."""
+     def __init__(self, user, *args, **kwargs):
+         """User allows you to know the username of the user that left the chat."""
+         super().__init__(*args, **kwargs)
+         self.user = user
+
+
 class UserFollowed(events.Event):
     """Event class to trigger when a user follows the streamer."""
 

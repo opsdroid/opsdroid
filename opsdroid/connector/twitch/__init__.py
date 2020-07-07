@@ -574,6 +574,8 @@ class ConnectorTwitch(Connector):
 
         chat_message = re.match(TWITCH_IRC_MESSAGE_REGEX, message)
         join_event = re.match(r":(?P<user>.*)!.*JOIN", message)
+        left_event = re.match(r":(?P<user>.*)!.*PART ", message)
+    
         authentication_failed = re.match(
             r":tmi.twitch.tv NOTICE \* :Login authentication failed", message
         )
@@ -599,14 +601,22 @@ class ConnectorTwitch(Connector):
             await self.opsdroid.parse(text_message)
 
         if join_event:
-            joined = twitch_event.UserJoinedChat(
+            joined_chat = twitch_event.UserJoinedChat(
                 user=join_event.group("user"),
                 raw_event=message,
                 target=f"#{self.default_target}",
                 connector=self,
             )
 
-            await self.opsdroid.parse(joined)
+            await self.opsdroid.parse(joined_chat)
+        
+        if left_event:
+            left_chat = twitch_event.UserLeftChat(
+                user=join_event.group("user"),
+                raw_message=message,
+                target=f"#{self.default_target}",
+                connector=self
+            )
 
     @register_event(Message)
     async def _send_message(self, message):
