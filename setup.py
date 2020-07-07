@@ -1,25 +1,11 @@
 #!/usr/bin/env python3
-import os
-from setuptools import setup, find_packages
+from setuptools import setup
 from setuptools.command.build_py import build_py
 from setuptools.command.sdist import sdist
 from setuptools.command.develop import develop
+from setuptools.config import read_configuration
+from itertools import chain
 import versioneer
-
-PACKAGE_NAME = "opsdroid"
-HERE = os.path.abspath(os.path.dirname(__file__))
-README = open(os.path.join(HERE, "README.md"), encoding="utf8").read()
-
-PACKAGES = find_packages(
-    exclude=["tests", "tests.*", "modules", "modules.*", "docs", "docs.*"]
-)
-
-
-# For now we simply define the install_requires based on the contents
-# of requirements.txt. In the future, install_requires may become much
-# looser than the (automatically) resolved requirements.txt.
-with open(os.path.join(HERE, "requirements.txt"), "r") as fh:
-    REQUIRES = [line.strip() for line in fh]
 
 
 class Develop(develop):
@@ -46,54 +32,13 @@ class Sdist(sdist):
         sdist.run(self)  # old style class
 
 
+extras = read_configuration("setup.cfg")["options"]["extras_require"]
+extras["all"] = list(chain(*extras.values()))
+
 setup(
-    name=PACKAGE_NAME,
+    extras_require=extras,
     version=versioneer.get_version(),
-    license="Apache License 2.0",
-    url="https://opsdroid.github.io/",
-    download_url="https://github.com/opsdroid/opsdroid/releases",
-    author="Jacob Tomlinson",
-    author_email="jacob@tom.linson.uk",
-    description="An open source ChatOps bot framework.",
-    long_description=README,
-    long_description_content_type="text/markdown",
-    packages=PACKAGES,
-    include_package_data=True,
-    zip_safe=False,
-    platforms="any",
-    classifiers=[
-        "Development Status :: 4 - Beta",
-        "Environment :: Console",
-        "Framework :: AsyncIO",
-        "Intended Audience :: Developers",
-        "Intended Audience :: System Administrators",
-        "Intended Audience :: Information Technology",
-        "License :: OSI Approved :: Apache Software License",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Topic :: Communications :: Chat",
-        "Topic :: Scientific/Engineering :: Artificial Intelligence",
-        "Topic :: Software Development :: Libraries :: Python Modules",
-    ],
-    install_requires=REQUIRES,
-    test_suite="tests",
-    keywords=[
-        "bot",
-        "bot-framework",
-        "opsdroid",
-        "botkit",
-        "python3",
-        "asyncio",
-        "chatops",
-        "devops",
-        "nlu",
-    ],
-    setup_requires=["Babel"],
     cmdclass=versioneer.get_cmdclass(
         {"sdist": Sdist, "build_py": BuildPy, "develop": Develop}
     ),
-    entry_points={"console_scripts": ["opsdroid = opsdroid.cli:cli"]},
 )
