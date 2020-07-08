@@ -33,15 +33,23 @@ class Sdist(sdist):
 
 
 extras = read_configuration("setup.cfg")["options"]["extras_require"]
+common_extras = [
+    "connector_matrix",
+    "connector_slack",
+    "database_sqlite",
+]
 extras["all"] = list(chain(*(extras[key] for key in extras.keys() if key != "test")))
-extras["all-connectors"] = list(
+extras["all_connectors"] = list(
     chain(*(extras[key] for key in extras.keys() if key.startswith("connector")))
 )
-extras["all-databases"] = list(
+extras["all_databases"] = list(
     chain(*(extras[key] for key in extras.keys() if key.startswith("database")))
 )
-extras["all-parsers"] = list(
+extras["all_parsers"] = list(
     chain(*(extras[key] for key in extras.keys() if key.startswith("parser")))
+)
+extras["common"] = list(
+    chain(*(extras[key] for key in extras.keys() and common_extras))
 )
 
 setup(
