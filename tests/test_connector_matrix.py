@@ -326,11 +326,12 @@ class TestConnectorMatrixAsync:
 
             await self.connector.connect()
 
-            assert patched_mkdir.called
+            if nio.crypto.ENCRYPTION_ENABLED:
+                assert patched_mkdir.called
 
-            assert patched_send_to_device.called
-            assert patched_keys_upload.called
-            assert patched_keys_query.called
+                assert patched_send_to_device.called
+                assert patched_keys_upload.called
+                assert patched_keys_query.called
 
             assert "!aroomid:localhost" in self.connector.room_ids.values()
 

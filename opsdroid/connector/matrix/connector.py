@@ -90,6 +90,7 @@ class ConnectorMatrix(Connector):
             "store_path", str(Path(const.DEFAULT_ROOT_PATH, "matrix"))
         )
         self._ignore_unverified = True
+        self._allow_encryption = nio.crypto.ENCRYPTION_ENABLED
 
         self._event_creator = MatrixEventCreator(self)
 
@@ -141,17 +142,19 @@ class ConnectorMatrix(Connector):
     async def connect(self):
         """Create connection object with chat library."""
 
-        if not Path(self.store_path).is_dir():
+        if self._allow_encryption and not Path(self.store_path).is_dir():
             Path(self.store_path).mkdir()
 
         config = nio.AsyncClientConfig(
-            encryption_enabled=True, pickle_key="", store_name="opsdroid.db",
+            encryption_enabled=self._allow_encryption,
+            pickle_key="",
+            store_name="opsdroid.db" if self._allow_encryption else "",
         )
         mapi = nio.AsyncClient(
             self.homeserver,
             self.mxid,
             config=config,
-            store_path=self.store_path,
+            store_path=self.store_path if self._allow_encryption else "",
             device_id=self.device_id,
         )
 
@@ -198,17 +201,18 @@ class ConnectorMatrix(Connector):
 
         self.connection.sync_token = response.next_batch
 
-        await mapi.send_to_device_messages()
-        if mapi.should_upload_keys:
-            await mapi.keys_upload()
-        if mapi.should_query_keys:
-            await mapi.keys_query()
+        if self._allow_encryption:
+            await mapi.send_to_device_messages()
+            if mapi.should_upload_keys:
+                await mapi.keys_upload()
+            if mapi.should_query_keys:
+                await mapi.keys_query()
 
-        for room_id in self.room_ids.values():
-            try:
-                await mapi.keys_claim(mapi.get_missing_sessions(room_id))
-            except nio.LocalProtocolError:
-                continue
+            for room_id in self.room_ids.values():
+                try:
+                    await mapi.keys_claim(mapi.get_missing_sessions(room_id))
+                except nio.LocalProtocolError:
+                    continue
 
         if self.nick:
             display_name = await self.connection.get_displayname(self.mxid)
@@ -269,16 +273,16 @@ class ConnectorMatrix(Connector):
 
             _LOGGER.debug(_("Matrix sync request returned."))
 
-            await self.connection.send_to_device_messages()
-
-            if self.connection.should_upload_keys:
-                await self.connection.keys_upload()
-            if self.connection.should_query_keys:
-                await self.connection.keys_query()
-            if self.connection.should_claim_keys:
-                await self.connection.keys_claim(
-                    self.connection.get_users_for_key_claiming()
-                )
+            if self._allow_encryption:
+                await self.connection.send_to_device_messages()
+                if self.connection.should_upload_keys:
+                    await self.connection.keys_upload()
+                if self.connection.should_query_keys:
+                    await self.connection.keys_query()
+                if self.connection.should_claim_keys:
+                    await self.connection.keys_claim(
+                        self.connection.get_users_for_key_claiming()
+                    )
 
             message = await self._parse_sync_response(response)
 
@@ -457,7 +461,8 @@ class ConnectorMatrix(Connector):
 
         if not mxc_url:
             encrypt_file = (
-                file_event.target in self.connection.store.load_encrypted_rooms()
+                self._allow_encryption
+                and file_event.target in self.connection.store.load_encrypted_rooms()
             )
             upload_file = await file_event.get_file_bytes()
             mimetype = await file_event.get_mimetype()
