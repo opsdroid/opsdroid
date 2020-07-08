@@ -34,6 +34,15 @@ class Sdist(sdist):
 
 extras = read_configuration("setup.cfg")["options"]["extras_require"]
 extras["all"] = list(chain(*extras.values()))
+extras["all-connectors"] = list(
+    chain(*(extras[key] for key in extras.keys() if key.startswith("connector")))
+)
+extras["all-databases"] = list(
+    chain(*(extras[key] for key in extras.keys() if key.startswith("database")))
+)
+extras["all-parsers"] = list(
+    chain(*(extras[key] for key in extras.keys() if key.startswith("parser")))
+)
 
 setup(
     extras_require=extras,
