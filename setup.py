@@ -33,7 +33,7 @@ class Sdist(sdist):
 
 
 extras = read_configuration("setup.cfg")["options"]["extras_require"]
-extras["all"] = list(chain(*extras.values()))
+extras["all"] = list(chain(*(extras[key] for key in extras.keys() if key != "test")))
 extras["all-connectors"] = list(
     chain(*(extras[key] for key in extras.keys() if key.startswith("connector")))
 )
