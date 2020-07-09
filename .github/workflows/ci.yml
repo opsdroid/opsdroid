@@ -6,6 +6,7 @@ jobs:
   test:
     runs-on:  ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-20.04, macos-latest, windows-latest]
         python-version: [3.6, 3.7, 3.8]
