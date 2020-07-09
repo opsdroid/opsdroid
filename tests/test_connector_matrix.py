@@ -329,9 +329,9 @@ class TestConnectorMatrixAsync:
             if nio.crypto.ENCRYPTION_ENABLED:
                 assert patched_mkdir.called
 
-                assert patched_send_to_device.called
-                assert patched_keys_upload.called
-                assert patched_keys_query.called
+            assert patched_send_to_device.called
+            assert patched_keys_upload.called
+            assert patched_keys_query.called
 
             assert "!aroomid:localhost" in self.connector.room_ids.values()
 
@@ -718,10 +718,13 @@ class TestConnectorMatrixAsync:
             )
 
     async def test_disconnect(self, mocker):
-        mocker.patch(api_string.format("close"), return_value=asyncio.Future())
+        patched_close = mocker.patch(
+            api_string.format("close"), return_value=asyncio.Future()
+        )
+        patched_close.return_value.set_result(None)
 
         await self.connector.disconnect()
-        assert self.connector.connection.close.called
+        assert patched_close.called
 
     def test_get_roomname(self):
         self.connector.rooms = {
