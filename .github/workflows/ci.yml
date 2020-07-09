@@ -17,6 +17,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
+        if [ $(uname) = Linux ]; then sudo apt-get install libolm-dev libolm3; fi
         python -m pip install --upgrade pip
         python -m pip install -U tox tox-gh-actions
     - name: Run tests
