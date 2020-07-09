@@ -17,7 +17,11 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        if [ $(uname) = Linux ]; then sudo apt-get install libolm-dev; fi
+        if [ $RUNNER_OS = Linux ]; then
+            sudo apt-get install libolm-dev
+        if [ $RUNNER_OS = macOS ]; then
+            brew install libolm
+        fi
         python -m pip install --upgrade pip
         python -m pip install -U tox tox-gh-actions
     - name: Run tests
@@ -40,6 +44,7 @@ jobs:
         python-version: '3.x'
     - name: Install dependencies
       run: |
+        sudo apt-get install libolm-dev
         python -m pip install --upgrade pip
         python -m pip install -U tox
     - name: Run checks
