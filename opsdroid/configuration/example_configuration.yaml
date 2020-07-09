@@ -145,6 +145,7 @@ connectors:
 #    homeserver: "https://matrix.org"
 #    nick: "Botty McBotface"  # The nick will be set on startup
 #    room_specific_nicks: False  # Look up room specific nicknames of senders (expensive in large rooms)
+#    device_name: "opsdroid"
 #    device_id: "opsdroid" # A unique string to use as an ID for a persistent opsdroid device
 #    store_path: "path/to/store/" # Path to the directory where the matrix store will be saved
 #

@@ -27,6 +27,7 @@ CONFIG_SCHEMA = {
     "homeserver": str,
     "nick": str,
     "room_specific_nicks": bool,
+    "device_name": str,
     "device_id": str,
     "store_path": str,
 }
