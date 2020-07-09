@@ -143,8 +143,9 @@ class ConnectorMatrix(Connector):
     async def connect(self):
         """Create connection object with chat library."""
 
-        if self._allow_encryption and not Path(self.store_path).is_dir():
-            Path(self.store_path).mkdir()
+        # Add this check back when there's a straightforward way to install python-olm
+        # if self._allow_encryption and not Path(self.store_path).is_dir():
+        Path(self.store_path).mkdir(exist_ok=True)
 
         config = nio.AsyncClientConfig(
             encryption_enabled=self._allow_encryption,
