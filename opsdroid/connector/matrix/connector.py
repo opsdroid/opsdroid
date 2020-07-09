@@ -201,18 +201,17 @@ class ConnectorMatrix(Connector):
 
         self.connection.sync_token = response.next_batch
 
-        if self._allow_encryption:
-            await mapi.send_to_device_messages()
-            if mapi.should_upload_keys:
-                await mapi.keys_upload()
-            if mapi.should_query_keys:
-                await mapi.keys_query()
+        await mapi.send_to_device_messages()
+        if mapi.should_upload_keys:
+            await mapi.keys_upload()
+        if mapi.should_query_keys:
+            await mapi.keys_query()
 
-            for room_id in self.room_ids.values():
-                try:
-                    await mapi.keys_claim(mapi.get_missing_sessions(room_id))
-                except nio.LocalProtocolError:
-                    continue
+        for room_id in self.room_ids.values():
+            try:
+                await mapi.keys_claim(mapi.get_missing_sessions(room_id))
+            except nio.LocalProtocolError:
+                continue
 
         if self.nick:
             display_name = await self.connection.get_displayname(self.mxid)
@@ -273,16 +272,15 @@ class ConnectorMatrix(Connector):
 
             _LOGGER.debug(_("Matrix sync request returned."))
 
-            if self._allow_encryption:
-                await self.connection.send_to_device_messages()
-                if self.connection.should_upload_keys:
-                    await self.connection.keys_upload()
-                if self.connection.should_query_keys:
-                    await self.connection.keys_query()
-                if self.connection.should_claim_keys:
-                    await self.connection.keys_claim(
-                        self.connection.get_users_for_key_claiming()
-                    )
+            await self.connection.send_to_device_messages()
+            if self.connection.should_upload_keys:
+                await self.connection.keys_upload()
+            if self.connection.should_query_keys:
+                await self.connection.keys_query()
+            if self.connection.should_claim_keys:
+                await self.connection.keys_claim(
+                    self.connection.get_users_for_key_claiming()
+                )
 
             message = await self._parse_sync_response(response)
 
@@ -471,8 +469,7 @@ class ConnectorMatrix(Connector):
                 lambda x, y: upload_file, content_type=mimetype, encrypt=encrypt_file
             )
 
-            file_dict = response[1]
-            response = response[0]
+            response, file_dict = response
 
             if isinstance(response, nio.UploadError):
                 _LOGGER.error(
