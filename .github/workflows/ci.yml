@@ -19,7 +19,7 @@ jobs:
       run: |
         if [ $RUNNER_OS = Linux ]; then
             sudo apt-get install libolm-dev
-        if [ $RUNNER_OS = macOS ]; then
+        elif [ $RUNNER_OS = macOS ]; then
             brew install libolm
         fi
         python -m pip install --upgrade pip
