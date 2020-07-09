@@ -15,13 +15,16 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+    - name: Install libolm
+      run: |
+        git clone https://gitlab.matrix.org/matrix-org/olm
+        cd olm
+        cmake . -Bbuild
+        cmake --build build
+        cd python
+        make olm-python3
     - name: Install dependencies
       run: |
-        if [ $RUNNER_OS = Linux ]; then
-            sudo apt-get install libolm-dev
-        elif [ $RUNNER_OS = macOS ]; then
-            brew install libolm
-        fi
         python -m pip install --upgrade pip
         python -m pip install -U tox tox-gh-actions
     - name: Run tests
@@ -42,9 +45,16 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.x'
+    - name: Install libolm
+      run: |
+        git clone https://gitlab.matrix.org/matrix-org/olm
+        cd olm
+        cmake . -Bbuild
+        cmake --build build
+        cd python
+        make olm-python3
     - name: Install dependencies
       run: |
-        sudo apt-get install libolm-dev
         python -m pip install --upgrade pip
         python -m pip install -U tox
     - name: Run checks
