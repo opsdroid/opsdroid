@@ -50,7 +50,6 @@ jobs:
         python-version: '3.x'
     - name: Install dependencies
       run: |
-        sudo apt install libolm3 libolm-dev
         python -m pip install --upgrade pip
         python -m pip install -U tox
     - name: Run checks
