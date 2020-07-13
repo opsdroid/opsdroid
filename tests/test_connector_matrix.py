@@ -4,10 +4,7 @@ from copy import deepcopy
 
 import aiohttp
 
-# import asynctest
 import asynctest.mock as amock
-
-# from pytest_mock import mocker
 
 import nio
 import pytest
@@ -22,7 +19,8 @@ from opsdroid.cli.start import configure_lang  # noqa
 api_string = "nio.AsyncClient.{}"
 
 
-def setup_connector():
+@pytest.fixture
+def connector():
     """Initiate a basic connector setup for testing on"""
     connector = ConnectorMatrix(
         {
@@ -32,16 +30,15 @@ def setup_connector():
             "homeserver": "http://localhost:8008",
         }
     )
+    api = nio.AsyncClient("https://notaurl.com", None)
+    connector.connection = api
+
     return connector
 
 
 @pytest.mark.asyncio
 class TestConnectorMatrixAsync:
     """Test the async methods of the opsdroid Matrix connector class."""
-
-    #    @pytest.fixture(autouse=True)
-    #    def inject_fixtures(self, caplog):
-    #        caplog = caplog
 
     @property
     def sync_return(self):
@@ -219,11 +216,7 @@ class TestConnectorMatrixAsync:
 
     #    def setUp(self):
     #        """Basic setting up for tests"""
-    connector = setup_connector()
-    api = nio.AsyncClient("https://notaurl.com", None)
-    connector.connection = api
-
-    async def test_make_filter(self):
+    async def test_make_filter(self, connector):
         with amock.patch(api_string.format("send")) as patched_filter:
 
             connect_response = amock.Mock()
@@ -231,184 +224,174 @@ class TestConnectorMatrixAsync:
             connect_response.json = amock.CoroutineMock()
             connect_response.json.return_value = {"filter_id": 10}
 
-            self.api.token = "abc"
+            connector.connection.token = "abc"
 
             patched_filter.return_value = asyncio.Future()
             patched_filter.return_value.set_result(connect_response)
 
-            filter_id = await self.connector.make_filter(self.api, self.filter_json)
+            filter_id = await connector.make_filter(
+                connector.connection, self.filter_json
+            )
 
             assert filter_id == 10
             assert patched_filter.called
 
-    async def test_connect(self, caplog):
-        with amock.patch(api_string.format("login")) as patched_login, amock.patch(
-            api_string.format("join")
-        ) as patched_join, amock.patch(
-            api_string.format("sync")
-        ) as patched_sync, amock.patch(
-            api_string.format("send")
-        ) as patched_filter, amock.patch(
-            api_string.format("get_displayname")
-        ) as patched_get_nick, amock.patch(
-            api_string.format("set_displayname")
-        ) as patch_set_nick, amock.patch(
-            api_string.format("send_to_device_messages")
-        ) as patched_send_to_device, amock.patch(
-            api_string.format("should_upload_keys")
-        ) as patched_should_upload, amock.patch(
-            api_string.format("should_query_keys")
-        ) as patched_should_query, amock.patch(
-            api_string.format("keys_upload")
-        ) as patched_keys_upload, amock.patch(
-            api_string.format("keys_query")
-        ) as patched_keys_query, amock.patch(
-            "pathlib.Path.mkdir"
-        ) as patched_mkdir, amock.patch(
-            "pathlib.Path.is_dir"
-        ) as patched_is_dir, amock.patch(
-            "aiohttp.ClientSession"
-        ) as patch_cs, OpsDroid() as _:
+    async def test_connect(self, mocker, caplog, connector):
 
-            # Skip actually creating a client session
-            patch_cs.return_value = amock.MagicMock()
+        # Skip actually creating a client session
+        mocker.patch("aiohttp.ClientSession", return_value=amock.MagicMock())
 
-            patched_login.return_value = asyncio.Future()
-            patched_login.return_value.set_result(
-                nio.LoginResponse(
-                    user_id="@opsdroid:localhost",
-                    device_id="testdevice",
-                    access_token="arbitrary string1",
-                )
+        patched_login = mocker.patch(
+            api_string.format("login"),
+            return_value=nio.LoginResponse(
+                user_id="@opsdroid:localhost",
+                device_id="testdevice",
+                access_token="arbitrary string1",
+            ),
+        )
+
+        patched_join = mocker.patch(
+            api_string.format("join"), return_value=asyncio.Future()
+        )
+        patched_join.return_value.set_result(
+            nio.JoinResponse(room_id="!aroomid:localhost")
+        )
+
+        patched_sync = mocker.patch(
+            api_string.format("sync"), return_value=asyncio.Future()
+        )
+        patched_sync.return_value.set_result(
+            nio.SyncResponse(
+                next_batch="arbitrary string2",
+                rooms={},
+                device_key_count={"signed_curve25519": 50},
+                device_list={"changed": [], "left": []},
+                to_device_events={"events": []},
+                presence_events={"events": []},
             )
+        )
 
-            patched_join.return_value = asyncio.Future()
-            patched_join.return_value.set_result(
-                nio.JoinResponse(room_id="!aroomid:localhost")
+        connect_response = amock.Mock()
+        connect_response.status = 200
+        connect_response.json = amock.CoroutineMock()
+        connect_response.return_value = {"filter_id": 10}
+
+        patched_filter = mocker.patch(
+            api_string.format("send"), return_value=connect_response
+        )
+
+        patch_set_nick = mocker.patch(
+            api_string.format("set_displayname"), return_value=asyncio.Future()
+        )
+        patch_set_nick.return_value.set_result(nio.ProfileSetDisplayNameResponse())
+
+        mocker.patch("pathlib.Path.is_dir", return_value=False)
+        patched_mkdir = mocker.patch("pathlib.Path.mkdir", return_value=None)
+
+        patched_send_to_device = mocker.patch(
+            api_string.format("send_to_device_messages"), return_value=asyncio.Future()
+        )
+        patched_send_to_device.return_value.set_result(None)
+
+        mocker.patch(api_string.format("should_upload_keys"), return_value=True)
+        patched_keys_upload = mocker.patch(
+            api_string.format("keys_upload"), return_value=asyncio.Future()
+        )
+        patched_keys_upload.return_value.set_result(None)
+
+        mocker.patch(api_string.format("should_query_keys"), return_value=True)
+        patched_keys_query = mocker.patch(
+            api_string.format("keys_query"), return_value=asyncio.Future()
+        )
+        patched_keys_query.return_value.set_result(None)
+
+        await connector.connect()
+
+        if nio.crypto.ENCRYPTION_ENABLED:
+            assert patched_mkdir.called
+
+        assert patched_filter.called
+
+        assert patched_send_to_device.called
+        assert patched_keys_upload.called
+        assert patched_keys_query.called
+
+        assert "!aroomid:localhost" in connector.room_ids.values()
+
+        assert connector.connection.token == "arbitrary string1"
+
+        assert connector.connection.sync_token == "arbitrary string2"
+
+        connector.nick = "Rabbit Hole"
+
+        patched_get_nick = mocker.patch(
+            api_string.format("get_displayname"), return_value="Rabbit Hole"
+        )
+
+        await connector.connect()
+
+        assert patched_get_nick.called
+        assert not patch_set_nick.called
+
+        patched_get_nick.return_value = asyncio.Future()
+        patched_get_nick.return_value.set_result("Neo")
+
+        connector.mxid = "@morpheus:matrix.org"
+
+        await connector.connect()
+
+        assert patched_get_nick.called
+        patch_set_nick.assert_called_once_with("Rabbit Hole")
+
+        error_message = "Some error message"
+        error_code = 400
+
+        # test sync error
+        patched_sync.return_value = asyncio.Future()
+        patched_sync.return_value.set_result(
+            nio.SyncError(message=error_message, status_code=error_code)
+        )
+        caplog.clear()
+        await connector.connect()
+        assert [
+            f"Error during initial sync: {error_message} (status code {error_code})"
+        ] == [rec.message for rec in caplog.records]
+
+        # test join error
+        patched_sync.return_value = asyncio.Future()
+        patched_sync.return_value.set_result(
+            nio.SyncResponse(
+                next_batch="arbitrary string2",
+                rooms={},
+                device_key_count={"signed_curve25519": 50},
+                device_list={"changed": [], "left": []},
+                to_device_events={"events": []},
+                presence_events={"events": []},
             )
+        )
+        patched_join.return_value = asyncio.Future()
+        patched_join.return_value.set_result(
+            nio.JoinError(message=error_message, status_code=error_code)
+        )
+        caplog.clear()
+        await connector.connect()
+        assert [
+            f"Error while joining room: {connector.rooms['main']['alias']}, Message: {error_message} (status code {error_code})"
+        ] == [rec.message for rec in caplog.records]
 
-            patched_sync.return_value = asyncio.Future()
-            patched_sync.return_value.set_result(
-                nio.SyncResponse(
-                    next_batch="arbitrary string2",
-                    rooms={},
-                    device_key_count={"signed_curve25519": 50},
-                    device_list={"changed": [], "left": []},
-                    to_device_events={"events": []},
-                    presence_events={"events": []},
-                )
-            )
+        # test login error
+        patched_login.return_value = nio.LoginError(
+            message=error_message, status_code=error_code
+        )
+        caplog.clear()
+        await connector.connect()
+        assert [
+            f"Error while connecting: {error_message} (status code {error_code})"
+        ] == [rec.message for rec in caplog.records]
 
-            connect_response = amock.Mock()
-            connect_response.status = 200
-            connect_response.json = amock.CoroutineMock()
-            connect_response.return_value = {"filter_id": 1}
-
-            patched_filter.return_value = asyncio.Future()
-            patched_filter.return_value.set_result(connect_response)
-
-            patch_set_nick.return_value = asyncio.Future()
-            patch_set_nick.return_value.set_result(nio.ProfileSetDisplayNameResponse())
-
-            patched_is_dir.return_value = False
-            patched_mkdir.return_value = None
-
-            patched_send_to_device.return_value = asyncio.Future()
-            patched_send_to_device.return_value.set_result(None)
-
-            patched_should_upload.return_value = True
-            patched_keys_upload.return_value = asyncio.Future()
-            patched_keys_upload.return_value.set_result(None)
-
-            patched_should_query.return_value = True
-            patched_keys_query.return_value = asyncio.Future()
-            patched_keys_query.return_value.set_result(None)
-
-            await self.connector.connect()
-
-            if nio.crypto.ENCRYPTION_ENABLED:
-                assert patched_mkdir.called
-
-            assert patched_send_to_device.called
-            assert patched_keys_upload.called
-            assert patched_keys_query.called
-
-            assert "!aroomid:localhost" in self.connector.room_ids.values()
-
-            assert self.connector.connection.token == "arbitrary string1"
-
-            assert self.connector.connection.sync_token == "arbitrary string2"
-
-            self.connector.nick = "Rabbit Hole"
-
-            patched_get_nick.return_value = asyncio.Future()
-            patched_get_nick.return_value.set_result("Rabbit Hole")
-
-            await self.connector.connect()
-
-            assert patched_get_nick.called
-            assert not patch_set_nick.called
-
-            patched_get_nick.return_value = asyncio.Future()
-            patched_get_nick.return_value.set_result("Neo")
-
-            self.connector.mxid = "@morpheus:matrix.org"
-
-            await self.connector.connect()
-
-            assert patched_get_nick.called
-            patch_set_nick.assert_called_once_with("Rabbit Hole")
-
-            error_message = "Some error message"
-            error_code = 400
-
-            # test sync error
-            patched_sync.return_value = asyncio.Future()
-            patched_sync.return_value.set_result(
-                nio.SyncError(message=error_message, status_code=error_code)
-            )
-            caplog.clear()
-            await self.connector.connect()
-            assert [
-                f"Error during initial sync: {error_message} (status code {error_code})"
-            ] == [rec.message for rec in caplog.records]
-
-            # test join error
-            patched_sync.return_value = asyncio.Future()
-            patched_sync.return_value.set_result(
-                nio.SyncResponse(
-                    next_batch="arbitrary string2",
-                    rooms={},
-                    device_key_count={"signed_curve25519": 50},
-                    device_list={"changed": [], "left": []},
-                    to_device_events={"events": []},
-                    presence_events={"events": []},
-                )
-            )
-            patched_join.return_value = asyncio.Future()
-            patched_join.return_value.set_result(
-                nio.JoinError(message=error_message, status_code=error_code)
-            )
-            caplog.clear()
-            await self.connector.connect()
-            assert [
-                f"Error while joining room: {self.connector.rooms['main']['alias']}, Message: {error_message} (status code {error_code})"
-            ] == [rec.message for rec in caplog.records]
-
-            # test login error
-            patched_login.return_value = asyncio.Future()
-            patched_login.return_value.set_result(
-                nio.LoginError(message=error_message, status_code=error_code)
-            )
-            caplog.clear()
-            await self.connector.connect()
-            assert [
-                f"Error while connecting: {error_message} (status code {error_code})"
-            ] == [rec.message for rec in caplog.records]
-
-    async def test_parse_sync_response(self):
-        self.connector.room_ids = {"main": "!aroomid:localhost"}
-        self.connector.filter_id = "arbitrary string"
+    async def test_parse_sync_response(self, connector):
+        connector.room_ids = {"main": "!aroomid:localhost"}
+        connector.filter_id = "arbitrary string"
 
         with amock.patch(api_string.format("get_displayname")) as patched_name:
 
@@ -417,15 +400,13 @@ class TestConnectorMatrixAsync:
                 nio.ProfileGetDisplayNameResponse("SomeUsersName")
             )
 
-            returned_message = await self.connector._parse_sync_response(
-                self.sync_return
-            )
+            returned_message = await connector._parse_sync_response(self.sync_return)
 
             assert isinstance(returned_message, events.Message)
             assert returned_message.text == "LOUD NOISES"
             assert returned_message.user == "SomeUsersName"
             assert returned_message.target == "!aroomid:localhost"
-            assert returned_message.connector == self.connector
+            assert returned_message.connector == connector
             raw_message = (
                 self.sync_return.rooms.join["!aroomid:localhost"]
                 .timeline.events[0]
@@ -433,14 +414,14 @@ class TestConnectorMatrixAsync:
             )
             assert returned_message.raw_event == raw_message
 
-            returned_message = await self.connector._parse_sync_response(
+            returned_message = await connector._parse_sync_response(
                 self.sync_return_join
             )
 
             assert isinstance(returned_message, events.JoinRoom)
             assert returned_message.user == "SomeUsersName"
             assert returned_message.target == "!aroomid:localhost"
-            assert returned_message.connector == self.connector
+            assert returned_message.connector == connector
             raw_message = (
                 self.sync_return_join.rooms.join["!aroomid:localhost"]
                 .timeline.events[0]
@@ -449,27 +430,27 @@ class TestConnectorMatrixAsync:
             raw_message["content"] = {"membership": "join"}
             assert returned_message.raw_event == raw_message
 
-    async def test_sync_parse_invites(self):
+    async def test_sync_parse_invites(self, connector):
         with amock.patch(api_string.format("get_displayname")) as patched_name:
-            self.connector.opsdroid = amock.MagicMock()
-            self.connector.opsdroid.parse.return_value = asyncio.Future()
-            self.connector.opsdroid.parse.return_value.set_result("")
+            connector.opsdroid = amock.MagicMock()
+            connector.opsdroid.parse.return_value = asyncio.Future()
+            connector.opsdroid.parse.return_value.set_result("")
             patched_name.return_value = asyncio.Future()
             patched_name.return_value.set_result(
                 nio.ProfileGetDisplayNameResponse("SomeUsersName")
             )
 
-            await self.connector._parse_sync_response(self.sync_invite)
+            await connector._parse_sync_response(self.sync_invite)
 
-            (invite,), _ = self.connector.opsdroid.parse.call_args
+            (invite,), _ = connector.opsdroid.parse.call_args
 
             assert invite.target == "!AWtmOvkBPTCSPbdaHn:localhost"
             assert invite.user == "SomeUsersName"
             assert invite.user_id == "@neo:matrix.org"
-            assert invite.connector is self.connector
+            assert invite.connector is connector
 
-    async def test_get_nick(self):
-        self.connector.room_specific_nicks = False
+    async def test_get_nick(self, connector):
+        connector.room_specific_nicks = False
 
         with amock.patch(api_string.format("get_displayname")) as patched_globname:
 
@@ -479,13 +460,10 @@ class TestConnectorMatrixAsync:
             patched_globname.return_value.set_result(
                 nio.ProfileGetDisplayNameResponse(displayname="notaperson")
             )
-            assert (
-                await self.connector.get_nick("#notaroom:localhost", mxid)
-                == "notaperson"
-            )
+            assert await connector.get_nick("#notaroom:localhost", mxid) == "notaperson"
 
-    async def test_get_room_specific_nick(self, caplog):
-        self.connector.room_specific_nicks = True
+    async def test_get_room_specific_nick(self, caplog, connector):
+        connector.room_specific_nicks = True
 
         with amock.patch(
             api_string.format("get_displayname")
@@ -514,19 +492,16 @@ class TestConnectorMatrixAsync:
                 )
             )
 
-            assert (
-                await self.connector.get_nick("#notaroom:localhost", mxid)
-                == "notaperson"
-            )
+            assert await connector.get_nick("#notaroom:localhost", mxid) == "notaperson"
 
-            assert await self.connector.get_nick(None, mxid) == "notaperson"
+            assert await connector.get_nick(None, mxid) == "notaperson"
 
             # test member not in list
             patched_joined.return_value = asyncio.Future()
             patched_joined.return_value.set_result(
                 nio.JoinedMembersResponse(members=[], room_id="notanid")
             )
-            assert await self.connector.get_nick("#notaroom:localhost", mxid) == mxid
+            assert await connector.get_nick("#notaroom:localhost", mxid) == mxid
 
             # test JoinedMembersError
             patched_joined.return_value = asyncio.Future()
@@ -534,10 +509,7 @@ class TestConnectorMatrixAsync:
                 nio.JoinedMembersError(message="Some error", status_code=400)
             )
             caplog.clear()
-            assert (
-                await self.connector.get_nick("#notaroom:localhost", mxid)
-                == "notaperson"
-            )
+            assert await connector.get_nick("#notaroom:localhost", mxid) == "notaperson"
             assert ["Failed to lookup room members for #notaroom:localhost."] == [
                 rec.message for rec in caplog.records
             ]
@@ -548,7 +520,7 @@ class TestConnectorMatrixAsync:
                 nio.ProfileGetDisplayNameResponse(displayname=None)
             )
             caplog.clear()
-            assert await self.connector.get_nick("#notaroom:localhost", mxid) == mxid
+            assert await connector.get_nick("#notaroom:localhost", mxid) == mxid
             assert ["Failed to lookup room members for #notaroom:localhost."] == [
                 rec.message for rec in caplog.records
             ]
@@ -559,11 +531,11 @@ class TestConnectorMatrixAsync:
                 nio.ProfileGetDisplayNameError(message="Some error", status_code=400)
             )
             caplog.clear()
-            assert await self.connector.get_nick("#notaroom:localhost", mxid) == mxid
+            assert await connector.get_nick("#notaroom:localhost", mxid) == mxid
             assert f"Failed to lookup nick for {mxid}." == caplog.records[1].message
 
-    async def test_get_nick_not_set(self):
-        self.connector.room_specific_nicks = False
+    async def test_get_nick_not_set(self, connector):
+        connector.room_specific_nicks = False
 
         with amock.patch(api_string.format("get_displayname")) as patched_globname:
 
@@ -574,10 +546,10 @@ class TestConnectorMatrixAsync:
             patched_globname.return_value.set_result(
                 nio.ProfileGetDisplayNameResponse(displayname=None)
             )
-            assert await self.connector.get_nick("#notaroom:localhost", mxid) == mxid
+            assert await connector.get_nick("#notaroom:localhost", mxid) == mxid
 
-    async def test_get_nick_error(self):
-        self.connector.room_specific_nicks = False
+    async def test_get_nick_error(self, connector):
+        connector.room_specific_nicks = False
 
         with amock.patch(api_string.format("get_displayname")) as patched_globname:
 
@@ -588,38 +560,36 @@ class TestConnectorMatrixAsync:
             patched_globname.return_value.set_result(
                 nio.ProfileGetDisplayNameError(message="Error")
             )
-            assert await self.connector.get_nick("#notaroom:localhost", mxid) == mxid
+            assert await connector.get_nick("#notaroom:localhost", mxid) == mxid
 
-    async def test_get_formatted_message_body(self):
+    async def test_get_formatted_message_body(self, connector):
         original_html = "<p><h3><no>Hello World</no></h3></p>"
         original_body = "### Hello World"
-        message = self.connector._get_formatted_message_body(original_html)
+        message = connector._get_formatted_message_body(original_html)
         assert message["formatted_body"] == "<h3>Hello World</h3>"
         assert message["body"] == "Hello World"
 
-        message = self.connector._get_formatted_message_body(
-            original_html, original_body
-        )
+        message = connector._get_formatted_message_body(original_html, original_body)
         assert message["formatted_body"] == "<h3>Hello World</h3>"
         assert message["body"] == "### Hello World"
 
-    async def _get_message(self):
-        self.connector.room_ids = {"main": "!aroomid:localhost"}
-        self.connector.filter_id = "arbitrary string"
+    async def _get_message(self, connector):
+        connector.room_ids = {"main": "!aroomid:localhost"}
+        connector.filter_id = "arbitrary string"
         m = "opsdroid.connector.matrix.ConnectorMatrix.get_nick"
 
         with amock.patch(m) as patched_nick:
             patched_nick.return_value = asyncio.Future()
             patched_nick.return_value.set_result("Neo")
 
-            return await self.connector._parse_sync_response(self.sync_return)
+            return await connector._parse_sync_response(self.sync_return)
 
-    async def test_send_edited_message(self):
+    async def test_send_edited_message(self, connector):
         message = events.EditedMessage(
             text="New message",
             target="!test:localhost",
             linked_event=events.Message("hello", event_id="$hello"),
-            connector=self.connector,
+            connector=connector,
         )
         with amock.patch(
             api_string.format("room_send")
@@ -627,7 +597,7 @@ class TestConnectorMatrixAsync:
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result({})
 
-            new_content = self.connector._get_formatted_message_body(message.text)
+            new_content = connector._get_formatted_message_body(message.text)
             content = {
                 "msgtype": "m.text",
                 "m.new_content": new_content,
@@ -638,7 +608,7 @@ class TestConnectorMatrixAsync:
                 },
             }
 
-            await self.connector.send(message)
+            await connector.send(message)
 
             patched_send.assert_called_once_with(
                 message.target,
@@ -650,7 +620,7 @@ class TestConnectorMatrixAsync:
             # Test linked event as event id
             message.linked_event = "$hello"
 
-            await self.connector.send(message)
+            await connector.send(message)
 
             patched_send.assert_called_with(
                 message.target,
@@ -669,14 +639,14 @@ class TestConnectorMatrixAsync:
                 ignore_unverified_devices=True,
             )
 
-    async def test_respond_retry(self):
-        message = await self._get_message()
+    async def test_respond_retry(self, connector):
+        message = await self._get_message(connector)
         with amock.patch(api_string.format("room_send")) as patched_send:
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result(None)
-            await self.connector.send(message)
+            await connector.send(message)
 
-            message_obj = self.connector._get_formatted_message_body(message.text)
+            message_obj = connector._get_formatted_message_body(message.text)
             patched_send.assert_called_once_with(
                 message.target,
                 "m.room.message",
@@ -689,9 +659,9 @@ class TestConnectorMatrixAsync:
                 patched_send.return_value,
             ]
 
-            await self.connector.send(message)
+            await connector.send(message)
 
-            message_obj = self.connector._get_formatted_message_body(message.text)
+            message_obj = connector._get_formatted_message_body(message.text)
             patched_send.assert_called_with(
                 message.target,
                 "m.room.message",
@@ -699,17 +669,17 @@ class TestConnectorMatrixAsync:
                 ignore_unverified_devices=True,
             )
 
-    async def test_respond_room(self):
-        message = await self._get_message()
+    async def test_respond_room(self, connector):
+        message = await self._get_message(connector)
         with amock.patch(api_string.format("room_send")) as patched_send:
 
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result(None)
 
             message.target = "main"
-            await self.connector.send(message)
+            await connector.send(message)
 
-            message_obj = self.connector._get_formatted_message_body(message.text)
+            message_obj = connector._get_formatted_message_body(message.text)
             patched_send.assert_called_once_with(
                 "!aroomid:localhost",
                 "m.room.message",
@@ -717,44 +687,42 @@ class TestConnectorMatrixAsync:
                 ignore_unverified_devices=True,
             )
 
-    async def test_disconnect(self, mocker):
+    async def test_disconnect(self, mocker, connector):
         patched_close = mocker.patch(
             api_string.format("close"), return_value=asyncio.Future()
         )
         patched_close.return_value.set_result(None)
 
-        await self.connector.disconnect()
+        await connector.disconnect()
         assert patched_close.called
 
-    def test_get_roomname(self):
-        self.connector.rooms = {
+    def test_get_roomname(self, connector):
+        connector.rooms = {
             "main": {"alias": "#notthisroom:localhost"},
             "test": {"alias": "#thisroom:localhost"},
         }
-        self.connector.room_ids = dict(
+        connector.room_ids = dict(
             zip(
-                self.connector.rooms.keys(),
+                connector.rooms.keys(),
                 ["!aroomid:localhost", "!anotherroomid:localhost"],
             )
         )
 
-        assert self.connector.get_roomname("#thisroom:localhost") == "test"
-        assert self.connector.get_roomname("!aroomid:localhost") == "main"
-        assert self.connector.get_roomname("someroom") == "someroom"
+        assert connector.get_roomname("#thisroom:localhost") == "test"
+        assert connector.get_roomname("!aroomid:localhost") == "main"
+        assert connector.get_roomname("someroom") == "someroom"
 
-    def test_lookup_target(self):
-        self.connector.room_ids = {
+    def test_lookup_target(self, connector):
+        connector.room_ids = {
             "main": "!aroomid:localhost",
             "test": "#test:localhost",
         }
 
-        assert self.connector.lookup_target("main") == "!aroomid:localhost"
-        assert self.connector.lookup_target("#test:localhost") == "#test:localhost"
-        assert (
-            self.connector.lookup_target("!aroomid:localhost") == "!aroomid:localhost"
-        )
+        assert connector.lookup_target("main") == "!aroomid:localhost"
+        assert connector.lookup_target("#test:localhost") == "!aroomid:localhost"
+        assert connector.lookup_target("!aroomid:localhost") == "!aroomid:localhost"
 
-    async def test_respond_image(self, mocker, caplog):
+    async def test_respond_image(self, mocker, caplog, connector):
         gif_bytes = (
             b"GIF89a\x01\x00\x01\x00\x00\xff\x00,"
             b"\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00;"
@@ -767,15 +735,15 @@ class TestConnectorMatrixAsync:
         )
         patched_send.return_value.set_result(None)
 
-        self.connector.connection.store = mocker.MagicMock()
-        self.connector.connection.store.load_encrypted_rooms.return_value = []
+        connector.connection.store = mocker.MagicMock()
+        connector.connection.store.load_encrypted_rooms.return_value = []
 
         patched_upload = mocker.patch(
             api_string.format("upload"), return_value=asyncio.Future()
         )
         patched_upload.return_value.set_result([nio.UploadResponse("mxc://aurl"), None])
 
-        await self.connector.send(image)
+        await connector.send(image)
 
         patched_send.assert_called_once_with(
             room_id="!test:localhost",
@@ -804,7 +772,7 @@ class TestConnectorMatrixAsync:
             "mimetype": "image/gif",
         }
 
-        self.connector.connection.store.load_encrypted_rooms.return_value = [
+        connector.connection.store.load_encrypted_rooms.return_value = [
             "!test:localhost"
         ]
         patched_upload.return_value = asyncio.Future()
@@ -812,7 +780,7 @@ class TestConnectorMatrixAsync:
             [nio.UploadResponse("mxc://aurl"), file_dict]
         )
 
-        await self.connector.send(image)
+        await connector.send(image)
 
         patched_send.assert_called_with(
             room_id="!test:localhost",
@@ -828,19 +796,19 @@ class TestConnectorMatrixAsync:
 
         error_message = "Some error message"
         error_code = 400
-        self.connector.connection.store.load_encrypted_rooms.return_value = []
+        connector.connection.store.load_encrypted_rooms.return_value = []
         patched_upload.return_value = asyncio.Future()
         patched_upload.return_value.set_result(
             [nio.UploadError(message=error_message, status_code=error_code), None]
         )
 
         caplog.clear()
-        await self.connector.send(image)
+        await connector.send(image)
         assert [
             f"Error while sending the file. Reason: {error_message} (status code {error_code})"
         ] == [rec.message for rec in caplog.records]
 
-    async def test_respond_mxc(self):
+    async def test_respond_mxc(self, connector):
         gif_bytes = (
             b"GIF89a\x01\x00\x01\x00\x00\xff\x00,"
             b"\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00;"
@@ -856,7 +824,7 @@ class TestConnectorMatrixAsync:
 
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result(None)
-            await self.connector.send(image)
+            await connector.send(image)
 
             patched_send.assert_called_once_with(
                 content={
@@ -870,7 +838,7 @@ class TestConnectorMatrixAsync:
                 ignore_unverified_devices=True,
             )
 
-    async def test_respond_file(self, mocker):
+    async def test_respond_file(self, mocker, connector):
         file_event = events.File(
             file_bytes=b"aslkdjlaksdjlkajdlk",
             target="!test:localhost",
@@ -882,15 +850,15 @@ class TestConnectorMatrixAsync:
         )
         patched_send.return_value.set_result(None)
 
-        self.connector.connection.store = mocker.MagicMock()
-        self.connector.connection.store.load_encrypted_rooms.return_value = []
+        connector.connection.store = mocker.MagicMock()
+        connector.connection.store.load_encrypted_rooms.return_value = []
 
         patched_upload = mocker.patch(
             api_string.format("upload"), return_value=asyncio.Future()
         )
         patched_upload.return_value.set_result([nio.UploadResponse("mxc://aurl"), None])
 
-        await self.connector.send(file_event)
+        await connector.send(file_event)
 
         patched_send.assert_called_once_with(
             room_id="!test:localhost",
@@ -919,7 +887,7 @@ class TestConnectorMatrixAsync:
             "mimetype": "text/plain",
         }
 
-        self.connector.connection.store.load_encrypted_rooms.return_value = [
+        connector.connection.store.load_encrypted_rooms.return_value = [
             "!test:localhost"
         ]
         patched_upload.return_value = asyncio.Future()
@@ -927,7 +895,7 @@ class TestConnectorMatrixAsync:
             [nio.UploadResponse("mxc://aurl"), file_dict]
         )
 
-        await self.connector.send(file_event)
+        await connector.send(file_event)
 
         patched_send.assert_called_with(
             room_id="!test:localhost",
@@ -941,7 +909,7 @@ class TestConnectorMatrixAsync:
             ignore_unverified_devices=True,
         )
 
-    async def test_respond_new_room(self, caplog):
+    async def test_respond_new_room(self, caplog, connector):
         event = events.NewRoom(name="test", target="!test:localhost")
         with amock.patch(api_string.format("room_create")) as patched_send, amock.patch(
             api_string.format("room_put_state")
@@ -960,7 +928,7 @@ class TestConnectorMatrixAsync:
                 nio.RoomCreateResponse(room_id="!test:localhost")
             )
 
-            resp = await self.connector.send(event)
+            resp = await connector.send(event)
             assert resp == "!test:localhost"
 
             assert patched_send.called_once_with(name="test")
@@ -973,23 +941,23 @@ class TestConnectorMatrixAsync:
                 nio.RoomCreateError(message=error_message, status_code=error_code)
             )
             caplog.clear()
-            resp = await self.connector.send(event)
+            resp = await connector.send(event)
             assert [
                 f"Error while creating the room. Reason: {error_message} (status code {error_code})"
             ] == [rec.message for rec in caplog.records]
 
-    async def test_respond_room_address(self):
+    async def test_respond_room_address(self, connector):
         event = events.RoomAddress("#test:localhost", target="!test:localhost")
 
         with amock.patch(api_string.format("room_put_state")) as patched_send:
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result({})
 
-            await self.connector.send(event)
+            await connector.send(event)
 
             assert patched_send.called_once_with("!test:localhost", "#test:localhost")
 
-    async def test_respond_join_room(self):
+    async def test_respond_join_room(self, connector):
         event = events.JoinRoom(target="#test:localhost")
         with amock.patch(
             api_string.format("room_resolve_alias")
@@ -1006,10 +974,10 @@ class TestConnectorMatrixAsync:
 
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result({})
-            await self.connector.send(event)
+            await connector.send(event)
             assert patched_send.called_once_with("#test:localhost")
 
-    async def test_respond_join_room_error(self, caplog):
+    async def test_respond_join_room_error(self, caplog, connector):
         event = events.JoinRoom(target="#test:localhost")
         with amock.patch(
             api_string.format("room_resolve_alias")
@@ -1028,31 +996,31 @@ class TestConnectorMatrixAsync:
                 nio.RoomResolveAliasError(message=error_message, status_code=error_code)
             )
             caplog.clear()
-            await self.connector.send(event)
+            await connector.send(event)
             assert patched_send.called_once_with("#test:localhost")
             assert patched_get_room_id.called_once_with("#test:localhost")
             assert [
                 f"Error resolving room id for #test:localhost: {error_message} (status code {error_code})"
             ] == [rec.message for rec in caplog.records]
 
-    async def test_respond_user_invite(self):
+    async def test_respond_user_invite(self, connector):
         event = events.UserInvite("@test:localhost", target="!test:localhost")
         with amock.patch(api_string.format("room_invite")) as patched_send:
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result({})
-            await self.connector.send(event)
+            await connector.send(event)
             assert patched_send.called_once_with("#test:localhost", "@test:localhost")
 
-    async def test_respond_room_description(self):
+    async def test_respond_room_description(self, connector):
         event = events.RoomDescription("A test room", target="!test:localhost")
 
         with amock.patch(api_string.format("room_put_state")) as patched_send:
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result({})
-            await self.connector.send(event)
+            await connector.send(event)
             assert patched_send.called_once_with("#test:localhost", "A test room")
 
-    async def test_respond_room_image(self):
+    async def test_respond_room_image(self, connector):
         image = events.Image(url="mxc://aurl")
         event = events.RoomImage(image, target="!test:localhost")
 
@@ -1061,8 +1029,8 @@ class TestConnectorMatrixAsync:
         ) as patched_send:
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result({})
-            opsdroid.connectors = [self.connector]
-            await self.connector.send(event)
+            opsdroid.connectors = [connector]
+            await connector.send(event)
             assert patched_send.called_once_with(
                 "#test:localhost",
                 "m.room.avatar",
@@ -1071,7 +1039,7 @@ class TestConnectorMatrixAsync:
                 ignore_unverified_devices=True,
             )
 
-    async def test_respond_user_role(self):
+    async def test_respond_user_role(self, connector):
         existing_power_levels = {
             "ban": 50,
             "events": {"m.room.name": 100, "m.room.power_levels": 100},
@@ -1112,7 +1080,7 @@ class TestConnectorMatrixAsync:
                 with amock.patch(
                     api_string.format("room_get_state_event")
                 ) as patched_power_levels:
-                    opsdroid.connectors = [self.connector]
+                    opsdroid.connectors = [connector]
 
                     patched_power_levels.return_value = asyncio.Future()
                     patched_power_levels.return_value.set_result(
@@ -1126,7 +1094,7 @@ class TestConnectorMatrixAsync:
                     patched_send.return_value = asyncio.Future()
                     patched_send.return_value.set_result({})
 
-                    await self.connector.send(event)
+                    await connector.send(event)
 
                     modified_power_levels = deepcopy(existing_power_levels)
                     modified_power_levels["users"]["@test:localhost"] = pl
@@ -1138,12 +1106,9 @@ class TestConnectorMatrixAsync:
                         state_key=None,
                     )
 
-    async def test_send_reaction(self):
+    async def test_send_reaction(self, connector):
         message = events.Message(
-            "hello",
-            event_id="$11111",
-            connector=self.connector,
-            target="!test:localhost",
+            "hello", event_id="$11111", connector=connector, target="!test:localhost",
         )
         reaction = events.Reaction("⭕")
         with OpsDroid() as _:
@@ -1165,12 +1130,9 @@ class TestConnectorMatrixAsync:
                     "!test:localhost", "m.reaction", content
                 )
 
-    async def test_send_reply(self):
+    async def test_send_reply(self, connector):
         message = events.Message(
-            "hello",
-            event_id="$11111",
-            connector=self.connector,
-            target="!test:localhost",
+            "hello", event_id="$11111", connector=connector, target="!test:localhost",
         )
         reply = events.Reply("reply")
         with OpsDroid() as _:
@@ -1180,7 +1142,7 @@ class TestConnectorMatrixAsync:
 
                 await message.respond(reply)
 
-                content = self.connector._get_formatted_message_body(
+                content = connector._get_formatted_message_body(
                     reply.text, msgtype="m.text"
                 )
 
@@ -1192,16 +1154,16 @@ class TestConnectorMatrixAsync:
                     "!test:localhost", "m.room.message", content
                 )
 
-    async def test_send_reply_id(self):
+    async def test_send_reply_id(self, connector):
         reply = events.Reply("reply", linked_event="$hello", target="!hello:localhost")
         with OpsDroid() as _:
             with amock.patch(api_string.format("room_send")) as patched_send:
                 patched_send.return_value = asyncio.Future()
                 patched_send.return_value.set_result(None)
 
-                await self.connector.send(reply)
+                await connector.send(reply)
 
-                content = self.connector._get_formatted_message_body(
+                content = connector._get_formatted_message_body(
                     reply.text, msgtype="m.text"
                 )
 
@@ -1211,7 +1173,7 @@ class TestConnectorMatrixAsync:
                     "!test:localhost", "m.room.message", content
                 )
 
-    async def test_alias_already_exists(self, caplog):
+    async def test_alias_already_exists(self, caplog, connector):
 
         with amock.patch(api_string.format("room_put_state")) as patched_alias:
             patched_alias.return_value = asyncio.Future()
@@ -1219,7 +1181,7 @@ class TestConnectorMatrixAsync:
                 nio.RoomPutStateResponse(event_id="some_id", room_id="!test:localhost")
             )
 
-            resp = await self.connector._send_room_address(
+            resp = await connector._send_room_address(
                 events.RoomAddress(target="!test:localhost", address="hello")
             )
             assert resp.event_id == "some_id"
@@ -1233,7 +1195,7 @@ class TestConnectorMatrixAsync:
                 nio.RoomPutStateError(message=error_message, status_code=error_code)
             )
             caplog.clear()
-            resp = await self.connector._send_room_address(
+            resp = await connector._send_room_address(
                 events.RoomAddress(target="!test:localhost", address="hello")
             )
             assert [
@@ -1246,14 +1208,14 @@ class TestConnectorMatrixAsync:
                 nio.RoomPutStateError(message=error_message, status_code=error_code)
             )
             caplog.clear()
-            resp = await self.connector._send_room_address(
+            resp = await connector._send_room_address(
                 events.RoomAddress(target="!test:localhost", address="hello")
             )
             assert ["A room with the alias hello already exists."] == [
                 rec.message for rec in caplog.records
             ]
 
-    async def test_already_in_room(self, caplog):
+    async def test_already_in_room(self, caplog, connector):
         with amock.patch(api_string.format("room_invite")) as patched_invite:
 
             patched_invite.return_value = asyncio.Future()
@@ -1264,7 +1226,7 @@ class TestConnectorMatrixAsync:
             )
 
             caplog.clear()
-            resp = await self.connector._send_user_invitation(
+            resp = await connector._send_user_invitation(
                 events.UserInvite(target="!test:localhost", user_id="@neo:matrix.org")
             )
             assert resp.message == "@neo.matrix.org is already in the room"
@@ -1278,48 +1240,48 @@ class TestConnectorMatrixAsync:
                     message="@neo.matrix.org is already in the room", status_code=403
                 )
             )
-            resp = await self.connector._send_user_invitation(
+            resp = await connector._send_user_invitation(
                 events.UserInvite(target="!test:localhost", user_id="@neo:matrix.org")
             )
             assert resp.message == "@neo.matrix.org is already in the room"
 
-    async def test_invalid_role(self):
+    async def test_invalid_role(self, connector):
         with pytest.raises(ValueError):
-            await self.connector._set_user_role(
+            await connector._set_user_role(
                 events.UserRole(
                     "wibble", target="!test:localhost", user_id="@test:localhost"
                 )
             )
 
-    async def test_no_user_id(self):
+    async def test_no_user_id(self, connector):
         with pytest.raises(ValueError):
-            await self.connector._set_user_role(
+            await connector._set_user_role(
                 events.UserRole("wibble", target="!test:localhost")
             )
 
-    def test_m_notice(self):
-        self.connector.rooms["test"] = {
+    def test_m_notice(self, connector):
+        connector.rooms["test"] = {
             "alias": "#test:localhost",
             "send_m_notice": True,
         }
 
-        assert self.connector.message_type("main") == "m.text"
-        assert self.connector.message_type("test") == "m.notice"
-        self.connector.send_m_notice = True
-        assert self.connector.message_type("main") == "m.notice"
+        assert connector.message_type("main") == "m.text"
+        assert connector.message_type("test") == "m.notice"
+        connector.send_m_notice = True
+        assert connector.message_type("main") == "m.notice"
 
         # Reset the state
-        self.connector.send_m_notice = False
-        del self.connector.rooms["test"]
+        connector.send_m_notice = False
+        del connector.rooms["test"]
 
-    def test_construct(self):
+    def test_construct(self, connector):
         jr = matrix_events.MatrixJoinRules("hello")
         assert jr.content["join_rule"] == "hello"
 
         hv = matrix_events.MatrixHistoryVisibility("hello")
         assert hv.content["history_visibility"] == "hello"
 
-    async def test_send_generic_event(self):
+    async def test_send_generic_event(self, connector):
         event = matrix_events.GenericMatrixRoomEvent(
             "opsdroid.dev", {"hello": "world"}, target="!test:localhost"
         )
@@ -1328,7 +1290,7 @@ class TestConnectorMatrixAsync:
                 patched_send.return_value = asyncio.Future()
                 patched_send.return_value.set_result(None)
 
-                await self.connector.send(event)
+                await connector.send(event)
                 assert patched_send.called_once_with(
                     "!test:localhost", "opsdroid.dev", {"hello": "world"}
                 )
@@ -1337,10 +1299,6 @@ class TestConnectorMatrixAsync:
 @pytest.mark.asyncio
 class TestEventCreatorMatrixAsync:
     """Basic setting up for tests"""
-
-    connector = setup_connector()
-    api = nio.AsyncClient("https://notaurl.com", None)
-    connector.connection = api
 
     @property
     def message_json(self):
@@ -1591,17 +1549,17 @@ class TestEventCreatorMatrixAsync:
             "unsigned": {"age": 1234},
         }
 
-    @property
-    def event_creator(self):
+    @pytest.fixture
+    def event_creator(self, connector):
         patched_get_nick = amock.MagicMock()
         patched_get_nick.return_value = asyncio.Future()
         patched_get_nick.return_value.set_result("Rabbit Hole")
-        self.connector.get_nick = patched_get_nick
+        connector.get_nick = patched_get_nick
 
-        return MatrixEventCreator(self.connector)
+        return MatrixEventCreator(connector)
 
-    async def test_create_message(self):
-        event = await self.event_creator.create_event(self.message_json, "hello")
+    async def test_create_message(self, connector, event_creator):
+        event = await event_creator.create_event(self.message_json, "hello")
         assert isinstance(event, events.Message)
         assert event.text == "I just did it manually."
         assert event.user == "Rabbit Hole"
@@ -1610,9 +1568,9 @@ class TestEventCreatorMatrixAsync:
         assert event.event_id == "$15573463541827394vczPd:matrix.org"
         assert event.raw_event == self.message_json
 
-    async def test_create_file(self):
-        event = await self.event_creator.create_event(self.file_json, "hello")
-        encrypted_event = await self.event_creator.create_event(
+    async def test_create_file(self, connector, event_creator):
+        event = await event_creator.create_event(self.file_json, "hello")
+        encrypted_event = await event_creator.create_event(
             self.encrypted_file_json, "hello"
         )
 
@@ -1634,9 +1592,9 @@ class TestEventCreatorMatrixAsync:
         assert event.raw_event == self.file_json
         assert encrypted_event.raw_event == self.encrypted_file_json
 
-    async def test_create_image(self):
-        event = await self.event_creator.create_event(self.image_json, "hello")
-        encrypted_event = await self.event_creator.create_event(
+    async def test_create_image(self, connector, event_creator):
+        event = await event_creator.create_event(self.image_json, "hello")
+        encrypted_event = await event_creator.create_event(
             self.encrypted_image_json, "hello"
         )
         assert isinstance(event, events.Image)
@@ -1656,42 +1614,40 @@ class TestEventCreatorMatrixAsync:
         assert event.raw_event == self.image_json
         assert encrypted_event.raw_event == self.encrypted_image_json
 
-    async def test_unsupported_type(self):
+    async def test_unsupported_type(self, connector, event_creator):
         json = self.message_json
         json["type"] = "wibble"
-        event = await self.event_creator.create_event(json, "hello")
+        event = await event_creator.create_event(json, "hello")
         assert isinstance(event, matrix_events.GenericMatrixRoomEvent)
         assert event.event_type == "wibble"
         assert "wibble" in repr(event)
         assert event.target in repr(event)
         assert str(event.content) in repr(event)
 
-    async def test_unsupported_message_type(self):
+    async def test_unsupported_message_type(self, connector, event_creator):
         json = self.message_json
         json["content"]["msgtype"] = "wibble"
-        event = await self.event_creator.create_event(json, "hello")
+        event = await event_creator.create_event(json, "hello")
         assert isinstance(event, matrix_events.GenericMatrixRoomEvent)
         assert event.content["msgtype"] == "wibble"
 
-    async def test_room_name(self):
-        event = await self.event_creator.create_event(self.room_name_json, "hello")
+    async def test_room_name(self, connector, event_creator):
+        event = await event_creator.create_event(self.room_name_json, "hello")
         assert isinstance(event, events.RoomName)
         assert event.user == "Rabbit Hole"
         assert event.user_id == "@neo:matrix.org"
         assert event.event_id == "$3r_PWCT9Vurlv-OFleAsf5gEnoZd-LEGHY6AGqZ5tJg"
         assert event.raw_event == self.room_name_json
 
-    async def test_room_description(self):
-        event = await self.event_creator.create_event(
-            self.room_description_json, "hello"
-        )
+    async def test_room_description(self, connector, event_creator):
+        event = await event_creator.create_event(self.room_description_json, "hello")
         assert isinstance(event, events.RoomDescription)
         assert event.user == "Rabbit Hole"
         assert event.user_id == "@neo:matrix.org"
         assert event.event_id == "$bEg2XISusHMKLBw9b4lMNpB2r9qYoesp512rKvbo5LA"
         assert event.raw_event == self.room_description_json
 
-    async def test_edited_message(self):
+    async def test_edited_message(self, connector, event_creator):
         with amock.patch(api_string.format("room_context")) as patched_send:
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result(
@@ -1705,9 +1661,7 @@ class TestEventCreatorMatrixAsync:
                     state=[],
                 )
             )
-            event = await self.event_creator.create_event(
-                self.message_edit_json, "hello"
-            )
+            event = await event_creator.create_event(self.message_edit_json, "hello")
 
         assert isinstance(event, events.EditedMessage)
         assert event.text == "hello"
@@ -1719,7 +1673,7 @@ class TestEventCreatorMatrixAsync:
 
         assert isinstance(event.linked_event, events.Message)
 
-    async def test_reaction(self):
+    async def test_reaction(self, connector, event_creator):
         with amock.patch(api_string.format("room_context")) as patched_send:
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result(
@@ -1733,7 +1687,7 @@ class TestEventCreatorMatrixAsync:
                     state=[],
                 )
             )
-            event = await self.event_creator.create_event(self.reaction_json, "hello")
+            event = await event_creator.create_event(self.reaction_json, "hello")
 
         assert isinstance(event, events.Reaction)
         assert event.emoji == "👍"
@@ -1745,7 +1699,7 @@ class TestEventCreatorMatrixAsync:
 
         assert isinstance(event.linked_event, events.Message)
 
-    async def test_reply(self):
+    async def test_reply(self, connector, event_creator):
         with amock.patch(api_string.format("room_context")) as patched_send:
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result(
@@ -1759,7 +1713,7 @@ class TestEventCreatorMatrixAsync:
                     state=[],
                 )
             )
-            event = await self.event_creator.create_event(self.reply_json, "hello")
+            event = await event_creator.create_event(self.reply_json, "hello")
 
         assert isinstance(event, events.Reply)
         assert event.text == "hello"
@@ -1771,7 +1725,7 @@ class TestEventCreatorMatrixAsync:
 
         assert isinstance(event.linked_event, events.Message)
 
-    async def test_create_joinroom(self):
+    async def test_create_joinroom(self, connector, event_creator):
         with amock.patch(api_string.format("room_context")) as patched_send:
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result(
@@ -1786,7 +1740,7 @@ class TestEventCreatorMatrixAsync:
                 )
             )
 
-        event = await self.event_creator.create_event(self.join_room_json, "hello")
+        event = await event_creator.create_event(self.join_room_json, "hello")
         assert isinstance(event, events.JoinRoom)
         assert event.user == "Rabbit Hole"
         assert event.user_id == "@example:example.org"
@@ -1807,8 +1761,8 @@ class TestEventCreatorMatrixAsync:
             "age": 48926251,
         }
 
-    async def test_create_generic(self):
-        event = await self.event_creator.create_event(self.custom_json, "hello")
+    async def test_create_generic(self, connector, event_creator):
+        event = await event_creator.create_event(self.custom_json, "hello")
         assert isinstance(event, matrix_events.GenericMatrixRoomEvent)
         assert event.user == "Rabbit Hole"
         assert event.user_id == "@neo:matrix.org"
@@ -1830,8 +1784,8 @@ class TestEventCreatorMatrixAsync:
             "event_id": "$bEg2XISusHMKLBw9b4lMNpB2r9qYoesp512rKvbo5LA",
         }
 
-    async def test_create_generic_state(self):
-        event = await self.event_creator.create_event(self.custom_state_json, "hello")
+    async def test_create_generic_state(self, connector, event_creator):
+        event = await event_creator.create_event(self.custom_state_json, "hello")
         assert isinstance(event, matrix_events.MatrixStateEvent)
         assert event.user == "Rabbit Hole"
         assert event.user_id == "@neo:matrix.org"

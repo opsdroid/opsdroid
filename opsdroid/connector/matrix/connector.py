@@ -140,6 +140,26 @@ class ConnectorMatrix(Connector):
         resp_json = await resp.json()
         return int(resp_json["filter_id"])
 
+    async def exchange_keys(self, initial_sync=False):
+        await self.connection.send_to_device_messages()
+        if self.connection.should_upload_keys:
+            await self.connection.keys_upload()
+        if self.connection.should_query_keys:
+            await self.connection.keys_query()
+
+        if initial_sync:
+            for room_id in self.room_ids.values():
+                try:
+                    await self.connection.keys_claim(
+                        self.connection.get_missing_sessions(room_id)
+                    )
+                except nio.LocalProtocolError:
+                    continue
+        elif self.connection.should_claim_keys:
+            await self.connection.keys_claim(
+                self.connection.get_users_for_key_claiming()
+            )
+
     async def connect(self):
         """Create connection object with chat library."""
 
@@ -202,17 +222,7 @@ class ConnectorMatrix(Connector):
 
         self.connection.sync_token = response.next_batch
 
-        await mapi.send_to_device_messages()
-        if mapi.should_upload_keys:
-            await mapi.keys_upload()
-        if mapi.should_query_keys:
-            await mapi.keys_query()
-
-        for room_id in self.room_ids.values():
-            try:
-                await mapi.keys_claim(mapi.get_missing_sessions(room_id))
-            except nio.LocalProtocolError:
-                continue
+        await self.exchange_keys(initial_sync=True)
 
         if self.nick:
             display_name = await self.connection.get_displayname(self.mxid)
@@ -273,15 +283,7 @@ class ConnectorMatrix(Connector):
 
             _LOGGER.debug(_("Matrix sync request returned."))
 
-            await self.connection.send_to_device_messages()
-            if self.connection.should_upload_keys:
-                await self.connection.keys_upload()
-            if self.connection.should_query_keys:
-                await self.connection.keys_query()
-            if self.connection.should_claim_keys:
-                await self.connection.keys_claim(
-                    self.connection.get_users_for_key_claiming()
-                )
+            await self.exchange_keys()
 
             message = await self._parse_sync_response(response)
 
