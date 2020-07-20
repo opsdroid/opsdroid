@@ -214,8 +214,6 @@ class TestConnectorMatrixAsync:
             },
         }
 
-    #    def setUp(self):
-    #        """Basic setting up for tests"""
     async def test_make_filter(self, connector):
         with amock.patch(api_string.format("send")) as patched_filter:
 
@@ -236,57 +234,9 @@ class TestConnectorMatrixAsync:
             assert filter_id == 10
             assert patched_filter.called
 
-    async def test_connect(self, mocker, caplog, connector):
+    async def test_exchange_keys(self, mocker, connector):
 
-        # Skip actually creating a client session
-        mocker.patch("aiohttp.ClientSession", return_value=amock.MagicMock())
-
-        patched_login = mocker.patch(
-            api_string.format("login"),
-            return_value=nio.LoginResponse(
-                user_id="@opsdroid:localhost",
-                device_id="testdevice",
-                access_token="arbitrary string1",
-            ),
-        )
-
-        patched_join = mocker.patch(
-            api_string.format("join"), return_value=asyncio.Future()
-        )
-        patched_join.return_value.set_result(
-            nio.JoinResponse(room_id="!aroomid:localhost")
-        )
-
-        patched_sync = mocker.patch(
-            api_string.format("sync"), return_value=asyncio.Future()
-        )
-        patched_sync.return_value.set_result(
-            nio.SyncResponse(
-                next_batch="arbitrary string2",
-                rooms={},
-                device_key_count={"signed_curve25519": 50},
-                device_list={"changed": [], "left": []},
-                to_device_events={"events": []},
-                presence_events={"events": []},
-            )
-        )
-
-        connect_response = amock.Mock()
-        connect_response.status = 200
-        connect_response.json = amock.CoroutineMock()
-        connect_response.return_value = {"filter_id": 10}
-
-        patched_filter = mocker.patch(
-            api_string.format("send"), return_value=connect_response
-        )
-
-        patch_set_nick = mocker.patch(
-            api_string.format("set_displayname"), return_value=asyncio.Future()
-        )
-        patch_set_nick.return_value.set_result(nio.ProfileSetDisplayNameResponse())
-
-        mocker.patch("pathlib.Path.is_dir", return_value=False)
-        patched_mkdir = mocker.patch("pathlib.Path.mkdir", return_value=None)
+        connector.room_ids = {"main": "!aroomid:localhost"}
 
         patched_send_to_device = mocker.patch(
             api_string.format("send_to_device_messages"), return_value=asyncio.Future()
@@ -305,89 +255,198 @@ class TestConnectorMatrixAsync:
         )
         patched_keys_query.return_value.set_result(None)
 
-        await connector.connect()
+        mocker.patch(api_string.format("should_claim_keys"), return_value=True)
+        patched_keys_claim = mocker.patch(
+            api_string.format("keys_claim"), return_value=asyncio.Future()
+        )
+        patched_keys_claim.return_value.set_result(None)
 
-        if nio.crypto.ENCRYPTION_ENABLED:
-            assert patched_mkdir.called
+        patched_missing_sessions = mocker.patch(
+            api_string.format("get_missing_sessions"), return_value=None
+        )
 
-        assert patched_filter.called
+        await connector.exchange_keys(initial_sync=True)
 
         assert patched_send_to_device.called
         assert patched_keys_upload.called
         assert patched_keys_query.called
+        patched_keys_claim.assert_called_once_with(patched_missing_sessions())
 
-        assert "!aroomid:localhost" in connector.room_ids.values()
-
-        assert connector.connection.token == "arbitrary string1"
-
-        assert connector.connection.sync_token == "arbitrary string2"
-
-        connector.nick = "Rabbit Hole"
-
-        patched_get_nick = mocker.patch(
-            api_string.format("get_displayname"), return_value="Rabbit Hole"
+        patched_get_users = mocker.patch(
+            api_string.format("get_users_for_key_claiming"), return_value=None
         )
 
-        await connector.connect()
+        await connector.exchange_keys(initial_sync=False)
 
-        assert patched_get_nick.called
-        assert not patch_set_nick.called
+        assert patched_send_to_device.called
+        assert patched_keys_upload.called
+        assert patched_keys_query.called
+        patched_keys_claim.assert_called_with(patched_get_users())
 
-        patched_get_nick.return_value = asyncio.Future()
-        patched_get_nick.return_value.set_result("Neo")
+    async def test_connect(self, mocker, caplog, connector):
+        with amock.patch(api_string.format("login")) as patched_login, amock.patch(
+            api_string.format("join")
+        ) as patched_join, amock.patch(
+            api_string.format("sync")
+        ) as patched_sync, amock.patch(
+            api_string.format("send")
+        ) as patched_filter, amock.patch(
+            api_string.format("get_displayname")
+        ) as patched_get_nick, amock.patch(
+            api_string.format("set_displayname")
+        ) as patch_set_nick, amock.patch(
+            api_string.format("send_to_device_messages")
+        ) as patched_send_to_device, amock.patch(
+            api_string.format("should_upload_keys")
+        ) as patched_should_upload, amock.patch(
+            api_string.format("should_query_keys")
+        ) as patched_should_query, amock.patch(
+            api_string.format("keys_upload")
+        ) as patched_keys_upload, amock.patch(
+            api_string.format("keys_query")
+        ) as patched_keys_query, amock.patch(
+            "pathlib.Path.mkdir"
+        ) as patched_mkdir, amock.patch(
+            "pathlib.Path.is_dir"
+        ) as patched_is_dir, amock.patch(
+            "aiohttp.ClientSession"
+        ) as patch_cs, OpsDroid() as _:
 
-        connector.mxid = "@morpheus:matrix.org"
+            # Skip actually creating a client session
+            patch_cs.return_value = amock.MagicMock()
 
-        await connector.connect()
-
-        assert patched_get_nick.called
-        patch_set_nick.assert_called_once_with("Rabbit Hole")
-
-        error_message = "Some error message"
-        error_code = 400
-
-        # test sync error
-        patched_sync.return_value = asyncio.Future()
-        patched_sync.return_value.set_result(
-            nio.SyncError(message=error_message, status_code=error_code)
-        )
-        caplog.clear()
-        await connector.connect()
-        assert [
-            f"Error during initial sync: {error_message} (status code {error_code})"
-        ] == [rec.message for rec in caplog.records]
-
-        # test join error
-        patched_sync.return_value = asyncio.Future()
-        patched_sync.return_value.set_result(
-            nio.SyncResponse(
-                next_batch="arbitrary string2",
-                rooms={},
-                device_key_count={"signed_curve25519": 50},
-                device_list={"changed": [], "left": []},
-                to_device_events={"events": []},
-                presence_events={"events": []},
+            patched_login.return_value = asyncio.Future()
+            patched_login.return_value.set_result(
+                nio.LoginResponse(
+                    user_id="@opsdroid:localhost",
+                    device_id="testdevice",
+                    access_token="arbitrary string1",
+                )
             )
-        )
-        patched_join.return_value = asyncio.Future()
-        patched_join.return_value.set_result(
-            nio.JoinError(message=error_message, status_code=error_code)
-        )
-        caplog.clear()
-        await connector.connect()
-        assert [
-            f"Error while joining room: {connector.rooms['main']['alias']}, Message: {error_message} (status code {error_code})"
-        ] == [rec.message for rec in caplog.records]
 
-        # test login error
-        patched_login.return_value = nio.LoginError(
-            message=error_message, status_code=error_code
-        )
-        caplog.clear()
-        await connector.connect()
-        assert [
-            f"Error while connecting: {error_message} (status code {error_code})"
-        ] == [rec.message for rec in caplog.records]
+            patched_join.return_value = asyncio.Future()
+            patched_join.return_value.set_result(
+                nio.JoinResponse(room_id="!aroomid:localhost")
+            )
+
+            patched_sync.return_value = asyncio.Future()
+            patched_sync.return_value.set_result(
+                nio.SyncResponse(
+                    next_batch="arbitrary string2",
+                    rooms={},
+                    device_key_count={"signed_curve25519": 50},
+                    device_list={"changed": [], "left": []},
+                    to_device_events={"events": []},
+                    presence_events={"events": []},
+                )
+            )
+
+            connect_response = amock.Mock()
+            connect_response.status = 200
+            connect_response.json = amock.CoroutineMock()
+            connect_response.return_value = {"filter_id": 1}
+
+            patched_filter.return_value = asyncio.Future()
+            patched_filter.return_value.set_result(connect_response)
+
+            patch_set_nick.return_value = asyncio.Future()
+            patch_set_nick.return_value.set_result(nio.ProfileSetDisplayNameResponse())
+
+            patched_is_dir.return_value = False
+            patched_mkdir.return_value = None
+
+            patched_send_to_device.return_value = asyncio.Future()
+            patched_send_to_device.return_value.set_result(None)
+
+            patched_should_upload.return_value = True
+            patched_keys_upload.return_value = asyncio.Future()
+            patched_keys_upload.return_value.set_result(None)
+
+            patched_should_query.return_value = True
+            patched_keys_query.return_value = asyncio.Future()
+            patched_keys_query.return_value.set_result(None)
+
+            await connector.connect()
+
+            if nio.crypto.ENCRYPTION_ENABLED:
+                assert patched_mkdir.called
+
+            assert patched_send_to_device.called
+            assert patched_keys_upload.called
+            assert patched_keys_query.called
+
+            assert "!aroomid:localhost" in connector.room_ids.values()
+
+            assert connector.connection.token == "arbitrary string1"
+
+            assert connector.connection.sync_token == "arbitrary string2"
+
+            connector.nick = "Rabbit Hole"
+
+            patched_get_nick.return_value = asyncio.Future()
+            patched_get_nick.return_value.set_result("Rabbit Hole")
+
+            await connector.connect()
+
+            assert patched_get_nick.called
+            assert not patch_set_nick.called
+
+            patched_get_nick.return_value = asyncio.Future()
+            patched_get_nick.return_value.set_result("Neo")
+
+            connector.mxid = "@morpheus:matrix.org"
+
+            await connector.connect()
+
+            assert patched_get_nick.called
+            patch_set_nick.assert_called_once_with("Rabbit Hole")
+
+            error_message = "Some error message"
+            error_code = 400
+
+            # test sync error
+            patched_sync.return_value = asyncio.Future()
+            patched_sync.return_value.set_result(
+                nio.SyncError(message=error_message, status_code=error_code)
+            )
+            caplog.clear()
+            await connector.connect()
+            assert [
+                f"Error during initial sync: {error_message} (status code {error_code})"
+            ] == [rec.message for rec in caplog.records]
+
+            # test join error
+            patched_sync.return_value = asyncio.Future()
+            patched_sync.return_value.set_result(
+                nio.SyncResponse(
+                    next_batch="arbitrary string2",
+                    rooms={},
+                    device_key_count={"signed_curve25519": 50},
+                    device_list={"changed": [], "left": []},
+                    to_device_events={"events": []},
+                    presence_events={"events": []},
+                )
+            )
+            patched_join.return_value = asyncio.Future()
+            patched_join.return_value.set_result(
+                nio.JoinError(message=error_message, status_code=error_code)
+            )
+            caplog.clear()
+            await connector.connect()
+            assert [
+                f"Error while joining room: {connector.rooms['main']['alias']}, Message: {error_message} (status code {error_code})"
+            ] == [rec.message for rec in caplog.records]
+
+            # test login error
+            patched_login.return_value = asyncio.Future()
+            patched_login.return_value.set_result(
+                nio.LoginError(message=error_message, status_code=error_code)
+            )
+            caplog.clear()
+            await connector.connect()
+            assert [
+                f"Error while connecting: {error_message} (status code {error_code})"
+            ] == [rec.message for rec in caplog.records]
 
     async def test_parse_sync_response(self, connector):
         connector.room_ids = {"main": "!aroomid:localhost"}

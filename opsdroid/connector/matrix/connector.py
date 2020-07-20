@@ -141,6 +141,7 @@ class ConnectorMatrix(Connector):
         return int(resp_json["filter_id"])
 
     async def exchange_keys(self, initial_sync=False):
+        """Send to-device messages and perform key exchange operations."""
         await self.connection.send_to_device_messages()
         if self.connection.should_upload_keys:
             await self.connection.keys_upload()
