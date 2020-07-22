@@ -1,3 +1,5 @@
+"""Database that uses the matrix connector."""
+
 import logging
 
 from nio import RoomGetStateError, RoomGetStateEventError
@@ -24,10 +26,12 @@ class DatabaseMatrix(Database):
 
     @property
     def connector(self):
+        """Define the initiated matrix connector."""
         return self.opsdroid.get_connector("matrix")
 
     @property
     def room_id(self):
+        """Define ID of the room to store data in."""
         return (
             self.room
             if self.room.startswith("!")
@@ -35,7 +39,7 @@ class DatabaseMatrix(Database):
         )
 
     async def migrate_database(self):
-        """Migrate existing 'opsdroid.database' state event to 'dev.opsdroid.database' event"""
+        """Migrate existing 'opsdroid.database' state event to 'dev.opsdroid.database' event."""
 
         data = await self.connector.connection.room_get_state(room_id=self.room_id)
         if isinstance(data, RoomGetStateError):
@@ -65,7 +69,7 @@ class DatabaseMatrix(Database):
         _LOGGER.info("Matrix Database connector initialised.")
 
     async def put(self, key, value):
-        """Insert or replace an value into the database for a given key."""
+        """Insert or replace a value into the database for a given key."""
 
         if self.should_migrate:
             await self.migrate_database()
