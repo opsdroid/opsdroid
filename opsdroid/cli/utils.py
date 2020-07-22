@@ -115,8 +115,8 @@ def check_dependencies():
         below 3.6.
 
     """
-    if sys.version_info.major < 3 or sys.version_info.minor < 6:
-        logging.critical(_("Whoops! opsdroid requires python 3.6 or above."))
+    if sys.version_info.major < 3 or sys.version_info.minor < 7:
+        logging.critical(_("Whoops! opsdroid requires python 3.7 or above."))
         sys.exit(1)
 
 
