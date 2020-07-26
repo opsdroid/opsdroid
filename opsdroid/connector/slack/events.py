@@ -212,7 +212,7 @@ class SlackEventCreator(events.EventCreator):
         target = {"channel": channel}
         if "thread_ts" in event:
             if event["ts"] != event["thread_ts"]:
-                # Event is a reply
+                # Event is inside a thread
                 target["thread_ts"] = event["thread_ts"]
 
         _LOGGER.debug("Replacing userids in message with usernames")
