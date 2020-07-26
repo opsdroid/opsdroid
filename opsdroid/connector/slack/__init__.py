@@ -32,6 +32,7 @@ CONFIG_SCHEMA = {
     "icon-emoji": str,
     "connect-timeout": int,
     "chat-as-user": bool,
+    "start_thread": bool,
 }
 
 
@@ -48,6 +49,7 @@ class ConnectorSlack(Connector):
         self.token = config["token"]
         self.timeout = config.get("connect-timeout", 10)
         self.chat_as_user = config.get("chat-as-user", False)
+        self.start_thread = config.get("start_thread", False)
         self.ssl_context = ssl.create_default_context(cafile=certifi.where())
         self.slack = slack.WebClient(
             token=self.token,
@@ -139,6 +141,9 @@ class ConnectorSlack(Connector):
         }
         if "thread_ts" in message.target:
             data["thread_ts"] = message.target["thread_ts"]
+        else:
+            if self.start_thread:
+                data["thread_ts"] = message.linked_event.event_id
 
         await self.slack.api_call(
             "chat.postMessage", data=data,
