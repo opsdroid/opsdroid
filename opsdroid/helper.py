@@ -63,7 +63,7 @@ def convert_dictionary(modules):
 
     if isinstance(modules, list):
         _LOGGER.warning(
-            "Opsdroid has a new configuration format since version 0.17.0, we will change your configuration now. Please read on how to migrate in the documentation."
+            "Opsdroid has a new configuration format since version 0.17.0. Please read on how to migrate in the documentation at https://docs.opsdroid.dev/en/stable/configuration.html#migrate-to-new-configuration-layout."
         )
         for module in modules:
             module_copy = module.copy()
