@@ -108,7 +108,6 @@ class TestCLI(unittest.TestCase):
 
                 check_dependencies()
 
-
     def test_check_version_37(self):
         with mock.patch.object(sys, "version_info") as version_info:
             version_info.major = 3
