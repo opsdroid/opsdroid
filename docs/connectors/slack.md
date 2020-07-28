@@ -24,7 +24,7 @@ connectors:
     icon-emoji: ":smile:" # default ":robot_face:"
     connect-timeout: 10 # default 10 seconds
     chat-as-user: true # default false
-    start_thread: false # default false
+    start_thread: false # default false. if true, opsdroid will start a thread when replying to a message
 ```
 
 ## Usage
