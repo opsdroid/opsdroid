@@ -209,12 +209,6 @@ class SlackEventCreator(events.EventCreator):
         if user_name is None:
             return
 
-        target = {"channel": channel}
-        if "thread_ts" in event:
-            if event["ts"] != event["thread_ts"]:
-                # Event is inside a thread
-                target["thread_ts"] = event["thread_ts"]
-
         _LOGGER.debug("Replacing userids in message with usernames")
         text = await self.connector.replace_usernames(event["text"])
 
@@ -222,7 +216,7 @@ class SlackEventCreator(events.EventCreator):
             text,
             user=user_name,
             user_id=event["user"],
-            target=target,
+            target=channel,
             connector=self.connector,
             event_id=event["ts"],
             raw_event=event,

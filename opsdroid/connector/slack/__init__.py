@@ -133,16 +133,22 @@ class ConnectorSlack(Connector):
             _("Responding with: '%s' in room  %s."), message.text, message.target
         )
         data = {
-            "channel": message.target["channel"],
+            "channel": message.target,
             "text": message.text,
             "as_user": self.chat_as_user,
             "username": self.bot_name,
             "icon_emoji": self.icon_emoji,
         }
-        if "thread_ts" in message.target:
-            data["thread_ts"] = message.target["thread_ts"]
-        else:
-            if self.start_thread:
+
+        if message.linked_event:
+            if "thread_ts" in message.linked_event.raw_event:
+                if (
+                    message.linked_event.event_id
+                    != message.linked_event.raw_event["thread_ts"]
+                ):
+                    # Linked Event is inside a thread
+                    data["thread_ts"] = message.linked_event.raw_event["thread_ts"]
+            elif self.start_thread:
                 data["thread_ts"] = message.linked_event.event_id
 
         await self.slack.api_call(

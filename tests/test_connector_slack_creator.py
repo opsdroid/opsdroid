@@ -56,9 +56,7 @@ class TestEventCreatorAsync(asynctest.TestCase):
             self.assertTrue(called_event.text == self.message_event["text"])
             self.assertTrue(called_event.user == "testuser")
             self.assertTrue(called_event.user_id == self.message_event["user"])
-            self.assertTrue(
-                called_event.target == {"channel": self.message_event["channel"]}
-            )
+            self.assertTrue(called_event.target == self.message_event["channel"])
             self.assertTrue(called_event.event_id == self.message_event["ts"])
             self.assertTrue(called_event.raw_event == self.message_event)
             lookup.assert_called_with("U9S8JGF45")
