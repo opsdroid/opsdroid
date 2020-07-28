@@ -175,34 +175,55 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         linked_event = events.Message(
             text="linked text", raw_event={"thread_ts": "1582838099.000600"}
         )
-        await connector.send(
-            events.Message(
-                text="test",
-                user="user",
-                target="room",
-                connector=connector,
-                linked_event=linked_event,
-                event_id="1582838099.000601",
-            )
+        message = events.Message(
+            text="test",
+            user="user",
+            target="room",
+            connector=connector,
+            linked_event=linked_event,
+            event_id="1582838099.000601",
         )
-        self.assertTrue(connector.slack.api_call.called)
+
+        await connector.send(message)
+        connector.slack.api_call.assert_called_once_with(
+            "chat.postMessage",
+            data={
+                "channel": "room",
+                "text": "test",
+                "as_user": False,
+                "username": "opsdroid",
+                "icon_emoji": ":robot_face:",
+                "thread_ts": "1582838099.000600",
+            },
+        )
 
     async def test_send_message_start_thread_is_true(self):
         connector = ConnectorSlack({"token": "abc123"}, opsdroid=self.od)
         connector.slack.api_call = amock.CoroutineMock()
         connector.start_thread = True
-        linked_event = events.Message(text="linked text", raw_event={})
-        await connector.send(
-            events.Message(
-                text="test",
-                user="user",
-                target="room",
-                connector=connector,
-                linked_event=linked_event,
-                event_id="1582838099.000601",
-            )
+        event_id = "1582838099.000601"
+        linked_event = events.Message(
+            text="linked text", event_id=event_id, raw_event={}
         )
-        self.assertTrue(connector.slack.api_call.called)
+        message = events.Message(
+            text="test",
+            user="user",
+            target="room",
+            connector=connector,
+            linked_event=linked_event,
+        )
+        await connector.send(message)
+        connector.slack.api_call.assert_called_once_with(
+            "chat.postMessage",
+            data={
+                "channel": "room",
+                "text": "test",
+                "as_user": False,
+                "username": "opsdroid",
+                "icon_emoji": ":robot_face:",
+                "thread_ts": "1582838099.000601",
+            },
+        )
 
     async def test_send_blocks(self):
         connector = ConnectorSlack({"token": "abc123"}, opsdroid=self.od)
