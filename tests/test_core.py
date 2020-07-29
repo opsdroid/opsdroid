@@ -577,6 +577,7 @@ class TestCoreAsync(asynctest.TestCase):
         with TemporaryDirectory() as directory:
             await asyncio.gather(watch_dirs([directory]), modify_dir(directory))
 
+    # TODO: Test fails on mac only, needs investigating
     @pytest.mark.xfail()
     async def test_watchdog(self):
         skill_path = os.path.join(
@@ -612,7 +613,6 @@ class TestCoreAsync(asynctest.TestCase):
             timeout = 5
             start = time.time()
             while not opsdroid.reload.called and start + timeout > time.time():
-                print("sleeping...")
                 await asyncio.sleep(0.5)
 
             assert opsdroid.reload.called
