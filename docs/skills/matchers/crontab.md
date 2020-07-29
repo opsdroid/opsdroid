@@ -16,7 +16,7 @@ from opsdroid.events import Message
 class CrontabSkill(Skill):
     @match_crontab('* * * * *', timezone="Europe/London")
     async def mycrontabskill(self, event):
-        await opsdroid.send(Message(text="Hey"))
+        await self.opsdroid.send(Message(text="Hey"))
 ```
 
 The above skill would be called every minute. The skill then asks opsdroid to send a message with the text `Hey` and because we do not tell opsdroid where to send the message it will be sent to the default target of the default connector. You can also access these defaults yourself at `opsdroid.default_connector` and `opsdroid.default_connector.default_target`.
