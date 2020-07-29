@@ -1,6 +1,7 @@
 """Database that uses the matrix connector."""
 
 import logging
+from contextlib import contextmanager
 
 from nio import RoomGetStateError, RoomGetStateEventError
 from opsdroid.database import Database
@@ -18,7 +19,7 @@ class DatabaseMatrix(Database):
         self.name = "matrix"
         self.room = config.get("default_room", "main")
         self._single_state_key = config.get("single_state_key", True)
-        self.should_encrypt = config.get("should_encrypt", True)
+        self.should_encrypt = config.get("should_encrypt", False)
         self._event_type = "dev.opsdroid.database"
         self.should_migrate = True
 
@@ -97,9 +98,14 @@ class DatabaseMatrix(Database):
         elif not isinstance(value, dict):
             raise ValueError("When single_state_key is False value must be a dict.")
 
+        sub_key = list(value.keys())[0]
+
         if list(value.keys())[0] in ori_data:
-            existing_val = await self.get(key)
-            if existing_val == ori_data[list(value.keys())[0]]:
+            if self._single_state_key:
+                existing_val = await self.get(sub_key)
+            else:
+                existing_val = await self.get({key: sub_key})
+            if existing_val == value[sub_key]:
                 _LOGGER.debug("Not updating matrix state, as content hasn't changed.")
                 return
 
@@ -107,7 +113,7 @@ class DatabaseMatrix(Database):
             room_event = await self.opsdroid.send(
                 GenericMatrixRoomEvent(content=value, event_type=self._event_type)
             )
-            data = {**ori_data, key: room_event.event_id}
+            data = {**ori_data, sub_key: room_event.event_id}
         else:
             data = {**ori_data, **value}
 
@@ -125,28 +131,22 @@ class DatabaseMatrix(Database):
 
         return True
 
-    async def get(self, state_key=None, key=None):
+    async def get(self, key):
         """Get a value from the database for a given key."""
 
         if self.should_migrate:
             await self.migrate_database()
 
-        if not self._single_state_key and not state_key:
-            _LOGGER.error(
-                "When single_state_key is false, a state_key must be provided to find from."
-            )
-            return None
-
-        if not state_key and not key:
-            _LOGGER.error("No key provided to search for.")
-            return None
+        if not self._single_state_key and not isinstance(key, dict):
+            _LOGGER.error("When single_state_key is False key must be a dict.")
 
         # If the single state key flag is set then use that else use state key.
         state_key = (
-            ""
-            if self._single_state_key is True
-            else self._single_state_key or state_key
+            "" if self._single_state_key is True else self._single_state_key or key
         )
+
+        if isinstance(state_key, dict):
+            state_key, key = list(state_key.items())[0]
 
         _LOGGER.debug(
             f"Getting {key} from matrix room {self.room_id} with state_key={state_key}."
@@ -168,10 +168,9 @@ class DatabaseMatrix(Database):
             return None
 
         try:
-            if key:
-                data = data[key]
+            data = data[key]
         except KeyError:
-            _LOGGER.debug("{key or state_key} doesn't exist in database")
+            _LOGGER.debug("{key} doesn't exist in database")
             return None
 
         if self.should_encrypt:
@@ -182,30 +181,24 @@ class DatabaseMatrix(Database):
 
         return data
 
-    async def delete(self, state_key=None, key=None):
+    async def delete(self, key):
         """Delete a key from the database."""
 
         if self.should_migrate:
             await self.migrate_database()
 
-        if not self._single_state_key and not state_key:
-            _LOGGER.error(
-                "When single_state_key is false, a state_key must be provided to delete from."
-            )
-            return None
-
-        if not state_key and not key:
-            _LOGGER.error("No key provided for deletion.")
-            return None
+        if not self._single_state_key and not isinstance(key, dict):
+            _LOGGER.error("When single_state_key is False key must be a dict.")
 
         # If the single state key flag is set then use that else use state key.
         state_key = (
-            ""
-            if self._single_state_key is True
-            else self._single_state_key or state_key
+            "" if self._single_state_key is True else self._single_state_key or key
         )
 
-        _LOGGER.debug("Deleting {key or state_key} from {room_id}")
+        if isinstance(state_key, dict):
+            state_key, key = list(state_key.items())[0]
+
+        _LOGGER.debug("Deleting {key} from {room_id}")
 
         data = await self.connector.connection.room_get_state_event(
             room_id=self.room_id, event_type=self._event_type, state_key=state_key,
@@ -223,14 +216,14 @@ class DatabaseMatrix(Database):
             return None
 
         try:
-            if not key:
-                return_value = data.copy()
-                data.clear()
-            else:
+            if self._single_state_key:
                 return_value = data[key]
                 del data[key]
+            else:
+                return_value = data.copy()
+                data.clear()
         except KeyError:
-            _LOGGER.debug("Not deleting {key or state_key}, as it doesn't exist")
+            _LOGGER.debug("Not deleting {key}, as it doesn't exist")
             return None
 
         await self.opsdroid.send(
@@ -244,3 +237,11 @@ class DatabaseMatrix(Database):
         )
 
         return return_value
+
+    @contextmanager
+    def memory_in_room(self, room):
+        """Switch to a different room for some operations."""
+        ori_room = self.room
+        self.room = room
+        yield
+        self.room = ori_room
