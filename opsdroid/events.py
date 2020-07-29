@@ -74,14 +74,14 @@ class Event(metaclass=EventMetaClass):
     Args:
         user_id (string, optional): String id of user sending message
         user (string, optional): String name of user sending message
-        room (string, optional): String name of the room or chat channel in
-                                 which message was sent
+        target (string, optional): String name of the room or chat channel in
+                                   which message was sent
         connector (Connector, optional): Connector object used to interact with
                                          given chat service
         raw_event (dict, optional): Raw message as provided by chat service.
                                     None by default
         raw_parses (dict, optional): Raw response as provided by parse service.
-                            None by default
+                                     None by default
         event_id (object, optional): The unique id for this event as provided
                                      by the connector.
         linked_event (Event, optional): An event to link to this one, i.e. the
@@ -192,19 +192,19 @@ class Message(Event):
 
     Args:
         text (string): String text of message
-        room (string, optional): String name of the room or chat channel in
-                                 which message was sent
+        target (string, optional): String name of the room or chat channel in
+                                   which message was sent
         connector (Connector, optional): Connector object used to interact with
                                          given chat service
         raw_event (dict, optional): Raw message as provided by chat service.
                                     None by default
         raw_parses (dict, optional): Raw response as provided by parse service.
-                    None by default
+                                     None by default
 
     Attributes:
         created: Local date and time that message object was created
         user: String name of user sending message
-        room: String name of the room or chat channel in which message was sent
+        target: String name of the room or chat channel in which message was sent
         connector: Connector object used to interact with given chat service
         text: Text of message as string
         raw_event: Raw message provided by chat service
