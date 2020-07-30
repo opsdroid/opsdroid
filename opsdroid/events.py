@@ -6,6 +6,8 @@ from abc import ABCMeta
 from collections import defaultdict
 from datetime import datetime
 from random import randrange
+from typing import Any
+from dataclasses import dataclass, field
 
 import aiohttp
 
@@ -65,6 +67,7 @@ class EventMetaClass(ABCMeta):
 
 
 # pylint: disable=too-few-public-methods,keyword-arg-before-vararg
+@dataclass
 class Event(metaclass=EventMetaClass):
     """A generic event type.
 
@@ -100,30 +103,19 @@ class Event(metaclass=EventMetaClass):
         user: A string containing the username of the user who created the event.
 
     """
+    user_id: str = field(default=None, repr=False)
+    user: str = None
+    target: Any = None
+    connector: "Connector" = None
+    raw_event: dict = field(default=None, repr=False)
+    raw_parses: dict = field(default_factory=dict, repr=False)
+    event_id: Any = field(default=None, repr=False)
+    linked_event: "Event" = None
+    responded_to: bool = field(init=False, repr=False, default=False)
+    entities: dict = field(init=False, repr=False, default_factory=dict)
 
-    def __init__(
-        self,
-        user_id=None,
-        user=None,
-        target=None,
-        connector=None,
-        raw_event=None,
-        raw_parses=None,
-        event_id=None,
-        linked_event=None,
-    ):  # noqa: D107
-        self.user_id = user_id
-        self.user = user
-        self.target = target
-        self.connector = connector
-        self.linked_event = linked_event
-
+    def __post_init__(self):
         self.created = datetime.now()
-        self.event_id = event_id
-        self.raw_event = raw_event
-        self.raw_parses = raw_parses or {}
-        self.responded_to = False
-        self.entities = {}
 
     async def respond(self, event):
         """Respond to this event with another event.
@@ -184,6 +176,7 @@ class OpsdroidStarted(Event):
     """An event to indicate that Opsdroid has loaded."""
 
 
+@dataclass(init=False)
 class Message(Event):
     """A message object.
 
@@ -215,16 +208,14 @@ class Message(Event):
             responded to
 
     """
+    text: str
+    raw_match: Any = field(repr=False, default=None)
 
     def __init__(self, text, *args, **kwargs):
         """Create object with minimum properties."""
         super().__init__(*args, **kwargs)
         self.text = text
         self.raw_match = None
-
-    def __repr__(self):
-        """Override Message's representation so you can see the text when you print it."""
-        return f"<opsdroid.events.Message(text={self.text})>"
 
     async def _thinking_delay(self):
         """Make opsdroid wait x-seconds before responding.
@@ -289,10 +280,6 @@ class EditedMessage(Message):
     class or an id for an event to which the edit applies.
     """
 
-    def __init__(self, *args, **kwargs):
-        """Create object with minimum properties."""
-        super().__init__(*args, **kwargs)
-
 
 class Reply(Message):
     """Event class representing a message sent in reply to another Message.
@@ -302,6 +289,7 @@ class Reply(Message):
     """
 
 
+@dataclass(init=False)
 class Typing(Event):  # pragma: nocover
     """An event to set the user typing.
 
@@ -310,6 +298,8 @@ class Typing(Event):  # pragma: nocover
         timeout (float, optional): Timeout on typing event.
 
     """
+    trigger: bool
+    timeout: float = None
 
     def __init__(self, trigger, timeout=None, *args, **kwargs):
         """Create the object."""
@@ -318,6 +308,7 @@ class Typing(Event):  # pragma: nocover
         super().__init__(self, *args, **kwargs)
 
 
+@dataclass(init=False)
 class Reaction(Event):
     """Event class to support Unicode reaction to an event.
 
@@ -327,14 +318,22 @@ class Reaction(Event):
         linked_event (opsdroid.events.Event): The event to react to.
 
     """
+    emoji: str
 
     def __init__(self, emoji, *args, **kwargs):  # noqa: D107
-        super().__init__(*args, **kwargs)
         self.emoji = emoji
+        super().__init__(*args, **kwargs)
 
 
+@dataclass(init=False)
 class File(Event):
     """Event class to represent arbitrary files as bytes."""
+
+    file_bytes: bytes = field(repr=False, default=None)
+    url: str = field(repr=False, default=None)
+    url_headers: dict = field(repr=False, default=None)
+    name: str = None
+    mimetype: str = None
 
     def __init__(
         self,
@@ -403,8 +402,12 @@ class Image(File):
         return get_image_size_from_bytesio(io.BytesIO(fbytes), len(fbytes))
 
 
+@dataclass(init=False)
 class NewRoom(Event):
     """Event class to represent the creation of a new room."""
+
+    name: str
+    params: dict = field(default=None, repr=False)
 
     def __init__(self, name=None, params=None, *args, **kwargs):  # noqa: D107
         super().__init__(*args, **kwargs)
@@ -412,24 +415,33 @@ class NewRoom(Event):
         self.room_params = params or {}
 
 
+@dataclass(init=False)
 class RoomName(Event):
     """Event class to represent the naming of a room."""
+
+    name: str = field()
 
     def __init__(self, name, *args, **kwargs):  # noqa: D107
         super().__init__(*args, **kwargs)
         self.name = name
 
 
+@dataclass(init=False)
 class RoomAddress(Event):
     """Event class to represent a room's address being changed."""
+
+    address: str
 
     def __init__(self, address, *args, **kwargs):  # noqa: D107
         super().__init__(*args, **kwargs)
         self.address = address
 
 
+@dataclass(init=False)
 class RoomImage(Event):
     """Event class to represent a room's display image being changed."""
+
+    room_image: Image
 
     def __init__(self, room_image, *args, **kwargs):  # noqa: D107
         super().__init__(*args, **kwargs)
@@ -440,8 +452,11 @@ class RoomImage(Event):
         self.room_image = room_image
 
 
+@dataclass(init=False)
 class RoomDescription(Event):
     """Event class to represent a room's description being changed."""
+
+    description: str
 
     def __init__(self, description, *args, **kwargs):  # noqa: D107
         super().__init__(*args, **kwargs)
@@ -456,8 +471,11 @@ class UserInvite(Event):
     """Event class to represent a user being invited to a room."""
 
 
+@dataclass(init=False)
 class UserRole(Event):
     """Event class to represent a user's role or powers in a room being changed."""
+
+    role: Any
 
     def __init__(self, role, *args, **kwargs):  # noqa: D107
         super().__init__(*args, **kwargs)
