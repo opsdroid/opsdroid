@@ -619,6 +619,8 @@ class ConnectorTwitch(Connector):
                 connector=self,
             )
 
+            await self.opsdroid.parse(left_chat)
+
     @register_event(Message)
     async def _send_message(self, message):
         """Send message to twitch.
@@ -740,7 +742,7 @@ class ConnectorTwitch(Connector):
         close_method = getattr(self.websocket, "close", None)
 
         if callable(close_method):
-            future = asyncio.ensure_future(close_method(), loop=self.loop)
+            asyncio.ensure_future(close_method(), loop=self.loop)
 
         self.websocket = None
 

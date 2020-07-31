@@ -2,20 +2,14 @@ import os
 import logging
 import contextlib
 import asyncio
-import aiohttp
 import pytest
-import tempfile
 import asynctest.mock as amock
 
 
 from aiohttp import web, WSMessage, WSMsgType
 from aiohttp.test_utils import make_mocked_request
 
-from opsdroid.cli.start import configure_lang
-from opsdroid.connector.twitch import (
-    ConnectorTwitch,
-    events,
-)
+from opsdroid.connector.twitch import ConnectorTwitch
 from opsdroid.events import Message
 
 import opsdroid.connector.twitch.events as twitch_event
@@ -54,7 +48,7 @@ async def test_validate_request(opsdroid):
 
     validation = await connector.validate_request(request, "test")
 
-    assert validation == True
+    assert validation
 
 
 @pytest.mark.asyncio
@@ -147,6 +141,8 @@ async def test_request_oauth_token(opsdroid, tmpdir):
 
         response = await connector.request_oauth_token()
 
+        print(response)
+
         assert connector.token is not None
         assert connector.token == "token"
         assert connector.save_authentication_data.called
@@ -174,6 +170,8 @@ async def test_refresh_oauth_token(opsdroid):
         connector.save_authentication_data = amock.CoroutineMock()
 
         response = await connector.refresh_token()
+
+        print(response)
 
         assert connector.token is not None
         assert connector.token == "token"
@@ -601,7 +599,7 @@ async def test_stream_ended_event(opsdroid):
 
     resp = await connector.twitch_webhook_handler(mock_request)
 
-    assert connector.is_live == False
+    assert not connector.is_live
     assert resp.status == 200
     assert twitch_event.StreamEnded.called
 
@@ -748,20 +746,6 @@ async def test_disconnect(opsdroid):
 
 
 @pytest.mark.asyncio
-async def test_listen(opsdroid, caplog):
-    caplog.set_level(logging.DEBUG)
-    connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
-
-    connector.listen = amock.CoroutineMock()
-    connector.listen.side_effect = Exception()
-
-    with contextlib.suppress(Exception):
-        await connector.listen()
-
-    assert connector.is_live
-
-
-@pytest.mark.asyncio
 async def test_get_message_loop(opsdroid):
 
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
@@ -820,6 +804,24 @@ async def test_handle_message_join_event(opsdroid):
 
 
 @pytest.mark.asyncio
+async def test_handle_message_left_event(opsdroid):
+    message = ":user!user@user.tmi.twitch.tv PART #channel"
+
+    left_event = twitch_event.UserLeftChat("username")
+
+    connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
+
+    opsdroid.parse = amock.CoroutineMock()
+    twitch_event.UserLeftChat = amock.CoroutineMock()
+
+    await connector._handle_message(message)
+
+    assert opsdroid.parse.called
+    assert twitch_event.UserLeftChat.called
+    assert "username" in left_event.user
+
+
+@pytest.mark.asyncio
 async def test_handle_message_authentication_failed(opsdroid):
     message = ":tmi.twitch.tv NOTICE * :Login authentication failed"
 
@@ -836,7 +838,6 @@ async def test_handle_message_authentication_failed(opsdroid):
 @pytest.mark.asyncio
 async def test_disconnect_websockets(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
-    ws = web.WebSocketResponse()
 
     connector.websocket = web.WebSocketResponse()
 
