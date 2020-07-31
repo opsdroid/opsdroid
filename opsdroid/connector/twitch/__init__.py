@@ -369,7 +369,7 @@ class ConnectorTwitch(Connector):
         For follow events the payload will contain `from_id`(broadcaster id), `from_username`(broadcaster username)
         `to_id`(follower id), `to_name` (follower name) and `followed_at` (timestamp).
 
-        For stream changes a lot more things are returned but we only really care about `type`(if live/offline),
+        For stream changes a lot more things are returned but we only really care about `type`(if live/offline)
         `title`(stream title).
 
         For subscriptions events we will want to know `event_type`, `timestamp`, `event_data.plan_name`, `event_data.is_gift`,
