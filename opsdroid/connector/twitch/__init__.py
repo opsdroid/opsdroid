@@ -379,8 +379,7 @@ class ConnectorTwitch(Connector):
             request (aiohttp.web.Request): Request made to the post route created for webhook subscription.
 
         Return:
-            aiohttp.web.Response: Send a `received` message and status 200 - Twitch will keep sending the event if
-            it doesn't get the 200 status code.
+            aiohttp.web.Response: Send a `received` message and status 200 - Twitch will keep sending the event if it doesn't get the 200 status code.
 
         """
 
