@@ -31,6 +31,7 @@ from opsdroid.parsers.witai import parse_witai
 from opsdroid.parsers.watson import parse_watson
 from opsdroid.parsers.rasanlu import parse_rasanlu, train_rasanlu
 from opsdroid.parsers.crontab import parse_crontab
+from opsdroid.helper import get_parser_config
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -201,19 +202,19 @@ class OpsDroid:
         _LOGGER.info(_("Received stop signal, exiting."))
 
         _LOGGER.info(_("Removing skills..."))
-        for skill in self.skills:
+        for skill in self.skills[:]:
             _LOGGER.info(_("Removed %s."), skill.config["name"])
             self.skills.remove(skill)
         if self.path_watch_task:
             self.path_watch_task.cancel()
 
-        for connector in self.connectors:
+        for connector in self.connectors[:]:
             _LOGGER.info(_("Stopping connector %s..."), connector.name)
             await connector.disconnect()
             self.connectors.remove(connector)
             _LOGGER.info(_("Stopped connector %s."), connector.name)
 
-        for database in self.memory.databases:
+        for database in self.memory.databases[:]:
             _LOGGER.info(_("Stopping database %s..."), database.name)
             await database.disconnect()
             self.memory.databases.remove(database)
@@ -315,9 +316,9 @@ class OpsDroid:
             skills (list): A list of all the loaded skills.
 
         """
-        if "parsers" in self.config:
-            parsers = self.config["parsers"] or {}
-            rasanlu = parsers.get("rasanlu")
+        if "parsers" in self.modules:
+            parsers = self.modules.get("parsers", {})
+            rasanlu = get_parser_config("rasanlu", parsers)
             if rasanlu and rasanlu["enabled"]:
                 await train_rasanlu(rasanlu, skills)
 
@@ -448,38 +449,38 @@ class OpsDroid:
             ranked_skills += await parse_regex(self, skills, message)
             ranked_skills += await parse_format(self, skills, message)
 
-        if "parsers" in self.config:
+        if "parsers" in self.modules:
             _LOGGER.debug(_("Processing parsers..."))
-            parsers = self.config["parsers"] or {}
+            parsers = self.modules.get("parsers", {})
 
-            dialogflow = parsers.get("dialogflow")
+            dialogflow = get_parser_config("dialogflow", parsers)
             if dialogflow and dialogflow["enabled"]:
                 _LOGGER.debug(_("Checking dialogflow..."))
                 ranked_skills += await parse_dialogflow(
                     self, skills, message, dialogflow
                 )
 
-            luisai = parsers.get("luisai")
+            luisai = get_parser_config("luisai", parsers)
             if luisai and luisai["enabled"]:
                 _LOGGER.debug(_("Checking luisai..."))
                 ranked_skills += await parse_luisai(self, skills, message, luisai)
 
-            sapcai = parsers.get("sapcai")
+            sapcai = get_parser_config("sapcai", parsers)
             if sapcai and sapcai["enabled"]:
                 _LOGGER.debug(_("Checking SAPCAI..."))
                 ranked_skills += await parse_sapcai(self, skills, message, sapcai)
 
-            witai = parsers.get("witai")
+            witai = get_parser_config("witai", parsers)
             if witai and witai["enabled"]:
                 _LOGGER.debug(_("Checking wit.ai..."))
                 ranked_skills += await parse_witai(self, skills, message, witai)
 
-            watson = parsers.get("watson")
+            watson = get_parser_config("watson", parsers)
             if watson and watson["enabled"]:
                 _LOGGER.debug(_("Checking IBM Watson..."))
                 ranked_skills += await parse_watson(self, skills, message, watson)
 
-            rasanlu = parsers.get("rasanlu")
+            rasanlu = get_parser_config("rasanlu", parsers)
             if rasanlu and rasanlu["enabled"]:
                 _LOGGER.debug(_("Checking Rasa NLU..."))
                 ranked_skills += await parse_rasanlu(self, skills, message, rasanlu)

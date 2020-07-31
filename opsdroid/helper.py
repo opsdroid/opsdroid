@@ -63,7 +63,7 @@ def convert_dictionary(modules):
 
     if isinstance(modules, list):
         _LOGGER.warning(
-            "Opsdroid has a new configuration format since version 0.17.0, we will change your configuration now. Please read on how to migrate in the documentation."
+            "Opsdroid has a new configuration format since version 0.17.0. Please read on how to migrate in the documentation at https://docs.opsdroid.dev/en/stable/configuration.html#migrate-to-new-configuration-layout."
         )
         for module in modules:
             module_copy = module.copy()
@@ -180,6 +180,28 @@ def add_skill_attributes(func):
     if not hasattr(func, "constraints"):
         func.constraints = []
     return func
+
+
+def get_parser_config(name, modules):
+    """Get parser from modules list.
+
+    After the change to the configuration we are adding the "enabled" flag to each
+    active module, this allows us to disable to module if there is any problem with
+    it. This helper method helps getting the config from the list of active parsers.
+
+    Args:
+        name (string): Name of the parser to be fetched.
+        modules (list): List of all active modules.
+
+    Returns:
+        dict or None: The module config or None if not found.
+
+    """
+    if modules:
+        for parser in modules:
+            if parser["config"]["name"] == name:
+                return parser["config"]
+    return None
 
 
 def get_config_option(options, config, found, not_found):
