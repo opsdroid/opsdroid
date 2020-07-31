@@ -103,12 +103,10 @@ class TestCLI(unittest.TestCase):
         with mock.patch.object(sys, "version_info") as version_info:
             version_info.major = 3
             version_info.minor = 6
-            try:
+            with self.assertRaises(SystemExit):
                 from opsdroid.cli.utils import check_dependencies
 
                 check_dependencies()
-            except SystemExit:
-                self.fail("check_dependencies() exited unexpectedly!")
 
     def test_check_version_37(self):
         with mock.patch.object(sys, "version_info") as version_info:
