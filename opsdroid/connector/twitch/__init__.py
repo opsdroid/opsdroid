@@ -42,6 +42,7 @@ class ConnectorTwitch(Connector):
     """A connector for Twitch."""
 
     def __init__(self, config, opsdroid=None):
+        """Set up all the needed things for the connector."""
         super().__init__(config, opsdroid=opsdroid)
         _LOGGER.debug(_("Starting Twitch connector."))
         self.name = "twitch"
@@ -575,7 +576,7 @@ class ConnectorTwitch(Connector):
         chat_message = re.match(TWITCH_IRC_MESSAGE_REGEX, message)
         join_event = re.match(r":(?P<user>.*)!.*JOIN", message)
         left_event = re.match(r":(?P<user>.*)!.*PART ", message)
-    
+
         authentication_failed = re.match(
             r":tmi.twitch.tv NOTICE \* :Login authentication failed", message
         )
@@ -609,13 +610,13 @@ class ConnectorTwitch(Connector):
             )
 
             await self.opsdroid.parse(joined_chat)
-        
+
         if left_event:
             left_chat = twitch_event.UserLeftChat(
-                user=join_event.group("user"),
-                raw_message=message,
+                user=left_event.group("user"),
+                raw_event=message,
                 target=f"#{self.default_target}",
-                connector=self
+                connector=self,
             )
 
     @register_event(Message)

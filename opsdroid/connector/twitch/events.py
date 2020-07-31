@@ -34,11 +34,12 @@ class UserJoinedChat(events.Event):
 
 
 class UserLeftChat(events.Event):
-     """Event class to trigger when a user leaves the chat."""
-     def __init__(self, user, *args, **kwargs):
-         """User allows you to know the username of the user that left the chat."""
-         super().__init__(*args, **kwargs)
-         self.user = user
+    """Event class to trigger when a user leaves the chat."""
+
+    def __init__(self, user, *args, **kwargs):
+        """User allows you to know the username of the user that left the chat."""
+        super().__init__(*args, **kwargs)
+        self.user = user
 
 
 class UserFollowed(events.Event):
@@ -55,7 +56,10 @@ class StreamStarted(events.Event):
     """Event class that triggers when streamer started broadcasting."""
 
     def __init__(self, title, viewers, started_at, *args, **kwargs):
-        """The event contains a few attributes that you can access.
+        """Event that is triggered when a streamer starts broadcasting.
+
+        This event is triggered after 2 minutes of starting the broascast and
+        contains a few attributes that you can access.
         
         `title` your broadcast title
         `viewers` total number of viewers that your channel has
