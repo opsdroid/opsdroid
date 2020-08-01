@@ -1,21 +1,18 @@
-from unittest.mock import call
-
+from mock import call
 import pytest
+
 import nio
 
 from opsdroid.connector.matrix import ConnectorMatrix
 from opsdroid.core import OpsDroid
 from opsdroid.database.matrix import DatabaseMatrix
 
+from json import JSONEncoder
+
 
 @pytest.fixture
 def patched_send(mocker):
-    return mocker.patch("nio.AsyncClient.send")
-
-
-@pytest.fixture
-def patched_response(mocker):
-    return mocker.patch("nio.AsyncClient.create_matrix_response")
+    return mocker.patch("nio.AsyncClient._send")
 
 
 @pytest.fixture
@@ -38,9 +35,29 @@ def opsdroid_matrix():
         yield opsdroid
 
 
+def matrix_call(method, path, content=None):
+    state_key = path.partition("dev.opsdroid.database/")[2]
+    path += "?access_token=arbitrarytoken"
+    if not content:
+        return call(
+            nio.RoomGetStateEventResponse,
+            method,
+            path,
+            response_data=("dev.opsdroid.database", f"{state_key}", "!notaroomid"),
+        )
+    else:
+        return call(
+            nio.RoomPutStateResponse,
+            method,
+            path,
+            JSONEncoder(separators=(",", ":")).encode(content),
+            response_data=("!notaroomid",),
+        )
+
+
 @pytest.mark.asyncio
-async def test_default_config(patched_send, opsdroid_matrix, patched_response):
-    patched_response.return_value = nio.RoomGetStateEventResponse({}, "", "", "")
+async def test_default_config(patched_send, opsdroid_matrix):
+    patched_send.return_value = nio.RoomGetStateEventResponse({}, "", "", "")
 
     db = DatabaseMatrix({}, opsdroid=opsdroid_matrix)
     db.should_migrate = False
@@ -48,30 +65,22 @@ async def test_default_config(patched_send, opsdroid_matrix, patched_response):
 
     patched_send.assert_has_calls(
         [
-            call(
+            matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/?access_token=arbitrarytoken",
-                None,
-                {"Content-Type": "application/json"},
-                None,
-                None,
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
             ),
-            call(
+            matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/?access_token=arbitrarytoken",
-                '{"twim":{"hello":"world"}}',
-                {"Content-Type": "application/json"},
-                None,
-                None,
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                {"twim": {"hello": "world"}},
             ),
         ],
-        any_order=True,
     )
 
 
 @pytest.mark.asyncio
-async def test_put_custom_state_key(patched_send, opsdroid_matrix, patched_response):
-    patched_response.return_value = nio.RoomGetStateEventResponse({}, "", "", "")
+async def test_put_custom_state_key(patched_send, opsdroid_matrix):
+    patched_send.return_value = nio.RoomGetStateEventResponse({}, "", "", "")
 
     db = DatabaseMatrix({"single_state_key": "wibble"}, opsdroid=opsdroid_matrix)
     db.should_migrate = False
@@ -79,30 +88,22 @@ async def test_put_custom_state_key(patched_send, opsdroid_matrix, patched_respo
 
     patched_send.assert_has_calls(
         [
-            call(
+            matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/wibble?access_token=arbitrarytoken",
-                None,
-                {"Content-Type": "application/json"},
-                None,
-                None,
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/wibble",
             ),
-            call(
+            matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/wibble?access_token=arbitrarytoken",
-                '{"twim":{"hello":"world"}}',
-                {"Content-Type": "application/json"},
-                None,
-                None,
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/wibble",
+                {"twim": {"hello": "world"}},
             ),
         ],
-        any_order=True,
     )
 
 
 @pytest.mark.asyncio
-async def test_single_state_key_false(patched_send, opsdroid_matrix, patched_response):
-    patched_response.return_value = nio.RoomGetStateEventResponse({}, "", "", "")
+async def test_single_state_key_false(patched_send, opsdroid_matrix):
+    patched_send.return_value = nio.RoomGetStateEventResponse({}, "", "", "")
 
     db = DatabaseMatrix({"single_state_key": False}, opsdroid=opsdroid_matrix)
     db.should_migrate = False
@@ -110,30 +111,22 @@ async def test_single_state_key_false(patched_send, opsdroid_matrix, patched_res
 
     patched_send.assert_has_calls(
         [
-            call(
+            matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim?access_token=arbitrarytoken",
-                None,
-                {"Content-Type": "application/json"},
-                None,
-                None,
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
             ),
-            call(
+            matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim?access_token=arbitrarytoken",
-                '{"hello":"world"}',
-                {"Content-Type": "application/json"},
-                None,
-                None,
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+                {"hello": "world"},
             ),
         ],
-        any_order=True,
     )
 
 
 @pytest.mark.asyncio
-async def test_single_state_not_a_dict(patched_send, opsdroid_matrix, patched_response):
-    patched_response.return_value = nio.RoomGetStateEventResponse({}, "", "", "")
+async def test_single_state_not_a_dict(patched_send, opsdroid_matrix):
+    patched_send.return_value = nio.RoomGetStateEventResponse({}, "", "", "")
 
     value = "world"
     db = DatabaseMatrix({"single_state_key": True}, opsdroid=opsdroid_matrix)
@@ -142,30 +135,22 @@ async def test_single_state_not_a_dict(patched_send, opsdroid_matrix, patched_re
 
     patched_send.assert_has_calls(
         [
-            call(
+            matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/?access_token=arbitrarytoken",
-                None,
-                {"Content-Type": "application/json"},
-                None,
-                None,
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
             ),
-            call(
+            matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/?access_token=arbitrarytoken",
-                '{"twim":"world"}',
-                {"Content-Type": "application/json"},
-                None,
-                None,
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                {"twim": value},
             ),
         ],
-        any_order=True,
     )
 
 
 @pytest.mark.asyncio
-async def test_default_not_a_dict(patched_send, opsdroid_matrix, patched_response):
-    patched_response.return_value = nio.RoomGetStateEventResponse({}, "", "", "")
+async def test_default_not_a_dict(patched_send, opsdroid_matrix):
+    patched_send.return_value = nio.RoomGetStateEventResponse({}, "", "", "")
 
     value = "world"
     db = DatabaseMatrix({"single_state_key": False}, opsdroid=opsdroid_matrix)
@@ -176,10 +161,8 @@ async def test_default_not_a_dict(patched_send, opsdroid_matrix, patched_respons
 
 
 @pytest.mark.asyncio
-async def test_default_update_different_value(
-    patched_send, opsdroid_matrix, patched_response
-):
-    patched_response.return_value = nio.RoomGetStateEventResponse(
+async def test_default_update_different_value(patched_send, opsdroid_matrix):
+    patched_send.return_value = nio.RoomGetStateEventResponse(
         {"hello": "world"}, "", "", ""
     )
 
@@ -191,30 +174,22 @@ async def test_default_update_different_value(
 
     patched_send.assert_has_calls(
         [
-            call(
+            matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim?access_token=arbitrarytoken",
-                None,
-                {"Content-Type": "application/json"},
-                None,
-                None,
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
             ),
-            call(
+            matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim?access_token=arbitrarytoken",
-                '{"hello":"world","red":"pill"}',
-                {"Content-Type": "application/json"},
-                None,
-                None,
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+                {"hello": "world", "red": "pill"},
             ),
         ],
-        any_order=True,
     )
 
 
 @pytest.mark.asyncio
-async def test_default_update_same_key(patched_send, opsdroid_matrix, patched_response):
-    patched_response.return_value = nio.RoomGetStateEventResponse(
+async def test_default_update_same_key(patched_send, opsdroid_matrix):
+    patched_send.return_value = nio.RoomGetStateEventResponse(
         {"hello": "world"}, "", "", ""
     )
 
@@ -226,32 +201,22 @@ async def test_default_update_same_key(patched_send, opsdroid_matrix, patched_re
 
     patched_send.assert_has_calls(
         [
-            call(
+            matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim?access_token=arbitrarytoken",
-                None,
-                {"Content-Type": "application/json"},
-                None,
-                None,
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
             ),
-            call(
+            matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim?access_token=arbitrarytoken",
-                '{"hello":"bob"}',
-                {"Content-Type": "application/json"},
-                None,
-                None,
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+                value,
             ),
         ],
-        any_order=True,
     )
 
 
 @pytest.mark.asyncio
-async def test_update_same_key_single_state_key(
-    patched_send, opsdroid_matrix, patched_response
-):
-    patched_response.return_value = nio.RoomGetStateEventResponse(
+async def test_update_same_key_single_state_key(patched_send, opsdroid_matrix):
+    patched_send.return_value = nio.RoomGetStateEventResponse(
         {"twim": {"hello": "world"}}, "", "", ""
     )
 
@@ -263,32 +228,22 @@ async def test_update_same_key_single_state_key(
 
     patched_send.assert_has_calls(
         [
-            call(
+            matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/?access_token=arbitrarytoken",
-                None,
-                {"Content-Type": "application/json"},
-                None,
-                None,
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
             ),
-            call(
+            matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/?access_token=arbitrarytoken",
-                '{"twim":{"hello":"bob"}}',
-                {"Content-Type": "application/json"},
-                None,
-                None,
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                {"twim": value},
             ),
         ],
-        any_order=True,
     )
 
 
 @pytest.mark.asyncio
-async def test_default_update_same_key_value(
-    patched_send, opsdroid_matrix, patched_response
-):
-    patched_response.return_value = nio.RoomGetStateEventResponse(
+async def test_default_update_same_key_value(patched_send, opsdroid_matrix):
+    patched_send.return_value = nio.RoomGetStateEventResponse(
         {"hello": "world"}, "", "", ""
     )
 
@@ -300,24 +255,19 @@ async def test_default_update_same_key_value(
 
     patched_send.assert_has_calls(
         [
-            call(
+            matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim?access_token=arbitrarytoken",
-                None,
-                {"Content-Type": "application/json"},
-                None,
-                None,
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
             )
         ],
-        any_order=True,
     )
 
 
 @pytest.mark.asyncio
 async def test_default_update_same_key_value_single_state_key(
-    patched_send, opsdroid_matrix, patched_response
+    patched_send, opsdroid_matrix
 ):
-    patched_response.return_value = nio.RoomGetStateEventResponse(
+    patched_send.return_value = nio.RoomGetStateEventResponse(
         {"twim": {"hello": "world"}}, "", "", ""
     )
 
@@ -329,24 +279,17 @@ async def test_default_update_same_key_value_single_state_key(
 
     patched_send.assert_has_calls(
         [
-            call(
+            matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/?access_token=arbitrarytoken",
-                None,
-                {"Content-Type": "application/json"},
-                None,
-                None,
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
             )
         ],
-        any_order=True,
     )
 
 
 @pytest.mark.asyncio
-async def test_default_update_single_state_key(
-    patched_send, opsdroid_matrix, patched_response
-):
-    patched_response.return_value = nio.RoomGetStateEventResponse(
+async def test_default_update_single_state_key(patched_send, opsdroid_matrix):
+    patched_send.return_value = nio.RoomGetStateEventResponse(
         {"twim": "hello"}, "", "", ""
     )
 
@@ -357,30 +300,22 @@ async def test_default_update_single_state_key(
 
     patched_send.assert_has_calls(
         [
-            call(
+            matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/?access_token=arbitrarytoken",
-                None,
-                {"Content-Type": "application/json"},
-                None,
-                None,
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
             ),
-            call(
+            matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/?access_token=arbitrarytoken",
-                '{"twim":"hello","pill":"red"}',
-                {"Content-Type": "application/json"},
-                None,
-                None,
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                {"twim": "hello", "pill": "red"},
             ),
         ],
-        any_order=True,
     )
 
 
 @pytest.mark.asyncio
-async def test_get_single_state_key(patched_send, opsdroid_matrix, patched_response):
-    patched_response.return_value = nio.RoomGetStateEventResponse(
+async def test_get_single_state_key(patched_send, opsdroid_matrix):
+    patched_send.return_value = nio.RoomGetStateEventResponse(
         {"twim": "hello", "wibble": "wobble"}, "", "", ""
     )
 
@@ -390,20 +325,18 @@ async def test_get_single_state_key(patched_send, opsdroid_matrix, patched_respo
     data = await db.get("twim")
 
     patched_send.assert_called_once_with(
+        nio.RoomGetStateEventResponse,
         "GET",
         "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/?access_token=arbitrarytoken",
-        None,
-        {"Content-Type": "application/json"},
-        None,
-        None,
+        response_data=("dev.opsdroid.database", "", "!notaroomid"),
     )
 
     assert data == "hello"
 
 
 @pytest.mark.asyncio
-async def test_get(patched_send, opsdroid_matrix, patched_response):
-    patched_response.return_value = nio.RoomGetStateEventResponse(
+async def test_get(patched_send, opsdroid_matrix):
+    patched_send.return_value = nio.RoomGetStateEventResponse(
         {"hello": "world"}, "", "", ""
     )
 
@@ -413,22 +346,18 @@ async def test_get(patched_send, opsdroid_matrix, patched_response):
     data = await db.get({"twim": "hello"})
 
     patched_send.assert_called_once_with(
+        nio.RoomGetStateEventResponse,
         "GET",
         "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim?access_token=arbitrarytoken",
-        None,
-        {"Content-Type": "application/json"},
-        None,
-        None,
+        response_data=("dev.opsdroid.database", "twim", "!notaroomid"),
     )
 
     assert data == "world"
 
 
 @pytest.mark.asyncio
-async def test_get_no_key_single_state_key(
-    patched_send, opsdroid_matrix, patched_response
-):
-    patched_response.return_value = nio.RoomGetStateEventResponse(
+async def test_get_no_key_single_state_key(patched_send, opsdroid_matrix):
+    patched_send.return_value = nio.RoomGetStateEventResponse(
         {"wibble": "wobble"}, "", "", ""
     )
 
@@ -441,8 +370,8 @@ async def test_get_no_key_single_state_key(
 
 
 @pytest.mark.asyncio
-async def test_get_no_key_404(patched_send, opsdroid_matrix, patched_response):
-    patched_response.return_value = nio.RoomGetStateEventError({"errcode": 404})
+async def test_get_no_key_404(patched_send, opsdroid_matrix):
+    patched_send.return_value = nio.RoomGetStateEventError({"errcode": 404})
 
     db = DatabaseMatrix({"single_state_key": False}, opsdroid=opsdroid_matrix)
     db.should_migrate = False
@@ -453,8 +382,8 @@ async def test_get_no_key_404(patched_send, opsdroid_matrix, patched_response):
 
 
 @pytest.mark.asyncio
-async def test_get_no_key_500(patched_send, opsdroid_matrix, patched_response):
-    patched_response.return_value = nio.RoomGetStateEventError({"code": 500})
+async def test_get_no_key_500(patched_send, opsdroid_matrix):
+    patched_send.return_value = nio.RoomGetStateEventError({"code": 500})
 
     db = DatabaseMatrix({"single_state_key": False}, opsdroid=opsdroid_matrix)
     db.should_migrate = False

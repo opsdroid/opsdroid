@@ -45,7 +45,7 @@ class DatabaseMatrix(Database):
         data = await self.connector.connection.room_get_state(room_id=self.room_id)
         if isinstance(data, RoomGetStateError):
             _LOGGER.error(
-                "Error migrating from opsdroid.database to {self._event_type} in room {self.room_id}: {data.message}({data.status_code})"
+                f"Error migrating from opsdroid.database to {self._event_type} in room {self.room_id}: {data.message}({data.status_code})"
             )
             return
 
@@ -87,7 +87,7 @@ class DatabaseMatrix(Database):
         )
         if isinstance(ori_data, RoomGetStateEventError):
             _LOGGER.error(
-                "Error putting key into matrix room {self.room_id}: {ori_data.message}({ori_data.status_code})"
+                f"Error putting key into matrix room {self.room_id}: {ori_data.message}({ori_data.status_code})"
             )
             return
         ori_data = ori_data.content
@@ -96,7 +96,10 @@ class DatabaseMatrix(Database):
             value = {key: value}
 
         elif not isinstance(value, dict):
-            raise ValueError("When single_state_key is False value must be a dict.")
+            raise ValueError(
+                "When the matrix database is configured with single_state_key=False, "
+                "the value passed must be a dict."
+            )
 
         sub_key = list(value.keys())[0]
 
@@ -138,7 +141,9 @@ class DatabaseMatrix(Database):
             await self.migrate_database()
 
         if not self._single_state_key and not isinstance(key, dict):
-            _LOGGER.error("When single_state_key is False key must be a dict.")
+            _LOGGER.error(
+                "When the matrix database is configured with single_state_key=False, key must be a dict."
+            )
 
         # If the single state key flag is set then use that else use state key.
         state_key = (
@@ -157,7 +162,7 @@ class DatabaseMatrix(Database):
         )
         if isinstance(data, RoomGetStateEventError):
             _LOGGER.error(
-                "Error getting {key} from matrix room {self.room_id}: {data.message}({data.status_code})"
+                f"Error getting {key} from matrix room {self.room_id}: {data.message}({data.status_code})"
             )
             return
         data = data.content
@@ -170,7 +175,7 @@ class DatabaseMatrix(Database):
         try:
             data = data[key]
         except KeyError:
-            _LOGGER.debug("{key} doesn't exist in database")
+            _LOGGER.debug(f"{key} doesn't exist in database")
             return None
 
         if self.should_encrypt:
@@ -188,7 +193,9 @@ class DatabaseMatrix(Database):
             await self.migrate_database()
 
         if not self._single_state_key and not isinstance(key, dict):
-            _LOGGER.error("When single_state_key is False key must be a dict.")
+            _LOGGER.error(
+                "When the matrix database is configured with single_state_key=False, key must be a dict."
+            )
 
         # If the single state key flag is set then use that else use state key.
         state_key = (
@@ -198,14 +205,14 @@ class DatabaseMatrix(Database):
         if isinstance(state_key, dict):
             state_key, key = list(state_key.items())[0]
 
-        _LOGGER.debug("Deleting {key} from {room_id}")
+        _LOGGER.debug(f"Deleting {key} from {room_id}")
 
         data = await self.connector.connection.room_get_state_event(
             room_id=self.room_id, event_type=self._event_type, state_key=state_key,
         )
         if isinstance(data, RoomGetStateEventError):
             _LOGGER.error(
-                "Error deleting {key} from matrix room {self.room_id}: {data.message}({data.status_code})"
+                f"Error deleting {key} from matrix room {self.room_id}: {data.message}({data.status_code})"
             )
             return
         data = data.content
@@ -223,7 +230,7 @@ class DatabaseMatrix(Database):
                 return_value = data.copy()
                 data.clear()
         except KeyError:
-            _LOGGER.debug("Not deleting {key}, as it doesn't exist")
+            _LOGGER.debug(f"Not deleting {key}, as it doesn't exist")
             return None
 
         await self.opsdroid.send(
