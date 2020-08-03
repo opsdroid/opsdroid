@@ -116,7 +116,7 @@ class DatabaseMatrix(Database):
             room_event = await self.opsdroid.send(
                 GenericMatrixRoomEvent(content=value, event_type=self._event_type)
             )
-            data = {**ori_data, sub_key: room_event.event_id}
+            data = {**ori_data, sub_key: {"encrypted_val": room_event.event_id}}
         else:
             data = {**ori_data, **value}
 
@@ -169,20 +169,18 @@ class DatabaseMatrix(Database):
 
         _LOGGER.debug(f"Got {data} from state request.")
 
-        if not data:
-            return None
+        for k, v in data.items():
+            if isinstance(v, dict) and "encrypted_val" in v:
+                resp = await self.connector.connection.room_get_event(
+                    room_id=self.room_id, event_id=v["encrypted_val"],
+                )
+                data[k] = resp.event.source["content"][k]
 
         try:
             data = data[key]
         except KeyError:
             _LOGGER.debug(f"{key} doesn't exist in database")
             return None
-
-        if self.should_encrypt:
-            resp = await self.connector.connection.room_get_event(
-                room_id=self.room_id, event_id=data,
-            )
-            data = resp.event.source["content"][key]
 
         return data
 
@@ -218,9 +216,6 @@ class DatabaseMatrix(Database):
         data = data.content
 
         _LOGGER.debug(f"Got {data} from state request.")
-
-        if not data:
-            return None
 
         try:
             if self._single_state_key:
