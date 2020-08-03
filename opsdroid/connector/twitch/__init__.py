@@ -71,7 +71,7 @@ class ConnectorTwitch(Connector):
 
         Twitch suggests that we should always validate the requests made to our webhook callback url,
         that way we protect ourselves from received an event that wasn't sent by Twitch. After sending
-        `hub.secret` on our webhook subscribe, Twitch will use that secret to send the `x-hub-signature`
+        ``hub.secret`` on our webhook subscribe, Twitch will use that secret to send the ``x-hub-signature``
         header, that is the hash that we should compare with our own computed one, if they don't match
         then the request is not valid and shouldn't be parsed.
 
@@ -96,7 +96,7 @@ class ConnectorTwitch(Connector):
         notification when a user subscribes or folllows the broadcaster
         channel.
 
-        Since we are calling the Twitch API to get our `self.user_id` on connect,
+        Since we are calling the Twitch API to get our ``self.user_id`` on connect,
         we will use this method to handle when a token has expired, so if we get a
         401 status back from Twitch we will raise a ClientResponseError and send back
         the status and the message Unauthorized, that way we can refresh the oauth token
@@ -165,12 +165,12 @@ class ConnectorTwitch(Connector):
 
         This method assumes that the user already has the code obtained from
         following the first oauth step which is making a get request to the
-        twitch api endpoint: `https://id.twitch.tv/oauth2/authorize` and passing
+        twitch api endpoint: ``https://id.twitch.tv/oauth2/authorize`` and passing
         the needed client id, redirect uri and needed scopes to work with the bot.
 
         This method is the second - and final step - when trying to get the oauth token.
         We use the code that the user obtained on step one - check documentation - and
-        make a post request to Twitch to get the `access_token` and `refresh_token` so
+        make a post request to Twitch to get the ``access_token`` and ``refresh_token`` so
         we can refresh the access_token when needed. Note that the refresh_token doesn't
         change with each refresh.
 
@@ -195,7 +195,7 @@ class ConnectorTwitch(Connector):
         """Attempt to refresh the oauth token.
 
         Twitch oauth tokens expire after a day, so we need to do a post request to twitch
-        to get a new token when ours expires. The refresh token is already saved on the `twitch.json`
+        to get a new token when ours expires. The refresh token is already saved on the ``twitch.json``
         file so we can just open that file, get the appropriate token and then update the file with the
         new received data.
 
@@ -225,11 +225,11 @@ class ConnectorTwitch(Connector):
         If we try to connect to Twitch with an expired oauth token, we need to
         request a new token. The problem is that Twitch doesn't close the websocket
         and will only notify the user that the login authentication failed after
-        we sent the `PASS`, `NICK` and `JOIN` command to the websocket.
+        we sent the ``PASS`` , ``NICK`` and ``JOIN`` command to the websocket.
 
         So we need to send the initial commands to Twitch, await for a status with
-        `await self.websockets.recv()` and there will be our notification that the
-        authentication failed in the form of `:tmi.twitch.tv NOTICE * :Login authentication failed`
+        ``await self.websockets.recv()`` and there will be our notification that the
+        authentication failed in the form of ``:tmi.twitch.tv NOTICE * :Login authentication failed``
 
         This method was created to prevent us from having to copy the same commands
         and send them to the websocket. If there is an authentication issue, then we
@@ -249,7 +249,7 @@ class ConnectorTwitch(Connector):
 
         Our connect method will attempt to make a connection to Twitch through the
         websockets server. If the connection is made, any sort of failure received
-        from the websocket will be in the form of a `NOTICE`, unless Twitch closes
+        from the websocket will be in the form of a ``NOTICE``, unless Twitch closes
         the websocket connection.
 
         In this method we attempt to connect to the websocket and use the previously
@@ -258,13 +258,13 @@ class ConnectorTwitch(Connector):
         Once we are logged in and on a Twitch channel, we will request access to special
         features from Twitch.
 
-        The `commands` request is used to allow us to send special commands to the Twitch
+        The ``commands`` request is used to allow us to send special commands to the Twitch
         IRC server.
 
-        The `tags` request is used to receive more information with each message received
+        The ``tags`` request is used to receive more information with each message received
         from twitch. Tags enable us to get metadata such as message ids.
 
-        The `membership` request is used to get notifications when an user enters the
+        The ``membership`` request is used to get notifications when an user enters the
         chat server (it doesn't mean that the user is watching the streamer) and also when
         a user leaves the chat channel.
 
@@ -283,18 +283,18 @@ class ConnectorTwitch(Connector):
         """Subscribe to a specific webhook.
 
         Twitch has different webhooks that you can subscribe to, when you subscribe to a
-        particular webhook, a `post` request needs to be made containing a `JSON` payload,
+        particular webhook, a ``post`` request needs to be made containing a ``JSON`` payload,
         that tells Twitch what subscription you are attempting to do.
 
-        When you submit the `post` request to `TWITCH_WEBHOOK_ENDPOINT`, twitch will send back
-        a `get` request to your `callback` url (`hub.callback`) with a challenge. Twitch will
+        When you submit the ``post`` request to ``TWITCH_WEBHOOK_ENDPOINT`` , twitch will send back
+        a ``get`` request to your ``callback`` url (``hub.callback`` ) with a challenge. Twitch will
         then await for a response containing only the challenge in plain text.
 
-        With this in mind, that is the reason why we open two routes (`get` and `post`) that link
-        to `/connector/<connector name>`.
+        With this in mind, that is the reason why we open two routes (``get`` and ``post`` ) that link
+        to ``/connector/<connector name>``.
 
-        The `hub.topic` represents the webhook that we want to suscribe from twitch.
-        The `hub.lease_seconds` defines the number of seconds until the subscription expires, maximum
+        The ``hub.topic`` represents the webhook that we want to suscribe from twitch.
+        The ``hub.lease_seconds`` defines the number of seconds until the subscription expires, maximum
         is 864000 seconds (10 days), but we will set up a day as our expiration since our app oauth
         tokens seem to expire after a day.
 
@@ -337,18 +337,18 @@ class ConnectorTwitch(Connector):
         """Challenge handler for get request made by Twitch.
 
         Upon subscription to a Twitch webhook, Twitch will do a get request to the
-        `callback` url provided to check if the url exists. Twitch will do a get request
-        with a challenge and expects the `callback` url to return that challenge in plain-text
+        ``callback`` url provided to check if the url exists. Twitch will do a get request
+        with a challenge and expects the ``callback`` url to return that challenge in plain-text
         back to Twitch.
 
-        This is what we are doing here, we are getting `hub.challenge` from the request and return
+        This is what we are doing here, we are getting ``hub.challenge`` from the request and return
         it in plain-text, if we can't find that challenge we will return a status code 500.
 
         Args:
             request (aiohttp.web.Request): Request made to the get route created for webhook subscription.
 
         Returns:
-           aiohttp.web.Response: if request contains `hub.challenge` we return it, otherwise return status 500.
+           aiohttp.web.Response: if request contains ``hub.challenge`` we return it, otherwise return status 500.
 
         """
         challenge = request.rel_url.query.get("hub.challenge")
@@ -366,20 +366,20 @@ class ConnectorTwitch(Connector):
         send a different kind of payload so we can handle each event and trigger the right opsdroid event
         for the received payload.
 
-        For follow events the payload will contain `from_id`(broadcaster id), `from_username`(broadcaster username)
-        `to_id`(follower id), `to_name`(follower name) and `followed_at`(timestamp).
+        For follow events the payload will contain ``from_id`` (broadcaster id), ``from_username`` (broadcaster username)
+        ``to_id`` (follower id), ``to_name`` (follower name) and ``followed_at`` (timestamp).
 
-        For stream changes a lot more things are returned but we only really care about `type`(if live/offline)
-        `title`(stream title).
+        For stream changes a lot more things are returned but we only really care about ``type`` (if live/offline)
+        ``title`` (stream title).
 
-        For subscriptions events we will want to know `event_type`, `timestamp`, `event_data.plan_name`, `event_data.is_gift`,
-        `event_data.tier`, `event_data.username` and `event_data.gifter_name`.
+        For subscriptions events we will want to know ``event_type`` , ``timestamp`` , ``event_data.plan_name`` , ``event_data.is_gift`` ,
+        ``event_data.tier`` , ``event_data.username`` and ``event_data.gifter_name``.
 
         Args:
             request (aiohttp.web.Request): Request made to the post route created for webhook subscription.
 
         Return:
-            aiohttp.web.Response: Send a `received` message and status 200 - Twitch will keep sending the event if it doesn't get the 200 status code.
+            aiohttp.web.Response: Send a ``received`` message and status 200 - Twitch will keep sending the event if it doesn't get the 200 status code.
 
         """
 
@@ -443,7 +443,7 @@ class ConnectorTwitch(Connector):
                     await self.opsdroid.parse(gifted_subscription)
 
             except ValueError:
-                # When the stream goes offline, Twitch will return `data: []`
+                # When the stream goes offline, Twitch will return ```data: []```
                 # that will raise ValueError since it can't unpack empty list
                 stream_ended = twitch_event.StreamEnded(connector=self)
                 await self.opsdroid.parse(stream_ended)
@@ -458,7 +458,7 @@ class ConnectorTwitch(Connector):
     async def connect(self):
         """Connect to Twitch services.
 
-        Within our connect method we do a quick check to see if the file `twitch.json` exists in
+        Within our connect method we do a quick check to see if the file ``twitch.json`` exists in
         the application folder, if this file doesn't exist we assume that it's the first time the
         user is running opsdroid and we do the first request for the oauth token.
 
@@ -559,7 +559,7 @@ class ConnectorTwitch(Connector):
         be done with the message.
 
         If opsdroid is running for a long time, the OAuth token will expire and the connection
-        to the websockets will send us back a `:tmi.twitch.tv NOTICE * :Login authentication failed`
+        to the websockets will send us back a ``:tmi.twitch.tv NOTICE * :Login authentication failed``
         so if we receive that NOTICE we will attempt to refresh the token.
 
         Twitch websockets send all the messages as strings, this includes PINGs, that means we will
@@ -625,7 +625,7 @@ class ConnectorTwitch(Connector):
         """Send message to twitch.
 
         This method sends a text message to the chat service. We can't use the
-        default `send` method because we are also using different kinds of events
+        default ``send`` method because we are also using different kinds of events
         within this connector.
 
         """
@@ -638,7 +638,7 @@ class ConnectorTwitch(Connector):
 
         This event is used when we need to remove a specific message from the chat
         service. We need to pass the message id to remove a specific message. So this
-        method is calling the `/delete` method together with the message id to remove
+        method is calling the ``/delete`` method together with the message id to remove
         that message.
 
         """
@@ -667,9 +667,9 @@ class ConnectorTwitch(Connector):
         """Create clip from broadcast.
 
         We send a post request to twitch to create a clip from the broadcast, Twitch will
-        return a response containing a clip `id` and `edit_url`. TWitch mentions that the
-        way to check if the clip was created successfully is by making a `get` request
-        to the `clips` API enpoint and query by the `id` obtained from the previous
+        return a response containing a clip ``id`` and ``edit_url`` . TWitch mentions that the
+        way to check if the clip was created successfully is by making a ``get`` request
+        to the ``clips`` API enpoint and query by the ``id`` obtained from the previous
         request.
 
         """
@@ -709,7 +709,7 @@ class ConnectorTwitch(Connector):
         request and pass your title into the url.
 
         Args:
-            event (twitch.events.UpdateTitle): opsdroid event containing `status` (your title).
+            event (twitch.events.UpdateTitle): opsdroid event containing ``status`` (your title).
 
         """
         async with aiohttp.ClientSession() as session:
@@ -751,8 +751,8 @@ class ConnectorTwitch(Connector):
         Before opsdroid exists we will want to disconnect the Twitch connector, we need to
         do some clean up. We first set the while loop flag to False to stop the loop and then
         try to unsubscribe from all the webhooks that we subscribed to on connect - we want to
-        do that because when we start opsdroid and the `connect` method is called we will send
-        another subscribe request to Twitch. After we will send a `PART` command to leave the
+        do that because when we start opsdroid and the ``connect`` method is called we will send
+        another subscribe request to Twitch. After we will send a ``PART`` command to leave the
         channel that we joined on connect.
 
         Finally we try to close the websocket connection.

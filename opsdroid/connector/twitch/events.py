@@ -61,9 +61,9 @@ class StreamStarted(events.Event):
         This event is triggered after 2 minutes of starting the broascast and
         contains a few attributes that you can access.
 
-        `title` your broadcast title
-        `viewers` total number of viewers that your channel has
-        `started_at` timestamp when you went live
+        ``title`` your broadcast title
+        ``viewers`` total number of viewers that your channel has
+        ``started_at`` timestamp when you went live
 
         """
         super().__init__(*args, **kwargs)
