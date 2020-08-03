@@ -314,6 +314,44 @@ async def test_default_update_single_state_key(patched_send, opsdroid_matrix):
 
 
 @pytest.mark.asyncio
+async def test_put_encrypted(patched_send, opsdroid_matrix, mocker):
+    def side_effect(resp, *args, **kwargs):
+        if resp is nio.RoomGetStateEventResponse:
+            return nio.RoomGetStateEventResponse({}, "", "", "")
+        else:
+            return nio.RoomSendResponse("enceventid", "!notaroomid")
+
+    patched_send.side_effect = side_effect
+    mocker.patch("nio.client.async_client.uuid4", return_value="bigrandomuuid")
+
+    db = DatabaseMatrix({"should_encrypt": True}, opsdroid=opsdroid_matrix)
+    db.should_migrate = False
+    await db.put("twim", {"hello": "world"})
+
+    patched_send.assert_has_calls(
+        [
+            matrix_call(
+                "GET",
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+            ),
+            call(
+                nio.RoomSendResponse,
+                "PUT",
+                "/_matrix/client/r0/rooms/%21notaroomid/send/dev.opsdroid.database/bigrandomuuid?access_token=arbitrarytoken",
+                '{"twim":{"hello":"world"}}',
+                ("!notaroomid",),
+            ),
+            matrix_call(
+                "PUT",
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                {"twim": {"encrypted_val": "enceventid"}},
+            ),
+        ],
+        any_order=True,
+    )
+
+
+@pytest.mark.asyncio
 async def test_get_single_state_key(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"twim": "hello", "wibble": "wobble"}, "", "", ""
@@ -394,7 +432,140 @@ async def test_get_no_key_500(patched_send, opsdroid_matrix):
 
 
 @pytest.mark.asyncio
+async def test_get_encrypted(patched_send, opsdroid_matrix):
+    def side_effect(resp, *args, **kwargs):
+        if resp is nio.RoomGetStateEventResponse:
+            return nio.RoomGetStateEventResponse(
+                {"twim": {"encrypted_val": "enceventid"}}, "", "", ""
+            )
+        else:
+            event = nio.Event(
+                {
+                    "type": "dev.opsdroid.database",
+                    "event_id": "enceventid",
+                    "sender": "@someone:localhost",
+                    "origin_server_ts": "2005",
+                    "content": {"twim": "hello"},
+                }
+            )
+            resp = nio.RoomGetEventResponse()
+            resp.event = event
+            return resp
+
+    patched_send.side_effect = side_effect
+
+    db = DatabaseMatrix({}, opsdroid=opsdroid_matrix)
+    db.should_migrate = False
+
+    data = await db.get("twim")
+
+    patched_send.assert_has_calls(
+        [
+            matrix_call(
+                "GET",
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+            ),
+            call(
+                nio.RoomGetEventResponse,
+                "GET",
+                "/_matrix/client/r0/rooms/%21notaroomid/event/enceventid?access_token=arbitrarytoken",
+            ),
+        ],
+    )
+
+    assert data == "hello"
+
+
+@pytest.mark.asyncio
 async def test_connect(patched_send, opsdroid_matrix):
     db = DatabaseMatrix({}, opsdroid=opsdroid_matrix)
 
     await db.connect()
+
+
+@pytest.mark.asyncio
+async def test_room_switch(patched_send, opsdroid_matrix):
+    patched_send.return_value = nio.RoomGetStateEventResponse(
+        {"hello": "world"}, "", "", ""
+    )
+    db = DatabaseMatrix({}, opsdroid=opsdroid_matrix)
+    db.should_migrate = False
+    with db.memory_in_room("!notanotherroom"):
+        assert db.room == "!notanotherroom"
+        data = await db.get("hello")
+
+    patched_send.assert_called_once_with(
+        nio.RoomGetStateEventResponse,
+        "GET",
+        "/_matrix/client/r0/rooms/%21notanotherroom/state/dev.opsdroid.database/?access_token=arbitrarytoken",
+        response_data=("dev.opsdroid.database", "", "!notanotherroom"),
+    )
+
+    assert db.room == "main"
+    assert data == "world"
+
+
+@pytest.mark.asyncio
+async def test_migrate_and_errors(patched_send, opsdroid_matrix, mocker, caplog):
+    def side_effect(resp, *args, **kwargs):
+        if resp is nio.RoomGetStateResponse:
+            return nio.RoomGetStateResponse(
+                [
+                    {
+                        "type": "opsdroid.database",
+                        "state_key": "",
+                        "event_id": "roomeventid",
+                        "content": {"hello": "world"},
+                    }
+                ],
+                "!notaroomid",
+            )
+        else:
+            return nio.RoomGetStateEventError(message="testing")
+
+    patched_send.side_effect = side_effect
+    mocker.patch("nio.client.async_client.uuid4", return_value="bigrandomuuid")
+
+    db = DatabaseMatrix({}, opsdroid=opsdroid_matrix)
+    caplog.clear()
+    await db.put("hello", "world")
+
+    patched_send.assert_has_calls(
+        [
+            call(
+                nio.RoomGetStateResponse,
+                "GET",
+                "/_matrix/client/r0/rooms/%21notaroomid/state?access_token=arbitrarytoken",
+                response_data=("!notaroomid",),
+            ),
+            matrix_call(
+                "PUT",
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                {"hello": "world"},
+            ),
+            call(
+                nio.RoomRedactResponse,
+                "PUT",
+                "/_matrix/client/r0/rooms/%21notaroomid/redact/roomeventid/bigrandomuuid?access_token=arbitrarytoken",
+                "{}",
+                response_data=("!notaroomid",),
+            ),
+        ],
+    )
+
+    assert ["Error putting key into matrix room !notaroomid: testing(None)"] == [
+        rec.message for rec in caplog.records
+    ]
+
+    patched_send.side_effect = [
+        nio.RoomGetStateError(message="testing"),
+        nio.RoomGetStateEventError(message="testing"),
+    ]
+    caplog.clear()
+    db.should_migrate = True
+    await db.get("hello")
+
+    assert [
+        "Error migrating from opsdroid.database to dev.opsdroid.database in room !notaroomid: testing(None)",
+        "Error getting hello from matrix room !notaroomid: testing(None)",
+    ] == [rec.message for rec in caplog.records]
