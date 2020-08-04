@@ -12,7 +12,7 @@ import hmac
 from voluptuous import Required
 
 from opsdroid.connector import Connector, register_event
-from opsdroid.events import Message
+from opsdroid.events import Message, JoinRoom, DeleteMessage, LeaveRoom, BanUser
 from opsdroid.const import (
     TWITCH_API_ENDPOINT,
     TWITCH_OAUTH_ENDPOINT,
@@ -601,7 +601,7 @@ class ConnectorTwitch(Connector):
             await self.opsdroid.parse(text_message)
 
         if join_event:
-            joined_chat = twitch_event.UserJoinedChat(
+            joined_chat = JoinRoom(
                 user=join_event.group("user"),
                 raw_event=message,
                 target=f"#{self.default_target}",
@@ -611,7 +611,7 @@ class ConnectorTwitch(Connector):
             await self.opsdroid.parse(joined_chat)
 
         if left_event:
-            left_chat = twitch_event.UserLeftChat(
+            left_chat = LeaveRoom(
                 user=left_event.group("user"),
                 raw_event=message,
                 target=f"#{self.default_target}",
@@ -632,7 +632,7 @@ class ConnectorTwitch(Connector):
         _LOGGER.debug(_("Attempting to send %s to websocket!"), message.text)
         await self.send_message(message.text)
 
-    @register_event(twitch_event.DeleteMessage)
+    @register_event(DeleteMessage)
     async def remove_message(self, event):
         """Remove message from the chat.
 
@@ -648,7 +648,7 @@ class ConnectorTwitch(Connector):
         )
         await self.send_message(f"/delete {event.id}")
 
-    @register_event(twitch_event.BanUser)
+    @register_event(BanUser)
     async def ban_user(self, event):
         """Ban user from the channel.
 

@@ -6,42 +6,6 @@ from opsdroid import events
 _LOGGER = logging.getLogger(__name__)
 
 
-class DeleteMessage(events.Event):
-    """Event class to trigger specific message deletion."""
-
-    def __init__(self, id, *args, **kwargs):
-        """Id from the message that should be removed."""
-        super().__init__(*args, **kwargs)
-        self.id = id
-
-
-class BanUser(events.Event):
-    """Event class to ban a user from the channel."""
-
-    def __init__(self, user, *args, **kwargs):
-        """User is the username of the person that you want to ban from the channel."""
-        super().__init__(*args, **kwargs)
-        self.user = user
-
-
-class UserJoinedChat(events.Event):
-    """Event class to trigger when a user joins the chat - but might not be watching the stream."""
-
-    def __init__(self, user, *args, **kwargs):
-        """User allows you to know the username of the user that joined the chat."""
-        super().__init__(*args, **kwargs)
-        self.user = user
-
-
-class UserLeftChat(events.Event):
-    """Event class to trigger when a user leaves the chat."""
-
-    def __init__(self, user, *args, **kwargs):
-        """User allows you to know the username of the user that left the chat."""
-        super().__init__(*args, **kwargs)
-        self.user = user
-
-
 class UserFollowed(events.Event):
     """Event class to trigger when a user follows the streamer."""
 

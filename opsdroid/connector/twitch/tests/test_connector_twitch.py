@@ -10,7 +10,8 @@ from aiohttp import web, WSMessage, WSMsgType
 from aiohttp.test_utils import make_mocked_request
 
 from opsdroid.connector.twitch import ConnectorTwitch
-from opsdroid.events import Message
+import opsdroid.events as opsdroid_events
+from opsdroid.events import Message, JoinRoom, DeleteMessage, LeaveRoom, BanUser
 
 import opsdroid.connector.twitch.events as twitch_event
 
@@ -387,7 +388,7 @@ async def test_webhook_failure(opsdroid, caplog):
 async def test_ban_user(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
-    ban_event = twitch_event.BanUser(user="bot_mc_spam_bot")
+    ban_event = BanUser(user="bot_mc_spam_bot")
 
     connector.send_message = amock.CoroutineMock()
 
@@ -470,7 +471,7 @@ async def test_create_clip_failure(opsdroid, caplog):
 async def test_remove_message(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
-    remove_event = twitch_event.DeleteMessage(id="messageid123")
+    remove_event = DeleteMessage(id="messageid123")
 
     connector.send_message = amock.CoroutineMock()
 
@@ -789,17 +790,15 @@ async def test_handle_message_chat_message(opsdroid, caplog):
 async def test_handle_message_join_event(opsdroid):
     message = ":user!user@user.tmi.twitch.tv JOIN #channel"
 
-    join_event = twitch_event.UserJoinedChat("username")
+    join_event = opsdroid_events.JoinRoom(user="username")
 
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
 
     opsdroid.parse = amock.CoroutineMock()
-    twitch_event.UserJoinedChat = amock.CoroutineMock()
 
     await connector._handle_message(message)
 
     assert opsdroid.parse.called
-    assert twitch_event.UserJoinedChat.called
     assert "username" in join_event.user
 
 
@@ -807,17 +806,14 @@ async def test_handle_message_join_event(opsdroid):
 async def test_handle_message_left_event(opsdroid):
     message = ":user!user@user.tmi.twitch.tv PART #channel"
 
-    left_event = twitch_event.UserLeftChat("username")
+    left_event = opsdroid_events.LeaveRoom(user="username")
 
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
 
     opsdroid.parse = amock.CoroutineMock()
-    twitch_event.UserLeftChat = amock.CoroutineMock()
 
     await connector._handle_message(message)
-
     assert opsdroid.parse.called
-    assert twitch_event.UserLeftChat.called
     assert "username" in left_event.user
 
 

@@ -452,6 +452,10 @@ class JoinRoom(Event):
     """Event class to represent a user joining a room."""
 
 
+class LeaveRoom(Event):
+    """Event class to represent a user leaving a room."""
+
+
 class UserInvite(Event):
     """Event class to represent a user being invited to a room."""
 
@@ -478,3 +482,14 @@ class PinMessage(Event):
 
 class UnpinMessage(Event):
     """Event to represent unpinning a message or other event."""
+
+
+class DeleteMessage(Event):
+    """Event to represent deleting a message or other event."""
+
+    def __init__(self, id, *args, **kwargs):  # noqa: D107
+        self.id = id
+
+
+class BanUser(Event):
+    """Event to represent the banning of a user from a room."""
