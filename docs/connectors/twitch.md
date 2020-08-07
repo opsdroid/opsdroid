@@ -76,7 +76,12 @@ The Twitch Connector contains 10 events that you can use on your custom made ski
 These events are triggered by opsdroid whenever something happens on twitch.
 
 ```eval_rst
-.. autoclass:: opsdroid.connector.twitch.events.UserJoinedChat
+.. autoclass:: opsdroid.events.JoinRoom
+    :members:
+```
+
+```eval_rst
+.. autoclass:: opsdroid.events.LeaveRoom
     :members:
 ```
 
