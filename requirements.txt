@@ -8,7 +8,7 @@ bleach==3.1.5
 certifi==2020.4.5.2
 click==7.1.2
 emoji==0.6.0
-mattermostdriver==7.0.1
+mattermostdriver==7.1.0
 matrix-nio==0.14.1
 motor==2.1.0
 multidict==4.7.6
