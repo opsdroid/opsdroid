@@ -1,4 +1,4 @@
-flake8==3.8.1
+flake8==3.8.3
 black==19.10b0
 coveralls==2.1.1
 dialogflow==1.0.0
