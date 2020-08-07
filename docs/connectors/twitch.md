@@ -125,12 +125,12 @@ These events will have to be triggered by you with an opsdroid skill.
 ```
 
 ```eval_rst
-.. autoclass:: opsdroid.connector.twitch.events.DeleteMessage
+.. autoclass:: opsdroid.events.DeleteMessage
     :members:
 ```
 
 ```eval_rst
-.. autoclass:: opsdroid.connector.twitch.events.BanUser
+.. autoclass:: opsdroid.events.BanUser
     :members:
 ```
 
