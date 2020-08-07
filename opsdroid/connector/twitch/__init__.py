@@ -644,9 +644,9 @@ class ConnectorTwitch(Connector):
         """
         _LOGGER.debug(
             _("DeleteMessage event fired - message with the id %s removed from chat"),
-            event.id,
+            event.linked_event.event_id,
         )
-        await self.send_message(f"/delete {event.id}")
+        await self.send_message(f"/delete {event.linked_event.event_id}")
 
     @register_event(BanUser)
     async def ban_user(self, event):

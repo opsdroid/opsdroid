@@ -487,9 +487,6 @@ class UnpinMessage(Event):
 class DeleteMessage(Event):
     """Event to represent deleting a message or other event."""
 
-    def __init__(self, id, *args, **kwargs):  # noqa: D107
-        self.id = id
-
 
 class BanUser(Event):
     """Event to represent the banning of a user from a room."""

@@ -5,14 +5,11 @@ import asyncio
 import pytest
 import asynctest.mock as amock
 
-
 from aiohttp import web, WSMessage, WSMsgType
 from aiohttp.test_utils import make_mocked_request
 
 from opsdroid.connector.twitch import ConnectorTwitch
 import opsdroid.events as opsdroid_events
-from opsdroid.events import Message, JoinRoom, DeleteMessage, LeaveRoom, BanUser
-
 import opsdroid.connector.twitch.events as twitch_event
 
 
@@ -388,7 +385,7 @@ async def test_webhook_failure(opsdroid, caplog):
 async def test_ban_user(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
-    ban_event = BanUser(user="bot_mc_spam_bot")
+    ban_event = opsdroid_events.BanUser(user="bot_mc_spam_bot")
 
     connector.send_message = amock.CoroutineMock()
 
@@ -471,7 +468,15 @@ async def test_create_clip_failure(opsdroid, caplog):
 async def test_remove_message(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
-    remove_event = DeleteMessage(id="messageid123")
+
+    message_event = opsdroid_events.Message(
+        user="spammerMcSpammy",
+        text="spammy message",
+        user_id="123",
+        event_id="messageid123",
+    )
+
+    remove_event = opsdroid_events.DeleteMessage(linked_event=message_event)
 
     connector.send_message = amock.CoroutineMock()
 
@@ -485,7 +490,7 @@ async def test_remove_message(opsdroid, caplog):
 async def test_send_message_event(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
-    message_event = Message(text="Hello world!")
+    message_event = opsdroid_events.Message(text="Hello world!")
 
     connector.send_message = amock.CoroutineMock()
 
