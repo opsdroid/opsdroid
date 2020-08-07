@@ -20,7 +20,7 @@ puremagic==1.9
 pycron==1.0.0
 pyyaml==5.3.1
 setuptools==46.2.0
-slackclient==2.7.3
+slackclient==2.8.0
 tailer==0.4.1
 ibm-watson==4.4.1
 websockets==8.1
