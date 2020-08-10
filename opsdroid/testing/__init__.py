@@ -99,6 +99,7 @@ class ExternalAPIMockServer:
 
     async def _stop(self) -> None:
         """Stop the web server."""
+        await self.site.stop()
         await self.runner.cleanup()
         self.site = None
         self.status = "stopped"
