@@ -1,16 +1,7 @@
-import pytest
+"""
+Testing helpers for opsdroid.
 
-from opsdroid.core import OpsDroid
-
-__all__ = ["opsdroid"]
-
-
-@pytest.fixture
-def opsdroid():
-    """Fixture with a plain instance of opsdroid.
-
-    Will yield an instance of opsdroid which hasn't been loaded.
-
-    """
-    with OpsDroid(config={}) as opsdroid:
-        yield opsdroid
+opsdroid provides a set of pytest fixtures and other helpers for writing tests
+for both opsdroid core and skills.
+"""
+from .helpers import *  # noqa
