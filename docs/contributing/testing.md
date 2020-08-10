@@ -1,5 +1,4 @@
-Testing
-=======
+# Testing
 
 When making a contribution to opsdroid, it\'s important that tests are
 written to validate that the functionality works, and continues to work
@@ -15,8 +14,7 @@ tests are found in the `tests/` directory in the root of the repository
 and new pytest tests are found in a `tests/` directory in the same
 subfolder as the code, i.e `opsdroid/tests/`.
 
-Writing new tests with pytest
------------------------------
+## Writing new tests with pytest
 
 As well as core pytest, opsdroid is making use of a few different pytest
 plugins:
@@ -64,8 +62,7 @@ The `mocker` fixture is provided by pytest-mock, and provides convenient
 access to things in the mock library, as well as automatic teardown of
 patches added with `mocker.patch`.
 
-opsdroid test helpers
--------------------------
+## opsdroid test helpers
 
 ```eval_rst
 .. automodule:: opsdroid.testing
