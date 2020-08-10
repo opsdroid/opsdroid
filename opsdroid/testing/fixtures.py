@@ -1,4 +1,4 @@
-"""Core fixtures and test helpers."""
+"""Core fixtures for testing opsdroid and skills."""
 import pytest
 
 from opsdroid.core import OpsDroid
