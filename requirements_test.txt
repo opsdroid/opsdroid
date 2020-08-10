@@ -14,7 +14,6 @@ asynctest==0.13.0
 mypy-lang==0.5.0
 sphinx==3.0.4
 sphinx-click==2.5.0
-sphinx-automodapi
 recommonmark==0.6.0
 deadlinks==0.3.2
 mock
