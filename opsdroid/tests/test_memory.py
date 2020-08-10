@@ -10,6 +10,7 @@ def memory():
     mem.databases = [InMemoryDatabase()]
     return mem
 
+
 @pytest.mark.asyncio
 async def test_memory(memory):
     data = "Hello world!"
@@ -25,11 +26,13 @@ async def test_empty_memory(memory):
 
 
 @pytest.mark.asyncio
+async def test_empty_memory_default(memory):
+    assert await memory.get("test", "wibble") == "wibble"
+
+
+@pytest.mark.asyncio
 async def test_database_callouts(mocker, memory):
     memory.databases = [mocker.AsyncMock()]
-    # memory.databases[0].get = mock.CoroutineMock()
-    # memory.databases[0].put = mock.CoroutineMock()
-    # memory.databases[0].delete = mock.CoroutineMock()
     data = "Hello world!"
 
     await memory.put("test", data)
