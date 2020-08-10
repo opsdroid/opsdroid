@@ -4,6 +4,7 @@ Testing
 When making a contribution to opsdroid, it's important that tests are written to validate that the functionality works, and continues to work in the future.
 
 opsdroid is currently slowly migrating from `unittest <https://docs.python.org/3.8/library/unittest.html>`__ to `pytest <https://docs.pytest.org>`__ as it's testing framework.
+This work is tracked in issue `#1502 <https://github.com/opsdroid/opsdroid/issues/1502>`__.
 As a part of this migration tests can be found in one of two places, old unittest tests are found in the ``tests/`` directory in the root of the repository and new pytest tests are found in a ``tests/`` directory in the same subfolder as the code, i.e ``opsdroid/tests/``.
 
 
