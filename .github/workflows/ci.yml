@@ -6,20 +6,31 @@ jobs:
   test:
     runs-on:  ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: [3.6, 3.7, 3.8]
+        os: [ubuntu-20.04, macos-latest, windows-latest]
+        python-version: [3.7, 3.8]
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+    - name: Install libolm
+      if: runner.os != 'Windows'
+      run: |
+        if [ $RUNNER_OS = Linux ]; then
+            sudo apt install libolm3 libolm-dev
+        else
+            brew install libolm
+        fi
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         python -m pip install -U tox tox-gh-actions
     - name: Run tests
+      env:
+        PLATFORM: ${{ runner.os }}
       run: tox
     - name: Upload coverage report
       uses: codecov/codecov-action@v1
@@ -27,10 +38,10 @@ jobs:
         file: ./cov.xml
 
   check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
-        component: [docker, docs, lint]
+        component: [docker, lint]
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python

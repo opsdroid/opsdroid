@@ -1,4 +1,9 @@
-"""Utilities for use when testing."""
+"""
+Testing helpers for opsdroid.
+
+opsdroid provides a set of pytest fixtures and other helpers for writing tests
+for both opsdroid core and skills.
+"""
 import pytest
 
 import asyncio
@@ -8,6 +13,7 @@ import json
 from typing import Any, Awaitable, List, Dict
 
 from opsdroid.core import OpsDroid
+from .fixtures import *  # noqa
 
 MINIMAL_CONFIG = {
     "connectors": {

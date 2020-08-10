@@ -83,7 +83,7 @@ $ opsdroid start
    :maxdepth: 2
    :caption: Project
 
-   contributing
+   contributing/index
    maintaining/index
    why
 ```

@@ -5,14 +5,11 @@ from asynctest.mock import CoroutineMock
 import os.path
 
 
-from opsdroid.cli.start import configure_lang
 from opsdroid.connector.github import ConnectorGitHub
 from opsdroid.events import Message
 from opsdroid.matchers import match_event
 from opsdroid.testing import call_endpoint, run_unit_test
 
-
-configure_lang({})
 
 
 @pytest.fixture

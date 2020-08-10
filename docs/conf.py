@@ -21,7 +21,7 @@ from recommonmark.transform import AutoStructify
 # -- Project information -----------------------------------------------------
 
 project = "opsdroid"
-copyright = "2019, opsdroid contributors"
+copyright = "2020, opsdroid contributors"
 author = "opsdroid contributors"
 
 
@@ -50,6 +50,9 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # Mappings for intersphinx
 intersphinx_mapping = {"aiohttp": ("https://docs.aiohttp.org/en/stable/", None)}
 
+# The reST default role (used for this markup: `text`) to use for all
+# documents. Set to the "smart" one.
+default_role = "obj"
 
 # -- Options for HTML output -------------------------------------------------
 
