@@ -8,5 +8,4 @@
    overview
    supported-python-versions
    making-a-release
-   testing
 ```
