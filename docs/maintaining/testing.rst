@@ -13,7 +13,8 @@ Writing new tests with pytest
 As well as core pytest, opsdroid is making use of a few different pytest plugins:
 
 * `pytest-asyncio <https://github.com/pytest-dev/pytest-asyncio>`__ for writing and running coroutines as tests. Coroutines should be decorated with ``@pytest.mark.asyncio``.
-* `pytest-mock <https://github.com/pytest-dev/pytest-mock/>`__ for proving a convenient interface to mocking parts of the code. This package is configured to use the external `mock <https://pypi.org/project/mock/>`__ package, so all versions of Python can use the latest features.
+* `pytest-mock <https://github.com/pytest-dev/pytest-mock/>`__ for proving a convenient interface to mocking parts of the code.
+  This package is configured to use the external `mock <https://pypi.org/project/mock/>`__ package, so all versions of Python can use the latest features.
 
 
 An example test
