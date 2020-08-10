@@ -21,7 +21,7 @@ from recommonmark.transform import AutoStructify
 # -- Project information -----------------------------------------------------
 
 project = "opsdroid"
-copyright = "2019, opsdroid contributors"
+copyright = "2020, opsdroid contributors"
 author = "opsdroid contributors"
 
 
@@ -45,6 +45,9 @@ templates_path = ["_templates"]
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
+# The reST default role (used for this markup: `text`) to use for all
+# documents. Set to the "smart" one.
+default_role = 'obj'
 
 # -- Options for HTML output -------------------------------------------------
 
