@@ -4,11 +4,8 @@ import asynctest.mock as amock
 import asyncio
 import os
 
-from opsdroid.cli.start import configure_lang
 from opsdroid.connector.github import ConnectorGitHub
 from opsdroid.events import Message
-
-configure_lang({})
 
 
 def test_init(opsdroid):

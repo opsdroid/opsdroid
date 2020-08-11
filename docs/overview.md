@@ -26,7 +26,7 @@ To handle functionality and allow maximum flexibility opsdroid is broken up into
 - **Skills** are modules that define what actions opsdroid should perform based on different chat messages.
 - **Databases** are modules that connect opsdroid to your chosen database and allow skills to store information between messages.
 
-Also, opsdroid has core functionality for managing modules and events. While these are not pluggable with third-party modules we strongly encourage [contribution](contributing.md) to the opsdroid codebase.
+Also, opsdroid has core functionality for managing modules and events. While these are not pluggable with third-party modules we strongly encourage [contribution](contributing/index.md) to the opsdroid codebase.
 
 - **Parsers** add additional information to events via natural language services or other AI services.
 - **Matchers** rank skills against events to decide which skills to run and when.
