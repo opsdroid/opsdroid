@@ -13,6 +13,7 @@ import json
 from typing import Any, Awaitable, List, Dict
 
 from opsdroid.core import OpsDroid
+from opsdroid.helper import Timeout
 from .fixtures import *  # noqa
 
 MINIMAL_CONFIG = {
@@ -93,10 +94,14 @@ class ExternalAPIMockServer:
     async def _start(self) -> None:
         """Start the server."""
         await self.runner.setup()
-        self.site = web.TCPSite(
-            self.runner, host=self.host, port=self.port, shutdown_timeout=0
-        )
-        await self.site.start()
+        self.site = web.TCPSite(self.runner, host=self.host, port=self.port)
+        timeout = Timeout(10, "Timed out starting web server")
+        while timeout.run():
+            try:
+                await self.site.start()
+            except OSError as e:
+                await asyncio.sleep(0.1)
+                timeout.set_exception(e)
         self.status = "running"
 
     async def _stop(self) -> None:

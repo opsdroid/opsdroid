@@ -7,6 +7,7 @@ import ssl
 from aiohttp import web
 
 from opsdroid import __version__
+from opsdroid.helper import Timeout
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -112,7 +113,14 @@ class Web:
             port=self.get_port,
             ssl_context=self.get_ssl_context,
         )
-        await self.site.start()
+
+        timeout = Timeout(10, "Timed out starting web server")
+        while timeout.run():
+            try:
+                await self.site.start()
+            except OSError as e:
+                await asyncio.sleep(0.1)
+                timeout.set_exception(e)
 
     async def stop(self):
         """Stop the web server."""
