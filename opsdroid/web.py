@@ -1,5 +1,6 @@
 """Submodule to handle web requests in opsdroid."""
 
+import asyncio
 import json
 import logging
 import ssl
