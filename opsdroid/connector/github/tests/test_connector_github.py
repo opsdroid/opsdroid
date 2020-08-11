@@ -11,7 +11,6 @@ from opsdroid.matchers import match_event
 from opsdroid.testing import call_endpoint, run_unit_test
 
 
-
 @pytest.fixture
 async def connector(opsdroid, mock_api):
     opsdroid.config["connectors"] = {
