@@ -171,6 +171,7 @@ class SlackEventCreator(events.EventCreator):
         self.message_subtypes.update(
             {
                 "message": self.create_message,
+                "message_replied": self.handle_message_replied,
                 "bot_message": self.handle_bot_message,
                 "message_changed": self.handle_edit,
                 "channel_topic": self.topic_changed,
@@ -283,6 +284,11 @@ class SlackEventCreator(events.EventCreator):
     async def handle_edit(self, event, channel):
         """Not Implemented."""
         # TODO: Make this return an EditedMessage event
+        return
+
+    async def handle_message_replied(self, event, channel):
+        """Not Implemented."""
+        _LOGGER.debug(_("Handling of 'message_replied' subtype is not implemented"))
         return
 
     @slack_to_creator
