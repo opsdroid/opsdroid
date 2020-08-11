@@ -93,7 +93,9 @@ class ExternalAPIMockServer:
     async def _start(self) -> None:
         """Start the server."""
         await self.runner.setup()
-        self.site = web.TCPSite(self.runner, host=self.host, port=self.port)
+        self.site = web.TCPSite(
+            self.runner, host=self.host, port=self.port, shutdown_timeout=0
+        )
         await self.site.start()
         self.status = "running"
 
@@ -164,14 +166,14 @@ class ExternalAPIMockServer:
 
         """
 
-        async def _run():
+        async def _run_test_then_stop():
             while self.status != "running":
                 await asyncio.sleep(0.1)
             output = await test_coroutine(*args, **kwargs)
             await self._stop()
             return output
 
-        run_output, _ = await asyncio.gather(_run(), self._start())
+        _, run_output = await asyncio.gather(self._start(), _run_test_then_stop())
         return run_output
 
     def reset(self) -> None:
