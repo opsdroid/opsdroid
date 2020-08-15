@@ -78,6 +78,18 @@ async def test_get(mocker):
 
 
 @pytest.mark.asyncio
+async def test_get_return_none(mocker):
+    database = RedisDatabase({})
+    database.client = mocker.Mock()
+    attrs = {"execute.return_value": return_async_value(None)}
+    database.client.configure_mock(**attrs)
+
+    result = await database.get("key")
+
+    assert result is None
+
+
+@pytest.mark.asyncio
 async def test_put(mocker):
     database = RedisDatabase({})
     database.client = mocker.Mock()
