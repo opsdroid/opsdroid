@@ -3,11 +3,17 @@
 import logging
 from contextlib import contextmanager
 
-from nio import RoomGetStateError, RoomGetStateEventError
+from nio import RoomGetStateError, RoomGetStateEventError, RoomGetEventError
 from opsdroid.database import Database
 from opsdroid.connector.matrix.events import MatrixStateEvent, GenericMatrixRoomEvent
+from voluptuous import Any
 
 _LOGGER = logging.getLogger(__name__)
+CONFIG_SCHEMA = {
+    "default_room": str,
+    "single_state_key": Any(bool, str),
+    "should_encrypt": bool,
+}
 
 
 class DatabaseMatrix(Database):
@@ -19,7 +25,7 @@ class DatabaseMatrix(Database):
         self.name = "matrix"
         self.room = config.get("default_room", "main")
         self._single_state_key = config.get("single_state_key", True)
-        self.should_encrypt = config.get("should_encrypt", False)
+        self.should_encrypt = config.get("should_encrypt", True)
         self._event_type = "dev.opsdroid.database"
         self.should_migrate = True
 
@@ -33,10 +39,14 @@ class DatabaseMatrix(Database):
     @property
     def room_id(self):
         """Define ID of the room to store data in."""
+        return self.connector.lookup_target(self.room)
+
+    @property
+    def is_room_encrypted(self):
+        """Check if room is encrypted."""
         return (
-            self.room
-            if self.room.startswith("!")
-            else self.connector.room_ids[self.room]
+            self.connector._allow_encryption
+            and self.room_id in self.connector.connection.store.load_encrypted_rooms()
         )
 
     async def migrate_database(self):
@@ -51,7 +61,7 @@ class DatabaseMatrix(Database):
 
         if not any(event["type"] == self._event_type for event in data.events):
             for event in data.events:
-                if event["type"] == "opsdroid.database":
+                if event["type"] == "opsdroid.database" and event["content"]:
                     await self.connector.connection.room_put_state(
                         room_id=self.room_id,
                         event_type=self._event_type,
@@ -64,6 +74,47 @@ class DatabaseMatrix(Database):
 
         self.should_migrate = False
 
+    async def _verify_and_get(self, state_key, value_dict):
+        """Get state and verify duplicate entries."""
+
+        ori_data = await self.connector.connection.room_get_state_event(
+            room_id=self.room_id, event_type=self._event_type, state_key=state_key,
+        )
+        if isinstance(ori_data, RoomGetStateEventError):
+            _LOGGER.error(
+                f"Error getting '{state_key}' from matrix room {self.room_id}: {ori_data.message}({ori_data.status_code})"
+            )
+            return
+        data = ori_data.content.copy()
+
+        _LOGGER.debug(f"Got {data} from state request.")
+
+        check = None
+        for k, v in value_dict.items():
+            if k in data:
+                if isinstance(data[k], dict) and "encrypted_val" in data[k]:
+                    resp = await self.connector.connection.room_get_event(
+                        room_id=self.room_id, event_id=data[k]["encrypted_val"],
+                    )
+                    if isinstance(resp, RoomGetEventError):
+                        _LOGGER.error(
+                            f"Error decrypting {data[k]['encrypted_val']} while putting into "
+                            f"{state_key}: {resp.message}({resp.status_code})"
+                        )
+                        return
+                    check = resp.event.source["content"][k]
+                else:
+                    check = data[k]
+
+            if not check or not value_dict[k] == check:
+                data[k] = value_dict[k]
+
+        if ori_data.content == data:
+            _LOGGER.error("Not updating matrix state, as content hasn't changed.")
+            return None
+        else:
+            return data
+
     async def connect(self):
         """Connect to the database."""
 
@@ -71,6 +122,13 @@ class DatabaseMatrix(Database):
 
     async def put(self, key, value):
         """Insert or replace a value into the database for a given key."""
+
+        if not self.is_room_encrypted and self.should_encrypt:
+            _LOGGER.error(
+                "should_encrypt is enabled but either the selected room is "
+                "not encrypted or encryption dependencies are not installed"
+            )
+            return
 
         if self.should_migrate:
             await self.migrate_database()
@@ -80,45 +138,25 @@ class DatabaseMatrix(Database):
             "" if self._single_state_key is True else self._single_state_key or key
         )
 
-        _LOGGER.debug(f"Putting {key} into matrix room {self.room_id}.")
-
-        ori_data = await self.connector.connection.room_get_state_event(
-            room_id=self.room_id, event_type=self._event_type, state_key=state_key,
-        )
-        if isinstance(ori_data, RoomGetStateEventError):
-            _LOGGER.error(
-                f"Error putting key into matrix room {self.room_id}: {ori_data.message}({ori_data.status_code})"
-            )
-            return
-        ori_data = ori_data.content
-
         if self._single_state_key:
             value = {key: value}
-
         elif not isinstance(value, dict):
             raise ValueError(
                 "When the matrix database is configured with single_state_key=False, "
                 "the value passed must be a dict."
             )
 
-        sub_key = list(value.keys())[0]
+        data = await self._verify_and_get(state_key, value)
+        if data is None:  # dict could be empty
+            _LOGGER.error("Error putting key into matrix room")
+            return
 
-        if list(value.keys())[0] in ori_data:
-            if self._single_state_key:
-                existing_val = await self.get(sub_key)
-            else:
-                existing_val = await self.get({key: sub_key})
-            if existing_val == value[sub_key]:
-                _LOGGER.debug("Not updating matrix state, as content hasn't changed.")
-                return
-
-        if self.should_encrypt:
-            room_event = await self.opsdroid.send(
-                GenericMatrixRoomEvent(content=value, event_type=self._event_type)
-            )
-            data = {**ori_data, sub_key: {"encrypted_val": room_event.event_id}}
-        else:
-            data = {**ori_data, **value}
+        if self.is_room_encrypted and self.should_encrypt:
+            for k, v in value.items():
+                room_event = await self.opsdroid.send(
+                    GenericMatrixRoomEvent(content={k: v}, event_type=self._event_type)
+                )
+                data[k] = {"encrypted_val": room_event.event_id}
 
         _LOGGER.debug(f"Putting {key} into matrix room {self.room_id} with {data}")
 
@@ -134,27 +172,33 @@ class DatabaseMatrix(Database):
 
         return True
 
-    async def get(self, key):
+    async def get(self, key=None):
         """Get a value from the database for a given key."""
 
         if self.should_migrate:
             await self.migrate_database()
 
-        if not self._single_state_key and not isinstance(key, dict):
-            _LOGGER.error(
-                "When the matrix database is configured with single_state_key=False, key must be a dict."
-            )
+        if not self._single_state_key and not key:
+            _LOGGER.error("When single_state_key is False, a key must be passed.")
+            return
+
+        if self._single_state_key and isinstance(key, dict):
+            _LOGGER.error("When single_state_key is set, key cannot be a dict.")
+            return
 
         # If the single state key flag is set then use that else use state key.
         state_key = (
             "" if self._single_state_key is True else self._single_state_key or key
         )
 
-        if isinstance(state_key, dict):
-            state_key, key = list(state_key.items())[0]
+        if not self._single_state_key:
+            if isinstance(state_key, dict):
+                state_key, key = list(state_key.items())[0]
+            else:
+                key = None
 
         _LOGGER.debug(
-            f"Getting {key} from matrix room {self.room_id} with state_key={state_key}."
+            f"Getting {key or 'full state'} from matrix room {self.room_id} with state_key={state_key}."
         )
 
         data = await self.connector.connection.room_get_state_event(
@@ -162,7 +206,7 @@ class DatabaseMatrix(Database):
         )
         if isinstance(data, RoomGetStateEventError):
             _LOGGER.error(
-                f"Error getting {key} from matrix room {self.room_id}: {data.message}({data.status_code})"
+                f"Error getting {key or 'full state'} from matrix room {self.room_id}: {data.message}({data.status_code})"
             )
             return
         data = data.content
@@ -174,12 +218,19 @@ class DatabaseMatrix(Database):
                 resp = await self.connector.connection.room_get_event(
                     room_id=self.room_id, event_id=v["encrypted_val"],
                 )
+                if isinstance(resp, RoomGetEventError):
+                    _LOGGER.error(
+                        f"Error decrypting {v['encrypted_val']} while getting "
+                        f"{key or 'full state'}: {resp.message}({resp.status_code})"
+                    )
+                    return
                 data[k] = resp.event.source["content"][k]
 
         try:
-            data = data[key]
+            if key:
+                data = data[key]
         except KeyError:
-            _LOGGER.debug(f"{key} doesn't exist in database")
+            _LOGGER.debug(f"{key or 'full state'} doesn't exist in database")
             return None
 
         return data
