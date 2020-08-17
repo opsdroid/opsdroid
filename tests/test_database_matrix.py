@@ -45,7 +45,7 @@ def opsdroid_matrix(mocker):
 def matrix_call(method, path, content=None):
     state_key = path.partition("dev.opsdroid.database/")[2]
     path += "?access_token=arbitrarytoken"
-    if not content:
+    if content is None:  # could be empty dict
         return call(
             nio.RoomGetStateEventResponse,
             method,
@@ -936,6 +936,142 @@ async def test_get_no_key_500(patched_send, opsdroid_matrix):
 
 
 @pytest.mark.asyncio
+async def test_delete(patched_send, opsdroid_matrix):
+    patched_send.return_value = nio.RoomGetStateEventResponse(
+        {"twim": "hello"}, "", "", ""
+    )
+
+    db = DatabaseMatrix({}, opsdroid=opsdroid_matrix)
+    db.should_migrate = False
+    data = await db.delete("twim")
+
+    patched_send.assert_has_calls(
+        [
+            matrix_call(
+                "GET",
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+            ),
+            matrix_call(
+                "PUT",
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                {},
+            ),
+        ],
+    )
+
+    assert data == "hello"
+
+
+@pytest.mark.asyncio
+async def test_delete_single_state_key_false(patched_send, opsdroid_matrix):
+    patched_send.return_value = nio.RoomGetStateEventResponse(
+        {"hello": "world"}, "", "", ""
+    )
+
+    db = DatabaseMatrix({"single_state_key": False}, opsdroid=opsdroid_matrix)
+    db.should_migrate = False
+    data = await db.delete({"twim": "hello"})
+
+    patched_send.assert_has_calls(
+        [
+            matrix_call(
+                "GET",
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+            ),
+            matrix_call(
+                "PUT",
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+                {},
+            ),
+        ],
+    )
+
+    assert data == "world"
+
+
+@pytest.mark.asyncio
+async def test_delete_multiple_keys(patched_send, opsdroid_matrix):
+    patched_send.return_value = nio.RoomGetStateEventResponse(
+        {"hello": "world", "twim": "hello", "pill": "red"}, "", "", ""
+    )
+
+    db = DatabaseMatrix({}, opsdroid=opsdroid_matrix)
+    db.should_migrate = False
+    data = await db.delete(["hello", "twim"])
+
+    patched_send.assert_has_calls(
+        [
+            matrix_call(
+                "GET",
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+            ),
+            matrix_call(
+                "PUT",
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                {"pill": "red"},
+            ),
+        ],
+    )
+
+    assert data == ["world", "hello"]
+
+
+@pytest.mark.asyncio
+async def test_delete_multiple_keys_single_state_key_false(
+    patched_send, opsdroid_matrix
+):
+    patched_send.return_value = nio.RoomGetStateEventResponse(
+        {"hello": "world", "twim": "hello", "pill": "red"}, "", "", ""
+    )
+
+    db = DatabaseMatrix({"single_state_key": False}, opsdroid=opsdroid_matrix)
+    db.should_migrate = False
+    data = await db.delete({"twim": ["hello", "twim"]})
+
+    patched_send.assert_has_calls(
+        [
+            matrix_call(
+                "GET",
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+            ),
+            matrix_call(
+                "PUT",
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+                {"pill": "red"},
+            ),
+        ],
+    )
+
+    assert data == ["world", "hello"]
+
+
+@pytest.mark.asyncio
+async def test_delete_no_key(patched_send, opsdroid_matrix):
+    patched_send.return_value = nio.RoomGetStateEventResponse(
+        {"twim": "hello"}, "", "", ""
+    )
+
+    db = DatabaseMatrix({}, opsdroid=opsdroid_matrix)
+    db.should_migrate = False
+    data = await db.delete("pill")
+
+    assert data is None
+
+
+@pytest.mark.asyncio
+async def test_delete_no_key_single_state_key_false(patched_send, opsdroid_matrix):
+    patched_send.return_value = nio.RoomGetStateEventResponse(
+        {"hello": "world"}, "", "", ""
+    )
+
+    db = DatabaseMatrix({"single_state_key": False}, opsdroid=opsdroid_matrix)
+    db.should_migrate = False
+    data = await db.delete({"twim": "pill"})
+
+    assert data is None
+
+
+@pytest.mark.asyncio
 async def test_connect(patched_send, opsdroid_matrix):
     db = DatabaseMatrix({"should_encrypt": False}, opsdroid=opsdroid_matrix)
 
@@ -1048,8 +1184,31 @@ async def test_migrate_and_errors(patched_send, opsdroid_matrix, mocker, caplog)
         "Error getting hello from matrix room !notaroomid: testing(None)",
     ] == [rec.message for rec in caplog.records]
 
+    patched_send.side_effect = [
+        nio.RoomGetStateError(message="testing"),
+        nio.RoomGetStateEventError(message="testing"),
+    ]
+    caplog.clear()
+    db.should_migrate = True
+    await db.delete("hello")
+
+    assert [
+        "Error migrating from opsdroid.database to dev.opsdroid.database in room !notaroomid: testing(None)",
+        "Error deleting hello from matrix room !notaroomid: testing(None)",
+    ] == [rec.message for rec in caplog.records]
+
     caplog.clear()
     db.should_migrate = False
+    db._single_state_key = False
+    await db.delete("hello")
+
+    assert [
+        "When the matrix database is configured with single_state_key=False, key must be a dict."
+    ] == [rec.message for rec in caplog.records]
+
+    caplog.clear()
+    db.should_migrate = False
+    db._single_state_key = True
     await db.get({"hello": "world"})
     assert ["When single_state_key is set, key cannot be a dict."] == [
         rec.message for rec in caplog.records
