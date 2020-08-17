@@ -245,6 +245,7 @@ class DatabaseMatrix(Database):
             _LOGGER.error(
                 "When the matrix database is configured with single_state_key=False, key must be a dict."
             )
+            return
 
         # If the single state key flag is set then use that else use state key.
         state_key = (
@@ -253,8 +254,6 @@ class DatabaseMatrix(Database):
 
         if isinstance(state_key, dict):
             state_key, key = list(state_key.items())[0]
-
-        _LOGGER.debug(f"Deleting {key} from {room_id}")
 
         data = await self.connector.connection.room_get_state_event(
             room_id=self.room_id, event_type=self._event_type, state_key=state_key,
@@ -268,16 +267,19 @@ class DatabaseMatrix(Database):
 
         _LOGGER.debug(f"Got {data} from state request.")
 
-        try:
-            if self._single_state_key:
-                return_value = data[key]
-                del data[key]
-            else:
-                return_value = data.copy()
-                data.clear()
-        except KeyError:
-            _LOGGER.debug(f"Not deleting {key}, as it doesn't exist")
-            return None
+        if not isinstance(key, list):
+            key = [key]
+
+        print(key)
+        return_value = []
+        for k in key:  # key can be a list of keys to delete
+            print(k)
+            try:
+                return_value.append(data[k])
+                _LOGGER.debug(f"Deleting {k} from {self.room_id}")
+                del data[k]
+            except KeyError:
+                _LOGGER.debug(f"Not deleting {key}, as it doesn't exist")
 
         await self.opsdroid.send(
             MatrixStateEvent(
@@ -289,7 +291,12 @@ class DatabaseMatrix(Database):
             )
         )
 
-        return return_value
+        if not return_value:
+            return None
+        elif len(return_value) == 1:
+            return return_value[0]
+        else:
+            return return_value
 
     @contextmanager
     def memory_in_room(self, room):
