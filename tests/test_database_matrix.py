@@ -265,6 +265,79 @@ async def test_single_state_key_false_enc(patched_send, opsdroid_matrix, patched
 
 
 @pytest.mark.asyncio
+async def test_single_state_key_false_multiple_keys(patched_send, opsdroid_matrix):
+    patched_send.return_value = nio.RoomGetStateEventResponse({}, "", "", "")
+
+    db = DatabaseMatrix(
+        {"should_encrypt": False, "single_state_key": False}, opsdroid=opsdroid_matrix
+    )
+    db.should_migrate = False
+    await db.put("twim", {"hello": "world", "twim": "hello"})
+
+    patched_send.assert_has_calls(
+        [
+            matrix_call(
+                "GET",
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+            ),
+            matrix_call(
+                "PUT",
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+                {"hello": "world", "twim": "hello"},
+            ),
+        ],
+    )
+
+
+@pytest.mark.asyncio
+@pytest.mark.xfail(
+    not nio.crypto.ENCRYPTION_ENABLED, reason="No encryption deps installed for matrix"
+)
+async def test_single_state_key_false_multiple_keys_enc(
+    patched_send, opsdroid_matrix, patched_uuid
+):
+    def side_effect(resp, *args, **kwargs):
+        if resp is nio.RoomGetStateEventResponse:
+            return nio.RoomGetStateEventResponse({}, "", "", "")
+        else:
+            return nio.RoomSendResponse("enceventid", "!notaroomid")
+
+    patched_send.side_effect = side_effect
+
+    db = DatabaseMatrix({"single_state_key": False}, opsdroid=opsdroid_matrix)
+    db.should_migrate = False
+    await db.put("twim", {"hello": "world", "twim": "hello"})
+
+    patched_send.assert_has_calls(
+        [
+            matrix_call(
+                "GET",
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+            ),
+            matrix_call(
+                "PUT",
+                "/_matrix/client/r0/rooms/%21notaroomid/send/dev.opsdroid.database/",
+                {"hello": "world"},
+            ),
+            matrix_call(
+                "PUT",
+                "/_matrix/client/r0/rooms/%21notaroomid/send/dev.opsdroid.database/",
+                {"twim": "hello"},
+            ),
+            matrix_call(
+                "PUT",
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+                {
+                    "hello": {"encrypted_val": "enceventid"},
+                    "twim": {"encrypted_val": "enceventid"},
+                },
+            ),
+        ],
+        any_order=True,
+    )
+
+
+@pytest.mark.asyncio
 async def test_single_state_not_a_dict(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse({}, "", "", "")
 
@@ -373,6 +446,83 @@ async def test_default_update_different_value_enc(
 
 
 @pytest.mark.asyncio
+async def test_default_update_multiple_different_values(patched_send, opsdroid_matrix):
+    patched_send.return_value = nio.RoomGetStateEventResponse(
+        {"hello": "world"}, "", "", ""
+    )
+
+    db = DatabaseMatrix(
+        {"should_encrypt": False, "single_state_key": False}, opsdroid=opsdroid_matrix
+    )
+    db.should_migrate = False
+
+    await db.put("twim", {"red": "pill", "matrix": "neo"})
+
+    patched_send.assert_has_calls(
+        [
+            matrix_call(
+                "GET",
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+            ),
+            matrix_call(
+                "PUT",
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+                {"hello": "world", "red": "pill", "matrix": "neo"},
+            ),
+        ],
+    )
+
+
+@pytest.mark.asyncio
+@pytest.mark.xfail(
+    not nio.crypto.ENCRYPTION_ENABLED, reason="No encryption deps installed for matrix"
+)
+async def test_default_update_multiple_different_values_enc(
+    patched_send, opsdroid_matrix, patched_uuid
+):
+    def side_effect(resp, *args, **kwargs):
+        if resp is nio.RoomGetStateEventResponse:
+            return nio.RoomGetStateEventResponse({"hello": "world"}, "", "", "")
+        else:
+            return nio.RoomSendResponse("enceventid", "!notaroomid")
+
+    patched_send.side_effect = side_effect
+
+    db = DatabaseMatrix({"single_state_key": False}, opsdroid=opsdroid_matrix)
+    db.should_migrate = False
+    await db.put("twim", {"red": "pill", "matrix": "neo"})
+
+    patched_send.assert_has_calls(
+        [
+            matrix_call(
+                "GET",
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+            ),
+            matrix_call(
+                "PUT",
+                "/_matrix/client/r0/rooms/%21notaroomid/send/dev.opsdroid.database/",
+                {"red": "pill"},
+            ),
+            matrix_call(
+                "PUT",
+                "/_matrix/client/r0/rooms/%21notaroomid/send/dev.opsdroid.database/",
+                {"matrix": "neo"},
+            ),
+            matrix_call(
+                "PUT",
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+                {
+                    "hello": "world",
+                    "red": {"encrypted_val": "enceventid"},
+                    "matrix": {"encrypted_val": "enceventid"},
+                },
+            ),
+        ],
+        any_order=True,
+    )
+
+
+@pytest.mark.asyncio
 async def test_default_update_same_key(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"hello": "world"}, "", "", ""
@@ -448,6 +598,123 @@ async def test_default_update_same_key_enc(patched_send, opsdroid_matrix, patche
                 "PUT",
                 "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
                 {"hello": {"encrypted_val": "enceventid"}},
+            ),
+        ],
+        any_order=True,
+    )
+
+
+@pytest.mark.asyncio
+async def test_default_update_multiple_same_keys(patched_send, opsdroid_matrix):
+    patched_send.return_value = nio.RoomGetStateEventResponse(
+        {"hello": "world", "pill": "blue"}, "", "", ""
+    )
+
+    db = DatabaseMatrix(
+        {"should_encrypt": False, "single_state_key": False}, opsdroid=opsdroid_matrix
+    )
+    db.should_migrate = False
+
+    await db.put("twim", {"hello": "bob", "pill": "red"})
+
+    patched_send.assert_has_calls(
+        [
+            matrix_call(
+                "GET",
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+            ),
+            matrix_call(
+                "PUT",
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+                {"hello": "bob", "pill": "red"},
+            ),
+        ],
+    )
+
+
+@pytest.mark.asyncio
+@pytest.mark.xfail(
+    not nio.crypto.ENCRYPTION_ENABLED, reason="No encryption deps installed for matrix"
+)
+async def test_default_update_multiple_same_keys_enc(
+    patched_send, opsdroid_matrix, patched_uuid
+):
+    def side_effect(resp, method, path, *args, **kwargs):
+        if resp is nio.RoomGetStateEventResponse:
+            return nio.RoomGetStateEventResponse(
+                {
+                    "hello": {"encrypted_val": "enceventid"},
+                    "pill": {"encrypted_val": "enceventid2"},
+                },
+                "",
+                "",
+                "",
+            )
+        elif resp is nio.RoomGetEventResponse:
+            if "enceventid2" not in path:
+                event = nio.Event(
+                    {
+                        "type": "dev.opsdroid.database",
+                        "event_id": "enceventid",
+                        "sender": "@someone:localhost",
+                        "origin_server_ts": "2005",
+                        "content": {"hello": "world"},
+                    }
+                )
+                resp = nio.RoomGetEventResponse()
+                resp.event = event
+                return resp
+            else:
+                event = nio.Event(
+                    {
+                        "type": "dev.opsdroid.database",
+                        "event_id": "enceventid",
+                        "sender": "@someone:localhost",
+                        "origin_server_ts": "2005",
+                        "content": {"pill": "blue"},
+                    }
+                )
+                resp = nio.RoomGetEventResponse()
+                resp.event = event
+                return resp
+        else:
+            return nio.RoomSendResponse("enceventid", "!notaroomid")
+
+    patched_send.side_effect = side_effect
+
+    db = DatabaseMatrix({"single_state_key": False}, opsdroid=opsdroid_matrix)
+    db.should_migrate = False
+    await db.put("twim", {"hello": "bob", "pill": "red"})
+
+    patched_send.assert_has_calls(
+        [
+            matrix_call(
+                "GET",
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+            ),
+            matrix_call("GET", "/_matrix/client/r0/rooms/%21notaroomid/event/"),
+            matrix_call(
+                "PUT",
+                "/_matrix/client/r0/rooms/%21notaroomid/send/dev.opsdroid.database/",
+                {"hello": "bob"},
+            ),
+            call(
+                nio.RoomGetEventResponse,
+                "GET",
+                "/_matrix/client/r0/rooms/%21notaroomid/event/enceventid2?access_token=arbitrarytoken",
+            ),
+            matrix_call(
+                "PUT",
+                "/_matrix/client/r0/rooms/%21notaroomid/send/dev.opsdroid.database/",
+                {"pill": "red"},
+            ),
+            matrix_call(
+                "PUT",
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+                {
+                    "hello": {"encrypted_val": "enceventid"},
+                    "pill": {"encrypted_val": "enceventid"},
+                },
             ),
         ],
         any_order=True,
@@ -539,7 +806,7 @@ async def test_update_same_key_single_state_key_enc(
 
 
 @pytest.mark.asyncio
-async def test_default_update_same_key_value(patched_send, opsdroid_matrix):
+async def test_default_update_same_key_value(patched_send, opsdroid_matrix, caplog):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"hello": "world"}, "", "", ""
     )
@@ -548,7 +815,7 @@ async def test_default_update_same_key_value(patched_send, opsdroid_matrix):
         {"should_encrypt": False, "single_state_key": False}, opsdroid=opsdroid_matrix
     )
     db.should_migrate = False
-
+    caplog.clear()
     await db.put("twim", {"hello": "world"})
 
     patched_send.assert_has_calls(
@@ -560,13 +827,18 @@ async def test_default_update_same_key_value(patched_send, opsdroid_matrix):
         ],
     )
 
+    assert [
+        "Not updating matrix state, as content hasn't changed.",
+        "Error putting key into matrix room",
+    ] == [rec.message for rec in caplog.records]
+
 
 @pytest.mark.asyncio
 @pytest.mark.xfail(
     not nio.crypto.ENCRYPTION_ENABLED, reason="No encryption deps installed for matrix"
 )
 async def test_default_update_same_key_value_enc(
-    patched_send, opsdroid_matrix, patched_uuid
+    patched_send, opsdroid_matrix, patched_uuid, caplog
 ):
     def side_effect(resp, *args, **kwargs):
         if resp is nio.RoomGetStateEventResponse:
@@ -591,6 +863,7 @@ async def test_default_update_same_key_value_enc(
 
     db = DatabaseMatrix({"single_state_key": False}, opsdroid=opsdroid_matrix)
     db.should_migrate = False
+    caplog.clear()
     await db.put("twim", {"hello": "world"})
 
     patched_send.assert_has_calls(
@@ -603,10 +876,119 @@ async def test_default_update_same_key_value_enc(
         ],
     )
 
+    assert [
+        "Not updating matrix state, as content hasn't changed.",
+        "Error putting key into matrix room",
+    ] == [rec.message for rec in caplog.records]
+
+
+@pytest.mark.asyncio
+async def test_default_update_multiple_same_key_values(
+    patched_send, opsdroid_matrix, caplog
+):
+    patched_send.return_value = nio.RoomGetStateEventResponse(
+        {"hello": "world", "pill": "red"}, "", "", ""
+    )
+
+    db = DatabaseMatrix(
+        {"should_encrypt": False, "single_state_key": False}, opsdroid=opsdroid_matrix
+    )
+    db.should_migrate = False
+    caplog.clear()
+    await db.put("twim", {"hello": "world", "pill": "red"})
+
+    patched_send.assert_has_calls(
+        [
+            matrix_call(
+                "GET",
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+            )
+        ],
+    )
+
+    assert [
+        "Not updating matrix state, as content hasn't changed.",
+        "Error putting key into matrix room",
+    ] == [rec.message for rec in caplog.records]
+
+
+@pytest.mark.asyncio
+@pytest.mark.xfail(
+    not nio.crypto.ENCRYPTION_ENABLED, reason="No encryption deps installed for matrix"
+)
+async def test_default_update_multiple_same_key_values_enc(
+    patched_send, opsdroid_matrix, patched_uuid, caplog
+):
+    def side_effect(resp, method, path, *args, **kwargs):
+        if resp is nio.RoomGetStateEventResponse:
+            return nio.RoomGetStateEventResponse(
+                {
+                    "hello": {"encrypted_val": "enceventid"},
+                    "pill": {"encrypted_val": "enceventid2"},
+                },
+                "",
+                "",
+                "",
+            )
+        else:
+            if "enceventid2" not in path:
+                event = nio.Event(
+                    {
+                        "type": "dev.opsdroid.database",
+                        "event_id": "enceventid",
+                        "sender": "@someone:localhost",
+                        "origin_server_ts": "2005",
+                        "content": {"hello": "world"},
+                    }
+                )
+                resp = nio.RoomGetEventResponse()
+                resp.event = event
+                return resp
+            else:
+                event = nio.Event(
+                    {
+                        "type": "dev.opsdroid.database",
+                        "event_id": "enceventid",
+                        "sender": "@someone:localhost",
+                        "origin_server_ts": "2005",
+                        "content": {"pill": "red"},
+                    }
+                )
+                resp = nio.RoomGetEventResponse()
+                resp.event = event
+                return resp
+
+    patched_send.side_effect = side_effect
+
+    db = DatabaseMatrix({"single_state_key": False}, opsdroid=opsdroid_matrix)
+    db.should_migrate = False
+    caplog.clear()
+    await db.put("twim", {"hello": "world", "pill": "red"})
+
+    patched_send.assert_has_calls(
+        [
+            matrix_call(
+                "GET",
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+            ),
+            matrix_call("GET", "/_matrix/client/r0/rooms/%21notaroomid/event/"),
+            call(
+                nio.RoomGetEventResponse,
+                "GET",
+                "/_matrix/client/r0/rooms/%21notaroomid/event/enceventid2?access_token=arbitrarytoken",
+            ),
+        ],
+    )
+
+    assert [
+        "Not updating matrix state, as content hasn't changed.",
+        "Error putting key into matrix room",
+    ] == [rec.message for rec in caplog.records]
+
 
 @pytest.mark.asyncio
 async def test_default_update_same_key_value_single_state_key(
-    patched_send, opsdroid_matrix
+    patched_send, opsdroid_matrix, caplog
 ):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"twim": {"hello": "world"}}, "", "", ""
@@ -616,7 +998,7 @@ async def test_default_update_same_key_value_single_state_key(
         {"should_encrypt": False, "single_state_key": True}, opsdroid=opsdroid_matrix
     )
     db.should_migrate = False
-
+    caplog.clear()
     await db.put("twim", {"hello": "world"})
 
     patched_send.assert_has_calls(
@@ -628,13 +1010,18 @@ async def test_default_update_same_key_value_single_state_key(
         ],
     )
 
+    assert [
+        "Not updating matrix state, as content hasn't changed.",
+        "Error putting key into matrix room",
+    ] == [rec.message for rec in caplog.records]
+
 
 @pytest.mark.asyncio
 @pytest.mark.xfail(
     not nio.crypto.ENCRYPTION_ENABLED, reason="No encryption deps installed for matrix"
 )
 async def test_default_update_same_key_value_single_state_key_enc(
-    patched_send, opsdroid_matrix, patched_uuid
+    patched_send, opsdroid_matrix, patched_uuid, caplog
 ):
     def side_effect(resp, *args, **kwargs):
         if resp is nio.RoomGetStateEventResponse:
@@ -659,6 +1046,7 @@ async def test_default_update_same_key_value_single_state_key_enc(
 
     db = DatabaseMatrix({"single_state_key": True}, opsdroid=opsdroid_matrix)
     db.should_migrate = False
+    caplog.clear()
     await db.put("twim", {"hello": "world"})
 
     patched_send.assert_has_calls(
@@ -670,6 +1058,11 @@ async def test_default_update_same_key_value_single_state_key_enc(
             matrix_call("GET", "/_matrix/client/r0/rooms/%21notaroomid/event/"),
         ],
     )
+
+    assert [
+        "Not updating matrix state, as content hasn't changed.",
+        "Error putting key into matrix room",
+    ] == [rec.message for rec in caplog.records]
 
 
 @pytest.mark.asyncio
