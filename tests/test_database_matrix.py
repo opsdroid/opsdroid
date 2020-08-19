@@ -44,15 +44,29 @@ def opsdroid_matrix(mocker):
 
 def matrix_call(method, path, content=None):
     state_key = path.partition("dev.opsdroid.database/")[2]
-    path += "?access_token=arbitrarytoken"
     if content is None:  # could be empty dict
+        if "/event/" in path:
+            path += "enceventid?access_token=arbitrarytoken"
+            return call(nio.RoomGetEventResponse, method, path)
+        else:
+            path += "?access_token=arbitrarytoken"
+            return call(
+                nio.RoomGetStateEventResponse,
+                method,
+                path,
+                response_data=("dev.opsdroid.database", f"{state_key}", "!notaroomid"),
+            )
+    elif "/send" in path:
+        path += "bigrandomuuid?access_token=arbitrarytoken"
         return call(
-            nio.RoomGetStateEventResponse,
+            nio.RoomSendResponse,
             method,
             path,
-            response_data=("dev.opsdroid.database", f"{state_key}", "!notaroomid"),
+            JSONEncoder(separators=(",", ":")).encode(content),
+            ("!notaroomid",),
         )
     else:
+        path += "?access_token=arbitrarytoken"
         return call(
             nio.RoomPutStateResponse,
             method,
@@ -108,12 +122,10 @@ async def test_default_config_enc(patched_send, opsdroid_matrix, patched_uuid):
                 "GET",
                 "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
             ),
-            call(
-                nio.RoomSendResponse,
+            matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/send/dev.opsdroid.database/bigrandomuuid?access_token=arbitrarytoken",
-                '{"twim":{"hello":"world"}}',
-                ("!notaroomid",),
+                "/_matrix/client/r0/rooms/%21notaroomid/send/dev.opsdroid.database/",
+                {"twim": {"hello": "world"}},
             ),
             matrix_call(
                 "PUT",
@@ -174,12 +186,10 @@ async def test_put_custom_state_key_enc(patched_send, opsdroid_matrix, patched_u
                 "GET",
                 "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/wibble",
             ),
-            call(
-                nio.RoomSendResponse,
+            matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/send/dev.opsdroid.database/bigrandomuuid?access_token=arbitrarytoken",
-                '{"twim":{"hello":"world"}}',
-                ("!notaroomid",),
+                "/_matrix/client/r0/rooms/%21notaroomid/send/dev.opsdroid.database/",
+                {"twim": {"hello": "world"}},
             ),
             matrix_call(
                 "PUT",
@@ -239,12 +249,10 @@ async def test_single_state_key_false_enc(patched_send, opsdroid_matrix, patched
                 "GET",
                 "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
             ),
-            call(
-                nio.RoomSendResponse,
+            matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/send/dev.opsdroid.database/bigrandomuuid?access_token=arbitrarytoken",
-                '{"hello":"world"}',
-                ("!notaroomid",),
+                "/_matrix/client/r0/rooms/%21notaroomid/send/dev.opsdroid.database/",
+                {"hello": "world"},
             ),
             matrix_call(
                 "PUT",
@@ -349,12 +357,10 @@ async def test_default_update_different_value_enc(
                 "GET",
                 "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
             ),
-            call(
-                nio.RoomSendResponse,
+            matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/send/dev.opsdroid.database/bigrandomuuid?access_token=arbitrarytoken",
-                '{"red":"pill"}',
-                ("!notaroomid",),
+                "/_matrix/client/r0/rooms/%21notaroomid/send/dev.opsdroid.database/",
+                {"red": "pill"},
             ),
             matrix_call(
                 "PUT",
@@ -432,17 +438,11 @@ async def test_default_update_same_key_enc(patched_send, opsdroid_matrix, patche
                 "GET",
                 "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
             ),
-            call(
-                nio.RoomGetEventResponse,
-                "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/event/enceventid?access_token=arbitrarytoken",
-            ),
-            call(
-                nio.RoomSendResponse,
+            matrix_call("GET", "/_matrix/client/r0/rooms/%21notaroomid/event/"),
+            matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/send/dev.opsdroid.database/bigrandomuuid?access_token=arbitrarytoken",
-                '{"hello":"bob"}',
-                ("!notaroomid",),
+                "/_matrix/client/r0/rooms/%21notaroomid/send/dev.opsdroid.database/",
+                {"hello": "bob"},
             ),
             matrix_call(
                 "PUT",
@@ -522,17 +522,11 @@ async def test_update_same_key_single_state_key_enc(
                 "GET",
                 "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
             ),
-            call(
-                nio.RoomGetEventResponse,
-                "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/event/enceventid?access_token=arbitrarytoken",
-            ),
-            call(
-                nio.RoomSendResponse,
+            matrix_call("GET", "/_matrix/client/r0/rooms/%21notaroomid/event/"),
+            matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/send/dev.opsdroid.database/bigrandomuuid?access_token=arbitrarytoken",
-                '{"twim":{"hello":"bob"}}',
-                ("!notaroomid",),
+                "/_matrix/client/r0/rooms/%21notaroomid/send/dev.opsdroid.database/",
+                {"twim": {"hello": "bob"}},
             ),
             matrix_call(
                 "PUT",
@@ -605,11 +599,7 @@ async def test_default_update_same_key_value_enc(
                 "GET",
                 "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
             ),
-            call(
-                nio.RoomGetEventResponse,
-                "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/event/enceventid?access_token=arbitrarytoken",
-            ),
+            matrix_call("GET", "/_matrix/client/r0/rooms/%21notaroomid/event/"),
         ],
     )
 
@@ -677,11 +667,7 @@ async def test_default_update_same_key_value_single_state_key_enc(
                 "GET",
                 "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
             ),
-            call(
-                nio.RoomGetEventResponse,
-                "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/event/enceventid?access_token=arbitrarytoken",
-            ),
+            matrix_call("GET", "/_matrix/client/r0/rooms/%21notaroomid/event/"),
         ],
     )
 
@@ -739,12 +725,10 @@ async def test_default_update_single_state_key_enc(
                 "GET",
                 "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
             ),
-            call(
-                nio.RoomSendResponse,
+            matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/send/dev.opsdroid.database/bigrandomuuid?access_token=arbitrarytoken",
-                '{"pill":"red"}',
-                ("!notaroomid",),
+                "/_matrix/client/r0/rooms/%21notaroomid/send/dev.opsdroid.database/",
+                {"pill": "red"},
             ),
             matrix_call(
                 "PUT",
@@ -813,11 +797,7 @@ async def test_get_single_state_key_enc(patched_send, opsdroid_matrix):
                 "GET",
                 "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
             ),
-            call(
-                nio.RoomGetEventResponse,
-                "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/event/enceventid?access_token=arbitrarytoken",
-            ),
+            matrix_call("GET", "/_matrix/client/r0/rooms/%21notaroomid/event/"),
         ],
     )
 
@@ -880,11 +860,7 @@ async def test_get_enc(patched_send, opsdroid_matrix):
                 "GET",
                 "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
             ),
-            call(
-                nio.RoomGetEventResponse,
-                "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/event/enceventid?access_token=arbitrarytoken",
-            ),
+            matrix_call("GET", "/_matrix/client/r0/rooms/%21notaroomid/event/"),
         ],
     )
 
