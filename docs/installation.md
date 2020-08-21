@@ -7,7 +7,7 @@
 ## Quickstart
 
 ```bash
-$ pip3 install opsdroid[common]
+$ pip3 install opsdroid[all]
 $ opsdroid start
 ```
 
@@ -61,6 +61,8 @@ pip install opsdroid[database_redis,connector_webex]
 
 `[common]` includes the matrix and slack connectors and sqlite database modules
 You can also use `[all]`, `[all_connectors]`, `[all_databases]`, `[all_parsers]` and `[test]`
+Check out [this file](https://github.com/opsdroid/opsdroid/blob/master/setup.cfg#L79)
+for a list of all the modules you can install this way.
 
 ### Docker Image
 
