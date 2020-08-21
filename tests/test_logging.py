@@ -1,5 +1,5 @@
-import unittest
-import unittest.mock as mock
+import pytest
+
 import logging
 import os
 import tempfile
@@ -8,89 +8,84 @@ import contextlib
 import opsdroid.logging as opsdroid
 from opsdroid.cli.start import configure_lang
 
+configure_lang({})
 
-class TestLogging(unittest.TestCase):
+
+@pytest.fixture(scope="module")
+def _tmp_dir():
+    _tmp_dir = os.path.join(tempfile.gettempdir(), "opsdroid_tests")
+    with contextlib.suppress(FileExistsError):
+        os.makedirs(_tmp_dir, mode=0o777)
+    return _tmp_dir
+
+
+class TestLogging:
     """Test the logging module."""
 
-    def setUp(self):
-        self._tmp_dir = os.path.join(tempfile.gettempdir(), "opsdroid_tests")
-        with contextlib.suppress(FileExistsError):
-            os.makedirs(self._tmp_dir, mode=0o777)
-        configure_lang({})
-
     def test_set_logging_level(self):
-        self.assertEqual(logging.DEBUG, opsdroid.get_logging_level("debug"))
-        self.assertEqual(logging.INFO, opsdroid.get_logging_level("info"))
-        self.assertEqual(logging.WARNING, opsdroid.get_logging_level("warning"))
-        self.assertEqual(logging.ERROR, opsdroid.get_logging_level("error"))
-        self.assertEqual(logging.CRITICAL, opsdroid.get_logging_level("critical"))
-        self.assertEqual(logging.INFO, opsdroid.get_logging_level(""))
+        assert logging.DEBUG == opsdroid.get_logging_level("debug")
+        assert logging.INFO == opsdroid.get_logging_level("info")
+        assert logging.WARNING == opsdroid.get_logging_level("warning")
+        assert logging.ERROR == opsdroid.get_logging_level("error")
+        assert logging.CRITICAL == opsdroid.get_logging_level("critical")
+        assert logging.INFO == opsdroid.get_logging_level("")
 
     def test_configure_no_logging(self):
         config = {"logging": {"path": False, "console": False}}
         opsdroid.configure_logging(config)
         rootlogger = logging.getLogger()
-        self.assertEqual(len(rootlogger.handlers), 1)
-        self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
-        self.assertEqual(rootlogger.handlers[0].level, logging.CRITICAL)
+        assert len(rootlogger.handlers) == 1
+        assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
+        assert rootlogger.handlers[0].level == logging.CRITICAL
 
-    def test_configure_file_logging(self):
+    def test_configure_file_logging(self, _tmp_dir):
         config = {
-            "logging": {
-                "path": os.path.join(self._tmp_dir, "output.log"),
-                "console": False,
-            }
+            "logging": {"path": os.path.join(_tmp_dir, "output.log"), "console": False}
         }
         opsdroid.configure_logging(config)
         rootlogger = logging.getLogger()
-        self.assertEqual(len(rootlogger.handlers), 2)
-        self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
-        self.assertEqual(rootlogger.handlers[0].level, logging.CRITICAL)
-        self.assertEqual(
-            logging.handlers.RotatingFileHandler, type(rootlogger.handlers[1])
-        )
-        self.assertEqual(rootlogger.handlers[1].level, logging.INFO)
+        assert len(rootlogger.handlers), 2
+        assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
+        assert rootlogger.handlers[0].level, logging.CRITICAL
+        assert isinstance(rootlogger.handlers[1], logging.handlers.RotatingFileHandler)
+        assert rootlogger.handlers[1].level == logging.INFO
 
-    def test_configure_file_blacklist(self):
+    def test_configure_file_blacklist(self, _tmp_dir):
         config = {
             "logging": {
-                "path": os.path.join(self._tmp_dir, "output.log"),
+                "path": os.path.join(_tmp_dir, "output.log"),
                 "console": False,
                 "filter": {"blacklist": "opsdroid.logging"},
             }
         }
         opsdroid.configure_logging(config)
         rootlogger = logging.getLogger()
-        self.assertEqual(len(rootlogger.handlers), 2)
-        self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
-        self.assertEqual(rootlogger.handlers[0].level, logging.CRITICAL)
-        self.assertEqual(
-            logging.handlers.RotatingFileHandler, type(rootlogger.handlers[1])
-        )
-        self.assertLogs("_LOGGER", None)
+        assert len(rootlogger.handlers) == 2
+        assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
+        assert rootlogger.handlers[0].level == logging.CRITICAL
+        assert isinstance(rootlogger.handlers[1], logging.handlers.RotatingFileHandler)
+        # self.assertLogs("_LOGGER", None)
 
-    def test_configure_file_logging_directory_not_exists(self):
-        with mock.patch("logging.getLogger") as logmock:
-            mocklogger = mock.MagicMock()
-            mocklogger.handlers = [True]
-            logmock.return_value = mocklogger
-            config = {
-                "logging": {
-                    "path": os.path.join(
-                        self._tmp_dir, "mynonexistingdirectory", "output.log"
-                    ),
-                    "console": False,
-                }
+    def test_configure_file_logging_directory_not_exists(self, _tmp_dir, mocker):
+        logmock = mocker.patch("logging.getLogger")
+        mocklogger = mocker.MagicMock()
+        mocklogger.handlers = [True]
+        logmock.return_value = mocklogger
+        config = {
+            "logging": {
+                "path": os.path.join(_tmp_dir, "mynonexistingdirectory", "output.log"),
+                "console": False,
             }
-            opsdroid.configure_logging(config)
+        }
+        opsdroid.configure_logging(config)
 
     def test_configure_console_logging(self):
         config = {"logging": {"path": False, "level": "error", "console": True}}
         opsdroid.configure_logging(config)
         rootlogger = logging.getLogger()
-        self.assertEqual(len(rootlogger.handlers), 1)
-        self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
-        self.assertEqual(rootlogger.handlers[0].level, logging.ERROR)
+        assert len(rootlogger.handlers) == 1
+        assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
+        assert rootlogger.handlers[0].level == logging.ERROR
 
     def test_configure_console_blacklist(self):
         config = {
@@ -103,10 +98,10 @@ class TestLogging(unittest.TestCase):
         }
         opsdroid.configure_logging(config)
         rootlogger = logging.getLogger()
-        self.assertEqual(len(rootlogger.handlers), 1)
-        self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
-        self.assertEqual(rootlogger.handlers[0].level, logging.ERROR)
-        self.assertLogs("_LOGGER", None)
+        assert len(rootlogger.handlers) == 1
+        assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
+        assert rootlogger.handlers[0].level == logging.ERROR
+        # self.assertLogs("_LOGGER", None)
 
     def test_configure_console_whitelist(self):
         config = {
@@ -119,9 +114,9 @@ class TestLogging(unittest.TestCase):
         }
         opsdroid.configure_logging(config)
         rootlogger = logging.getLogger()
-        self.assertEqual(len(rootlogger.handlers), 1)
-        self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
-        self.assertLogs("_LOGGER", "info")
+        assert len(rootlogger.handlers) == 1
+        assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
+        # self.assertLogs("_LOGGER", "info")
 
     def test_configure_extended_logging(self):
         config = {
@@ -134,38 +129,42 @@ class TestLogging(unittest.TestCase):
         }
         opsdroid.configure_logging(config)
         rootlogger = logging.getLogger()
-        self.assertEqual(len(rootlogger.handlers), 1)
-        self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
+        assert len(rootlogger.handlers) == 1
+        assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
 
     def test_configure_default_logging(self):
         config = {}
         opsdroid.configure_logging(config)
         rootlogger = logging.getLogger()
-        self.assertEqual(len(rootlogger.handlers), 2)
-        self.assertEqual(logging.StreamHandler, type(rootlogger.handlers[0]))
-        self.assertEqual(rootlogger.handlers[0].level, logging.INFO)
-        self.assertEqual(
-            logging.handlers.RotatingFileHandler, type(rootlogger.handlers[1])
-        )
-        self.assertEqual(rootlogger.handlers[1].level, logging.INFO)
-        self.assertLogs("_LOGGER", "info")
+        assert len(rootlogger.handlers), 2
+        # TODO use isinstance
+        assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
+        assert rootlogger.handlers[0].level == logging.INFO
+        assert isinstance(rootlogger.handlers[1], logging.handlers.RotatingFileHandler)
+
+        assert rootlogger.handlers[1].level == logging.INFO
+        # self.assertLogs("_LOGGER", "info")
 
 
-class TestWhiteAndBlackFilter(unittest.TestCase):
-    def setUp(self):
-        self.config = {
-            "logging": {
-                "path": False,
-                "level": "info",
-                "console": True,
-                "filter": {"whitelist": ["opsdroid"], "blacklist": ["opsdroid.core"]},
-            }
+@pytest.fixture
+def white_and_black_config():
+    # Set up
+    config = {
+        "logging": {
+            "path": False,
+            "level": "info",
+            "console": True,
+            "filter": {"whitelist": ["opsdroid"], "blacklist": ["opsdroid.core"]},
         }
+    }
+    yield config
 
-    def tearDown(self):
-        self.config = {}
-        opsdroid.configure_logging(self.config)
+    # Tear down
+    config = {}
+    opsdroid.configure_logging(config)
 
-    def test_configure_whitelist_and_blacklist(self):
-        opsdroid.configure_logging(self.config)
-        self.assertLogs("_LOGGER", "warning")
+
+class TestWhiteAndBlackFilter:
+    def test_configure_whitelist_and_blacklist(self, white_and_black_config):
+        opsdroid.configure_logging(white_and_black_config)
+        # self.assertLogs("_LOGGER", "warning")
