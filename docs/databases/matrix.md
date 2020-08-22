@@ -14,7 +14,7 @@ _Note: To use encryption you need the e2e dependencies for matrix-nio which can 
 databases:
   matrix:
     default_room: "main"
-    single_state_key: "dev.opsdroid.database"
+    single_state_key: True
     should_encrypt: True
 ```
 
@@ -45,6 +45,7 @@ multiple keys.
 The database provides a context manager `memory_in_room` to perform some
 operations in a different rooms. use it as:
 ```
-with memory_in_room(new_room_id):
+db = opsdroid.get_database("matrix")
+with db.memory_in_room(new_room_id):
 	database ops
 ```

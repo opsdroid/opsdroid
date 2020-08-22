@@ -82,7 +82,9 @@ class DatabaseMatrix(Database):
         )
         if isinstance(ori_data, RoomGetStateEventError):
             _LOGGER.error(
-                f"Error getting '{state_key}' from matrix room {self.room_id}: {ori_data.message}({ori_data.status_code})"
+                f"Error getting the state event of type {self._event_type} with "
+                f"state_key '{state_key}' from matrix room {self.room_id}: "
+                f"{ori_data.message}({ori_data.status_code})"
             )
             return
         data = ori_data.content.copy()
@@ -122,13 +124,6 @@ class DatabaseMatrix(Database):
 
     async def put(self, key, value):
         """Insert or replace a value into the database for a given key."""
-
-        if not self.is_room_encrypted and self.should_encrypt:
-            _LOGGER.error(
-                "should_encrypt is enabled but either the selected room is "
-                "not encrypted or encryption dependencies are not installed"
-            )
-            return
 
         if self.should_migrate:
             await self.migrate_database()
