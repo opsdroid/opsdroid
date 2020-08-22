@@ -833,10 +833,8 @@ async def test_default_update_same_key_value(patched_send, opsdroid_matrix, capl
     ] == [rec.message for rec in caplog.records]
 
 
+# This will pass even without enc since we dont get to the part in put where that's relevant
 @pytest.mark.asyncio
-@pytest.mark.xfail(
-    not nio.crypto.ENCRYPTION_ENABLED, reason="No encryption deps installed for matrix"
-)
 async def test_default_update_same_key_value_enc(
     patched_send, opsdroid_matrix, patched_uuid, caplog
 ):
@@ -912,10 +910,8 @@ async def test_default_update_multiple_same_key_values(
     ] == [rec.message for rec in caplog.records]
 
 
+# This will pass even without enc since we dont get to the part in put where that's relevant
 @pytest.mark.asyncio
-@pytest.mark.xfail(
-    not nio.crypto.ENCRYPTION_ENABLED, reason="No encryption deps installed for matrix"
-)
 async def test_default_update_multiple_same_key_values_enc(
     patched_send, opsdroid_matrix, patched_uuid, caplog
 ):
@@ -1016,10 +1012,8 @@ async def test_default_update_same_key_value_single_state_key(
     ] == [rec.message for rec in caplog.records]
 
 
+# This will pass even without enc since we dont get to the part in put where that's relevant
 @pytest.mark.asyncio
-@pytest.mark.xfail(
-    not nio.crypto.ENCRYPTION_ENABLED, reason="No encryption deps installed for matrix"
-)
 async def test_default_update_same_key_value_single_state_key_enc(
     patched_send, opsdroid_matrix, patched_uuid, caplog
 ):
@@ -1208,7 +1202,7 @@ async def test_get(patched_send, opsdroid_matrix):
     )
     db.should_migrate = False
 
-    data = await db.get({"twim": "hello"})
+    data = await db.get("twim")
 
     patched_send.assert_called_once_with(
         nio.RoomGetStateEventResponse,
@@ -1217,7 +1211,7 @@ async def test_get(patched_send, opsdroid_matrix):
         response_data=("dev.opsdroid.database", "twim", "!notaroomid"),
     )
 
-    assert data == "world"
+    assert data == {"hello": "world"}
 
 
 @pytest.mark.asyncio
@@ -1245,7 +1239,7 @@ async def test_get_enc(patched_send, opsdroid_matrix):
 
     db = DatabaseMatrix({"single_state_key": False}, opsdroid=opsdroid_matrix)
     db.should_migrate = False
-    data = await db.get({"twim": "hello"})
+    data = await db.get("twim")
 
     patched_send.assert_has_calls(
         [
@@ -1257,7 +1251,7 @@ async def test_get_enc(patched_send, opsdroid_matrix):
         ],
     )
 
-    assert data == "world"
+    assert data == {"hello": "world"}
 
 
 @pytest.mark.asyncio
@@ -1518,7 +1512,7 @@ async def test_migrate_and_errors(patched_send, opsdroid_matrix, mocker, caplog)
     )
 
     assert [
-        "Error getting '' from matrix room !notaroomid: testing(None)",
+        "Error getting the state event of type dev.opsdroid.database with state_key '' from matrix room !notaroomid: testing(None)",
         "Error putting key into matrix room",
     ] == [rec.message for rec in caplog.records]
 
@@ -1573,30 +1567,6 @@ async def test_migrate_and_errors(patched_send, opsdroid_matrix, mocker, caplog)
 
     assert [
         "When the matrix database is configured with single_state_key=False, key must be a dict."
-    ] == [rec.message for rec in caplog.records]
-
-    caplog.clear()
-    db.should_migrate = False
-    db._single_state_key = True
-    await db.get({"hello": "world"})
-    assert ["When single_state_key is set, key cannot be a dict."] == [
-        rec.message for rec in caplog.records
-    ]
-
-    caplog.clear()
-    db.should_migrate = False
-    db._single_state_key = False
-    await db.get()
-    assert ["When single_state_key is False, a key must be passed."] == [
-        rec.message for rec in caplog.records
-    ]
-
-    caplog.clear()
-    db.connector._allow_encryption = False
-    db.should_encrypt = True
-    await db.put("key", "val")
-    assert [
-        "should_encrypt is enabled but either the selected room is not encrypted or encryption dependencies are not installed"
     ] == [rec.message for rec in caplog.records]
 
     def side_effect(resp, *args, **kwargs):

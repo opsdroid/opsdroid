@@ -91,9 +91,9 @@ class DatabaseMatrix(Database):
 
         _LOGGER.debug(f"Got {data} from state request.")
 
-        check = None
         for k, v in value_dict.items():
             if k in data:
+                check = data[k]
                 if isinstance(data[k], dict) and "encrypted_val" in data[k]:
                     resp = await self.connector.connection.room_get_event(
                         room_id=self.room_id, event_id=data[k]["encrypted_val"],
@@ -105,11 +105,10 @@ class DatabaseMatrix(Database):
                         )
                         return
                     check = resp.event.source["content"][k]
-                else:
-                    check = data[k]
+                if v == check:
+                    continue
 
-            if not check or not value_dict[k] == check:
-                data[k] = value_dict[k]
+            data[k] = v
 
         if ori_data.content == data:
             _LOGGER.error("Not updating matrix state, as content hasn't changed.")
@@ -167,30 +166,16 @@ class DatabaseMatrix(Database):
 
         return True
 
-    async def get(self, key=None):
+    async def get(self, key):
         """Get a value from the database for a given key."""
 
         if self.should_migrate:
             await self.migrate_database()
 
-        if not self._single_state_key and not key:
-            _LOGGER.error("When single_state_key is False, a key must be passed.")
-            return
-
-        if self._single_state_key and isinstance(key, dict):
-            _LOGGER.error("When single_state_key is set, key cannot be a dict.")
-            return
-
         # If the single state key flag is set then use that else use state key.
         state_key = (
             "" if self._single_state_key is True else self._single_state_key or key
         )
-
-        if not self._single_state_key:
-            if isinstance(state_key, dict):
-                state_key, key = list(state_key.items())[0]
-            else:
-                key = None
 
         _LOGGER.debug(
             f"Getting {key or 'full state'} from matrix room {self.room_id} with state_key={state_key}."
@@ -222,7 +207,7 @@ class DatabaseMatrix(Database):
                 data[k] = resp.event.source["content"][k]
 
         try:
-            if key:
+            if self._single_state_key:
                 data = data[key]
         except KeyError:
             _LOGGER.debug(f"{key or 'full state'} doesn't exist in database")
