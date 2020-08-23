@@ -1585,5 +1585,6 @@ async def test_migrate_and_errors(patched_send, opsdroid_matrix, mocker, caplog)
 
     assert [
         "Error decrypting enceventid while putting into twim: testing(None)",
+        "Not updating matrix state, as content hasn't changed.",
         "Error putting key into matrix room",
     ] == [rec.message for rec in caplog.records]
