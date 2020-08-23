@@ -7,14 +7,16 @@ import asyncio
 from opsdroid.database.sqlite import DatabaseSqlite
 from opsdroid.cli.start import configure_lang
 
-    """A database test class.
+"""A database test class.
 
-    Test the opsdroid sqlite database class.
+   Test the opsdroid sqlite database class.
 
-    """
+"""
+
 configure_lang({})
 
 def test_init():
+
 """Test initialisation of database class.
 
 This method will test the initialisation of the database
@@ -27,12 +29,12 @@ declared.
     assert database.db_file == "sqlite.db"
     assert database.table == "opsdroid"
     assert database.conn_args == {"isolation_level": None} 
+    
+"""A async database test class.
 
-    """A async database test class.
+   Test the async methods of the opsdroid sqlite database class.
 
-    Test the async methods of the opsdroid sqlite database class.
-
-    """
+"""
 @pytest.mark.asyncio
 async def test_connect():
 """Test database connection.
@@ -58,11 +60,10 @@ As the database is created `opsdroid` table is created first.
 
 @pytest.mark.asyncio
 async def test_disconnect():
-    """Test of database disconnection.
+"""Test of database disconnection.
 
     This method will test the database disconnection of sqlite database.
-
-    """
+"""
     database = DatabaseSqlite({"path": "sqlite.db"})
     opsdroid = amock.CoroutineMock()
     opsdroid.eventloop = self.loop
