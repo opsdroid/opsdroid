@@ -103,7 +103,7 @@ class DatabaseMatrix(Database):
                             f"Error decrypting {data[k]['encrypted_val']} while putting into "
                             f"{state_key}: {resp.message}({resp.status_code})"
                         )
-                        return
+                        continue
                     check = resp.event.source["content"][k]
                 if v == check:
                     continue
@@ -203,7 +203,7 @@ class DatabaseMatrix(Database):
                         f"Error decrypting {v['encrypted_val']} while getting "
                         f"{key or 'full state'}: {resp.message}({resp.status_code})"
                     )
-                    return
+                    continue
                 data[k] = resp.event.source["content"][k]
 
         try:
@@ -250,16 +250,14 @@ class DatabaseMatrix(Database):
         if not isinstance(key, list):
             key = [key]
 
-        print(key)
         return_value = []
         for k in key:  # key can be a list of keys to delete
-            print(k)
             try:
                 return_value.append(data[k])
                 _LOGGER.debug(f"Deleting {k} from {self.room_id}")
                 del data[k]
             except KeyError:
-                _LOGGER.debug(f"Not deleting {key}, as it doesn't exist")
+                _LOGGER.debug(f"Not deleting {k}, as it doesn't exist")
 
         await self.opsdroid.send(
             MatrixStateEvent(
