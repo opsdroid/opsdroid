@@ -161,12 +161,14 @@ def white_and_black_config():
 
 
 class TestWhiteAndBlackFilter:
-    def test_configure_whitelist_and_blacklist(self, caplog, white_and_black_config):
-        caplog.set_level(logging.INFO)
-
+    def test_configure_whitelist_and_blacklist(self, capsys, white_and_black_config):
         opsdroid.configure_logging(white_and_black_config)
+        captured = capsys.readouterr()
 
-        expected_log = """Both whitelist and blacklist filters \
-        found in configuration. Only one can be used at a time \
-        - only the whitelist filter will be used."""
-        assert expected_log in caplog.text
+        log1 = "Both whitelist and blacklist filters found in configuration. "
+        log2 = (
+            "Only one can be used at a time - only the whitelist filter will be used."
+        )
+
+        assert log1 in captured.err
+        assert log2 in captured.err
