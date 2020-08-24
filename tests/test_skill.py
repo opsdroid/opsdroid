@@ -1,5 +1,5 @@
-import unittest
-from unittest.mock import Mock
+import pytest
+from asynctest.mock import Mock
 
 from opsdroid.cli.start import configure_lang
 from opsdroid.matchers import match_regex
@@ -16,37 +16,40 @@ class _TestSkill(Skill):
         message.respond("Hello")
 
 
-class TestSkill(unittest.TestCase):
-    """Test the opsdroid skill base class."""
+"""Test the opsdroid skill """
 
-    def setUp(self):
-        configure_lang({})
 
-    def test_init(self):
-        config = {"example_item": "test"}
-        skill = Skill(None, config)
-        self.assertIsNone(skill.opsdroid)
-        self.assertEqual("test", skill.config["example_item"])
+configure_lang({})
 
-    def test_init_erroneous_property(self):
-        """Test that properties that raise an exception don’t mess up initialisation"""
 
-        config = {"example_item": "test"}
-        skill = _TestSkill(None, config)
-        self.assertIsNone(skill.opsdroid)
-        self.assertEqual("test", skill.config["example_item"])
+def test_init():
+    config = {"example_item": "test"}
+    skill = Skill(None, config)
+    assert skill.opsdroid is None
+    assert skill.config["example_item"] == "test"
 
-    def test_matcher_on_instance(self):
-        """Test that matchers get registered on an object instance, not just on the class"""
 
-        skill = _TestSkill(None, None)
-        self.assertTrue(hasattr(skill.hello_skill, "matchers"))
+def test_init_erroneous_property():
+    """Test that properties that raise an exception don’t mess up initialisation"""
 
-    def test_matcher_called(self):
-        """Test that if the decorated skill is called, the skill function gets called"""
+    config = {"example_item": "test"}
+    skill = _TestSkill(None, config)
+    assert skill.opsdroid is None
+    assert skill.config["example_item"] == "test"
 
-        skill = _TestSkill(None, None)
-        message = Mock()
-        skill.hello_skill(message)
 
-        self.assertTrue(message.respond.called_once)
+def test_matcher_on_instance():
+    """Test that matchers get registered on an object instance, not just on the class"""
+
+    skill = _TestSkill(None, None)
+    assert hasattr(skill.hello_skill, "matchers")
+
+
+def test_matcher_called():
+    """Test that if the decorated skill is called, the skill function gets called"""
+
+    skill = _TestSkill(None, None)
+    message = Mock()
+    skill.hello_skill(message)
+
+    assert message.respond.called_once
