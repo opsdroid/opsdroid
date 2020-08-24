@@ -1,6 +1,6 @@
-"""Tests for the DatabaseSqlite class."""
+"""Tests for DatabaseSqlite"""
 import pytest
-import asyntest.mock as amock
+import asynctest.mock as amock
 
 import asyncio
 
@@ -9,43 +9,41 @@ from opsdroid.cli.start import configure_lang
 
 """A database test class.
 
-   Test the opsdroid sqlite database class.
+    Test the opsdroid sqlite database class.
 
 """
-
 configure_lang({})
 
 def test_init():
+    """Test initialisation of database class.
 
-"""Test initialisation of database class.
+    This method will test the initialisation of the database
+    class. It will assert if the database class properties are
+    declared.
 
-This method will test the initialisation of the database
-class. It will assert if the database class properties are
-declared.
-
-"""
+    """
     database = DatabaseSqlite({"path": "sqlite.db"})
     assert database.client == None
     assert database.db_file == "sqlite.db"
     assert database.table == "opsdroid"
     assert database.conn_args == {"isolation_level": None} 
-    
-"""A async database test class.
 
-   Test the async methods of the opsdroid sqlite database class.
+    """A async database test class.
 
-"""
+    Test the async methods of the opsdroid sqlite database class.
+
+    """
 @pytest.mark.asyncio
 async def test_connect():
-"""Test database connection.
+    """Test database connection.
 
-This method will test the database connection of sqlite database.
-As the database is created `opsdroid` table is created first.
+    This method will test the database connection of sqlite database.
+    As the database is created `opsdroid` table is created first.
 
-"""
+    """
     database = DatabaseSqlite({"path": "sqlite.db"})
     opsdroid = amock.CoroutineMock()
-    opsdroid.eventloop = self.loop
+    opsdroid.eventloop = asyncio.new_event_loop()
 
     try:
         await database.connect()
@@ -60,13 +58,14 @@ As the database is created `opsdroid` table is created first.
 
 @pytest.mark.asyncio
 async def test_disconnect():
-"""Test of database disconnection.
+    """Test of database disconnection.
 
     This method will test the database disconnection of sqlite database.
-"""
+
+    """
     database = DatabaseSqlite({"path": "sqlite.db"})
     opsdroid = amock.CoroutineMock()
-    opsdroid.eventloop = self.loop
+    opsdroid.eventloop = asyncio.new_event_loop()
 
     try:
         await database.connect()
@@ -78,17 +77,17 @@ async def test_disconnect():
 
 @pytest.mark.asyncio
 async def test_get_put_and_delete():
-"""Test get, put and delete functions of database
+    """Test get, put and delete functions of database
 
     This method will test the get, put and delete functions which help to read
     and write data from the database. The function `put` a value with
     key and asserts the same value after the `get` operation is completed
     followed by the `delete` operation which deletes the key.
 
-"""
+    """
     database = DatabaseSqlite({"path": "sqlite.db"})
     opsdroid = amock.CoroutineMock()
-    opsdroid.eventloop = self.loop
+    opsdroid.eventloop = asyncio.new_event_loop()
 
     try:
         await database.connect()
