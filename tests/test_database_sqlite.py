@@ -7,20 +7,14 @@ import asyncio
 from opsdroid.database.sqlite import DatabaseSqlite
 from opsdroid.cli.start import configure_lang
 
-"""A database test class.
-
-    Test the opsdroid sqlite database class.
-
-"""
 configure_lang({})
 
 
 def test_init():
-    """Test initialisation of database class.
+    """Test initialisation of database.
 
-    This method will test the initialisation of the database
-    class. It will assert if the database class properties are
-    declared.
+    This method will test the initialisation of the database.
+    It will assert if the database properties are declared.
 
     """
     database = DatabaseSqlite({"path": "sqlite.db"})
@@ -28,12 +22,6 @@ def test_init():
     assert database.db_file == "sqlite.db"
     assert database.table == "opsdroid"
     assert database.conn_args == {"isolation_level": None}
-
-    """A async database test class.
-
-    Test the async methods of the opsdroid sqlite database class.
-
-    """
 
 
 @pytest.mark.asyncio
@@ -111,6 +99,7 @@ async def test_get_put_and_delete():
 
 
 @pytest.mark.asyncio
-async def test_deprecated_path():
+async def test_deprecated_path(caplog):
     database = DatabaseSqlite({"file": "sqlite.db"})
     assert database.db_file == "sqlite.db"
+    assert "The option 'file' is deprecated, please use 'path' instead." in caplog.text
