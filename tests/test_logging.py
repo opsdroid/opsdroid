@@ -1,5 +1,4 @@
 import pytest
-
 import logging
 import os
 import tempfile
@@ -50,7 +49,7 @@ class TestLogging:
         assert isinstance(rootlogger.handlers[1], logging.handlers.RotatingFileHandler)
         assert rootlogger.handlers[1].level == logging.INFO
 
-    def test_configure_file_blacklist(self, _tmp_dir):
+    def test_configure_file_blacklist(self, _tmp_dir, caplog):
         config = {
             "logging": {
                 "path": os.path.join(_tmp_dir, "output.log"),
@@ -64,7 +63,7 @@ class TestLogging:
         assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
         assert rootlogger.handlers[0].level == logging.CRITICAL
         assert isinstance(rootlogger.handlers[1], logging.handlers.RotatingFileHandler)
-        # self.assertLogs("_LOGGER", None)
+        assert caplog.text == ""
 
     def test_configure_file_logging_directory_not_exists(self, _tmp_dir, mocker):
         logmock = mocker.patch("logging.getLogger")
@@ -87,7 +86,7 @@ class TestLogging:
         assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
         assert rootlogger.handlers[0].level == logging.ERROR
 
-    def test_configure_console_blacklist(self):
+    def test_configure_console_blacklist(self, caplog):
         config = {
             "logging": {
                 "path": False,
@@ -101,7 +100,7 @@ class TestLogging:
         assert len(rootlogger.handlers) == 1
         assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
         assert rootlogger.handlers[0].level == logging.ERROR
-        # self.assertLogs("_LOGGER", None)
+        assert caplog.text == ""
 
     def test_configure_console_whitelist(self):
         config = {
@@ -116,7 +115,7 @@ class TestLogging:
         rootlogger = logging.getLogger()
         assert len(rootlogger.handlers) == 1
         assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
-        # self.assertLogs("_LOGGER", "info")
+        assert rootlogger.handlers[0].level == logging.INFO
 
     def test_configure_extended_logging(self):
         config = {
@@ -137,13 +136,10 @@ class TestLogging:
         opsdroid.configure_logging(config)
         rootlogger = logging.getLogger()
         assert len(rootlogger.handlers), 2
-        # TODO use isinstance
         assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
         assert rootlogger.handlers[0].level == logging.INFO
         assert isinstance(rootlogger.handlers[1], logging.handlers.RotatingFileHandler)
-
         assert rootlogger.handlers[1].level == logging.INFO
-        # self.assertLogs("_LOGGER", "info")
 
 
 @pytest.fixture
@@ -165,6 +161,12 @@ def white_and_black_config():
 
 
 class TestWhiteAndBlackFilter:
-    def test_configure_whitelist_and_blacklist(self, white_and_black_config):
+    def test_configure_whitelist_and_blacklist(self, caplog, white_and_black_config):
+        caplog.set_level(logging.INFO)
+
         opsdroid.configure_logging(white_and_black_config)
-        # self.assertLogs("_LOGGER", "warning")
+
+        expected_log = """Both whitelist and blacklist filters \
+        found in configuration. Only one can be used at a time \
+        - only the whitelist filter will be used."""
+        assert expected_log in caplog.text
