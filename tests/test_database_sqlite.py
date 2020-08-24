@@ -14,6 +14,7 @@ from opsdroid.cli.start import configure_lang
 """
 configure_lang({})
 
+
 def test_init():
     """Test initialisation of database class.
 
@@ -26,13 +27,15 @@ def test_init():
     assert database.client == None
     assert database.db_file == "sqlite.db"
     assert database.table == "opsdroid"
-    assert database.conn_args == {"isolation_level": None} 
+    assert database.conn_args == {"isolation_level": None}
 
     """A async database test class.
 
     Test the async methods of the opsdroid sqlite database class.
 
     """
+
+
 @pytest.mark.asyncio
 async def test_connect():
     """Test database connection.
@@ -56,6 +59,7 @@ async def test_connect():
         assert table == "opsdroid"
         assert client == "Connection"
 
+
 @pytest.mark.asyncio
 async def test_disconnect():
     """Test of database disconnection.
@@ -74,6 +78,7 @@ async def test_disconnect():
         raise Exception
     else:
         pass
+
 
 @pytest.mark.asyncio
 async def test_get_put_and_delete():
@@ -103,6 +108,7 @@ async def test_get_put_and_delete():
         assert table == "opsdroid"
         assert data == {}
         assert client == "Connection"
+
 
 @pytest.mark.asyncio
 async def test_deprecated_path():
