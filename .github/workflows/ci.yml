@@ -1,6 +1,10 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  schedule:
+  - cron: '0 0 * * *'
 
 jobs:
   test:
@@ -41,7 +45,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        component: [docker, lint]
+        component: [docker-full, docker-min, lint]
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
