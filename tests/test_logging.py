@@ -49,7 +49,7 @@ class TestLogging:
         assert isinstance(rootlogger.handlers[1], logging.handlers.RotatingFileHandler)
         assert rootlogger.handlers[1].level == logging.INFO
 
-    def test_configure_file_blacklist(self, _tmp_dir, caplog):
+    def test_configure_file_blacklist(self, _tmp_dir, capsys):
         config = {
             "logging": {
                 "path": os.path.join(_tmp_dir, "output.log"),
@@ -63,7 +63,10 @@ class TestLogging:
         assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
         assert rootlogger.handlers[0].level == logging.CRITICAL
         assert isinstance(rootlogger.handlers[1], logging.handlers.RotatingFileHandler)
-        assert caplog.text == ""
+
+        captured = capsys.readouterr()
+        assert captured.out == ""
+        assert captured.err == ""
 
     def test_configure_file_logging_directory_not_exists(self, _tmp_dir, mocker):
         logmock = mocker.patch("logging.getLogger")
@@ -86,7 +89,7 @@ class TestLogging:
         assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
         assert rootlogger.handlers[0].level == logging.ERROR
 
-    def test_configure_console_blacklist(self, caplog):
+    def test_configure_console_blacklist(self, capsys):
         config = {
             "logging": {
                 "path": False,
@@ -100,7 +103,10 @@ class TestLogging:
         assert len(rootlogger.handlers) == 1
         assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
         assert rootlogger.handlers[0].level == logging.ERROR
-        assert caplog.text == ""
+
+        captured = capsys.readouterr()
+        assert captured.out == ""
+        assert captured.err == ""
 
     def test_configure_console_whitelist(self):
         config = {
@@ -131,7 +137,7 @@ class TestLogging:
         assert len(rootlogger.handlers) == 1
         assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
 
-    def test_configure_default_logging(self):
+    def test_configure_default_logging(self, capsys):
         config = {}
         opsdroid.configure_logging(config)
         rootlogger = logging.getLogger()
@@ -140,6 +146,9 @@ class TestLogging:
         assert rootlogger.handlers[0].level == logging.INFO
         assert isinstance(rootlogger.handlers[1], logging.handlers.RotatingFileHandler)
         assert rootlogger.handlers[1].level == logging.INFO
+
+        captured = capsys.readouterr()
+        assert "INFO opsdroid.logging: Started opsdroid" in captured.err
 
 
 @pytest.fixture
