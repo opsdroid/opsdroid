@@ -1,3 +1,4 @@
+"""Test the opsdroid web."""
 import ssl
 
 import pytest
@@ -9,8 +10,6 @@ from opsdroid.cli.start import configure_lang
 from opsdroid.core import OpsDroid
 from opsdroid import web
 import aiohttp.web
-
-"""Test the opsdroid web class."""
 
 configure_lang({})
 

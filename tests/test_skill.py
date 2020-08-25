@@ -1,6 +1,7 @@
+"""Test the opsdroid skill """
 import pytest
 
-# from asynctest.mock import Mock
+from asynctest.mock import Mock
 
 from opsdroid.cli.start import configure_lang
 from opsdroid.matchers import match_regex
@@ -15,9 +16,6 @@ class _TestSkill(Skill):
     @match_regex(r"hello")
     def hello_skill(self, message):
         message.respond("Hello")
-
-
-"""Test the opsdroid skill """
 
 
 configure_lang({})
