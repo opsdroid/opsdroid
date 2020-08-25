@@ -20,7 +20,7 @@ def opsdroid():
         yield opsdroid
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def _tmp_dir():
     _tmp_dir = os.path.join(tempfile.gettempdir(), "opsdroid_tests")
     with contextlib.suppress(FileExistsError):
