@@ -7,7 +7,7 @@
 ## Quickstart
 
 ```bash
-$ pip3 install opsdroid
+$ pip3 install opsdroid[all]
 $ opsdroid start
 ```
 
@@ -28,7 +28,7 @@ $ sudo apt-get install python3-pip language-pack-en git
 $ pip3 install --upgrade pip
 
 # Install opsdroid
-$ sudo pip3 install opsdroid
+$ sudo pip3 install opsdroid[common]
 
 # Run opsdroid
 $ opsdroid start
@@ -41,7 +41,7 @@ $ opsdroid start
 # Launch powershell command prompt
 
 # Install opsdroid
-C:\Users\myaccount> pip install opsdroid
+C:\Users\myaccount> pip install opsdroid[common]
 
 # Create a starting configuration to work with
 C:\Users\myaccount> opsdroid config gen | out-file "configuration.yaml" -encoding ascii
@@ -49,6 +49,20 @@ C:\Users\myaccount> opsdroid config gen | out-file "configuration.yaml" -encodin
 # Start opsdroid
 C:\Users\myaccount> opsdroid start
 ```
+
+### Selecting Modules
+
+You can individually select modules to install dependencies for by specifying them
+in the square brackets. For instance, to install the redis database and webex connector
+module dependencies in addition to the opsdroid core package:
+```
+pip install opsdroid[database_redis,connector_webex]
+```
+
+`[common]` includes the matrix and slack connectors and sqlite database modules
+You can also use `[all]`, `[all_connectors]`, `[all_databases]`, `[all_parsers]` and `[test]`
+Check out [this file](https://github.com/opsdroid/opsdroid/blob/master/setup.cfg#L79)
+for a list of all the modules you can install this way.
 
 ### Docker Image
 
@@ -58,6 +72,13 @@ $ docker pull opsdroid/opsdroid:latest
 
 # Run the container
 $ docker run --rm -it -v /path/to/config_folder:/root/.config/opsdroid opsdroid/opsdroid:latest
+```
+
+The default docker image on Docker Hub contains all the module dependencies. To
+specify modules, build the image using the Dockerfile and write them as before
+in the build arg *EXTRAS* as follows(Note the .):
+```
+$ docker build --build-arg EXTRAS=.[common] .
 ```
 
 ### Docker Service
@@ -70,7 +91,7 @@ $ docker config create OpsdroidConfig /path/to/configuration.yaml
 $ docker service create --name opsdroid --config source=OpsdroidConfig,target=/root/.config/opsdroid/configuration.yaml --mount 'type=volume,src=OpsdroidData,dst=/root/.config/opsdroid' opsdroid/opsdroid:latest
 ```
 
-### Docker Swarm ###
+### Docker Swarm
 
 ```bash
 # Create Directory Structure
