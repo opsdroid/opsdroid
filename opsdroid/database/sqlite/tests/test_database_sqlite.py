@@ -18,7 +18,7 @@ def test_init():
 
     """
     database = DatabaseSqlite({"path": "sqlite.db"})
-    assert database.client == None
+    assert database.client is None
     assert database.db_file == "sqlite.db"
     assert database.table == "opsdroid"
     assert database.conn_args == {"isolation_level": None}
