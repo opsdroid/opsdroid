@@ -1,11 +1,10 @@
 import pytest
 import logging
 import os
+import tempfile
 
 import opsdroid.logging as opsdroid
 from opsdroid.cli.start import configure_lang
-
-from opsdroid.testing.fixtures import _tmp_dir
 
 configure_lang({})
 
@@ -31,9 +30,10 @@ def test_configure_no_logging():
 
 
 def test_configure_file_logging():
-    config = {
-        "logging": {"path": os.path.join(_tmp_dir, "output.log"), "console": False}
-    }
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        config = {
+            "logging": {"path": os.path.join(tmp_dir, "output.log"), "console": False}
+        }
     opsdroid.configure_logging(config)
     rootlogger = logging.getLogger()
     assert len(rootlogger.handlers), 2
@@ -44,13 +44,14 @@ def test_configure_file_logging():
 
 
 def test_configure_file_blacklist(capsys):
-    config = {
-        "logging": {
-            "path": os.path.join(_tmp_dir, "output.log"),
-            "console": False,
-            "filter": {"blacklist": "opsdroid.logging"},
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        config = {
+            "logging": {
+                "path": os.path.join(tmp_dir, "output.log"),
+                "console": False,
+                "filter": {"blacklist": "opsdroid.logging"},
+            }
         }
-    }
     opsdroid.configure_logging(config)
     rootlogger = logging.getLogger()
     assert len(rootlogger.handlers) == 2
@@ -68,12 +69,13 @@ def test_configure_file_logging_directory_not_exists(mocker):
     mocklogger = mocker.MagicMock()
     mocklogger.handlers = [True]
     logmock.return_value = mocklogger
-    config = {
-        "logging": {
-            "path": os.path.join(_tmp_dir, "mynonexistingdirectory", "output.log"),
-            "console": False,
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        config = {
+            "logging": {
+                "path": os.path.join(tmp_dir, "mynonexistingdirectory", "output.log"),
+                "console": False,
+            }
         }
-    }
     opsdroid.configure_logging(config)
 
 
