@@ -148,7 +148,9 @@ class DatabaseMatrix(Database):
         if self.is_room_encrypted and self.should_encrypt:
             for k, v in value.items():
                 room_event = await self.opsdroid.send(
-                    GenericMatrixRoomEvent(content={k: v}, event_type=self._event_type)
+                    GenericMatrixRoomEvent(
+                        target=self.room_id, content={k: v}, event_type=self._event_type
+                    )
                 )
                 data[k] = {"encrypted_val": room_event.event_id}
 
@@ -178,7 +180,7 @@ class DatabaseMatrix(Database):
         )
 
         _LOGGER.debug(
-            f"Getting {key or 'full state'} from matrix room {self.room_id} with state_key={state_key}."
+            f"Getting {key} from matrix room {self.room_id} with state_key={state_key}."
         )
 
         data = await self.connector.connection.room_get_state_event(
@@ -186,7 +188,7 @@ class DatabaseMatrix(Database):
         )
         if isinstance(data, RoomGetStateEventError):
             _LOGGER.error(
-                f"Error getting {key or 'full state'} from matrix room {self.room_id}: {data.message}({data.status_code})"
+                f"Error getting {key} from matrix room {self.room_id}: {data.message}({data.status_code})"
             )
             return
         data = data.content
@@ -201,7 +203,7 @@ class DatabaseMatrix(Database):
                 if isinstance(resp, RoomGetEventError):
                     _LOGGER.error(
                         f"Error decrypting {v['encrypted_val']} while getting "
-                        f"{key or 'full state'}: {resp.message}({resp.status_code})"
+                        f"{key}: {resp.message}({resp.status_code})"
                     )
                     continue
                 data[k] = resp.event.source["content"][k]
@@ -210,7 +212,7 @@ class DatabaseMatrix(Database):
             if self._single_state_key:
                 data = data[key]
         except KeyError:
-            _LOGGER.debug(f"{key or 'full state'} doesn't exist in database")
+            _LOGGER.debug(f"{key} doesn't exist in database")
             return None
 
         return data
