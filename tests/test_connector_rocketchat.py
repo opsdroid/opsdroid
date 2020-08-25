@@ -1,6 +1,6 @@
-"""Tests for the RocketChat class."""
+"""Tests for the RocketChat"""
 import asyncio
-import unittest
+import pytest
 import contextlib
 import asynctest
 import asynctest.mock as amock
@@ -10,264 +10,277 @@ from opsdroid.connector.rocketchat import RocketChat
 from opsdroid.events import Message
 from opsdroid.cli.start import configure_lang
 
+configure_lang({})
 
-class TestRocketChat(unittest.TestCase):
-    """Test the opsdroid RocketChat connector class."""
 
-    def setUp(self):
-        self.loop = asyncio.new_event_loop()
-        configure_lang({})
+def test_init():
+    """Test that the connector is initialised properly."""
+    connector = RocketChat(
+        {
+            "name": "rocket.chat",
+            "token": "test",
+            "user-id": "userID",
+            "update-interval": 0.1,
+        },
+        opsdroid=OpsDroid(),
+    )
+    assert connector.default_target == "general"
+    assert connector.name == "rocket.chat"
 
-    def test_init(self):
-        """Test that the connector is initialised properly."""
-        connector = RocketChat(
+
+def test_missing_token():
+    """Test that attempt to connect without info raises an error."""
+
+    RocketChat({})
+    assert "Missing auth token!" in caplog.text
+
+
+def setUp():
+    configure_lang({})
+    connector = RocketChat(
+        {
+            "name": "rocket.chat",
+            "token": "test",
+            "user-id": "userID",
+            "default_target": "test",
+        },
+        opsdroid=OpsDroid(),
+    )
+
+    connector.latest_update = "2018-10-08T12:57:37.126Z"
+
+    with amock.patch("aiohttp.ClientSession") as mocked_session:
+        connector.session = mocked_session
+
+
+@pytest.mark.asyncio
+async def test_connect():
+    connect_response = amock.Mock()
+    connect_response.status = 200
+    connect_response.json = amock.CoroutineMock()
+    connect_response.return_value = {
+        "_id": "3vABZrQgDzfcz7LZi",
+        "name": "Fábio Rosado",
+        "emails": [{"address": "fabioglrosado@gmail.com", "verified": True}],
+        "status": "online",
+        "statusConnection": "online",
+        "username": "FabioRosado",
+        "utcOffset": 1,
+        "active": True,
+        "roles": ["user"],
+        "settings": {},
+        "email": "fabioglrosado@gmail.com",
+        "success": True,
+    }
+
+    with amock.patch("aiohttp.ClientSession.get") as patched_request:
+
+        patched_request.return_value = asyncio.Future()
+        patched_request.return_value.set_result(connect_response)
+
+        await connector.connect()
+
+        captured = capsys.readouterr()
+        assert "DEBUG" in captured.err
+        assert patched_request.status != 200
+        assert patched_request.called
+
+
+@pytest.mark.asyncio
+async def test_connect_failure():
+    result = amock.MagicMock()
+    result.status = 401
+
+    with amock.patch("aiohttp.ClientSession.get") as patched_request:
+
+        patched_request.return_value = asyncio.Future()
+        patched_request.return_value.set_result(result)
+
+        await connector.connect()
+        assert "Error connecting to RocketChat" in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_get_message():
+    connector.group = "test"
+    response = amock.Mock()
+    response.status = 200
+    response.json = amock.CoroutineMock()
+    response.return_value = {
+        "messages": [
             {
-                "name": "rocket.chat",
-                "token": "test",
-                "user-id": "userID",
-                "update-interval": 0.1,
-            },
-            opsdroid=OpsDroid(),
-        )
-        self.assertEqual("general", connector.default_target)
-        self.assertEqual("rocket.chat", connector.name)
+                "_id": "ZbhuIO764jOIu",
+                "rid": "Ipej45JSbfjt9",
+                "msg": "hows it going",
+                "ts": "2018-05-11T16:05:41.047Z",
+                "u": {
+                    "_id": "ZbhuIO764jOIu",
+                    "username": "FabioRosado",
+                    "name": "Fábio Rosado",
+                },
+                "_updatedAt": "2018-05-11T16:05:41.489Z",
+                "editedBy": None,
+                "editedAt": None,
+                "emoji": None,
+                "avatar": None,
+                "alias": None,
+                "customFields": None,
+                "attachments": None,
+                "mentions": [],
+                "channels": [],
+            }
+        ]
+    }
 
-    def test_missing_token(self):
-        """Test that attempt to connect without info raises an error."""
+    with amock.patch.object(
+        connector.session, "get"
+    ) as patched_request, amock.patch.object(
+        connector, "_parse_message"
+    ) as mocked_parse_message, amock.patch(
+        "asyncio.sleep"
+    ) as mocked_sleep:
 
-        RocketChat({})
-        self.assertLogs("_LOGGER", "error")
+        patched_request.return_value = asyncio.Future()
+        patched_request.return_value.set_result(response)
+
+        await connector._get_message()
+
+        assert patched_request.called
+        assert mocked_parse_message.called
+        assert mocked_sleep.called
+        captured = capsys.readouterr()
+        assert "DEBUG" in captured.err
 
 
-class TestConnectorRocketChatAsync(asynctest.TestCase):
-    """Test the async methods of the opsdroid RocketChat connector class."""
-
-    def setUp(self):
-        configure_lang({})
-        self.connector = RocketChat(
+@pytest.mark.asyncio
+async def test_parse_message():
+    response = {
+        "messages": [
             {
-                "name": "rocket.chat",
-                "token": "test",
-                "user-id": "userID",
-                "default_target": "test",
-            },
-            opsdroid=OpsDroid(),
+                "_id": "ZbhuIO764jOIu",
+                "rid": "Ipej45JSbfjt9",
+                "msg": "hows it going",
+                "ts": "2018-05-11T16:05:41.047Z",
+                "u": {
+                    "_id": "ZbhuIO764jOIu",
+                    "username": "FabioRosado",
+                    "name": "Fábio Rosado",
+                },
+                "_updatedAt": "2018-05-11T16:05:41.489Z",
+                "editedBy": None,
+                "editedAt": None,
+                "emoji": None,
+                "avatar": None,
+                "alias": None,
+                "customFields": None,
+                "attachments": None,
+                "mentions": [],
+                "channels": [],
+            }
+        ]
+    }
+
+    with amock.patch.object(connector, "get_messages_loop"), amock.patch(
+        "opsdroid.core.OpsDroid.parse"
+    ) as mocked_parse:
+        await connector._parse_message(response)
+        captured = capsys.readouterr()
+        assert "DEBUG" in captured.err
+        assert mocked_parse.called
+        assert "2018-05-11T16:05:41.047Z", connector.latest_update
+
+
+@pytest.mark.asyncio
+async def test_listen():
+    with amock.patch.object(
+        connector.loop, "create_task"
+    ) as mocked_task, amock.patch.object(
+        connector._closing, "wait"
+    ) as mocked_event, amock.patch.object(
+        connector, "get_messages_loop"
+    ):
+        mocked_event.return_value = asyncio.Future()
+        mocked_event.return_value.set_result(True)
+        mocked_task.return_value = asyncio.Future()
+        await connector.listen()
+
+        assert mocked_event.called
+        assert mocked_task.called
+
+
+@pytest.mark.asyncio
+async def test_get_message_failure():
+    listen_response = amock.Mock()
+    listen_response.status = 401
+
+    with amock.patch.object(connector.session, "get") as patched_request:
+
+        patched_request.return_value = asyncio.Future()
+        patched_request.return_value.set_result(listen_response)
+        await connector._get_message()
+        captured = capsys.readouterr()
+        assert "ERROR" in captured.err
+        assert connector.listening == False
+
+
+@pytest.mark.asyncio
+async def test_get_messages_loop():
+    connector._get_messages = amock.CoroutineMock()
+    connector._get_messages.side_effect = Exception()
+    with contextlib.suppress(Exception):
+        await connector.get_messages_loop()
+
+
+@pytest.mark.asyncio
+async def test_respond():
+    post_response = amock.Mock()
+    post_response.status = 200
+
+    with OpsDroid() as opsdroid, amock.patch.object(
+        connector.session, "post"
+    ) as patched_request:
+
+        assert opsdroid.__class__.instances
+        test_message = Message(
+            text="This is a test", user="opsdroid", target="test", connector=connector,
         )
 
-        self.connector.latest_update = "2018-10-08T12:57:37.126Z"
+        patched_request.return_value = asyncio.Future()
+        patched_request.return_value.set_result(post_response)
+        await test_message.respond("Response")
+        assert patched_request.called
+        captured = capsys.readouterr()
+        assert "DEBUG" in captured.err
 
-        with amock.patch("aiohttp.ClientSession") as mocked_session:
-            self.connector.session = mocked_session
 
-    async def test_connect(self):
-        connect_response = amock.Mock()
-        connect_response.status = 200
-        connect_response.json = amock.CoroutineMock()
-        connect_response.return_value = {
-            "_id": "3vABZrQgDzfcz7LZi",
-            "name": "Fábio Rosado",
-            "emails": [{"address": "fabioglrosado@gmail.com", "verified": True}],
-            "status": "online",
-            "statusConnection": "online",
-            "username": "FabioRosado",
-            "utcOffset": 1,
-            "active": True,
-            "roles": ["user"],
-            "settings": {},
-            "email": "fabioglrosado@gmail.com",
-            "success": True,
-        }
+@pytest.mark.asyncio
+async def test_respond_failure():
+    post_response = amock.Mock()
+    post_response.status = 401
 
-        with amock.patch("aiohttp.ClientSession.get") as patched_request:
+    with OpsDroid() as opsdroid, amock.patch.object(
+        connector.session, "post"
+    ) as patched_request:
 
-            patched_request.return_value = asyncio.Future()
-            patched_request.return_value.set_result(connect_response)
+        assert opsdroid.__class__.instances
+        test_message = Message(
+            text="This is a test", user="opsdroid", target="test", connector=connector,
+        )
 
-            await self.connector.connect()
+        patched_request.return_value = asyncio.Future()
+        patched_request.return_value.set_result(post_response)
+        await test_message.respond("Response")
+        captured = capsys.readouterr()
+        assert "DEBUG" in captured.err
 
-            self.assertLogs("_LOGGER", "debug")
-            self.assertNotEqual(200, patched_request.status)
-            self.assertTrue(patched_request.called)
 
-    async def test_connect_failure(self):
-        result = amock.MagicMock()
-        result.status = 401
+@pytest.mark.asyncio
+async def test_disconnect():
+    with amock.patch.object(connector.session, "close") as mocked_close:
+        mocked_close.return_value = asyncio.Future()
+        mocked_close.return_value.set_result(True)
 
-        with amock.patch("aiohttp.ClientSession.get") as patched_request:
-
-            patched_request.return_value = asyncio.Future()
-            patched_request.return_value.set_result(result)
-
-            await self.connector.connect()
-            self.assertLogs("_LOGGER", "error")
-
-    async def test_get_message(self):
-        self.connector.group = "test"
-        response = amock.Mock()
-        response.status = 200
-        response.json = amock.CoroutineMock()
-        response.return_value = {
-            "messages": [
-                {
-                    "_id": "ZbhuIO764jOIu",
-                    "rid": "Ipej45JSbfjt9",
-                    "msg": "hows it going",
-                    "ts": "2018-05-11T16:05:41.047Z",
-                    "u": {
-                        "_id": "ZbhuIO764jOIu",
-                        "username": "FabioRosado",
-                        "name": "Fábio Rosado",
-                    },
-                    "_updatedAt": "2018-05-11T16:05:41.489Z",
-                    "editedBy": None,
-                    "editedAt": None,
-                    "emoji": None,
-                    "avatar": None,
-                    "alias": None,
-                    "customFields": None,
-                    "attachments": None,
-                    "mentions": [],
-                    "channels": [],
-                }
-            ]
-        }
-
-        with amock.patch.object(
-            self.connector.session, "get"
-        ) as patched_request, amock.patch.object(
-            self.connector, "_parse_message"
-        ) as mocked_parse_message, amock.patch(
-            "asyncio.sleep"
-        ) as mocked_sleep:
-
-            patched_request.return_value = asyncio.Future()
-            patched_request.return_value.set_result(response)
-
-            await self.connector._get_message()
-
-            self.assertTrue(patched_request.called)
-            self.assertTrue(mocked_parse_message.called)
-            self.assertTrue(mocked_sleep.called)
-            self.assertLogs("_LOGGER", "debug")
-
-    async def test_parse_message(self):
-        response = {
-            "messages": [
-                {
-                    "_id": "ZbhuIO764jOIu",
-                    "rid": "Ipej45JSbfjt9",
-                    "msg": "hows it going",
-                    "ts": "2018-05-11T16:05:41.047Z",
-                    "u": {
-                        "_id": "ZbhuIO764jOIu",
-                        "username": "FabioRosado",
-                        "name": "Fábio Rosado",
-                    },
-                    "_updatedAt": "2018-05-11T16:05:41.489Z",
-                    "editedBy": None,
-                    "editedAt": None,
-                    "emoji": None,
-                    "avatar": None,
-                    "alias": None,
-                    "customFields": None,
-                    "attachments": None,
-                    "mentions": [],
-                    "channels": [],
-                }
-            ]
-        }
-
-        with amock.patch.object(self.connector, "get_messages_loop"), amock.patch(
-            "opsdroid.core.OpsDroid.parse"
-        ) as mocked_parse:
-            await self.connector._parse_message(response)
-            self.assertLogs("_LOGGER", "debug")
-            self.assertTrue(mocked_parse.called)
-            self.assertEqual("2018-05-11T16:05:41.047Z", self.connector.latest_update)
-
-    async def test_listen(self):
-        with amock.patch.object(
-            self.connector.loop, "create_task"
-        ) as mocked_task, amock.patch.object(
-            self.connector._closing, "wait"
-        ) as mocked_event, amock.patch.object(
-            self.connector, "get_messages_loop"
-        ):
-            mocked_event.return_value = asyncio.Future()
-            mocked_event.return_value.set_result(True)
-            mocked_task.return_value = asyncio.Future()
-            await self.connector.listen()
-
-            self.assertTrue(mocked_event.called)
-            self.assertTrue(mocked_task.called)
-
-    async def test_get_message_failure(self):
-        listen_response = amock.Mock()
-        listen_response.status = 401
-
-        with amock.patch.object(self.connector.session, "get") as patched_request:
-
-            patched_request.return_value = asyncio.Future()
-            patched_request.return_value.set_result(listen_response)
-            await self.connector._get_message()
-            self.assertLogs("_LOGGER", "error")
-            self.assertEqual(False, self.connector.listening)
-
-    async def test_get_messages_loop(self):
-        self.connector._get_messages = amock.CoroutineMock()
-        self.connector._get_messages.side_effect = Exception()
-        with contextlib.suppress(Exception):
-            await self.connector.get_messages_loop()
-
-    async def test_respond(self):
-        post_response = amock.Mock()
-        post_response.status = 200
-
-        with OpsDroid() as opsdroid, amock.patch.object(
-            self.connector.session, "post"
-        ) as patched_request:
-
-            self.assertTrue(opsdroid.__class__.instances)
-            test_message = Message(
-                text="This is a test",
-                user="opsdroid",
-                target="test",
-                connector=self.connector,
-            )
-
-            patched_request.return_value = asyncio.Future()
-            patched_request.return_value.set_result(post_response)
-            await test_message.respond("Response")
-            self.assertTrue(patched_request.called)
-            self.assertLogs("_LOGGER", "debug")
-
-    async def test_respond_failure(self):
-        post_response = amock.Mock()
-        post_response.status = 401
-
-        with OpsDroid() as opsdroid, amock.patch.object(
-            self.connector.session, "post"
-        ) as patched_request:
-
-            self.assertTrue(opsdroid.__class__.instances)
-            test_message = Message(
-                text="This is a test",
-                user="opsdroid",
-                target="test",
-                connector=self.connector,
-            )
-
-            patched_request.return_value = asyncio.Future()
-            patched_request.return_value.set_result(post_response)
-            await test_message.respond("Response")
-            self.assertLogs("_LOGGER", "debug")
-
-    async def test_disconnect(self):
-        with amock.patch.object(self.connector.session, "close") as mocked_close:
-            mocked_close.return_value = asyncio.Future()
-            mocked_close.return_value.set_result(True)
-
-            await self.connector.disconnect()
-            self.assertFalse(self.connector.listening)
-            self.assertTrue(self.connector.session.closed())
-            self.assertEqual(self.connector._closing.set(), None)
+        await connector.disconnect()
+        assert connector.listening == False
+        assert connector.session.closed()
+        assert connector._closing.set() == None
