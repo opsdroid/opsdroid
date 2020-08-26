@@ -1,4 +1,4 @@
-from mock import call
+from mock import call, AsyncMock
 import pytest
 
 import nio
@@ -79,6 +79,8 @@ def matrix_call(method, path, content=None):
 @pytest.mark.asyncio
 async def test_default_config(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse({}, "", "", "")
+    patched_send.return_value.transport_response = AsyncMock()
+    patched_send.return_value.transport_response.status = 404
 
     db = DatabaseMatrix({"should_encrypt": False}, opsdroid=opsdroid_matrix)
     db.should_migrate = False
@@ -106,7 +108,10 @@ async def test_default_config(patched_send, opsdroid_matrix):
 async def test_default_config_enc(patched_send, opsdroid_matrix, patched_uuid):
     def side_effect(resp, *args, **kwargs):
         if resp is nio.RoomGetStateEventResponse:
-            return nio.RoomGetStateEventResponse({}, "", "", "")
+            resp = nio.RoomGetStateEventResponse({}, "", "", "")
+            resp.transport_response = AsyncMock()
+            resp.transport_response.status = 404
+            return resp
         else:
             return nio.RoomSendResponse("enceventid", "!notaroomid")
 
@@ -140,6 +145,8 @@ async def test_default_config_enc(patched_send, opsdroid_matrix, patched_uuid):
 @pytest.mark.asyncio
 async def test_put_custom_state_key(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse({}, "", "", "")
+    patched_send.return_value.transport_response = AsyncMock()
+    patched_send.return_value.transport_response.status = 404
 
     db = DatabaseMatrix(
         {"should_encrypt": False, "single_state_key": "wibble"},
@@ -170,7 +177,10 @@ async def test_put_custom_state_key(patched_send, opsdroid_matrix):
 async def test_put_custom_state_key_enc(patched_send, opsdroid_matrix, patched_uuid):
     def side_effect(resp, *args, **kwargs):
         if resp is nio.RoomGetStateEventResponse:
-            return nio.RoomGetStateEventResponse({}, "", "", "")
+            resp = nio.RoomGetStateEventResponse({}, "", "", "")
+            resp.transport_response = AsyncMock()
+            resp.transport_response.status = 404
+            return resp
         else:
             return nio.RoomSendResponse("enceventid", "!notaroomid")
 
@@ -204,6 +214,8 @@ async def test_put_custom_state_key_enc(patched_send, opsdroid_matrix, patched_u
 @pytest.mark.asyncio
 async def test_single_state_key_false(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse({}, "", "", "")
+    patched_send.return_value.transport_response = AsyncMock()
+    patched_send.return_value.transport_response.status = 404
 
     db = DatabaseMatrix(
         {"should_encrypt": False, "single_state_key": False}, opsdroid=opsdroid_matrix
@@ -233,7 +245,10 @@ async def test_single_state_key_false(patched_send, opsdroid_matrix):
 async def test_single_state_key_false_enc(patched_send, opsdroid_matrix, patched_uuid):
     def side_effect(resp, *args, **kwargs):
         if resp is nio.RoomGetStateEventResponse:
-            return nio.RoomGetStateEventResponse({}, "", "", "")
+            resp = nio.RoomGetStateEventResponse({}, "", "", "")
+            resp.transport_response = AsyncMock()
+            resp.transport_response.status = 404
+            return resp
         else:
             return nio.RoomSendResponse("enceventid", "!notaroomid")
 
@@ -267,6 +282,8 @@ async def test_single_state_key_false_enc(patched_send, opsdroid_matrix, patched
 @pytest.mark.asyncio
 async def test_single_state_key_false_multiple_keys(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse({}, "", "", "")
+    patched_send.return_value.transport_response = AsyncMock()
+    patched_send.return_value.transport_response.status = 404
 
     db = DatabaseMatrix(
         {"should_encrypt": False, "single_state_key": False}, opsdroid=opsdroid_matrix
@@ -298,7 +315,10 @@ async def test_single_state_key_false_multiple_keys_enc(
 ):
     def side_effect(resp, *args, **kwargs):
         if resp is nio.RoomGetStateEventResponse:
-            return nio.RoomGetStateEventResponse({}, "", "", "")
+            resp = nio.RoomGetStateEventResponse({}, "", "", "")
+            resp.transport_response = AsyncMock()
+            resp.transport_response.status = 404
+            return resp
         else:
             return nio.RoomSendResponse("enceventid", "!notaroomid")
 
@@ -340,6 +360,8 @@ async def test_single_state_key_false_multiple_keys_enc(
 @pytest.mark.asyncio
 async def test_single_state_not_a_dict(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse({}, "", "", "")
+    patched_send.return_value.transport_response = AsyncMock()
+    patched_send.return_value.transport_response.status = 404
 
     value = "world"
     db = DatabaseMatrix(
@@ -366,6 +388,8 @@ async def test_single_state_not_a_dict(patched_send, opsdroid_matrix):
 @pytest.mark.asyncio
 async def test_default_not_a_dict(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse({}, "", "", "")
+    patched_send.return_value.transport_response = AsyncMock()
+    patched_send.return_value.transport_response.status = 404
 
     value = "world"
     db = DatabaseMatrix(
@@ -382,6 +406,8 @@ async def test_default_update_different_value(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"hello": "world"}, "", "", ""
     )
+    patched_send.return_value.transport_response = AsyncMock()
+    patched_send.return_value.transport_response.status = 200
 
     db = DatabaseMatrix(
         {"should_encrypt": False, "single_state_key": False}, opsdroid=opsdroid_matrix
@@ -414,7 +440,10 @@ async def test_default_update_different_value_enc(
 ):
     def side_effect(resp, *args, **kwargs):
         if resp is nio.RoomGetStateEventResponse:
-            return nio.RoomGetStateEventResponse({"hello": "world"}, "", "", "")
+            resp = nio.RoomGetStateEventResponse({"hello": "world"}, "", "", "")
+            resp.transport_response = AsyncMock()
+            resp.transport_response.status = 200
+            return resp
         else:
             return nio.RoomSendResponse("enceventid", "!notaroomid")
 
@@ -450,6 +479,8 @@ async def test_default_update_multiple_different_values(patched_send, opsdroid_m
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"hello": "world"}, "", "", ""
     )
+    patched_send.return_value.transport_response = AsyncMock()
+    patched_send.return_value.transport_response.status = 200
 
     db = DatabaseMatrix(
         {"should_encrypt": False, "single_state_key": False}, opsdroid=opsdroid_matrix
@@ -482,7 +513,10 @@ async def test_default_update_multiple_different_values_enc(
 ):
     def side_effect(resp, *args, **kwargs):
         if resp is nio.RoomGetStateEventResponse:
-            return nio.RoomGetStateEventResponse({"hello": "world"}, "", "", "")
+            resp = nio.RoomGetStateEventResponse({"hello": "world"}, "", "", "")
+            resp.transport_response = AsyncMock()
+            resp.transport_response.status = 200
+            return resp
         else:
             return nio.RoomSendResponse("enceventid", "!notaroomid")
 
@@ -527,6 +561,8 @@ async def test_default_update_same_key(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"hello": "world"}, "", "", ""
     )
+    patched_send.return_value.transport_response = AsyncMock()
+    patched_send.return_value.transport_response.status = 200
 
     db = DatabaseMatrix(
         {"should_encrypt": False, "single_state_key": False}, opsdroid=opsdroid_matrix
@@ -557,9 +593,12 @@ async def test_default_update_same_key(patched_send, opsdroid_matrix):
 async def test_default_update_same_key_enc(patched_send, opsdroid_matrix, patched_uuid):
     def side_effect(resp, *args, **kwargs):
         if resp is nio.RoomGetStateEventResponse:
-            return nio.RoomGetStateEventResponse(
+            resp = nio.RoomGetStateEventResponse(
                 {"hello": {"encrypted_val": "enceventid"}}, "", "", ""
             )
+            resp.transport_response = AsyncMock()
+            resp.transport_response.status = 200
+            return resp
         elif resp is nio.RoomGetEventResponse:
             event = nio.Event(
                 {
@@ -609,6 +648,8 @@ async def test_default_update_multiple_same_keys(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"hello": "world", "pill": "blue"}, "", "", ""
     )
+    patched_send.return_value.transport_response = AsyncMock()
+    patched_send.return_value.transport_response.status = 200
 
     db = DatabaseMatrix(
         {"should_encrypt": False, "single_state_key": False}, opsdroid=opsdroid_matrix
@@ -641,7 +682,7 @@ async def test_default_update_multiple_same_keys_enc(
 ):
     def side_effect(resp, method, path, *args, **kwargs):
         if resp is nio.RoomGetStateEventResponse:
-            return nio.RoomGetStateEventResponse(
+            resp = nio.RoomGetStateEventResponse(
                 {
                     "hello": {"encrypted_val": "enceventid"},
                     "pill": {"encrypted_val": "enceventid2"},
@@ -650,6 +691,9 @@ async def test_default_update_multiple_same_keys_enc(
                 "",
                 "",
             )
+            resp.transport_response = AsyncMock()
+            resp.transport_response.status = 200
+            return resp
         elif resp is nio.RoomGetEventResponse:
             if "enceventid2" not in path:
                 event = nio.Event(
@@ -726,6 +770,8 @@ async def test_update_same_key_single_state_key(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"twim": {"hello": "world"}}, "", "", ""
     )
+    patched_send.return_value.transport_response = AsyncMock()
+    patched_send.return_value.transport_response.status = 200
 
     db = DatabaseMatrix(
         {"should_encrypt": False, "single_state_key": True}, opsdroid=opsdroid_matrix
@@ -758,9 +804,12 @@ async def test_update_same_key_single_state_key_enc(
 ):
     def side_effect(resp, *args, **kwargs):
         if resp is nio.RoomGetStateEventResponse:
-            return nio.RoomGetStateEventResponse(
+            resp = nio.RoomGetStateEventResponse(
                 {"twim": {"encrypted_val": "enceventid"}}, "", "", ""
             )
+            resp.transport_response = AsyncMock()
+            resp.transport_response.status = 200
+            return resp
         elif resp is nio.RoomGetEventResponse:
             event = nio.Event(
                 {
@@ -810,6 +859,8 @@ async def test_default_update_same_key_value(patched_send, opsdroid_matrix, capl
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"hello": "world"}, "", "", ""
     )
+    patched_send.return_value.transport_response = AsyncMock()
+    patched_send.return_value.transport_response.status = 200
 
     db = DatabaseMatrix(
         {"should_encrypt": False, "single_state_key": False}, opsdroid=opsdroid_matrix
@@ -827,10 +878,9 @@ async def test_default_update_same_key_value(patched_send, opsdroid_matrix, capl
         ],
     )
 
-    assert [
-        "Not updating matrix state, as content hasn't changed.",
-        "Error putting key into matrix room",
-    ] == [rec.message for rec in caplog.records]
+    assert ["Not updating matrix state, as content hasn't changed."] == [
+        rec.message for rec in caplog.records
+    ]
 
 
 # This will pass even without enc since we dont get to the part in put where that's relevant
@@ -840,9 +890,12 @@ async def test_default_update_same_key_value_enc(
 ):
     def side_effect(resp, *args, **kwargs):
         if resp is nio.RoomGetStateEventResponse:
-            return nio.RoomGetStateEventResponse(
+            resp = nio.RoomGetStateEventResponse(
                 {"hello": {"encrypted_val": "enceventid"}}, "", "", ""
             )
+            resp.transport_response = AsyncMock()
+            resp.transport_response.status = 200
+            return resp
         else:
             event = nio.Event(
                 {
@@ -874,10 +927,9 @@ async def test_default_update_same_key_value_enc(
         ],
     )
 
-    assert [
-        "Not updating matrix state, as content hasn't changed.",
-        "Error putting key into matrix room",
-    ] == [rec.message for rec in caplog.records]
+    assert ["Not updating matrix state, as content hasn't changed."] == [
+        rec.message for rec in caplog.records
+    ]
 
 
 @pytest.mark.asyncio
@@ -887,6 +939,8 @@ async def test_default_update_multiple_same_key_values(
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"hello": "world", "pill": "red"}, "", "", ""
     )
+    patched_send.return_value.transport_response = AsyncMock()
+    patched_send.return_value.transport_response.status = 200
 
     db = DatabaseMatrix(
         {"should_encrypt": False, "single_state_key": False}, opsdroid=opsdroid_matrix
@@ -904,10 +958,9 @@ async def test_default_update_multiple_same_key_values(
         ],
     )
 
-    assert [
-        "Not updating matrix state, as content hasn't changed.",
-        "Error putting key into matrix room",
-    ] == [rec.message for rec in caplog.records]
+    assert ["Not updating matrix state, as content hasn't changed."] == [
+        rec.message for rec in caplog.records
+    ]
 
 
 # This will pass even without enc since we dont get to the part in put where that's relevant
@@ -917,7 +970,7 @@ async def test_default_update_multiple_same_key_values_enc(
 ):
     def side_effect(resp, method, path, *args, **kwargs):
         if resp is nio.RoomGetStateEventResponse:
-            return nio.RoomGetStateEventResponse(
+            resp = nio.RoomGetStateEventResponse(
                 {
                     "hello": {"encrypted_val": "enceventid"},
                     "pill": {"encrypted_val": "enceventid2"},
@@ -926,6 +979,9 @@ async def test_default_update_multiple_same_key_values_enc(
                 "",
                 "",
             )
+            resp.transport_response = AsyncMock()
+            resp.transport_response.status = 200
+            return resp
         else:
             if "enceventid2" not in path:
                 event = nio.Event(
@@ -976,10 +1032,9 @@ async def test_default_update_multiple_same_key_values_enc(
         ],
     )
 
-    assert [
-        "Not updating matrix state, as content hasn't changed.",
-        "Error putting key into matrix room",
-    ] == [rec.message for rec in caplog.records]
+    assert ["Not updating matrix state, as content hasn't changed."] == [
+        rec.message for rec in caplog.records
+    ]
 
 
 @pytest.mark.asyncio
@@ -989,6 +1044,8 @@ async def test_default_update_same_key_value_single_state_key(
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"twim": {"hello": "world"}}, "", "", ""
     )
+    patched_send.return_value.transport_response = AsyncMock()
+    patched_send.return_value.transport_response.status = 200
 
     db = DatabaseMatrix(
         {"should_encrypt": False, "single_state_key": True}, opsdroid=opsdroid_matrix
@@ -1006,10 +1063,9 @@ async def test_default_update_same_key_value_single_state_key(
         ],
     )
 
-    assert [
-        "Not updating matrix state, as content hasn't changed.",
-        "Error putting key into matrix room",
-    ] == [rec.message for rec in caplog.records]
+    assert ["Not updating matrix state, as content hasn't changed."] == [
+        rec.message for rec in caplog.records
+    ]
 
 
 # This will pass even without enc since we dont get to the part in put where that's relevant
@@ -1019,9 +1075,12 @@ async def test_default_update_same_key_value_single_state_key_enc(
 ):
     def side_effect(resp, *args, **kwargs):
         if resp is nio.RoomGetStateEventResponse:
-            return nio.RoomGetStateEventResponse(
+            resp = nio.RoomGetStateEventResponse(
                 {"twim": {"encrypted_val": "enceventid"}}, "", "", ""
             )
+            resp.transport_response = AsyncMock()
+            resp.transport_response.status = 200
+            return resp
         else:
             event = nio.Event(
                 {
@@ -1053,10 +1112,9 @@ async def test_default_update_same_key_value_single_state_key_enc(
         ],
     )
 
-    assert [
-        "Not updating matrix state, as content hasn't changed.",
-        "Error putting key into matrix room",
-    ] == [rec.message for rec in caplog.records]
+    assert ["Not updating matrix state, as content hasn't changed."] == [
+        rec.message for rec in caplog.records
+    ]
 
 
 @pytest.mark.asyncio
@@ -1064,6 +1122,8 @@ async def test_default_update_single_state_key(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"twim": "hello"}, "", "", ""
     )
+    patched_send.return_value.transport_response = AsyncMock()
+    patched_send.return_value.transport_response.status = 200
 
     db = DatabaseMatrix(
         {"should_encrypt": False, "single_state_key": True}, opsdroid=opsdroid_matrix
@@ -1096,7 +1156,10 @@ async def test_default_update_single_state_key_enc(
 ):
     def side_effect(resp, *args, **kwargs):
         if resp is nio.RoomGetStateEventResponse:
-            return nio.RoomGetStateEventResponse({"twim": "hello"}, "", "", "")
+            resp = nio.RoomGetStateEventResponse({"twim": "hello"}, "", "", "")
+            resp.transport_response = AsyncMock()
+            resp.transport_response.status = 200
+            return resp
         else:
             return nio.RoomSendResponse("enceventid", "!notaroomid")
 
@@ -1132,6 +1195,8 @@ async def test_get_single_state_key(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"twim": "hello", "wibble": "wobble"}, "", "", ""
     )
+    patched_send.return_value.transport_response = AsyncMock()
+    patched_send.return_value.transport_response.status = 200
 
     db = DatabaseMatrix({}, opsdroid=opsdroid_matrix)
     db.should_migrate = False
@@ -1152,12 +1217,15 @@ async def test_get_single_state_key(patched_send, opsdroid_matrix):
 async def test_get_single_state_key_enc(patched_send, opsdroid_matrix):
     def side_effect(resp, *args, **kwargs):
         if resp is nio.RoomGetStateEventResponse:
-            return nio.RoomGetStateEventResponse(
+            resp = nio.RoomGetStateEventResponse(
                 {"twim": {"encrypted_val": "enceventid"}, "wibble": "wobble"},
                 "",
                 "",
                 "",
             )
+            resp.transport_response = AsyncMock()
+            resp.transport_response.status = 200
+            return resp
         else:
             event = nio.Event(
                 {
@@ -1196,6 +1264,8 @@ async def test_get(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"hello": "world"}, "", "", ""
     )
+    patched_send.return_value.transport_response = AsyncMock()
+    patched_send.return_value.transport_response.status = 200
 
     db = DatabaseMatrix(
         {"should_encrypt": False, "single_state_key": False}, opsdroid=opsdroid_matrix
@@ -1218,9 +1288,12 @@ async def test_get(patched_send, opsdroid_matrix):
 async def test_get_enc(patched_send, opsdroid_matrix):
     def side_effect(resp, *args, **kwargs):
         if resp is nio.RoomGetStateEventResponse:
-            return nio.RoomGetStateEventResponse(
+            resp = nio.RoomGetStateEventResponse(
                 {"hello": {"encrypted_val": "enceventid"}}, "", "", ""
             )
+            resp.transport_response = AsyncMock()
+            resp.transport_response.status = 200
+            return resp
         else:
             event = nio.Event(
                 {
@@ -1259,6 +1332,8 @@ async def test_get_no_key_single_state_key(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"wibble": "wobble"}, "", "", ""
     )
+    patched_send.return_value.transport_response = AsyncMock()
+    patched_send.return_value.transport_response.status = 200
 
     db = DatabaseMatrix(
         {"should_encrypt": False, "single_state_key": True}, opsdroid=opsdroid_matrix
@@ -1303,6 +1378,8 @@ async def test_delete(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"twim": "hello"}, "", "", ""
     )
+    patched_send.return_value.transport_response = AsyncMock()
+    patched_send.return_value.transport_response.status = 200
 
     db = DatabaseMatrix({}, opsdroid=opsdroid_matrix)
     db.should_migrate = False
@@ -1330,6 +1407,8 @@ async def test_delete_single_state_key_false(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"hello": "world"}, "", "", ""
     )
+    patched_send.return_value.transport_response = AsyncMock()
+    patched_send.return_value.transport_response.status = 200
 
     db = DatabaseMatrix({"single_state_key": False}, opsdroid=opsdroid_matrix)
     db.should_migrate = False
@@ -1357,6 +1436,8 @@ async def test_delete_multiple_keys(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"hello": "world", "twim": "hello", "pill": "red"}, "", "", ""
     )
+    patched_send.return_value.transport_response = AsyncMock()
+    patched_send.return_value.transport_response.status = 200
 
     db = DatabaseMatrix({}, opsdroid=opsdroid_matrix)
     db.should_migrate = False
@@ -1386,6 +1467,8 @@ async def test_delete_multiple_keys_single_state_key_false(
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"hello": "world", "twim": "hello", "pill": "red"}, "", "", ""
     )
+    patched_send.return_value.transport_response = AsyncMock()
+    patched_send.return_value.transport_response.status = 200
 
     db = DatabaseMatrix({"single_state_key": False}, opsdroid=opsdroid_matrix)
     db.should_migrate = False
@@ -1413,6 +1496,8 @@ async def test_delete_no_key(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"twim": "hello"}, "", "", ""
     )
+    patched_send.return_value.transport_response = AsyncMock()
+    patched_send.return_value.transport_response.status = 200
 
     db = DatabaseMatrix({}, opsdroid=opsdroid_matrix)
     db.should_migrate = False
@@ -1426,6 +1511,8 @@ async def test_delete_no_key_single_state_key_false(patched_send, opsdroid_matri
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"hello": "world"}, "", "", ""
     )
+    patched_send.return_value.transport_response = AsyncMock()
+    patched_send.return_value.transport_response.status = 200
 
     db = DatabaseMatrix({"single_state_key": False}, opsdroid=opsdroid_matrix)
     db.should_migrate = False
@@ -1446,6 +1533,9 @@ async def test_room_switch(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"hello": "world"}, "", "", ""
     )
+    patched_send.return_value.transport_response = AsyncMock()
+    patched_send.return_value.transport_response.status = 200
+
     db = DatabaseMatrix({"should_encrypt": False}, opsdroid=opsdroid_matrix)
     db.should_migrate = False
     with db.memory_in_room("!notanotherroom"):
@@ -1512,15 +1602,18 @@ async def test_migrate_and_errors(patched_send, opsdroid_matrix, mocker, caplog)
     )
 
     assert [
-        "Error getting the state event of type dev.opsdroid.database with state_key '' from matrix room !notaroomid: testing(None)",
+        "Error getting  from matrix room !notaroomid: testing(None)",
         "Error putting key into matrix room",
     ] == [rec.message for rec in caplog.records]
 
     def side_effect(resp, *args, **kwargs):
         if resp is nio.RoomGetStateEventResponse:
-            return nio.RoomGetStateEventResponse(
+            resp = nio.RoomGetStateEventResponse(
                 {"twim": {"encrypted_val": "enceventid"}}, "", "", ""
             )
+            resp.transport_response = AsyncMock()
+            resp.transport_response.status = 200
+            return resp
         else:
             return nio.RoomGetEventError(message="testing")
 
@@ -1569,11 +1662,26 @@ async def test_migrate_and_errors(patched_send, opsdroid_matrix, mocker, caplog)
         "When the matrix database is configured with single_state_key=False, key must be a dict."
     ] == [rec.message for rec in caplog.records]
 
+    side_effect = nio.RoomGetStateEventResponse({}, "", "", "")
+    side_effect.transport_response = AsyncMock()
+    side_effect.transport_response.status = 404
+    patched_send.side_effect = [side_effect]
+
+    caplog.clear()
+    await db.delete({"hello": "world"})
+
+    assert ["State event with state key 'hello' doesn't exist"] == [
+        rec.message for rec in caplog.records
+    ]
+
     def side_effect(resp, *args, **kwargs):
         if resp is nio.RoomGetStateEventResponse:
-            return nio.RoomGetStateEventResponse(
+            resp = nio.RoomGetStateEventResponse(
                 {"hello": {"encrypted_val": "enceventid"}}, "", "", ""
             )
+            resp.transport_response = AsyncMock()
+            resp.transport_response.status = 200
+            return resp
         else:
             return nio.RoomGetEventError(message="testing")
 
@@ -1583,8 +1691,6 @@ async def test_migrate_and_errors(patched_send, opsdroid_matrix, mocker, caplog)
     db.connector._allow_encryption = True
     await db.put("twim", {"hello": "world"})
 
-    assert [
-        "Error decrypting enceventid while putting into twim: testing(None)",
-        "Not updating matrix state, as content hasn't changed.",
-        "Error putting key into matrix room",
-    ] == [rec.message for rec in caplog.records]
+    assert ["Error decrypting enceventid while getting twim: testing(None)"] == [
+        rec.message for rec in caplog.records
+    ]

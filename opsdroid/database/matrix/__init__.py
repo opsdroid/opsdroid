@@ -74,48 +74,6 @@ class DatabaseMatrix(Database):
 
         self.should_migrate = False
 
-    async def _verify_and_get(self, state_key, value_dict):
-        """Get state and verify duplicate entries."""
-
-        ori_data = await self.connector.connection.room_get_state_event(
-            room_id=self.room_id, event_type=self._event_type, state_key=state_key,
-        )
-        if isinstance(ori_data, RoomGetStateEventError):
-            _LOGGER.error(
-                f"Error getting the state event of type {self._event_type} with "
-                f"state_key '{state_key}' from matrix room {self.room_id}: "
-                f"{ori_data.message}({ori_data.status_code})"
-            )
-            return
-        data = ori_data.content.copy()
-
-        _LOGGER.debug(f"Got {data} from state request.")
-
-        for k, v in value_dict.items():
-            if k in data:
-                check = data[k]
-                if isinstance(data[k], dict) and "encrypted_val" in data[k]:
-                    resp = await self.connector.connection.room_get_event(
-                        room_id=self.room_id, event_id=data[k]["encrypted_val"],
-                    )
-                    if isinstance(resp, RoomGetEventError):
-                        _LOGGER.error(
-                            f"Error decrypting {data[k]['encrypted_val']} while putting into "
-                            f"{state_key}: {resp.message}({resp.status_code})"
-                        )
-                        continue
-                    check = resp.event.source["content"][k]
-                if v == check:
-                    continue
-
-            data[k] = v
-
-        if ori_data.content == data:
-            _LOGGER.error("Not updating matrix state, as content hasn't changed.")
-            return None
-        else:
-            return data
-
     async def connect(self):
         """Connect to the database."""
 
@@ -140,10 +98,16 @@ class DatabaseMatrix(Database):
                 "the value passed must be a dict."
             )
 
-        data = await self._verify_and_get(state_key, value)
+        data = await self.get(state_key, check_dict=value)
         if data is None:  # dict could be empty
             _LOGGER.error("Error putting key into matrix room")
             return
+
+        if {**data, **value} == data:
+            _LOGGER.error("Not updating matrix state, as content hasn't changed.")
+            return
+        else:
+            data = {**data, **value}
 
         if self.is_room_encrypted and self.should_encrypt:
             for k, v in value.items():
@@ -168,7 +132,7 @@ class DatabaseMatrix(Database):
 
         return True
 
-    async def get(self, key):
+    async def get(self, key, check_dict=None):
         """Get a value from the database for a given key."""
 
         if self.should_migrate:
@@ -191,12 +155,17 @@ class DatabaseMatrix(Database):
                 f"Error getting {key} from matrix room {self.room_id}: {data.message}({data.status_code})"
             )
             return
+
+        if data.transport_response.status == 404:
+            data.content.clear()
         data = data.content
 
         _LOGGER.debug(f"Got {data} from state request.")
 
+        check = check_dict or data
+
         for k, v in data.items():
-            if isinstance(v, dict) and "encrypted_val" in v:
+            if isinstance(v, dict) and "encrypted_val" in v and k in check:
                 resp = await self.connector.connection.room_get_event(
                     room_id=self.room_id, event_id=v["encrypted_val"],
                 )
@@ -209,7 +178,7 @@ class DatabaseMatrix(Database):
                 data[k] = resp.event.source["content"][k]
 
         try:
-            if self._single_state_key:
+            if self._single_state_key and not check_dict:
                 data = data[key]
         except KeyError:
             _LOGGER.debug(f"{key} doesn't exist in database")
@@ -244,6 +213,10 @@ class DatabaseMatrix(Database):
             _LOGGER.error(
                 f"Error deleting {key} from matrix room {self.room_id}: {data.message}({data.status_code})"
             )
+            return
+
+        if data.transport_response.status == 404:
+            _LOGGER.error(f"State event with state key '{state_key}' doesn't exist")
             return
         data = data.content
 
