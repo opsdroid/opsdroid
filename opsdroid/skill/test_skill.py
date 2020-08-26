@@ -29,7 +29,7 @@ def test_init():
 
 
 def test_init_erroneous_property():
-    """Test that properties that raise an exception don’t mess up initialisation"""
+    """Test that properties that raise an exception don’t mess up initialisation."""
 
     config = {"example_item": "test"}
     skill = _TestSkill(None, config)
@@ -38,14 +38,14 @@ def test_init_erroneous_property():
 
 
 def test_matcher_on_instance():
-    """Test that matchers get registered on an object instance, not just on the class"""
+    """Test that matchers get registered on an object instance, not just on the class."""
 
     skill = _TestSkill(None, None)
     assert hasattr(skill.hello_skill, "matchers")
 
 
 def test_matcher_called():
-    """Test that if the decorated skill is called, the skill function gets called"""
+    """Test that if the decorated skill is called, the skill function gets called."""
 
     skill = _TestSkill(None, None)
     message = Mock()
