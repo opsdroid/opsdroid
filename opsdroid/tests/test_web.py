@@ -52,7 +52,7 @@ async def test_web_get_ssl(opsdroid):
         "ssl": {"cert": "tests/ssl/cert.pem", "key": "tests/ssl/key.pem"}
     }
     app = web.Web(opsdroid)
-    assert isinstance(app.get_ssl_context, ssl.SSLContext(ssl.PROTOCOL_SSLv23))
+    assert type(app.get_ssl_context) == type(ssl.SSLContext(ssl.PROTOCOL_SSLv23))
     assert app.get_port == 8443
 
     opsdroid.config["web"] = {

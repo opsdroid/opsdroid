@@ -1,4 +1,4 @@
-"""Test the opsdroid skill """
+"""Test the opsdroid skill."""
 import pytest
 
 from asynctest.mock import Mock
