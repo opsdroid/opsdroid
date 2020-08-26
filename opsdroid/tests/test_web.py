@@ -46,20 +46,20 @@ async def test_web_get_ssl(opsdroid):
     """Check the host getter."""
     opsdroid.config["web"] = {}
     app = web.Web(opsdroid)
-    assert app.get_ssl_context == None
+    assert app.get_ssl_context is None
 
     opsdroid.config["web"] = {
         "ssl": {"cert": "tests/ssl/cert.pem", "key": "tests/ssl/key.pem"}
     }
     app = web.Web(opsdroid)
-    assert type(app.get_ssl_context) == type(ssl.SSLContext(ssl.PROTOCOL_SSLv23))
+    assert isinstance(app.get_ssl_context, ssl.SSLContext(ssl.PROTOCOL_SSLv23))
     assert app.get_port == 8443
 
     opsdroid.config["web"] = {
         "ssl": {"cert": "/path/to/nonexistant/cert", "key": "/path/to/nonexistant/key",}
     }
     app = web.Web(opsdroid)
-    assert app.get_ssl_context == None
+    assert app.get_ssl_context is None
 
 
 async def test_web_build_response(opsdroid):
