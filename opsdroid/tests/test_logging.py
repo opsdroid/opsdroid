@@ -10,7 +10,6 @@ from opsdroid.cli.start import configure_lang
 configure_lang({})
 
 
-
 def test_set_logging_level():
     assert logging.DEBUG == opsdroid.get_logging_level("debug")
     assert logging.INFO == opsdroid.get_logging_level("info")
