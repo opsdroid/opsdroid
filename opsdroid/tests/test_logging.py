@@ -1,3 +1,4 @@
+"""Test the logging module."""
 import pytest
 import logging
 import os
