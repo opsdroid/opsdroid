@@ -8,7 +8,6 @@ from opsdroid.cli.start import configure_lang
 
 configure_lang({})
 
-"""Test the logging module."""
 
 
 def test_set_logging_level():
