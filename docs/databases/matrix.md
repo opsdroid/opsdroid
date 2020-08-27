@@ -48,3 +48,12 @@ db = opsdroid.get_database("matrix")
 with db.memory_in_room(new_room_id):
 	database ops
 ```
+
+## Encryption
+
+In encrypted Matrix rooms, state events (used by the database) are not encrypted. This means that anything put into the matrix database in an encrypted room would not be encrypted. To prevent this the matrix database send the **values** you put into your database into the room as regular events, which are encrypted, and then references these events from the database (which is still a state event).
+This has two effects you should be aware of:
+
+1) The keys in your database are not encrypted, **do not put sensitive information in the key**.
+
+2) If opsdroid can't decrypt the event, it will be dropped from the database. This means that if you need long term storage in your encrypted rooms you must take steps to save the matrix connectors store (where the decryption keys are kept), so back up your store and keep it safe!

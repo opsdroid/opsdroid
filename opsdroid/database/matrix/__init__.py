@@ -90,18 +90,11 @@ class DatabaseMatrix(Database):
             "" if self._single_state_key is True else self._single_state_key or key
         )
 
-        if self._single_state_key:
-            value = {key: value}
-        elif not isinstance(value, dict):
-            raise ValueError(
-                "When the matrix database is configured with single_state_key=False, "
-                "the value passed must be a dict."
-            )
+        value = {key: value}
 
-        data = await self.get(state_key, check_dict=value)
-        if data is None:  # dict could be empty
-            _LOGGER.error("Error putting key into matrix room")
-            return
+        data = await self.get(key, get_full=True)
+        if data is None:
+            data = {}
 
         if {**data, **value} == data:
             _LOGGER.error("Not updating matrix state, as content hasn't changed.")
@@ -110,13 +103,12 @@ class DatabaseMatrix(Database):
             data = {**data, **value}
 
         if self.is_room_encrypted and self.should_encrypt:
-            for k, v in value.items():
-                room_event = await self.opsdroid.send(
-                    GenericMatrixRoomEvent(
-                        target=self.room_id, content={k: v}, event_type=self._event_type
-                    )
+            room_event = await self.opsdroid.send(
+                GenericMatrixRoomEvent(
+                    target=self.room_id, content=value, event_type=self._event_type
                 )
-                data[k] = {"encrypted_val": room_event.event_id}
+            )
+            data[key] = {"encrypted_val": room_event.event_id}
 
         _LOGGER.debug(f"Putting {key} into matrix room {self.room_id} with {data}")
 
@@ -132,7 +124,7 @@ class DatabaseMatrix(Database):
 
         return True
 
-    async def get(self, key, check_dict=None):
+    async def get(self, key, get_full=False):
         """Get a value from the database for a given key."""
 
         if self.should_migrate:
@@ -147,25 +139,35 @@ class DatabaseMatrix(Database):
             f"Getting {key} from matrix room {self.room_id} with state_key={state_key}."
         )
 
-        data = await self.connector.connection.room_get_state_event(
+        ori_data = await self.connector.connection.room_get_state_event(
             room_id=self.room_id, event_type=self._event_type, state_key=state_key,
         )
-        if isinstance(data, RoomGetStateEventError):
+        if isinstance(ori_data, RoomGetStateEventError):
             _LOGGER.error(
-                f"Error getting {key} from matrix room {self.room_id}: {data.message}({data.status_code})"
+                f"Error getting {key} from matrix room {self.room_id}: {ori_data.message}({ori_data.status_code})"
+            )
+            return
+        elif ori_data.transport_response.status == 404:
+            _LOGGER.error(
+                f"Error getting {key} from matrix room {self.room_id}: Event not found"
             )
             return
 
-        if data.transport_response.status == 404:
-            data.content.clear()
-        data = data.content
+        data = ori_data.content
 
         _LOGGER.debug(f"Got {data} from state request.")
 
-        check = check_dict or data
+        if self._single_state_key:
+            if key in data:
+                data = {key: data[key]}
+            elif not get_full:
+                _LOGGER.debug(f"{key} doesn't exist in database")
+                return
+            else:
+                return data
 
         for k, v in data.items():
-            if isinstance(v, dict) and "encrypted_val" in v and k in check:
+            if isinstance(v, dict) and "encrypted_val" in v:
                 resp = await self.connector.connection.room_get_event(
                     room_id=self.room_id, event_id=v["encrypted_val"],
                 )
@@ -177,12 +179,8 @@ class DatabaseMatrix(Database):
                     continue
                 data[k] = resp.event.source["content"][k]
 
-        try:
-            if self._single_state_key and not check_dict:
-                data = data[key]
-        except KeyError:
-            _LOGGER.debug(f"{key} doesn't exist in database")
-            return None
+        if get_full:
+            return {**ori_data.content, **data}
 
         return data
 
