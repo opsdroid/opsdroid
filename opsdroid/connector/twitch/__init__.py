@@ -721,7 +721,9 @@ class ConnectorTwitch(Connector):
 
             param = {"title": event.status, "broadcaster_id": self.user_id}
             resp = await session.patch(
-                f"{TWITCH_API_ENDPOINT}/channels", headers=headers, params=param,
+                f"{TWITCH_API_ENDPOINT}/channels",
+                headers=headers,
+                params=param,
             )
 
             if resp.status == 204:
