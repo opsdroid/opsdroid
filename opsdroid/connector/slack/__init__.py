@@ -152,8 +152,7 @@ class ConnectorSlack(Connector):
                 data["thread_ts"] = message.linked_event.event_id
 
         await self.slack.api_call(
-            "chat.postMessage",
-            data=data,
+            "chat.postMessage", data=data,
         )
 
     @register_event(Blocks)

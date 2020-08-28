@@ -164,10 +164,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         connector.slack.api_call = amock.CoroutineMock()
         await connector.send(
             events.Message(
-                text="test",
-                user="user",
-                target="room",
-                connector=connector,
+                text="test", user="user", target="room", connector=connector,
             )
         )
         self.assertTrue(connector.slack.api_call.called)

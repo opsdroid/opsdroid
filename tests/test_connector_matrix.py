@@ -1167,10 +1167,7 @@ class TestConnectorMatrixAsync:
 
     async def test_send_reaction(self, connector):
         message = events.Message(
-            "hello",
-            event_id="$11111",
-            connector=connector,
-            target="!test:localhost",
+            "hello", event_id="$11111", connector=connector, target="!test:localhost",
         )
         reaction = events.Reaction("⭕")
         with OpsDroid() as _:
@@ -1194,10 +1191,7 @@ class TestConnectorMatrixAsync:
 
     async def test_send_reply(self, connector):
         message = events.Message(
-            "hello",
-            event_id="$11111",
-            connector=connector,
-            target="!test:localhost",
+            "hello", event_id="$11111", connector=connector, target="!test:localhost",
         )
         reply = events.Reply("reply")
         with OpsDroid() as _:
