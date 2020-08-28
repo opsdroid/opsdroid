@@ -1,6 +1,4 @@
 """Test the opsdroid skill."""
-import pytest
-
 from asynctest.mock import Mock
 
 from opsdroid.cli.start import configure_lang

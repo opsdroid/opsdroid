@@ -1,13 +1,9 @@
 """Test the opsdroid web."""
 import ssl
 
-import pytest
-
-import asynctest
 import asynctest.mock as amock
 
 from opsdroid.cli.start import configure_lang
-from opsdroid.core import OpsDroid
 from opsdroid import web
 import aiohttp.web
 
@@ -52,11 +48,14 @@ async def test_web_get_ssl(opsdroid):
         "ssl": {"cert": "tests/ssl/cert.pem", "key": "tests/ssl/key.pem"}
     }
     app = web.Web(opsdroid)
-    assert type(app.get_ssl_context) == type(ssl.SSLContext(ssl.PROTOCOL_SSLv23))
+    assert isinstance(app.get_ssl_context, type(ssl.SSLContext(ssl.PROTOCOL_SSLv23)))
     assert app.get_port == 8443
 
     opsdroid.config["web"] = {
-        "ssl": {"cert": "/path/to/nonexistant/cert", "key": "/path/to/nonexistant/key",}
+        "ssl": {
+            "cert": "/path/to/nonexistant/cert",
+            "key": "/path/to/nonexistant/key",
+        }
     }
     app = web.Web(opsdroid)
     assert app.get_ssl_context is None
