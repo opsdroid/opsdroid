@@ -1381,14 +1381,14 @@ async def test_delete(patched_send, opsdroid_matrix):
 @pytest.mark.asyncio
 async def test_delete_single_state_key_false(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
-        {"hello": "world"}, "", "", ""
+        {"twim": "hello"}, "", "", ""
     )
     patched_send.return_value.transport_response = AsyncMock()
     patched_send.return_value.transport_response.status = 200
 
     db = DatabaseMatrix({"single_state_key": False}, opsdroid=opsdroid_matrix)
     db.should_migrate = False
-    data = await db.delete({"twim": "hello"})
+    data = await db.delete("twim")
 
     patched_send.assert_has_calls(
         [
@@ -1404,7 +1404,7 @@ async def test_delete_single_state_key_false(patched_send, opsdroid_matrix):
         ],
     )
 
-    assert data == "world"
+    assert data == "hello"
 
 
 @pytest.mark.asyncio
@@ -1437,37 +1437,6 @@ async def test_delete_multiple_keys(patched_send, opsdroid_matrix):
 
 
 @pytest.mark.asyncio
-async def test_delete_multiple_keys_single_state_key_false(
-    patched_send, opsdroid_matrix
-):
-    patched_send.return_value = nio.RoomGetStateEventResponse(
-        {"hello": "world", "twim": "hello", "pill": "red"}, "", "", ""
-    )
-    patched_send.return_value.transport_response = AsyncMock()
-    patched_send.return_value.transport_response.status = 200
-
-    db = DatabaseMatrix({"single_state_key": False}, opsdroid=opsdroid_matrix)
-    db.should_migrate = False
-    data = await db.delete({"twim": ["hello", "twim"]})
-
-    patched_send.assert_has_calls(
-        [
-            matrix_call(
-                "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
-            ),
-            matrix_call(
-                "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
-                {"pill": "red"},
-            ),
-        ],
-    )
-
-    assert data == ["world", "hello"]
-
-
-@pytest.mark.asyncio
 async def test_delete_no_key(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"twim": "hello"}, "", "", ""
@@ -1483,18 +1452,23 @@ async def test_delete_no_key(patched_send, opsdroid_matrix):
 
 
 @pytest.mark.asyncio
-async def test_delete_no_key_single_state_key_false(patched_send, opsdroid_matrix):
-    patched_send.return_value = nio.RoomGetStateEventResponse(
-        {"hello": "world"}, "", "", ""
-    )
+async def test_delete_no_key_single_state_key_false(
+    patched_send, opsdroid_matrix, caplog
+):
+    patched_send.return_value = nio.RoomGetStateEventResponse({}, "", "", "")
     patched_send.return_value.transport_response = AsyncMock()
-    patched_send.return_value.transport_response.status = 200
+    patched_send.return_value.transport_response.status = 404
 
     db = DatabaseMatrix({"single_state_key": False}, opsdroid=opsdroid_matrix)
     db.should_migrate = False
-    data = await db.delete({"twim": "pill"})
+    caplog.clear()
+    data = await db.delete("twim")
 
     assert data is None
+
+    assert ["State event with state key 'twim' doesn't exist"] == [
+        rec.message for rec in caplog.records
+    ]
 
 
 @pytest.mark.asyncio
@@ -1628,27 +1602,6 @@ async def test_migrate_and_errors(patched_send, opsdroid_matrix, mocker, caplog)
         "Error deleting hello from matrix room !notaroomid: testing(None)",
     ] == [rec.message for rec in caplog.records]
 
-    caplog.clear()
-    db.should_migrate = False
-    db._single_state_key = False
-    await db.delete("hello")
-
-    assert [
-        "When the matrix database is configured with single_state_key=False, key must be a dict."
-    ] == [rec.message for rec in caplog.records]
-
-    side_effect = nio.RoomGetStateEventResponse({}, "", "", "")
-    side_effect.transport_response = AsyncMock()
-    side_effect.transport_response.status = 404
-    patched_send.side_effect = [side_effect]
-
-    caplog.clear()
-    await db.delete({"hello": "world"})
-
-    assert ["State event with state key 'hello' doesn't exist"] == [
-        rec.message for rec in caplog.records
-    ]
-
     def side_effect(resp, *args, **kwargs):
         if resp is nio.RoomGetStateEventResponse:
             resp = nio.RoomGetStateEventResponse(
@@ -1664,6 +1617,8 @@ async def test_migrate_and_errors(patched_send, opsdroid_matrix, mocker, caplog)
 
     caplog.clear()
     db.connector._allow_encryption = True
+    db.should_migrate = False
+    db._single_state_key = False
     await db.put("twim", {"hello": "world"})
 
     assert ["Error decrypting enceventid while getting twim: testing(None)"] == [

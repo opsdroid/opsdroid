@@ -25,7 +25,7 @@ The database provides 3 functions to interact with it - `get, put, and delete`.
 The data is maintained in state events in the form of a dictionary. Each event
 has a `state key` which is used to identify that event. You can configure the
 database to have only one single state key or specify a state key for each
-request. State events are sent to the room in the configuration.
+request. State events are sent to the room specified in the configuration.
 
 The `get` function takes one argument, the key. If the database is configured to
 have a single state key then the key passed should be the key for the dict in it. If
@@ -33,13 +33,12 @@ single state key is disabled the the key passed should be the state key.
 
 The `put` function takes 2 arguments, the key and value to put in the
 dictionary. The key is either the dict key if single state key is set or the
-state key if single state key is not set. if single state key is not set then
-the value needs to be a dict of the form `{key: value}`. 
+state key if single state key is not set. The value can be whatever you want.
 
-the `delete` function takes one argument, the key to delete. If the database is
-configured to have a single state key then the key passed should be the key for
-the dict in it. If single state key is disabled then the key passed should be a
-dict of the form `{state_key: key}`. Pass a list of keys to delete multiple keys.
+the `delete` function takes one argument, the key to delete. The key is either
+the dict key if single state key is set or the state key if single state key is
+not set. You can pass a list of keys to delete multiple keys if single state
+key is enabled.
 
 The database provides a context manager `memory_in_room` to perform some
 operations in a different rooms. use it as:

@@ -190,19 +190,10 @@ class DatabaseMatrix(Database):
         if self.should_migrate:
             await self.migrate_database()
 
-        if not self._single_state_key and not isinstance(key, dict):
-            _LOGGER.error(
-                "When the matrix database is configured with single_state_key=False, key must be a dict."
-            )
-            return
-
         # If the single state key flag is set then use that else use state key.
         state_key = (
             "" if self._single_state_key is True else self._single_state_key or key
         )
-
-        if isinstance(state_key, dict):
-            state_key, key = list(state_key.items())[0]
 
         data = await self.connector.connection.room_get_state_event(
             room_id=self.room_id, event_type=self._event_type, state_key=state_key,
