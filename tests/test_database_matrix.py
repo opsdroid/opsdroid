@@ -1186,7 +1186,7 @@ async def test_get_single_state_key(patched_send, opsdroid_matrix):
         response_data=("dev.opsdroid.database", "", "!notaroomid"),
     )
 
-    assert data == {"twim": "hello"}
+    assert data == "hello"
 
 
 @pytest.mark.asyncio
@@ -1232,13 +1232,13 @@ async def test_get_single_state_key_enc(patched_send, opsdroid_matrix):
         ],
     )
 
-    assert data == {"twim": "hello"}
+    assert data == "hello"
 
 
 @pytest.mark.asyncio
 async def test_get(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
-        {"hello": "world"}, "", "", ""
+        {"twim": "world"}, "", "", ""
     )
     patched_send.return_value.transport_response = AsyncMock()
     patched_send.return_value.transport_response.status = 200
@@ -1257,7 +1257,7 @@ async def test_get(patched_send, opsdroid_matrix):
         response_data=("dev.opsdroid.database", "twim", "!notaroomid"),
     )
 
-    assert data == {"hello": "world"}
+    assert data == "world"
 
 
 @pytest.mark.asyncio
@@ -1265,7 +1265,7 @@ async def test_get_enc(patched_send, opsdroid_matrix):
     def side_effect(resp, *args, **kwargs):
         if resp is nio.RoomGetStateEventResponse:
             resp = nio.RoomGetStateEventResponse(
-                {"hello": {"encrypted_val": "enceventid"}}, "", "", ""
+                {"twim": {"encrypted_val": "enceventid"}}, "", "", ""
             )
             resp.transport_response = AsyncMock()
             resp.transport_response.status = 200
@@ -1277,7 +1277,7 @@ async def test_get_enc(patched_send, opsdroid_matrix):
                     "event_id": "enceventid",
                     "sender": "@someone:localhost",
                     "origin_server_ts": "2005",
-                    "content": {"hello": "world"},
+                    "content": {"twim": "world"},
                 }
             )
             resp = nio.RoomGetEventResponse()
@@ -1300,7 +1300,7 @@ async def test_get_enc(patched_send, opsdroid_matrix):
         ],
     )
 
-    assert data == {"hello": "world"}
+    assert data == "world"
 
 
 @pytest.mark.asyncio
@@ -1500,11 +1500,11 @@ async def test_room_switch(patched_send, opsdroid_matrix):
     )
 
     assert db.room == "main"
-    assert data == {"hello": "world"}
+    assert data == "world"
 
 
 @pytest.mark.asyncio
-async def test_migrate_and_errors(patched_send, opsdroid_matrix, mocker, caplog):
+async def test_migrate(patched_send, opsdroid_matrix, mocker, caplog, patched_uuid):
     def side_effect(resp, *args, **kwargs):
         if resp is nio.RoomGetStateResponse:
             return nio.RoomGetStateResponse(
@@ -1522,11 +1522,9 @@ async def test_migrate_and_errors(patched_send, opsdroid_matrix, mocker, caplog)
             return nio.RoomGetStateEventError(message="testing")
 
     patched_send.side_effect = side_effect
-    mocker.patch("nio.client.async_client.uuid4", return_value="bigrandomuuid")
 
     db = DatabaseMatrix({"should_encrypt": False}, opsdroid=opsdroid_matrix)
-    caplog.clear()
-    await db.put("hello", "world")
+    await db.put("hello", "bob")
 
     patched_send.assert_has_calls(
         [
@@ -1550,6 +1548,67 @@ async def test_migrate_and_errors(patched_send, opsdroid_matrix, mocker, caplog)
             ),
         ],
     )
+
+
+@pytest.mark.asyncio
+async def test_migrate_single_state_key_false(
+    patched_send, opsdroid_matrix, mocker, caplog, patched_uuid
+):
+    def side_effect(resp, *args, **kwargs):
+        if resp is nio.RoomGetStateResponse:
+            return nio.RoomGetStateResponse(
+                [
+                    {
+                        "type": "opsdroid.database",
+                        "state_key": "twim",
+                        "event_id": "roomeventid",
+                        "content": {"hello": "world"},
+                    }
+                ],
+                "!notaroomid",
+            )
+        else:
+            return nio.RoomGetStateEventError(message="testing")
+
+    patched_send.side_effect = side_effect
+
+    db = DatabaseMatrix(
+        {"single_state_key": False, "should_encrypt": False}, opsdroid=opsdroid_matrix
+    )
+    await db.put("twim", "bob")
+
+    patched_send.assert_has_calls(
+        [
+            call(
+                nio.RoomGetStateResponse,
+                "GET",
+                "/_matrix/client/r0/rooms/%21notaroomid/state?access_token=arbitrarytoken",
+                response_data=("!notaroomid",),
+            ),
+            matrix_call(
+                "PUT",
+                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+                {"twim": {"hello": "world"}},
+            ),
+            call(
+                nio.RoomRedactResponse,
+                "PUT",
+                "/_matrix/client/r0/rooms/%21notaroomid/redact/roomeventid/bigrandomuuid?access_token=arbitrarytoken",
+                "{}",
+                response_data=("!notaroomid",),
+            ),
+        ],
+    )
+
+
+@pytest.mark.asyncio
+async def test_errors(patched_send, opsdroid_matrix, mocker, caplog, patched_uuid):
+    patched_send.return_value = nio.RoomGetStateEventError(message="testing")
+
+    db = DatabaseMatrix({"should_encrypt": False}, opsdroid=opsdroid_matrix)
+    caplog.clear()
+    db.should_migrate = False
+    await db.put("hello", "world")
 
     assert ["Error getting hello from matrix room !notaroomid: testing(None)"] == [
         rec.message for rec in caplog.records

@@ -62,6 +62,8 @@ class DatabaseMatrix(Database):
         if not any(event["type"] == self._event_type for event in data.events):
             for event in data.events:
                 if event["type"] == "opsdroid.database" and event["content"]:
+                    if not self._single_state_key:
+                        event["content"] = {event["state_key"]: event["content"]}
                     await self.connector.connection.room_put_state(
                         room_id=self.room_id,
                         event_type=self._event_type,
@@ -93,7 +95,9 @@ class DatabaseMatrix(Database):
         value = {key: value}
 
         data = await self.get(key, get_full=True)
-        if data is None:
+        if data == "Error":
+            return
+        elif data is None:
             data = {}
 
         if {**data, **value} == data:
@@ -146,7 +150,7 @@ class DatabaseMatrix(Database):
             _LOGGER.error(
                 f"Error getting {key} from matrix room {self.room_id}: {ori_data.message}({ori_data.status_code})"
             )
-            return
+            return "Error" if get_full else None
         elif ori_data.transport_response.status == 404:
             _LOGGER.error(
                 f"Error getting {key} from matrix room {self.room_id}: Event not found"
@@ -182,7 +186,7 @@ class DatabaseMatrix(Database):
         if get_full:
             return {**ori_data.content, **data}
 
-        return data
+        return data[key]
 
     async def delete(self, key):
         """Delete a key from the database."""
