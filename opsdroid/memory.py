@@ -21,7 +21,7 @@ class Memory:
         """Create object with minimum properties."""
         self.databases = []
 
-    async def get(self, key):
+    async def get(self, key, default=None):
         """Get data object for a given key.
 
         Gets the key value found in-memory or from the database(s).
@@ -34,7 +34,8 @@ class Memory:
 
         """
         _LOGGER.debug(_("Getting %s from memory."), key)
-        return await self._get_from_database(key)
+        result = await self._get_from_database(key)
+        return result or default
 
     async def put(self, key, data):
         """Put a data object to a given key.
