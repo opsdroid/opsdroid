@@ -1330,9 +1330,9 @@ async def test_get_no_key_404(patched_send, opsdroid_matrix):
     )
     db.should_migrate = False
 
-    data = await db.get("twim")
-
-    assert data is None
+    with pytest.raises(RuntimeError):
+        data = await db.get("twim")
+        assert data is None
 
 
 @pytest.mark.asyncio
@@ -1344,9 +1344,9 @@ async def test_get_no_key_500(patched_send, opsdroid_matrix):
     )
     db.should_migrate = False
 
-    data = await db.get("twim")
-
-    assert data is None
+    with pytest.raises(RuntimeError):
+        data = await db.get("twim")
+        assert data is None
 
 
 @pytest.mark.asyncio
@@ -1524,7 +1524,8 @@ async def test_migrate(patched_send, opsdroid_matrix, mocker, caplog, patched_uu
     patched_send.side_effect = side_effect
 
     db = DatabaseMatrix({"should_encrypt": False}, opsdroid=opsdroid_matrix)
-    await db.put("hello", "bob")
+    with pytest.raises(RuntimeError):
+        await db.put("hello", "bob")
 
     patched_send.assert_has_calls(
         [
@@ -1575,7 +1576,8 @@ async def test_migrate_single_state_key_false(
     db = DatabaseMatrix(
         {"single_state_key": False, "should_encrypt": False}, opsdroid=opsdroid_matrix
     )
-    await db.put("twim", "bob")
+    with pytest.raises(RuntimeError):
+        await db.put("twim", "bob")
 
     patched_send.assert_has_calls(
         [
@@ -1603,17 +1605,6 @@ async def test_migrate_single_state_key_false(
 
 @pytest.mark.asyncio
 async def test_errors(patched_send, opsdroid_matrix, mocker, caplog, patched_uuid):
-    patched_send.return_value = nio.RoomGetStateEventError(message="testing")
-
-    db = DatabaseMatrix({"should_encrypt": False}, opsdroid=opsdroid_matrix)
-    caplog.clear()
-    db.should_migrate = False
-    await db.put("hello", "world")
-
-    assert ["Error getting hello from matrix room !notaroomid: testing(None)"] == [
-        rec.message for rec in caplog.records
-    ]
-
     def side_effect(resp, *args, **kwargs):
         if resp is nio.RoomGetStateEventResponse:
             resp = nio.RoomGetStateEventResponse(
@@ -1627,6 +1618,7 @@ async def test_errors(patched_send, opsdroid_matrix, mocker, caplog, patched_uui
 
     patched_send.side_effect = side_effect
 
+    db = DatabaseMatrix({"should_encrypt": False}, opsdroid=opsdroid_matrix)
     caplog.clear()
     db.should_migrate = False
     await db.get("twim")
@@ -1641,11 +1633,11 @@ async def test_errors(patched_send, opsdroid_matrix, mocker, caplog, patched_uui
     ]
     caplog.clear()
     db.should_migrate = True
-    await db.get("hello")
+    with pytest.raises(RuntimeError):
+        await db.get("hello")
 
     assert [
         "Error migrating from opsdroid.database to dev.opsdroid.database in room !notaroomid: testing(None)",
-        "Error getting hello from matrix room !notaroomid: testing(None)",
     ] == [rec.message for rec in caplog.records]
 
     patched_send.side_effect = [

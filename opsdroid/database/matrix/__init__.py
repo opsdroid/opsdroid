@@ -95,9 +95,7 @@ class DatabaseMatrix(Database):
         value = {key: value}
 
         data = await self.get(key, get_full=True)
-        if data == "Error":
-            return
-        elif data is None:
+        if data is None:
             data = {}
 
         if {**data, **value} == data:
@@ -147,10 +145,9 @@ class DatabaseMatrix(Database):
             room_id=self.room_id, event_type=self._event_type, state_key=state_key,
         )
         if isinstance(ori_data, RoomGetStateEventError):
-            _LOGGER.error(
+            raise RuntimeError(
                 f"Error getting {key} from matrix room {self.room_id}: {ori_data.message}({ori_data.status_code})"
             )
-            return "Error" if get_full else None
         elif ori_data.transport_response.status == 404:
             _LOGGER.error(
                 f"Error getting {key} from matrix room {self.room_id}: Event not found"
