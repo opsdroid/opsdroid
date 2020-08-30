@@ -1,14 +1,14 @@
-from mock import call, AsyncMock
-import pytest
+from json import JSONEncoder
 
 import nio
+import pytest
+from mock import AsyncMock, call
 
-from opsdroid.events import Message
-from opsdroid.connector.matrix import ConnectorMatrix
+from opsdroid.connector.matrix.connector import (ConnectorMatrix,
+                                                 MatrixException)
 from opsdroid.core import OpsDroid
 from opsdroid.database.matrix import DatabaseMatrix, memory_in_event_room
-
-from json import JSONEncoder
+from opsdroid.events import Message
 
 
 @pytest.fixture
@@ -1321,7 +1321,8 @@ async def test_errors(patched_send, opsdroid_matrix, mocker, caplog, patched_uui
     db.connector._allow_encryption = True
     db.should_migrate = False
     db._single_state_key = False
-    await db.put("twim", {"hello": "world"})
+    with pytest.raises(MatrixException):
+        await db.put("twim", {"hello": "world"})
 
     assert ["Error decrypting event enceventid while getting twim: testing(None)"] == [
         rec.message for rec in caplog.records
