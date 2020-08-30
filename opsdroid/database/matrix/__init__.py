@@ -64,11 +64,14 @@ class DatabaseMatrix(Database):
                 if event["type"] == "opsdroid.database" and event["content"]:
                     if not self._single_state_key:
                         event["content"] = {event["state_key"]: event["content"]}
-                    await self.connector.connection.room_put_state(
-                        room_id=self.room_id,
-                        event_type=self._event_type,
-                        content=event["content"],
-                        state_key=event["state_key"],
+                    await self.opsdroid.send(
+                        MatrixStateEvent(
+                            self._event_type,
+                            content=event["content"],
+                            target=self.room_id,
+                            connector=self.connector,
+                            state_key=event["state_key"],
+                        )
                     )
                     await self.connector.connection.room_redact(
                         room_id=self.room_id, event_id=event["event_id"],
@@ -94,9 +97,7 @@ class DatabaseMatrix(Database):
 
         value = {key: value}
 
-        data = await self.get(key, get_full=True)
-        if data is None:
-            data = {}
+        data = await self.get(key, get_full=True) or {}
 
         if {**data, **value} == data:
             _LOGGER.error("Not updating matrix state, as content hasn't changed.")
@@ -127,7 +128,13 @@ class DatabaseMatrix(Database):
         return True
 
     async def get(self, key, get_full=False):
-        """Get a value from the database for a given key."""
+        """Get a value from the database for a given key.
+
+        params:
+            key (str): Key to retrieve value for.
+            get_full (bool): Parameter for internal use(needed for `put`).
+
+        """
 
         if self.should_migrate:
             await self.migrate_database()
@@ -156,25 +163,27 @@ class DatabaseMatrix(Database):
 
         data = ori_data.content
 
-        _LOGGER.debug(f"Got {data} from state request.")
+        _LOGGER.debug(f"Got {data} from state in room {self.room_id}")
 
         if self._single_state_key:
             if key in data:
                 data = {key: data[key]}
             elif not get_full:
-                _LOGGER.debug(f"{key} doesn't exist in database")
+                _LOGGER.debug(
+                    f"{key} doesn't exist in state event in room {self.room_id}."
+                )
                 return
             else:
                 return data
 
         for k, v in data.items():
-            if isinstance(v, dict) and "encrypted_val" in v:
+            if isinstance(v, dict) and len(v) == 1 and "encrypted_val" in v:
                 resp = await self.connector.connection.room_get_event(
                     room_id=self.room_id, event_id=v["encrypted_val"],
                 )
                 if isinstance(resp, RoomGetEventError):
                     _LOGGER.error(
-                        f"Error decrypting {v['encrypted_val']} while getting "
+                        f"Error decrypting event {v['encrypted_val']} while getting "
                         f"{key}: {resp.message}({resp.status_code})"
                     )
                     continue
@@ -186,7 +195,12 @@ class DatabaseMatrix(Database):
         return data[key]
 
     async def delete(self, key):
-        """Delete a key from the database."""
+        """Delete a key from the database.
+
+        params:
+            key (str | List[str]): Key to delete from the database. Can be a list of keys if single_state_key is True
+
+        """
 
         if self.should_migrate:
             await self.migrate_database()
@@ -206,11 +220,14 @@ class DatabaseMatrix(Database):
             return
 
         if data.transport_response.status == 404:
-            _LOGGER.error(f"State event with state key '{state_key}' doesn't exist")
+            _LOGGER.error(
+                f"State event {self._event_type} with state key '{state_key}' doesn't exist."
+            )
             return
+
         data = data.content
 
-        _LOGGER.debug(f"Got {data} from state request.")
+        _LOGGER.debug(f"Got {data} from state event in room {self.room_id}.")
 
         if not isinstance(key, list):
             key = [key]
@@ -219,10 +236,12 @@ class DatabaseMatrix(Database):
         for k in key:  # key can be a list of keys to delete
             try:
                 return_value.append(data[k])
-                _LOGGER.debug(f"Deleting {k} from {self.room_id}")
+                _LOGGER.debug(f"Deleting key '{k}' from database in {self.room_id}.")
                 del data[k]
             except KeyError:
-                _LOGGER.debug(f"Not deleting {k}, as it doesn't exist")
+                _LOGGER.warning(
+                    f"Unable to delete '{k}' from database in room {self.room_id} as it doesn't exist."
+                )
 
         await self.opsdroid.send(
             MatrixStateEvent(
@@ -243,7 +262,7 @@ class DatabaseMatrix(Database):
 
     @contextmanager
     def memory_in_room(self, room):
-        """Switch to a different room for some operations."""
+        """Use room state in the given room rather than the default."""
         ori_room = self.room
         self.room = room
         yield
