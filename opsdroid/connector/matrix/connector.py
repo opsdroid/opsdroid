@@ -179,6 +179,9 @@ class ConnectorMatrix(Connector):
         """Create connection object with chat library."""
 
         if self._allow_encryption:
+            _LOGGER.debug(
+                f"Using {self.store_path} for the matrix client store."
+            )
             Path(self.store_path).mkdir(exist_ok=True)
 
         config = nio.AsyncClientConfig(
@@ -278,6 +281,8 @@ class ConnectorMatrix(Connector):
                     if event.sender != self.mxid:
                         if event.source["type"] == "m.room.member":
                             event.source["content"] = event.content
+                        if isinstance(event, nio.MegolmEvent):
+                            _LOGGER.error(f"Failed to decrypt event {event}")
                         return await self._event_creator.create_event(
                             event.source, roomid
                         )
