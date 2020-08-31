@@ -575,15 +575,12 @@ class ConnectorMatrix(Connector):
             address_event.target, "m.room.aliases", address_event.address
         )
 
-        if isinstance(res, nio.RoomPutStateError):
-            if res.status_code != 409:
-                _LOGGER.error(
-                    f"Error while setting room alias: {res.message} (status code {res.status_code})"
-                )
-            else:
-                _LOGGER.warning(
-                    f"A room with the alias {address_event.address} already exists."
-                )
+        if isinstance(res, nio.RoomPutStateError) and res.status_code == 409:
+            _LOGGER.warning(
+                f"A room with the alias {address_event.address} already exists."
+            )
+            return
+
         return res
 
     @register_event(events.JoinRoom)
@@ -603,10 +600,7 @@ class ConnectorMatrix(Connector):
                 _LOGGER.info(
                     f"{invite_event.user_id} is already in the room, ignoring."
                 )
-            else:
-                _LOGGER.error(
-                    f"Error while inviting user {invite_event.user_id} to room {invite_event.target}: {res.message} (status code {res.status_code})"
-                )
+                return
 
         return res
 

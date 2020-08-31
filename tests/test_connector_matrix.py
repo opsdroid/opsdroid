@@ -1259,25 +1259,19 @@ class TestConnectorMatrixAsync:
             patched_alias.return_value.set_result(
                 nio.RoomPutStateError(message=error_message, status_code=error_code)
             )
-            caplog.clear()
             with pytest.raises(MatrixException):
                 resp = await connector._send_room_address(
                     events.RoomAddress(target="!test:localhost", address="hello")
                 )
-            assert [
-                f"Error while setting room alias: {error_message} (status code {error_code})"
-            ] == [rec.message for rec in caplog.records]
 
             error_code = 409
             patched_alias.return_value = asyncio.Future()
             patched_alias.return_value.set_result(
                 nio.RoomPutStateError(message=error_message, status_code=error_code)
             )
-            caplog.clear()
-            with pytest.raises(MatrixException):
-                resp = await connector._send_room_address(
-                    events.RoomAddress(target="!test:localhost", address="hello")
-                )
+            resp = await connector._send_room_address(
+                events.RoomAddress(target="!test:localhost", address="hello")
+            )
             assert ["A room with the alias hello already exists."] == [
                 rec.message for rec in caplog.records
             ]
@@ -1292,15 +1286,11 @@ class TestConnectorMatrixAsync:
                 )
             )
 
-            caplog.clear()
             with pytest.raises(MatrixException) as exc:
                 resp = await connector._send_user_invitation(
                     events.UserInvite(target="!test:localhost", user_id="@neo:matrix.org")
                 )
                 assert exc.nio_error.message == "@neo.matrix.org is already in the room"
-            assert [
-                "Error while inviting user @neo:matrix.org to room !test:localhost: @neo.matrix.org is already in the room (status code 400)"
-            ] == [rec.message for rec in caplog.records]
 
             patched_invite.return_value = asyncio.Future()
             patched_invite.return_value.set_result(
@@ -1308,11 +1298,12 @@ class TestConnectorMatrixAsync:
                     message="@neo.matrix.org is already in the room", status_code=403
                 )
             )
-            with pytest.raises(MatrixException) as exc:
-                resp = await connector._send_user_invitation(
-                    events.UserInvite(target="!test:localhost", user_id="@neo:matrix.org")
-                )
-                assert exc.nio_error.message == "@neo.matrix.org is already in the room"
+            resp = await connector._send_user_invitation(
+                events.UserInvite(target="!test:localhost", user_id="@neo:matrix.org")
+            )
+            assert ["@neo.matrix.org is already in the room"] == [
+                rec.message for rec in caplog.records
+            ]
 
     async def test_invalid_role(self, connector):
         with pytest.raises(ValueError):
