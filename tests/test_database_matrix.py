@@ -3,9 +3,10 @@ import pytest
 
 import nio
 
+from opsdroid.events import Message
 from opsdroid.connector.matrix import ConnectorMatrix
 from opsdroid.core import OpsDroid
-from opsdroid.database.matrix import DatabaseMatrix
+from opsdroid.database.matrix import DatabaseMatrix, memory_in_event_room
 
 from json import JSONEncoder
 
@@ -1119,6 +1120,38 @@ async def test_room_switch(patched_send, opsdroid_matrix):
 
     assert db.room == "main"
     assert data == "world"
+
+
+@pytest.mark.asyncio
+async def test_decorator(opsdroid_matrix):
+
+    db = DatabaseMatrix({"should_encrypt": False}, opsdroid=opsdroid_matrix)
+    opsdroid_matrix.memory.databases.append(db)
+
+    @memory_in_event_room
+    async def skill_func(opsdroid, config, message):
+        database = opsdroid.get_database("matrix")
+        return database.room
+
+    msg = Message("", target="!notanotherroom")
+
+    ret_room = await skill_func(opsdroid_matrix, opsdroid_matrix.config, msg)
+
+    assert ret_room == "!notanotherroom"
+
+
+@pytest.mark.asyncio
+async def test_decorator_no_db(opsdroid_matrix):
+    @memory_in_event_room
+    async def skill_func(opsdroid, config, message):
+        database = opsdroid.get_database("matrix")
+        return database
+
+    msg = Message("", target="!notanotherroom")
+
+    ret_db = await skill_func(opsdroid_matrix, opsdroid_matrix.config, msg)
+
+    assert ret_db is None
 
 
 @pytest.mark.asyncio
