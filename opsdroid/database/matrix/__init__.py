@@ -2,11 +2,9 @@
 
 import logging
 from contextlib import contextmanager
-from functools import wraps
 
 from nio import RoomGetStateError, RoomGetStateEventError, RoomGetEventError
 from opsdroid.database import Database
-from opsdroid.helper import get_opsdroid
 from opsdroid.connector.matrix.events import MatrixStateEvent, GenericMatrixRoomEvent
 from voluptuous import Any
 
@@ -16,22 +14,6 @@ CONFIG_SCHEMA = {
     "single_state_key": Any(bool, str),
     "should_encrypt": bool,
 }
-
-
-def memory_in_event_room(func):
-    """Use room state from the received message rather than the default."""
-
-    @wraps(func)
-    async def _wrapper(*args, **kwargs):
-        database = get_opsdroid().get_database("matrix")
-        message = args[-1]
-
-        if not database:
-            return await func(*args, **kwargs)
-        with database.memory_in_room(message.target):
-            return await func(*args, **kwargs)
-
-    return _wrapper
 
 
 class DatabaseMatrix(Database):
