@@ -644,5 +644,8 @@ class ConnectorMatrix(Connector):
     @ensure_room_id_and_send
     async def _send_generic_event(self, event):
         return await self.connection.room_send(
-            event.target, event.event_type, event.content
+            event.target,
+            event.event_type,
+            event.content,
+            ignore_unverified_devices=self._ignore_unverified,
         )
