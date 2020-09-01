@@ -19,7 +19,7 @@ CONFIG_SCHEMA = {
 
 
 def memory_in_event_room(func):
-    """Use room state from the received message rather than the default."""
+    """Use room state from the room the message was received in rather than the default."""
 
     @wraps(func)
     async def _wrapper(*args, **kwargs):
