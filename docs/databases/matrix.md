@@ -48,16 +48,6 @@ with db.memory_in_room(new_room_id):
 	database ops
 ```
 
-There is also a decorator for skill functions to use the memory of the room
-where the message was received from.
-```
-from opsdroid.database.matrix import memory_in_event_room
-
-@memory_in_event_room
-async def skill_func(opsdroid, config, message):
-	...
-```
-
 ## Encryption
 
 In encrypted Matrix rooms, state events (used by the database) are not encrypted. This means that anything put into the matrix database in an encrypted room would not be encrypted. To prevent this the matrix database send the **values** you put into your database into the room as regular events, which are encrypted, and then references these events from the database (which is still a state event).
