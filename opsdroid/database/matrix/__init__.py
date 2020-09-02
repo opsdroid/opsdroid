@@ -2,9 +2,11 @@
 
 import logging
 from contextlib import contextmanager
+from wrapt import decorator
 
 from nio import RoomGetStateError, RoomGetStateEventError, RoomGetEventError
 from opsdroid.database import Database
+from opsdroid.helper import get_opsdroid
 from opsdroid.connector.matrix.events import MatrixStateEvent, GenericMatrixRoomEvent
 from voluptuous import Any
 
@@ -14,6 +16,19 @@ CONFIG_SCHEMA = {
     "single_state_key": Any(bool, str),
     "should_encrypt": bool,
 }
+
+
+@decorator
+async def memory_in_event_room(func, instance, args, kwargs):
+    """Use room state from the room the message was received in rather than the default."""
+
+    database = get_opsdroid().get_database("matrix")
+    message = args[-1]
+
+    if not database:
+        return await func(*args, **kwargs)
+    with database.memory_in_room(message.target):
+        return await func(*args, **kwargs)
 
 
 class DatabaseMatrix(Database):
