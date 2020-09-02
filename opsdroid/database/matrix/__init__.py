@@ -2,7 +2,7 @@
 
 import logging
 from contextlib import contextmanager
-from functools import wraps
+from wrapt import decorator
 
 from nio import RoomGetStateError, RoomGetStateEventError, RoomGetEventError
 from opsdroid.database import Database
@@ -18,20 +18,17 @@ CONFIG_SCHEMA = {
 }
 
 
-def memory_in_event_room(func):
+@decorator
+async def memory_in_event_room(func, instance, args, kwargs):
     """Use room state from the room the message was received in rather than the default."""
 
-    @wraps(func)
-    async def _wrapper(*args, **kwargs):
-        database = get_opsdroid().get_database("matrix")
-        message = args[-1]
+    database = get_opsdroid().get_database("matrix")
+    message = args[-1]
 
-        if not database:
-            return await func(*args, **kwargs)
-        with database.memory_in_room(message.target):
-            return await func(*args, **kwargs)
-
-    return _wrapper
+    if not database:
+        return await func(*args, **kwargs)
+    with database.memory_in_room(message.target):
+        return await func(*args, **kwargs)
 
 
 class DatabaseMatrix(Database):
