@@ -54,7 +54,7 @@ class OpsDroid:
         self.connector_tasks = []
         self.eventloop = asyncio.get_event_loop()
         if os.name != "nt":
-            for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
+            for sig in (signal.SIGINT, signal.SIGTERM):
                 self.eventloop.add_signal_handler(
                     sig, lambda: asyncio.ensure_future(self.handle_signal())
                 )
