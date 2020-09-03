@@ -52,10 +52,7 @@ async def test_web_get_ssl(opsdroid):
     assert app.get_port == 8443
 
     opsdroid.config["web"] = {
-        "ssl": {
-            "cert": "/path/to/nonexistant/cert",
-            "key": "/path/to/nonexistant/key",
-        }
+        "ssl": {"cert": "/path/to/nonexistant/cert", "key": "/path/to/nonexistant/key",}
     }
     app = web.Web(opsdroid)
     assert app.get_ssl_context is None
