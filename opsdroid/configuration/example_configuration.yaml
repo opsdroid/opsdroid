@@ -237,6 +237,10 @@ connectors:
 #    port:       "12345"       # (optional) default "27017"
 #    database:   "mydatabase"  # (optional) default "opsdroid"
 #
+#  matrix:
+#    default_room: "main"
+#    single_state_key: "dev.opsdroid.database"
+#    should_encrypt: True
 
 
 ## Skill modules
