@@ -1,4 +1,4 @@
-"""Tests for the RocketChat"""
+"""Tests for the RocketChat connector."""
 import asyncio
 import pytest
 import contextlib
