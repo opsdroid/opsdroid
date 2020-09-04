@@ -1,5 +1,4 @@
 """Test the opsdroid parse_format parser."""
-import asynctest
 import asynctest.mock as amock
 
 from opsdroid.cli.start import configure_lang
