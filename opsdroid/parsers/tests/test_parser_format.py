@@ -19,63 +19,60 @@ async def getMockSkill():
     return mockedskill
 
 
-async def test_parse_format_match_condition():
-    with OpsDroid() as opsdroid:
+async def test_parse_format_match_condition(opsdroid):
 
-        mock_skill = await getMockSkill()
-        opsdroid.skills.append(match_parse("Hello")(mock_skill))
+    mock_skill = await getMockSkill()
+    opsdroid.skills.append(match_parse("Hello")(mock_skill))
 
-        mock_connector = amock.CoroutineMock()
+    mock_connector = amock.CoroutineMock()
 
-        message = Message("Hello world", "user", "default", mock_connector)
-        skills = await parse_format(opsdroid, opsdroid.skills, message)
-        assert len(skills) == 0
+    message = Message("Hello world", "user", "default", mock_connector)
+    skills = await parse_format(opsdroid, opsdroid.skills, message)
+    assert len(skills) == 0
 
-        message = Message("Hello", "user", "default", mock_connector)
-        skills = await parse_format(opsdroid, opsdroid.skills, message)
-        assert mock_skill == skills[0]["skill"]
-        assert skills[0]["message"] is message
-        # Test that the original object has had a new attribute added.
-        assert hasattr(message, "parse_result")
-
-
-async def test_parse_format_search_condition():
-    with OpsDroid() as opsdroid:
-
-        mock_skill = await getMockSkill()
-        opsdroid.skills.append(
-            match_parse("Hello", matching_condition="search")(mock_skill)
-        )
-
-        mock_connector = amock.CoroutineMock()
-
-        message = Message("Hello", "user", "default", mock_connector)
-        skills = await parse_format(opsdroid, opsdroid.skills, message)
-        assert mock_skill == skills[0]["skill"]
-
-        message = Message("Hello world", "user", "default", mock_connector)
-        skills = await parse_format(opsdroid, opsdroid.skills, message)
-        assert mock_skill == skills[0]["skill"]
+    message = Message("Hello", "user", "default", mock_connector)
+    skills = await parse_format(opsdroid, opsdroid.skills, message)
+    assert mock_skill == skills[0]["skill"]
+    assert skills[0]["message"] is message
+    # Test that the original object has had a new attribute added.
+    assert hasattr(message, "parse_result")
 
 
-async def test_parse_format_parameters():
-    with OpsDroid() as opsdroid:
+async def test_parse_format_search_condition(opsdroid):
 
-        mock_skill = await getMockSkill()
-        opsdroid.skills.append(
-            match_parse("say {text} {num:d} times", case_sensitive=False)(mock_skill)
-        )
+    mock_skill = await getMockSkill()
+    opsdroid.skills.append(
+        match_parse("Hello", matching_condition="search")(mock_skill)
+    )
 
-        mock_connector = amock.CoroutineMock()
-        message = Message("Say hello 42 times", "user", "default", mock_connector)
+    mock_connector = amock.CoroutineMock()
 
-        skills = await parse_format(opsdroid, opsdroid.skills, message)
-        assert mock_skill == skills[0]["skill"]
+    message = Message("Hello", "user", "default", mock_connector)
+    skills = await parse_format(opsdroid, opsdroid.skills, message)
+    assert mock_skill == skills[0]["skill"]
 
-        parsed_message = skills[0]["message"]
-        assert parsed_message.parse_result["text"] == "hello"
-        assert parsed_message.parse_result["num"] == 42
+    message = Message("Hello world", "user", "default", mock_connector)
+    skills = await parse_format(opsdroid, opsdroid.skills, message)
+    assert mock_skill == skills[0]["skill"]
 
-        assert len(parsed_message.entities.keys()) == 2
-        assert "text" in parsed_message.entities.keys()
-        assert parsed_message.entities["text"]["value"] == "hello"
+
+async def test_parse_format_parameters(opsdroid):
+
+    mock_skill = await getMockSkill()
+    opsdroid.skills.append(
+        match_parse("say {text} {num:d} times", case_sensitive=False)(mock_skill)
+    )
+
+    mock_connector = amock.CoroutineMock()
+    message = Message("Say hello 42 times", "user", "default", mock_connector)
+
+    skills = await parse_format(opsdroid, opsdroid.skills, message)
+    assert mock_skill == skills[0]["skill"]
+
+    parsed_message = skills[0]["message"]
+    assert parsed_message.parse_result["text"] == "hello"
+    assert parsed_message.parse_result["num"] == 42
+
+    assert len(parsed_message.entities.keys()) == 2
+    assert "text" in parsed_message.entities.keys()
+    assert parsed_message.entities["text"]["value"] == "hello"
