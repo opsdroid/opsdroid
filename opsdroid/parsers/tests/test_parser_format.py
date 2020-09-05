@@ -2,7 +2,6 @@
 import asynctest.mock as amock
 
 from opsdroid.cli.start import configure_lang
-from opsdroid.core import OpsDroid
 from opsdroid.matchers import match_parse
 from opsdroid.events import Message
 from opsdroid.parsers.parseformat import parse_format
