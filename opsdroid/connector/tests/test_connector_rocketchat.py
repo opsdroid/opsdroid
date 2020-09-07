@@ -2,7 +2,6 @@
 import asyncio
 import pytest
 import contextlib
-import asynctest
 import asynctest.mock as amock
 
 from opsdroid.core import OpsDroid
@@ -226,7 +225,7 @@ async def test_get_message_failure(capsys):
         await connector._get_message()
         captured = capsys.readouterr()
         assert "ERROR" in captured.err
-        assert connector.listening == False
+        assert connector.listening is False
 
 
 @pytest.mark.asyncio
@@ -291,6 +290,6 @@ async def test_disconnect():
         mocked_close.return_value.set_result(True)
 
         await connector.disconnect()
-        assert connector.listening == False
+        assert connector.listening is False
         assert connector.session.closed()
-        assert connector._closing.set() == None
+        assert connector._closing.set() is None
