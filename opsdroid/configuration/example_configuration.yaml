@@ -28,6 +28,9 @@
 ## Set the location for opsdroid to install modules
 # module-path: "."
 
+## Configure the language to use
+#lang: 'en'
+
 ## Show welcome message
 welcome-message: true
 
