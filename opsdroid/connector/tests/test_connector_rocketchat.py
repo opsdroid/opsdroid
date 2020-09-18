@@ -12,7 +12,7 @@ from opsdroid.cli.start import configure_lang
 configure_lang({})
 
 
-def test_init():
+def test_init(opsdroid):
     """Test that the connector is initialised properly."""
     connector = RocketChat(
         {
@@ -21,7 +21,7 @@ def test_init():
             "user-id": "userID",
             "update-interval": 0.1,
         },
-        opsdroid=OpsDroid(),
+        opsdroid=opsdroid,
     )
     assert connector.default_target == "general"
     assert connector.name == "rocket.chat"
@@ -34,8 +34,8 @@ def test_missing_token(caplog):
     assert "Unable to login: Access token is missing." in caplog.text
 
 
-def setUp():
-    configure_lang({})
+@pytest.mark.asyncio
+async def test_connect(opsdroid):
     connector = RocketChat(
         {
             "name": "rocket.chat",
@@ -43,18 +43,8 @@ def setUp():
             "user-id": "userID",
             "default_target": "test",
         },
-        opsdroid=OpsDroid(),
+        opsdroid=opsdroid,
     )
-
-    connector.latest_update = "2018-10-08T12:57:37.126Z"
-
-    with amock.patch("aiohttp.ClientSession") as mocked_session:
-        connector.session = mocked_session
-
-
-@pytest.mark.asyncio
-async def test_connect(capsys):
-    connector = RocketChat({})
     connect_response = amock.Mock()
     connect_response.status = 200
     connect_response.json = amock.CoroutineMock()
@@ -79,16 +69,21 @@ async def test_connect(capsys):
         patched_request.return_value.set_result(connect_response)
 
         await connector.connect()
-
-        captured = capsys.readouterr()
-        assert "DEBUG" in captured.err
         assert patched_request.status != 200
         assert patched_request.called
 
 
 @pytest.mark.asyncio
-async def test_connect_failure(caplog):
-    connector = RocketChat({})
+async def test_connect_failure(opsdroid, caplog):
+    connector = RocketChat(
+        {
+            "name": "rocket.chat",
+            "token": "test",
+            "user-id": "userID",
+            "default_target": "test",
+        },
+        opsdroid=opsdroid,
+    )
     result = amock.MagicMock()
     result.status = 401
 
@@ -98,12 +93,20 @@ async def test_connect_failure(caplog):
         patched_request.return_value.set_result(result)
 
         await connector.connect()
-        assert "Error connecting to RocketChat" in caplog.text
+        assert "ERROR    " in caplog.text
 
 
 @pytest.mark.asyncio
-async def test_get_message(capsys):
-    connector = RocketChat({})
+async def test_get_message(opsdroid, caplog):
+    connector = RocketChat(
+        {
+            "name": "rocket.chat",
+            "token": "test",
+            "user-id": "userID",
+            "default_target": "test",
+        },
+        opsdroid=opsdroid,
+    )
     connector.group = "test"
     response = amock.Mock()
     response.status = 200
@@ -150,13 +153,20 @@ async def test_get_message(capsys):
         assert patched_request.called
         assert mocked_parse_message.called
         assert mocked_sleep.called
-        captured = capsys.readouterr()
-        assert "DEBUG" in captured.err
+        assert "ERROR    " in caplog.text
 
 
 @pytest.mark.asyncio
-async def test_parse_message(capsys):
-    connector = RocketChat({})
+async def test_parse_message(opsdroid, caplog):
+    connector = RocketChat(
+        {
+            "name": "rocket.chat",
+            "token": "test",
+            "user-id": "userID",
+            "default_target": "test",
+        },
+        opsdroid=opsdroid,
+    )
     response = {
         "messages": [
             {
@@ -187,15 +197,22 @@ async def test_parse_message(capsys):
         "opsdroid.core.OpsDroid.parse"
     ) as mocked_parse:
         await connector._parse_message(response)
-        captured = capsys.readouterr()
-        assert "DEBUG" in captured.err
+        assert "ERROR    " in caplog.text
         assert mocked_parse.called
         assert "2018-05-11T16:05:41.047Z", connector.latest_update
 
 
 @pytest.mark.asyncio
-async def test_listen():
-    connector = RocketChat({})
+async def test_listen(opsdroid):
+    connector = RocketChat(
+        {
+            "name": "rocket.chat",
+            "token": "test",
+            "user-id": "userID",
+            "default_target": "test",
+        },
+        opsdroid=opsdroid,
+    )
     with amock.patch.object(
         connector.loop, "create_task"
     ) as mocked_task, amock.patch.object(
@@ -213,8 +230,16 @@ async def test_listen():
 
 
 @pytest.mark.asyncio
-async def test_get_message_failure(capsys):
-    connector = RocketChat({})
+async def test_get_message_failure(opsdroid, caplog):
+    connector = RocketChat(
+        {
+            "name": "rocket.chat",
+            "token": "test",
+            "user-id": "userID",
+            "default_target": "test",
+        },
+        opsdroid=opsdroid,
+    )
     listen_response = amock.Mock()
     listen_response.status = 401
 
@@ -223,14 +248,21 @@ async def test_get_message_failure(capsys):
         patched_request.return_value = asyncio.Future()
         patched_request.return_value.set_result(listen_response)
         await connector._get_message()
-        captured = capsys.readouterr()
-        assert "ERROR" in captured.err
+        assert "ERROR    " in caplog.text
         assert connector.listening is False
 
 
 @pytest.mark.asyncio
-async def test_get_messages_loop():
-    connector = RocketChat({})
+async def test_get_messages_loop(opsdroid):
+    connector = RocketChat(
+        {
+            "name": "rocket.chat",
+            "token": "test",
+            "user-id": "userID",
+            "default_target": "test",
+        },
+        opsdroid=opsdroid,
+    )
     connector._get_messages = amock.CoroutineMock()
     connector._get_messages.side_effect = Exception()
     with contextlib.suppress(Exception):
@@ -238,8 +270,16 @@ async def test_get_messages_loop():
 
 
 @pytest.mark.asyncio
-async def test_respond(capsys):
-    connector = RocketChat({})
+async def test_respond(opsdroid, capsys):
+    connector = RocketChat(
+        {
+            "name": "rocket.chat",
+            "token": "test",
+            "user-id": "userID",
+            "default_target": "test",
+        },
+        opsdroid=opsdroid,
+    )
     post_response = amock.Mock()
     post_response.status = 200
 
@@ -249,20 +289,29 @@ async def test_respond(capsys):
 
         assert opsdroid.__class__.instances
         test_message = Message(
-            text="This is a test", user="opsdroid", target="test", connector=connector,
+            text="This is a test",
+            user="opsdroid",
+            target="test",
+            connector=connector,
         )
 
         patched_request.return_value = asyncio.Future()
         patched_request.return_value.set_result(post_response)
         await test_message.respond("Response")
         assert patched_request.called
-        captured = capsys.readouterr()
-        assert "DEBUG" in captured.err
 
 
 @pytest.mark.asyncio
-async def test_respond_failure(capsys):
-    connector = RocketChat({})
+async def test_respond_failure(opsdroid):
+    connector = RocketChat(
+        {
+            "name": "rocket.chat",
+            "token": "test",
+            "user-id": "userID",
+            "default_target": "test",
+        },
+        opsdroid=opsdroid,
+    )
     post_response = amock.Mock()
     post_response.status = 401
 
@@ -272,19 +321,28 @@ async def test_respond_failure(capsys):
 
         assert opsdroid.__class__.instances
         test_message = Message(
-            text="This is a test", user="opsdroid", target="test", connector=connector,
+            text="This is a test",
+            user="opsdroid",
+            target="test",
+            connector=connector,
         )
 
         patched_request.return_value = asyncio.Future()
         patched_request.return_value.set_result(post_response)
         await test_message.respond("Response")
-        captured = capsys.readouterr()
-        assert "DEBUG" in captured.err
 
 
 @pytest.mark.asyncio
-async def test_disconnect():
-    connector = RocketChat({})
+async def test_disconnect(opsdroid):
+    connector = RocketChat(
+        {
+            "name": "rocket.chat",
+            "token": "test",
+            "user-id": "userID",
+            "default_target": "test",
+        },
+        opsdroid=opsdroid,
+    )
     with amock.patch.object(connector.session, "close") as mocked_close:
         mocked_close.return_value = asyncio.Future()
         mocked_close.return_value.set_result(True)
