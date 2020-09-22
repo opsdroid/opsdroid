@@ -4,7 +4,6 @@ import pytest
 import contextlib
 import asynctest.mock as amock
 
-from opsdroid.core import OpsDroid
 from opsdroid.connector.rocketchat import RocketChat
 from opsdroid.events import Message
 from opsdroid.cli.start import configure_lang
@@ -35,7 +34,7 @@ def test_missing_token(caplog):
 
 
 @pytest.mark.asyncio
-async def test_connect(opsdroid):
+async def test_connect(opsdroid, caplog):
     connector = RocketChat(
         {
             "name": "rocket.chat",
@@ -71,6 +70,7 @@ async def test_connect(opsdroid):
         await connector.connect()
         assert patched_request.status != 200
         assert patched_request.called
+        assert "Connected" in caplog.text
 
 
 @pytest.mark.asyncio
@@ -93,7 +93,7 @@ async def test_connect_failure(opsdroid, caplog):
         patched_request.return_value.set_result(result)
 
         await connector.connect()
-        assert "ERROR    " in caplog.text
+        assert "Rocket.Chat error" in caplog.text
 
 
 @pytest.mark.asyncio
@@ -153,7 +153,7 @@ async def test_get_message(opsdroid, caplog):
         assert patched_request.called
         assert mocked_parse_message.called
         assert mocked_sleep.called
-        assert "ERROR    " in caplog.text
+        assert "Received message from Rocket.Chat" in caplog.text
 
 
 @pytest.mark.asyncio
@@ -197,9 +197,9 @@ async def test_parse_message(opsdroid, caplog):
         "opsdroid.core.OpsDroid.parse"
     ) as mocked_parse:
         await connector._parse_message(response)
-        assert "ERROR    " in caplog.text
         assert mocked_parse.called
         assert "2018-05-11T16:05:41.047Z", connector.latest_update
+        assert "Received message from Rocket.Chat" in caplog.text
 
 
 @pytest.mark.asyncio
@@ -283,16 +283,11 @@ async def test_respond(opsdroid, capsys):
     post_response = amock.Mock()
     post_response.status = 200
 
-    with OpsDroid() as opsdroid, amock.patch.object(
-        connector.session, "post"
-    ) as patched_request:
+    with amock.patch.object(connector.session, "post") as patched_request:
 
         assert opsdroid.__class__.instances
         test_message = Message(
-            text="This is a test",
-            user="opsdroid",
-            target="test",
-            connector=connector,
+            text="This is a test", user="opsdroid", target="test", connector=connector,
         )
 
         patched_request.return_value = asyncio.Future()
@@ -315,16 +310,11 @@ async def test_respond_failure(opsdroid):
     post_response = amock.Mock()
     post_response.status = 401
 
-    with OpsDroid() as opsdroid, amock.patch.object(
-        connector.session, "post"
-    ) as patched_request:
+    with amock.patch.object(connector.session, "post") as patched_request:
 
         assert opsdroid.__class__.instances
         test_message = Message(
-            text="This is a test",
-            user="opsdroid",
-            target="test",
-            connector=connector,
+            text="This is a test", user="opsdroid", target="test", connector=connector,
         )
 
         patched_request.return_value = asyncio.Future()
