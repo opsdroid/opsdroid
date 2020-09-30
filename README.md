@@ -1,4 +1,4 @@
-<h6 align=center>
+opsdroid is very good project
 <img src="https://github.com/opsdroid/style-guidelines/raw/master/logos/logo-wide-light.png" alt="Opsdroid Logo"/>
 </h6>
 
