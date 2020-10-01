@@ -7,6 +7,8 @@ import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock
 import importlib
+import signal
+import threading
 import time
 
 from opsdroid.cli.start import configure_lang
@@ -80,6 +82,18 @@ class TestCore(unittest.TestCase):
                 opsdroid.run()
 
             self.assertTrue(opsdroid.eventloop.run_until_complete.called)
+            self.assertTrue(mock_sysexit.called)
+
+    def test_signals(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.load = amock.CoroutineMock()
+            opsdroid.unload = amock.CoroutineMock()
+            opsdroid.reload = amock.CoroutineMock()
+            threading.Timer(2, lambda: os.kill(os.getpid(), signal.SIGHUP)).start()
+            threading.Timer(3, lambda: os.kill(os.getpid(), signal.SIGINT)).start()
+            with mock.patch("sys.exit") as mock_sysexit:
+                opsdroid.run()
+            self.assertTrue(opsdroid.reload.called)
             self.assertTrue(mock_sysexit.called)
 
     def test_run_cancelled(self):
