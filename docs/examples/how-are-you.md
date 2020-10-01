@@ -34,7 +34,7 @@ from opsdroid.matchers import match_regex
 All the matchers available in opsdroid can be imported from `opsdroid.matchers`.
 
 #### Decorators
-A matcher is meant to be used as a function decorator. The decorator allows opsdroid to understand the function, so we need to use this decorator and use the regex, that we wish opsdroid to react to.
+A matcher is meant to be used as a function decorator. The decorator allows opsdroid to understand the function, so we need to use this decorator and use the regex, that we wish opsdroid to react to. Below is the python code to get started.
 
 ```python
 from opsdroid.skill import Skill
