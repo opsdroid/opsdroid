@@ -1,5 +1,5 @@
 ## Documentation
-More documentation is always appreciated and it's something that you can contribute to from the GitHub web interface.  This might be a great start point if you are new to Open Source and GitHub!
+More documentation is always appreciated and it's something that you can contribute to from the GitHub web interface.  This might be a great start point if you are new to Open Source and GitHub!The only requirement to get started is to have docker installed in system.
 
 Things that we need help with:
 
