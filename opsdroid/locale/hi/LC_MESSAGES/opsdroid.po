@@ -164,7 +164,7 @@ msgstr "लोडेड लोडर"
 #: opsdroid/loader.py:90
 #, python-format
 msgid "Loading entry point-defined module for %s"
-msgstr "%s के लिए प्रविष्टि बिंदु-परिभाषित मॉड्यूल लोड हो रहा है""
+msgstr "%s के लिए प्रविष्टि बिंदु-परिभाषित मॉड्यूल लोड हो रहा है"
 
 #: opsdroid/loader.py:110
 #, python-format
@@ -303,11 +303,10 @@ msgid "Started opsdroid %s"
 msgstr "opsdroid %s शुरू"
 
 #: opsdroid/matchers.py:127
-msgid ""
-"Recast.AI is now called SAP Conversational AI, this matcher  will stop "
-"working in the future. Use match_sapcai instead."
-msgstr ""Recast.AI को अब SAP Conversational AI कहा जाता है, यह मिलान बंद हो जाएगा"
-"भविष्य में काम करना। इसके बजाय match_sapcai का उपयोग करें।""
+msgid "Recast.AI is now called SAP Conversational AI, this matcher  will stop 
+working in the future. Use match_sapcai instead."
+msgstr "Recast.AI को अब SAP Conversational AI कहा जाता है, यह मिलान बंद हो जाएगा"
+"भविष्य में काम करना। इसके बजाय match_sapcai का उपयोग करें।"
 
 #: opsdroid/memory.py:37
 #, python-format
@@ -353,8 +352,8 @@ msgstr "आरंभ किए गए वीडियो देखें: http:/
 msgid ""
 "Install Opsdroid Desktop at: \n"
 "https://github.com/opsdroid/opsdroid-desktop/releases"
-msgstr ""Opsdroid Desktop को यहां स्थापित करें: \ n"
-"Https://github.com/opsdroid/opsdroid-desktop/releases""
+msgstr "Opsdroid Desktop को यहां स्थापित करें: \ n
+Https://github.com/opsdroid/opsdroid-desktop/releases"
 
 #: opsdroid/cli/utils.py:114
 msgid "'welcome-message: true/false' is missing in configuration.yaml"
@@ -577,7 +576,7 @@ msgstr "टेलीग्राम कनेक्टर लोड किया
 msgid ""
 "Unable to login: Access token is missing. Telegram connector will be "
 "unavailable."
-msgstr "लॉगिन करने में असमर्थ: एक्सेस टोकन गायब है। टेलीग्राम कनेक्टर होगा" "अनुपलब्ध।""
+msgstr "लॉगिन करने में असमर्थ: एक्सेस टोकन गायब है। टेलीग्राम कनेक्टर होगा अनुपलब्ध।"
 
 #: opsdroid/connector/telegram/__init__.py:110
 msgid "Sending deleteWebhook request to Telegram..."
@@ -626,8 +625,8 @@ msgstr "संदेश पार्स करने में असमर्�
 msgid ""
 "Can't get updates because previous webhook is still active. Will try to "
 "delete webhook."
-msgstr "अपडेट नहीं मिल सकता क्योंकि पिछले webhook अभी भी सक्रिय है।" करने की कोशिश करेंगे
-"वेबहुक हटाएं।"
+msgstr "अपडेट नहीं मिल सकता क्योंकि पिछले webhook अभी भी सक्रिय है। करने की कोशिश करेंगे
+वेबहुक हटाएं।"
 
 #: opsdroid/connector/telegram/__init__.py:297
 #, python-format
@@ -735,14 +734,14 @@ msgstr "%s पर क्रॉस्टैब कौशल चलाना"
 msgid ""
 "Authentication file not found or 'project-id' not in configuration, "
 "dialogflow parser will not be available"
-msgstr ""प्रमाणीकरण फ़ाइल नहीं मिली या 'प्रोजेक्ट-आईडी' कॉन्फ़िगरेशन में नहीं है,"
-"डायलॉगफ़्लो पार्सर उपलब्ध नहीं होगा""
+msgstr "प्रमाणीकरण फ़ाइल नहीं मिली या 'प्रोजेक्ट-आईडी' कॉन्फ़िगरेशन में नहीं है,
+डायलॉगफ़्लो पार्सर उपलब्ध नहीं होगा"
 
 #: opsdroid/parsers/dialogflow.py:60
 msgid ""
 "Unable to find dialogflow dependency. Please install dialogflow with the "
 "command pip install dialogflow if you want to use this parser."
-msgstr "संवाद प्रवाह निर्भरता खोजने में असमर्थ। कृपया संवाद स्थापित करें" "यदि आप इस पार्सर का उपयोग करना चाहते हैं, तो कमांड पिप इंस्टाल करें।"
+msgstr "संवाद प्रवाह निर्भरता खोजने में असमर्थ। कृपया संवाद स्थापित करें यदि आप इस पार्सर का उपयोग करना चाहते हैं, तो कमांड पिप इंस्टाल करें।"
 
 #: opsdroid/parsers/dialogflow.py:97
 msgid "Dialogflow confidence lower than min-score"
@@ -916,45 +915,47 @@ msgstr "wit.ai त्रुटि - कोई इरादा नहीं म�
 msgid "wit.ai score lower than min-score"
 msgstr "मिनट-स्कोर से कम wit.ai स्कोर"
 
-#~ msgid ""
-#~ "Api.ai is now called Dialogflow. This"
-#~ " parser will stop working in the "
-#~ "future please swap: 'name: apiai' for"
-#~ " 'name: dialogflow' in configuration.yaml"
-#~ msgstr ""
+msgid "Api.ai is now called Dialogflow. This
+parser will stop working in the 
+future please swap: 'name: apiai' for
+'name: dialogflow' in configuration.yaml"
+msgstr "Api.ai को अब डायलॉगफ़्लो कहा जाता है। यह
+पार्सर में काम करना बंद कर देगा
+भविष्य कृपया स्वैप करें: 'नाम: अपियाई'
+'नाम: डायलॉगफ़्लो' कॉन्फ़िगरेशन में ।yaml"
 
-#~ msgid "Checking Recast.AI..."
-#~ msgstr ""
+msgid "Checking Recast.AI..."
+msgstr "Recast.AI की जाँच की जा रही है ..."
 
-#~ msgid ""
-#~ "Api.ai is now called Dialogflow, this"
-#~ " matcher will stop working in the "
-#~ "future. Use match_dialogflow_action instead."
-#~ msgstr ""
+msgid "Api.ai को अब डायलॉगफ़्लो कहा जाता है
+माचिस काम करना बंद कर देगी
+भविष्य। इसके बजाय match_dialogflow_action का उपयोग करें।"
+msgstr ""
 
-#~ msgid ""
-#~ "Api.ai is now called Dialogflow, this"
-#~ " matcher will stop working in the "
-#~ "future. Use match_dialogflow_intent instead."
-#~ msgstr ""
+msgid "Api.ai is now called Dialogflow, this
+matcher will stop working in the 
+future. Use match_dialogflow_intent instead."
+msgstr "Api.ai को अब डायलॉगफ़्लो कहा जाता है
+माचिस काम करना बंद कर देगी
+भविष्य। इसके बजाय match_dialogflow_intent का उपयोग करें।"
 
-#~ msgid "Loaded telegram connector"
-#~ msgstr ""
+msgid "Loaded telegram connector"
+msgstr "लोडेड टेलीग्राम कनेक्टर"
 
-#~ msgid "Connecting to telegram"
-#~ msgstr ""
+msgid "Connecting to telegram"
+msgstr "telegram से जुड़ना"
 
-#~ msgid "Connected to telegram as %s"
-#~ msgstr ""
+msgid "Connected to telegram as %s"
+msgstr "% S के रूप में टेलीग्राम से जुड़ा"
 
-#~ msgid "Dialogflow response - %s"
-#~ msgstr ""
+msgid "Dialogflow response - %s"
+msgstr "डायलॉगफ़्लो प्रतिक्रिया -% s"
 
-#~ msgid "No response from Dialogflow, check your network."
-#~ msgstr ""
+msgid "No response from Dialogflow, check your network."
+msgstr "Dialogflow से कोई प्रतिक्रिया नहीं, अपने नेटवर्क की जाँच करें।"
 
-#~ msgid "Dialogflow error - %s  - %s"
-#~ msgstr ""
+msgid "Dialogflow error - %s  - %s"
+msgstr "डायलॉगफ़्लो त्रुटि -% s -% s"
 
-#~ msgid "Dialogflow score lower than min-score"
-#~ msgstr ""
+msgid "Dialogflow score lower than min-score"
+msgstr "डायलॉगफ़्लो स्कोर न्यूनतम-स्कोर से कम है"
