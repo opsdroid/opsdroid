@@ -188,8 +188,11 @@ class ConnectorTwitch(Connector):
             resp = await session.post(TWITCH_OAUTH_ENDPOINT, params=params)
             data = await resp.json()
 
-            self.token = data["access_token"]
-            self.save_authentication_data(data)
+            try:
+                self.token = data["access_token"]
+                self.save_authentication_data(data)
+            except KeyError:
+                _LOGGER.warning(_("Unable to request oauth token - %s"), data)
 
     async def refresh_token(self):
         """Attempt to refresh the oauth token.
@@ -721,7 +724,9 @@ class ConnectorTwitch(Connector):
 
             param = {"title": event.status, "broadcaster_id": self.user_id}
             resp = await session.patch(
-                f"{TWITCH_API_ENDPOINT}/channels", headers=headers, params=param,
+                f"{TWITCH_API_ENDPOINT}/channels",
+                headers=headers,
+                params=param,
             )
 
             if resp.status == 204:
