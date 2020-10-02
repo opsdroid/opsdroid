@@ -358,3 +358,25 @@ def match_always(func=None):
     if callable(func):
         return matcher(func)
     return matcher
+
+
+def match_catchall(func=None):
+    """Return catch-all match decorator.
+
+    Decorator that runs the function only if no other skills were matched for a message
+
+    Returns:
+        Decorated Function
+
+    """
+
+    def matcher(func):
+        """Add decorated function to skills list for catch-all matching."""
+        func = add_skill_attributes(func)
+        func.matchers.append({"catchall": True})
+        return func
+
+    # Allow for decorator with or without parenthesis as there are no args.
+    if callable(func):
+        return matcher(func)
+    return matcher

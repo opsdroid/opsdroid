@@ -21,6 +21,7 @@ from opsdroid.skill import Skill
 from opsdroid.loader import Loader
 from opsdroid.web import Web
 from opsdroid.parsers.always import parse_always
+from opsdroid.parsers.catchall import parse_catchall
 from opsdroid.parsers.event_type import parse_event_type
 from opsdroid.parsers.regex import parse_regex
 from opsdroid.parsers.parseformat import parse_format
@@ -485,6 +486,8 @@ class OpsDroid:
                 _LOGGER.debug(_("Checking Rasa NLU..."))
                 ranked_skills += await parse_rasanlu(self, skills, message, rasanlu)
 
+        if isinstance(message, events.Message) and not ranked_skills:
+            await parse_catchall(self, message)
         return sorted(ranked_skills, key=lambda k: k["score"], reverse=True)
 
     def get_connector(self, name):
