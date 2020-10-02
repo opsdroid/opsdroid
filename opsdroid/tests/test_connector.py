@@ -14,7 +14,7 @@ configure_lang({})
 
 @pytest.fixture(scope="session")
 def loop():
-    return asyncio.new_event_loop()
+    yield asyncio.new_event_loop()
 
 
 def test_init():
@@ -107,7 +107,7 @@ async def test_dep_respond(recwarn):
     connector = Connector({"name": "shell"})
     with amock.patch("opsdroid.connector.Connector.send") as patched_send:
         await connector.respond("hello", room="bob")
-        assert len(recwarn) == 3
+        assert len(recwarn) >= 1
         assert recwarn.pop(DeprecationWarning)
 
         patched_send.call_count == 1
@@ -120,10 +120,8 @@ async def test_dep_react(recwarn):
     with amock.patch("opsdroid.events.Message.respond") as patched_respond:
         await connector.react(Message("ori"), "hello")
 
-        assert len(recwarn) == 3
+        assert len(recwarn) >= 1
         assert recwarn.pop(DeprecationWarning)
-        assert recwarn.pop(DeprecationWarning)
-        assert recwarn.pop(RuntimeWarning)
 
         patched_respond.call_count == 1
 
@@ -135,11 +133,11 @@ async def test_depreacted_properties(recwarn):
     connector.default_target = "spam"
 
     assert connector.default_room == "spam"
-    assert len(recwarn) == 2
+    assert len(recwarn) >= 1
     assert recwarn.pop(DeprecationWarning)
 
     connector.default_room = "eggs"
-    assert len(recwarn) == 2
+    assert len(recwarn) >= 1
     assert recwarn.pop(DeprecationWarning)
 
     assert connector.default_target == "eggs"
