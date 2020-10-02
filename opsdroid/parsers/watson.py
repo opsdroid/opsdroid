@@ -5,6 +5,11 @@ from voluptuous import Required
 
 from opsdroid.const import WATSON_API_ENDPOINT, WATSON_API_VERSION
 
+try:
+    from ibm_watson import ApiException  # noqa F401
+except ImportError:
+    pass
+
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = {
     Required("gateway"): str,
@@ -68,7 +73,22 @@ async def call_watson(message, opsdroid, config):
     try:
         from ibm_watson import AssistantV2
         from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
-        from ibm_watson import ApiException  # noqa F401
+
+        authenticator = IAMAuthenticator(config["token"])
+        service = AssistantV2(version=WATSON_API_VERSION, authenticator=authenticator)
+
+        await get_session_id(service, config)
+
+        response = service.message(
+            assistant_id=config["assistant-id"],
+            session_id=config["session-id"],
+            input={"message_type": "text", "text": message.text},
+        ).get_result()
+
+        _LOGGER.debug(_("Watson response - %s."), response)
+
+        return response
+
     except ImportError:
         _LOGGER.error(
             _(
@@ -76,21 +96,6 @@ async def call_watson(message, opsdroid, config):
             )
         )
         opsdroid.config["parsers"][0]["enabled"] = False
-
-    authenticator = IAMAuthenticator(config["token"])
-    service = AssistantV2(version=WATSON_API_VERSION, authenticator=authenticator)
-
-    await get_session_id(service, config)
-
-    response = service.message(
-        assistant_id=config["assistant-id"],
-        session_id=config["session-id"],
-        input={"message_type": "text", "text": message.text},
-    ).get_result()
-
-    _LOGGER.debug(_("Watson response - %s."), response)
-
-    return response
 
 
 async def parse_watson(opsdroid, skills, message, config):
