@@ -157,7 +157,7 @@ async def parse_watson(opsdroid, skills, message, config):
 
     except KeyError as error:
         _LOGGER.error(
-            _("Error: %s. You are probably missing some configuration parameter."),
+            _("Error: %s"),
             error,
         )
     except ApiException as ex:
