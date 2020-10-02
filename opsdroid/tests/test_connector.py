@@ -1,143 +1,116 @@
-"""Test the opsdroid connector base class."""
 import pytest
-import asyncio
 
 import asynctest.mock as amock
 
-from opsdroid.core import OpsDroid
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message, Reaction
-from opsdroid.cli.start import configure_lang
-
-configure_lang({})
 
 
-@pytest.fixture(scope="session")
-def loop():
-    yield asyncio.new_event_loop()
+class TestConnectorBaseClass:
+    """Test the opsdroid connector base class."""
 
+    def test_init(self, opsdroid):
+        config = {"example_item": "test"}
+        connector = Connector(config, opsdroid=opsdroid)
+        assert connector.default_target is None
+        assert connector.name == ""
+        assert connector.config["example_item"] == "test"
 
-def test_init():
-    config = {"example_item": "test"}
-    connector = Connector(config, opsdroid=OpsDroid())
-    assert connector.default_target is None
-    assert connector.name == ""
-    assert connector.config["example_item"] == "test"
+    def test_property(self):
+        opsdroid = amock.CoroutineMock()
+        connector = Connector({"name": "shell"}, opsdroid=opsdroid)
+        assert connector.configuration.get("name") == "shell"
 
+    def test_connect(self, event_loop, no_config_connector):
+        with pytest.raises(NotImplementedError):
+            event_loop.run_until_complete(no_config_connector.connect())
 
-def test_property():
-    opsdroid = amock.CoroutineMock()
-    connector = Connector({"name": "shell"}, opsdroid=opsdroid)
-    assert connector.configuration.get("name") == "shell"
+    def test_listen(self, event_loop, no_config_connector):
+        with pytest.raises(NotImplementedError):
+            event_loop.run_until_complete(no_config_connector.listen())
 
+    def test_respond(self, event_loop, no_config_connector):
+        with pytest.raises(TypeError):
+            event_loop.run_until_complete(no_config_connector.send(Message("")))
 
-def test_connect(loop):
-    connector = Connector({}, opsdroid=OpsDroid())
-    with pytest.raises(NotImplementedError):
-        loop.run_until_complete(connector.connect())
+    def test_unsupported_event(self, event_loop, no_config_connector):
+        with pytest.raises(TypeError):
+            event_loop.run_until_complete(no_config_connector.send(Reaction("emoji")))
 
-
-def test_listen(loop):
-    connector = Connector({}, opsdroid=OpsDroid())
-    with pytest.raises(NotImplementedError):
-        loop.run_until_complete(connector.listen())
-
-
-def test_respond(loop):
-    connector = Connector({}, opsdroid=OpsDroid())
-    with pytest.raises(TypeError):
-        loop.run_until_complete(connector.send(Message("")))
-
-
-def test_unsupported_event(loop):
-    connector = Connector({}, opsdroid=OpsDroid())
-    with pytest.raises(TypeError):
-        loop.run_until_complete(connector.send(Reaction("emoji")))
-
-
-def test_incorrect_event():
-    class NotanEvent:
-        pass
-
-    class MyConnector(Connector):
-        @register_event(NotanEvent)
-        def send_my_event(self, event):
+    def test_incorrect_event(self):
+        class NotanEvent:
             pass
 
-    with pytest.raises(TypeError):
-        MyConnector()
+        class MyConnector(Connector):
+            @register_event(NotanEvent)
+            def send_my_event(self, event):
+                pass
 
+        with pytest.raises(TypeError):
+            MyConnector()
 
-def test_event_subclasses():
-    class MyEvent(Message):
-        pass
-
-    class MyConnector(Connector):
-        @register_event(Message, include_subclasses=True)
-        def send_my_event(self, event):
+    def test_event_subclasses(self):
+        class MyEvent(Message):
             pass
 
-    c = MyConnector({})
-    assert MyEvent in c.events
+        class MyConnector(Connector):
+            @register_event(Message, include_subclasses=True)
+            def send_my_event(self, event):
+                pass
+
+        c = MyConnector({})
+        assert MyEvent in c.events
 
 
-"""Test the async methods of the opsdroid connector base class."""
+class TestConnectorAsync:
+    """Test the async methods of the opsdroid connector base class."""
 
+    @pytest.mark.asyncio
+    async def test_disconnect(self, no_config_connector):
+        res = await no_config_connector.disconnect()
+        assert res is None
 
-async def setup():
-    configure_lang({})
+    @pytest.mark.asyncio
+    async def test_send_incorrect_event(self):
+        connector = Connector({"name": "shell"})
+        with pytest.raises(TypeError):
+            await connector.send(object())
 
+    @pytest.mark.asyncio
+    async def test_dep_respond(self, recwarn):
+        connector = Connector({"name": "shell"})
+        with amock.patch("opsdroid.connector.Connector.send") as patched_send:
+            await connector.respond("hello", room="bob")
 
-@pytest.mark.asyncio
-async def test_disconnect():
-    connector = Connector({}, opsdroid=OpsDroid())
-    res = await connector.disconnect()
-    assert res is None
+            assert len(recwarn) >= 1
+            assert recwarn.pop(DeprecationWarning)
 
+            patched_send.call_count == 1
 
-@pytest.mark.asyncio
-async def test_send_incorrect_event():
-    connector = Connector({"name": "shell"})
-    with pytest.raises(TypeError):
-        await connector.send(object())
+    @pytest.mark.asyncio
+    async def test_dep_react(self, recwarn):
+        connector = Connector({"name": "shell"})
 
+        with amock.patch("opsdroid.events.Message.respond") as patched_respond:
+            await connector.react(Message("ori"), "hello")
 
-@pytest.mark.asyncio
-async def test_dep_respond(recwarn):
-    connector = Connector({"name": "shell"})
-    with amock.patch("opsdroid.connector.Connector.send") as patched_send:
-        await connector.respond("hello", room="bob")
-        assert len(recwarn) >= 1
-        assert recwarn.pop(DeprecationWarning)
+            assert len(recwarn) >= 1
+            assert recwarn.pop(DeprecationWarning)
 
-        patched_send.call_count == 1
+            patched_respond.call_count == 1
 
+    @pytest.mark.asyncio
+    async def test_depreacted_properties(self, recwarn):
+        connector = Connector({"name": "shell"})
 
-@pytest.mark.asyncio
-async def test_dep_react(recwarn):
-    connector = Connector({"name": "shell"})
-
-    with amock.patch("opsdroid.events.Message.respond") as patched_respond:
-        await connector.react(Message("ori"), "hello")
+        connector.default_target = "spam"
+        assert connector.default_room == "spam"
 
         assert len(recwarn) >= 1
         assert recwarn.pop(DeprecationWarning)
 
-        patched_respond.call_count == 1
+        connector.default_room = "eggs"
+        assert connector.default_target == "eggs"
 
-
-@pytest.mark.asyncio
-async def test_depreacted_properties(recwarn):
-    connector = Connector({"name": "shell"})
-
-    connector.default_target = "spam"
-
-    assert connector.default_room == "spam"
-    assert len(recwarn) >= 1
-    assert recwarn.pop(DeprecationWarning)
-
-    connector.default_room = "eggs"
-    assert len(recwarn) >= 1
-    assert recwarn.pop(DeprecationWarning)
-
-    assert connector.default_target == "eggs"
+        assert len(recwarn) >= 1
+        assert recwarn.pop(DeprecationWarning)
