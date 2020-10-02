@@ -85,7 +85,10 @@ class TestCore(unittest.TestCase):
             self.assertTrue(mock_sysexit.called)
 
     def test_signals(self):
-        with OpsDroid() as opsdroid:
+        loop = asyncio.get_event_loop()
+
+        def real_test_signals(opsdroid):
+            asyncio.set_event_loop(loop)
             opsdroid.load = amock.CoroutineMock()
             opsdroid.unload = amock.CoroutineMock()
             opsdroid.reload = amock.CoroutineMock()
@@ -95,6 +98,11 @@ class TestCore(unittest.TestCase):
                 opsdroid.run()
             self.assertTrue(opsdroid.reload.called)
             self.assertTrue(mock_sysexit.called)
+
+        with OpsDroid() as opsdroid:
+            thread = threading.Thread(target=real_test_signals, args=(opsdroid,))
+            thread.start()
+            thread.join()
 
     def test_run_cancelled(self):
         with OpsDroid() as opsdroid:
