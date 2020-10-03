@@ -353,7 +353,7 @@ class TestCoreAsync(asynctest.TestCase):
                 "opsdroid.parsers.dialogflow.parse_dialogflow"
             ), amock.patch("opsdroid.parsers.dialogflow.call_dialogflow"):
                 tasks = await opsdroid.parse(message)
-                self.assertEqual(len(tasks), 2)
+                self.assertEqual(len(tasks), 3)
 
                 tasks = await opsdroid.parse(message)
                 self.assertLogs("_LOGGER", "warning")
@@ -375,7 +375,7 @@ class TestCoreAsync(asynctest.TestCase):
             )
             with amock.patch("opsdroid.parsers.luisai.parse_luisai"):
                 tasks = await opsdroid.parse(message)
-                self.assertEqual(len(tasks), 2)
+                self.assertEqual(len(tasks), 3)
 
     async def test_parse_rasanlu(self):
         with OpsDroid() as opsdroid:
@@ -393,7 +393,7 @@ class TestCoreAsync(asynctest.TestCase):
             )
             with amock.patch("opsdroid.parsers.rasanlu.parse_rasanlu"):
                 tasks = await opsdroid.parse(message)
-                self.assertEqual(len(tasks), 2)
+                self.assertEqual(len(tasks), 3)
 
     async def test_parse_sapcai(self):
         with OpsDroid() as opsdroid:
@@ -409,7 +409,7 @@ class TestCoreAsync(asynctest.TestCase):
             )
             with amock.patch("opsdroid.parsers.sapcai.parse_sapcai"):
                 tasks = await opsdroid.parse(message)
-                self.assertEqual(len(tasks), 2)
+                self.assertEqual(len(tasks), 3)
 
     async def test_parse_watson(self):
         with OpsDroid() as opsdroid:
@@ -423,7 +423,7 @@ class TestCoreAsync(asynctest.TestCase):
             message = Message("Hello world", "user", "default", mock_connector)
             with amock.patch("opsdroid.parsers.watson.parse_watson"):
                 tasks = await opsdroid.parse(message)
-                self.assertEqual(len(tasks), 2)
+                self.assertEqual(len(tasks), 3)
 
     async def test_parse_witai(self):
         with OpsDroid() as opsdroid:
@@ -442,7 +442,7 @@ class TestCoreAsync(asynctest.TestCase):
             )
             with amock.patch("opsdroid.parsers.witai.parse_witai"):
                 tasks = await opsdroid.parse(message)
-                self.assertEqual(len(tasks), 2)
+                self.assertEqual(len(tasks), 3)
 
     async def test_send_default_one(self):
         with OpsDroid() as opsdroid, amock.patch(
