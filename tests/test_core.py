@@ -85,6 +85,8 @@ class TestCore(unittest.TestCase):
             self.assertTrue(mock_sysexit.called)
 
     def test_signals(self):
+        if os.name == "nt":
+            pytest.skip("SIGHUP unsupported on windows")
         loop = asyncio.get_event_loop()
 
         def real_test_signals(opsdroid):
