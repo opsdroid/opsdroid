@@ -7,6 +7,8 @@ import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock
 import importlib
+import signal
+import threading
 import time
 
 from opsdroid.cli.start import configure_lang
@@ -83,6 +85,28 @@ class TestCore(unittest.TestCase):
 
             self.assertTrue(opsdroid.eventloop.run_until_complete.called)
             self.assertTrue(mock_sysexit.called)
+
+    def test_signals(self):
+        if os.name == "nt":
+            pytest.skip("SIGHUP unsupported on windows")
+        loop = asyncio.get_event_loop()
+
+        def real_test_signals(opsdroid):
+            asyncio.set_event_loop(loop)
+            opsdroid.load = amock.CoroutineMock()
+            opsdroid.unload = amock.CoroutineMock()
+            opsdroid.reload = amock.CoroutineMock()
+            threading.Timer(2, lambda: os.kill(os.getpid(), signal.SIGHUP)).start()
+            threading.Timer(3, lambda: os.kill(os.getpid(), signal.SIGINT)).start()
+            with mock.patch("sys.exit") as mock_sysexit:
+                opsdroid.run()
+            self.assertTrue(opsdroid.reload.called)
+            self.assertTrue(mock_sysexit.called)
+
+        with OpsDroid() as opsdroid:
+            thread = threading.Thread(target=real_test_signals, args=(opsdroid,))
+            thread.start()
+            thread.join()
 
     def test_run_cancelled(self):
         with OpsDroid() as opsdroid:

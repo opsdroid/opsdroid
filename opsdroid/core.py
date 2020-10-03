@@ -57,6 +57,9 @@ class OpsDroid:
                 self.eventloop.add_signal_handler(
                     sig, lambda: asyncio.ensure_future(self.handle_signal())
                 )
+            self.eventloop.add_signal_handler(
+                signal.SIGHUP, lambda: asyncio.ensure_future(self.reload())
+            )
         self.eventloop.set_exception_handler(self.handle_async_exception)
         self.skills = []
         self.memory = Memory()
