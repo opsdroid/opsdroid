@@ -39,7 +39,10 @@ async def test_parse_catchall_decorator_parens():
 
         mock_connector = amock.CoroutineMock()
         message = Message(
-            text="Hello world", user="user", target="default", connector=mock_connector,
+            text="Hello world",
+            user="user",
+            target="default",
+            connector=mock_connector,
         )
 
         await parse_catchall(opsdroid, message)
@@ -55,7 +58,10 @@ async def test_parse_catchall_decorate_no_parens():
 
         mock_connector = amock.CoroutineMock()
         message = Message(
-            text="Hello world", user="user", target="default", connector=mock_connector,
+            text="Hello world",
+            user="user",
+            target="default",
+            connector=mock_connector,
         )
 
         await parse_catchall(opsdroid, message)
@@ -74,7 +80,10 @@ async def test_parse_catchall_raises(caplog):
         mock_connector = amock.MagicMock()
         mock_connector.send = amock.CoroutineMock()
         message = Message(
-            text="Hello world", user="user", target="default", connector=mock_connector,
+            text="Hello world",
+            user="user",
+            target="default",
+            connector=mock_connector,
         )
 
         await parse_catchall(opsdroid, message)
@@ -91,7 +100,10 @@ async def test_parse_catchall_not_called():
 
         mock_connector = amock.CoroutineMock()
         message = Message(
-            text="Hello world", user="user", target="default", connector=mock_connector,
+            text="Hello world",
+            user="user",
+            target="default",
+            connector=mock_connector,
         )
 
         await parse_catchall(opsdroid, message)
