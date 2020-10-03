@@ -2,7 +2,9 @@
 
 The `catchall` matcher is a special case which is called only when no other skills were matched.
 
-It is useful for displaying a help message to the user to show available commands bot replies to, for example.
+This matcher catches everything - messages and events, if you want to catch only messages you can set the flag `messages_only` to `True`.
+
+It is useful for displaying a help message to the user to show available commands that the bot replies to, for example:
 
 ```eval_rst
 .. autofunction:: opsdroid.matchers.match_catchall

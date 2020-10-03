@@ -486,8 +486,6 @@ class OpsDroid:
                 _LOGGER.debug(_("Checking Rasa NLU..."))
                 ranked_skills += await parse_rasanlu(self, skills, message, rasanlu)
 
-        if isinstance(message, events.Message) and not ranked_skills:
-            await parse_catchall(self, message)
         return sorted(ranked_skills, key=lambda k: k["score"], reverse=True)
 
     def get_connector(self, name):
@@ -577,7 +575,8 @@ class OpsDroid:
                         )
                     )
                 )
-
+        if len(tasks) == 2:  # no other skills ran other than 2 default ones
+            tasks.append(self.eventloop.create_task(parse_catchall(self, event)))
         await asyncio.gather(*tasks)
 
         return tasks

@@ -2,12 +2,19 @@
 
 import logging
 
+from opsdroid import events
+
 _LOGGER = logging.getLogger(__name__)
 
 
-async def parse_catchall(opsdroid, message):
-    """Parse a message against catch-all skills, if found."""
+async def parse_catchall(opsdroid, event):
+    """Parse an event against catch-all skills, if found."""
     for skill in opsdroid.skills:
         for matcher in skill.matchers:
             if "catchall" in matcher:
-                await opsdroid.run_skill(skill, skill.config, message)
+                if (
+                    matcher["messages_only"]
+                    and isinstance(event, events.Message)
+                    or not matcher["messages_only"]
+                ):
+                    await opsdroid.run_skill(skill, skill.config, event)
