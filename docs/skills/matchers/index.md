@@ -43,6 +43,7 @@ After an event has been through the conversation matching stage we then also che
    :caption: Non-chat
 
    always
+   catchall
    crontab
    event
    webhook

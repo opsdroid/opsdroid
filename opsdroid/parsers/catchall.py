@@ -6,7 +6,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def parse_catchall(opsdroid, message):
-    """Parse a message against catch-all skill, if found."""
+    """Parse a message against catch-all skills, if found."""
     for skill in opsdroid.skills:
         for matcher in skill.matchers:
             if "catchall" in matcher:
