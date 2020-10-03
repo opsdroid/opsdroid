@@ -1,16 +1,17 @@
 """A helper function for parsing and executing IBM watson skills."""
 import logging
-
+import contextlib
 from voluptuous import Required
 
 from opsdroid.const import WATSON_API_ENDPOINT, WATSON_API_VERSION
 
-try:
+
+# This exception needs to be set outside the call_watson to be called
+with contextlib.suppress(ImportError):
     from ibm_watson import ApiException  # noqa F401
-except ImportError:
-    pass
 
 _LOGGER = logging.getLogger(__name__)
+
 CONFIG_SCHEMA = {
     Required("gateway"): str,
     Required("assistant-id"): str,

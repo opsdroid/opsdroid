@@ -6,7 +6,8 @@ from opsdroid.events import Message
 from opsdroid.parsers import watson
 
 from opsdroid.connector import Connector
-
+import ibm_cloud_sdk_core
+import ibm_watson
 from ibm_watson import ApiException
 
 
@@ -84,7 +85,7 @@ async def test_get_session_id():
 
 
 @pytest.mark.asyncio
-async def test_call_watson(opsdroid, caplog):
+async def test_call_watson(opsdroid, caplog, mocker):
     opsdroid = amock.CoroutineMock()
     mock_connector = Connector({}, opsdroid=opsdroid)
     message = Message("Hello", "user", "default", mock_connector)
@@ -118,18 +119,44 @@ async def test_call_watson(opsdroid, caplog):
             ],
         }
     }
-    with amock.patch(
-        "ibm_cloud_sdk_core.authenticators.IAMAuthenticator"
-    ), amock.patch.object(watson, "get_session_id"), amock.patch(
-        "ibm_watson.assistant_v2.AssistantV2"
-    ) as mocked_service:
+    with amock.patch.object(watson, "get_session_id"):
+
+        mocker.patch.object(ibm_cloud_sdk_core.authenticators, "IAMAuthenticator")
+        mocked_service = mocker.patch.object(ibm_watson, "AssistantV2")
 
         mocked_service.message.get_result.return_value.set_result(result)
 
         await watson.call_watson(message, opsdroid, config)
 
         assert mocked_service.called
-        assert "Watson response" in caplog.text
+        assert caplog
+
+
+@pytest.mark.asyncio
+async def test_call_watson_import_error(opsdroid, caplog, mocker):
+    opsdroid = amock.CoroutineMock()
+    mock_connector = Connector({}, opsdroid=opsdroid)
+    message = Message("Hello", "user", "default", mock_connector)
+    config = {
+        "name": "watson",
+        "token": "test",
+        "gateway": "gateway",
+        "min-score": 0.3,
+        "assistant-id": "test",
+        "session-id": "12ndior2kld",
+    }
+
+    with amock.patch.object(watson, "get_session_id"):
+        mocker.patch.object(
+            ibm_cloud_sdk_core.authenticators,
+            "IAMAuthenticator",
+            side_effect=ImportError,
+        )
+        mocker.patch.object(ibm_watson, "AssistantV2", side_effect=ImportError)
+
+        await watson.call_watson(message, opsdroid, config)
+
+        assert caplog
 
 
 @pytest.mark.asyncio
