@@ -137,13 +137,36 @@ async def test_request_oauth_token(opsdroid, tmpdir):
 
         connector.save_authentication_data = amock.CoroutineMock()
 
-        response = await connector.request_oauth_token()
-
-        print(response)
+        await connector.request_oauth_token()
 
         assert connector.token is not None
         assert connector.token == "token"
         assert connector.save_authentication_data.called
+
+
+@pytest.mark.asyncio
+async def test_request_oauth_token_failure(opsdroid, caplog):
+    connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
+
+    post_response = amock.Mock()
+    post_response.status = 400
+    post_response.json = amock.CoroutineMock()
+    post_response.json.return_value = {
+        "status": 400,
+        "message": "Parameter redirect_uri does not match registered URI",
+    }
+
+    with amock.patch(
+        "aiohttp.ClientSession.post", new=amock.CoroutineMock()
+    ) as patched_request:
+        patched_request.return_value = asyncio.Future()
+        patched_request.return_value.set_result(post_response)
+
+        await connector.request_oauth_token()
+
+        assert connector.token is None
+        assert "Unable to request oauth token" in caplog.text
+        assert "Parameter redirect_uri does not match registered URI" in caplog.text
 
 
 @pytest.mark.asyncio
@@ -167,9 +190,7 @@ async def test_refresh_oauth_token(opsdroid):
 
         connector.save_authentication_data = amock.CoroutineMock()
 
-        response = await connector.refresh_token()
-
-        print(response)
+        await connector.refresh_token()
 
         assert connector.token is not None
         assert connector.token == "token"
@@ -178,7 +199,6 @@ async def test_refresh_oauth_token(opsdroid):
 
 @pytest.mark.asyncio
 async def test_connect(opsdroid, caplog, tmpdir):
-    print(tmpdir)
     caplog.set_level(logging.INFO)
 
     get_response = amock.Mock()
@@ -207,7 +227,6 @@ async def test_connect(opsdroid, caplog, tmpdir):
 
 @pytest.mark.asyncio
 async def test_connect_no_auth_data(opsdroid, caplog, tmpdir):
-    print(tmpdir)
     caplog.set_level(logging.INFO)
     get_response = amock.Mock()
     get_response.status = 200
