@@ -930,9 +930,7 @@ msgid ""
 "Api.ai is now called Dialogflow, this"
 " matcher will stop working in the "
 "future. Use match_dialogflow_action instead."
-msgstr "Api.ai को अब डायलॉगफ़्लो कहा जाता है
-माचिस काम करना बंद कर देगी
-भविष्य। इसके बजाय match_dialogflow_action का उपयोग करें।"
+msgstr "Api.ai को अब डायलॉगफ़्लो कहा जाता है माचिस काम करना बंद कर देगी भविष्य। इसके बजाय match_dialogflow_action का उपयोग करें।"
 
 msgid ""
 "Api.ai is now called Dialogflow, this"
