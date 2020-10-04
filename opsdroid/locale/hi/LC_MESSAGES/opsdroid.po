@@ -307,7 +307,7 @@ msgid ""
 "Recast.AI is now called SAP Conversational AI, this matcher  will stop "
 "working in the future. Use match_sapcai instead."
 msgstr ""Recast.AI को अब SAP Conversational AI कहा जाता है, यह मिलान बंद हो जाएगा"
-"भविष्य में काम करना। इसके बजाय match_sapcai का उपयोग करें।""
+"भविष्य में काम करना। इसके बजाय match_sapcai का उपयोग करें।""	
 
 #: opsdroid/memory.py:37
 #, python-format
@@ -916,45 +916,47 @@ msgstr "wit.ai त्रुटि - कोई इरादा नहीं म�
 msgid "wit.ai score lower than min-score"
 msgstr "मिनट-स्कोर से कम wit.ai स्कोर"
 
-#~ msgid ""
-#~ "Api.ai is now called Dialogflow. This"
-#~ " parser will stop working in the "
-#~ "future please swap: 'name: apiai' for"
-#~ " 'name: dialogflow' in configuration.yaml"
-#~ msgstr ""
+msgid "Api.ai is now called Dialogflow. This
+parser will stop working in the 
+future please swap: 'name: apiai' for
+'name: dialogflow' in configuration.yaml"
+msgstr "Api.ai को अब डायलॉगफ़्लो कहा जाता है। यहपार्सर में काम करना बंद कर देगाभविष्य कृपया स्वैप करें: 'नाम: अपियाई''नाम: डायलॉगफ़्लो' कॉन्फ़िगरेशन में ।yaml"
 
-#~ msgid "Checking Recast.AI..."
-#~ msgstr ""
 
-#~ msgid ""
-#~ "Api.ai is now called Dialogflow, this"
-#~ " matcher will stop working in the "
-#~ "future. Use match_dialogflow_action instead."
-#~ msgstr ""
+msgid "Checking Recast.AI..."
+msgstr "Recast.AI की जाँच की जा रही है .."
 
-#~ msgid ""
-#~ "Api.ai is now called Dialogflow, this"
-#~ " matcher will stop working in the "
-#~ "future. Use match_dialogflow_intent instead."
-#~ msgstr ""
+msgid ""
+"Api.ai is now called Dialogflow, this"
+" matcher will stop working in the "
+"future. Use match_dialogflow_action instead."
+msgstr "Api.ai को अब डायलॉगफ़्लो कहा जाता है
+माचिस काम करना बंद कर देगी
+भविष्य। इसके बजाय match_dialogflow_action का उपयोग करें।"
 
-#~ msgid "Loaded telegram connector"
-#~ msgstr ""
+msgid ""
+"Api.ai is now called Dialogflow, this"
+" matcher will stop working in the "
+"future. Use match_dialogflow_intent instead."
+msgstr ""
 
-#~ msgid "Connecting to telegram"
-#~ msgstr ""
+msgid "Loaded telegram connector"
+msgstr "लोडेड टेलीग्राम कनेक्टर"
 
-#~ msgid "Connected to telegram as %s"
-#~ msgstr ""
+msgid "Connecting to telegram"
+msgstr "telegram से जुड़ना"
 
-#~ msgid "Dialogflow response - %s"
-#~ msgstr ""
+msgid "Connected to telegram as %s"
+msgstr "% S के रूप में टेलीग्राम से जुड़ा"
 
-#~ msgid "No response from Dialogflow, check your network."
-#~ msgstr ""
+msgid "Dialogflow response - %s"
+msgstr "डायलॉगफ़्लो प्रतिक्रिया -% s"
 
-#~ msgid "Dialogflow error - %s  - %s"
-#~ msgstr ""
+msgid "No response from Dialogflow, check your network."
+msgstr "Dialogflow से कोई प्रतिक्रिया नहीं, अपने नेटवर्क की जाँच करें।"
 
-#~ msgid "Dialogflow score lower than min-score"
-#~ msgstr ""
+msgid "Dialogflow error - %s  - %s"
+msgstr "डायलॉगफ़्लो त्रुटि -% s -% s"
+
+msgid "Dialogflow score lower than min-score"
+msgstr "डायलॉगफ़्लो स्कोर न्यूनतम-स्कोर से कम है" 
