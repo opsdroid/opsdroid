@@ -1,4 +1,4 @@
-# Gittter
+# Gitter
 
 A connector for [Gitter](https://developer.gitter.im/docs/welcome).
 
