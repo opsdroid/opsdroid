@@ -58,8 +58,8 @@ class TestConnectorBaseClass:
             def send_my_event(self, event):
                 pass
 
-        c = MyConnector({})
-        assert MyEvent in c.events
+        connector = MyConnector({})
+        assert MyEvent in connector.events
 
 
 class TestConnectorAsync:
