@@ -14,8 +14,11 @@ configure_lang({})
 
 
 @pytest.fixture(scope="session")
-def no_config_connector():
-    return Connector({}, opsdroid=opsdroid)
+def get_connector():
+    def _get_connector(config={}):
+        return Connector(config, opsdroid=opsdroid)
+
+    return _get_connector
 
 
 @pytest.yield_fixture
