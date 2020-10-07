@@ -1169,6 +1169,8 @@ async def test_migrate(patched_send, opsdroid_matrix, mocker, caplog, patched_uu
                 ],
                 "!notaroomid",
             )
+        elif resp is nio.RoomPutStateResponse:
+            return resp
         else:
             return nio.RoomGetStateEventError(message="testing")
 
@@ -1219,6 +1221,8 @@ async def test_migrate_single_state_key_false(
                 ],
                 "!notaroomid",
             )
+        elif resp is nio.RoomPutStateResponse:
+            return resp
         else:
             return nio.RoomGetStateEventError(message="testing")
 

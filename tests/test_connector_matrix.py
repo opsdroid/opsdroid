@@ -650,29 +650,32 @@ class TestConnectorMatrixAsync:
             linked_event=events.Message("hello", event_id="$hello"),
             connector=connector,
         )
+        def expected_content(message):
+            new_content = connector._get_formatted_message_body(message.text)
+            event_id = message.linked_event if isinstance(message.linked_event, str) else message.linked_event.event_id
+            return {
+                "msgtype": "m.text",
+                "m.new_content": new_content,
+                "body": f"* {new_content['body']}",
+                "m.relates_to": {
+                    "rel_type": "m.replace",
+                    "event_id": event_id,
+                },
+            }
+
         with amock.patch(
             api_string.format("room_send")
         ) as patched_send, OpsDroid() as _:
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result({})
 
-            new_content = connector._get_formatted_message_body(message.text)
-            content = {
-                "msgtype": "m.text",
-                "m.new_content": new_content,
-                "body": f"* {new_content['body']}",
-                "m.relates_to": {
-                    "rel_type": "m.replace",
-                    "event_id": message.linked_event.event_id,
-                },
-            }
 
             await connector.send(message)
 
             patched_send.assert_called_once_with(
                 message.target,
                 "m.room.message",
-                content,
+                expected_content(message),
                 ignore_unverified_devices=True,
             )
 
@@ -684,17 +687,18 @@ class TestConnectorMatrixAsync:
             patched_send.assert_called_with(
                 message.target,
                 "m.room.message",
-                content,
+                expected_content(message),
                 ignore_unverified_devices=True,
             )
 
             # Test responding to an edit
-            await message.respond(events.EditedMessage("hello"))
+            edited_message = events.EditedMessage("hello")
+            await message.respond(edited_message)
 
             patched_send.assert_called_with(
                 message.target,
                 "m.room.message",
-                content,
+                expected_content(edited_message),
                 ignore_unverified_devices=True,
             )
 
@@ -1276,7 +1280,7 @@ class TestConnectorMatrixAsync:
                 rec.message for rec in caplog.records
             ]
 
-    async def test_already_in_room(self, caplog, connector):
+    async def test_user_invite_unknown_error(self, caplog, connector):
         with amock.patch(api_string.format("room_invite")) as patched_invite:
 
             patched_invite.return_value = asyncio.Future()
@@ -1292,6 +1296,9 @@ class TestConnectorMatrixAsync:
                 )
                 assert exc.nio_error.message == "@neo.matrix.org is already in the room"
 
+    async def test_already_in_room_warning(self, caplog, connector):
+        with amock.patch(api_string.format("room_invite")) as patched_invite:
+
             patched_invite.return_value = asyncio.Future()
             patched_invite.return_value.set_result(
                 nio.RoomInviteError(
@@ -1301,7 +1308,7 @@ class TestConnectorMatrixAsync:
             resp = await connector._send_user_invitation(
                 events.UserInvite(target="!test:localhost", user_id="@neo:matrix.org")
             )
-            assert ["@neo.matrix.org is already in the room"] == [
+            assert ["@neo:matrix.org is already in the room, ignoring."] == [
                 rec.message for rec in caplog.records
             ]
 

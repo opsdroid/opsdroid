@@ -397,7 +397,7 @@ class ConnectorMatrix(Connector):
             # If we are attempting to edit an edit, move up the tree and then
             # try again.
             message.linked_event = message.linked_event.linked_event
-            return self._send_edit(message)
+            return await self._send_edit(message)
         elif isinstance(message.linked_event, str):
             edited_event_id = message.linked_event
         else:
