@@ -5,7 +5,6 @@ import logging
 import re
 from pathlib import Path
 from urllib.parse import urlparse
-from dataclasses import dataclass
 
 import aiohttp
 import nio
@@ -36,9 +35,8 @@ __all__ = ["ConnectorMatrix"]
 
 
 class MatrixException(Exception):
-    """
-    Wrap a matrix-nio Error in an Exception so it can raised.
-    """
+    """Wrap a matrix-nio Error in an Exception so it can raised."""
+
     def __init__(self, nio_error):
         self.nio_error = nio_error
 
@@ -179,9 +177,7 @@ class ConnectorMatrix(Connector):
         """Create connection object with chat library."""
 
         if self._allow_encryption:
-            _LOGGER.debug(
-                f"Using {self.store_path} for the matrix client store."
-            )
+            _LOGGER.debug(f"Using {self.store_path} for the matrix client store.")
             Path(self.store_path).mkdir(exist_ok=True)
 
         config = nio.AsyncClientConfig(

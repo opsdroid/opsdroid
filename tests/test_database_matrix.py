@@ -4,8 +4,7 @@ import nio
 import pytest
 from mock import AsyncMock, call
 
-from opsdroid.connector.matrix.connector import (ConnectorMatrix,
-                                                 MatrixException)
+from opsdroid.connector.matrix.connector import ConnectorMatrix, MatrixException
 from opsdroid.core import OpsDroid
 from opsdroid.database.matrix import DatabaseMatrix, memory_in_event_room
 from opsdroid.events import Message

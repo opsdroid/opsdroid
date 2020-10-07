@@ -650,9 +650,14 @@ class TestConnectorMatrixAsync:
             linked_event=events.Message("hello", event_id="$hello"),
             connector=connector,
         )
+
         def expected_content(message):
             new_content = connector._get_formatted_message_body(message.text)
-            event_id = message.linked_event if isinstance(message.linked_event, str) else message.linked_event.event_id
+            event_id = (
+                message.linked_event
+                if isinstance(message.linked_event, str)
+                else message.linked_event.event_id
+            )
             return {
                 "msgtype": "m.text",
                 "m.new_content": new_content,
@@ -668,7 +673,6 @@ class TestConnectorMatrixAsync:
         ) as patched_send, OpsDroid() as _:
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result({})
-
 
             await connector.send(message)
 
@@ -1291,8 +1295,10 @@ class TestConnectorMatrixAsync:
             )
 
             with pytest.raises(MatrixException) as exc:
-                resp = await connector._send_user_invitation(
-                    events.UserInvite(target="!test:localhost", user_id="@neo:matrix.org")
+                await connector._send_user_invitation(
+                    events.UserInvite(
+                        target="!test:localhost", user_id="@neo:matrix.org"
+                    )
                 )
                 assert exc.nio_error.message == "@neo.matrix.org is already in the room"
 
@@ -1305,7 +1311,7 @@ class TestConnectorMatrixAsync:
                     message="@neo.matrix.org is already in the room", status_code=403
                 )
             )
-            resp = await connector._send_user_invitation(
+            await connector._send_user_invitation(
                 events.UserInvite(target="!test:localhost", user_id="@neo:matrix.org")
             )
             assert ["@neo:matrix.org is already in the room, ignoring."] == [
