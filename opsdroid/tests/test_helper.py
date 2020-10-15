@@ -1,10 +1,6 @@
 import os
-import asyncio
 import datetime
 import tempfile
-import unittest
-import unittest.mock as mock
-import pytest
 
 from opsdroid.helper import (
     del_rw,
@@ -20,40 +16,39 @@ from opsdroid.helper import (
 )
 
 
-class TestHelper(unittest.TestCase):
+class TestHelper:
     """Test the opsdroid helper classes."""
 
-    def test_del_rw(self):
-        with mock.patch("os.chmod") as mock_chmod, mock.patch(
-            "os.remove"
-        ) as mock_remove:
-            del_rw(None, None, None)
-            self.assertTrue(mock_chmod.called)
-            self.assertTrue(mock_remove.called)
+    def test_del_rw(self, mocker):
+        mock_chmod = mocker.patch("os.chmod")
+        mock_remove = mocker.patch("os.remove")
+        del_rw(None, None, None)
+        assert mock_chmod.called is True
+        assert mock_remove.called is True
 
     def test_file_is_ipython_notebook(self):
-        self.assertTrue(file_is_ipython_notebook("test.ipynb"))
-        self.assertFalse(file_is_ipython_notebook("test.py"))
+        assert file_is_ipython_notebook("test.ipynb") is True
+        assert file_is_ipython_notebook("test.py") is False
 
     def test_convert_ipynb_to_script(self):
         notebook_path = os.path.abspath("tests/mockmodules/skills/test_notebook.ipynb")
 
         with tempfile.NamedTemporaryFile(mode="w", delete=False) as output_file:
             convert_ipynb_to_script(notebook_path, output_file.name)
-            self.assertTrue(os.path.getsize(output_file.name) > 0)
+            assert os.path.getsize(output_file.name) > 0
 
     def test_extract_gist_id(self):
-        self.assertEqual(
+        assert (
             extract_gist_id(
                 "https://gist.github.com/jacobtomlinson/"
                 "c9852fa17d3463acc14dca1217d911f6"
-            ),
-            "c9852fa17d3463acc14dca1217d911f6",
+            )
+            == "c9852fa17d3463acc14dca1217d911f6"
         )
 
-        self.assertEqual(
-            extract_gist_id("c9852fa17d3463acc14dca1217d911f6"),
-            "c9852fa17d3463acc14dca1217d911f6",
+        assert (
+            extract_gist_id("c9852fa17d3463acc14dca1217d911f6")
+            == "c9852fa17d3463acc14dca1217d911f6"
         )
 
     def test_opsdroid(self):
@@ -66,8 +61,8 @@ class TestHelper(unittest.TestCase):
             {"name": "mattermost", "api-token": "test"},
         ]
         updated_modules = convert_dictionary(modules)
-        self.assertEqual(updated_modules["telegram"].get("token"), "test")
-        self.assertIn("token", updated_modules["mattermost"])
+        assert updated_modules["telegram"].get("token") == "test"
+        assert "token" in updated_modules["mattermost"]
 
     def test_get_config_option(self):
         module_config = {"repo": "test"}
@@ -76,10 +71,10 @@ class TestHelper(unittest.TestCase):
             ["repo", "path", "gist"],
             module_config,
             True,
-            f"opsdroid.connectors.websocket",
+            "opsdroid.connectors.websocket",
         )
 
-        self.assertEqual(result, (True, "repo", "test"))
+        assert result == (True, "repo", "test")
 
     def test_get_config_no_option(self):
         module_config = {
@@ -92,7 +87,7 @@ class TestHelper(unittest.TestCase):
             ["repo", "path", "gist"], module_config, True, "module"
         )
 
-        self.assertEqual(result, ("module", "module", "module"))
+        assert result == ("module", "module", "module")
 
     def test_get_config_option_exception(self):
         module_config = None
@@ -100,18 +95,15 @@ class TestHelper(unittest.TestCase):
         result = get_config_option(
             ["repo", "path", "gist"], module_config, True, "module"
         )
-        self.assertEqual(result, ("module", "module", "module"))
+        assert result == ("module", "module", "module")
 
 
-class TestJSONEncoder(unittest.TestCase):
+class TestJSONEncoder:
     """A JSON Encoder test class.
 
     Test the custom json encoder class.
 
     """
-
-    def setUp(self):
-        self.loop = asyncio.new_event_loop()
 
     def test_datetime_to_dict(self):
         """Test default of json encoder class.
@@ -124,30 +116,24 @@ class TestJSONEncoder(unittest.TestCase):
         test_obj = datetime.datetime(2018, 10, 2, 0, 41, 17, 74644)
         encoder = JSONEncoder()
         obj = encoder.default(o=test_obj)
-        self.assertEqual(
-            {
-                "__class__": type_cls.__name__,
-                "year": 2018,
-                "month": 10,
-                "day": 2,
-                "hour": 0,
-                "minute": 41,
-                "second": 17,
-                "microsecond": 74644,
-            },
-            obj,
-        )
+        assert {
+            "__class__": type_cls.__name__,
+            "year": 2018,
+            "month": 10,
+            "day": 2,
+            "hour": 0,
+            "minute": 41,
+            "second": 17,
+            "microsecond": 74644,
+        } == obj
 
 
-class TestJSONDecoder(unittest.TestCase):
+class TestJSONDecoder:
     """A JSON Decoder test class.
 
     Test the custom json decoder class.
 
     """
-
-    def setUp(self):
-        self.loop = asyncio.new_event_loop()
 
     def test_dict_to_datetime(self):
         """Test call of json decoder class.
@@ -168,55 +154,53 @@ class TestJSONDecoder(unittest.TestCase):
         }
         decoder = JSONDecoder()
         obj = decoder(test_obj)
-        self.assertEqual(datetime.datetime(2018, 10, 2, 0, 41, 17, 74644), obj)
+        assert datetime.datetime(2018, 10, 2, 0, 41, 17, 74644) == obj
 
-
-def test_get_parser_config():
-    parsers = [
-        {
-            "name": "dialogflow",
-            "module": "",
-            "config": {
+    def test_get_parser_config(self):
+        parsers = [
+            {
                 "name": "dialogflow",
                 "module": "",
-                "project-id": "test-ddd33",
-                "type": "parsers",
-                "enabled": True,
-                "entrypoint": None,
-                "is_builtin": "",
-                "module_path": "opsdroid.parsers.dialogflow",
-                "install_path": "",
-                "branch": "master",
+                "config": {
+                    "name": "dialogflow",
+                    "module": "",
+                    "project-id": "test-ddd33",
+                    "type": "parsers",
+                    "enabled": True,
+                    "entrypoint": None,
+                    "is_builtin": "",
+                    "module_path": "opsdroid.parsers.dialogflow",
+                    "install_path": "",
+                    "branch": "master",
+                },
+                "intents": None,
             },
-            "intents": None,
-        },
-        {
-            "name": "regex",
-            "module": "",
-            "config": {
+            {
                 "name": "regex",
                 "module": "",
-                "type": "parsers",
-                "enabled": True,
-                "entrypoint": None,
-                "is_builtin": "",
-                "module_path": "opsdroid.parsers.regex",
-                "install_path": "",
-                "branch": "master",
+                "config": {
+                    "name": "regex",
+                    "module": "",
+                    "type": "parsers",
+                    "enabled": True,
+                    "entrypoint": None,
+                    "is_builtin": "",
+                    "module_path": "opsdroid.parsers.regex",
+                    "install_path": "",
+                    "branch": "master",
+                },
+                "intents": None,
             },
-            "intents": None,
-        },
-    ]
+        ]
 
-    dialogflow_config = get_parser_config("dialogflow", parsers)
+        dialogflow_config = get_parser_config("dialogflow", parsers)
 
-    assert dialogflow_config
-    assert dialogflow_config["name"] == "dialogflow"
+        assert dialogflow_config
+        assert dialogflow_config["name"] == "dialogflow"
 
+    def test_get_parser_config_none(self):
+        parsers = {}
 
-def test_get_parser_config_none():
-    parsers = {}
+        config = get_parser_config("dialogflow", parsers)
 
-    config = get_parser_config("dialogflow", parsers)
-
-    assert not config
+        assert not config
