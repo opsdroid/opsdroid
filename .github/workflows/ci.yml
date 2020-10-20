@@ -54,7 +54,7 @@ jobs:
         python-version: '3.x'
     - name: Install dependencies
       run: |
-        apt-get install python3-dev
+        sudo apt install python3-dev
         python -m pip install --upgrade pip
         python -m pip install -U tox
     - name: Run checks
