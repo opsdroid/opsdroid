@@ -1,10 +1,10 @@
 # Quickstart
 
-Follow these quick steps to learn the basics and get up and running with opsdroid.
+Follow these quick steps to learn the basics and get up and running with Opsdroid.
 
 ## Terminology
 
-There are a few terms you will need to be familiar with when using opsdroid. Here is a quick overview of the
+There are a few terms you will need to be familiar with when using Opsdroid. Here is a quick overview of the
 terms used in this document.
 
 - **Connector** - A module to connect to a chat service like Slack.
@@ -13,7 +13,7 @@ terms used in this document.
 
 ## Installation
 
-As there is support for a wide range of connectors, all with their own set of dependencies, opsdroid can be installed modularly. See the [installation docs](../installation) for details.
+As there is support for a wide range of connectors, all with their own set of dependencies, Opsdroid can be installed modularly. See the [installation docs](../installation) for details.
 
 For now let's install everything.
 
@@ -39,6 +39,8 @@ skills:
 ```
 
 Here I have configured the [Slack connector module](../connectors/slack) and the included hello skill module. For information on configuring your preferred chat client see the [connector docs](../connectors/index).
+
+You can find the full [configuration reference here](../configuration).
 
 ## Start opsdroid
 
@@ -86,7 +88,7 @@ the skill.
 
 To set our trigger we decorate that method with `match_regex`. This means that every message that comes from Slack will be compared with that [regular expression](https://en.wikipedia.org/wiki/Regular_expression), and if it is a match the method will be called.
 
-We then respond to the event with the string `"pong"`. By sending a string here this will result in the bot sending a message back.
+We then respond to the event with the string `"pong"`. By sending a string here this will result in the bot sending a message back to Slack.
 
 There are many [event types](../skills/events) which can be matched and responded with, and many more [complex matchers](../skills/matchers/index) for triggering skills.
 
