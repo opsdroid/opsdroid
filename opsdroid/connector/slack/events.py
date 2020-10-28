@@ -51,6 +51,14 @@ class Blocks(events.Message):
             self.blocks = json.dumps(self.blocks)
 
 
+class EditedBlocks(Blocks):
+    """A  `Blocks` slack instance which has been edited.
+
+    The ``linked_event`` property should hold Time Stamp (ts) of the Block
+    to be edited
+    """
+
+
 class InteractiveAction(events.Event):
     """Super class to represent Slack interactive actions."""
 

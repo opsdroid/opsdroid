@@ -16,6 +16,7 @@ from opsdroid.connector import Connector, register_event
 import opsdroid.events
 from opsdroid.connector.slack.events import (
     Blocks,
+    EditedBlocks,
     BlockActions,
     MessageAction,
     ViewSubmission,
@@ -162,7 +163,7 @@ class ConnectorSlack(Connector):
         _LOGGER.debug(
             _("Responding with interactive blocks in room %s."), blocks.target
         )
-        await self.slack.api_call(
+        return await self.slack.api_call(
             "chat.postMessage",
             data={
                 "channel": blocks.target,
@@ -171,6 +172,25 @@ class ConnectorSlack(Connector):
                 "blocks": blocks.blocks,
                 "icon_emoji": self.icon_emoji,
             },
+        )
+
+    @register_event(EditedBlocks)
+    async def _edit_blocks(self, blocks):
+        """Edit a particular block"""
+        _LOGGER.debug(
+            _("Editing interactive blocks with timestamp: '%s' in room  %s."),
+            blocks.linked_event,
+            blocks.target,
+        )
+        data = {
+            "channel": blocks.target,
+            "ts": blocks.linked_event,
+            "blocks": blocks.blocks,
+            "as_user": self.chat_as_user,
+        }
+
+        await self.slack.api_call(
+            "chat.update", data=data,
         )
 
     @register_event(opsdroid.events.Reaction)
