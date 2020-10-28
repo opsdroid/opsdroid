@@ -1,0 +1,960 @@
+# Hindi translations for opsdroid.
+# Copyright (C) 2018 ORGANIZATION
+# This file is distributed under the same license as the opsdroid project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: opsdroid 0.11.2\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-10-21 16:27+0100\n"
+"PO-Revision-Date: 2018-01-28 16:05+0100\n"
+"Last-Translator: Haardik Dharma <dharmahaardik08@gmail.com>\n"
+"Language: hi\n"
+"Language-Team: hi <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.7.0\n"
+
+#: opsdroid/core.py:111
+#, python-format
+msgid "Exiting application with return code %s"
+msgstr "रिटर्न कोड %s के साथ एप्लिकेशन से बाहर"
+
+#: opsdroid/core.py:155
+msgid "Opsdroid is now running, press ctrl+c to exit."
+msgstr "ऑप्सड्रोइड अब चल रहा है, बाहर निकलने के लिए ctrl + c दबाएं।"
+
+#: opsdroid/core.py:166
+msgid "Bye!"
+msgstr "अलविदा!"
+
+#: opsdroid/core.py:169
+msgid "Oops! Opsdroid is already running."
+msgstr "ऊप्स! ऑप्सड्रोइड पहले से ही चल रहा है।"
+
+#: opsdroid/core.py:178
+#, python-format
+msgid "Loaded %i skills"
+msgstr "लोड किये गए %i कौशल"
+
+#: opsdroid/core.py:193
+msgid "Received stop signal, exiting."
+msgstr "प्राप्त करना बंद करना संकेत, बाहर निकलना।"
+
+#: opsdroid/core.py:195
+msgid "Removing skills..."
+msgstr "कौशल निकालना ..."
+
+#: opsdroid/core.py:197
+#, python-format
+msgid "Removed %s"
+msgstr "हटाया गया %s"
+
+#: opsdroid/core.py:201
+#, python-format
+msgid "Stopping connector %s..."
+msgstr "कनेक्टर %s रोक रहे हैं..."
+
+#: opsdroid/core.py:204
+#, python-format
+msgid "Stopped connector %s"
+msgstr "रुक गया कनेक्टर %s"
+
+#: opsdroid/core.py:207
+#, python-format
+msgid "Stopping database %s..."
+msgstr "डेटाबेस %s रोक रहा है ..."
+
+#: opsdroid/core.py:210
+#, python-format
+msgid "Stopped database %s"
+msgstr "डेटाबेस %s रोक दिया"
+
+#: opsdroid/core.py:212
+msgid "Stopping web server..."
+msgstr "वेब सर्वर को रोक रहे हैं ..."
+
+#: opsdroid/core.py:215
+msgid "Stopped web server"
+msgstr "वेब सर्वर रोक दिया"
+
+#: opsdroid/core.py:217
+msgid "Stopping cron..."
+msgstr "क्रोन को रोक रहे हैं ..."
+
+#: opsdroid/core.py:220
+msgid "Stopped cron"
+msgstr "क्रोन रोक दिया"
+
+#: opsdroid/core.py:222
+msgid "Stopping pending tasks..."
+msgstr "लंबित कार्यों को रोक रहे हैं ..."
+
+#: opsdroid/core.py:227
+msgid "Stopped pending tasks"
+msgstr "लंबित कार्यों को रोक दिया"
+
+#: opsdroid/core.py:362
+msgid "All databases failed to load"
+msgstr "सभी डेटाबेस लोड करने में असफल"
+
+#: opsdroid/core.py:370
+#, python-format
+msgid "Adding database: %s"
+msgstr "डेटाबेस जोड़ना: %s"
+
+#: opsdroid/core.py:398
+#, python-format
+msgid "Exception when running skill '%s' "
+msgstr "कौशल '%s' चलाते समय अपवाद"
+
+#: opsdroid/core.py:401
+msgid "Whoops there has been an error"
+msgstr "वूप्स एक त्रुटि हुई है"
+
+#: opsdroid/core.py:402
+msgid "Check the log for details"
+msgstr "विवरण के लिए लॉग की जाँच करें"
+
+#: opsdroid/core.py:422
+msgid "Processing parsers..."
+msgstr "प्रसंस्करण पार्सर्स ..."
+
+#: opsdroid/core.py:430
+msgid "Checking dialogflow..."
+msgstr "डायलॉगफ़्लो की जाँच ..."
+
+#: opsdroid/core.py:439
+msgid "Checking luisai..."
+msgstr "लुइसआई की जाँच ..."
+
+#: opsdroid/core.py:446
+msgid "Checking SAPCAI..."
+msgstr "SAPCAI की जाँच ..."
+
+#: opsdroid/core.py:453
+msgid "Checking wit.ai..."
+msgstr "wit.ai की जाँच ..."
+
+#: opsdroid/core.py:460
+msgid "Checking IBM Watson..."
+msgstr "IBM Watson की जाँच ..."
+
+#: opsdroid/core.py:467
+msgid "Checking Rasa NLU..."
+msgstr "Rasa NLU की जाँच ..."
+
+#: opsdroid/core.py:503
+#, python-format
+msgid "Parsing input: %s"
+msgstr "पार्सिंग इनपुट: %s"
+
+#: opsdroid/helper.py:78
+#, python-format
+msgid "File %s copied from %s to %s run opsdroid -e to edit the main config file"
+msgstr "फाइल %s को %s से %s चलाए जाने से opsdroid -e को मुख्य विन्यास फाइल को संपादित करने के लिए"
+
+#: opsdroid/loader.py:51
+msgid "Loaded loader"
+msgstr "लोडेड लोडर"
+
+#: opsdroid/loader.py:90
+#, python-format
+msgid "Loading entry point-defined module for %s"
+msgstr "%s के लिए प्रविष्टि बिंदु-परिभाषित मॉड्यूल लोड हो रहा है"
+
+#: opsdroid/loader.py:110
+#, python-format
+msgid "Loaded %s: %s"
+msgstr "लोड किया गया%s: %s"
+
+#: opsdroid/loader.py:113
+#, python-format
+msgid "Failed to load %s: %s"
+msgstr "%s लोड करने में विफल: %s"
+
+#: opsdroid/loader.py:125
+#, python-format
+msgid "'no-cache' set, removing %s"
+msgstr "नो-कैश' सेट, %s को हटा रहा है"
+
+#: opsdroid/loader.py:250
+msgid "Couldn't find the command 'pip', trying again with command 'pip3'"
+msgstr "कमांड 'pip' नहीं पा सका, कमांड 'pip3' के साथ फिर से कोशिश कर रहा है"
+
+#: opsdroid/loader.py:263
+#, python-format
+msgid "Couldn't find the command 'pip3', install of %s will be skipped."
+msgstr "कमांड 'pip3' नहीं पा सका, %s की स्थापना को छोड़ दिया जाएगा।"
+
+#: opsdroid/loader.py:271
+msgid "Pip and pip3 not found, exiting..."
+msgstr "pio और pip3 नहीं मिला, बाहर निकल रहा है ..."
+
+#: opsdroid/loader.py:331
+#, python-format
+msgid "Config file %s not found."
+msgstr "फ़ाइल %s विन्यासन नहीं मिला।"
+
+#: opsdroid/loader.py:341
+#, python-format
+msgid "No configuration files found. Creating %s"
+msgstr "कोई विन्यास फाइल नहीं मिली। %s बनाना।"
+
+#: opsdroid/loader.py:367
+#, python-format
+msgid "Loaded config from %s."
+msgstr "%s से कॉन्फिग लोडेड।"
+
+#: opsdroid/loader.py:418
+msgid "Loading modules from config..."
+msgstr "विन्यास से लोड हो रहा है मॉड्यूल ..."
+
+#: opsdroid/loader.py:428
+msgid ""
+"No databases in configuration.This will cause skills which store things "
+"in memory to lose data when opsdroid is restarted."
+msgstr "कॉन्फ़िगरेशन में कोई डेटाबेस नहीं। यह कौशल का कारण बनेगा जो चीजों को संग्रहीत करता है"
+"स्मृति में डेटा खोने के लिए जब opsdroid को पुनरारंभ किया जाता है।"
+
+#: opsdroid/loader.py:441
+msgid "No skills in configuration, at least 1 required"
+msgstr "विन्यास में कोई कौशल नहीं, कम से कम 1 आवश्यक"
+
+#: opsdroid/loader.py:448
+msgid "No connectors in configuration, at least 1 required"
+msgstr "कॉन्फ़िगरेशन में कोई कनेक्टर नहीं, कम से कम 1 आवश्यक"
+
+#: opsdroid/loader.py:465
+#, python-format
+msgid "Loading %s modules..."
+msgstr "लोड हो रहा है %s मॉड्यूल ..."
+
+#: opsdroid/loader.py:478
+#, python-format
+msgid "Found installed package for %s '%s' support"
+msgstr "%s '%s' समर्थन के लिए संस्थापित पैकेज मिला"
+
+#: opsdroid/loader.py:531
+#, python-format
+msgid "Module %s failed to import."
+msgstr "मॉड्यूल %s आयात करने में विफल रहा।"
+
+#: opsdroid/loader.py:542
+#, python-format
+msgid "Installing %s..."
+msgstr "%s संस्थापित कर रहा है ..."
+
+#: opsdroid/loader.py:553
+#, python-format
+msgid "Installed %s to %s"
+msgstr "%s को %s में संस्थापित किया गया"
+
+#: opsdroid/loader.py:556
+#, python-format
+msgid "Install of %s failed."
+msgstr "%s की स्थापना विफल रही।"
+
+#: opsdroid/loader.py:568
+#, python-format
+msgid "Updating %s..."
+msgstr "%s अपडेट हो रहा है ..."
+
+#: opsdroid/loader.py:571
+msgid "Local modules are not updated, skipping."
+msgstr "स्थानीय मॉड्यूल अद्यतन नहीं किए जा रहे हैं, लंघन।"
+
+#: opsdroid/loader.py:604
+msgid "'no-dep' set in configuration, skipping the install of dependencies."
+msgstr "नो-डिप' विन्यास में सेट, निर्भरता की स्थापना को लंघन।"
+
+#: opsdroid/loader.py:617
+msgid "Couldn't find the file requirements.txt, skipping."
+msgstr "फ़ाइल requirements.txt को नहीं ढूँढ सका, लंघन।"
+
+#: opsdroid/loader.py:636
+#, python-format
+msgid "Cloning %s from remote repository"
+msgstr "दूरस्थ रिपॉजिटरी से क्लोनिंग %s"
+
+#: opsdroid/loader.py:641
+#, python-format
+msgid "Cloning %s from local repository"
+msgstr "स्थानीय रिपॉजिटरी से क्लोनिंग %s"
+
+#: opsdroid/loader.py:644
+#, python-format
+msgid "Could not find local git repo %s"
+msgstr "स्थानीय git रेपो %s नहीं मिला"
+
+#: opsdroid/logging.py:25
+msgid ""
+"Both whitelist and blacklist filters found in configuration. Only one can"
+" be used at a time - only the whitelist filter will be used."
+msgstr "दोनों श्वेतसूची और ब्लैकलिस्ट फ़िल्टर कॉन्फ़िगरेशन में पाए जाते हैं। केवल एक ही कर सकता है"
+"एक समय में उपयोग किया जा सकता है - केवल श्वेतसूची फ़िल्टर का उपयोग किया जाएगा।"
+
+#: opsdroid/logging.py:119
+#, python-format
+msgid "Started opsdroid %s"
+msgstr "opsdroid %s शुरू"
+
+#: opsdroid/matchers.py:127
+msgid ""
+"Recast.AI is now called SAP Conversational AI, this matcher  will stop "
+"working in the future. Use match_sapcai instead."
+msgstr ""Recast.AI को अब SAP Conversational AI कहा जाता है, यह मिलान बंद हो जाएगा"
+"भविष्य में काम करना। इसके बजाय match_sapcai का उपयोग करें।""	
+
+#: opsdroid/memory.py:37
+#, python-format
+msgid "Getting %s from memory."
+msgstr "मेमोरी से %s प्राप्त करना।"
+
+#: opsdroid/memory.py:56
+#, python-format
+msgid "Putting %s to memory"
+msgstr "मेमोरी में %s डाल रहा है"
+
+#: opsdroid/web.py:87
+msgid "Cannot find ssl cert or key."
+msgstr "ssl प्रमाणपत्र या कुंजी नहीं मिल सकता है।"
+
+#: opsdroid/web.py:95
+#, python-format
+msgid "Started web server on %s://%s%s"
+msgstr "%s://%s%s पर वेब सर्वर शुरू किया"
+
+#: opsdroid/web.py:131
+#, python-format
+msgid "Running skill %s via webhook"
+msgstr "वेबहुक के माध्यम से कौशल %s चल रहा है"
+
+#: opsdroid/cli/utils.py:77
+msgid "Whoops! opsdroid requires python 3.6 or above."
+msgstr "उफ़! अप्सड्रोइड को python 3.6 या उससे ऊपर की आवश्यकता है।"
+
+#: opsdroid/cli/utils.py:95
+msgid "You can customise your opsdroid by modifying your configuration.yaml"
+msgstr "आप अपने configuration.yaml को संशोधित करके अपने opsdroid को अनुकूलित कर सकते हैं।"
+
+#: opsdroid/cli/utils.py:101
+msgid "Read more at: http://opsdroid.readthedocs.io/#configuration"
+msgstr "अधिक पढ़ें: http://opsdroid.readthedocs.io/#configuration"
+
+#: opsdroid/cli/utils.py:103
+msgid "Watch the Get Started Videos at: http://bit.ly/2fnC0Fh"
+msgstr "आरंभ किए गए वीडियो देखें: http://bit.ly/2fnC0Fh"
+
+#: opsdroid/cli/utils.py:105
+msgid ""
+"Install Opsdroid Desktop at: \n"
+"https://github.com/opsdroid/opsdroid-desktop/releases"
+msgstr ""Opsdroid Desktop को यहां स्थापित करें: \ n"
+"Https://github.com/opsdroid/opsdroid-desktop/releases""
+
+#: opsdroid/cli/utils.py:114
+msgid "'welcome-message: true/false' is missing in configuration.yaml"
+msgstr "स्वागत-संदेश: सही / गलत' configuration.yaml में गायब है।"
+
+#: opsdroid/connector/facebook/__init__.py:35
+msgid "Starting facebook connector"
+msgstr "फेसबुक कनेक्टर शुरू करना"
+
+#: opsdroid/connector/facebook/__init__.py:103
+msgid "Responding to facebook"
+msgstr "फेसबुक का जवाब"
+
+#: opsdroid/connector/facebook/__init__.py:113
+#, python-format
+msgid "Responded with: %s"
+msgstr "उत्तर:% s"
+
+#: opsdroid/connector/facebook/__init__.py:117
+msgid "Unable to respond to facebook"
+msgstr "फेसबुक पर प्रतिक्रिया देने में असमर्थ"
+
+#: opsdroid/connector/github/__init__.py:26
+msgid "Missing auth token!You must set 'token' in your config"
+msgstr "मिसिंग टोकन टोकन! आपको अपने config में 'टोकन' सेट करना होगा"
+
+#: opsdroid/connector/github/__init__.py:38
+#, python-format
+msgid "Error connecting to github: %s"
+msgstr "github से जुड़ने में त्रुटि:% s"
+
+#: opsdroid/connector/github/__init__.py:40
+msgid "Reading bot information..."
+msgstr "बॉट जानकारी पढ़ना ..."
+
+#: opsdroid/connector/github/__init__.py:42
+msgid "Done."
+msgstr "हो गया।"
+
+#: opsdroid/connector/github/__init__.py:74
+msgid "No message to respond to."
+msgstr "जवाब देने के लिए कोई संदेश नहीं।"
+
+#: opsdroid/connector/github/__init__.py:90
+#, python-format
+msgid "Key %s not found in payload"
+msgstr "पेलोड में कुंजी %s नहीं मिला"
+
+#: opsdroid/connector/github/__init__.py:100
+msgid "Responding via GitHub"
+msgstr "GitHub के माध्यम से प्रतिक्रिया"
+
+#: opsdroid/connector/github/__init__.py:107
+msgid "Message sent."
+msgstr "संदेश भेजा गया।"
+
+#: opsdroid/connector/gitter/__init__.py:22
+msgid "Starting Gitter connector"
+msgstr "Gitter कनेक्टर शुरू करना"
+
+#: opsdroid/connector/gitter/__init__.py:37
+msgid "Connecting with gitter stream"
+msgstr "gitter stream के साथ जुड़ना"
+
+#: opsdroid/connector/gitter/__init__.py:59
+msgid "Listening with gitter stream"
+msgstr "gitter stream के साथ सुनना"
+
+#: opsdroid/connector/gitter/__init__.py:85
+#, python-format
+msgid "Unable to parse message %s"
+msgstr "संदेश% s पार्स करने में असमर्थ"
+
+#: opsdroid/connector/gitter/__init__.py:101
+#: opsdroid/connector/rocketchat/__init__.py:194
+#: opsdroid/connector/telegram/__init__.py:273
+msgid "Successfully responded"
+msgstr "सफलतापूर्वक जवाब दिया"
+
+#: opsdroid/connector/gitter/__init__.py:103
+#: opsdroid/connector/telegram/__init__.py:275
+msgid "Unable to respond."
+msgstr "प्रतिक्रिया करने में असमर्थ।"
+
+#: opsdroid/connector/matrix/connector.py:126
+msgid "matrix sync request returned"
+msgstr "मैट्रिक्स सिंक अनुरोध लौटा"
+
+#: opsdroid/connector/matrix/connector.py:135
+#, python-format
+msgid "Matrix Sync Timeout (code: %d)"
+msgstr "मैट्रिक्स सिंक टाइमआउट (कोड:%d)"
+
+#: opsdroid/connector/matrix/connector.py:138
+#: opsdroid/connector/matrix/connector.py:142
+msgid "Matrix Sync Error"
+msgstr "मैट्रिक्स सिंक त्रुटि"
+
+#: opsdroid/connector/matrix/connector.py:212
+msgid "Server had disconnected, retrying send."
+msgstr "सर्वर ने डिस्कनेक्ट कर दिया था, फिर से भेजना।"
+
+#: opsdroid/connector/rocketchat/__init__.py:48
+msgid ""
+"Unable to login: Access token is missing. Rocket.Chat connector will not "
+"be available."
+msgstr "लॉगिन करने में असमर्थ: एक्सेस टोकन गायब है। रॉकेट.चैट कनेक्टर नहीं होगा"
+
+#: opsdroid/connector/rocketchat/__init__.py:80
+msgid "Connecting to Rocket.Chat"
+msgstr "रॉकेट.चैट से कनेक्ट करना"
+
+#: opsdroid/connector/rocketchat/__init__.py:84
+msgid "Unable to connect."
+msgstr "कनेक्ट करने में असमर्थ।"
+
+#: opsdroid/connector/rocketchat/__init__.py:85
+#: opsdroid/connector/rocketchat/__init__.py:136
+#, python-format
+msgid "Rocket.Chat error %s, %s"
+msgstr "रॉकेट.चैट त्रुटि %s,%s"
+
+#: opsdroid/connector/rocketchat/__init__.py:88
+#, python-format
+msgid "Connected to Rocket.Chat as %s"
+msgstr "%s के रूप में रॉकेट.चैट से जुड़ा"
+
+#: opsdroid/connector/rocketchat/__init__.py:105
+#, python-format
+msgid "Received message from Rocket.Chat %s"
+msgstr "रॉकेट.चैट %s से संदेश प्राप्त हुआ"
+
+#: opsdroid/connector/rocketchat/__init__.py:182
+#: opsdroid/connector/shell/__init__.py:125
+#: opsdroid/connector/telegram/__init__.py:266
+#, python-format
+msgid "Responding with: %s"
+msgstr "इसके साथ जवाब:%s"
+
+#: opsdroid/connector/rocketchat/__init__.py:196
+#, python-format
+msgid "Error - %s: Unable to respond"
+msgstr "त्रुटि - %s: जवाब देने में असमर्थ"
+
+#: opsdroid/connector/shell/__init__.py:19
+msgid "Loaded shell connector"
+msgstr "लोड शेल कनेक्टर"
+
+#: opsdroid/connector/shell/__init__.py:112
+msgid "Connecting to shell"
+msgstr "शेल से कनेक्ट करना"
+
+#: opsdroid/connector/slack/__init__.py:22
+msgid "Starting Slack connector"
+msgstr "स्लैक कनेक्टर शुरू करना"
+
+#: opsdroid/connector/slack/__init__.py:46
+msgid "Connecting to Slack"
+msgstr "स्लैक से जुड़ना"
+
+#: opsdroid/connector/slack/__init__.py:65
+#, python-format
+msgid "Connected as %s"
+msgstr "%s के रूप में जुड़ा"
+
+#: opsdroid/connector/slack/__init__.py:66
+#, python-format
+msgid "Using icon %s"
+msgstr "आइकन %s का प्रयोग"
+
+#: opsdroid/connector/slack/__init__.py:67
+#, python-format
+msgid "Default room is %s"
+msgstr "डिफ़ॉल्ट कमरा% s है"
+
+#: opsdroid/connector/slack/__init__.py:68
+msgid "Connected successfully"
+msgstr "सफलतापूर्वक जुड़ा"
+
+#: opsdroid/connector/slack/__init__.py:71
+#, python-format
+msgid ""
+"Unable to connect to Slack due to %s - The Slack Connector will not be "
+"available."
+msgstr "%s के कारण स्लैक से जुड़ने में असमर्थ - स्लैक कनेक्टर नहीं होगा"
+
+#: opsdroid/connector/slack/__init__.py:102
+msgid "Looking up sender username"
+msgstr "प्रेषक उपयोगकर्ता नाम ढूंढ रहा है"
+
+#: opsdroid/connector/slack/__init__.py:109
+msgid "Replacing userids in message with usernames"
+msgstr "उपयोगकर्ता नाम के साथ संदेश में उपयोगकर्ता की जगह"
+
+#: opsdroid/connector/slack/__init__.py:126
+#, python-format
+msgid "Responding with: '%s' in room  %s"
+msgstr "कमरे के %s में '%s' के साथ"
+
+#: opsdroid/connector/slack/__init__.py:143
+#, python-format
+msgid "Responding with interactive blocks in room  %s"
+msgstr "कमरे के %s में इंटरैक्टिव ब्लॉक के साथ प्रतिक्रिया करना"
+
+#: opsdroid/connector/slack/__init__.py:159
+#, python-format
+msgid "Reacting with: %s"
+msgstr "इसके साथ प्रतिक्रिया:% s"
+
+#: opsdroid/connector/slack/__init__.py:171
+#, python-format
+msgid "Slack does not support the emoji %s"
+msgstr "स्लैक इमोजी %s का समर्थन नहीं करता है"
+
+#: opsdroid/connector/telegram/__init__.py:24
+msgid "Loaded Telegram Connector"
+msgstr "टेलीग्राम कनेक्टर लोड किया गया"
+
+#: opsdroid/connector/telegram/__init__.py:42
+msgid ""
+"Unable to login: Access token is missing. Telegram connector will be "
+"unavailable."
+msgstr "लॉगिन करने में असमर्थ: एक्सेस टोकन गायब है। टेलीग्राम कनेक्टर होगा" "अनुपलब्ध।""
+
+#: opsdroid/connector/telegram/__init__.py:110
+msgid "Sending deleteWebhook request to Telegram..."
+msgstr "टेलीग्राम को डिलीट डिलीट रिक्वेस्ट भेज रहा है ..."
+
+#: opsdroid/connector/telegram/__init__.py:114
+msgid "Telegram webhook deleted successfully."
+msgstr "टेलीग्राम वेबहूक सफलतापूर्वक हटा दिया गया।"
+
+#: opsdroid/connector/telegram/__init__.py:116
+msgid "Unable to delete webhook."
+msgstr "वेबहूक हटाने में असमर्थ।"
+
+#: opsdroid/connector/telegram/__init__.py:126
+msgid "Connecting to Telegram"
+msgstr "टेलीग्राम से जुड़ना"
+
+#: opsdroid/connector/telegram/__init__.py:131
+msgid "Unable to connect"
+msgstr "कनेक्ट करने में असमर्थ"
+
+#: opsdroid/connector/telegram/__init__.py:132
+#: opsdroid/connector/telegram/__init__.py:221
+#, python-format
+msgid "Telegram error %s, %s"
+msgstr "टेलीग्राम त्रुटि %s,%s"
+
+#: opsdroid/connector/telegram/__init__.py:136
+#, python-format
+msgid "Connected to Telegram as %s"
+msgstr "टेलीग्राम से %s के रूप में जुड़ा"
+
+#: opsdroid/connector/telegram/__init__.py:162
+msgid "Channel message parsing not supported - Ignoring message"
+msgstr "चैनल संदेश पार्सिंग समर्थित नहीं - संदेश की अनदेखी"
+
+#: opsdroid/connector/telegram/__init__.py:185
+msgid "Emoji message parsing not supported - Ignoring message"
+msgstr "इमोजी संदेश पार्सिंग समर्थित नहीं - संदेश की अनदेखी"
+
+#: opsdroid/connector/telegram/__init__.py:188
+msgid "Unable to parse the message."
+msgstr "संदेश पार्स करने में असमर्थ।"
+
+#: opsdroid/connector/telegram/__init__.py:212
+msgid ""
+"Can't get updates because previous webhook is still active. Will try to "
+"delete webhook."
+msgstr "अपडेट नहीं मिल सकता क्योंकि पिछले webhook अभी भी सक्रिय है।" करने की कोशिश करेंगे
+"वेबहुक हटाएं।"
+
+#: opsdroid/connector/telegram/__init__.py:297
+#, python-format
+msgid "Sent %s image successfully"
+msgstr "%s चित्र सफलतापूर्वक भेजा गया"
+
+#: opsdroid/connector/telegram/__init__.py:299
+#, python-format
+msgid "Unable to send image - Status Code %s"
+msgstr "छवि भेजने में असमर्थ - स्थिति कोड% s"
+
+#: opsdroid/connector/webexteams/__init__.py:22
+msgid "Loaded webex teams connector"
+msgstr "भारित Webex teams कनेक्टर"
+
+#: opsdroid/connector/webexteams/__init__.py:38
+msgid "Must set access-token for webex teams connector!"
+msgstr "webex teams कनेक्टर के लिए एक्सेस-टोकन सेट करें!"
+
+#: opsdroid/connector/webexteams/__init__.py:47
+msgid "Handling message from Webex Teams"
+msgstr "वेबेक्स टीम से संदेश संभालना"
+
+#: opsdroid/connector/webexteams/__init__.py:77
+msgid "Creating Webex Teams webhook"
+msgstr "वीबेक्स टीम्स वेबहूक बनाना"
+
+#: opsdroid/connector/websocket/__init__.py:25
+msgid "Starting Websocket connector"
+msgstr "वेबसोकेट कनेक्टर शुरू करना"
+
+#: opsdroid/connector/websocket/__init__.py:91
+#, python-format
+msgid "User connected to %s"
+msgstr "उपयोगकर्ता %s से जुड़ा है"
+
+#: opsdroid/connector/websocket/__init__.py:103
+#, python-format
+msgid "Websocket connection closed with exception %s"
+msgstr "अपवाद% s के साथ वेबसोकेट कनेक्शन बंद"
+
+#: opsdroid/connector/websocket/__init__.py:107
+msgid "websocket connection closed"
+msgstr "वेबसैट कनेक्शन बंद"
+
+#: opsdroid/connector/websocket/__init__.py:127
+#, python-format
+msgid "Responding with: '%s' in target %s"
+msgstr "लक्ष्य %s में '%s' के साथ"
+
+#: opsdroid/connector/websocket/__init__.py:131
+#, python-format
+msgid "No active socket for target %s"
+msgstr "लक्ष्य %s के लिए कोई सक्रिय सॉकेट नहीं"
+
+#: opsdroid/database/redis/__init__.py:36
+msgid "Loaded redis database connector."
+msgstr "रेडिस डेटाबेस कनेक्टर लोड किया गया।"
+
+#: opsdroid/database/redis/__init__.py:54
+#, python-format
+msgid "Connected to redis database %s from %s on port %s"
+msgstr "पोर्ट %s पर %s से डेटाबेस %s को जोड़ने के लिए"
+
+#: opsdroid/database/redis/__init__.py:61
+#, python-format
+msgid "Unable to connect to redis database on address: %s port: %s"
+msgstr "पते पर रेडिस डेटाबेस से जुड़ने में असमर्थ:%s पोर्ट:%s"
+
+#: opsdroid/database/redis/__init__.py:75
+#, python-format
+msgid "Putting %s into redis"
+msgstr "रेडिस में %s डाल रहा है"
+
+#: opsdroid/database/redis/__init__.py:90
+#, python-format
+msgid "Getting %s from redis"
+msgstr "रेडिस से %s प्राप्त करना"
+
+#: opsdroid/database/sqlite/__init__.py:42
+msgid "Loaded sqlite database connector"
+msgstr "लोडेड साइक्लाइट डेटाबेस कनेक्टर"
+
+#: opsdroid/database/sqlite/__init__.py:68
+#, python-format
+msgid "Connected to sqlite %s"
+msgstr "साइक्लाइट %s से जुड़ा"
+
+#: opsdroid/database/sqlite/__init__.py:82
+#, python-format
+msgid "Putting %s into sqlite"
+msgstr "साइक्लाइट में %s डाल रहा है"
+
+#: opsdroid/database/sqlite/__init__.py:105
+#, python-format
+msgid "Getting %s from sqlite"
+msgstr "साइक्लाइट से %s प्राप्त कर रहा है"
+
+#: opsdroid/parsers/crontab.py:17
+#, python-format
+msgid "Running crontab skills at %s "
+msgstr "%s पर क्रॉस्टैब कौशल चलाना"
+
+#: opsdroid/parsers/dialogflow.py:54
+msgid ""
+"Authentication file not found or 'project-id' not in configuration, "
+"dialogflow parser will not be available"
+msgstr ""प्रमाणीकरण फ़ाइल नहीं मिली या 'प्रोजेक्ट-आईडी' कॉन्फ़िगरेशन में नहीं है,"
+"डायलॉगफ़्लो पार्सर उपलब्ध नहीं होगा""
+
+#: opsdroid/parsers/dialogflow.py:60
+msgid ""
+"Unable to find dialogflow dependency. Please install dialogflow with the "
+"command pip install dialogflow if you want to use this parser."
+msgstr "संवाद प्रवाह निर्भरता खोजने में असमर्थ। कृपया संवाद स्थापित करें" "यदि आप इस पार्सर का उपयोग करना चाहते हैं, तो कमांड पिप इंस्टाल करें।"
+
+#: opsdroid/parsers/dialogflow.py:97
+msgid "Dialogflow confidence lower than min-score"
+msgstr "न्यूनतम स्कोर से कम डायलॉगफ़्लो विश्वास"
+
+#: opsdroid/parsers/dialogflow.py:115 opsdroid/parsers/sapcai.py:82
+#, python-format
+msgid "Matched against skill %s"
+msgstr "कौशल %s के खिलाफ मिलान"
+
+#: opsdroid/parsers/dialogflow.py:130
+#, python-format
+msgid "There was an error while parsing to dialogflow - %s"
+msgstr "डॉयलॉगफ़्लो करने में त्रुटि हुई - %s"
+
+#: opsdroid/parsers/luisai.py:32
+#, python-format
+msgid "luis.ai response - %s"
+msgstr "luis.ai प्रतिक्रिया - %s"
+
+#: opsdroid/parsers/luisai.py:44
+msgid "No response from luis.ai, check your network."
+msgstr "luis.ai से कोई प्रतिक्रिया नहीं, अपने नेटवर्क की जाँच करें।"
+
+#: opsdroid/parsers/luisai.py:54
+#, python-format
+msgid "luis.ai error - %s %s"
+msgstr "luis.ai त्रुटि - %s %s"
+
+#: opsdroid/parsers/luisai.py:63
+msgid "luis.ai score lower than min-score"
+msgstr "min-score से कम luis.ai स्कोर"
+
+#: opsdroid/parsers/rasanlu.py:52
+msgid "Initialising Rasa NLU model."
+msgstr "Rasa NLU मॉडल की शुरुआत।"
+
+#: opsdroid/parsers/rasanlu.py:58
+msgid "Initialisation failed, training failed.."
+msgstr "प्रारंभिक असफलता, प्रशिक्षण विफल हुआ .."
+
+#: opsdroid/parsers/rasanlu.py:62
+#, python-format
+msgid "Initialisation complete in %s seconds."
+msgstr "प्रारंभिककरण %s सेकंड में पूरा हुआ।"
+
+#: opsdroid/parsers/rasanlu.py:85
+msgid "Starting Rasa NLU training."
+msgstr "रासा एनएलयू प्रशिक्षण शुरू करना।"
+
+#: opsdroid/parsers/rasanlu.py:88
+msgid "No intents found, skipping training."
+msgstr "प्रशिक्षण प्राप्त करने का कोई इरादा नहीं है।"
+
+#: opsdroid/parsers/rasanlu.py:93
+msgid "This model already exists, skipping training..."
+msgstr "यह मॉडल पहले से ही मौजूद है, प्रशिक्षण लंघन ..."
+
+#: opsdroid/parsers/rasanlu.py:98
+msgid "Now training the model. This may take a while..."
+msgstr "अब मॉडल को प्रशिक्षित करें। इसमें कुछ समय लग सकता है ..."
+
+#: opsdroid/parsers/rasanlu.py:113
+msgid "Unable to connect to Rasa NLU, training failed."
+msgstr "Rasa NLU से जुड़ने में असमर्थ, प्रशिक्षण विफल।"
+
+#: opsdroid/parsers/rasanlu.py:122 opsdroid/parsers/rasanlu.py:134
+#, python-format
+msgid "Rasa NLU training completed in %s seconds."
+msgstr "Rasa NLU प्रशिक्षण %s सेकंड में पूरा हुआ।"
+
+#: opsdroid/parsers/rasanlu.py:152 opsdroid/parsers/rasanlu.py:179
+#, python-format
+msgid "Bad Rasa NLU response - %s"
+msgstr "खराब रसा एनएलयू प्रतिक्रिया - %s"
+
+#: opsdroid/parsers/rasanlu.py:153
+msgid "Rasa NLU training failed."
+msgstr "रासा एनएलयू प्रशिक्षण विफल।"
+
+#: opsdroid/parsers/rasanlu.py:172
+msgid "Unable to connect to Rasa NLU"
+msgstr "रासा NLU से कनेक्ट करने में असमर्थ"
+
+#: opsdroid/parsers/rasanlu.py:176
+#, python-format
+msgid "Rasa NLU response - %s"
+msgstr "रासा एनएलयू प्रतिक्रिया - %s"
+
+#: opsdroid/parsers/rasanlu.py:190
+msgid "No response from Rasa NLU, check your network."
+msgstr "रासा NLU से कोई प्रतिक्रिया नहीं, अपने नेटवर्क की जाँच करें।"
+
+#: opsdroid/parsers/rasanlu.py:194
+msgid "Rasa NLU error - Unauthorised request.Check your 'token'."
+msgstr "रास NLU त्रुटि - अनधिकृत अनुरोध। अपना 'टोकन' चेक करें।"
+
+#: opsdroid/parsers/rasanlu.py:199
+msgid "Rasa NLU error - No intent found. Did you forget to create one?"
+msgstr "रासा NLU त्रुटि - कोई इरादा नहीं मिला। क्या आप एक बनाना भूल गए?"
+
+#: opsdroid/parsers/rasanlu.py:205
+msgid "Rasa NLU score lower than min-score"
+msgstr "न्यूनतम स्कोर से कम रासा एनएलयू स्कोर"
+
+#: opsdroid/parsers/sapcai.py:26
+#, python-format
+msgid "SAP Conversational AI response - %s"
+msgstr "एसएपी संवादी एआई प्रतिक्रिया - %s"
+
+#: opsdroid/parsers/sapcai.py:41
+msgid "No response from SAP Conversational.AI, check your network."
+msgstr "SAP Conversational.AI से कोई प्रतिक्रिया नहीं, अपने नेटवर्क की जाँच करें।"
+
+#: opsdroid/parsers/sapcai.py:46
+#, python-format
+msgid "SAP Conversational AI error - %s"
+msgstr "एSAP Conversational AI त्रुटि - %s"
+
+#: opsdroid/parsers/sapcai.py:51
+#, python-format
+msgid "SAP Conversational AI error - No intent found for the message %s"
+msgstr "त्SAP Conversational AI रुटि - संदेश %s के लिए कोई इरादा नहीं मिला"
+
+#: opsdroid/parsers/sapcai.py:63
+msgid "SAP Conversational AI score lower than min-score"
+msgstr "न्यूनतम स्कोर से कम SAP संवादी एआई स्कोर"
+
+#: opsdroid/parsers/watson.py:75
+#, python-format
+msgid "Watson response - %s"
+msgstr "वाटसन की प्रतिक्रिया - %s"
+
+#: opsdroid/parsers/watson.py:109
+msgid "Watson - No intent found. Did you forget to create one?"
+msgstr "वाटसन - कोई इरादा नहीं मिला। क्या आप एक बनाना भूल गए?"
+
+#: opsdroid/parsers/watson.py:118
+msgid "Watson score lower than min-score"
+msgstr "वॉटसन का स्कोर न्यूनतम स्कोर से कम है"
+
+#: opsdroid/parsers/watson.py:153
+#, python-format
+msgid "Error: %s . You are probably missing some configuration parameter."
+msgstr "त्रुटि: %s। आप शायद कुछ विन्यास पैरामीटर को याद कर रहे हैं।"
+
+#: opsdroid/parsers/watson.py:157
+#, python-format
+msgid "Watson Api error - %d:%s"
+msgstr "वाटसन Api त्रुटि - %d:%s"
+
+#: opsdroid/parsers/witai.py:24
+#, python-format
+msgid "wit.ai response - %s"
+msgstr "wit.ai प्रतिक्रिया - %s"
+
+#: opsdroid/parsers/witai.py:35
+msgid "No response from wit.ai, check your network."
+msgstr "wit.ai से कोई प्रतिक्रिया नहीं, अपने नेटवर्क की जांच करें।"
+
+#: opsdroid/parsers/witai.py:40
+#, python-format
+msgid "wit.ai error - %s %s"
+msgstr "wit.ai त्रुटि - %s %s"
+
+#: opsdroid/parsers/witai.py:46
+msgid "wit.ai error - No intent found. Did you forget to create one?"
+msgstr "wit.ai त्रुटि - कोई इरादा नहीं मिला। क्या आप एक बनाना भूल गए?"
+
+#: opsdroid/parsers/witai.py:55
+msgid "wit.ai score lower than min-score"
+msgstr "मिनट-स्कोर से कम wit.ai स्कोर"
+
+msgid "Api.ai is now called Dialogflow. This
+parser will stop working in the 
+future please swap: 'name: apiai' for
+'name: dialogflow' in configuration.yaml"
+msgstr "Api.ai को अब डायलॉगफ़्लो कहा जाता है। यहपार्सर में काम करना बंद कर देगाभविष्य कृपया स्वैप करें: 'नाम: अपियाई''नाम: डायलॉगफ़्लो' कॉन्फ़िगरेशन में ।yaml"
+
+
+msgid "Checking Recast.AI..."
+msgstr "Recast.AI की जाँच की जा रही है .."
+
+msgid ""
+"Api.ai is now called Dialogflow, this"
+" matcher will stop working in the "
+"future. Use match_dialogflow_action instead."
+msgstr "Api.ai को अब डायलॉगफ़्लो कहा जाता है माचिस काम करना बंद कर देगी भविष्य। इसके बजाय match_dialogflow_action का उपयोग करें।"
+
+msgid ""
+"Api.ai is now called Dialogflow, this"
+" matcher will stop working in the "
+"future. Use match_dialogflow_intent instead."
+msgstr ""
+
+msgid "Loaded telegram connector"
+msgstr "लोडेड टेलीग्राम कनेक्टर"
+
+msgid "Connecting to telegram"
+msgstr "telegram से जुड़ना"
+
+msgid "Connected to telegram as %s"
+msgstr "% S के रूप में टेलीग्राम से जुड़ा"
+
+msgid "Dialogflow response - %s"
+msgstr "डायलॉगफ़्लो प्रतिक्रिया -% s"
+
+msgid "No response from Dialogflow, check your network."
+msgstr "Dialogflow से कोई प्रतिक्रिया नहीं, अपने नेटवर्क की जाँच करें।"
+
+msgid "Dialogflow error - %s  - %s"
+msgstr "डायलॉगफ़्लो त्रुटि -% s -% s"
+
+msgid "Dialogflow score lower than min-score"
+msgstr "डायलॉगफ़्लो स्कोर न्यूनतम-स्कोर से कम है" 

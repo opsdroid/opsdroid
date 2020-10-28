@@ -89,7 +89,8 @@ class DatabaseMatrix(Database):
                         )
                     )
                     await self.connector.connection.room_redact(
-                        room_id=self.room_id, event_id=event["event_id"],
+                        room_id=self.room_id,
+                        event_id=event["event_id"],
                     )
 
         self.should_migrate = False
@@ -164,7 +165,9 @@ class DatabaseMatrix(Database):
         )
 
         ori_data = await self.connector.connection.room_get_state_event(
-            room_id=self.room_id, event_type=self._event_type, state_key=state_key,
+            room_id=self.room_id,
+            event_type=self._event_type,
+            state_key=state_key,
         )
         if isinstance(ori_data, RoomGetStateEventError):
             raise RuntimeError(
@@ -194,7 +197,8 @@ class DatabaseMatrix(Database):
         for k, v in data.items():
             if isinstance(v, dict) and len(v) == 1 and "encrypted_val" in v:
                 resp = await self.connector.connection.room_get_event(
-                    room_id=self.room_id, event_id=v["encrypted_val"],
+                    room_id=self.room_id,
+                    event_id=v["encrypted_val"],
                 )
                 if isinstance(resp, RoomGetEventError):
                     _LOGGER.error(
@@ -226,7 +230,9 @@ class DatabaseMatrix(Database):
         )
 
         data = await self.connector.connection.room_get_state_event(
-            room_id=self.room_id, event_type=self._event_type, state_key=state_key,
+            room_id=self.room_id,
+            event_type=self._event_type,
+            state_key=state_key,
         )
         if isinstance(data, RoomGetStateEventError):
             _LOGGER.error(

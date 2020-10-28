@@ -7,6 +7,8 @@ import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock
 import importlib
+import signal
+import threading
 import time
 
 from opsdroid.cli.start import configure_lang
@@ -81,6 +83,28 @@ class TestCore(unittest.TestCase):
 
             self.assertTrue(opsdroid.eventloop.run_until_complete.called)
             self.assertTrue(mock_sysexit.called)
+
+    def test_signals(self):
+        if os.name == "nt":
+            pytest.skip("SIGHUP unsupported on windows")
+        loop = asyncio.get_event_loop()
+
+        def real_test_signals(opsdroid):
+            asyncio.set_event_loop(loop)
+            opsdroid.load = amock.CoroutineMock()
+            opsdroid.unload = amock.CoroutineMock()
+            opsdroid.reload = amock.CoroutineMock()
+            threading.Timer(2, lambda: os.kill(os.getpid(), signal.SIGHUP)).start()
+            threading.Timer(3, lambda: os.kill(os.getpid(), signal.SIGINT)).start()
+            with mock.patch("sys.exit") as mock_sysexit:
+                opsdroid.run()
+            self.assertTrue(opsdroid.reload.called)
+            self.assertTrue(mock_sysexit.called)
+
+        with OpsDroid() as opsdroid:
+            thread = threading.Thread(target=real_test_signals, args=(opsdroid,))
+            thread.start()
+            thread.join()
 
     def test_run_cancelled(self):
         with OpsDroid() as opsdroid:
@@ -353,7 +377,7 @@ class TestCoreAsync(asynctest.TestCase):
                 "opsdroid.parsers.dialogflow.parse_dialogflow"
             ), amock.patch("opsdroid.parsers.dialogflow.call_dialogflow"):
                 tasks = await opsdroid.parse(message)
-                self.assertEqual(len(tasks), 2)
+                self.assertEqual(len(tasks), 3)
 
                 tasks = await opsdroid.parse(message)
                 self.assertLogs("_LOGGER", "warning")
@@ -375,7 +399,7 @@ class TestCoreAsync(asynctest.TestCase):
             )
             with amock.patch("opsdroid.parsers.luisai.parse_luisai"):
                 tasks = await opsdroid.parse(message)
-                self.assertEqual(len(tasks), 2)
+                self.assertEqual(len(tasks), 3)
 
     async def test_parse_rasanlu(self):
         with OpsDroid() as opsdroid:
@@ -393,7 +417,7 @@ class TestCoreAsync(asynctest.TestCase):
             )
             with amock.patch("opsdroid.parsers.rasanlu.parse_rasanlu"):
                 tasks = await opsdroid.parse(message)
-                self.assertEqual(len(tasks), 2)
+                self.assertEqual(len(tasks), 3)
 
     async def test_parse_sapcai(self):
         with OpsDroid() as opsdroid:
@@ -409,7 +433,7 @@ class TestCoreAsync(asynctest.TestCase):
             )
             with amock.patch("opsdroid.parsers.sapcai.parse_sapcai"):
                 tasks = await opsdroid.parse(message)
-                self.assertEqual(len(tasks), 2)
+                self.assertEqual(len(tasks), 3)
 
     async def test_parse_watson(self):
         with OpsDroid() as opsdroid:
@@ -423,7 +447,7 @@ class TestCoreAsync(asynctest.TestCase):
             message = Message("Hello world", "user", "default", mock_connector)
             with amock.patch("opsdroid.parsers.watson.parse_watson"):
                 tasks = await opsdroid.parse(message)
-                self.assertEqual(len(tasks), 2)
+                self.assertEqual(len(tasks), 3)
 
     async def test_parse_witai(self):
         with OpsDroid() as opsdroid:
@@ -442,7 +466,7 @@ class TestCoreAsync(asynctest.TestCase):
             )
             with amock.patch("opsdroid.parsers.witai.parse_witai"):
                 tasks = await opsdroid.parse(message)
-                self.assertEqual(len(tasks), 2)
+                self.assertEqual(len(tasks), 3)
 
     async def test_send_default_one(self):
         with OpsDroid() as opsdroid, amock.patch(

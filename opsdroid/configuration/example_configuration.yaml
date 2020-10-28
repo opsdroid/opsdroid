@@ -120,6 +120,18 @@ connectors:
 #    enable_dms: true  # Should the bot respond to Direct Messages
 #    enable_tweets: true  # Should the bot respond to tweets
 #
+# ## Twitch (core)
+#  twitch:
+#   # required
+#   code: "hfu923hfks02nd2821jfislf" # Code obtained from the first OAuth step
+#   client-id: "e0asdj48jfkspod0284"
+#   client-secret: "kdksd0458j93847j"
+#   channel: theflyingdev # Broadcaster channel
+#   redirect: http://localhost # Url to be passed to get oath token - defaults to localhost
+#   foward-url: 'http://94jfsd9ff.ngrok.io' # Either an URL provided by a forwarding service or an exposed ip address
+#   # optional
+#   always-listening: false # Turn on to connect to the chat server even if stream is offline.
+#
 #  ## Webexteams (core)
 #  webexteams:
 #    # required
