@@ -33,6 +33,35 @@ def test_init(opsdroid):
     assert connector.reconnections == 0
 
 
+def test_base_url_twitch_config(opsdroid):
+    config = {
+        "code": "yourcode",
+        "channel": "test",
+        "client-id": "client-id",
+        "client-secret": "client-secret",
+        "forward-url": "http://my-awesome-url",
+    }
+
+    connector = ConnectorTwitch(config, opsdroid=opsdroid)
+
+    assert connector.base_url == "http://my-awesome-url"
+
+
+def test_base_url_web_config(opsdroid):
+    config = {
+        "code": "yourcode",
+        "channel": "test",
+        "client-id": "client-id",
+        "client-secret": "client-secret",
+    }
+
+    opsdroid.config["web"] = {"base-url": "http://my-awesome-url"}
+
+    connector = ConnectorTwitch(config, opsdroid=opsdroid)
+
+    assert connector.base_url == "http://my-awesome-url"
+
+
 @pytest.mark.asyncio
 async def test_validate_request(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)

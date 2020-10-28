@@ -61,10 +61,13 @@ class ConnectorTwitch(Connector):
         # TODO: Allow usage of SSL connection
         self.server = "ws://irc-ws.chat.twitch.tv"
         self.port = "80"
-        self.base_url = config.get("base-url")
         self.loop = asyncio.get_event_loop()
         self.reconnections = 0
         self.auth_file = TWITCH_JSON
+        try:
+            self.base_url = opsdroid.config["web"]["base-url"]
+        except KeyError:
+            self.base_url = config.get("forward-url")
 
     async def validate_request(self, request, secret):
         """Compute sha256 hash of request and secret.
