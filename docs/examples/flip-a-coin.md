@@ -8,7 +8,7 @@ First we must create an opsdroid skill directory. This can be anywhere on your f
 where for later. For this example we will make a new folder in `~/opsdroid/skills`.
 
 ```shell
-$ mkdir ~/opsdroid/skills/flip-coin
+$ mkdir -p ~/opsdroid/skills/flip-coin
 ```
 
 ## The skill
