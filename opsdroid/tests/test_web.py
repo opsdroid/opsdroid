@@ -40,20 +40,20 @@ async def test_web_get_host(opsdroid):
 
 async def test_web_disable_web_index_handler_in_root(opsdroid):
     """Check disabling of web index handler in root."""
-    opsdroid.config["web"] = {'disable_web_index_handler_in_root': True}
+    opsdroid.config["web"] = {"disable_web_index_handler_in_root": True}
     app = web.Web(opsdroid)
     canonicals = [resource.canonical for resource in app.web_app._router.resources()]
-    assert '/' not in canonicals
+    assert "/" not in canonicals
 
-    opsdroid.config["web"] = {'disable_web_index_handler_in_root': False}
+    opsdroid.config["web"] = {"disable_web_index_handler_in_root": False}
     app = web.Web(opsdroid)
     canonicals = [resource.canonical for resource in app.web_app._router.resources()]
-    assert '/' in canonicals
+    assert "/" in canonicals
 
     opsdroid.config["web"] = {}
     app = web.Web(opsdroid)
     canonicals = [resource.canonical for resource in app.web_app._router.resources()]
-    assert '/' in canonicals
+    assert "/" in canonicals
 
 
 async def test_web_get_ssl(opsdroid):

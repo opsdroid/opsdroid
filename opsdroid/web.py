@@ -25,7 +25,7 @@ class Web:
         self.web_app = web.Application()
         self.runner = web.AppRunner(self.web_app)
         self.site = None
-        if not self.config.get('disable_web_index_handler_in_root', False):
+        if not self.config.get("disable_web_index_handler_in_root", False):
             self.web_app.router.add_get("/", self.web_index_handler)
             self.web_app.router.add_get("", self.web_index_handler)
 
