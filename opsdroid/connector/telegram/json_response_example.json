@@ -1,0 +1,257 @@
+{'update_id': 639974024, 'message': 
+    {'message_id': 1232, 
+       'from': {'id': 639889348, 'is_bot': False, 'first_name': 'Fabio', 'last_name': 'Rosado', 'username': 'FabioRosado', 'language_code': 'en'}, 
+       'chat': {'id': 639889348, 'first_name': 'Fabio', 'last_name': 'Rosado', 'username': 'FabioRosado', 'type': 'private'}, 
+       'date': 1603812665, 'text': 'Hello'}}
+
+
+ {'update_id': 639974040, 
+    'edited_message': {
+        'message_id': 1247, 
+        'from': {'id': 639889348, 'is_bot': False, 'first_name': 'Fabio', 'last_name': 'Rosado', 'username': 'FabioRosado', 'language_code': 'en'}, 
+        'chat': {'id': 639889348, 'first_name': 'Fabio', 'last_name': 'Rosado', 'username': 'FabioRosado', 'type': 'private'}, 
+        'date': 1603818326, 'edit_date': 1603818330, 'text': 'hi'}}
+
+
+{'update_id': 639974089, 
+    'edited_message': {
+        'message_id': 33, 
+        'from': {'id': 777000, 'is_bot': False, 'first_name': 'Telegram'}, 
+        'chat': {'id': -1001417735217, 'title': 'Opsdroid-test Chat', 'type': 'supergroup'},
+        'date': 1603990108, 
+        'edit_date': 1603990111,
+        'forward_from_chat': {'id': -1001474709998, 'title': 'Opsdroid-test', 'type': 'channel'}, 
+        'forward_from_message_id': 16, 
+        'forward_signature': 'Fabio Rosado', 
+        'forward_date': 1603990105, 
+        'text': 'This is a test message edited'}}
+
+ {'update_id': 639974037, 
+    'channel_post': {
+        'message_id': 4,
+         'chat': {
+             'id': -1001474709998, 
+             'title': 'Opsdroid-test', 
+             'type': 'channel'
+             }, 
+        'date': 1603817533, 
+        'text': 'dance'}}
+
+{
+    'update_id': 639974062, 
+    'message': {'message_id': 16, 'from': {'id': 1231526088, 'is_bot': False, 'first_name': 'Dorota', 'last_name': 'Rosado'}, 'chat': {'id': -1001417735217, 'title': 'Opsdroid-test Chat', 'type': 'supergroup'}, 'date': 1603826616, 'reply_to_message': {'message_id': 14, 'from': {'id': 777000, 'is_bot': False, 'first_name': 'Telegram'}, 'chat': {'id': -1001417735217, 'title': 'Opsdroid-test Chat', 'type': 'supergroup'}, 'date': 1603826604, 'forward_from_chat': {'id': -1001474709998, 'title': 'Opsdroid-test', 'type': 'channel'}, 'forward_from_message_id': 11, 'forward_signature': 'Fabio Rosado', 'forward_date': 1603826601, 'text': 'hi'}, 'text': 'Dzien dobry'}}
+
+// Added to group
+{'update_id': 639974041, 
+    'message': {
+        'message_id': 1248, 
+        'from': {
+            'id': 639889348, 
+            'is_bot': False, 
+            'first_name': 'Fabio', 
+            'last_name': 'Rosado', 
+            'username': 'FabioRosado', 
+            'language_code': 'en'}, 
+        'chat': {
+            'id': -494722600, 
+            'title': 'Test', 
+            'type': 'group', 
+            'all_members_are_administrators': True
+        }, 
+    'date': 1603819388, 
+    'new_chat_participant': 
+        {
+            'id': 635392558, 
+            'is_bot': True, 
+            'first_name': 'opsdroid', 
+            'username': 'opsdroid_bot'
+        }, 
+    'new_chat_member': {
+        'id': 635392558, 
+        'is_bot': True, 
+        'first_name': 'opsdroid', 
+        'username': 'opsdroid_bot'
+    },
+
+    'new_chat_members': [{'id': 635392558, 'is_bot': True, 'first_name': 'opsdroid', 'username': 'opsdroid_bot'}]}
+
+
+
+{'update_id': 
+    639974077, 
+    'message': {
+        'message_id': 31, 
+        'from': {'id': 777000, 'is_bot': False, 'first_name': 'Telegram'}, 
+        'chat': {'id': -1001417735217, 'title': 'Opsdroid-test Chat', 'type': 'supergroup'}, 
+        'date': 1603827368, 
+        'forward_from_chat': {'id': -1001474709998, 'title': 'Opsdroid-test', 'type': 'channel'}, 
+        'forward_from_message_id': 15, 
+        'forward_signature': 'Fabio Rosado', 'forward_date': 1603827365, 'text': 'hi'}}
+
+
+
+
+
+
+{'update_id': 639974076,
+     'channel_post': {
+         'message_id': 15, 
+         'author_signature': 'Fabio Rosado', 
+         'chat': {'id': -1001474709998, 'title': 'Opsdroid-test', 'type': 'channel'}, 'date': 1603827365, 
+         'text': 'hi'}}
+
+
+{'update_id': 639974078, 
+    'message': {
+        'message_id': 1266, 
+        'from': {
+            'id': 639889348, 
+            'is_bot': False, 
+            'first_name': 'Fabio', 
+            'last_name': 'Rosado', 
+            'username': 'FabioRosado', 
+            'language_code': 'en'}, 
+            'chat': {
+                'id': 639889348, 
+                'first_name': 'Fabio', 
+                'last_name': 'Rosado', 
+                'username': 'FabioRosado', 
+                'type': 'private'}, 
+            'date': 1603830530, 
+            'photo': [
+                {
+                    'file_id': 'AgACAgQAAxkBAAIE8l-YgwKU_ufbcIfPUM-oCXq_jehXAAKbtDEbpF3JUI4LnoGqVmF4mDBIJ10AAwEAAwIAA20AAzGhAQABGwQ', 
+                    'file_unique_id': 'AQADmDBIJ10AAzGhAQAB', 
+                    'file_size': 24317, 
+                    'width': 240, 'height': 320
+                }, 
+                {
+                    'file_id': 'AgACAgQAAxkBAAIE8l-YgwKU_ufbcIfPUM-oCXq_jehXAAKbtDEbpF3JUI4LnoGqVmF4mDBIJ10AAwEAAwIAA3gAAzKhAQABGwQ', 'file_unique_id': 'AQADmDBIJ10AAzKhAQAB', 'file_size': 109910, 'width': 599, 'height': 800}, {'file_id': 'AgACAgQAAxkBAAIE8l-YgwKU_ufbcIfPUM-oCXq_jehXAAKbtDEbpF3JUI4LnoGqVmF4mDBIJ10AAwEAAwIAA3kAAy-hAQABGwQ', 'file_unique_id': 'AQADmDBIJ10AAy-hAQAB', 'file_size': 168682, 'width': 956, 'height': 1276}]}}
+
+{
+    'update_id': 639974079, 
+    'message': {
+        'message_id': 1267, 
+        'from': {
+            'id': 639889348, 
+            'is_bot': False, 
+            'first_name': 'Fabio', 
+            'last_name': 'Rosado', 
+            'username': 'FabioRosado', 
+            'language_code': 'en'}, 
+        'chat': {
+            'id': 639889348, 
+            'first_name': 'Fabio', 
+            'last_name': 'Rosado', 
+            'username': 'FabioRosado', 
+            'type': 'private'}, 
+        'date': 1603830579, 'text': '👍'}}
+
+
+ {
+    'update_id': 639974084, 
+    'message': {
+        'message_id': 1272, 
+        'from': {
+            'id': 639889348, 'is_bot': False, 'first_name': 'Fabio', 'last_name': 'Rosado', 'username': 'FabioRosado', 'language_code': 'en'}, 
+            'chat': {
+                'id': 639889348, 
+                'first_name': 'Fabio', 
+                'last_name': 'Rosado', 
+                'username': 'FabioRosado', 
+                'type': 'private'
+            }, 
+        'date': 1603834922, 
+        'reply_to_message': {
+            'message_id': 1271, 
+            'from': {
+                'id': 639889348, 
+                'is_bot': False, 
+                'first_name': 'Fabio', 
+                'last_name': 'Rosado', 
+                'username': 'FabioRosado', 
+                'language_code': 'en'},
+            'chat': {
+                'id': 639889348, 
+                'first_name': 'Fabio',
+                'last_name': 'Rosado', 
+                'username': 'FabioRosado', 
+                'type': 'private'}, 
+            'date': 1603834912, 'text': 'Hi'}, 
+            'text': 'This is a reply'}}
+
+
+ {
+     'update_id': 639974089, 
+     'edited_message': {
+         'message_id': 33, 
+         'from': {
+             'id': 777000, 
+             'is_bot': False,
+              'first_name': 'Telegram'
+            }, 
+        'chat': {
+            'id': -1001417735217, 
+            'title': 'Opsdroid-test Chat', 
+            'type': 'supergroup'
+        }, 
+        'date': 1603990108, 
+        'edit_date': 1603990111, 
+        'forward_from_chat': {
+            'id': -1001474709998, 
+            'title': 'Opsdroid-test', 
+            'type': 'channel'
+        }, 
+        'forward_from_message_id': 16, 
+        'forward_signature': 'Fabio Rosado', 
+        'forward_date': 1603990105, 
+        'text': 'This is a test message edited'}}
+
+{'update_id': 639974092, 'edited_channel_post': {
+    'message_id': 17, 'author_signature': 'Fabio Rosado', 'chat': {'id': -1001474709998, 'title': 'Opsdroid-test', 'type': 'channel'}, 'date': 1603991678, 'edit_date': 1603991691, 'text': 'Test edited'}}
+{'update_id': 639974093, 'edited_message': {
+    'message_id': 34, 'from': {'id': 777000, 'is_bot': False, 'first_name': 'Telegram'}, 'chat': {'id': -1001417735217, 'title': 'Opsdroid-test Chat', 'type': 'supergroup'}, 'date': 1603991681, 'edit_date': 1603991691, 'forward_from_chat': {'id': -1001474709998, 'title': 'Opsdroid-test', 'type': 'channel'}, 'forward_from_message_id': 17, 'forward_signature': 'Fabio Rosado', 'forward_date': 1603991678, 'text': 'Test edited'}}
+
+{'update_id': 639974098, 
+    'message': {
+        'message_id': 39, 
+        'from': {
+            'id': 1087968824, 
+            'is_bot': True, 
+            'first_name': 'Group', 
+            'username': 'GroupAnonymousBot'
+        }, 
+        'chat': {'id': -1001417735217, 'title': 'Opsdroid-test Chat', 'type': 'supergroup'},
+        'date': 1603991938, 
+        'pinned_message': {
+            'message_id': 38, 
+            'from': {'id': 635392558, 'is_bot': True, 'first_name': 'opsdroid', 'username': 'opsdroid_bot'}, 
+            'chat': {'id': -1001417735217, 'title': 'Opsdroid-test Chat', 'type': 'supergroup'}, 
+            'date': 1603991908, 
+            'text': 'Hey Fabio Rosado'
+        }}}
+
+{'update_id': 639974100, 
+    'message': {
+        'message_id': 41, 
+        'from': {'id': 1087968824, 'is_bot': True, 'first_name': 'Group', 'username': 'GroupAnonymousBot'}, 
+        'chat': {'id': -1001417735217, 'title': 'Opsdroid-test Chat', 'type': 'supergroup'}, 
+        'date': 1603992648, 
+        'document': {'file_name': 'freelance-web-design-proposal-template.html', 'mime_type': 'text/html', 'file_id': 'BQACAgQAAx0CVIDsMQADKV-a_Ej2HR-Izq6mHvRntK0jw3f1AAJ3BwACPb3ZUJgYzSpVFrKyGwQ', 'file_unique_id': 'AgADdwcAAj292VA', 'file_size': 48743}}}
+
+{'update_id': 639974101, 'message': {'message_id': 42, 'from': {'id': 1087968824, 'is_bot': True, 'first_name': 'Group', 'username': 'GroupAnonymousBot'}, 'chat': {'id': -1001417735217, 'title': 'Opsdroid-test Chat', 'type': 'supergroup'}, 'date': 1603992829, 'location': {'latitude': 56.159849, 'longitude': -5.230604}}}
+
+{'update_id': 639974103, 'message': {'message_id': 44, 'from': {'id': 1087968824, 'is_bot': True, 'first_name': 'Group', 'username': 'GroupAnonymousBot'}, 'chat': {'id': -1001417735217, 'title': 'Opsdroid-test Chat', 'type': 'supergroup'}, 'date': 1603993170, 
+'poll': {'id': '5825895662671101957', 'question': 'Test', 'options': [{'text': 'Test', 'voter_count': 0}, {'text': 'Testing', 'voter_count': 0}], 'total_voter_count': 0, 'is_closed': False, 'is_anonymous': True, 'type': 'regular', 'allows_multiple_answers': False}}}
+
+
+ {'update_id': 639974106, 
+    'message': {'message_id': 47, 'from': {'id': 1087968824, 'is_bot': True, 'first_name': 'Group', 'username': 'GroupAnonymousBot'}, 
+    'chat': {'id': -1001417735217, 'title': 'Opsdroid-test Chat', 'type': 'supergroup'}, 
+    'date': 1603993393, 
+    'reply_to_message': {'message_id': 45, 'from': {'id': 1087968824, 'is_bot': True, 'first_name': 'Group', 'username': 'GroupAnonymousBot'}, 
+        'chat': {'id': -1001417735217, 'title': 'Opsdroid-test Chat', 'type': 'supergroup'}, 
+        'date': 1603993287, 
+        'poll': {'id': '5825895662671101958', 'question': 'Test quizz', 'options': [{'text': 'Test', 'voter_count': 0}, {'text': 'Another', 'voter_count': 0}, {'text': 'One', 'voter_count': 0}], 'total_voter_count': 0, 'is_closed': False, 'is_anonymous': True, 'type': 'quiz', 'allows_multiple_answers': False}
+    }, 
+    'text': 'This is a reply from the poll'}}
