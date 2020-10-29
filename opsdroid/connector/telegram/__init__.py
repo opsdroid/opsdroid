@@ -1,19 +1,32 @@
 """A connector for Telegram."""
-import asyncio
 import logging
 import aiohttp
+import secrets
+import json
+import emoji
 from voluptuous import Required
 
 from opsdroid.connector import Connector, register_event
-from opsdroid.events import Message, Image, File
+from opsdroid.events import (
+    Message,
+    Image,
+    File,
+    EditedMessage,
+    Reply,
+    JoinGroup,
+    LeaveGroup,
+    PinMessage,
+)
+from . import events as telegram_events
 
 
 _LOGGER = logging.getLogger(__name__)
+
 CONFIG_SCHEMA = {
     Required("token"): str,
-    "update-interval": float,
-    "default-user": str,
     "whitelisted-users": list,
+    "bot-name": str,
+    "reply-unauthorized": bool,
 }
 
 
@@ -32,52 +45,71 @@ class ConnectorTelegram(Connector):
         _LOGGER.debug(_("Loaded Telegram Connector"))
         super().__init__(config, opsdroid=opsdroid)
         self.name = "telegram"
+        self.bot_name = config.get("bot-name", "opsdroid")
         self.opsdroid = opsdroid
         self.latest_update = None
-        self.listening = True
-        self.default_user = config.get("default-user", None)
-        self.default_target = self.default_user
         self.whitelisted_users = config.get("whitelisted-users", None)
-        self.update_interval = config.get("update-interval", 1)
         self.session = None
-        self._closing = asyncio.Event()
-        self.loop = asyncio.get_event_loop()
-
-        try:
-            self.token = config["token"]
-        except (KeyError, AttributeError):
-            _LOGGER.error(
-                _(
-                    "Unable to login: Access token is missing. Telegram connector will be unavailable."
-                )
-            )
+        self.webhook_secret = secrets.token_urlsafe(18)
+        self.base_url = opsdroid.config["web"]["base-url"]
+        self.webhook_endpoint = f"/connector/{self.name}/{self.webhook_secret}"
+        self.token = config["token"]
 
     @staticmethod
-    def get_user(response):
+    def get_user(response, bot_name):
         """Get user from response.
 
         The API response is different depending on how
         the bot is set up and where the message is coming
-        from. This method was created to keep if/else
-        statements to a minium on  _parse_message.
+        from.
+
+        Since Telegram sends different payloads, depending of
+        where the message is being sent from, this method tries
+        to handle all the cases.
+
+        If the message came from a channel, we use either the ``author_signature``
+        or the bot name for the user and use the ``message_id`` for the ``user_id``,
+        this is because channel posts don't contain users.
+
+        Similarly, if a message was posted on a channel, Telegram will forward it to
+        a group - if it was created from the channel. So we handle the case where there
+        is a ``forward_signature`` in the payload otherwise we use the bot name.
 
         Args:
             response (dict): Response returned by aiohttp.ClientSession.
+            bot_name (str): Name of the bot used in opsdroid configuration.
 
         """
         user = None
         user_id = None
 
-        if "username" in response["message"]["from"]:
-            user = response["message"]["from"]["username"]
+        channel_post = response.get("channel_post")
+        message = response.get("message")
 
-        elif "first_name" in response["message"]["from"]:
-            user = response["message"]["from"]["first_name"]
-        user_id = response["message"]["from"]["id"]
+        if channel_post:
+            user = channel_post.get("author_signature", bot_name)
+            user_id = channel_post.get("message_id", 0)
+
+        if message:
+            from_user = message.get("from")
+            forwarded = message.get("forward_from_chat")
+
+            user_id = from_user.get("id")
+
+            if from_user:
+                # TODO: Try to refactor these ifs
+                if "username" in from_user:
+                    user = from_user.get("username")
+
+                elif "first_name" in from_user:
+                    user = from_user.get("first_name")
+
+            if forwarded:
+                user = message.get("forward_signature", bot_name)
 
         return user, user_id
 
-    def handle_user_permission(self, response, user):
+    def handle_user_permission(self, response, user, user_id):
         """Handle user permissions.
 
         This will check if the user that tried to talk with
@@ -85,8 +117,6 @@ class ConnectorTelegram(Connector):
         userid to improve security.
 
         """
-        user_id = response["message"]["from"]["id"]
-
         if (
             not self.whitelisted_users
             or user in self.whitelisted_users
@@ -111,6 +141,7 @@ class ConnectorTelegram(Connector):
     async def delete_webhook(self):
         """Delete Telegram webhook.
 
+        TODO: Update docstring
         The Telegram api will thrown an 409 error when an webhook is
         active and a call to getUpdates is made. This method will
         try to request the deletion of the webhook to make the getUpdate
@@ -118,160 +149,193 @@ class ConnectorTelegram(Connector):
 
         """
         _LOGGER.debug(_("Sending deleteWebhook request to Telegram..."))
-        resp = await self.session.get(self.build_url("deleteWebhook"))
+        async with aiohttp.ClientSession() as session:
+            resp = await session.get(self.build_url("deleteWebhook"))
 
-        if resp.status == 200:
-            _LOGGER.debug(_("Telegram webhook deleted successfully."))
-        else:
-            _LOGGER.debug(_("Unable to delete webhook."))
+            if resp.status == 200:
+                _LOGGER.debug(_("Telegram webhook deleted successfully."))
+            else:
+                _LOGGER.debug(_("Unable to delete webhook."))
 
     async def connect(self):
         """Connect to Telegram.
+
+        TODO: Tidy up this docstring
 
         This method is not an authorization call. It basically
         checks if the API token was provided and makes an API
         call to Telegram and evaluates the status of the call.
 
         """
+        self.opsdroid.web_server.web_app.router.add_post(
+            self.webhook_endpoint, self.telegram_webhook_handler
+        )
 
-        _LOGGER.debug(_("Connecting to Telegram."))
-        self.session = aiohttp.ClientSession()
+        async with aiohttp.ClientSession() as session:
+            payload = {
+                "url": f"{self.base_url}{self.webhook_endpoint}",
+                "allowed_updates": [
+                    "messages",
+                    "edited_message",
+                    "channel_post",
+                    "edited_channel_post",
+                    "update_id",
+                ],
+            }
 
-        resp = await self.session.get(self.build_url("getMe"))
+            response = await session.post(self.build_url("setWebhook"), params=payload)
 
-        if resp.status != 200:
-            _LOGGER.error(_("Unable to connect."))
-            _LOGGER.error(_("Telegram error %s, %s."), resp.status, resp.text)
-        else:
-            json = await resp.json()
-            _LOGGER.debug(json)
-            _LOGGER.debug(_("Connected to Telegram as %s."), json["result"]["username"])
-
-    async def _parse_message(self, response):
-        """Handle logic to parse a received message.
-
-        Since everyone can send a private message to any user/bot
-        in Telegram, this method allows to set a list of whitelisted
-        users that can interact with the bot. If any other user tries
-        to interact with the bot the command is not parsed and instead
-        the bot will inform that user that he is not allowed to talk
-        with the bot.
-
-        We also set self.latest_update to +1 in order to get the next
-        available message (or an empty {} if no message has been received
-        yet) with the method self._get_messages().
-
-        Args:
-            response (dict): Response returned by aiohttp.ClientSession.
-
-        """
-        for result in response["result"]:
-            _LOGGER.debug(result)
-
-            if result.get("edited_message", None):
-                result["message"] = result.pop("edited_message")
-            if result.get("channel_post", None) or result.get(
-                "edited_channel_post", None
-            ):
-                self.latest_update = result["update_id"] + 1
-                _LOGGER.debug(
-                    _("Channel message parsing not supported " "- Ignoring message.")
-                )
-            elif "message" in result and "text" in result["message"]:
-                user, user_id = self.get_user(result)
-                message = Message(
-                    text=result["message"]["text"],
-                    user=user,
-                    user_id=user_id,
-                    target=result["message"]["chat"]["id"],
-                    connector=self,
+            _LOGGER.info(response)
+            if response.status > 200:
+                _LOGGER.info(
+                    _("Error when connection to Telegram Webhook: - %s - %s"),
+                    response.status,
+                    response.text,
                 )
 
-                if self.handle_user_permission(result, user):
-                    await self.opsdroid.parse(message)
-                else:
-                    message.text = (
-                        "Sorry, you're not allowed " "to speak with this bot."
-                    )
-                    await self.send(message)
-                self.latest_update = result["update_id"] + 1
-            elif (
-                "message" in result
-                and "sticker" in result["message"]
-                and "emoji" in result["message"]["sticker"]
-            ):
-                self.latest_update = result["update_id"] + 1
-                _LOGGER.debug(
-                    _("Emoji message parsing not supported - Ignoring message.")
-                )
-            else:
-                _LOGGER.error(_("Unable to parse the message."))
+    async def telegram_webhook_handler(self, request):
+        """Handle webhook request."""
+        payload = await request.json()
+        user, user_id = self.get_user(payload, self.bot_name)
 
-    async def _get_messages(self):
-        """Connect to the Telegram API.
-
-        Uses an aiohttp ClientSession to connect to Telegram API
-        and get the latest messages from the chat service.
-
-        The data["offset"] is used to consume every new message, the API
-        returns an  int - "update_id" value. In order to get the next
-        message this value needs to be increased by 1 the next time
-        the API is called. If no new messages exists the API will just
-        return an empty {}.
-
-        """
-        data = {}
-        if self.latest_update is not None:
-            data["offset"] = self.latest_update
-
-        await asyncio.sleep(self.update_interval)
-        resp = await self.session.get(self.build_url("getUpdates"), params=data)
-
-        if resp.status == 409:
-            _LOGGER.info(
-                _(
-                    "Can't get updates because previous webhook is still active. Will try to delete webhook."
-                )
+        _LOGGER.info(payload)
+        if payload.get("edited_message"):
+            event = EditedMessage(
+                text=payload["text"],
+                target=payload["chat"]["id"],
+                user=user,
+                user_id=user_id,
+                connector=self,
             )
-            await self.delete_webhook()
 
-        if resp.status != 200:
-            _LOGGER.error(_("Telegram error %s, %s."), resp.status, resp.text)
-            self.listening = False
+        if payload.get("message"):
+            event = await self.handle_messages(
+                payload["message"], user, user_id, payload["update_id"]
+            )
+
+        if payload.get("channel_post"):
+            event = await self.handle_messages(
+                payload["channel_post"], user, user_id, payload["update_id"]
+            )
+
+        if self.handle_user_permission(payload, user, user_id):
+            await self.opsdroid.parse(event)
         else:
-            json = await resp.json()
+            if self.config.get("reply-unauthorized"):
+                await self.send_message(
+                    Message(text="Sorry, you're not allowed to speak with this bot.")
+                )
 
-            await self._parse_message(json)
+        return aiohttp.web.Response(text=json.dumps("Received"), status=200)
 
-    async def get_messages_loop(self):
-        """Listen for and parse new messages.
+    async def handle_messages(self, message, user, user_id, update_id):
+        """Handle text messages received from Telegram.
 
-        The bot will always listen to all opened chat windows,
-        as long as opsdroid is running. Since anyone can start
-        a new chat with the bot is recommended that a list of
-        users to be whitelisted be provided in config.yaml.
-
-        The method will sleep asynchronously at the end of
-        every loop. The time can either be specified in the
-        config.yaml with the param update-interval - this
-        defaults to 1 second.
+        Telegram sends three types of text messages:
+            - ``message`` - which is a plain text message received by DM
+            - ``edited_message`` - any message that was edited
+            - ``channel_post`` - message sent inside a channel
 
         """
-        while self.listening:
-            await self._get_messages()
+        if message.get("new_chat_member"):
+            event = JoinGroup(
+                user=user,
+                user_id=user_id,
+                event_id=update_id,
+                target=message["chat"]["id"],
+                connector=self,
+                raw_event=message,
+            )
+
+        if message.get("left_chat_member"):
+            event = LeaveGroup(
+                user=user,
+                user_id=user_id,
+                event_id=update_id,
+                target=message["chat"]["id"],
+                connector=self,
+                raw_event=message,
+            )
+
+        if message.get("pinned_message"):
+            event = PinMessage(
+                user=user,
+                user_id=user_id,
+                event_id=update_id,
+                target=message["chat"]["id"],
+                connector=self,
+                raw_event=message,
+            )
+
+        if message.get("reply_to_message"):
+            event = Reply(
+                text=emoji.demojize(message["text"]),
+                user=user,
+                user_id=user_id,
+                event_id=message["message_id"],
+                linked_event=message["reply_to_message"]["message_id"],
+                target=message["chat"]["id"],
+                connector=self,
+                raw_event=message,
+            )
+
+        if message.get("photo") or message.get("document") or message.get("video"):
+            _LOGGER.debug(
+                _("Received image/file/video from Telegram, unable to parse this data.")
+            )
+            return
+
+        if message.get("text"):
+            event = Message(
+                text=emoji.demojize(message["text"]),
+                user=user,
+                user_id=user_id,
+                target=message["chat"]["id"],
+                connector=self,
+            )
+
+        if message.get("location"):
+            event = telegram_events.Location(
+                user=user,
+                user_id=user_id,
+                event_id=update_id,
+                target=message["chat"]["id"],
+                location=message["location"],
+                connector=self,
+                raw_event=message,
+            )
+
+        if message.get("poll"):
+            event = telegram_events.Poll(
+                user=user,
+                user_id=user_id,
+                event_id=update_id,
+                target=message["chat"]["id"],
+                poll=message["poll"],
+                connector=self,
+                raw_event=message,
+            )
+
+        if message.get("contact"):
+            event = telegram_events.Contact(
+                user=user,
+                user_id=user_id,
+                event_id=update_id,
+                target=message["chat"]["id"],
+                contact=message["contact"],
+                connector=self,
+                raw_event=message,
+            )
+
+        return event
 
     async def listen(self):
         """Listen method of the connector.
 
-        Every connector has to implement the listen method. When an
-        infinite loop is running, it becomes hard to cancel this task.
-        So we are creating a task and set it on a variable so we can
-        cancel the task.
+        Since we are using webhooks, we don't need to implement the listen
+        method.
 
         """
-        message_getter = self.loop.create_task(await self.get_messages_loop())
-        await self._closing.wait()
-        message_getter.cancel()
 
     @register_event(Message)
     async def send_message(self, message):
@@ -288,11 +352,13 @@ class ConnectorTelegram(Connector):
         data = dict()
         data["chat_id"] = message.target
         data["text"] = message.text
-        resp = await self.session.post(self.build_url("sendMessage"), data=data)
-        if resp.status == 200:
-            _LOGGER.debug(_("Successfully responded."))
-        else:
-            _LOGGER.error(_("Unable to respond."))
+
+        async with aiohttp.ClientSession() as session:
+            resp = await session.post(self.build_url("sendMessage"), data=data)
+            if resp.status == 200:
+                _LOGGER.debug(_("Successfully responded."))
+            else:
+                _LOGGER.error(_("Unable to respond."))
 
     @register_event(Image)
     async def send_image(self, file_event):
@@ -349,6 +415,4 @@ class ConnectorTelegram(Connector):
         aiohttp session.
 
         """
-        self.listening = False
-        self._closing.set()
-        await self.session.close()
+        await self.delete_webhook()
