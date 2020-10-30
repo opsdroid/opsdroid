@@ -6,17 +6,8 @@ import asynctest.mock as amock
 
 from opsdroid.connector.telegram import ConnectorTelegram
 
-# import opsdroid.connector.telegram.events as telegram_events
-from opsdroid.events import (
-    Message,
-    Image,
-    File,
-    # EditedMessage,
-    # Reply,
-    # JoinGroup,
-    # LeaveGroup,
-    # PinMessage,
-)
+import opsdroid.connector.telegram.events as telegram_events
+import opsdroid.events as opsdroid_events
 
 
 connector_config = {
@@ -332,7 +323,7 @@ async def test_respond(opsdroid, caplog):
 
         assert opsdroid.__class__.instances
 
-        test_message = Message(
+        test_message = opsdroid_events.Message(
             text="This is a test",
             user="opsdroid",
             target={"id": 12404},
@@ -369,7 +360,7 @@ async def test_respond_failure(opsdroid, caplog):
 
         assert opsdroid.__class__.instances
 
-        test_message = Message(
+        test_message = opsdroid_events.Message(
             text="This is a test",
             user="opsdroid",
             target={"id": 12404},
@@ -401,7 +392,7 @@ async def test_respond_image(opsdroid, caplog):
         b"\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00;"
     )
 
-    image = Image(file_bytes=gif_bytes, target={"id": "123"})
+    image = opsdroid_events.Image(file_bytes=gif_bytes, target={"id": "123"})
 
     with amock.patch(
         "aiohttp.ClientSession.post", new=amock.CoroutineMock()
@@ -433,7 +424,7 @@ async def test_respond_image_failure(opsdroid, caplog):
         b"\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00;"
     )
 
-    image = Image(file_bytes=gif_bytes, target={"id": "123"})
+    image = opsdroid_events.Image(file_bytes=gif_bytes, target={"id": "123"})
 
     with amock.patch(
         "aiohttp.ClientSession.post", new=amock.CoroutineMock()
@@ -462,7 +453,7 @@ async def test_respond_file(opsdroid, caplog):
 
     file_bytes = b"plain text file example"
 
-    file = File(file_bytes=file_bytes, target={"id": "123"})
+    file = opsdroid_events.File(file_bytes=file_bytes, target={"id": "123"})
 
     with amock.patch(
         "aiohttp.ClientSession.post", new=amock.CoroutineMock()
@@ -490,7 +481,7 @@ async def test_respond_file_failure(opsdroid, caplog):
 
     file_bytes = b"plain text file example"
 
-    file = File(file_bytes=file_bytes, target={"id": "123"})
+    file = opsdroid_events.File(file_bytes=file_bytes, target={"id": "123"})
 
     with amock.patch(
         "aiohttp.ClientSession.post", new=amock.CoroutineMock()
@@ -558,446 +549,469 @@ async def test_disconnect_failure(opsdroid, caplog):
         assert "Unable to delete webhook" in caplog.text
 
 
-# class TestConnectorTelegramAsync(asynctest.TestCase):
-#     """Test the async methods of the opsdroid Telegram connector class."""
+@pytest.mark.asyncio
+async def test_edited_message_event(opsdroid):
+    connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
-#     def setUp(self):
-#         configure_lang({})
-#         self.connector = ConnectorTelegram(
-#             {
-#                 "name": "telegram",
-#                 "token": "bot:765test",
-#                 "whitelisted-users": ["user", "test", "AnUser"],
-#             },
-#             opsdroid=OpsDroid(),
-#         )
-#         with amock.patch("aiohttp.ClientSession") as mocked_session:
-#             self.connector.session = mocked_session
+    mock_request = amock.CoroutineMock()
+    mock_request.json = amock.CoroutineMock()
+    mock_request.json.return_value = {
+        "update_id": 639974040,
+        "edited_message": {
+            "message_id": 1247,
+            "from": {
+                "id": 6399348,
+                "is_bot": False,
+                "first_name": "Fabio",
+                "last_name": "Rosado",
+                "username": "FabioRosado",
+                "language_code": "en",
+            },
+            "chat": {
+                "id": 6399348,
+                "first_name": "Fabio",
+                "last_name": "Rosado",
+                "username": "FabioRosado",
+                "type": "private",
+            },
+            "date": 1603818326,
+            "edit_date": 1603818330,
+            "text": "hi",
+        },
+    }
 
-#     async def test_connect(self):
-#         connect_response = amock.Mock()
-#         connect_response.status = 200
-#         connect_response.json = amock.CoroutineMock()
-#         connect_response.return_value = {
-#             "ok": True,
-#             "result": {
-#                 "id": 635392558,
-#                 "is_bot": True,
-#                 "first_name": "opsdroid",
-#                 "username": "opsdroid_bot",
-#             },
-#         }
+    edited_message = opsdroid_events.EditedMessage("hi", 6399348, "Fabio", 6399348)
 
-#         with amock.patch("aiohttp.ClientSession.get") as patched_request:
+    await connector.telegram_webhook_handler(mock_request)
 
-#             patched_request.return_value = asyncio.Future()
-#             patched_request.return_value.set_result(connect_response)
-#             await self.connector.connect()
-#             self.assertLogs("_LOGGER", "debug")
-#             self.assertNotEqual(200, patched_request.status)
-#             self.assertTrue(patched_request.called)
-
-#     async def test_connect_failure(self):
-#         result = amock.MagicMock()
-#         result.status = 401
-
-#         with amock.patch("aiohttp.ClientSession.get") as patched_request:
-
-#             patched_request.return_value = asyncio.Future()
-#             patched_request.return_value.set_result(result)
-
-#             await self.connector.connect()
-#             self.assertLogs("_LOGGER", "error")
-
-#     async def test_parse_message_username(self):
-#         response = {
-#             "result": [
-#                 {
-#                     "update_id": 427647860,
-#                     "message": {
-#                         "message_id": 12,
-#                         "from": {
-#                             "id": 649671308,
-#                             "is_bot": False,
-#                             "first_name": "A",
-#                             "last_name": "User",
-#                             "username": "user",
-#                             "language_code": "en-GB",
-#                         },
-#                         "chat": {
-#                             "id": 649671308,
-#                             "first_name": "A",
-#                             "last_name": "User",
-#                             "username": "user",
-#                             "type": "private",
-#                         },
-#                         "date": 1538756863,
-#                         "text": "Hello",
-#                     },
-#                 }
-#             ]
-#         }
-
-#         with amock.patch("opsdroid.core.OpsDroid.parse") as mocked_parse:
-#             await self.connector._parse_message(response)
-#             self.assertTrue(mocked_parse.called)
-
-#     async def test_parse_edited_message(self):
-#         response = {
-#             "result": [
-#                 {
-#                     "update_id": 246644499,
-#                     "edited_message": {
-#                         "message_id": 150,
-#                         "from": {
-#                             "id": 245245245,
-#                             "is_bot": False,
-#                             "first_name": "IOBreaker",
-#                             "language_code": "en",
-#                         },
-#                         "chat": {
-#                             "id": 245245245,
-#                             "first_name": "IOBreaker",
-#                             "type": "private",
-#                         },
-#                         "date": 1551797346,
-#                         "edit_date": 1551797365,
-#                         "text": "hello2",
-#                     },
-#                 }
-#             ]
-#         }
-#         mocked_status = amock.CoroutineMock()
-#         mocked_status.status = 200
-#         with amock.patch("opsdroid.core.OpsDroid.parse"), amock.patch.object(
-#             self.connector, "get_messages_loop"
-#         ), amock.patch.object(self.connector.session, "post") as patched_request:
-#             patched_request.return_value = asyncio.Future()
-#             patched_request.return_value.set_result(mocked_status)
-#             self.assertTrue(response["result"][0].get("edited_message"))
-#             await self.connector._parse_message(response)
-
-#     async def test_parse_message_channel(self):
-#         response = {
-#             "result": [
-#                 {
-#                     "update_id": 427647860,
-#                     "message": {
-#                         "message_id": 12,
-#                         "from": {
-#                             "id": 649671308,
-#                             "is_bot": False,
-#                             "first_name": "A",
-#                             "last_name": "User",
-#                             "username": "user",
-#                             "language_code": "en-GB",
-#                         },
-#                         "chat": {
-#                             "id": 649671308,
-#                             "first_name": "A",
-#                             "last_name": "User",
-#                             "username": "user",
-#                             "type": "channel",
-#                         },
-#                         "date": 1538756863,
-#                         "text": "Hello",
-#                     },
-#                 }
-#             ]
-#         }
-
-#         with amock.patch("opsdroid.core.OpsDroid.parse"):
-#             await self.connector._parse_message(response)
-#             self.assertLogs("_LOGGER", "debug")
-
-#     async def test_parse_message_first_name(self):
-#         response = {
-#             "result": [
-#                 {
-#                     "update_id": 427647860,
-#                     "message": {
-#                         "message_id": 12,
-#                         "from": {
-#                             "id": 649671308,
-#                             "is_bot": Falsei,
-#                             "first_name": "AnUser",
-#                             "type": "private",
-#                             "language_code": "en-GB",
-#                         },
-#                         "chat": {
-#                             "id": 649671308,
-#                             "first_name": "AnUser",
-#                             "type": "private",
-#                         },
-#                         "date": 1538756863,
-#                         "text": "Hello",
-#                     },
-#                 }
-#             ]
-#         }
-#         with amock.patch("opsdroid.core.OpsDroid.parse") as mocked_parse:
-#             await self.connector._parse_message(response)
-#             self.assertTrue(mocked_parse.called)
-
-#     async def test_parse_message_bad_result(self):
-#         response = {
-#             "result": [
-#                 {
-#                     "update_id": 427647860,
-#                     "message": {
-#                         "message_id": 12,
-#                         "from": {
-#                             "id": 649671308,
-#                             "is_bot": False,
-#                             "first_name": "test",
-#                             "language_code": "en-GB",
-#                         },
-#                         "chat": {
-#                             "id": 649671308,
-#                             "first_name": "test",
-#                             "type": "private",
-#                         },
-#                         "date": 1538756863,
-#                     },
-#                 }
-#             ]
-#         }
-
-#         await self.connector._parse_message(response)
-#         self.assertLogs("error", "_LOGGER")
-
-#     async def test_parse_message_unauthorized(self):
-#         self.connector.config["whitelisted-users"] = ["user", "test"]
-#         response = {
-#             "result": [
-#                 {
-#                     "update_id": 427647860,
-#                     "message": {
-#                         "message_id": 12,
-#                         "from": {
-#                             "id": 649671308,
-#                             "is_bot": False,
-#                             "first_name": "A",
-#                             "last_name": "User",
-#                             "username": "a_user",
-#                             "language_code": "en-GB",
-#                         },
-#                         "chat": {
-#                             "id": 649671308,
-#                             "first_name": "A",
-#                             "last_name": "User",
-#                             "username": "a_user",
-#                             "type": "private",
-#                         },
-#                         "date": 1538756863,
-#                         "text": "Hello",
-#                     },
-#                 }
-#             ]
-#         }
-
-#         self.assertEqual(self.connector.config["whitelisted-users"], ["user", "test"])
-
-#         message_text = "Sorry, you're not allowed to speak with this bot."
-
-#         with amock.patch.object(self.connector, "send") as mocked_respond:
-#             await self.connector._parse_message(response)
-#             self.assertTrue(mocked_respond.called)
-#             self.assertTrue(mocked_respond.called_with(message_text))
-
-#     async def test_parse_message_emoji(self):
-#         response = {
-#             "result": [
-#                 {
-#                     "update_id": 427647860,
-#                     "message": {
-#                         "message_id": 12,
-#                         "from": {
-#                             "id": 649671308,
-#                             "is_bot": False,
-#                             "first_name": "A",
-#                             "last_name": "User",
-#                             "username": "user",
-#                             "language_code": "en-GB",
-#                         },
-#                         "chat": {
-#                             "id": 649671308,
-#                             "first_name": "A",
-#                             "last_name": "User",
-#                             "username": "user",
-#                             "type": "private",
-#                         },
-#                         "date": 1538756863,
-#                         "sticker": {
-#                             "width": 512,
-#                             "height": 512,
-#                             "emoji": "😔",
-#                             "set_name": "YourALF",
-#                             "thumb": {
-#                                 "file_id": "AAQCABODB_MOAARYC8yRaPPoIIZBAAIC",
-#                                 "file_size": 8582,
-#                                 "width": 128,
-#                                 "height": 128,
-#                             },
-#                             "file_id": "CAADAgAD3QMAAsSraAu37DAtdiNpAgI",
-#                             "file_size": 64720,
-#                         },
-#                     },
-#                 }
-#             ]
-#         }
-
-#         with amock.patch("opsdroid.core.OpsDroid.parse"):
-#             await self.connector._parse_message(response)
-#             self.assertLogs("_LOGGER", "debug")
-
-#     async def test_get_messages(self):
-#         listen_response = amock.Mock()
-#         listen_response.status = 200
-#         listen_response.json = amock.CoroutineMock()
-#         listen_response.return_value = {
-#             "result": [
-#                 {
-#                     "update_id": 427647860,
-#                     "message": {
-#                         "message_id": 54,
-#                         "from": {
-#                             "id": 639889348,
-#                             "is_bot": False,
-#                             "first_name": "Fabio",
-#                             "last_name": "Rosado",
-#                             "username": "FabioRosado",
-#                             "language_code": "en-GB",
-#                         },
-#                         "chat": {
-#                             "id": 639889348,
-#                             "first_name": "Fabio",
-#                             "last_name": "Rosado",
-#                             "username": "FabioRosado",
-#                             "type": "private",
-#                         },
-#                         "date": 1538756863,
-#                         "text": "Hello",
-#                     },
-#                 }
-#             ]
-#         }
-
-#         with amock.patch.object(
-#             self.connector.session, "get"
-#         ) as patched_request, amock.patch.object(
-#             self.connector, "_parse_message"
-#         ) as mocked_parse_message:
-
-#             self.connector.latest_update = 54
-
-#             patched_request.return_value = asyncio.Future()
-#             patched_request.return_value.set_result(listen_response)
-#             await self.connector._get_messages()
-#             self.assertTrue(patched_request.called)
-#             self.assertLogs("_LOGGER", "debug")
-#             self.assertTrue(mocked_parse_message.called)
-
-#     async def test_delete_webhook(self):
-#         response = amock.Mock()
-#         response.status = 200
-
-#         with amock.patch.object(self.connector.session, "get") as mock_request:
-#             mock_request.return_value = asyncio.Future()
-#             mock_request.return_value.set_result(response)
-
-#             await self.connector.delete_webhook()
-#             self.assertLogs("_LOGGER", "debug")
-
-#     async def test_get_message_webhook(self):
-#         response = amock.Mock()
-#         response.status = 409
-
-#         with amock.patch.object(
-#             self.connector.session, "get"
-#         ) as mock_request, amock.patch.object(
-#             self.connector, "delete_webhook"
-#         ) as mock_method:
-#             mock_request.return_value = asyncio.Future()
-#             mock_request.return_value.set_result(response)
-
-#             await self.connector._get_messages()
-#             self.assertLogs("_LOGGER", "info")
-#             self.assertTrue(mock_method.called)
-
-#     async def test_delete_webhook_failure(self):
-#         response = amock.Mock()
-#         response.status = 401
-
-#         with amock.patch.object(self.connector.session, "get") as mock_request:
-#             mock_request.return_value = asyncio.Future()
-#             mock_request.return_value.set_result(response)
-
-#             await self.connector.delete_webhook()
-#             self.assertLogs("_LOGGER", "debug")
-
-#     async def test_get_messages_failure(self):
-#         listen_response = amock.Mock()
-#         listen_response.status = 401
-
-#         with amock.patch.object(self.connector.session, "get") as patched_request:
-
-#             patched_request.return_value = asyncio.Future()
-#             patched_request.return_value.set_result(listen_response)
-#             await self.connector._get_messages()
-#             self.assertLogs("_LOGGER", "error")
-
-#     async def test_get_messages_loop(self):
-#         self.connector._get_messages = amock.CoroutineMock()
-#         self.connector._get_messages.side_effect = Exception()
-#         with contextlib.suppress(Exception):
-#             await self.connector.get_messages_loop()
+    assert "hi" in edited_message.text
+    assert "Fabio" in edited_message.user
+    assert edited_message.target == 6399348
+    assert edited_message.user_id == 6399348
 
 
-#     async def test_respond_failure(self):
-#         post_response = amock.Mock()
-#         post_response.status = 401
+@pytest.mark.asyncio
+async def test_join_group_event(opsdroid):
+    connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
-#         with OpsDroid() as opsdroid, amock.patch.object(
-#             self.connector.session, "post"
-#         ) as patched_request:
+    mock_request = amock.CoroutineMock()
+    mock_request.json = amock.CoroutineMock()
+    mock_request.json.return_value = {
+        "update_id": 639974040,
+        "message": {
+            "message_id": 1247,
+            "from": {
+                "id": 6399348,
+                "is_bot": False,
+                "first_name": "Fabio",
+                "last_name": "Rosado",
+                "username": "FabioRosado",
+                "language_code": "en",
+            },
+            "chat": {
+                "id": 6399348,
+                "first_name": "Fabio",
+                "last_name": "Rosado",
+                "username": "FabioRosado",
+                "type": "private",
+            },
+            "date": 1603818326,
+            "edit_date": 1603818330,
+            "new_chat_member": True,
+        },
+    }
 
-#             self.assertTrue(opsdroid.__class__.instances)
-#             test_message = Message(
-#                 text="This is a test",
-#                 user="opsdroid",
-#                 target={"id": 12404},
-#                 connector=self.connector,
-#             )
+    join_message = opsdroid_events.JoinGroup(6399348, "Fabio", 6399348)
 
-#             patched_request.return_value = asyncio.Future()
-#             patched_request.return_value.set_result(post_response)
-#             await test_message.respond("Response")
-#             self.assertLogs("_LOGGER", "debug")
+    await connector.telegram_webhook_handler(mock_request)
+
+    assert "Fabio" in join_message.user
+    assert join_message.target == 6399348
+    assert join_message.user_id == 6399348
 
 
-#     async def test_listen(self):
-#         with amock.patch.object(
-#             self.connector.loop, "create_task"
-#         ) as mocked_task, amock.patch.object(
-#             self.connector._closing, "wait"
-#         ) as mocked_event, amock.patch.object(
-#             self.connector, "get_messages_loop"
-#         ):
-#             mocked_event.return_value = asyncio.Future()
-#             mocked_event.return_value.set_result(True)
-#             mocked_task.return_value = asyncio.Future()
-#             await self.connector.listen()
+@pytest.mark.asyncio
+async def test_leave_group_event(opsdroid):
+    connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
-#             self.assertTrue(mocked_event.called)
-#             self.assertTrue(mocked_task.called)
+    mock_request = amock.CoroutineMock()
+    mock_request.json = amock.CoroutineMock()
+    mock_request.json.return_value = {
+        "update_id": 639974040,
+        "message": {
+            "message_id": 1247,
+            "from": {
+                "id": 6399348,
+                "is_bot": False,
+                "first_name": "Fabio",
+                "last_name": "Rosado",
+                "username": "FabioRosado",
+                "language_code": "en",
+            },
+            "chat": {
+                "id": 6399348,
+                "first_name": "Fabio",
+                "last_name": "Rosado",
+                "username": "FabioRosado",
+                "type": "private",
+            },
+            "date": 1603818326,
+            "edit_date": 1603818330,
+            "left_chat_member": True,
+        },
+    }
 
-#     async def test_disconnect(self):
-#         with amock.patch.object(self.connector.session, "close") as mocked_close:
-#             mocked_close.return_value = asyncio.Future()
-#             mocked_close.return_value.set_result(True)
+    left_message = opsdroid_events.LeaveGroup(6399348, "Fabio", 6399348)
 
-#             await self.connector.disconnect()
-#             self.assertFalse(self.connector.listening)
-#             self.assertTrue(self.connector.session.closed())
-#             self.assertEqual(self.connector._closing.set(), None)
+    await connector.telegram_webhook_handler(mock_request)
+
+    assert "Fabio" in left_message.user
+    assert left_message.target == 6399348
+    assert left_message.user_id == 6399348
+
+
+@pytest.mark.asyncio
+async def test_pinned_message_event(opsdroid):
+    connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
+
+    mock_request = amock.CoroutineMock()
+    mock_request.json = amock.CoroutineMock()
+    mock_request.json.return_value = {
+        "update_id": 639974040,
+        "message": {
+            "message_id": 1247,
+            "from": {
+                "id": 6399348,
+                "is_bot": False,
+                "first_name": "Fabio",
+                "last_name": "Rosado",
+                "username": "FabioRosado",
+                "language_code": "en",
+            },
+            "chat": {
+                "id": 6399348,
+                "first_name": "Fabio",
+                "last_name": "Rosado",
+                "username": "FabioRosado",
+                "type": "private",
+            },
+            "date": 1603818326,
+            "edit_date": 1603818330,
+            "pinned_message": True,
+        },
+    }
+
+    pinned_message = opsdroid_events.PinMessage(6399348, "Fabio", 6399348)
+
+    await connector.telegram_webhook_handler(mock_request)
+
+    assert "Fabio" in pinned_message.user
+    assert pinned_message.target == 6399348
+    assert pinned_message.user_id == 6399348
+
+
+@pytest.mark.asyncio
+async def test_reply_to_message_event(opsdroid):
+    connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
+
+    mock_request = amock.CoroutineMock()
+    mock_request.json = amock.CoroutineMock()
+    mock_request.json.return_value = {
+        "update_id": 639974084,
+        "message": {
+            "message_id": 1272,
+            "from": {
+                "id": 639348,
+                "is_bot": False,
+                "first_name": "Fabio",
+                "last_name": "Rosado",
+                "username": "FabioRosado",
+                "language_code": "en",
+            },
+            "chat": {
+                "id": 639348,
+                "first_name": "Fabio",
+                "last_name": "Rosado",
+                "username": "FabioRosado",
+                "type": "private",
+            },
+            "date": 1603834922,
+            "reply_to_message": {
+                "message_id": 1271,
+                "from": {
+                    "id": 639348,
+                    "is_bot": False,
+                    "first_name": "Fabio",
+                    "last_name": "Rosado",
+                    "username": "FabioRosado",
+                    "language_code": "en",
+                },
+                "chat": {
+                    "id": 63948,
+                    "first_name": "Fabio",
+                    "last_name": "Rosado",
+                    "username": "FabioRosado",
+                    "type": "private",
+                },
+                "date": 1603834912,
+                "text": "Hi",
+            },
+            "text": "This is a reply",
+        },
+    }
+
+    reply_message = opsdroid_events.Reply(
+        "This is a reply", 639348, "FabioRosado", 63948
+    )
+
+    await connector.telegram_webhook_handler(mock_request)
+
+    assert "This is a reply" in reply_message.text
+    assert "FabioRosado" in reply_message.user
+    assert reply_message.target == 63948
+
+
+@pytest.mark.asyncio
+async def test_location_event(opsdroid):
+    connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
+
+    mock_request = amock.CoroutineMock()
+    mock_request.json = amock.CoroutineMock()
+    mock_request.json.return_value = {
+        "update_id": 639974101,
+        "message": {
+            "message_id": 42,
+            "from": {
+                "id": 1087968824,
+                "is_bot": True,
+                "first_name": "Group",
+                "username": "GroupAnonymousBot",
+            },
+            "chat": {
+                "id": -1001417735217,
+                "title": "Opsdroid-test Chat",
+                "type": "supergroup",
+            },
+            "date": 1603992829,
+            "location": {"latitude": 56.159849, "longitude": -5.230604},
+        },
+    }
+
+    event_location = telegram_events.Location(
+        {"location": {"latitude": 56.159849, "longitude": -5.230604}},
+        56.159849,
+        -5.230604,
+    )
+
+    await connector.telegram_webhook_handler(mock_request)
+
+    assert event_location.latitude == 56.159849
+    assert event_location.longitude == -5.230604
+
+
+@pytest.mark.asyncio
+async def test_poll_event(opsdroid):
+    connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
+
+    mock_request = amock.CoroutineMock()
+    mock_request.json = amock.CoroutineMock()
+    mock_request.json.return_value = {
+        "update_id": 639974103,
+        "message": {
+            "message_id": 44,
+            "from": {
+                "id": 1087968824,
+                "is_bot": True,
+                "first_name": "Group",
+                "username": "GroupAnonymousBot",
+            },
+            "chat": {
+                "id": -1001417735217,
+                "title": "Opsdroid-test Chat",
+                "type": "supergroup",
+            },
+            "date": 1603993170,
+            "poll": {
+                "id": "5825895662671101957",
+                "question": "Test",
+                "options": [
+                    {"text": "Test", "voter_count": 0},
+                    {"text": "Testing", "voter_count": 0},
+                ],
+                "total_voter_count": 0,
+                "is_closed": False,
+                "is_anonymous": True,
+                "type": "regular",
+                "allows_multiple_answers": False,
+            },
+        },
+    }
+
+    poll_event = telegram_events.Poll(
+        {
+            "question": "question",
+            "option": ["option1", "option2"],
+            "total_voter_count": 1,
+        },
+        "question",
+        ["option1", "option2"],
+        1,
+    )
+
+    await connector.telegram_webhook_handler(mock_request)
+
+    assert poll_event.question == "question"
+    assert poll_event.options == ["option1", "option2"]
+    assert poll_event.total_votes == 1
+
+
+@pytest.mark.asyncio
+async def test_contact_event(opsdroid):
+    connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
+
+    mock_request = amock.CoroutineMock()
+    mock_request.json = amock.CoroutineMock()
+    mock_request.json.return_value = {
+        "update_id": 1,
+        "message": {
+            "chat": {"id": 321},
+            "from": {"id": 123},
+            "contact": {"phone_number": 123456, "first_name": "opsdroid"},
+        },
+    }
+
+    contact_event = telegram_events.Contact(
+        {"phone_number": 123456, "first_name": "opsdroid"}, 123456, "opsdroid"
+    )
+
+    await connector.telegram_webhook_handler(mock_request)
+
+    assert contact_event.first_name == "opsdroid"
+    assert contact_event.phone_number == 123456
+
+
+@pytest.mark.asyncio
+async def test_unparseable_event(opsdroid, caplog):
+    caplog.set_level(logging.DEBUG)
+
+    opsdroid.config["web"] = {"base-url": "https://test.com"}
+
+    connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
+
+    message = {
+        "update_id": 1,
+        "message": {
+            "message_id": 1279,
+            "from": {
+                "id": 639889348,
+                "is_bot": False,
+                "first_name": "Fabio",
+                "last_name": "Rosado",
+                "username": "FabioRosado",
+                "language_code": "en",
+            },
+            "chat": {
+                "id": 639889348,
+                "first_name": "Fabio",
+                "last_name": "Rosado",
+                "username": "FabioRosado",
+                "type": "private",
+            },
+            "date": 1604013500,
+            "sticker": {
+                "width": 512,
+                "height": 512,
+                "emoji": "👌",
+                "set_name": "HotCherry",
+                "is_animated": True,
+                "file_size": 42311,
+            },
+        },
+    }
+    event = await connector.handle_messages(message, "opsdroid", 0, 1)
+
+    assert "Received unparsable event" in caplog.text
+    assert event is None
+
+
+@pytest.mark.asyncio
+async def test_channel_post(opsdroid):
+    connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
+
+    mock_request = amock.CoroutineMock()
+    mock_request.json = amock.CoroutineMock()
+    mock_request.json.return_value = {
+        "update_id": 639974037,
+        "channel_post": {
+            "message_id": 4,
+            "chat": {"id": -1001474709998, "title": "Opsdroid-test", "type": "channel"},
+            "date": 1603817533,
+            "text": "dance",
+        },
+    }
+
+    message = opsdroid_events.Message("dance", 4, opsdroid)
+    await connector.telegram_webhook_handler(mock_request)
+
+    assert message.text == "dance"
+
+
+@pytest.mark.asyncio
+async def test_parse_user_no_permissions(opsdroid):
+    mock_request = amock.CoroutineMock()
+    mock_request.json = amock.CoroutineMock()
+    mock_request.json.return_value = {
+        "update_id": 639974077,
+        "message": {
+            "message_id": 31,
+            "from": {"id": 100000, "is_bot": False, "username": "FabioRosado"},
+            "chat": {
+                "id": -10014170000,
+                "title": "Opsdroid-test Chat",
+                "type": "supergroup",
+            },
+            "date": 1603827368,
+            "text": "hi",
+        },
+    }
+
+    connector_config["whitelisted-users"] = [1, "AllowedUser"]
+    connector_config["reply-unauthorized"] = True
+
+    connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
+
+    with amock.patch.object(connector, "send_message") as mocked_send_message:
+
+        await connector.telegram_webhook_handler(mock_request)
+
+        assert mocked_send_message.called
+
+
+@pytest.mark.asyncio
+async def test_parse_user_permissions(opsdroid):
+    mock_request = amock.CoroutineMock()
+    mock_request.json = amock.CoroutineMock()
+    mock_request.json.return_value = {
+        "update_id": 639974077,
+        "message": {
+            "message_id": 31,
+            "from": {"id": 100000, "is_bot": False, "username": "FabioRosado"},
+            "chat": {
+                "id": -10014170000,
+                "title": "Opsdroid-test Chat",
+                "type": "supergroup",
+            },
+            "date": 1603827368,
+            "text": "hi",
+        },
+    }
+
+    connector_config["whitelisted-users"] = ["FabioRosado", 100000]
+
+    connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
+
+    with amock.patch.object(connector.opsdroid, "parse") as mocked_parse:
+
+        await connector.telegram_webhook_handler(mock_request)
+
+        assert mocked_parse.called

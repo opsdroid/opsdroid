@@ -19,7 +19,6 @@ from opsdroid.events import (
 )
 from . import events as telegram_events
 
-
 _LOGGER = logging.getLogger(__name__)
 
 CONFIG_SCHEMA = {
@@ -69,9 +68,8 @@ class ConnectorTelegram(Connector):
         the bot is set up and where the message is coming
         from.
 
-        Since Telegram sends different payloads, depending of
-        where the message is being sent from, this method tries
-        to handle all the cases.
+        Since Telegram sends different payloads, depending of where the message is
+        being sent from, this method tries to handle all the cases.
 
         If the message came from a channel, we use either the ``author_signature``
         or the bot name for the user and use the ``message_id`` for the ``user_id``,
@@ -215,11 +213,10 @@ class ConnectorTelegram(Connector):
         payload = await request.json()
         user, user_id = self.get_user(payload, self.bot_name)
 
-        _LOGGER.info(payload)
         if payload.get("edited_message"):
             event = EditedMessage(
-                text=payload["text"],
-                target=payload["chat"]["id"],
+                text=payload["edited_message"]["text"],
+                target=payload["edited_message"]["chat"]["id"],
                 user=user,
                 user_id=user_id,
                 connector=self,
@@ -346,7 +343,7 @@ class ConnectorTelegram(Connector):
                 target=message["chat"]["id"],
                 poll=message["poll"],
                 question=message["poll"]["question"],
-                options=message["poll"]["option"],
+                options=message["poll"]["options"],
                 total_votes=message["poll"]["total_voter_count"],
                 connector=self,
                 raw_event=message,
