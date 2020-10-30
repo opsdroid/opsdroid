@@ -119,3 +119,5 @@ $ opsdroid start
 ## Next steps
 
 Now that you know the basics you should check out the [project overview](../overview) to learn about how Opsdroid works and everything that it offers.
+
+You can also try Opsdroid in the [Opsdroid Playground](https://playground.opsdroid.dev).
