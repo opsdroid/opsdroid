@@ -6,7 +6,7 @@ class Poll(events.Event):
     """Event class that triggers when a poll is sent."""
 
     def __init__(self, poll, question, options, total_votes, *args, **kwargs):
-        """This event contains some attributes that you can access.
+        """Contain some attributes that you can access.
 
         - ``poll`` - The extracted poll details from the payload
         - ``question`` - The question asked in the poll
@@ -29,7 +29,7 @@ class Contact(events.Event):
     """Event class that triggers when a contact is sent."""
 
     def __init__(self, contact, phone_number, first_name, *args, **kwargs):
-        """This event contains some attributes that you can access.
+        """Contain some attributes that you can access.
 
         - ``contact`` - The extracted contact details from the payload
         - ``phone_numer`` - Extracted phone number from contact
@@ -50,7 +50,7 @@ class Location(events.Event):
     """Event class that triggers when a location message is sent."""
 
     def __init__(self, location, latitude, longitude, *args, **kwargs):
-        """This event contains some attributes that you can access.
+        """Contain some attributes that you can access.
 
         - ``location`` - The extracted location details from the payload
         - ``latitude`` - Extracted latitude from the payload
