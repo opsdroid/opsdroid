@@ -31,7 +31,7 @@ CONFIG_SCHEMA = {
 
 
 class ConnectorTelegram(Connector):
-    """A connector the the char service Telegram."""
+    """A connector for the chat service Telegram."""
 
     def __init__(self, config, opsdroid=None):
         """Create the connector.
@@ -50,10 +50,18 @@ class ConnectorTelegram(Connector):
         self.latest_update = None
         self.whitelisted_users = config.get("whitelisted-users", None)
         self.session = None
-        self.webhook_secret = secrets.token_urlsafe(18)
-        self.base_url = opsdroid.config["web"]["base-url"]
+        self.webhook_secret = secrets.token_urlsafe(32)
         self.webhook_endpoint = f"/connector/{self.name}/{self.webhook_secret}"
         self.token = config["token"]
+        try:
+            self.base_url = opsdroid.config["web"]["base-url"]
+        except KeyError:
+            self.base_url = None
+            _LOGGER.error(
+                _(
+                    "The parameter base-url is missing from configuration, unable to use the Telegram connector"
+                )
+            )
 
     @staticmethod
     def get_user(response, bot_name):
@@ -78,6 +86,9 @@ class ConnectorTelegram(Connector):
         Args:
             response (dict): Response returned by aiohttp.ClientSession.
             bot_name (str): Name of the bot used in opsdroid configuration.
+
+        Return:
+            string, string: Extracted username and user id
 
         """
         user = None
@@ -138,33 +149,19 @@ class ConnectorTelegram(Connector):
         """
         return "https://api.telegram.org/bot{}/{}".format(self.token, method)
 
-    async def delete_webhook(self):
-        """Delete Telegram webhook.
-
-        TODO: Update docstring
-        The Telegram api will thrown an 409 error when an webhook is
-        active and a call to getUpdates is made. This method will
-        try to request the deletion of the webhook to make the getUpdate
-        request possible.
-
-        """
-        _LOGGER.debug(_("Sending deleteWebhook request to Telegram..."))
-        async with aiohttp.ClientSession() as session:
-            resp = await session.get(self.build_url("deleteWebhook"))
-
-            if resp.status == 200:
-                _LOGGER.debug(_("Telegram webhook deleted successfully."))
-            else:
-                _LOGGER.debug(_("Unable to delete webhook."))
-
     async def connect(self):
-        """Connect to Telegram.
+        """Create route and subscribe to Telegram webhooks.
 
-        TODO: Tidy up this docstring
+        The first thing we do on connect is to set up the route to
+        receive events from Telegram, we also pass some arguments to
+        the webhook to get events from messages, edited messages, channel
+        posts and update id which is basically the event id.
 
-        This method is not an authorization call. It basically
-        checks if the API token was provided and makes an API
-        call to Telegram and evaluates the status of the call.
+        One thing that is worth mentioning here, is that Telegram doesn't
+        implement a request authenticity policy, instead they suggest that we
+        use our token on the webhook route, but using the token on the url doesn't
+        seem like a good idea, we are instead generating a strong pseudo-random string
+        using the ``secrets`` library and add that string to our webhook route.
 
         """
         self.opsdroid.web_server.web_app.router.add_post(
@@ -172,29 +169,53 @@ class ConnectorTelegram(Connector):
         )
 
         async with aiohttp.ClientSession() as session:
-            payload = {
-                "url": f"{self.base_url}{self.webhook_endpoint}",
-                "allowed_updates": [
-                    "messages",
-                    "edited_message",
-                    "channel_post",
-                    "edited_channel_post",
-                    "update_id",
-                ],
-            }
+            if self.base_url:
+                payload = {
+                    "url": f"{self.base_url}{self.webhook_endpoint}",
+                    "allowed_updates": [
+                        "messages",
+                        "edited_message",
+                        "channel_post",
+                        "edited_channel_post",
+                        "update_id",
+                    ],
+                }
 
-            response = await session.post(self.build_url("setWebhook"), params=payload)
-
-            _LOGGER.info(response)
-            if response.status > 200:
-                _LOGGER.info(
-                    _("Error when connection to Telegram Webhook: - %s - %s"),
-                    response.status,
-                    response.text,
+                response = await session.post(
+                    self.build_url("setWebhook"), params=payload
                 )
 
+                _LOGGER.info(response)
+                if response.status >= 400:
+                    _LOGGER.info(
+                        _("Error when connection to Telegram Webhook: - %s - %s"),
+                        response.status,
+                        response.text,
+                    )
+
     async def telegram_webhook_handler(self, request):
-        """Handle webhook request."""
+        """Handle event from Telegram webhooks.
+
+        This method will try to handle three different kinds of events:
+
+        - Edited messages
+        - Messages
+        - Channel posts
+
+        Since the payload is pretty much the same both for channel posts and
+        messages we are using the same method to handle both of these events.
+
+        We also check the permissions of the user that talked with the bot, if
+        the user has permissions then the event is parsed, if not we either send
+        a message saying that the user can't talk with the bot or just keep silent.
+
+        Args:
+            request (aiohttp.web.Request): Request made to the post route created for webhook subscription.
+
+        Return:
+            aiohttp.web.Response: Send a ``received`` message and a status 200 back to Telegram.
+
+        """
         payload = await request.json()
         user, user_id = self.get_user(payload, self.bot_name)
 
@@ -223,7 +244,12 @@ class ConnectorTelegram(Connector):
         else:
             if self.config.get("reply-unauthorized"):
                 await self.send_message(
-                    Message(text="Sorry, you're not allowed to speak with this bot.")
+                    Message(
+                        text=f"Sorry, {user} you're not allowed to speak with this bot.",
+                        connector=self,
+                        user=user,
+                        user_id=user_id,
+                    )
                 )
 
         return aiohttp.web.Response(text=json.dumps("Received"), status=200)
@@ -231,12 +257,27 @@ class ConnectorTelegram(Connector):
     async def handle_messages(self, message, user, user_id, update_id):
         """Handle text messages received from Telegram.
 
-        Telegram sends three types of text messages:
-            - ``message`` - which is a plain text message received by DM
-            - ``edited_message`` - any message that was edited
-            - ``channel_post`` - message sent inside a channel
+        Here we create our opsdroid events depending of the type of message
+        that we get from Telegram.
+
+        Unfortunately, telegram doesn't give much information when the message
+        is an image, video, sticker or documents. It only give us back the file id,
+        sizes, formats and that's it. Since we can't really use any of this information
+        to make opsdroid parse the message, we decided to just log a message in debug mode
+        with the payload and return None.
+
+        Args:
+            message (dict): The payload received from Telegram
+            user (string): The name of the user that sent the message
+            user_id (int): The unique user id from the user that send the message
+            update_id (int): The unique id for the event sent by Telegram
+
+        Return:
+            opsdroid.event or None: Will only return none if it's an event we can't parse.
 
         """
+        event = None
+
         if message.get("new_chat_member"):
             event = JoinGroup(
                 user=user,
@@ -279,12 +320,6 @@ class ConnectorTelegram(Connector):
                 raw_event=message,
             )
 
-        if message.get("photo") or message.get("document") or message.get("video"):
-            _LOGGER.debug(
-                _("Received image/file/video from Telegram, unable to parse this data.")
-            )
-            return
-
         if message.get("text"):
             event = Message(
                 text=emoji.demojize(message["text"]),
@@ -301,6 +336,8 @@ class ConnectorTelegram(Connector):
                 event_id=update_id,
                 target=message["chat"]["id"],
                 location=message["location"],
+                latitude=message["location"]["latitude"],
+                longitude=message["location"]["longitude"],
                 connector=self,
                 raw_event=message,
             )
@@ -312,6 +349,9 @@ class ConnectorTelegram(Connector):
                 event_id=update_id,
                 target=message["chat"]["id"],
                 poll=message["poll"],
+                question=message["poll"]["question"],
+                options=message["poll"]["option"],
+                total_votes=message["poll"]["total_voter_count"],
                 connector=self,
                 raw_event=message,
             )
@@ -323,11 +363,18 @@ class ConnectorTelegram(Connector):
                 event_id=update_id,
                 target=message["chat"]["id"],
                 contact=message["contact"],
+                phone_number=message["contact"]["phone_number"],
+                first_name=message["contact"]["first_name"],
                 connector=self,
                 raw_event=message,
             )
 
-        return event
+        if event:
+            return event
+
+        _LOGGER.debug(
+            _("Received unparsable event from Telegram. Payload: %s"), message
+        )
 
     async def listen(self):
         """Listen method of the connector.
@@ -409,10 +456,17 @@ class ConnectorTelegram(Connector):
             _LOGGER.debug(_("Unable to send file - Status Code %s."), resp.status)
 
     async def disconnect(self):
-        """Disconnect from Telegram.
+        """Delete active webhook.
 
-        Stops the infinite loop found in self._listen(), closes
-        aiohttp session.
+        If we terminate opsdroid, we should delete the active webhook, otherwise
+        Telegram will keep pinging out webhook for a few minutes before giving up.
 
         """
-        await self.delete_webhook()
+        _LOGGER.debug(_("Sending deleteWebhook request to Telegram..."))
+        async with aiohttp.ClientSession() as session:
+            resp = await session.get(self.build_url("deleteWebhook"))
+
+            if resp.status == 200:
+                _LOGGER.debug(_("Telegram webhook deleted successfully."))
+            else:
+                _LOGGER.debug(_("Unable to delete webhook..."))
