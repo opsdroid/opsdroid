@@ -194,8 +194,8 @@ connectors:
 #    # required
 #    token: "123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ-ZYXWVUT"  # Telegram bot token
 #    # optional
-#    update-interval: 0.5  # Interval between checking for messages
-#    default-user: user1  # Default user to send messages to (overrides default room in connector)
+#    bot-name: opsdroid  # Name to be used by the bot in some replies, defaults to opsdroid
+#    reply-unauthorized: True # Should the bot reply to unauthorized users?
 #    whitelisted-users:  # List of users who can speak to the bot, if not set anyone can speak
 #      - user1
 #      - user2
