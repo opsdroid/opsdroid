@@ -278,7 +278,7 @@ class ConnectorMatrix(Connector):
                         if event.source["type"] == "m.room.member":
                             event.source["content"] = event.content
                         if isinstance(event, nio.MegolmEvent):
-                            _LOGGER.error(f"Failed to decrypt event {event}")
+                            _LOGGER.error(f"Failed to decrypt event {event}")  # pragma: nocover
                         return await self._event_creator.create_event(
                             event.source, roomid
                         )
