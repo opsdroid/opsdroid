@@ -47,9 +47,7 @@ class ConnectorTelegram(Connector):
         self.name = "telegram"
         self.bot_name = config.get("bot-name", "opsdroid")
         self.opsdroid = opsdroid
-        self.latest_update = None
         self.whitelisted_users = config.get("whitelisted-users", None)
-        self.session = None
         self.webhook_secret = secrets.token_urlsafe(32)
         self.webhook_endpoint = f"/connector/{self.name}/{self.webhook_secret}"
         self.token = config["token"]
@@ -103,20 +101,19 @@ class ConnectorTelegram(Connector):
 
         if message:
             from_user = message.get("from")
-            forwarded = message.get("forward_from_chat")
-
             user_id = from_user.get("id")
 
+            if message.get("forward_from_chat"):
+                user = message.get("forward_signature", bot_name)
+
+                return user, user_id
+
             if from_user:
-                # TODO: Try to refactor these ifs
                 if "username" in from_user:
                     user = from_user.get("username")
 
                 elif "first_name" in from_user:
                     user = from_user.get("first_name")
-
-            if forwarded:
-                user = message.get("forward_signature", bot_name)
 
         return user, user_id
 
@@ -185,10 +182,9 @@ class ConnectorTelegram(Connector):
                     self.build_url("setWebhook"), params=payload
                 )
 
-                _LOGGER.info(response)
                 if response.status >= 400:
-                    _LOGGER.info(
-                        _("Error when connection to Telegram Webhook: - %s - %s"),
+                    _LOGGER.error(
+                        _("Error when connecting to Telegram Webhook: - %s - %s"),
                         response.status,
                         response.text,
                     )
@@ -425,11 +421,12 @@ class ConnectorTelegram(Connector):
             content_type="multipart/form-data",
         )
 
-        resp = await self.session.post(self.build_url("sendPhoto"), data=data)
-        if resp.status == 200:
-            _LOGGER.debug(_("Sent %s image successfully."), file_event.name)
-        else:
-            _LOGGER.debug(_("Unable to send image - Status Code %s."), resp.status)
+        async with aiohttp.ClientSession() as session:
+            resp = await session.post(self.build_url("sendPhoto"), data=data)
+            if resp.status == 200:
+                _LOGGER.debug(_("Sent %s image successfully."), file_event.name)
+            else:
+                _LOGGER.debug(_("Unable to send image - Status Code %s."), resp.status)
 
     @register_event(File)
     async def send_file(self, file_event):
@@ -449,11 +446,12 @@ class ConnectorTelegram(Connector):
             content_type="multipart/form-data",
         )
 
-        resp = await self.session.post(self.build_url("sendDocument"), data=data)
-        if resp.status == 200:
-            _LOGGER.debug(_("Sent %s file successfully."), file_event.name)
-        else:
-            _LOGGER.debug(_("Unable to send file - Status Code %s."), resp.status)
+        async with aiohttp.ClientSession() as session:
+            resp = await session.post(self.build_url("sendDocument"), data=data)
+            if resp.status == 200:
+                _LOGGER.debug(_("Sent %s file successfully."), file_event.name)
+            else:
+                _LOGGER.debug(_("Unable to send file - Status Code %s."), resp.status)
 
     async def disconnect(self):
         """Delete active webhook.
