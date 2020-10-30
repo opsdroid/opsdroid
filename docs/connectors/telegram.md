@@ -6,7 +6,7 @@ A connector for [Telegram](https://telegram.org/).
 
 - A Telegram account - to create a bot
 - A Bot API Token
-- A secure url where opsdroid is running (could be forwarded by ngrok)
+- A secure URL where opsdroid is running (could be forwarded by ngrok)
 
 _Note: To register a new bot, open Telegram, write **@BotFather** and type `/newbot`.
 Provide a name and username (ending in bot) and BotFather will give you your API Token._
@@ -23,7 +23,7 @@ connectors:
     token: "123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ-ZYXWVUT"  # Telegram bot token
     # optional
     bot-name: opsdroid # Name to be used by the bot in some replies, defaults to opsdroid
-    reply-unauthorized: false # Should the bot reply to unauthorized users?
+    reply-unauthorized: True # Should the bot reply to unauthorized users?
     whitelisted-users:  # List of users who can speak to the bot, if not set anyone can speak
       - user1
       - user2
@@ -56,11 +56,13 @@ Unread messages
 Hi FabioRosado
 ```
 
+If you are using a list of users that can interact with the bot by using the configuration parameter `whitelisted-users`, you might want to set the parameter `reply-unauthorized` to `True` to make opsdroid reply to an unauthorized user, that the user can't interact with the bot.
+
 ### Groups
 
 Opsdroid will listen to every message sent to a group, so it's a good idea to set a list of users that can interact with the bot if you are using opsdroid skills that some users shouldn't be able to trigger.
 
-To set up a list of users that can interact with the bot, you can set the option configuration parameter `whitelisted-users` - you should try to use the user `id` obtained from Telegram response. Also, you might want to set the configuration parameter `reply-unauthorized` to `false` so the bot doesn't send a message every time someone says something to the group.
+To set up a list of users that can interact with the bot, you can set the option configuration parameter `whitelisted-users` - you should try to use the user `id` obtained from Telegram response. Also, if you set up the configuration parameter `reply-unauthorized` you might want to set it to `false` so the bot doesn't send a message every time someone says something to the group.
 
 
 ### Channels
@@ -69,7 +71,7 @@ By default Telegram doesn't show the name of the user that sends messages to a c
 
 _**Note:** If you have a discussion group, opsdroid will reply to any command sent to a channel in that group._
 
-## White listing users
+## Whitelisting users
 
 This is an optional config option that you can include on your `config.yaml` to prevent unauthorized users to interact with your bot.
 Currently, you can specify a user `nickname` or a `userID`. Using the `userID` method is preferable as it will increase the security of the connector since users can't change this ID.
@@ -105,11 +107,10 @@ To find a `userID` by a private message, set the `logging` level to `debug` and 
 
 Use the `id` value from the `message["from"]` field and add it to your `whitelisted-users` config option.
 
-_**Note:** If you have the bot working in a group, you will want to set the config parameter `reply-unauthorized` to false, to prevent the bot to trigger with each message and spam your group._
 
 ## Parsing images/videos/files
 
-Unfortunately we are unable to parse any of these formats, the reason for that is because Telegram doesn't send us any real useful information that we can feed to opsdroid. When you send an image to a channel, Telegram send us a file id, format and sizes, but no url or anything that we could use to download the image.
+Unfortunately, we are unable to parse any of these formats, the reason for that is because Telegram doesn't send us any real useful information that we can feed to opsdroid. When you send an image to a channel, Telegram sends us a file id, format and sizes, but no URL or anything that we could use to download the image.
 
 ## Events Available
 
