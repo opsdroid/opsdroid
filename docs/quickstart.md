@@ -8,7 +8,7 @@ There are a few terms you will need to be familiar with when using Opsdroid. Her
 terms used in this document.
 
 - **Connector** - A module to connect to a chat service like Slack.
-- **Skill** - Skills are functions that you write that get called when something specific happens in your chat service.
+- **Skill** - Skills are functions/classes that you write that get called when something specific happens in your chat service.
 - **Matcher** - A trigger for your skill, like someone saying a phrase in the chat.
 
 ## Installation
@@ -49,7 +49,6 @@ Now we can run Opsdroid for the first time.
 ```shell
 $ opsdroid start
 INFO opsdroid.logging: ========================================
-WARNING opsdroid: 'welcome-message: true/false' is missing in configuration.yaml
 WARNING opsdroid.loader: No databases in configuration. This will cause skills which store things in memory to lose data when opsdroid is restarted.
 INFO opsdroid.connector.slack: Connecting to Slack.
 INFO opsdroid.connector.slack: Connected successfully.
