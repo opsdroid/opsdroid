@@ -2,6 +2,24 @@
 
 A connector for [Telegram](https://telegram.org/).
 
+
+## ⚠️ **Breaking Changes introduced in opsdroid 0.20.0**
+
+We have moved this connector from calling the API to get updates, to subscribe to webhook events. This means that if you are running this connector in older versions, the connector will receiving updates from Telegram.
+
+### Migration requirements
+
+- expose opsdroid to the web through a secure connection (https) - you can use ngrok to forward your traffic through a secure url.
+
+- Include the following in your opsdroid configuration
+
+```yaml
+web:
+  base-url: <secure url/ngrok url>
+```
+
+> If you need any help migrating, please asks on our [matrix channel](https://riot.im/app/#/room/#opsdroid-general:matrix.org).
+
 ## Requirements
 
 - A Telegram account - to create a bot
@@ -160,7 +178,7 @@ The Telegram Connector contains a few events that you can access on your skills.
 ## Reference
 
 ```eval_rst
-.. autoclass:: opsdroid.connector.Telegram.ConnectorTelegram
+.. autoclass:: opsdroid.connector.telegram.ConnectorTelegram
  :members:
 ```
 
