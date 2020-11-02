@@ -24,7 +24,7 @@ def test_init_no_base_url(opsdroid, caplog):
     assert connector.whitelisted_users is None
     assert connector.webhook_secret is not None
     assert connector.base_url is None
-    assert "base-url is missing" in caplog.text
+    assert "Breaking changes introduced" in caplog.text
 
 
 def test_init(opsdroid):
