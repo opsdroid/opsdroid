@@ -54,9 +54,9 @@ class ConnectorTelegram(Connector):
             self.base_url = opsdroid.config["web"]["base-url"]
         except KeyError:
             self.base_url = None
-            _LOGGER.error(
+            _LOGGER.warning(
                 _(
-                    "The parameter base-url is missing from configuration, unable to use the Telegram connector"
+                    "Breaking changes introduced in 0.20.0 - you must expose opsdroid to the web and add 'base-url' to the 'web' section of your configuration. Read more on the docs: https://docs.opsdroid.dev/en/stable/connectors/telegram.html"
                 )
             )
 
