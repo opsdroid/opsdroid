@@ -12,7 +12,7 @@ import pytest
 import opsdroid.connector.matrix.events as matrix_events
 from opsdroid.core import OpsDroid
 from opsdroid import events
-from opsdroid.connector.matrix import ConnectorMatrix
+from opsdroid.connector.matrix.connector import ConnectorMatrix, MatrixException
 from opsdroid.connector.matrix.create_events import MatrixEventCreator
 from opsdroid.cli.start import configure_lang  # noqa
 
@@ -650,29 +650,36 @@ class TestConnectorMatrixAsync:
             linked_event=events.Message("hello", event_id="$hello"),
             connector=connector,
         )
+
+        def expected_content(message):
+            new_content = connector._get_formatted_message_body(message.text)
+            event_id = (
+                message.linked_event
+                if isinstance(message.linked_event, str)
+                else message.linked_event.event_id
+            )
+            return {
+                "msgtype": "m.text",
+                "m.new_content": new_content,
+                "body": f"* {new_content['body']}",
+                "m.relates_to": {
+                    "rel_type": "m.replace",
+                    "event_id": event_id,
+                },
+            }
+
         with amock.patch(
             api_string.format("room_send")
         ) as patched_send, OpsDroid() as _:
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result({})
 
-            new_content = connector._get_formatted_message_body(message.text)
-            content = {
-                "msgtype": "m.text",
-                "m.new_content": new_content,
-                "body": f"* {new_content['body']}",
-                "m.relates_to": {
-                    "rel_type": "m.replace",
-                    "event_id": message.linked_event.event_id,
-                },
-            }
-
             await connector.send(message)
 
             patched_send.assert_called_once_with(
                 message.target,
                 "m.room.message",
-                content,
+                expected_content(message),
                 ignore_unverified_devices=True,
             )
 
@@ -684,17 +691,18 @@ class TestConnectorMatrixAsync:
             patched_send.assert_called_with(
                 message.target,
                 "m.room.message",
-                content,
+                expected_content(message),
                 ignore_unverified_devices=True,
             )
 
             # Test responding to an edit
-            await message.respond(events.EditedMessage("hello"))
+            edited_message = events.EditedMessage("hello")
+            await message.respond(edited_message)
 
             patched_send.assert_called_with(
                 message.target,
                 "m.room.message",
-                content,
+                expected_content(edited_message),
                 ignore_unverified_devices=True,
             )
 
@@ -1259,20 +1267,16 @@ class TestConnectorMatrixAsync:
             patched_alias.return_value.set_result(
                 nio.RoomPutStateError(message=error_message, status_code=error_code)
             )
-            caplog.clear()
-            resp = await connector._send_room_address(
-                events.RoomAddress(target="!test:localhost", address="hello")
-            )
-            assert [
-                f"Error while setting room alias: {error_message} (status code {error_code})"
-            ] == [rec.message for rec in caplog.records]
+            with pytest.raises(MatrixException):
+                resp = await connector._send_room_address(
+                    events.RoomAddress(target="!test:localhost", address="hello")
+                )
 
             error_code = 409
             patched_alias.return_value = asyncio.Future()
             patched_alias.return_value.set_result(
                 nio.RoomPutStateError(message=error_message, status_code=error_code)
             )
-            caplog.clear()
             resp = await connector._send_room_address(
                 events.RoomAddress(target="!test:localhost", address="hello")
             )
@@ -1280,7 +1284,7 @@ class TestConnectorMatrixAsync:
                 rec.message for rec in caplog.records
             ]
 
-    async def test_already_in_room(self, caplog, connector):
+    async def test_user_invite_unknown_error(self, caplog, connector):
         with amock.patch(api_string.format("room_invite")) as patched_invite:
 
             patched_invite.return_value = asyncio.Future()
@@ -1290,14 +1294,16 @@ class TestConnectorMatrixAsync:
                 )
             )
 
-            caplog.clear()
-            resp = await connector._send_user_invitation(
-                events.UserInvite(target="!test:localhost", user_id="@neo:matrix.org")
-            )
-            assert resp.message == "@neo.matrix.org is already in the room"
-            assert [
-                "Error while inviting user @neo:matrix.org to room !test:localhost: @neo.matrix.org is already in the room (status code 400)"
-            ] == [rec.message for rec in caplog.records]
+            with pytest.raises(MatrixException) as exc:
+                await connector._send_user_invitation(
+                    events.UserInvite(
+                        target="!test:localhost", user_id="@neo:matrix.org"
+                    )
+                )
+                assert exc.nio_error.message == "@neo.matrix.org is already in the room"
+
+    async def test_already_in_room_warning(self, caplog, connector):
+        with amock.patch(api_string.format("room_invite")) as patched_invite:
 
             patched_invite.return_value = asyncio.Future()
             patched_invite.return_value.set_result(
@@ -1305,10 +1311,12 @@ class TestConnectorMatrixAsync:
                     message="@neo.matrix.org is already in the room", status_code=403
                 )
             )
-            resp = await connector._send_user_invitation(
+            await connector._send_user_invitation(
                 events.UserInvite(target="!test:localhost", user_id="@neo:matrix.org")
             )
-            assert resp.message == "@neo.matrix.org is already in the room"
+            assert ["@neo:matrix.org is already in the room, ignoring."] == [
+                rec.message for rec in caplog.records
+            ]
 
     async def test_invalid_role(self, connector):
         with pytest.raises(ValueError):
