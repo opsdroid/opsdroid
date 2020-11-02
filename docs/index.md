@@ -26,8 +26,9 @@
 ---
 
 <p align="center">
-  <a href="https://docs.opsdroid.dev/en/stable/installation.html#quickstart">Quick Start</a> •
+  <a href="https://docs.opsdroid.dev/en/stable/quickstart.html">Quick Start</a> •
   <a href="https://docs.opsdroid.dev">Documentation</a> •
+  <a href="https://playground.opsdroid.dev">Playground</a> •
   <a href="https://medium.com/opsdroid">Blog</a> •
   <a href="https://riot.im/app/#/room/#opsdroid-general:matrix.org">Community</a>
 </p>
@@ -38,19 +39,13 @@ This framework allows you to take events from chat services and other sources an
 
 Help support opsdroid in one click by pressing [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Check%20out%20opsdroid,%20an%20awesome%20open%20source%20chatbot%20framework%20written%20in%20Python.&url=https://opsdroid.github.io/&via=opsdroid&hashtags=chatbots,chatops,devops,automation,opensource)
 
-## Quickstart
-
-```bash
-$ pip3 install opsdroid
-$ opsdroid start
-```
-
 ## Documentation
 
 ```eval_rst
 .. toctree::
    :maxdepth: 2
 
+   quickstart
    overview
    installation
    skills/index
