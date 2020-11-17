@@ -191,7 +191,7 @@ class ConnectorSlack(Connector):
 
     @register_event(EditedBlocks)
     async def _edit_blocks(self, blocks):
-        """Edit a particular block"""
+        """Edit a particular block."""
         _LOGGER.debug(
             _("Editing interactive blocks with timestamp: '%s' in room  %s."),
             blocks.linked_event,
