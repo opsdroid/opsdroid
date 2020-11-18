@@ -593,53 +593,53 @@ class TestConnectorSlackAsync(asynctest.TestCase):
 
     async def test_send_room_creation(self):
         connector = ConnectorSlack({"token": "abc123"}, opsdroid=self.od)
-        connector.slack.api_call = amock.CoroutineMock()
+        connector.slack_granular.api_call = amock.CoroutineMock()
         await connector.send(events.NewRoom(name="mynewroom"))
-        connector.slack.api_call.assert_called_once_with(
+        connector.slack_granular.api_call.assert_called_once_with(
             "conversations.create", data={"name": "mynewroom"}
         )
 
     async def test_send_room_name_set(self):
         connector = ConnectorSlack({"token": "abc123"}, opsdroid=self.od)
-        connector.slack.api_call = amock.CoroutineMock()
+        connector.slack_granular.api_call = amock.CoroutineMock()
         await connector.send(
             events.RoomName(target="an-existing-room", name="my-new-room-name")
         )
-        connector.slack.api_call.assert_called_once_with(
+        connector.slack_granular.api_call.assert_called_once_with(
             "conversations.rename",
             data={"channel": "an-existing-room", "name": "my-new-room-name"},
         )
 
     async def test_send_user_invitation(self):
         connector = ConnectorSlack({"token": "abc123"}, opsdroid=self.od)
-        connector.slack.api_call = amock.CoroutineMock()
+        connector.slack_granular.api_call = amock.CoroutineMock()
         await connector.send(
             events.UserInvite(
                 user="User McUserface", user_id="UMcU42", target="an-existing-room"
             )
         )
-        connector.slack.api_call.assert_called_once_with(
+        connector.slack_granular.api_call.assert_called_once_with(
             "conversations.invite",
             data={"channel": "an-existing-room", "users": "UMcU42"},
         )
 
     async def test_join_room(self):
         connector = ConnectorSlack({"token": "abc123"}, opsdroid=self.od)
-        connector.slack.api_call = amock.CoroutineMock()
+        connector.slack_granular.api_call = amock.CoroutineMock()
         await connector.send(events.JoinRoom(target="an-existing-room"))
-        connector.slack.api_call.assert_called_once_with(
+        connector.slack_granular.api_call.assert_called_once_with(
             "conversations.join", data={"channel": "an-existing-room"}
         )
 
     async def test_send_room_description(self):
         connector = ConnectorSlack({"token": "abc123"}, opsdroid=self.od)
-        connector.slack.api_call = amock.CoroutineMock()
+        connector.slack_granular.api_call = amock.CoroutineMock()
         await connector.send(
             events.RoomDescription(
                 target="an-existing-room", description="A new description"
             )
         )
-        connector.slack.api_call.assert_called_once_with(
+        connector.slack_granular.api_call.assert_called_once_with(
             "conversations.setTopic",
             data={"channel": "an-existing-room", "topic": "A new description"},
         )
