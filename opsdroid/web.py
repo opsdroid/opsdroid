@@ -22,6 +22,15 @@ class Web:
             self.config = self.opsdroid.config["web"]
         except KeyError:
             self.config = {}
+        self.base_url = self.config.get("base-url")
+        if not self.base_url:
+            self.base_url = "{proto}://{host}{port}".format(
+                proto="http" if self.get_ssl_context is None else "https",
+                host=self.get_host,
+                port=":{}".format(self.get_port)
+                if self.get_port not in (80, 443)
+                else "",
+            )
         self.web_app = web.Application()
         self.runner = web.AppRunner(self.web_app)
         self.site = None
@@ -91,12 +100,7 @@ class Web:
 
     async def start(self):
         """Start web servers."""
-        _LOGGER.info(
-            _("Started web server on %s://%s%s"),
-            "http" if self.get_ssl_context is None else "https",
-            self.get_host,
-            ":{}".format(self.get_port) if self.get_port not in (80, 443) else "",
-        )
+        _LOGGER.info(_(f"Started web server on {self.base_url}"))
         await self.runner.setup()
         self.site = web.TCPSite(
             self.runner,
