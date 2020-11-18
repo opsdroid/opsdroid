@@ -27,7 +27,7 @@ connectors:
     chat-as-user: true # default false
     start_thread: false # default false. if true, opsdroid will start a thread when replying to a message
 ```
-** `granular-token` has to be added if you want to use one of the following Events: NewRooom, RoomName, JoinRoom, UserInvite, RoomDescription. From the **classic app** the `granular-token` will be the token starts with: `xoxp-`.
+** `granular-token` has to be added if you want to use one of the following Events: NewRooom, RoomName, JoinRoom, UserInvite, RoomDescription. From the **classic app** the `granular-token` will be the token starts with: `xoxp-`. Another option is to create a new slack app (not the classic app), and user the bot token as `granular-token`. Note that for both options you have to add the scopes to use the different events.
 
 ## Usage
 The connector itself won't allow opsdroid to do much. It will connect to Slack and be active on the `default-room`
