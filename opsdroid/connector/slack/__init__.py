@@ -152,7 +152,10 @@ class ConnectorSlack(Connector):
             elif self.start_thread:
                 data["thread_ts"] = message.linked_event.event_id
 
-        return await self.slack.api_call("chat.postMessage", data=data,)
+        return await self.slack.api_call(
+            "chat.postMessage",
+            data=data,
+        )
 
     @register_event(opsdroid.events.EditedMessage)
     async def _edit_message(self, message):
@@ -170,7 +173,10 @@ class ConnectorSlack(Connector):
             "as_user": self.chat_as_user,
         }
 
-        return await self.slack.api_call("chat.update", data=data,)
+        return await self.slack.api_call(
+            "chat.update",
+            data=data,
+        )
 
     @register_event(Blocks)
     async def _send_blocks(self, blocks):
@@ -204,7 +210,10 @@ class ConnectorSlack(Connector):
             "as_user": self.chat_as_user,
         }
 
-        return await self.slack.api_call("chat.update", data=data,)
+        return await self.slack.api_call(
+            "chat.update",
+            data=data,
+        )
 
     @register_event(opsdroid.events.Reaction)
     async def send_reaction(self, reaction):
