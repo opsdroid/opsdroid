@@ -30,15 +30,15 @@
 
 ---
 
-An open source chatbot framework written in Python. It is designed to be extendable, scalable and simple.
+An Open Source Chatbot framework written in Python. It is designed to be extendable, scalable and simple.
 
-This framework is designed to take events from chat services and other sources and execute Python functions (skills) based on their contents. Those functions can be anything you like, from simple conversational responses to running complex tasks. The true power of this project is to act as a glue library to bring the multitude of natural language APIs, chat services and third-party APIs together.
+This framework is designed to take events from chat services and other sources and execute Python functions(skills) based on their contents. Those functions can be anything you like, from simple conversational responses to running complex tasks. The true power of this project is to act as a glue library to bring the multitude of natural language APIs, chat services and third-party APIs together.
 
 See [our full documentation](https://docs.opsdroid.dev) to get started.
 
 ### Contributors
 
-This project exists thanks to all the people who contribute. [[Contribute](https://docs.opsdroid.dev/en/stable/contributing.html#contributing)].
+This project exists thanks to all the people who contributed. [[Contribute](https://docs.opsdroid.dev/en/stable/contributing.html#contributing)].
 <a href="https://github.com/opsdroid/opsdroid/graphs/contributors"><img src="https://opencollective.com/opsdroid/contributors.svg?width=890" /></a>
 
 ## Backers
