@@ -2,7 +2,7 @@
 <img src="https://github.com/opsdroid/style-guidelines/raw/master/logos/logo-wide-light.png" alt="Opsdroid Logo"/>
 </h6>
 
-<h4 align=center>An open source chat-ops bot framework</h4>
+<h4 align=center>An Open Source Chat-Ops Bot Framework</h4>
 
 <p align=center>
 <a href="https://pypi.python.org/pypi"><img src="https://img.shields.io/pypi/v/opsdroid.svg" alt="Current version of pypi" /></a>
@@ -61,3 +61,5 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 <a href="https://opencollective.com/opsdroid/sponsor/7/website" target="_blank"><img src="https://opencollective.com/opsdroid/sponsor/7/avatar.svg"></a>
 <a href="https://opencollective.com/opsdroid/sponsor/8/website" target="_blank"><img src="https://opencollective.com/opsdroid/sponsor/8/avatar.svg"></a>
 <a href="https://opencollective.com/opsdroid/sponsor/9/website" target="_blank"><img src="https://opencollective.com/opsdroid/sponsor/9/avatar.svg"></a>
+
+## Thank you!
