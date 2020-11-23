@@ -287,6 +287,7 @@ class EditedMessage(Message):
 
     The ``linked_event`` property should hold either an `opsdroid.events.Event`
     class or an id for an event to which the edit applies.
+    The linked_event for Slack is the ts (timestamp) of the message to be edited
     """
 
     def __init__(self, *args, **kwargs):

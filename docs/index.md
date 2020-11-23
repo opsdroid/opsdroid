@@ -69,6 +69,7 @@ Help support opsdroid in one click by pressing [![Tweet](https://img.shields.io/
    :caption: User guides
 
    examples/index
+   exposing
    packaging
 ```
 
