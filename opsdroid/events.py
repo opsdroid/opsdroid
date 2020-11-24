@@ -477,6 +477,13 @@ class JoinGroup(Event):
     """
 
 
+class LeaveGroup(Event):
+    """Even to represent leaving a group(not a room).
+
+    The group could be a slack team, matrix community or a telegram group.
+    """
+
+
 class PinMessage(Event):
     """Event to represent pinning a message or other event."""
 
