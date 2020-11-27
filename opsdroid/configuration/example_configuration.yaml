@@ -28,6 +28,9 @@
 ## Set the location for opsdroid to install modules
 # module-path: "."
 
+## Configure the language to use
+#lang: 'en'
+
 ## Show welcome message
 welcome-message: true
 
@@ -117,6 +120,18 @@ connectors:
 #    enable_dms: true  # Should the bot respond to Direct Messages
 #    enable_tweets: true  # Should the bot respond to tweets
 #
+# ## Twitch (core)
+#  twitch:
+#   # required
+#   code: "hfu923hfks02nd2821jfislf" # Code obtained from the first OAuth step
+#   client-id: "e0asdj48jfkspod0284"
+#   client-secret: "kdksd0458j93847j"
+#   channel: theflyingdev # Broadcaster channel
+#   redirect: http://localhost # Url to be passed to get oath token - defaults to localhost
+#   foward-url: 'http://94jfsd9ff.ngrok.io' # Either an URL provided by a forwarding service or an exposed ip address
+#   # optional
+#   always-listening: false # Turn on to connect to the chat server even if stream is offline.
+#
 #  ## Webexteams (core)
 #  webexteams:
 #    # required
@@ -179,8 +194,8 @@ connectors:
 #    # required
 #    token: "123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ-ZYXWVUT"  # Telegram bot token
 #    # optional
-#    update-interval: 0.5  # Interval between checking for messages
-#    default-user: user1  # Default user to send messages to (overrides default room in connector)
+#    bot-name: opsdroid  # Name to be used by the bot in some replies, defaults to opsdroid
+#    reply-unauthorized: True # Should the bot reply to unauthorized users?
 #    whitelisted-users:  # List of users who can speak to the bot, if not set anyone can speak
 #      - user1
 #      - user2
@@ -237,6 +252,10 @@ connectors:
 #    port:       "12345"       # (optional) default "27017"
 #    database:   "mydatabase"  # (optional) default "opsdroid"
 #
+#  matrix:
+#    default_room: "main"
+#    single_state_key: "dev.opsdroid.database"
+#    should_encrypt: True
 
 
 ## Skill modules

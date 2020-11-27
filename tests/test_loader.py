@@ -527,7 +527,8 @@ class TestLoader(unittest.TestCase):
             with mock.patch.object(loader, "pip_install_deps") as mockdeps:
                 os.makedirs(config["install_path"])
                 mockclone.side_effect = shutil.copy(
-                    "requirements.txt", config["install_path"]
+                    "requirements_readthedocs.txt",
+                    os.path.join(config["install_path"], "requirements.txt"),
                 )
                 loader._install_module(config)
                 self.assertLogs("_LOGGER", "debug")

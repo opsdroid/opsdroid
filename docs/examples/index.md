@@ -1,8 +1,10 @@
 # Skill examples
 
-This section contains examples of the many things you can do with skills in opsdroid. Select an example from the menu to see the full source and instructions.
+This section contains examples of the many things you can do with skills in Opsdroid. Select an example from the menu to see the full source and instructions.
 
- You can also find detailed information on how skills are structured in the [opsdroid documentation](../skills/index).
+Each example assumes you have installed, configured and run Opsdroid for the first time. If not see the [quickstart guide](../index). You can also try these out in the [Opsdroid Playground](https://playground.opsdroid.dev).
+
+You can also find detailed information on how skills are structured in the [opsdroid documentation](../skills/index).
 
 ```eval_rst
 .. toctree::
@@ -10,4 +12,5 @@ This section contains examples of the many things you can do with skills in opsd
 
    how-are-you
    weather
+   flip-a-coin
 ```

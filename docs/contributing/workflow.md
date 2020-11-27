@@ -16,7 +16,8 @@ git clone https://github.com/opsdroid/opsdroid.git
 cd opsdroid
 
 # install the project in "editable" mode
-pip install -e .
+# specify modules to install dependencies for in the square brackets
+pip install -e .[all]
 
 # run opsdroid
 opsdroid start
@@ -34,6 +35,9 @@ pre-commit install
 # install test runner
 pip install -U tox
 
+# install test dependencies
+pip install -e .[test]
+
 # run tests
 tox
 ```
@@ -44,7 +48,8 @@ Developing in containers can be a great way to ensure that opsdroid will run in 
 
 ```shell
 # build the container
-docker build -t opsdroid/opsdroid:myfeature .
+# specify modules in the EXTRAS build arg
+docker build --build-arg EXTRAS=.[common] -t opsdroid/opsdroid:myfeature .
 
 # run opsdroid
 docker run --rm -ti -v $(pwd):/usr/src/app opsdroid/opsdroid:myfeature
@@ -53,7 +58,7 @@ docker run --rm -ti -v $(pwd):/usr/src/app opsdroid/opsdroid:myfeature
 ## Running the tests
 
 ```shell
-# run tests
+# run tests (make sure the image is built with the `[test]` extras)
 docker run --rm -ti -v $(pwd):/usr/src/app opsdroid/opsdroid:myfeature tox
 ```
 

@@ -14,6 +14,7 @@ The base `Event` class has the following attributes and methods.
 .. autoclass:: opsdroid.events.Event
    :members:
 ```
+Note: For the sake of flexibility, Opsdroid only supports a single user on any given event. If you use Slack's (or any other chat platforms supported by Opsdroid that have the possibility of a single event corresponding to multiple users) API call to invite users to a channel, the API call takes a list of users as the input. In that case, you need to create multiple 'single-user' events instead of trying to create one 'multi-user' event. If concerned about the performance, the Skill can call the API directly rather than emitting multiple events. 
 
 ### `OpsdroidStarted`
 
