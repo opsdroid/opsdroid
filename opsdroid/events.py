@@ -428,7 +428,7 @@ class Video(File):
 
     async def get_bin(self):
         """ Return the binary representation of video """
-        return self.get_bitarray().bin
+        return str(self.get_bitarray().bin)
 
     async def get_properties(self):
         """Get the video properties like codec, resolution.
