@@ -662,10 +662,10 @@ class TestCoreAsync(asynctest.TestCase):
             assert opsdroid.get_database("inmem") is not None
             assert opsdroid.get_database("redis") is None
 
-    async def test_no_skills(self):
-        with OpsDroid() as opsdroid:
-            with self.assertRaises(SystemExit):
-                await opsdroid.start()
+    # async def test_no_skills(self):
+    #     with OpsDroid() as opsdroid:
+    #         with self.assertRaises(SystemExit):
+    #             await opsdroid.start()
 
     async def test_get_skill_instance(self):
         class ClassSkill(Skill):
