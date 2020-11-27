@@ -9,7 +9,6 @@
 <a href="https://github.com/opsdroid/opsdroid/actions"><img src="https://github.com/opsdroid/opsdroid/workflows/CI/badge.svg?event=push&branch=master" alt="Github CI Status"></img></a>
 <a href="https://codecov.io/gh/opsdroid/opsdroid"><img src="https://img.shields.io/codecov/c/github/opsdroid/opsdroid.svg" alt="codecov" /></a>
 <a href="https://bettercodehub.com/"><img src="https://bettercodehub.com/edge/badge/opsdroid/opsdroid?branch=master" alt="BCH compliance" /></a>
-<a href="https://pyup.io/repos/github/opsdroid/opsdroid/"><img src="https://pyup.io/repos/github/opsdroid/opsdroid/shield.svg" alt="Updates" /></a>
 <a href="https://hub.docker.com/r/opsdroid/opsdroid/builds/"><img src="https://img.shields.io/docker/build/opsdroid/opsdroid.svg" alt="Docker Build" /></a>
 <a href="https://hub.docker.com/r/opsdroid/opsdroid/builds/"><img alt="Docker Image Size (latest by date)" src="https://img.shields.io/docker/image-size/opsdroid/opsdroid?label=image%20size"></a><a href="https://microbadger.com/#/images/opsdroid/opsdroid"><img src="https://img.shields.io/microbadger/layers/opsdroid/opsdroid.svg" alt="Docker Layers" /></a>
 <a href="http://opsdroid.readthedocs.io/en/stable/?badge=stable"><img src="https://img.shields.io/readthedocs/opsdroid/latest.svg" alt="Documentation Status" /></a>
@@ -22,8 +21,9 @@
 ---
 
 <p align="center">
-  <a href="https://docs.opsdroid.dev/en/stable/installation.html#quickstart">Quick Start</a> •  
+  <a href="https://docs.opsdroid.dev/en/stable/quickstart.html">Quick Start</a> •
   <a href="https://docs.opsdroid.dev">Documentation</a> •
+  <a href="https://playground.opsdroid.dev">Playground</a> •
   <a href="https://medium.com/opsdroid">Blog</a> •
   <a href="https://riot.im/app/#/room/#opsdroid-general:matrix.org">Community</a>
 </p>

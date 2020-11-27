@@ -14,6 +14,8 @@ connector/slack:
   - opsdroid/connector/slack/**/*
 connector/telegram:
   - opsdroid/connector/telegram/**/*
+connector/twitch:
+  - opsdroid/connector/twitch/**/*
 connector/webexteams:
   - opsdroid/connector/webexteams/**/*
 connector/websocket:

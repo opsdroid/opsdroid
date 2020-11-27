@@ -1,14 +1,17 @@
 """A helper function for parsing and executing IBM watson skills."""
 import logging
-
-from ibm_watson import AssistantV2
-from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
-from ibm_watson import ApiException
+import contextlib
 from voluptuous import Required
 
 from opsdroid.const import WATSON_API_ENDPOINT, WATSON_API_VERSION
 
+
+# This exception needs to be set outside the call_watson to be called
+with contextlib.suppress(ImportError):
+    from ibm_watson import ApiException  # noqa F401
+
 _LOGGER = logging.getLogger(__name__)
+
 CONFIG_SCHEMA = {
     Required("gateway"): str,
     Required("assistant-id"): str,
@@ -55,7 +58,7 @@ async def get_session_id(service, config):
     config["session-id"] = response["session_id"]
 
 
-async def call_watson(message, config):
+async def call_watson(message, opsdroid, config):
     """Call the IBM Watson api and return the response.
 
     Main function used to call Watson API by using the official
@@ -68,20 +71,32 @@ async def call_watson(message, config):
         A dict containing the API response
 
     """
-    authenticator = IAMAuthenticator(config["token"])
-    service = AssistantV2(version=WATSON_API_VERSION, authenticator=authenticator)
+    try:
+        from ibm_watson import AssistantV2
+        from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 
-    await get_session_id(service, config)
+        authenticator = IAMAuthenticator(config["token"])
+        service = AssistantV2(version=WATSON_API_VERSION, authenticator=authenticator)
 
-    response = service.message(
-        assistant_id=config["assistant-id"],
-        session_id=config["session-id"],
-        input={"message_type": "text", "text": message.text},
-    ).get_result()
+        await get_session_id(service, config)
 
-    _LOGGER.debug(_("Watson response - %s."), response)
+        response = service.message(
+            assistant_id=config["assistant-id"],
+            session_id=config["session-id"],
+            input={"message_type": "text", "text": message.text},
+        ).get_result()
 
-    return response
+        _LOGGER.debug(_("Watson response - %s."), response)
+
+        return response
+
+    except ImportError:
+        _LOGGER.error(
+            _(
+                "Unable to find ibm_watson dependency. Please install ibm_watson with the command pip install ibm_watson if you want to use this parser."
+            )
+        )
+        opsdroid.config["parsers"][0]["enabled"] = False
 
 
 async def parse_watson(opsdroid, skills, message, config):
@@ -110,7 +125,7 @@ async def parse_watson(opsdroid, skills, message, config):
     """
     matched_skills = []
     try:
-        result = await call_watson(message, config)
+        result = await call_watson(message, opsdroid, config)
 
         if not result["output"]["intents"]:
             _LOGGER.error(_("Watson - No intent found. Did you forget to create one?"))
@@ -157,7 +172,7 @@ async def parse_watson(opsdroid, skills, message, config):
 
     except KeyError as error:
         _LOGGER.error(
-            _("Error: %s. You are probably missing some configuration parameter."),
+            _("Error: %s"),
             error,
         )
     except ApiException as ex:

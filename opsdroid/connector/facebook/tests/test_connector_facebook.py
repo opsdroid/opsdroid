@@ -3,12 +3,8 @@ import asynctest.mock as amock
 
 import asyncio
 
-from opsdroid.cli.start import configure_lang
 from opsdroid.connector.facebook import ConnectorFacebook
 from opsdroid.events import Message
-
-
-configure_lang({})
 
 
 def test_init(opsdroid):

@@ -16,6 +16,7 @@ from opsdroid.connector import Connector, register_event
 import opsdroid.events
 from opsdroid.connector.slack.events import (
     Blocks,
+    EditedBlocks,
     BlockActions,
     MessageAction,
     ViewSubmission,
@@ -32,6 +33,7 @@ CONFIG_SCHEMA = {
     "icon-emoji": str,
     "connect-timeout": int,
     "chat-as-user": bool,
+    "start_thread": bool,
 }
 
 
@@ -48,6 +50,7 @@ class ConnectorSlack(Connector):
         self.token = config["token"]
         self.timeout = config.get("connect-timeout", 10)
         self.chat_as_user = config.get("chat-as-user", False)
+        self.start_thread = config.get("start_thread", False)
         self.ssl_context = ssl.create_default_context(cafile=certifi.where())
         self.slack = slack.WebClient(
             token=self.token,
@@ -130,15 +133,49 @@ class ConnectorSlack(Connector):
         _LOGGER.debug(
             _("Responding with: '%s' in room  %s."), message.text, message.target
         )
-        await self.slack.api_call(
+        data = {
+            "channel": message.target,
+            "text": message.text,
+            "as_user": self.chat_as_user,
+            "username": self.bot_name,
+            "icon_emoji": self.icon_emoji,
+        }
+
+        if message.linked_event:
+            if "thread_ts" in message.linked_event.raw_event:
+                if (
+                    message.linked_event.event_id
+                    != message.linked_event.raw_event["thread_ts"]
+                ):
+                    # Linked Event is inside a thread
+                    data["thread_ts"] = message.linked_event.raw_event["thread_ts"]
+            elif self.start_thread:
+                data["thread_ts"] = message.linked_event.event_id
+
+        return await self.slack.api_call(
             "chat.postMessage",
-            data={
-                "channel": message.target,
-                "text": message.text,
-                "as_user": self.chat_as_user,
-                "username": self.bot_name,
-                "icon_emoji": self.icon_emoji,
-            },
+            data=data,
+        )
+
+    @register_event(opsdroid.events.EditedMessage)
+    async def _edit_message(self, message):
+        """Edit a message."""
+        _LOGGER.debug(
+            _("Editing message with timestamp: '%s' to %s in room  %s."),
+            message.linked_event,
+            message.text,
+            message.target,
+        )
+        data = {
+            "channel": message.target,
+            "ts": message.linked_event,
+            "text": message.text,
+            "as_user": self.chat_as_user,
+        }
+
+        return await self.slack.api_call(
+            "chat.update",
+            data=data,
         )
 
     @register_event(Blocks)
@@ -147,7 +184,7 @@ class ConnectorSlack(Connector):
         _LOGGER.debug(
             _("Responding with interactive blocks in room %s."), blocks.target
         )
-        await self.slack.api_call(
+        return await self.slack.api_call(
             "chat.postMessage",
             data={
                 "channel": blocks.target,
@@ -156,6 +193,26 @@ class ConnectorSlack(Connector):
                 "blocks": blocks.blocks,
                 "icon_emoji": self.icon_emoji,
             },
+        )
+
+    @register_event(EditedBlocks)
+    async def _edit_blocks(self, blocks):
+        """Edit a particular block."""
+        _LOGGER.debug(
+            _("Editing interactive blocks with timestamp: '%s' in room  %s."),
+            blocks.linked_event,
+            blocks.target,
+        )
+        data = {
+            "channel": blocks.target,
+            "ts": blocks.linked_event,
+            "blocks": blocks.blocks,
+            "as_user": self.chat_as_user,
+        }
+
+        return await self.slack.api_call(
+            "chat.update",
+            data=data,
         )
 
     @register_event(opsdroid.events.Reaction)

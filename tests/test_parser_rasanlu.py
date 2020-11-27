@@ -106,8 +106,8 @@ class TestParserRasaNLU(asynctest.TestCase):
         result.text = amock.CoroutineMock()
         result.text.return_value = "unauthorized"
         with amock.patch("aiohttp.ClientSession.post") as patched_request:
-            patched_request.side_effect = aiohttp.client_exceptions.ClientConnectorError(
-                "key", amock.Mock()
+            patched_request.side_effect = (
+                aiohttp.client_exceptions.ClientConnectorError("key", amock.Mock())
             )
             self.assertEqual(None, await rasanlu.call_rasanlu(message.text, config))
 
@@ -519,8 +519,8 @@ class TestParserRasaNLU(asynctest.TestCase):
 
             mock_gem.return_value = []
             mock_btu.return_value = "http://example.com"
-            patched_request.side_effect = aiohttp.client_exceptions.ClientConnectorError(
-                "key", amock.Mock()
+            patched_request.side_effect = (
+                aiohttp.client_exceptions.ClientConnectorError("key", amock.Mock())
             )
             self.assertEqual(await rasanlu.train_rasanlu({}, {}), False)
 

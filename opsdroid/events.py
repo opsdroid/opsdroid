@@ -287,6 +287,7 @@ class EditedMessage(Message):
 
     The ``linked_event`` property should hold either an `opsdroid.events.Event`
     class or an id for an event to which the edit applies.
+    The linked_event for Slack is the ts (timestamp) of the message to be edited
     """
 
     def __init__(self, *args, **kwargs):
@@ -452,6 +453,10 @@ class JoinRoom(Event):
     """Event class to represent a user joining a room."""
 
 
+class LeaveRoom(Event):
+    """Event class to represent a user leaving a room."""
+
+
 class UserInvite(Event):
     """Event class to represent a user being invited to a room."""
 
@@ -472,9 +477,24 @@ class JoinGroup(Event):
     """
 
 
+class LeaveGroup(Event):
+    """Even to represent leaving a group(not a room).
+
+    The group could be a slack team, matrix community or a telegram group.
+    """
+
+
 class PinMessage(Event):
     """Event to represent pinning a message or other event."""
 
 
 class UnpinMessage(Event):
     """Event to represent unpinning a message or other event."""
+
+
+class DeleteMessage(Event):
+    """Event to represent deleting a message or other event."""
+
+
+class BanUser(Event):
+    """Event to represent the banning of a user from a room."""

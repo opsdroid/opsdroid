@@ -15,6 +15,7 @@ Connectors are modules which connect opsdroid to an external event source. This 
    shell
    slack
    telegram
+   twitch
    webexteams
    websocket
    custom

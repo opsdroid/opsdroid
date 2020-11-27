@@ -41,7 +41,9 @@ class DatabaseSqlite(Database):
         self.conn_args = {"isolation_level": None}
         if "file" in self.config:
             self.db_file = self.config["file"]
-            _LOGGER.warn("The option 'file' is deprecated, please use 'path' instead.")
+            _LOGGER.warning(
+                "The option 'file' is deprecated, please use 'path' instead."
+            )
         else:
             self.db_file = self.config.get(
                 "path", os.path.join(DEFAULT_ROOT_PATH, "sqlite.db")

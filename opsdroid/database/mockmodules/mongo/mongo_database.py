@@ -1,7 +1,5 @@
 """A mocked database module."""
 
-from opsdroid.database.mongo import DatabaseMongo
-
 
 class DatabaseMongoTest:
     """The mocked database mongo class."""

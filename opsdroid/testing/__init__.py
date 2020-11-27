@@ -1,4 +1,9 @@
-"""Utilities for use when testing."""
+"""
+Testing helpers for opsdroid.
+
+opsdroid provides a set of pytest fixtures and other helpers for writing tests
+for both opsdroid core and skills.
+"""
 import pytest
 
 import asyncio
@@ -8,6 +13,8 @@ import json
 from typing import Any, Awaitable, List, Dict
 
 from opsdroid.core import OpsDroid
+from opsdroid.helper import Timeout
+from .fixtures import *  # noqa
 
 MINIMAL_CONFIG = {
     "connectors": {
@@ -88,11 +95,18 @@ class ExternalAPIMockServer:
         """Start the server."""
         await self.runner.setup()
         self.site = web.TCPSite(self.runner, host=self.host, port=self.port)
-        await self.site.start()
+        timeout = Timeout(10, "Timed out starting web server")
+        while timeout.run():
+            try:
+                await self.site.start()
+            except OSError as e:
+                await asyncio.sleep(0.1)
+                timeout.set_exception(e)
         self.status = "running"
 
     async def _stop(self) -> None:
         """Stop the web server."""
+        await self.site.stop()
         await self.runner.cleanup()
         self.site = None
         self.status = "stopped"
@@ -157,14 +171,14 @@ class ExternalAPIMockServer:
 
         """
 
-        async def _run():
+        async def _run_test_then_stop():
             while self.status != "running":
                 await asyncio.sleep(0.1)
             output = await test_coroutine(*args, **kwargs)
             await self._stop()
             return output
 
-        run_output, _ = await asyncio.gather(_run(), self._start())
+        _, run_output = await asyncio.gather(self._start(), _run_test_then_stop())
         return run_output
 
     def reset(self) -> None:
