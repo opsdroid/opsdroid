@@ -418,17 +418,18 @@ class NewRoom(Event):
 class Video(File):
     """Event class specifically for video files."""
 
-    async def get_bitarray(self):
-        """Return a bitarray of the video bytes.
+    async def get_bin(self):
+        """ Return the binary representation of video """
+
+        """Get a bitarray of the video bytes.
         This method enable video bytes to be converted to hex/bin.
         Doc: https://github.com/scott-griffiths/bitstring/blob/master/doc/bitarray.rst
         """
         fbytes = await self.get_file_bytes()
-        return BitArray(fbytes)
+        my_bit_array = BitArray(fbytes)
 
-    async def get_bin(self):
-        """ Return the binary representation of video """
-        return str(self.get_bitarray().bin)
+        # Return that bitarray
+        return my_bit_array.bin
 
     async def get_properties(self):
         """Get the video properties like codec, resolution.
@@ -439,10 +440,10 @@ class Video(File):
 
         # create a temp_vid file to store the bytes
         temp_vid = tempfile.NamedTemporaryFile(prefix="opsdroid_vid_")
-        await temp_vid.write(fbytes)
-        await temp_vid.seek(0)
+        temp_vid.write(fbytes)
+        temp_vid.seek(0)
 
-        vid_details = await get_video_properties(temp_vid.name)
+        vid_details = get_video_properties(temp_vid.name)
         return vid_details
 
 
