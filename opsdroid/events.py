@@ -7,6 +7,7 @@ from abc import ABCMeta
 from collections import defaultdict
 from datetime import datetime
 from random import randrange
+from bitstring import BitArray
 
 import aiohttp
 import puremagic
@@ -416,6 +417,18 @@ class NewRoom(Event):
 
 class Video(File):
     """Event class specifically for video files."""
+
+    async def get_bitarray(self):
+        """Return a bitarray of the video bytes.
+        This method enable video bytes to be converted to hex/bin.
+        Doc: https://github.com/scott-griffiths/bitstring/blob/master/doc/bitarray.rst
+        """
+        fbytes = await self.get_file_bytes()
+        return BitArray(fbytes)
+
+    async def get_bin(self):
+        """ Return the binary representation of video """
+        return self.get_bitarray().bin
 
     async def get_properties(self):
         """Get the video properties like codec, resolution.
