@@ -363,11 +363,6 @@ class Loader:
         if "skills" in config.keys() and config["skills"]:
             skills = self._load_modules("skill", config["skills"])
 
-        else:
-            self.opsdroid.critical(
-                _("No skills in configuration, at least 1 required"), 1
-            )
-
         if "connectors" in config.keys() and config["connectors"]:
             connectors = self._load_modules("connector", config["connectors"])
         else:

@@ -3,7 +3,7 @@ import pytest
 
 import asyncio
 
-from opsdroid.testing import opsdroid
+from opsdroid.testing import opsdroid, mock_api  # noqa
 from opsdroid.connector import Connector
 
 from opsdroid.cli.start import configure_lang
