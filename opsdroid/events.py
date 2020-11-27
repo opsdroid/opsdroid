@@ -443,8 +443,14 @@ class Video(File):
         temp_vid.write(fbytes)
         temp_vid.seek(0)
 
-        vid_details = get_video_properties(temp_vid.name)
-        return vid_details
+        try:
+            vid_details = get_video_properties(temp_vid.name)
+            return vid_details
+        except RuntimeError as error:
+            if "ffmpeg" in str(error).lower():
+                _LOGGER.warning(
+                    _("Video events are not supported unless ffmpeg is installed.")
+                )
 
 
 class RoomName(Event):
