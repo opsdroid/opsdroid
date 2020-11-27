@@ -256,10 +256,7 @@ class TestLoader(unittest.TestCase):
             self.assertEqual(loaded[0]["config"]["name"], "myep")
 
     def test_import_broken_module(self):
-        skill_path = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "mockmodules/skills/broken_skill.py",
-        )
+        skill_path = "opsdroid/testing/mockmodules/skills/broken_skill.py"
         config = {
             "connectors": {"websocket": {}},
             "skills": {"test": {"path": skill_path}},
@@ -586,7 +583,9 @@ class TestLoader(unittest.TestCase):
             "name": "slack",
             "type": "connector",
             "install_path": os.path.join(self._tmp_dir, "test_local_module_file"),
-            "path": os.path.abspath("tests/mockmodules/skills/test_notebook.ipynb"),
+            "path": os.path.abspath(
+                "opsdroid/testing/mockmodules/skills/test_notebook.ipynb"
+            ),
         }
         directory, _ = os.path.split(config["path"])
         os.makedirs(directory, exist_ok=True, mode=0o777)

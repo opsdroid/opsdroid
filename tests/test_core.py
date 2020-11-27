@@ -1,6 +1,5 @@
 import os
 import asyncio
-import contextlib
 import pytest
 import unittest
 import unittest.mock as mock
@@ -186,7 +185,7 @@ class TestCore(unittest.TestCase):
             self.assertEqual(len(opsdroid.skills), 2)
 
             mockclassmodule = importlib.import_module(
-                "tests.mockmodules.skills.skill.skilltest"
+                "opsdroid.testing.mockmodules.skills.skill.skilltest"
             )
             example_modules = [{"module": mockclassmodule, "config": {}}]
             opsdroid.setup_skills(example_modules)
@@ -528,7 +527,7 @@ class TestCoreAsync(asynctest.TestCase):
             module = {}
             module["config"] = {}
             module["module"] = importlib.import_module(
-                "tests.mockmodules.connectors.connector_mocked"
+                "opsdroid.testing.mockmodules.connectors.connector_mocked"
             )
 
             try:
@@ -552,7 +551,7 @@ class TestCoreAsync(asynctest.TestCase):
             module = {}
             module["config"] = {}
             module["module"] = importlib.import_module(
-                "tests.mockmodules.connectors.connector_bare"
+                "opsdroid.testing.mockmodules.connectors.connector_bare"
             )
 
             with self.assertRaises(NotImplementedError):
@@ -572,7 +571,7 @@ class TestCoreAsync(asynctest.TestCase):
             module = {}
             module["config"] = {}
             module["module"] = importlib.import_module(
-                "tests.mockmodules.databases.database"
+                "opsdroid.testing.mockmodules.databases.database"
             )
             with self.assertRaises(NotImplementedError):
                 await opsdroid.setup_databases([module])
@@ -612,10 +611,7 @@ class TestCoreAsync(asynctest.TestCase):
     # TODO: Test fails on mac only, needs investigating
     @pytest.mark.xfail()
     async def test_watchdog(self):
-        skill_path = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "mockmodules/skills/skill/skilltest",
-        )
+        skill_path = "opsdroid/testing/mockmodules/skills/skill/skilltest"
         example_config = {
             "autoreload": True,
             "connectors": {"websocket": {}},
@@ -647,10 +643,7 @@ class TestCoreAsync(asynctest.TestCase):
             assert opsdroid.reload.called
 
     async def test_get_connector_database(self):
-        skill_path = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "mockmodules/skills/skill/skilltest",
-        )
+        skill_path = "opsdroid/testing/mockmodules/skills/skill/skilltest"
         example_config = {
             "connectors": {"websocket": {}},
             "skills": {"test": {"path": skill_path}},
