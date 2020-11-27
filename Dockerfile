@@ -8,10 +8,10 @@ ARG EXTRAS=.[all]
 COPY . .
 
 RUN apk update \
-    && apk add --no-cache gcc g++ linux-headers musl-dev git openssh-client olm olm-dev \
+    && apk add --no-cache build-base linux-headers musl-dev python3-dev libzmq zeromq-dev git openssh-client olm olm-dev \
     && pip3 install --upgrade pip \
     && pip3 install --no-cache-dir $EXTRAS \
-    && apk del gcc g++ linux-headers musl-dev
+    && apk del build-base linux-headers musl-dev python3-dev zeromq-dev
 
 EXPOSE 8080
 
