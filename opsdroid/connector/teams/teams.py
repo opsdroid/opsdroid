@@ -1,3 +1,5 @@
+"""A connector for Slack."""
+
 import logging
 from urllib.parse import unquote
 
@@ -25,7 +27,10 @@ CONFIG_SCHEMA = {
 
 
 class TeamsConnector(Connector):
+    """A connector for Slack."""
+
     def __init__(self, config, opsdroid=None):
+        """Create the connector."""
         self.name = "teams"
         self.config = config
         self.default_target = None  # Teams has no default room
@@ -39,6 +44,7 @@ class TeamsConnector(Connector):
         self.service_endpoints = {}
 
     async def connect(self):
+        """Connect to the chat service."""
         self.service_endpoints = (
             await self.opsdroid.memory.get("teams_service_endpoints") or {}
         )
@@ -47,6 +53,7 @@ class TeamsConnector(Connector):
         )
 
     async def teams_message_handler(self, req: Request) -> Response:
+        """Handle incoming webhooks from Teams."""
         if "application/json" in req.headers["Content-Type"]:
             body = await req.json()
         else:
