@@ -24,15 +24,6 @@ class Web:
             self.config = self.opsdroid.config["web"]
         except KeyError:
             self.config = {}
-        self.base_url = self.config.get("base-url")
-        if not self.base_url:
-            self.base_url = "{proto}://{host}{port}".format(
-                proto="http" if self.get_ssl_context is None else "https",
-                host=self.get_host,
-                port=":{}".format(self.get_port)
-                if self.get_port not in (80, 443)
-                else "",
-            )
         self.web_app = web.Application()
         self.runner = web.AppRunner(self.web_app)
         self.site = None
@@ -125,6 +116,7 @@ class Web:
         while timeout.run():
             try:
                 await self.site.start()
+                break
             except OSError as e:
                 await asyncio.sleep(0.1)
                 timeout.set_exception(e)
