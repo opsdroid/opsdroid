@@ -2,8 +2,6 @@
 import asyncio
 import io
 import logging
-import os
-import random
 import tempfile
 from abc import ABCMeta
 from collections import defaultdict
@@ -13,9 +11,8 @@ from random import randrange
 import aiohttp
 import puremagic
 from get_image_size import get_image_size_from_bytesio
-from videoprops import get_video_properties
-
 from opsdroid.helper import get_opsdroid
+from videoprops import get_video_properties
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -420,31 +417,19 @@ class NewRoom(Event):
 class Video(File):
     """Event class specifically for video files."""
 
-    async def save_to_disk(self, fbytes):
-        """ Save the bytes to disk as video."""
+    async def get_properties(self):
+        """Get the video properties like codec, resolution.
+        Returns Video properties saved in a Dictionary"""
 
-        temp_dir = tempfile.gettempdir()
-        file_name = "opsdroid_vid_" + await str(random.randint(0, 100000000))
-        file_path = os.path.join(temp_dir, file_name)
-
-        # Checks and deletes the output file
-        # You cant have a existing file or it will through an error
-        if os.path.isfile(file_path):
-            os.remove(file_path)
-
-        # opens the file which is accessable as 'out_file'
-        async with open(file_path, "wb") as out_file:  # open for [w]riting as [b]inary
-            await out_file.write(fbytes)
-
-        return file_path
-
-    async def get_video_properties(self):
-        """ Get the video properties like codec, resolution."""
-        """ Returns Video properties saved in Dictionary"""
-
+        # get bytes of file
         fbytes = await self.get_file_bytes()
-        file_path = await self.save_to_disk(fbytes)
-        vid_details = await get_video_properties(file_path)
+
+        # create a temp_vid file to store the bytes
+        temp_vid = tempfile.NamedTemporaryFile(prefix="opsdroid_vid_")
+        await temp_vid.write(fbytes)
+        await temp_vid.seek(0)
+
+        vid_details = await get_video_properties(temp_vid.name)
         return vid_details
 
 
