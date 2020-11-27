@@ -37,6 +37,7 @@ welcome-message: true
 ## Configure the web server
 # web:
 #   host: '127.0.0.1'
+#   disable_web_index_handler_in_root: true
 #   port: 8080
 #   ssl:
 #     cert: /path/to/cert.pem

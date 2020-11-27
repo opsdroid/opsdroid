@@ -8,8 +8,8 @@ python:
     - method: pip
       path: .
       extra_requirements:
-          - docs
-          - connector-telegram
+        - docs
+        - connector_telegram
 
 sphinx:
   configuration: docs/conf.py
