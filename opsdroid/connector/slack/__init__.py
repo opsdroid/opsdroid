@@ -49,7 +49,7 @@ class ConnectorSlack(Connector):
         self.default_target = config.get("default-room", "#general")
         self.icon_emoji = config.get("icon-emoji", ":robot_face:")
         self.token = config["token"]
-        self.granular_token = config.get("granular_token")
+        self.granular_token = config.get("granular-token")
         self.timeout = config.get("connect-timeout", 10)
         self.chat_as_user = config.get("chat-as-user", False)
         self.start_thread = config.get("start_thread", False)
