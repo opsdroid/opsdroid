@@ -123,9 +123,29 @@ def test_configure_console_whitelist():
     assert rootlogger.handlers[0].level == logging.INFO
 
 
+def test_configure_logging_with_timestamp():
+    config = {
+        "logging": {"path": False, "level": "error", "console": True, "timestamp": True}
+    }
+    opsdroid.configure_logging(config)
+    rootlogger = logging.getLogger()
+    assert len(rootlogger.handlers) == 1
+    assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
+
+
 def test_configure_extended_logging():
     config = {
         "logging": {"path": False, "level": "error", "console": True, "extended": True}
+    }
+    opsdroid.configure_logging(config)
+    rootlogger = logging.getLogger()
+    assert len(rootlogger.handlers) == 1
+    assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
+
+
+def test_configure_extended_logging_with_timestamp():
+    config = {
+            "logging": {"path": False, "level": "error", "console": True, "extended": True, "timestamp": True}
     }
     opsdroid.configure_logging(config)
     rootlogger = logging.getLogger()
