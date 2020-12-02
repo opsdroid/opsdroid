@@ -92,7 +92,9 @@ def configure_logging(config):
         if config["logging"]["extended"]:
             formatter = logging.Formatter("%(levelname)s %(name)s.%(funcName)s(): %(message)s")
             if config["logging"]["timestamp"]:
-                formatter = logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
+                formatter = logging.Formatter(
+                    "%(asctime)s %(levelname)s %(name)s.%(funcName)s(): %(message)s"
+                )
 
     console_handler = logging.StreamHandler()
     console_handler.setLevel(log_level)
