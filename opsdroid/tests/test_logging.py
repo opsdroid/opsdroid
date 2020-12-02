@@ -145,7 +145,13 @@ def test_configure_extended_logging():
 
 def test_configure_extended_logging_with_timestamp():
     config = {
-            "logging": {"path": False, "level": "error", "console": True, "extended": True, "timestamp": True}
+        "logging": {
+            "path": False,
+            "level": "error",
+            "console": True,
+            "extended": True,
+            "timestamp": True,
+        }
     }
     opsdroid.configure_logging(config)
     rootlogger = logging.getLogger()
