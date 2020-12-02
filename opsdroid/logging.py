@@ -83,22 +83,18 @@ def configure_logging(config):
 
     rootlogger.setLevel(log_level)
 
-    formatter = logging.Formatter("%(levelname)s %(name)s: %(message)s")
+    formatter_str = "%(levelname)s %(name)s:"
+
     with contextlib.suppress(KeyError):
         if config["logging"]["timestamp"]:
-            formatter = logging.Formatter(
-                "%(asctime)s %(levelname)s %(name)s: %(message)s"
-            )
+            formatter_str = "%(asctime)s " + formatter_str
 
     with contextlib.suppress(KeyError):
         if config["logging"]["extended"]:
-            formatter = logging.Formatter(
-                "%(levelname)s %(name)s.%(funcName)s(): %(message)s"
-            )
-            if config["logging"]["timestamp"]:
-                formatter = logging.Formatter(
-                    "%(asctime)s %(levelname)s %(name)s.%(funcName)s(): %(message)s"
-                )
+            formatter_str = formatter_str[:-1] + ".%(funcName)s():"
+
+    formatter_str += " %(message)s"
+    formatter = logging.Formatter(formatter_str)
 
     console_handler = logging.StreamHandler()
     console_handler.setLevel(log_level)
