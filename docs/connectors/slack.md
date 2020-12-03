@@ -53,7 +53,7 @@ Slack has support for [rich layouts](https://api.slack.com/messaging/composing/l
 
 To do this you need to respond with an `opsdroid.connector.slack.events.Blocks` event which is constructed with a list of blocks.
 
-### Example
+### Send Block
 
 ```python
 from opsdroid.skill import Skill
@@ -94,10 +94,27 @@ class BlocksSkill(Skill):
                 }
             ]
         ))
-
 ```
 
 ![](https://user-images.githubusercontent.com/1610850/58658951-ac523300-8319-11e9-8c2a-011469a436d0.png)
+
+### Edit an existing Block
+
+```python
+from opsdroid.skill import Skill
+from opsdroid.matchers import match_regex
+from opsdroid.connector.slack.events import EditedBlocks
+
+
+class UpdateBlocksSkill(Skill):
+
+    @match_regex(r"edit block with ts 1605646357.261200")
+    async def who_are_you(self, event):
+    	# linked_event == the timestamp of the block to edit
+    	# target == channel id
+	blocks = ["the blocks datastructure"]
+        await self.opsdroid.send(EditedBlocks(blocks, linked_event=1605646357.261200, target="channel_id"))
+```
 
 ## Interactive Actions
 

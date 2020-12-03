@@ -21,6 +21,7 @@ from opsdroid.skill import Skill
 from opsdroid.loader import Loader
 from opsdroid.web import Web
 from opsdroid.parsers.always import parse_always
+from opsdroid.parsers.catchall import parse_catchall
 from opsdroid.parsers.event_type import parse_event_type
 from opsdroid.parsers.regex import parse_regex
 from opsdroid.parsers.parseformat import parse_format
@@ -58,6 +59,9 @@ class OpsDroid:
                 self.eventloop.add_signal_handler(
                     sig, lambda: asyncio.ensure_future(self.handle_signal())
                 )
+            self.eventloop.add_signal_handler(
+                signal.SIGHUP, lambda: asyncio.ensure_future(self.reload())
+            )
         self.eventloop.set_exception_handler(self.handle_async_exception)
         self.skills = []
         self.memory = Memory()
@@ -574,7 +578,8 @@ class OpsDroid:
                         )
                     )
                 )
-
+        if len(tasks) == 2:  # no other skills ran other than 2 default ones
+            tasks.append(self.eventloop.create_task(parse_catchall(self, event)))
         await asyncio.gather(*tasks)
 
         return tasks

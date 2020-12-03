@@ -31,7 +31,7 @@ class TestConstraints(asynctest.TestCase):
             tasks = await opsdroid.parse(
                 Message(text="Hello", user="user", target="#random", connector=None)
             )
-            self.assertEqual(len(tasks), 2)  # Just match_always and match_event
+            self.assertEqual(len(tasks), 3)  # Just match_always and match_event
 
     async def test_constrain_rooms_skips(self):
         with OpsDroid() as opsdroid, mock.patch("opsdroid.parsers.always.parse_always"):
@@ -55,7 +55,7 @@ class TestConstraints(asynctest.TestCase):
             tasks = await opsdroid.parse(
                 Message(text="Hello", user="user", target="#general", connector=None)
             )
-            self.assertEqual(len(tasks), 2)  # Just match_always and match_event
+            self.assertEqual(len(tasks), 3)  # Just match_always and match_event
 
     async def test_constrain_users_constrains(self):
         with OpsDroid() as opsdroid:
@@ -69,7 +69,7 @@ class TestConstraints(asynctest.TestCase):
                     text="Hello", user="otheruser", target="#general", connector=None
                 )
             )
-            self.assertEqual(len(tasks), 2)  # Just match_always and match_event
+            self.assertEqual(len(tasks), 3)  # Just match_always and match_event
 
     async def test_constrain_users_skips(self):
         with OpsDroid() as opsdroid:
@@ -93,7 +93,7 @@ class TestConstraints(asynctest.TestCase):
             tasks = await opsdroid.parse(
                 Message(text="Hello", user="user", target="#general", connector=None)
             )
-            self.assertEqual(len(tasks), 2)  # Just match_always and match_event
+            self.assertEqual(len(tasks), 3)  # Just match_always and match_event
 
     async def test_constrain_connectors_constrains(self):
         with OpsDroid() as opsdroid:
@@ -109,7 +109,7 @@ class TestConstraints(asynctest.TestCase):
                     text="Hello", user="user", target="#random", connector=connector
                 )
             )
-            self.assertEqual(len(tasks), 2)  # Just match_always and match_event
+            self.assertEqual(len(tasks), 3)  # Just match_always and match_event
 
     async def test_constrain_connectors_skips(self):
         with OpsDroid() as opsdroid:
@@ -141,7 +141,7 @@ class TestConstraints(asynctest.TestCase):
                     text="Hello", user="user", target="#general", connector=connector
                 )
             )
-            self.assertEqual(len(tasks), 2)  # Just match_always and match_event
+            self.assertEqual(len(tasks), 3)  # Just match_always and match_event
 
     async def test_constraint_can_be_called_after_skip(self):
         with OpsDroid() as opsdroid:
@@ -160,7 +160,7 @@ class TestConstraints(asynctest.TestCase):
                     text="Hello", user="otheruser", target="#general", connector=None
                 )
             )
-            self.assertEqual(len(tasks), 2)  # Just match_always and match_event
+            self.assertEqual(len(tasks), 3)  # Just match_always and match_event
 
             tasks = await opsdroid.parse(
                 Message(text="Hello", user="user", target="#general", connector=None)

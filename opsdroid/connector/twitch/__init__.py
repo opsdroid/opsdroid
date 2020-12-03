@@ -61,10 +61,13 @@ class ConnectorTwitch(Connector):
         # TODO: Allow usage of SSL connection
         self.server = "ws://irc-ws.chat.twitch.tv"
         self.port = "80"
-        self.base_url = config.get("base-url")
         self.loop = asyncio.get_event_loop()
         self.reconnections = 0
         self.auth_file = TWITCH_JSON
+        try:
+            self.base_url = opsdroid.config["web"]["base-url"]
+        except KeyError:
+            self.base_url = config.get("forward-url")
 
     async def validate_request(self, request, secret):
         """Compute sha256 hash of request and secret.
@@ -188,8 +191,11 @@ class ConnectorTwitch(Connector):
             resp = await session.post(TWITCH_OAUTH_ENDPOINT, params=params)
             data = await resp.json()
 
-            self.token = data["access_token"]
-            self.save_authentication_data(data)
+            try:
+                self.token = data["access_token"]
+                self.save_authentication_data(data)
+            except KeyError:
+                _LOGGER.warning(_("Unable to request oauth token - %s"), data)
 
     async def refresh_token(self):
         """Attempt to refresh the oauth token.
@@ -721,7 +727,9 @@ class ConnectorTwitch(Connector):
 
             param = {"title": event.status, "broadcaster_id": self.user_id}
             resp = await session.patch(
-                f"{TWITCH_API_ENDPOINT}/channels", headers=headers, params=param,
+                f"{TWITCH_API_ENDPOINT}/channels",
+                headers=headers,
+                params=param,
             )
 
             if resp.status == 204:
