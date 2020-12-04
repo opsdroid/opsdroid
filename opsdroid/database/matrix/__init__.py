@@ -169,15 +169,16 @@ class DatabaseMatrix(Database):
             event_type=self._event_type,
             state_key=state_key,
         )
-        if isinstance(ori_data, RoomGetStateEventError):
-            raise RuntimeError(
-                f"Error getting {key} from matrix room {self.room_id}: {ori_data.message}({ori_data.status_code})"
-            )
-        elif ori_data.transport_response.status == 404:
+
+        if ori_data.transport_response.status == 404:
             _LOGGER.error(
                 f"Error getting {key} from matrix room {self.room_id}: Event not found"
             )
             return
+        elif isinstance(ori_data, RoomGetStateEventError):
+            raise RuntimeError(
+                f"Error getting {key} from matrix room {self.room_id}: {ori_data.message}({ori_data.status_code})"
+            )
 
         data = ori_data.content
 

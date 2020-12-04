@@ -8,6 +8,7 @@ from opsdroid.connector.matrix.connector import ConnectorMatrix, MatrixException
 from opsdroid.core import OpsDroid
 from opsdroid.database.matrix import DatabaseMatrix, memory_in_event_room
 from opsdroid.events import Message
+from opsdroid.cli.start import configure_lang  # noqa
 
 
 @pytest.fixture
@@ -941,16 +942,17 @@ async def test_get_no_key_single_state_key(patched_send, opsdroid_matrix):
 
 @pytest.mark.asyncio
 async def test_get_no_key_404(patched_send, opsdroid_matrix):
-    patched_send.return_value = nio.RoomGetStateEventError({"errcode": 404})
+    patched_send.return_value = nio.RoomGetStateEventError({"errcode": "M_NOTFOUND"})
+    patched_send.return_value.transport_response = AsyncMock()
+    patched_send.return_value.transport_response.status = 404
 
     db = DatabaseMatrix(
         {"should_encrypt": False, "single_state_key": False}, opsdroid=opsdroid_matrix
     )
     db.should_migrate = False
 
-    with pytest.raises(RuntimeError):
-        data = await db.get("twim")
-        assert data is None
+    data = await db.get("twim")
+    assert data is None
 
 
 @pytest.mark.asyncio
@@ -963,8 +965,7 @@ async def test_get_no_key_500(patched_send, opsdroid_matrix):
     db.should_migrate = False
 
     with pytest.raises(RuntimeError):
-        data = await db.get("twim")
-        assert data is None
+        await db.get("twim")
 
 
 @pytest.mark.asyncio

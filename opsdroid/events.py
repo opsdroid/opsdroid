@@ -52,7 +52,7 @@ class EventMetaClass(ABCMeta):
         if "_no_register" in members:
             return cls
 
-        if name in mcls.event_registry:
+        if name in mcls.event_registry and mcls.event_registry[name] is not cls:
             raise NameError(
                 "An event subclass named {name} has already been "
                 "defined. Event subclass names must be globally "
