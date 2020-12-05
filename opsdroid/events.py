@@ -406,23 +406,14 @@ class Image(File):
         return get_image_size_from_bytesio(io.BytesIO(fbytes), len(fbytes))
 
 
-class NewRoom(Event):
-    """Event class to represent the creation of a new room."""
-
-    def __init__(self, name=None, params=None, *args, **kwargs):  # noqa: D107
-        super().__init__(*args, **kwargs)
-        self.name = name
-        self.room_params = params or {}
-
-
 class Video(File):
     """Event class specifically for video files."""
 
     async def get_bin(self):
         """ Return the binary representation of video """
 
-        """Get a bitarray of the video bytes.
-        This method enable video bytes to be converted to hex/bin.
+        """
+        The two below lines gets a bitarray of the video bytes.This method enable video bytes to be converted to hex/bin.
         Doc: https://github.com/scott-griffiths/bitstring/blob/master/doc/bitarray.rst
         """
         fbytes = await self.get_file_bytes()
@@ -433,24 +424,41 @@ class Video(File):
 
     async def get_properties(self):
         """Get the video properties like codec, resolution.
-        Returns Video properties saved in a Dictionary"""
+        Returns Video properties saved in a Dictionary
 
-        # get bytes of file
-        fbytes = await self.get_file_bytes()
+        """
 
-        # create a temp_vid file to store the bytes
-        temp_vid = tempfile.NamedTemporaryFile(prefix="opsdroid_vid_")
+        fbytes = await self.get_file_bytes()  # get bytes of file
+
+        temp_vid = tempfile.NamedTemporaryFile(
+            prefix="opsdroid_vid_"
+        )  # create a file to store the bytes
         temp_vid.write(fbytes)
         temp_vid.seek(0)
 
         try:
             vid_details = get_video_properties(temp_vid.name)
+            temp.close()  # delete the temp file
             return vid_details
         except RuntimeError as error:
             if "ffmpeg" in str(error).lower():
                 _LOGGER.warning(
-                    _("Video events are not supported unless ffmpeg is installed.")
+                    _(
+                        "Video events are not supported unless ffmpeg is installed. Install FFMPEG on your system. Here is the error: "
+                    )
                 )
+                _LOGGER.warning(_(error))
+
+                temp.close()  # delete the temp file
+
+
+class NewRoom(Event):
+    """Event class to represent the creation of a new room."""
+
+    def __init__(self, name=None, params=None, *args, **kwargs):  # noqa: D107
+        super().__init__(*args, **kwargs)
+        self.name = name
+        self.room_params = params or {}
 
 
 class RoomName(Event):
