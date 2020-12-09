@@ -410,7 +410,7 @@ class Video(File):
     """Event class specifically for video files."""
 
     async def get_bin(self):
-        """ Return the binary representation of video """
+        """Return the binary representation of video."""
 
         """
         The two below lines gets a bitarray of the video bytes.This method enable video bytes to be converted to hex/bin.
