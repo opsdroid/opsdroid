@@ -1,14 +1,13 @@
 import asyncio
-import os
 import platform
 
 import asynctest
 import asynctest.mock as amock
 
 from opsdroid import events
-from opsdroid.core import OpsDroid
-from opsdroid.connector import Connector
 from opsdroid.cli.start import configure_lang
+from opsdroid.connector import Connector
+from opsdroid.core import OpsDroid
 
 
 class TestEventCreator(asynctest.TestCase):
@@ -433,15 +432,7 @@ class TestVideo(asynctest.TestCase):
         self.assertEqual(await event.get_mimetype(), "video/x-matroska")
         self.assertEqual(await event.get_bin(), self.vid_bin)
 
-        if platform.platform() == "Linux":
-            if "ubuntu" in str(os.system("uname -a")).lower() and "ffprobe" not in str(
-                os.system("which ffprobe")
-            ):
-                os.system("sudo add-apt-repository universe -y")
-                os.system("sudo apt-get update -y")
-                os.system("sudo apt-get install ffmpeg -y")
-            self.assertEqual(await event.get_properties(), self.props)
-        elif platform.system() == "Windows":
+        if platform.system() == "Windows":
             pass
         else:
             self.assertEqual(await event.get_properties(), self.props)
