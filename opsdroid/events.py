@@ -423,10 +423,7 @@ class Video(File):
         return my_bit_array.bin
 
     async def get_properties(self):
-        """Get the video properties like codec, resolution.
-        Returns Video properties saved in a Dictionary
-
-        """
+        """Get the video properties like codec, resolution.Returns Video properties saved in a Dictionary."""
 
         fbytes = await self.get_file_bytes()  # get bytes of file
 
