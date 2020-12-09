@@ -11,6 +11,7 @@ from bitstring import BitArray
 
 import aiohttp
 import puremagic
+import os
 from get_image_size import get_image_size_from_bytesio
 from opsdroid.helper import get_opsdroid
 from videoprops import get_video_properties
@@ -442,7 +443,7 @@ class Video(File):
 
         try:
             vid_details = get_video_properties(temp_vid.name)
-            temp_vid.close()  # delete the temp file
+            os.remove(temp_vid.name)  # delete the temp file
             return vid_details
         except RuntimeError as error:
             if "ffmpeg" in str(error).lower():
@@ -452,8 +453,7 @@ class Video(File):
                     )
                 )
                 _LOGGER.warning(_(error))
-
-                temp_vid.close()  # delete the temp file
+                os.remove(temp_vid.name)  # delete the temp file
 
 
 class NewRoom(Event):
