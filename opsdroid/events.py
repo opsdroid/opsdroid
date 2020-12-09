@@ -425,13 +425,20 @@ class Video(File):
     async def get_properties(self):
         """Get the video properties like codec, resolution.Returns Video properties saved in a Dictionary."""
 
+        """
+        NamedTemporaryFile is too hard to use portably when you need to open the file by name after writing it.
+        On posix you can open the file for reading by name without closing it first.
+        But on Windows, To do that you need to close the file first, which means you have to pass delete=False,
+        which in turn means that you get no help in cleaning up the actual file resource.
+        """
+
         fbytes = await self.get_file_bytes()  # get bytes of file
 
         temp_vid = tempfile.NamedTemporaryFile(
-            prefix="opsdroid_vid_"
+            prefix="opsdroid_vid_", delete=False
         )  # create a file to store the bytes
         temp_vid.write(fbytes)
-        temp_vid.seek(0)
+        temp_vid.close()
 
         try:
             vid_details = get_video_properties(temp_vid.name)

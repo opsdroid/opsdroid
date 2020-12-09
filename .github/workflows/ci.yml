@@ -28,13 +28,13 @@ jobs:
           else
               brew install libolm
           fi
-      - name: Install ffmpeg
+      - name: Install ffmpeg on Ubuntu
         if: runner.os != 'Windows'
         run: |
           if [ $RUNNER_OS = Linux ]; then
               sudo apt install ffmpeg -y
           fi
-      - name: Install ffmpeg
+      - name: Install ffmpeg on windows
         if: runner.os == 'Windows'
         run: |
               choco feature enable -n=allowGlobalConfirmation
