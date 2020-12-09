@@ -438,7 +438,7 @@ class Video(File):
 
         try:
             vid_details = get_video_properties(temp_vid.name)
-            temp.close()  # delete the temp file
+            temp_vid.close()  # delete the temp file
             return vid_details
         except RuntimeError as error:
             if "ffmpeg" in str(error).lower():
