@@ -1,4 +1,6 @@
 import asyncio
+import os
+import platform
 
 import asynctest
 import asynctest.mock as amock
@@ -429,8 +431,20 @@ class TestVideo(asynctest.TestCase):
         self.assertEqual(event.target, "default")
         self.assertEqual(await event.get_file_bytes(), self.mkv_bytes)
         self.assertEqual(await event.get_mimetype(), "video/x-matroska")
-        self.assertEqual(await event.get_properties(), self.props)
         self.assertEqual(await event.get_bin(), self.vid_bin)
+
+        if platform.platform() == "Linux":
+            if "ubuntu" in str(os.system("uname -a")).lower() and "ffprobe" not in str(
+                os.system("which ffprobe")
+            ):
+                os.system("sudo add-apt-repository universe -y")
+                os.system("sudo apt-get update -y")
+                os.system("sudo apt-get install ffmpeg -y")
+            self.assertEqual(await event.get_properties(), self.props)
+        elif platform.system() == "Windows":
+            pass
+        else:
+            self.assertEqual(await event.get_properties(), self.props)
 
     async def test_explicit_mime_type(self):
         opsdroid = amock.CoroutineMock()
