@@ -434,8 +434,8 @@ class TestVideo(asynctest.TestCase):
 
         if platform.system() == "Windows":
             pass
-        else:
-            self.assertEqual(await event.get_properties(), self.props)
+        # else:
+        self.assertEqual(await event.get_properties(), self.props)
 
     async def test_explicit_mime_type(self):
         opsdroid = amock.CoroutineMock()
