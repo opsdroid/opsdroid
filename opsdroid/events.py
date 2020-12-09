@@ -449,7 +449,7 @@ class Video(File):
                 )
                 _LOGGER.warning(_(error))
 
-                temp.close()  # delete the temp file
+                temp_vid.close()  # delete the temp file
 
 
 class NewRoom(Event):

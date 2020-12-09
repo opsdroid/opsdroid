@@ -24,7 +24,8 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           if [ $RUNNER_OS = Linux ]; then
-              sudo apt install libolm3 libolm-dev
+              sudo apt install libolm3 libolm-dev -y
+              sudo apt install ffmpeg -y
           else
               brew install libolm
           fi
