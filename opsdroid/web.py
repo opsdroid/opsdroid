@@ -34,8 +34,10 @@ class Web:
         self.web_app = web.Application()
         self.runner = web.AppRunner(self.web_app)
         self.site = None
-        self.web_app.router.add_get("/", self.web_index_handler)
-        self.web_app.router.add_get("", self.web_index_handler)
+        if not self.config.get("disable_web_index_handler_in_root", False):
+            self.web_app.router.add_get("/", self.web_index_handler)
+            self.web_app.router.add_get("", self.web_index_handler)
+
         self.web_app.router.add_get("/stats", self.web_stats_handler)
         self.web_app.router.add_get("/stats/", self.web_stats_handler)
 

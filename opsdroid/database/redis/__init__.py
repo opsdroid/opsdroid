@@ -94,7 +94,7 @@ class RedisDatabase(Database):
             data = await self.client.execute("GET", key)
 
             if data:
-                return json.loads(data, encoding=JSONDecoder)
+                return json.loads(data, object_hook=JSONDecoder())
 
             return None
 

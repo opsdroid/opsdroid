@@ -160,8 +160,29 @@ class ConnectorSlack(Connector):
             elif self.start_thread:
                 data["thread_ts"] = message.linked_event.event_id
 
-        await self.slack.api_call(
+        return await self.slack.api_call(
             "chat.postMessage",
+            data=data,
+        )
+
+    @register_event(opsdroid.events.EditedMessage)
+    async def _edit_message(self, message):
+        """Edit a message."""
+        _LOGGER.debug(
+            _("Editing message with timestamp: '%s' to %s in room  %s."),
+            message.linked_event,
+            message.text,
+            message.target,
+        )
+        data = {
+            "channel": message.target,
+            "ts": message.linked_event,
+            "text": message.text,
+            "as_user": self.chat_as_user,
+        }
+
+        return await self.slack.api_call(
+            "chat.update",
             data=data,
         )
 
@@ -184,7 +205,7 @@ class ConnectorSlack(Connector):
 
     @register_event(EditedBlocks)
     async def _edit_blocks(self, blocks):
-        """Edit a particular block"""
+        """Edit a particular block."""
         _LOGGER.debug(
             _("Editing interactive blocks with timestamp: '%s' in room  %s."),
             blocks.linked_event,
@@ -197,8 +218,9 @@ class ConnectorSlack(Connector):
             "as_user": self.chat_as_user,
         }
 
-        await self.slack.api_call(
-            "chat.update", data=data,
+        return await self.slack.api_call(
+            "chat.update",
+            data=data,
         )
 
     @register_event(opsdroid.events.Reaction)

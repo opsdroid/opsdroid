@@ -228,6 +228,30 @@ class TestConnectorSlackAsync(asynctest.TestCase):
             },
         )
 
+    async def test_edit_message(self):
+        connector = ConnectorSlack({"token": "abc123"}, opsdroid=self.od)
+        connector.slack.api_call = amock.CoroutineMock()
+        linked_event = "1582838099.000600"
+
+        edited_message = events.EditedMessage(
+            text="edited_message",
+            user="user",
+            target="room",
+            connector=connector,
+            linked_event=linked_event,
+        )
+
+        await connector.send(edited_message)
+        connector.slack.api_call.assert_called_once_with(
+            "chat.update",
+            data={
+                "channel": "room",
+                "ts": "1582838099.000600",
+                "text": "edited_message",
+                "as_user": False,
+            },
+        )
+
     async def test_send_blocks(self):
         connector = ConnectorSlack({"token": "abc123"}, opsdroid=self.od)
         connector.slack.api_call = amock.CoroutineMock()
