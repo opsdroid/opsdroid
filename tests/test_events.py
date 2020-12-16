@@ -449,7 +449,7 @@ class TestVideo(asynctest.TestCase):
     async def test_no_mime_type(self):
         opsdroid = amock.CoroutineMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
-        event = events.Image(
+        event = events.Video(
             b"aslkdjsalkdjlaj",
             user_id="user_id",
             user="user",
