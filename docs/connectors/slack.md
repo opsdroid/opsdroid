@@ -27,7 +27,7 @@ connectors:
     chat-as-user: true # default false
     start_thread: false # default false. if true, opsdroid will start a thread when replying to a message
 ```
-** `user-token` has to be added if you want to use one of the following Events: NewRooom, RoomName, JoinRoom, UserInvite, RoomDescription. From the **classic app** the `user-token` will be the token starts with: `xoxp-`. Note that for you have to add the scopes to use the different events.
+** `user-token` has to be added if you want to send one of the following Events: NewRooom, RoomName, JoinRoom, UserInvite, RoomDescription. From the **classic app** the `user-token` will be the token starts with: `xoxp-`. Note that for you will have to add the scopes in your Slack App to use the different type of events.
 
 ## Usage
 The connector itself won't allow opsdroid to do much. It will connect to Slack and be active on the `default-room`
