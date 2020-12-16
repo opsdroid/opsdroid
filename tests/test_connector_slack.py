@@ -104,8 +104,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         await connector.connect()
         self.assertTrue(connector.slack_rtm._connect_and_read.called)
         self.assertTrue(connector.slack.api_call.called)
-        self.assertTrue(
-            connector.opsdroid.web_server.web_app.router.add_post.called)
+        self.assertTrue(connector.opsdroid.web_server.web_app.router.add_post.called)
 
     async def test_connect_auth_fail(self):
         connector = ConnectorSlack({"token": "abc123"}, opsdroid=self.od)
@@ -299,8 +298,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
 
         connector = ConnectorSlack({"token": "abc123"}, opsdroid=self.od)
         connector.slack.api_call = amock.CoroutineMock(
-            side_effect=slack.errors.SlackApiError(
-                "invalid_name", "invalid_name")
+            side_effect=slack.errors.SlackApiError("invalid_name", "invalid_name")
         )
         prev_message = events.Message(
             text="test",
@@ -439,8 +437,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
 
         response = await connector.slack_interactions_handler(mock_request)
         self.assertTrue(connector.opsdroid.parse.called)
-        self.assertEqual(connector.opsdroid.parse.call_count,
-                         len(req_ob["actions"]))
+        self.assertEqual(connector.opsdroid.parse.call_count, len(req_ob["actions"]))
         self.assertEqual(type(response), aiohttp.web.Response)
         self.assertEqual(response.status, 200)
 
@@ -686,8 +683,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         )
         connector.slack.api_call.assert_called_once_with(
             "pins.add",
-            data={"channel": "an-existing-room",
-                  "timestamp": "1582838099.000600"},
+            data={"channel": "an-existing-room", "timestamp": "1582838099.000600"},
         )
 
     async def test_send_pin_removed(self):
@@ -708,6 +704,5 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         )
         connector.slack.api_call.assert_called_once_with(
             "pins.remove",
-            data={"channel": "an-existing-room",
-                  "timestamp": "1582838099.000600"},
+            data={"channel": "an-existing-room", "timestamp": "1582838099.000600"},
         )
