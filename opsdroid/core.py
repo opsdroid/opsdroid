@@ -179,7 +179,7 @@ class OpsDroid:
             _LOGGER.error(_("Oops! Opsdroid is already running."))
 
     async def start(self):
-        """Run all created tasks concurrently."""
+        """Create tasks and then run all created tasks concurrently."""
         if len(self.skills) == 0:
             self.critical(_("No skills in configuration, at least 1 required"), 1)
 
@@ -191,6 +191,15 @@ class OpsDroid:
 
         self.create_task(self.parse(events.OpsdroidStarted()))
 
+        await self._run_tasks()
+
+    async def _run_tasks(self):
+        """
+        Run all created tasks concurrently.
+
+        This is separate from start() so that tests can run the loop without
+        creating any of the tasks.
+        """
         self._running = True
         with contextlib.suppress(asyncio.CancelledError):
             await asyncio.gather(*self.tasks)
