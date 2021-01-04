@@ -54,6 +54,6 @@ databases:
 
 Your bot will only respond to messages where it was mentioned. So take this into account when designing your skills.
 
-The bot can also only talk in channels where is has been spoken to at least once.
+The bot can also only talk in channels where it has been spoken to at least once.
 
 ![Example message to Opsdroid](https://i.imgur.com/rl1FHAD.png)
