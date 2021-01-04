@@ -24,9 +24,9 @@ class ConnectorGitter(Connector):
         super().__init__(config, opsdroid=opsdroid)
         _LOGGER.debug(_("Starting Gitter Connector."))
         self.name = "gitter"
+        self.bot_name = None  # set at connection time
         self.session = None
         self.response = None
-        self.bot_name = self.config.get("bot-name", "opsdroid")
         self.room_id = self.config.get("room-id")
         self.access_token = self.config.get("token")
         self.update_interval = 1
@@ -53,6 +53,7 @@ class ConnectorGitter(Connector):
         response.raise_for_status()
         response_json = await response.json()
         self.bot_gitter_id = response_json["id"]
+        self.bot_name = response_json["username"]
         # Gitter figures out who we are based on
         _LOGGER.debug(
             _("Successfully obtained bot's gitter id, %s."),
