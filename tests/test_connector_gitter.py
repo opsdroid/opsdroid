@@ -46,7 +46,11 @@ class TestConnectorGitterAsync(asynctest.TestCase):
             mockresponse = amock.CoroutineMock()
             mockresponse.status = 200
             mockresponse.json = amock.CoroutineMock(
-                return_value={"login": "opsdroid", "id": BOT_GITTER_ID}
+                return_value={
+                    "login": "opsdroid",
+                    "id": BOT_GITTER_ID,
+                    "username": "bot",
+                }
             )
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(mockresponse)
@@ -126,7 +130,11 @@ class TestConnectorGitterAsync(asynctest.TestCase):
             mockresponse = amock.CoroutineMock()
             mockresponse.status = 200
             mockresponse.json = amock.CoroutineMock(
-                return_value={"login": "opsdroid", "id": BOT_GITTER_ID}
+                return_value={
+                    "login": "opsdroid",
+                    "id": BOT_GITTER_ID,
+                    "username": "bot",
+                }
             )
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(mockresponse)
