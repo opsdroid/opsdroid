@@ -110,8 +110,7 @@ class ConnectorGitter(Connector):
                     connector=self,
                 )
             except KeyError as err:
-                _LOGGER.error(_("Unable to parse message %s."), err)
-                _LOGGER.error(err)
+                _LOGGER.error(_("Unable to parse message %r."), err)
 
     @register_event(Message)
     async def send_message(self, message):
