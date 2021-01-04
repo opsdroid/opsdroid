@@ -54,7 +54,6 @@ class ConnectorGitter(Connector):
         response_json = await response.json()
         self.bot_gitter_id = response_json["id"]
         self.bot_name = response_json["username"]
-        # Gitter figures out who we are based on
         _LOGGER.debug(
             _("Successfully obtained bot's gitter id, %s."), self.bot_gitter_id
         )
