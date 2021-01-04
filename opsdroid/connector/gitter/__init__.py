@@ -47,7 +47,7 @@ class ConnectorGitter(Connector):
         current_user_url = self.build_url(
             CURRENT_USER_API,
             access_token=self.access_token,
-            )
+        )
         response = await self.session.get(current_user_url, timeout=None)
         # We cannot continue without a user ID, so raise if this failed.
         response.raise_for_status()
@@ -56,8 +56,7 @@ class ConnectorGitter(Connector):
         self.bot_name = response_json["username"]
         # Gitter figures out who we are based on
         _LOGGER.debug(
-            _("Successfully obtained bot's gitter id, %s."),
-            self.bot_gitter_id
+            _("Successfully obtained bot's gitter id, %s."), self.bot_gitter_id
         )
 
         message_stream_url = self.build_url(

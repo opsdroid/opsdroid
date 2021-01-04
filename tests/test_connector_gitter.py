@@ -45,7 +45,9 @@ class TestConnectorGitterAsync(asynctest.TestCase):
         with amock.patch("aiohttp.ClientSession.get") as patched_request:
             mockresponse = amock.CoroutineMock()
             mockresponse.status = 200
-            mockresponse.json = amock.CoroutineMock(return_value={"login": "opsdroid", "id": BOT_GITTER_ID})
+            mockresponse.json = amock.CoroutineMock(
+                return_value={"login": "opsdroid", "id": BOT_GITTER_ID}
+            )
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(mockresponse)
             await self.connector.connect()
@@ -96,11 +98,18 @@ class TestConnectorGitterAsync(asynctest.TestCase):
 
         BOT_GITTER_ID = "12345"
         OTHER_GITTER_ID = "67890"
+
         async def iter_chuncked1(n=None):
             response = [
-                {"text": "hi", "fromUser": {"username": "not a bot", "id": OTHER_GITTER_ID}},
+                {
+                    "text": "hi",
+                    "fromUser": {"username": "not a bot", "id": OTHER_GITTER_ID},
+                },
                 {"text": "hi", "fromUser": {"username": "bot", "id": BOT_GITTER_ID}},
-                {"text": "hi", "fromUser": {"username": "not a bot", "id": OTHER_GITTER_ID}},
+                {
+                    "text": "hi",
+                    "fromUser": {"username": "not a bot", "id": OTHER_GITTER_ID},
+                },
             ]
             for doc in response:
                 yield json.dumps(doc).encode()
@@ -116,7 +125,9 @@ class TestConnectorGitterAsync(asynctest.TestCase):
         with amock.patch("aiohttp.ClientSession.get") as patched_request:
             mockresponse = amock.CoroutineMock()
             mockresponse.status = 200
-            mockresponse.json = amock.CoroutineMock(return_value={"login": "opsdroid", "id": BOT_GITTER_ID})
+            mockresponse.json = amock.CoroutineMock(
+                return_value={"login": "opsdroid", "id": BOT_GITTER_ID}
+            )
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(mockresponse)
             await connector.connect()
