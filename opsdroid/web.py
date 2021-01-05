@@ -115,11 +115,14 @@ class Web:
         timeout = Timeout(10, "Timed out starting web server")
         while timeout.run():
             try:
+                # this is not safe to run repeatedly or the "site" gets registered
+                # multiple times in the aiohttp web_runner
                 await self.site.start()
                 break
             except OSError as e:
                 await asyncio.sleep(0.1)
                 timeout.set_exception(e)
+                raise
 
     async def stop(self):
         """Stop the web server."""
