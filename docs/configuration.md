@@ -190,6 +190,22 @@ skills:
 
 You can pass optional arguments to the logging configuration to extend the opsdroid logging.
 
+##### Logs timestamp
+Sometimes it is useful to have the timestamp when logs happen. You can enable them with the `timestamp` boolean. Defaults to false
+
+```yaml
+logging:
+  level: info
+  timestamp: true
+```
+
+*example:*
+```shell
+2020-12-02 10:39:51,255 INFO opsdroid.logging: ========================================                                 
+2020-12-02 10:39:51,255 INFO opsdroid.logging: Started opsdroid v0.19.0+66.g8b839bc.dirty.                             
+2020-12-02 10:39:51,255 INFO opsdroid: ========================================
+```
+
 ##### Logs rotation
 To keep the logs under control the file will grow to 50MB before being rotated back. You can change the default value by passing the `file-size` argument.
 
