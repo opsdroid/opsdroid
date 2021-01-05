@@ -2,7 +2,7 @@ FROM python:3.8-alpine
 LABEL maintainer="Jacob Tomlinson <jacob@tomlinson.email>"
 
 WORKDIR /usr/src/app
-ARG EXTRAS=.[all]
+ARG EXTRAS=.[all,connector_matrix_e2e]
 
 # Copy source
 COPY . .
