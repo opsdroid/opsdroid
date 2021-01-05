@@ -1204,6 +1204,7 @@ async def test_migrate(patched_send, opsdroid_matrix, mocker, caplog, patched_uu
     )
 
 
+# @pytest.mark.skip("intermittent failures")
 @pytest.mark.asyncio
 async def test_migrate_single_state_key_false(
     patched_send, opsdroid_matrix, mocker, caplog, patched_uuid
