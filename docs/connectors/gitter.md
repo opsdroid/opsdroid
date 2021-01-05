@@ -17,6 +17,5 @@ To use the Gitter connector you will need a user for the bot to use and generate
 ```yaml
 connectors:
   gitter:
-    bot-name: "mr.boot" #optional
     room-id: "to be added" #required
     token: "to be added" #required
