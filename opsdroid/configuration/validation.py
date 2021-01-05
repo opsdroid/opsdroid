@@ -7,6 +7,7 @@ _LOGGER = logging.getLogger(__name__)
 
 logging = {
     Optional("level"): str,
+    Optional("timestamp"): bool,
     Optional("console"): bool,
     Optional("extended"): bool,
     Optional("filter"): {Optional("whitelist"): list, Optional("blacklist"): list},
