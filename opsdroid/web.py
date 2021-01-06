@@ -17,6 +17,8 @@ _LOGGER = logging.getLogger(__name__)
 class Web:
     """Create class for opsdroid Web server."""
 
+    start_timeout = 10  # seconds
+
     def __init__(self, opsdroid):
         """Create web object."""
         self.opsdroid = opsdroid
@@ -106,7 +108,7 @@ class Web:
         _LOGGER.info(_(f"Started web server on {self.base_url}"))
         await self.runner.setup()
 
-        timeout = Timeout(10, "Timed out starting web server")
+        timeout = Timeout(self.start_timeout, "Timed out starting web server")
         while timeout.run():
             try:
                 # We need to recreate the site each time we retry after an OSError.
