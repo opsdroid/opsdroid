@@ -105,24 +105,28 @@ class Web:
         """Start web servers."""
         _LOGGER.info(_(f"Started web server on {self.base_url}"))
         await self.runner.setup()
-        self.site = web.TCPSite(
-            self.runner,
-            host=self.get_host,
-            port=self.get_port,
-            ssl_context=self.get_ssl_context,
-        )
 
         timeout = Timeout(10, "Timed out starting web server")
         while timeout.run():
             try:
-                # this is not safe to run repeatedly or the "site" gets registered
-                # multiple times in the aiohttp web_runner
+                # We need to recreate the site each time we retry after an OSError.
+                # Just repeatedly calling site.start() results in RuntimeErrors that
+                # say the site was already registered in the runner.
+                self.site = web.TCPSite(
+                    self.runner,
+                    host=self.get_host,
+                    port=self.get_port,
+                    ssl_context=self.get_ssl_context,
+                )
                 await self.site.start()
                 break
             except OSError as e:
                 await asyncio.sleep(0.1)
                 timeout.set_exception(e)
-                raise
+                try:
+                    await self.site.stop()
+                except RuntimeError:  # already unregistered
+                    pass
 
     async def stop(self):
         """Stop the web server."""
