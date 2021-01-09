@@ -37,7 +37,7 @@ class ConnectorSMS(Connector):
 
     async def connect(self):
         """Connect to Twilio and setup webhooks"""
-        self.connection = await Client(
+        self.connection = Client(
             self.config["account_sid"], self.config["auth_token"]
         )
         self.opsdroid.web_server.web_app.router.add_get(
@@ -46,16 +46,13 @@ class ConnectorSMS(Connector):
 
     async def handle_messages(self, request):
         req_data = await request.json()
-        try:
-            message = Message(
-                text=req_data["Body"],
-                user=req_data["From"],
-                user_id=req_data["From"],
-                connector=self,
-            )
-            await self.opsdroid.parse(message)
-        except Exception as e:
-            _LOGGER.error(f"ERROR: {e}")
+        message = Message(
+            text=req_data["Body"],
+            user=req_data["From"],
+            user_id=req_data["From"],
+            connector=self,
+        )
+        await self.opsdroid.parse(message)
 
     @register_event(Message)
     async def send_message(self, message):
