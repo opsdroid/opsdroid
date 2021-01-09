@@ -5,8 +5,8 @@ import logging
 from twilio.rest import Client
 from voluptuous import Required
 
-from . import Connector, register_event
-from ..events import Message
+from .. import Connector, register_event
+from ...events import Message
 
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = {
