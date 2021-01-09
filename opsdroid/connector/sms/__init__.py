@@ -69,7 +69,7 @@ class ConnectorSMS(Connector):
         else:
             await asyncio.get_running_loop().run_in_executor(
                 self.connection.messages.create,
-                from_=self.config["number"],
+                from_=self.config["phone_number"],
                 to=message.user,
                 body=message.text
             )
