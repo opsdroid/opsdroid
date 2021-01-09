@@ -125,10 +125,7 @@ class Web:
             except OSError as e:
                 await asyncio.sleep(0.1)
                 timeout.set_exception(e)
-                try:
-                    await self.site.stop()
-                except RuntimeError:  # already unregistered
-                    pass
+                await self.site.stop()
 
     async def stop(self):
         """Stop the web server."""
