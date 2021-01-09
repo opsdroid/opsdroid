@@ -19,6 +19,10 @@ CONFIG_SCHEMA = {
 }
 
 
+class SMSConnectorException(Exception):
+    ...
+
+
 class ConnectorSMS(Connector):
     """A connector for SMS."""
 
@@ -28,10 +32,8 @@ class ConnectorSMS(Connector):
         self.bot_name = config.get("bot-name", "opsdroid")
         self.config = config
 
-        for key in range(len(list(CONFIG_SCHEMA.keys()).remove('name')) - 1 ): # loop through all the keys except the last one
-            assert(self.config.get(list(CONFIG_SCHEMA.keys()).remove('name')[key]) != None)
-        
-        assert(len(config.get('approved_trial_numbers' != 0 )), 'Please set approved_trial_numbers') if self.config['is_trial'] == True
+        if self.config['is_trial'] and not config.get('approved_trial_numbers'):
+            raise SMSConnectorException('Please set approved_trial_numbers')
 
     async def connect(self):
         """Connect to Twilio and setup webhooks"""
