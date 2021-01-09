@@ -1,12 +1,12 @@
 '''A SMS connector for opsdroid'''
-# Opsdroid Imports
-from opsdroid.connector import Connector, register_event
-from opsdroid.events import Message
-from voluptuous import Required
+import asyncio
 import logging
 
-# Twilio Imports
 from twilio.rest import Client
+from voluptuous import Required
+
+from . import Connector, register_event
+from ..events import Message
 
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = {
@@ -37,8 +37,11 @@ class ConnectorSMS(Connector):
 
     async def connect(self):
         """Connect to Twilio and setup webhooks"""
-        self.connection = Client(
-            self.config["account_sid"], self.config["auth_token"]
+        self.connection = await asyncio.get_running_loop().run_in_executor(
+            None,
+            Client,
+            self.config["account_sid"],
+            self.config["auth_token"]
         )
         self.opsdroid.web_server.web_app.router.add_get(
             f"/connector/{self.name}", self.handle_messages
@@ -64,8 +67,11 @@ class ConnectorSMS(Connector):
                 "[ERROR] This number is not verified for use with your Twilio Trial Account"
             )
         else:
-            self.connection.messages.create(
-                from_=self.config["number"], to=message.user, body=message.text
+            await asyncio.get_running_loop().run_in_executor(
+                self.connection.messages.create,
+                from_=self.config["number"],
+                to=message.user,
+                body=message.text
             )
 
     async def listen(self):
