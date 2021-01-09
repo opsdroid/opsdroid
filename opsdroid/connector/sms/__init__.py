@@ -43,7 +43,7 @@ class ConnectorSMS(Connector):
             self.config["account_sid"],
             self.config["auth_token"]
         )
-        self.opsdroid.web_server.web_app.router.add_get(
+        self.opsdroid.web_server.web_app.router.add_post(
             f"/connector/{self.name}", self.handle_messages
         )
 
