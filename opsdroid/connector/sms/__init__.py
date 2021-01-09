@@ -48,7 +48,7 @@ class ConnectorSMS(Connector):
         )
 
     async def handle_messages(self, request):
-        req_data = await request.json()
+        req_data = await request.post()
         message = Message(
             text=req_data["Body"],
             user=req_data["From"],
