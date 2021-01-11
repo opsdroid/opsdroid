@@ -586,7 +586,6 @@ class TestCoreAsync(asynctest.TestCase):
 
     # TODO: Test fails on mac only, needs investigating
     # @pytest.mark.xfail()
-    @pytest.mark.skip("Needs to be updated to handle lack of opsdroid.path_watch_task")
     async def test_watchdog(self):
         skill_path = "opsdroid/testing/mockmodules/skills/skill/skilltest"
         example_config = {
