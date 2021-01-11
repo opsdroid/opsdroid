@@ -1,7 +1,10 @@
 """Test the opsdroid web."""
+import contextlib
+import socket
 import ssl
 
 import asynctest.mock as amock
+import pytest
 
 from opsdroid.cli.start import configure_lang
 from opsdroid import web
@@ -119,3 +122,28 @@ async def test_web_stop(opsdroid):
     app.runner.cleanup = amock.CoroutineMock()
     await app.stop()
     assert app.runner.cleanup.called
+
+
+@pytest.fixture
+def bound_address():
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    with contextlib.suppress(socket.error):
+        if hasattr(socket, "SO_EXCLUSIVEADDRUSE"):  # only on windows
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+    with contextlib.suppress(socket.error):
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 0)
+
+    s.bind(("0.0.0.0", 0))  # an ephemeral port
+    yield s.getsockname()
+    s.close()
+
+
+async def test_web_port_in_use(opsdroid, bound_address):
+    """Check retry/timeout handling when the port is in use."""
+    opsdroid.config["web"] = {"host": bound_address[0], "port": bound_address[1]}
+    app = web.Web(opsdroid)
+    app.start_timeout = 0.5  # no need to retry for 10 seconds
+    # linux: Errno 98 (ADDRINUSE)
+    # windows: Errno 10013 (WSAEACCESS) or 10048 (WSAEADDRINUSE)
+    with pytest.raises(OSError):
+        await app.start()
