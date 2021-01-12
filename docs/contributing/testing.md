@@ -54,4 +54,5 @@ pytest Fixtures
 ###############
 
 .. autofunction:: opsdroid.testing.opsdroid
+   :noindex:
 ```

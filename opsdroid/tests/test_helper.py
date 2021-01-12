@@ -31,7 +31,9 @@ class TestHelper:
         assert file_is_ipython_notebook("test.py") is False
 
     def test_convert_ipynb_to_script(self):
-        notebook_path = os.path.abspath("tests/mockmodules/skills/test_notebook.ipynb")
+        notebook_path = os.path.abspath(
+            "opsdroid/testing/mockmodules/skills/test_notebook.ipynb"
+        )
 
         with tempfile.NamedTemporaryFile(mode="w", delete=False) as output_file:
             convert_ipynb_to_script(notebook_path, output_file.name)

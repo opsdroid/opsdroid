@@ -19,6 +19,7 @@ web = Any(
         Optional("host"): str,
         Optional("port"): int,
         Optional("ssl"): {Required("cert"): str, Required("key"): str},
+        Optional("base_url"): str,
     },
 )
 

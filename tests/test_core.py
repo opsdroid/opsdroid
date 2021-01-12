@@ -1,7 +1,5 @@
 import os
 import asyncio
-import contextlib
-import pytest
 import unittest
 import unittest.mock as mock
 import asynctest
@@ -25,6 +23,7 @@ from opsdroid.matchers import (
     match_watson,
     match_witai,
 )
+from opsdroid.testing import run_unit_test
 
 
 class TestCore(unittest.TestCase):
@@ -161,7 +160,7 @@ class TestCore(unittest.TestCase):
             self.assertEqual(len(opsdroid.skills), 2)
 
             mockclassmodule = importlib.import_module(
-                "tests.mockmodules.skills.skill.skilltest"
+                "opsdroid.testing.mockmodules.skills.skill.skilltest"
             )
             example_modules = [{"module": mockclassmodule, "config": {}}]
             opsdroid.setup_skills(example_modules)
@@ -503,7 +502,7 @@ class TestCoreAsync(asynctest.TestCase):
             module = {}
             module["config"] = {}
             module["module"] = importlib.import_module(
-                "tests.mockmodules.connectors.connector_mocked"
+                "opsdroid.testing.mockmodules.connectors.connector_mocked"
             )
 
             try:
@@ -527,7 +526,7 @@ class TestCoreAsync(asynctest.TestCase):
             module = {}
             module["config"] = {}
             module["module"] = importlib.import_module(
-                "tests.mockmodules.connectors.connector_bare"
+                "opsdroid.testing.mockmodules.connectors.connector_bare"
             )
 
             with self.assertRaises(NotImplementedError):
@@ -547,7 +546,7 @@ class TestCoreAsync(asynctest.TestCase):
             module = {}
             module["config"] = {}
             module["module"] = importlib.import_module(
-                "tests.mockmodules.databases.database"
+                "opsdroid.testing.mockmodules.databases.database"
             )
             with self.assertRaises(NotImplementedError):
                 await opsdroid.setup_databases([module])
@@ -584,14 +583,8 @@ class TestCoreAsync(asynctest.TestCase):
         with TemporaryDirectory() as directory:
             await asyncio.gather(watch_dirs([directory]), modify_dir(directory))
 
-    # TODO: Test fails on mac only, needs investigating
-    # @pytest.mark.xfail()
-    @pytest.mark.skip("Needs to be updated to handle lack of opsdroid.path_watch_task")
     async def test_watchdog(self):
-        skill_path = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "mockmodules/skills/skill/skilltest",
-        )
+        skill_path = "opsdroid/testing/mockmodules/skills/skill/skilltest"
         example_config = {
             "autoreload": True,
             "connectors": {"websocket": {}},
@@ -606,17 +599,27 @@ class TestCoreAsync(asynctest.TestCase):
                 fh.write("")
                 fh.flush()
 
-            opsdroid.path_watch_task.cancel()
+            # let other tasks run so the watch_paths task can detect the new file
+            await asyncio.sleep(0.5)
+
+            for task in opsdroid.tasks:
+                try:
+                    # py3.8+
+                    task_name = task.get_coro().__name__
+                except AttributeError:
+                    # py3.7
+                    task_name = task._coro.__name__
+                if task_name == "watch_paths":
+                    task.cancel()
+                    break
             os.remove(mock_file_path)
+            return True
 
         with OpsDroid(config=example_config) as opsdroid:
             opsdroid.reload = amock.CoroutineMock()
             await opsdroid.load()
 
-            with contextlib.suppress(asyncio.CancelledError):
-                await asyncio.gather(
-                    opsdroid.path_watch_task, modify_dir(opsdroid, skill_path)
-                )
+            assert await run_unit_test(opsdroid, modify_dir, opsdroid, skill_path)
 
             timeout = 5
             start = time.time()
