@@ -39,6 +39,7 @@ def bound_address():
             s.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
     with contextlib.suppress(socket.error):
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 0)
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 0)
 
     s.bind(("0.0.0.0", 0))  # an ephemeral port
     yield s.getsockname()
