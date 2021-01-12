@@ -2,8 +2,10 @@
 import pytest
 
 import asyncio
+import contextlib
+import socket
 
-from opsdroid.testing import opsdroid
+from opsdroid.testing import opsdroid, mock_api  # noqa
 from opsdroid.connector import Connector
 
 from opsdroid.cli.start import configure_lang
@@ -27,3 +29,19 @@ def event_loop():
     loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
     loop.close()
+
+
+@pytest.fixture
+def bound_address(request):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    with contextlib.suppress(socket.error):
+        if hasattr(socket, "SO_EXCLUSIVEADDRUSE"):  # only on windows
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        if hasattr(socket, "SO_REUSEPORT"):  # not on windows
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 0)
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 0)
+
+    host = request.param if hasattr(request, "param") else "0.0.0.0"
+    s.bind((host, 0))  # an ephemeral port
+    yield s.getsockname()
+    s.close()

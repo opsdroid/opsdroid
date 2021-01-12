@@ -33,12 +33,16 @@ class Sdist(sdist):
 
 
 extras = read_configuration("setup.cfg")["options"]["extras_require"]
-common_extras = [
-    "connector_matrix",
-    "connector_slack",
-    "database_sqlite",
-]
-extras["all"] = list(chain(*(extras[key] for key in extras.keys() if key != "test")))
+common_extras = ["connector_matrix", "connector_slack", "database_sqlite"]
+not_all = (
+    "test",
+    # We want people to have to opt-into e2ee at the moment because of
+    # difficult compile time dependancies.
+    "connector_matrix_e2e",
+)
+extras["all"] = list(
+    chain(*(extras[key] for key in extras.keys() if key not in not_all))
+)
 extras["all_connectors"] = list(
     chain(*(extras[key] for key in extras.keys() if key.startswith("connector")))
 )

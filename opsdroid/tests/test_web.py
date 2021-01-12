@@ -2,6 +2,7 @@
 import ssl
 
 import asynctest.mock as amock
+import pytest
 
 from opsdroid.cli.start import configure_lang
 from opsdroid import web
@@ -119,3 +120,14 @@ async def test_web_stop(opsdroid):
     app.runner.cleanup = amock.CoroutineMock()
     await app.stop()
     assert app.runner.cleanup.called
+
+
+async def test_web_port_in_use(opsdroid, bound_address):
+    """Check retry/timeout handling when the port is in use."""
+    opsdroid.config["web"] = {"host": bound_address[0], "port": bound_address[1]}
+    app = web.Web(opsdroid)
+    app.start_timeout = 0.5  # no need to retry for 10 seconds
+    # linux: Errno 98 (ADDRINUSE)
+    # windows: Errno 10013 (WSAEACCESS) or 10048 (WSAEADDRINUSE)
+    with pytest.raises(OSError):
+        await app.start()

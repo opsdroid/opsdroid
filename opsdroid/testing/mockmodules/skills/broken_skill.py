@@ -1,3 +1,3 @@
 """A broken skill with a bad import."""
 
-import czxlkjhzfdlkjhzfd
+import czxlkjhzfdlkjhzfd  # noqa

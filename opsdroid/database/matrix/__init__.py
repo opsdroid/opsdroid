@@ -89,8 +89,7 @@ class DatabaseMatrix(Database):
                         )
                     )
                     await self.connector.connection.room_redact(
-                        room_id=self.room_id,
-                        event_id=event["event_id"],
+                        room_id=self.room_id, event_id=event["event_id"]
                     )
 
         self.should_migrate = False
@@ -165,19 +164,21 @@ class DatabaseMatrix(Database):
         )
 
         ori_data = await self.connector.connection.room_get_state_event(
-            room_id=self.room_id,
-            event_type=self._event_type,
-            state_key=state_key,
+            room_id=self.room_id, event_type=self._event_type, state_key=state_key
         )
+
         if isinstance(ori_data, RoomGetStateEventError):
+            if (
+                ori_data.transport_response is not None
+                and ori_data.transport_response.status == 404
+            ):
+                _LOGGER.error(
+                    f"Error getting {key} from matrix room {self.room_id}: Event not found"
+                )
+                return
             raise RuntimeError(
                 f"Error getting {key} from matrix room {self.room_id}: {ori_data.message}({ori_data.status_code})"
             )
-        elif ori_data.transport_response.status == 404:
-            _LOGGER.error(
-                f"Error getting {key} from matrix room {self.room_id}: Event not found"
-            )
-            return
 
         data = ori_data.content
 
@@ -197,8 +198,7 @@ class DatabaseMatrix(Database):
         for k, v in data.items():
             if isinstance(v, dict) and len(v) == 1 and "encrypted_val" in v:
                 resp = await self.connector.connection.room_get_event(
-                    room_id=self.room_id,
-                    event_id=v["encrypted_val"],
+                    room_id=self.room_id, event_id=v["encrypted_val"]
                 )
                 if isinstance(resp, RoomGetEventError):
                     _LOGGER.error(
@@ -230,9 +230,7 @@ class DatabaseMatrix(Database):
         )
 
         data = await self.connector.connection.room_get_state_event(
-            room_id=self.room_id,
-            event_type=self._event_type,
-            state_key=state_key,
+            room_id=self.room_id, event_type=self._event_type, state_key=state_key
         )
         if isinstance(data, RoomGetStateEventError):
             _LOGGER.error(
@@ -240,7 +238,10 @@ class DatabaseMatrix(Database):
             )
             return
 
-        if data.transport_response.status == 404:
+        if (
+            data.transport_response is not None
+            and data.transport_response.status == 404
+        ):
             _LOGGER.error(
                 f"State event {self._event_type} with state key '{state_key}' doesn't exist."
             )
