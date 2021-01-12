@@ -83,15 +83,16 @@ class ExternalAPIMockServer:
     async def _start(self) -> None:
         """Start the server."""
         await self.runner.setup()
-        self.site = web.TCPSite(self.runner, host=self.host, port=self.port)
         timeout = Timeout(10, "Timed out starting web server")
         while timeout.run():
             try:
+                self.site = web.TCPSite(self.runner, host=self.host, port=self.port)
                 await self.site.start()
                 break
             except OSError as e:
                 await asyncio.sleep(0.1)
                 timeout.set_exception(e)
+                await self.site.stop()
         self.status = "running"
 
     async def _stop(self) -> None:
