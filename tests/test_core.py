@@ -1,6 +1,5 @@
 import os
 import asyncio
-import pytest
 import unittest
 import unittest.mock as mock
 import asynctest
@@ -584,8 +583,6 @@ class TestCoreAsync(asynctest.TestCase):
         with TemporaryDirectory() as directory:
             await asyncio.gather(watch_dirs([directory]), modify_dir(directory))
 
-    # TODO: Test fails on mac only, needs investigating
-    # @pytest.mark.xfail()
     async def test_watchdog(self):
         skill_path = "opsdroid/testing/mockmodules/skills/skill/skilltest"
         example_config = {
@@ -602,14 +599,27 @@ class TestCoreAsync(asynctest.TestCase):
                 fh.write("")
                 fh.flush()
 
-            opsdroid.path_watch_task.cancel()
+            # let other tasks run so the watch_paths task can detect the new file
+            await asyncio.sleep(0.5)
+
+            for task in opsdroid.tasks:
+                try:
+                    # py3.8+
+                    task_name = task.get_coro().__name__
+                except AttributeError:
+                    # py3.7
+                    task_name = task._coro.__name__
+                if task_name == "watch_paths":
+                    task.cancel()
+                    break
             os.remove(mock_file_path)
+            return True
 
         with OpsDroid(config=example_config) as opsdroid:
             opsdroid.reload = amock.CoroutineMock()
             await opsdroid.load()
 
-            await run_unit_test(opsdroid, modify_dir, opsdroid, skill_path)
+            assert await run_unit_test(opsdroid, modify_dir, opsdroid, skill_path)
 
             timeout = 5
             start = time.time()
