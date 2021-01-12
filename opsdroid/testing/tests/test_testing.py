@@ -65,6 +65,25 @@ async def test_external_api_mock_server(session):
 
 
 @pytest.mark.asyncio
+async def test_external_api_mock_server_port_in_use(bound_address):
+    """Check retry/timeout handling when the port is in use."""
+    mock_api = ExternalAPIMockServer()
+    mock_api.port = bound_address[1]
+    mock_api.start_timeout = 0.5  # no need to retry for 10 seconds
+
+    mock_api.add_response("/test", "GET", None, 200)
+
+    async def test():
+        """A closure to test the runner."""
+        await session.get(f"{mock_api.base_url}/test")
+
+    # linux: Errno 98 (ADDRINUSE)
+    # windows: Errno 10013 (WSAEACCESS) or 10048 (WSAEADDRINUSE)
+    with pytest.raises(OSError):
+        await mock_api.run_test(test)
+
+
+@pytest.mark.asyncio
 async def test_call_endpoint(opsdroid):
     await opsdroid.load(config=MINIMAL_CONFIG)
 

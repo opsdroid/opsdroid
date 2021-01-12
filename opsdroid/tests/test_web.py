@@ -1,6 +1,4 @@
 """Test the opsdroid web."""
-import contextlib
-import socket
 import ssl
 
 import asynctest.mock as amock
@@ -122,20 +120,6 @@ async def test_web_stop(opsdroid):
     app.runner.cleanup = amock.CoroutineMock()
     await app.stop()
     assert app.runner.cleanup.called
-
-
-@pytest.fixture
-def bound_address():
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    with contextlib.suppress(socket.error):
-        if hasattr(socket, "SO_EXCLUSIVEADDRUSE"):  # only on windows
-            s.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
-    with contextlib.suppress(socket.error):
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 0)
-
-    s.bind(("0.0.0.0", 0))  # an ephemeral port
-    yield s.getsockname()
-    s.close()
 
 
 async def test_web_port_in_use(opsdroid, bound_address):

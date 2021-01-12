@@ -75,6 +75,7 @@ class ExternalAPIMockServer:
         self.responses = {}
         self._payloads = {}
         self.status = "stopped"
+        self.start_timeout = 10  # seconds
 
     def _initialize_web_app(self) -> None:
         self.app = web.Application()
@@ -83,7 +84,7 @@ class ExternalAPIMockServer:
     async def _start(self) -> None:
         """Start the server."""
         await self.runner.setup()
-        timeout = Timeout(10, "Timed out starting web server")
+        timeout = Timeout(self.start_timeout, "Timed out starting web server")
         while timeout.run():
             try:
                 self.site = web.TCPSite(self.runner, host=self.host, port=self.port)
