@@ -32,7 +32,7 @@ def event_loop():
 
 
 @pytest.fixture
-def bound_address():
+def bound_address(request):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     with contextlib.suppress(socket.error):
         if hasattr(socket, "SO_EXCLUSIVEADDRUSE"):  # only on windows
@@ -41,6 +41,7 @@ def bound_address():
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 0)
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 0)
 
-    s.bind(("0.0.0.0", 0))  # an ephemeral port
+    host = request.param if hasattr(request, "param") else "0.0.0.0"
+    s.bind((host, 0))  # an ephemeral port
     yield s.getsockname()
     s.close()

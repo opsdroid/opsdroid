@@ -64,6 +64,7 @@ async def test_external_api_mock_server(session):
     assert len(mock_api.responses) == 0
 
 
+@pytest.mark.parametrize("bound_address", ["localhost"], indirect=True)
 @pytest.mark.asyncio
 async def test_external_api_mock_server_port_in_use(bound_address, session):
     """Check retry/timeout handling when the port is in use."""
