@@ -4,13 +4,14 @@ import asyncio
 import aiohttp
 from aiohttp import web
 import json
+import time
 from typing import Any, Awaitable, List, Dict
 
 from opsdroid.core import OpsDroid
 
 
 async def run_unit_test(
-    opsdroid: OpsDroid, test: Awaitable, *args: List, **kwargs: Dict
+    opsdroid: OpsDroid, test: Awaitable, *args: List, start_timeout=1, **kwargs: Dict
 ) -> Any:
     """Run a unit test function against opsdroid.
 
@@ -22,6 +23,7 @@ async def run_unit_test(
     Args:
         opsdroid: A loaded but stopped instance of opsdroid.
         test: A test to execute concurrently with opsdroid once it has been started.
+        start_timeout: Wait up to this timeout for opsdroid to say that it is running.
 
     Returns:
         Passes on the return of the test coroutine.
@@ -58,7 +60,9 @@ async def run_unit_test(
     """
 
     async def runner():
-        await asyncio.sleep(0.5)  # TODO Replace with more robust check
+        start = time.time()
+        while not opsdroid.is_running() and start + start_timeout > time.time():
+            await asyncio.sleep(0.1)
         result = await test(*args, **kwargs)
         await opsdroid.stop()
         return result
