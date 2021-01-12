@@ -176,10 +176,9 @@ class DatabaseMatrix(Database):
                     f"Error getting {key} from matrix room {self.room_id}: Event not found"
                 )
                 return
-            else:
-                raise RuntimeError(
-                    f"Error getting {key} from matrix room {self.room_id}: {ori_data.message}({ori_data.status_code})"
-                )
+            raise RuntimeError(
+                f"Error getting {key} from matrix room {self.room_id}: {ori_data.message}({ori_data.status_code})"
+            )
 
         data = ori_data.content
 
