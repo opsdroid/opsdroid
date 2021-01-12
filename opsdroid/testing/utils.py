@@ -130,16 +130,18 @@ async def call_endpoint(
     if data_path:
         with open(data_path) as json_file:
             data = json.load(json_file)
+
+    # 0.0.0.0 is problematic (at least) on windows
+    base_url = opsdroid.web_server.base_url.replace("//0.0.0.0:", "//127.0.0.1:")
+
     async with aiohttp.ClientSession() as session:
         if method.upper() == "GET":
-            async with session.get(f"{opsdroid.web_server.base_url}{endpoint}") as resp:
+            async with session.get(f"{base_url}{endpoint}") as resp:
                 return resp
         elif method.upper() == "POST":
             if data_path is None and data is None:
                 raise RuntimeError("Either data or data_path must be set")
-            async with session.post(
-                f"{opsdroid.web_server.base_url}{endpoint}", data=data
-            ) as resp:
+            async with session.post(f"{base_url}{endpoint}", data=data) as resp:
                 return resp
         else:
             raise TypeError(f"Unsupported method {method}")
