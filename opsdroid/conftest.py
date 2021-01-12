@@ -37,9 +37,9 @@ def bound_address(request):
     with contextlib.suppress(socket.error):
         if hasattr(socket, "SO_EXCLUSIVEADDRUSE"):  # only on windows
             s.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
-    with contextlib.suppress(socket.error):
+        if hasattr(socket, "SO_REUSEPORT"):  # not on windows
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 0)
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 0)
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 0)
 
     host = request.param if hasattr(request, "param") else "0.0.0.0"
     s.bind((host, 0))  # an ephemeral port
