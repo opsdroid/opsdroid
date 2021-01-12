@@ -65,7 +65,7 @@ async def test_external_api_mock_server(session):
 
 
 @pytest.mark.asyncio
-async def test_external_api_mock_server_port_in_use(bound_address):
+async def test_external_api_mock_server_port_in_use(bound_address, session):
     """Check retry/timeout handling when the port is in use."""
     mock_api = ExternalAPIMockServer()
     mock_api.port = bound_address[1]
