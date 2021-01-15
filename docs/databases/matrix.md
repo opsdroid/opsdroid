@@ -1,55 +1,56 @@
 # Matrix
 
-A database module for [opsdroid](https://github.com/opsdroid/opsdroid) to persist memory in a [matrix](https://matrix.org/) room in the form of state events. The data can be encrypted by storing them as room events in encrypted rooms.
+This database module stores the opsdroid memory into "state events" in a matrix room.
+These state events form part of the history of the room and can be queried from the room at any time, like the rest of a room, they are replicated over all participating servers in the room, making them a robust way of storing json objects.
 
 ## Requirements
 
-None.
-
-_Note: To use encryption you need the e2e dependencies for matrix-nio which can be installed with `pip install matrix-nio[e2e]`_
+Install opsdroid with the `database_matrix` and `connector_matrix` extras to use the matrix database, also install with `connector_matrix_e2e` to use the connector and database in encrypted rooms.
+The matrix connector must be configured to be able to use the matrix database, see that page of the docs for more information.
 
 ## Configuration
+
+A minimal configuration is:
 
 ```yaml
 databases:
   matrix:
-    default_room: "main"
+```
+
+In it's default configuration the database will put events into the room named "main" in the connector configuration.
+
+   
+An example of all the configuration options, with their default values is:
+
+```yaml
+databases:
+  matrix:
+    default_room: main
     single_state_key: True
     should_encrypt: True
 ```
 
+In general we recommend setting `single_state_key: False`, the default is `True` for backwards compatibility reasons but the downsides of setting it to `False` have now been removed.
+
 ## Usage
 
-The database provides 3 functions to interact with it - `get, put, and delete`.
+Interacting with opsdroid databases happens through opsdroid's memory, see the memory page for more details.
 
-The data is maintained in state events in the form of a dictionary. Each event
-has a `state key` which is used to identify that event. You can configure the
-database to have only one single state key or specify a state key for each
-request. State events are sent to the room specified in the configuration.
+An addition to the usual use of memory, the matrix database provides a context manager `memory_in_room` to perform some operations in a different rooms.
+The room can be specified with a matrix room alias, the name of a room in the connector config or a matrix room id.
 
-The `get` function takes one argument, the key. If the database is configured to
-have a single state key then the key passed should be the key for the dict in it. If
-single state key is disabled the the key passed should be the state key.
-
-The `put` function takes 2 arguments, the key and value to put in the
-dictionary. The key is either the dict key if single state key is set or the
-state key if single state key is not set. The value can be whatever you want.
-
-the `delete` function takes one argument, the key to delete. The key is either
-the dict key if single state key is set or the state key if single state key is
-not set. You can pass a list of keys to delete multiple keys if single state
-key is enabled.
-
-The database provides a context manager `memory_in_room` to perform some
-operations in a different rooms. use it as:
 ```
 db = opsdroid.get_database("matrix")
-with db.memory_in_room(new_room_id):
-	database ops
+with db.memory_in_room(new_room):
+   ...
 ```
 
-There is also a decorator for skill functions to use the memory of the room
-where the message was received from.
+```eval_rst
+.. automethod:: opsdroid.database.matrix.DatabaseMatrix.memory_in_room
+```
+
+There is also a decorator for skill functions to use the memory of the room where the event was received from.
+It uses the `.target` attribute of the third argument to the skill function, which is the matrix event.
 ```
 from opsdroid.database.matrix import memory_in_event_room
 
@@ -58,11 +59,29 @@ async def skill_func(opsdroid, config, message):
 	...
 ```
 
-## Encryption
+```eval_rst
+.. autofunction:: opsdroid.database.matrix.memory_in_event_room
+```
 
-In encrypted Matrix rooms, state events (used by the database) are not encrypted. This means that anything put into the matrix database in an encrypted room would not be encrypted. To prevent this the matrix database send the **values** you put into your database into the room as regular events, which are encrypted, and then references these events from the database (which is still a state event).
+## How it Works
+
+### State Events and State Keys
+
+Matrix state events have a type, which for the opsdroid matrix database is `dev.opsdroid.database`, a "state key" which distinguishes state events with the same type, and content which is a json object.
+In the default configuration the state key is not used, the whole database is stored in a single json object in the content of the `dev.opsdroid.database` event with `state_key: ""`.
+This means that if one key is changed then the whole event is resent.
+When the ``single_state_key: False`` option is set, the key given to the opsdroid memory is used as the state key, this allows directly querying the matrix API for the value corresponding to that key.
+
+
+### Encryption
+
+In encrypted Matrix rooms, state events (used by the database) are not encrypted.
+This means that anything put into the matrix database in an encrypted room would not be encrypted.
+To prevent this the matrix database sends the **values** you put into your database into the room as regular events, which are encrypted, and then references these events from the database (which is still a state event).
 This has two effects you should be aware of:
 
 1) The keys in your database are not encrypted, **do not put sensitive information in the key**.
 
 2) If opsdroid can't decrypt the event, it will be dropped from the database. This means that if you need long term storage in your encrypted rooms you must take steps to save the matrix connectors store (where the decryption keys are kept), so back up your store and keep it safe!
+
+If you would rather your database not be encrypted in an encrypted room, you can set the `should_encrypt: False` config option.
