@@ -149,12 +149,11 @@ async def test_mock_skill_and_connector(opsdroid):
 @pytest.mark.add_response("/test", "GET")
 @pytest.mark.add_response("/test2", "GET", status=500)
 @pytest.mark.asyncio
-async def test_mock_api_with_pytest_marks(mock_api):
-    async with aiohttp.ClientSession() as session:
-        async with session.get(f"{mock_api.base_url}/test") as resp:
-            assert resp.status == 200
-            assert mock_api.called("/test")
+async def test_mock_api_with_pytest_marks(mock_api, session):
+    async with session.get(f"{mock_api.base_url}/test") as resp:
+        assert resp.status == 200
+        assert mock_api.called("/test")
 
-        async with session.get(f"{mock_api.base_url}/test2") as resp:
-            assert resp.status == 500
-            assert mock_api.called("/test2")
+    async with session.get(f"{mock_api.base_url}/test2") as resp:
+        assert resp.status == 500
+        assert mock_api.called("/test2")
