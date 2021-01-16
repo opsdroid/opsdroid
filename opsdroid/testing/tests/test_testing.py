@@ -11,6 +11,7 @@ from opsdroid.testing import (
     ExternalAPIMockServer,
     call_endpoint,
     run_unit_test,
+    running_opsdroid,
 )
 
 
@@ -118,7 +119,19 @@ async def test_run_unit_test(opsdroid):
     async def test():
         assert opsdroid.is_running()
 
+    assert not opsdroid.is_running()
+
     await run_unit_test(opsdroid, test)
+
+
+@pytest.mark.asyncio
+async def test_with_running_opsdroid(opsdroid):
+    await opsdroid.load(config=MINIMAL_CONFIG)
+
+    assert not opsdroid.is_running()
+
+    async with running_opsdroid(opsdroid):
+        assert opsdroid.is_running()
 
 
 @pytest.mark.asyncio

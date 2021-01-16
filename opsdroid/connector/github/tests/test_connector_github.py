@@ -7,7 +7,7 @@ from pathlib import Path
 from opsdroid.connector.github import ConnectorGitHub
 from opsdroid.events import Message
 from opsdroid.matchers import match_event
-from opsdroid.testing import call_endpoint, run_unit_test
+from opsdroid.testing import call_endpoint, running_opsdroid
 
 
 @pytest.fixture
@@ -159,7 +159,7 @@ async def test_receive_comment(opsdroid, connector, mock_api):
 
     opsdroid.register_skill(test_skill, config={"name": "test"})
 
-    async def test():
+    async with running_opsdroid(opsdroid):
         resp = await call_endpoint(
             opsdroid,
             "/connector/github",
@@ -167,8 +167,6 @@ async def test_receive_comment(opsdroid, connector, mock_api):
             data=get_webhook_payload("github_comment_payload.json"),
         )
         assert resp.status == 201
-
-    await run_unit_test(opsdroid, test)
 
 
 @pytest.mark.add_response(
@@ -186,7 +184,7 @@ async def test_receive_pr(opsdroid, connector, mock_api):
 
     opsdroid.register_skill(test_skill, config={"name": "test"})
 
-    async def test():
+    async with running_opsdroid(opsdroid):
         resp = await call_endpoint(
             opsdroid,
             "/connector/github",
@@ -194,8 +192,6 @@ async def test_receive_pr(opsdroid, connector, mock_api):
             data=get_webhook_payload("github_pr_payload.json"),
         )
         assert resp.status == 201
-
-    await run_unit_test(opsdroid, test)
 
 
 @pytest.mark.add_response(
@@ -213,7 +209,7 @@ async def test_receive_issue(opsdroid, connector, mock_api):
 
     opsdroid.register_skill(test_skill, config={"name": "test"})
 
-    async def test():
+    async with running_opsdroid(opsdroid):
         resp = await call_endpoint(
             opsdroid,
             "/connector/github",
@@ -221,8 +217,6 @@ async def test_receive_issue(opsdroid, connector, mock_api):
             data=get_webhook_payload("github_issue_payload.json"),
         )
         assert resp.status == 201
-
-    await run_unit_test(opsdroid, test)
 
 
 @pytest.mark.add_response(
@@ -235,7 +229,7 @@ async def test_receive_label(opsdroid, connector, mock_api):
     test_skill = match_event(Message)(CoroutineMock())
     opsdroid.register_skill(test_skill, config={"name": "test"})
 
-    async def test():
+    async with running_opsdroid(opsdroid):
         resp = await call_endpoint(
             opsdroid,
             "/connector/github",
@@ -244,7 +238,6 @@ async def test_receive_label(opsdroid, connector, mock_api):
         )
         assert resp.status == 200
 
-    await run_unit_test(opsdroid, test)
     assert not test_skill.called
 
 
@@ -258,7 +251,7 @@ async def test_receive_status(opsdroid, connector, mock_api):
     test_skill = match_event(Message)(CoroutineMock())
     opsdroid.register_skill(test_skill, config={"name": "test"})
 
-    async def test():
+    async with running_opsdroid(opsdroid):
         resp = await call_endpoint(
             opsdroid,
             "/connector/github",
@@ -267,5 +260,4 @@ async def test_receive_status(opsdroid, connector, mock_api):
         )
         assert resp.status == 201
 
-    await run_unit_test(opsdroid, test)
     assert not test_skill.called
