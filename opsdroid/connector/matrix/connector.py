@@ -91,9 +91,9 @@ class ConnectorMatrix(Connector):
         self.rooms = self._process_rooms_dict(config["rooms"])
         self.room_ids = {}
         self.default_target = self.rooms["main"]["alias"]
-        self.mxid = config.get("mxid", None)
-        self.password = config.get("password", None)
-        self.access_token = config.get("access_token", None)
+        self.mxid = config.get("mxid")
+        self.password = config.get("password")
+        self.access_token = config.get("access_token")
         self.nick = config.get("nick")
         self.homeserver = config.get("homeserver", "https://matrix.org")
         self.room_specific_nicks = config.get("room_specific_nicks", False)
@@ -153,7 +153,7 @@ class ConnectorMatrix(Connector):
     async def make_filter(self, api, fjson):
         """Make a filter on the server for future syncs."""
         path = f"/_matrix/client/r0/user/{self.mxid}/filter"
-        headers = {"Authorization": f"Bearer {api.token}"}
+        headers = {"Authorization": f"Bearer {api.access_token}"}
         resp = await api.send(method="post", path=path, data=fjson, headers=headers)
 
         resp_json = await resp.json()
@@ -222,6 +222,7 @@ class ConnectorMatrix(Connector):
 
             content = await resp.json()
             self.mxid = content["user_id"]
+            mapi.access_token = self.access_token
 
         elif self.mxid is not None and self.password is not None:
             login_response = await mapi.login(
@@ -233,7 +234,7 @@ class ConnectorMatrix(Connector):
                 )
                 return
 
-            mapi.token = login_response.access_token
+            self.access_token = mapi.access_token = login_response.access_token
         else:
             raise ValueError(
                 "Configuration for the matrix connector should specify mxid and password or access_token."
