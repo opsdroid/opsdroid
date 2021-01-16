@@ -13,10 +13,10 @@ __all__ = ["mock_api_obj", "bound_address", "get_connector", "opsdroid", "mock_a
 
 
 @pytest.fixture(scope="session")
-def get_connector(opsdroid):
+def get_connector():
     """Pytest fixture which is a factory to generate a connector."""
 
-    def _get_connector(config={}):
+    def _get_connector(config={}, opsdroid=None):
         return Connector(config, opsdroid=opsdroid)
 
     return _get_connector
