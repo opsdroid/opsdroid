@@ -77,8 +77,9 @@ def opsdroid() -> OpsDroid:
 
 @pytest.fixture
 def mock_api_obj():
-    """
-    Returns a non-running instance of :class:`opsdroid.testing.ExternalAPIMockServer`.
+    """Initialize instance of :class:`opsdroid.testing.ExternalAPIMockServer`.
+
+    Any tests or fixtures that use this need to handle running _start() and _stop().
     """
     return ExternalAPIMockServer()
 
@@ -120,6 +121,8 @@ async def mock_api(request, mock_api_obj) -> ExternalAPIMockServer:
     for marker in markers:
         mock_api.add_response(*marker.args, **marker.kwargs)
 
+    # noinspection PyProtectedMember
     await mock_api._start()
     yield mock_api
+    # noinspection PyProtectedMember
     await mock_api._stop()
