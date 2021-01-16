@@ -113,9 +113,9 @@ async def mock_api(request, mock_api_obj) -> ExternalAPIMockServer:
 
     """
     mock_api = mock_api_obj
-    markers = list(
-        filter(lambda marker: marker.name == "add_response", request.node.own_markers)
-    )
+    markers = [
+        marker for marker in request.node.own_markers if marker.name == "add_response"
+    ]
 
     for marker in markers:
         mock_api.add_response(*marker.args, **marker.kwargs)
