@@ -4,6 +4,7 @@ These are not in conftest.py so that they can be imported in sub-projects.
 """
 import contextlib
 import socket
+from typing import Tuple
 
 import pytest
 
@@ -26,8 +27,29 @@ def get_connector():
 
 
 @pytest.fixture
-def bound_address(request):
-    """I have no idea what this does but must have a docstring."""
+def bound_address(request) -> Tuple[str, int]:
+    """Block an unused port and return it.
+
+    This allows testing ``except OSError`` blocks that check for a port-in-use.
+
+    For example, this test ensures that OSError is propagated
+    when the port is already in use on localhost:
+
+        async def test_web_port_in_use(opsdroid, bound_address):
+            opsdroid.config["web"] = {
+                "host": bound_address[0], "port": bound_address[1]
+            }
+            app = web.Web(opsdroid)
+            with pytest.raises(OSError):
+                await app.start()
+
+    By default this blocks a port with host 0.0.0.0, but you can use parametrize
+    to specify an alternate host:
+
+        @pytest.mark.parametrize("bound_address", ["localhost"], indirect=True)
+        async def test_localhost(bound_address):
+            assert bound_address[0] == "localhost"
+    """
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     with contextlib.suppress(socket.error):
         if hasattr(socket, "SO_EXCLUSIVEADDRUSE"):  # only on windows
