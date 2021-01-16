@@ -10,6 +10,12 @@ from opsdroid.matchers import match_event
 from opsdroid.testing import call_endpoint, running_opsdroid
 
 
+# these strings are used in several tests
+ORG, REPO, ISSUE = "opsdroid", "opsdroid", "1"
+ISSUE_TARGET = f"{ORG}/{REPO}#{ISSUE}"
+COMMENTS_URI = f"/repos/{ORG}/{REPO}/issues/{ISSUE}/comments"
+
+
 @pytest.fixture
 async def connector(opsdroid, mock_api_obj):
     opsdroid.config["connectors"] = {
@@ -85,61 +91,54 @@ async def test_listen(connector):
     assert await connector.listen() is None
 
 
-@pytest.mark.add_response(
-    "/repos/opsdroid/opsdroid/issues/1/comments", "POST", None, status=201
-)
+@pytest.mark.add_response(COMMENTS_URI, "POST", None, status=201)
 @pytest.mark.asyncio
 async def test_send(opsdroid, connector, mock_api):
-    org, repo, issue = "opsdroid", "opsdroid", "1"
     await opsdroid.send(
         Message(
             text="test",
             user="jacobtomlinson",
-            target=f"{org}/{repo}#{issue}",
+            target=ISSUE_TARGET,
             connector=connector,
         )
     )
-    assert mock_api.called("/repos/opsdroid/opsdroid/issues/1/comments")
+    assert mock_api.called(COMMENTS_URI)
 
 
 @pytest.mark.add_response(
-    "/repos/opsdroid/opsdroid/issues/1/comments",
+    COMMENTS_URI,
     "POST",
     get_response_path("github_send_failure.json"),
     status=400,
 )
 @pytest.mark.asyncio
 async def test_send_failure(opsdroid, connector, mock_api, caplog):
-    org, repo, issue = "opsdroid", "opsdroid", "1"
     await opsdroid.send(
         Message(
             text="test",
             user="jacobtomlinson",
-            target=f"{org}/{repo}#{issue}",
+            target=ISSUE_TARGET,
             connector=connector,
         )
     )
-    assert mock_api.called("/repos/opsdroid/opsdroid/issues/1/comments")
+    assert mock_api.called(COMMENTS_URI)
     assert "some error" in caplog.text
 
 
-@pytest.mark.add_response(
-    "/repos/opsdroid/opsdroid/issues/1/comments", "POST", status=201
-)
+@pytest.mark.add_response(COMMENTS_URI, "POST", status=201)
 @pytest.mark.asyncio
 async def test_do_not_send_to_self(opsdroid, connector, mock_api):
-    org, repo, issue = "opsdroid", "opsdroid", "1"
     connector.github_username = "opsdroid-bot"
 
     await opsdroid.send(
         Message(
             text="test",
             user="opsdroid-bot",
-            target=f"{org}/{repo}#{issue}",
+            target=ISSUE_TARGET,
             connector=connector,
         )
     )
-    assert not mock_api.called("/repos/opsdroid/opsdroid/issues/1/comments")
+    assert not mock_api.called(COMMENTS_URI)
 
 
 @pytest.mark.add_response(
