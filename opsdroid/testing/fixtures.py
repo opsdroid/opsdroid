@@ -9,7 +9,7 @@ from opsdroid.connector import Connector
 
 from .external_api import ExternalAPIMockServer
 
-__all__ = ["bound_address", "get_connector", "opsdroid", "mock_api"]
+__all__ = ["mock_api_obj", "bound_address", "get_connector", "opsdroid", "mock_api"]
 
 
 @pytest.fixture(scope="session")
@@ -51,13 +51,22 @@ def opsdroid() -> OpsDroid:
 
 
 @pytest.fixture
-async def mock_api(request) -> ExternalAPIMockServer:
+def mock_api_obj():
+    """
+    Returns a non-running instance of :class:`opsdroid.testing.ExternalAPIMockServer`.
+    """
+    return ExternalAPIMockServer()
+
+
+@pytest.fixture
+async def mock_api(request, mock_api_obj) -> ExternalAPIMockServer:
     """
     Fixture for mocking API calls to a web service.
 
-    Will give an instance of :class:`opsdroid.testing.ExternalAPIMockServer`,
-    which has been configured with any routes specified through
-    ``@pytest.mark.add_response()`` decorators.
+    Will yield a running instance of
+    :class:`opsdroid.testing.ExternalAPIMockServer`, which has been configured
+    with any routes specified through ``@pytest.mark.add_response()``
+    decorators.
 
     All arguments and keyword arguments passed to ``pytest.mark.add_response``
     are passed through to `.ExternalAPIMockServer.add_response`.
@@ -78,15 +87,10 @@ async def mock_api(request) -> ExternalAPIMockServer:
                     assert mock_api.called("/test2")
 
     """
-    mock_api = ExternalAPIMockServer()
+    mock_api = mock_api_obj
     markers = list(
         filter(lambda marker: marker.name == "add_response", request.node.own_markers)
     )
-    if not markers:
-        raise ValueError(
-            "Tests using the mock_api fixture must provide request"
-            " info with at least one @pytest.mark.add_response"
-        )
 
     for marker in markers:
         mock_api.add_response(*marker.args, **marker.kwargs)

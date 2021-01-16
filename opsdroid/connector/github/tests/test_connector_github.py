@@ -11,9 +11,9 @@ from opsdroid.testing import call_endpoint, running_opsdroid
 
 
 @pytest.fixture
-async def connector(opsdroid, mock_api):
+async def connector(opsdroid, mock_api_obj):
     opsdroid.config["connectors"] = {
-        "github": {"token": "abc123", "api_base_url": mock_api.base_url}
+        "github": {"token": "abc123", "api_base_url": mock_api_obj.base_url}
     }
     await opsdroid.load()
     return opsdroid.get_connector("github")
@@ -68,13 +68,11 @@ async def test_connect_failure(connector, mock_api, caplog):
     assert "Bad credentials" in caplog.text
 
 
-@pytest.mark.add_response("/", "GET")
 @pytest.mark.asyncio
 async def test_disconnect(connector):
     assert await connector.disconnect() is None
 
 
-@pytest.mark.add_response("/", "GET")
 @pytest.mark.asyncio
 async def test_listen(connector):
     """Test the listen method.
