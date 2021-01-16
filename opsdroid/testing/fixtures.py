@@ -14,6 +14,8 @@ __all__ = ["bound_address", "get_connector", "opsdroid", "mock_api"]
 
 @pytest.fixture(scope="session")
 def get_connector():
+    """Factory fixture to get a connector instance."""
+
     def _get_connector(config={}):
         return Connector(config, opsdroid=opsdroid)
 
@@ -22,6 +24,7 @@ def get_connector():
 
 @pytest.fixture
 def bound_address(request):
+    """I have no idea what this does but must have a docstring."""
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     with contextlib.suppress(socket.error):
         if hasattr(socket, "SO_EXCLUSIVEADDRUSE"):  # only on windows

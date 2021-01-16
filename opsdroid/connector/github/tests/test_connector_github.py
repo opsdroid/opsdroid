@@ -1,8 +1,7 @@
 """Tests for the GitHub class."""
 import pytest
 from asynctest.mock import CoroutineMock
-
-import os.path
+from pathlib import Path
 
 
 from opsdroid.connector.github import ConnectorGitHub
@@ -21,7 +20,7 @@ async def connector(opsdroid, mock_api):
 
 
 def get_response_path(response):
-    return os.path.join(os.path.dirname(__file__), "responses", response)
+    return Path(__file__).parent / "responses" / response
 
 
 def get_webhook_payload(path):
