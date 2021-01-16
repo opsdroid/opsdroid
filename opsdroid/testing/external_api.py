@@ -122,14 +122,19 @@ class ExternalAPIMockServer:
         return f"http://{self.host}:{self.port}"
 
     def add_response(
-        self, route: str, method: str, response_path: str, status: int = 200
+        self,
+        route: str,
+        method: str,
+        response_path: str = None,
+        response_data: dict = None,
+        status: int = 200,
     ) -> None:
         """Push a mocked response onto a route."""
         if response_path is not None:
             with open(response_path) as json_file:
                 response = json.load(json_file)
         else:
-            response = None
+            response = response_data
 
         if route in self.responses:
             self.responses[route].append((status, response))
