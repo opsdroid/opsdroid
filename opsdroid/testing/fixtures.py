@@ -1,10 +1,39 @@
 """Core fixtures for testing opsdroid and skills."""
+import contextlib
+import socket
+
 import pytest
 
 from opsdroid.core import OpsDroid
+from opsdroid.connector import Connector
+
 from .external_api import ExternalAPIMockServer
 
-__all__ = ["opsdroid", "mock_api"]
+__all__ = ["bound_address", "get_connector", "opsdroid", "mock_api"]
+
+
+@pytest.fixture(scope="session")
+def get_connector():
+    def _get_connector(config={}):
+        return Connector(config, opsdroid=opsdroid)
+
+    return _get_connector
+
+
+@pytest.fixture
+def bound_address(request):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    with contextlib.suppress(socket.error):
+        if hasattr(socket, "SO_EXCLUSIVEADDRUSE"):  # only on windows
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        if hasattr(socket, "SO_REUSEPORT"):  # not on windows
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 0)
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 0)
+
+    host = request.param if hasattr(request, "param") else "0.0.0.0"
+    s.bind((host, 0))  # an ephemeral port
+    yield s.getsockname()
+    s.close()
 
 
 @pytest.fixture
@@ -52,7 +81,8 @@ async def mock_api(request) -> ExternalAPIMockServer:
     )
     if not markers:
         raise ValueError(
-            "Tests using the mock_api fixture must provide request info with at least one @pytest.mark.add_response"
+            "Tests using the mock_api fixture must provide request"
+            " info with at least one @pytest.mark.add_response"
         )
 
     for marker in markers:
