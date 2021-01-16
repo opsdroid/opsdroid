@@ -13,7 +13,7 @@ import nio.exceptions
 
 from opsdroid import const, events
 from opsdroid.connector import Connector, register_event
-from voluptuous import Required
+from voluptuous import Required, Inclusive
 
 from . import events as matrixevents
 from .create_events import MatrixEventCreator
@@ -21,8 +21,9 @@ from .html_cleaner import clean
 
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = {
-    Required("mxid"): str,
-    Required("password"): str,
+    Inclusive("mxid", "login"): str,
+    Inclusive("password", "login"): str,
+    "access_token": str,
     Required("rooms"): dict,
     "homeserver": str,
     "nick": str,
@@ -90,10 +91,11 @@ class ConnectorMatrix(Connector):
         self.rooms = self._process_rooms_dict(config["rooms"])
         self.room_ids = {}
         self.default_target = self.rooms["main"]["alias"]
-        self.mxid = config["mxid"]
+        self.mxid = config.get("mxid", None)
+        self.password = config.get("password", None)
+        self.access_token = config.get("access_token", None)
         self.nick = config.get("nick")
         self.homeserver = config.get("homeserver", "https://matrix.org")
-        self.password = config["password"]
         self.room_specific_nicks = config.get("room_specific_nicks", False)
         self.send_m_notice = config.get("send_m_notice", False)
         self.session = None
@@ -144,11 +146,7 @@ class ConnectorMatrix(Connector):
                 "event_format": "client",
                 "account_data": {"limit": 0, "types": []},
                 "presence": {"limit": 0, "types": []},
-                "room": {
-                    "account_data": {"types": []},
-                    "ephemeral": {"types": []},
-                    "state": {"types": []},
-                },
+                "room": {"account_data": {"types": []}, "ephemeral": {"types": []}},
             }
         )
 
@@ -202,16 +200,45 @@ class ConnectorMatrix(Connector):
             device_id=self.device_id,
         )
 
-        login_response = await mapi.login(
-            password=self.password, device_name=self.device_name
-        )
-        if isinstance(login_response, nio.LoginError):
-            _LOGGER.error(
-                f"Error while connecting: {login_response.message} (status code {login_response.status_code})"
-            )
-            return
+        if self.access_token is not None:
+            # Once https://github.com/poljar/matrix-nio/pull/235 is released use this:
+            # whoami_response = self.mapi.whoami(access_token)
+            # if isinstance(whoami_response, nio.WhoamiError):
+            #     _LOGGER.error(
+            #         f"Error while connecting: {whoami_response.message} (status code {whoami_response.status_code})"
+            #     )
+            #     return
 
-        mapi.token = login_response.access_token
+            # Hacky version to work around no support in nio
+            resp = await mapi.send(
+                "GET",
+                f"/_matrix/client/r0/account/whoami?access_token={self.access_token}",
+            )
+            if resp.status != 200:
+                content = await resp.json()
+                _LOGGER.error(
+                    f"Unable to connect with access token, {content.message} (status code {resp.status})."
+                )
+
+            content = await resp.json()
+            self.mxid = content["user_id"]
+
+        elif self.mxid is not None and self.password is not None:
+            login_response = await mapi.login(
+                password=self.password, device_name=self.device_name
+            )
+            if isinstance(login_response, nio.LoginError):
+                _LOGGER.error(
+                    f"Error while connecting: {login_response.message} (status code {login_response.status_code})"
+                )
+                return
+
+            mapi.token = login_response.access_token
+        else:
+            raise ValueError(
+                "Configuration for the matrix connector should specify mxid and password or access_token."
+            )
+
         mapi.sync_token = None
 
         for roomname, room in self.rooms.items():
