@@ -1,4 +1,7 @@
-"""Core fixtures for testing opsdroid and skills."""
+"""Core fixtures for testing opsdroid and skills.
+
+These are not in conftest.py so that they can be imported in sub-projects.
+"""
 import contextlib
 import socket
 
