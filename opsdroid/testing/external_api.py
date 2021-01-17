@@ -125,19 +125,15 @@ class ExternalAPIMockServer:
         self,
         route: str,
         method: str,
-        response: Union[dict, PathLike] = None,
+        response: Union[Any, PathLike] = None,
         status: int = 200,
     ) -> None:
         """Push a mocked response onto a route."""
         if isinstance(response, PathLike):
             with open(response) as json_file:
                 response = json.load(json_file)
-        elif response is None or isinstance(response, dict):
-            response = response
         else:
-            raise ValueError(
-                "response should be either a path like object or a dictionary."
-            )
+            response = response
 
         if route in self.responses:
             self.responses[route].append((status, response))
