@@ -217,12 +217,12 @@ class TestCoreAsync(asynctest.TestCase):
         mockedskill.config = {}
         return mockedskill
 
-    async def test_handle_signal(self):
+    async def test_handle_stop_signal(self):
         with OpsDroid() as opsdroid:
             opsdroid._running = True
             self.assertTrue(opsdroid.is_running())
             opsdroid.unload = amock.CoroutineMock()
-            await opsdroid.handle_signal()
+            await opsdroid.handle_stop_signal()
             self.assertFalse(opsdroid.is_running())
             self.assertTrue(opsdroid.unload.called)
 
