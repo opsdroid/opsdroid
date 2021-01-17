@@ -192,7 +192,7 @@ class ConnectorMatrix(Connector):
             pickle_key="",
             store_name="opsdroid.db" if self._allow_encryption else "",
         )
-        mapi = nio.AsyncClient(
+        self.connection = nio.AsyncClient(
             self.homeserver,
             self.mxid,
             config=config,
@@ -202,7 +202,7 @@ class ConnectorMatrix(Connector):
 
         if self.access_token is not None:
             # Once https://github.com/poljar/matrix-nio/pull/235 is released use this:
-            # whoami_response = self.mapi.whoami(access_token)
+            # whoami_response = self.connection.whoami(access_token)
             # if isinstance(whoami_response, nio.WhoamiError):
             #     _LOGGER.error(
             #         f"Error while connecting: {whoami_response.message} (status code {whoami_response.status_code})"
@@ -210,22 +210,23 @@ class ConnectorMatrix(Connector):
             #     return
 
             # Hacky version to work around no support in nio
-            resp = await mapi.send(
+            resp = await self.connection.send(
                 "GET",
                 f"/_matrix/client/r0/account/whoami?access_token={self.access_token}",
             )
             if resp.status != 200:
                 content = await resp.json()
                 _LOGGER.error(
-                    f"Unable to connect with access token, {content.message} (status code {resp.status})."
+                    f"Unable to connect with access token, {content['error']} (status code {content['errcode']})."
                 )
+                return
 
             content = await resp.json()
             self.mxid = content["user_id"]
-            mapi.access_token = self.access_token
+            self.connection.access_token = self.access_token
 
         elif self.mxid is not None and self.password is not None:
-            login_response = await mapi.login(
+            login_response = await self.connection.login(
                 password=self.password, device_name=self.device_name
             )
             if isinstance(login_response, nio.LoginError):
@@ -234,16 +235,18 @@ class ConnectorMatrix(Connector):
                 )
                 return
 
-            self.access_token = mapi.access_token = login_response.access_token
+            self.access_token = (
+                self.connection.access_token
+            ) = login_response.access_token
         else:
             raise ValueError(
                 "Configuration for the matrix connector should specify mxid and password or access_token."
             )
 
-        mapi.sync_token = None
+        self.connection.sync_token = None
 
         for roomname, room in self.rooms.items():
-            response = await mapi.join(room["alias"])
+            response = await self.connection.join(room["alias"])
             if isinstance(response, nio.JoinError):
                 _LOGGER.error(
                     f"Error while joining room: {room['alias']}, Message: {response.message} (status code {response.status_code})"
@@ -252,12 +255,10 @@ class ConnectorMatrix(Connector):
             else:
                 self.room_ids[roomname] = response.room_id
 
-        self.connection = mapi
-
         # Create a filter now, saves time on each later sync
-        self.filter_id = await self.make_filter(mapi, self.filter_json)
+        self.filter_id = await self.make_filter(self.connection, self.filter_json)
         first_filter_id = await self.make_filter(
-            mapi, '{ "room": { "timeline" : { "limit" : 1 } } }'
+            self.connection, '{ "room": { "timeline" : { "limit" : 1 } } }'
         )
 
         # Do initial sync so we don't get old messages later.

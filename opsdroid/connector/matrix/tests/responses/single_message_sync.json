@@ -1,37 +1,62 @@
 {
-    "account_data":{"events":[]},
-    "to_device":{"events":[]},
-    "device_lists":{"changed":[],"left":[]},
-    "presence":{"events":[]},
-    "rooms":{
-        "join":{
-            "timeline": {
-                "events": [
-                    {
-                        "content": {
-                            "body": "This is an example text message",
-                            "msgtype": "m.text",
-                            "format": "org.matrix.custom.html",
-                            "formatted_body": "<b>This is an example text message</b>"
-                        },
-                        "type": "m.room.message",
-                        "event_id": "$143273582443PhrSn:example.org",
-                        "room_id": "!12345:example.com",
-                        "sender": "@example:example.org",
-                        "origin_server_ts": 1432735824653,
-                        "unsigned": {
-                            "age": 1234
-                        }
-                    }
-                ],
-            }
-            "invite":{},
-            "leave":{}
-        },
-    }
-    "groups":{
-        "join":{},
-        "invite":{},
-        "leave":{}
+    "account_data": {
+        "events": []
     },
+    "device_lists": {
+        "changed": [],
+        "left": []
+    },
+    "device_one_time_keys_count": {
+        "signed_curve25519": 0
+    },
+    "next_batch": "s12_19_4_2_5_1_1_11_1",
+    "presence": {
+        "events": [
+        ]
+    },
+    "rooms": {
+        "invite": {},
+        "join": {
+            "!jmmTrXrcZHRNfVQMHj:localhost": {
+                "account_data": {
+                    "events": []
+                },
+                "ephemeral": {
+                    "events": []
+                },
+                "state": {
+                    "events": []
+                },
+                "summary": {},
+                "timeline": {
+                    "events": [
+                        {
+                            "content": {
+                                "body": "Test",
+                                "msgtype": "m.text"
+                            },
+                            "event_id": "$by1Pg8dGKWCt_xFTDHgtrn8cH2wjFCawRgUnb2zDxyA",
+                            "origin_server_ts": 1610882366571,
+                            "sender": "@stuart:localhost",
+                            "type": "m.room.message",
+                            "unsigned": {
+                                "age": 3073,
+                                "transaction_id": "m1610882366511.1"
+                            }
+                        }
+                    ],
+                    "limited": false,
+                    "prev_batch": "s11_19_4_2_5_1_1_11_1"
+                },
+                "unread_notifications": {
+                    "highlight_count": 0,
+                    "notification_count": 0
+                }
+            }
+        },
+        "leave": {}
+    },
+    "to_device": {
+        "events": []
+    }
 }
