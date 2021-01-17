@@ -22,6 +22,7 @@ async def running_opsdroid(opsdroid, start_timeout=1):
         async def test_with_running_opsdroid(opsdroid):
             async with running_opsdroid(opsdroid):
                 assert opsdroid.is_running()
+                
     """
     start = time.time()
     asyncio.create_task(opsdroid.start())
