@@ -17,7 +17,7 @@ databases:
   matrix:
 ```
 
-In it's default configuration the database will put events into the room named "main" in the connector configuration.
+In its default configuration the database will put events into the room named "main" in the connector configuration.
 
    
 An example of all the configuration options, with their default values is:
