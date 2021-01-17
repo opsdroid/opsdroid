@@ -8,3 +8,10 @@ repos:
     rev: v2.3.0
     hooks:
       - id: flake8
+        args: ['--config=setup.cfg']
+  - repo: https://github.com/PyCQA/pydocstyle
+    rev: 5.1.1
+    hooks:
+      - id: pydocstyle
+        args:
+          - --match='(?![test_|conftest]).*\.py' opsdroid tests

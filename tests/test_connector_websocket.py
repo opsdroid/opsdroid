@@ -1,14 +1,12 @@
-import unittest
 import asyncio
+import unittest
 
 import asynctest
 import asynctest.mock as amock
-
 from opsdroid.cli.start import configure_lang
-from opsdroid.core import OpsDroid
 from opsdroid.connector.websocket import ConnectorWebsocket
+from opsdroid.core import OpsDroid
 from opsdroid.events import Message
-from opsdroid.cli.start import configure_lang
 
 
 class TestConnectorWebsocket(unittest.TestCase):
@@ -120,8 +118,9 @@ class TestConnectorWebsocketAsync(asynctest.TestCase):
 
     async def test_websocket_handler(self):
         """Test the websocket handler."""
-        import aiohttp
         from datetime import datetime, timedelta
+
+        import aiohttp
 
         connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
         room = "a146f52c-548a-11e8-a7d1-28cfe949e12d"
