@@ -4,12 +4,12 @@ Testing helpers for opsdroid.
 opsdroid provides a set of pytest fixtures and other helpers for writing tests
 for both opsdroid core and skills.
 """
-
 import asyncio
-from aiohttp import web
 import json
-from typing import Any, Awaitable, List, Dict
+from os import PathLike
+from typing import Any, Awaitable, Dict, List, Union
 
+from aiohttp import web
 from opsdroid.helper import Timeout
 
 
@@ -122,14 +122,18 @@ class ExternalAPIMockServer:
         return f"http://{self.host}:{self.port}"
 
     def add_response(
-        self, route: str, method: str, response_path: str, status: int = 200
+        self,
+        route: str,
+        method: str,
+        response: Union[Any, PathLike] = None,
+        status: int = 200,
     ) -> None:
         """Push a mocked response onto a route."""
-        if response_path is not None:
-            with open(response_path) as json_file:
+        if isinstance(response, PathLike):
+            with open(response) as json_file:
                 response = json.load(json_file)
         else:
-            response = None
+            response = response
 
         if route in self.responses:
             self.responses[route].append((status, response))

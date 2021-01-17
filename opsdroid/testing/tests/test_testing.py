@@ -11,6 +11,7 @@ from opsdroid.testing import (
     ExternalAPIMockServer,
     call_endpoint,
     run_unit_test,
+    running_opsdroid,
 )
 
 
@@ -118,7 +119,19 @@ async def test_run_unit_test(opsdroid):
     async def test():
         assert opsdroid.is_running()
 
+    assert not opsdroid.is_running()
+
     await run_unit_test(opsdroid, test)
+
+
+@pytest.mark.asyncio
+async def test_with_running_opsdroid(opsdroid):
+    await opsdroid.load(config=MINIMAL_CONFIG)
+
+    assert not opsdroid.is_running()
+
+    async with running_opsdroid(opsdroid):
+        assert opsdroid.is_running()
 
 
 @pytest.mark.asyncio
@@ -131,3 +144,16 @@ async def test_mock_skill_and_connector(opsdroid):
         assert skill.called
 
     await run_unit_test(opsdroid, test)
+
+
+@pytest.mark.add_response("/test", "GET")
+@pytest.mark.add_response("/test2", "GET", status=500)
+@pytest.mark.asyncio
+async def test_mock_api_with_pytest_marks(mock_api, session):
+    async with session.get(f"{mock_api.base_url}/test") as resp:
+        assert resp.status == 200
+        assert mock_api.called("/test")
+
+    async with session.get(f"{mock_api.base_url}/test2") as resp:
+        assert resp.status == 500
+        assert mock_api.called("/test2")
