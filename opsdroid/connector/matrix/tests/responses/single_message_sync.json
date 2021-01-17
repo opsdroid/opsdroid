@@ -1,0 +1,37 @@
+{
+    "account_data":{"events":[]},
+    "to_device":{"events":[]},
+    "device_lists":{"changed":[],"left":[]},
+    "presence":{"events":[]},
+    "rooms":{
+        "join":{
+            "timeline": {
+                "events": [
+                    {
+                        "content": {
+                            "body": "This is an example text message",
+                            "msgtype": "m.text",
+                            "format": "org.matrix.custom.html",
+                            "formatted_body": "<b>This is an example text message</b>"
+                        },
+                        "type": "m.room.message",
+                        "event_id": "$143273582443PhrSn:example.org",
+                        "room_id": "!12345:example.com",
+                        "sender": "@example:example.org",
+                        "origin_server_ts": 1432735824653,
+                        "unsigned": {
+                            "age": 1234
+                        }
+                    }
+                ],
+            }
+            "invite":{},
+            "leave":{}
+        },
+    }
+    "groups":{
+        "join":{},
+        "invite":{},
+        "leave":{}
+    },
+}

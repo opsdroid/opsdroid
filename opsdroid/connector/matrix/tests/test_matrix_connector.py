@@ -1,6 +1,12 @@
+from pathlib import Path
+
 import pytest
 
 from opsdroid.connector.matrix import ConnectorMatrix
+
+
+def get_matrix_response(name):
+    return Path(__file__).parent / "responses" / f"{name}.json"
 
 
 @pytest.fixture
@@ -62,7 +68,9 @@ filter_args = (
 @pytest.mark.add_response(*filter_args)
 @pytest.mark.add_response(*filter_args)
 # This is an invalid sync response, but it doesn't matter
-@pytest.mark.add_response("/_matrix/client/r0/sync", "GET", {})
+@pytest.mark.add_response(
+    "/_matrix/client/r0/sync", "GET", get_matrix_response("single_message_sync")
+)
 @pytest.mark.add_response(
     "/_matrix/client/r0/join/#test:localhost", "POST", {"room_id": "!12355:localhost"}
 )
