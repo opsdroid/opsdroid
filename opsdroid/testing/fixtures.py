@@ -79,15 +79,36 @@ def opsdroid() -> OpsDroid:
 def mock_api_obj():
     """Initialize instance of :class:`opsdroid.testing.ExternalAPIMockServer`.
 
-    Any tests or fixtures that use this need to handle running _start() and _stop().
+    This fixture returns an instance that hasn't been started, allowing you to
+    add routes to the server before it is started.
+    There are a few options of how to start the server once this fixture has
+    been used:
+
+        * Use `:meth:opsdroid.testing.ExternalAPIMockServer.run_test`
+        * Use the ``mock_api`` fixture in the test *after* this fixture has
+          been called to setup a route.
+        * Manually start and stop the server.
+
+    An example of the second method is to define a fixture which adds a
+    response, and then use the ``mock_api`` fixture in the test to start the
+    server::
+
+        @pytest.fixture
+        def canned_response(mock_api_obj):
+            mock_api_obj.add_response("/test", "GET")
+
+        # Note here mock_api MUST come after canned_response for the route to
+        # be added before the server is started.
+        def test_my_endpoint(canned_response, mock_api):
+            ...
+
     """
     return ExternalAPIMockServer()
 
 
 @pytest.fixture
 async def mock_api(request, mock_api_obj) -> ExternalAPIMockServer:
-    """
-    Fixture for mocking API calls to a web service.
+    """Fixture for mocking API calls to a web service.
 
     Will yield a running instance of
     :class:`opsdroid.testing.ExternalAPIMockServer`, which has been configured
