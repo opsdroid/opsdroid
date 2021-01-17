@@ -56,7 +56,7 @@ class OpsDroid:
         if os.name != "nt":
             for sig in (signal.SIGINT, signal.SIGTERM):
                 self.eventloop.add_signal_handler(
-                    sig, lambda: asyncio.ensure_future(self.handle_signal())
+                    sig, lambda: asyncio.ensure_future(self.handle_stop_signal())
                 )
             self.eventloop.add_signal_handler(
                 signal.SIGHUP, lambda: asyncio.ensure_future(self.reload())
@@ -155,9 +155,10 @@ class OpsDroid:
         """Check whether opsdroid is running."""
         return self._running
 
-    async def handle_signal(self):
+    async def handle_stop_signal(self):
         """Handle signals."""
         self._running = False
+        await self.stop()
         await self.unload()
 
     def run(self):
