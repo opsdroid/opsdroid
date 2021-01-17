@@ -67,7 +67,17 @@ async def skill_func(opsdroid, config, message):
 
 ### State Events and State Keys
 
-Matrix state events have a type, which for the opsdroid matrix database is `dev.opsdroid.database`, a "state key" which distinguishes state events with the same type, and content which is a json object.
+Matrix state events are used to store metadata about the room, such as it's members, it's name and topic.
+The matrix database uses state events to store arbitary data you save to opsdroid memory.
+In this section we describe a little about how this fits into the matrix protocol for those who are interested.
+
+Matrix state events have three main components:
+  * a type, which for the opsdroid matrix database is `dev.opsdroid.database`
+  * a "state key" which distinguishes state events with the same type
+  * content which is a json object
+
+Matrix state events form a key value store where the key is a combination of the type and state event, i.e. `("dev.opdroid.database", "")` or `("dev.opsdroid.database", "reminders")`.
+
 In the default configuration the state key is not used, the whole database is stored in a single json object in the content of the `dev.opsdroid.database` event with `state_key: ""`.
 This means that if one key is changed then the whole event is resent.
 When the ``single_state_key: False`` option is set, the key given to the opsdroid memory is used as the state key, this allows directly querying the matrix API for the value corresponding to that key.

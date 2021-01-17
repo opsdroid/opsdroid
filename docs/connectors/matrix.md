@@ -9,7 +9,7 @@ To use this connector you will need to have:
 
   * A Matrix account for the bot with a username (mxid) and password.
   * Know what your [homeserver](https://matrix.org/faq/#what-is-a-homeserver%3F) (matrix server URL) is.
-  * Know what the room alias (address) is for the room you want the bot to join.
+  * Know the room alias (address) for the room (or rooms) you want the bot to join.
 
 
 ## Configuration
