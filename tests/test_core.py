@@ -221,9 +221,11 @@ class TestCoreAsync(asynctest.TestCase):
         with OpsDroid() as opsdroid:
             opsdroid._running = True
             self.assertTrue(opsdroid.is_running())
+            opsdroid.stop = amock.CoroutineMock()
             opsdroid.unload = amock.CoroutineMock()
             await opsdroid.handle_stop_signal()
             self.assertFalse(opsdroid.is_running())
+            self.assertTrue(opsdroid.stop.called)
             self.assertTrue(opsdroid.unload.called)
 
     async def test_unload_and_stop(self):
