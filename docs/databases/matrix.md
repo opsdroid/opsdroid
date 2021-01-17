@@ -67,7 +67,7 @@ async def skill_func(opsdroid, config, message):
 
 ### State Events and State Keys
 
-Matrix state events are used to store metadata about the room, such as it's members, it's name and topic.
+Matrix state events are used to store metadata about the room, such as its members, its name and topic.
 The matrix database uses state events to store arbitary data you save to opsdroid memory.
 In this section we describe a little about how this fits into the matrix protocol for those who are interested.
 
