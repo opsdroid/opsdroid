@@ -36,6 +36,7 @@ extras = read_configuration("setup.cfg")["options"]["extras_require"]
 common_extras = ["connector_matrix", "connector_slack", "database_sqlite"]
 not_all = (
     "test",
+    "docs",
     # We want people to have to opt-into e2ee at the moment because of
     # difficult compile time dependancies.
     "connector_matrix_e2e",

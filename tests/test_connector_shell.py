@@ -4,7 +4,6 @@ import io
 import contextlib
 import asyncio
 import unittest
-import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock
 
@@ -75,9 +74,7 @@ class TestConnectorShellAsync(asynctest.TestCase):
             self.assertTrue(mocked_read_stdin.called)
 
         if os.name == "nt":
-            with amock.patch(
-                "asyncio.events.AbstractEventLoop.connect_read_pipe"
-            ) as mock:
+            with amock.patch("asyncio.events.AbstractEventLoop.connect_read_pipe"):
                 with contextlib.suppress(NotImplementedError):
                     await self.connector.read_stdin()
         else:
@@ -125,7 +122,7 @@ class TestConnectorShellAsync(asynctest.TestCase):
                 "opsdroid.connector.shell.ConnectorShell.is_listening",
                 new_callable=amock.PropertyMock,
                 side_effect=[True, False],
-            ) as mocklistening:
+            ):
                 await connector._parse_message()
                 mockedloop.assert_called()
 
@@ -146,9 +143,9 @@ class TestConnectorShellAsync(asynctest.TestCase):
     async def test_listen(self):
         connector = ConnectorShell({}, opsdroid=OpsDroid())
         connector.listening = False
-        with amock.patch(
-            "asyncio.events.AbstractEventLoop.create_task"
-        ) as mock, amock.patch("asyncio.locks.Event.wait") as mockwait:
+        with amock.patch("asyncio.events.AbstractEventLoop.create_task"), amock.patch(
+            "asyncio.locks.Event.wait"
+        ):
             await connector.listen()
 
     async def test_respond(self):
@@ -165,5 +162,5 @@ class TestConnectorShellAsync(asynctest.TestCase):
 
     async def test_disconnect(self):
         connector = ConnectorShell({}, opsdroid=OpsDroid())
-        await self.connector.disconnect()
-        self.assertEqual(self.connector._closing.set(), None)
+        await connector.disconnect()
+        self.assertEqual(connector._closing.set(), None)

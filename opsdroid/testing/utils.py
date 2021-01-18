@@ -1,13 +1,35 @@
 """Utilities for testing opsdroid."""
 
 import asyncio
-import aiohttp
-from aiohttp import web
 import json
 import time
-from typing import Any, Awaitable, List, Dict
+from typing import Any, Awaitable, Dict, List
+from contextlib import asynccontextmanager
 
+import aiohttp
+from aiohttp import web
 from opsdroid.core import OpsDroid
+
+
+@asynccontextmanager
+async def running_opsdroid(opsdroid, start_timeout=1):
+    """Context manager to control when opsdroid is running.
+
+    This async context manager will start opsdroid running for its duration.
+    It can be used like this::
+
+        @pytest.mark.asyncio
+        async def test_with_running_opsdroid(opsdroid):
+            async with running_opsdroid(opsdroid):
+                assert opsdroid.is_running()
+
+    """
+    start = time.time()
+    asyncio.create_task(opsdroid.start())
+    while not opsdroid.is_running() and start + start_timeout > time.time():
+        await asyncio.sleep(0.1)
+    yield
+    await opsdroid.stop()
 
 
 async def run_unit_test(
