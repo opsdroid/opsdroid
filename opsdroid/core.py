@@ -247,7 +247,7 @@ class OpsDroid:
 
         _LOGGER.info(_("Stopping pending tasks..."))
         for task in self.tasks:
-            if not task.done() and task is not asyncio.Task.current_task():
+            if not task.done() and task is not asyncio.current_task():
                 task.cancel()
         _LOGGER.info(_("Stopped pending tasks."))
 
