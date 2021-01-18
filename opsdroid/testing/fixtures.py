@@ -108,15 +108,15 @@ def mock_api_obj(request) -> ExternalAPIMockServer:
     Routes can be specified with ``pytest.mark.add_response`` on tests using
     this fixture, as described in :func:`~opsdroid.testing.fixtures.mock_api`
     """
-    mock_api = ExternalAPIMockServer()
+    mock_api_obj = ExternalAPIMockServer()
     markers = [
         marker for marker in request.node.own_markers if marker.name == "add_response"
     ]
 
     for marker in markers:
-        mock_api.add_response(*marker.args, **marker.kwargs)
+        mock_api_obj.add_response(*marker.args, **marker.kwargs)
 
-    return mock_api
+    return mock_api_obj
 
 
 @pytest.fixture
@@ -149,8 +149,5 @@ async def mock_api(mock_api_obj) -> ExternalAPIMockServer:
                     assert mock_api.called("/test2")
 
     """
-    # noinspection PyProtectedMember
-    await mock_api._start()
-    yield mock_api
-    # noinspection PyProtectedMember
-    await mock_api._stop()
+    async with mock_api_obj.running_mock_api() as mock_api:
+        yield mock_api
