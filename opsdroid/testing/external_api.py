@@ -6,9 +6,9 @@ for both opsdroid core and skills.
 """
 import asyncio
 import json
-from os import PathLike
-from typing import Any, Awaitable, Dict, List, Union
 from contextlib import asynccontextmanager
+from os import PathLike
+from typing import Any, Dict, Union
 
 from aiohttp import web
 from opsdroid.helper import Timeout
@@ -44,7 +44,7 @@ class ExternalAPIMockServer:
 
                 # Create a closure function. We will have our mock_api run this concurrently with the
                 # web server later.
-                async def test_closure():
+                async with mock_api.running():
                     # Make an HTTP request to our mock_api
                     async with aiohttp.ClientSession() as session:
                         async with session.get(f"{mock_api.base_url}/test") as resp:
@@ -52,14 +52,6 @@ class ExternalAPIMockServer:
                             # Assert that it gives the expected responses
                             assert resp.status == 200
                             assert mock_api.called("/test")
-
-                    # Return True to we can ensure the closure was run
-                    return True
-
-                # Run the test closure. This will start the web server, and once it is running await
-                # the closure. Then when the closure finishes the server will be stopped again and the
-                # return from the closure will be passed back.
-                assert await mock_api.run_test(test)
 
     """
 
@@ -82,7 +74,7 @@ class ExternalAPIMockServer:
         self.app = web.Application()
         self.runner = web.AppRunner(self.app)
 
-    async def _start(self) -> None:
+    async def start(self) -> None:
         """Start the server."""
         await self.runner.setup()
         timeout = Timeout(self.start_timeout, "Timed out starting web server")
@@ -97,7 +89,7 @@ class ExternalAPIMockServer:
                 await self.site.stop()
         self.status = "running"
 
-    async def _stop(self) -> None:
+    async def stop(self) -> None:
         """Stop the web server."""
         await self.site.stop()
         await self.runner.cleanup()
@@ -150,40 +142,12 @@ class ExternalAPIMockServer:
             self.responses[route] = [(status, response)]
             self.app.add_routes(routes)
 
-    async def run_test(
-        self, test_coroutine: Awaitable, *args: List, **kwargs: Dict
-    ) -> Any:
-        """Run a test against the web server.
-
-        This method will concurrently start the web server and a test coroutine.
-        Once the web server is running the coroutine will be called.
-
-        Args:
-            test_coroutine: A coroutine to be called.
-            *args: Args to be passed to the coroutine.
-            **kwargs: Kwargs to be passed to the coroutine.
-
-        Returns:
-            The return from the coroutine.
-
-        """
-
-        async def _run_test_then_stop():
-            while self.status != "running":
-                await asyncio.sleep(0.1)
-            output = await test_coroutine(*args, **kwargs)
-            await self._stop()
-            return output
-
-        _, run_output = await asyncio.gather(self._start(), _run_test_then_stop())
-        return run_output
-
     @asynccontextmanager
-    async def running_mock_api(self) -> "ExternalAPIMockServer":
+    async def running(self) -> "ExternalAPIMockServer":
         """Start the External API server within a context manager."""
-        await self._start()
+        await self.start()
         yield self
-        await self._stop()
+        await self.stop()
 
     def reset(self) -> None:
         """Reset the mock back to a clean state."""

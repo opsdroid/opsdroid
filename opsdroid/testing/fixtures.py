@@ -86,9 +86,8 @@ def mock_api_obj(request) -> ExternalAPIMockServer:
 
         * Use the ``mock_api`` fixture in the test *after* this fixture has
           been called to setup a route.
-        * Use :meth:`opsdroid.testing.ExternalAPIMockServer.run_test`
         * Use the
-          :meth:`opsdroid.testing.ExternalAPIMockServer.running_mock_api`
+          :meth:`opsdroid.testing.ExternalAPIMockServer.running`
           context manager.
         * Manually start and stop the server.
 
@@ -149,5 +148,5 @@ async def mock_api(mock_api_obj) -> ExternalAPIMockServer:
                     assert mock_api.called("/test2")
 
     """
-    async with mock_api_obj.running_mock_api() as mock_api:
+    async with mock_api_obj.running() as mock_api:
         yield mock_api

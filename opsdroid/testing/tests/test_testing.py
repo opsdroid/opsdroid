@@ -34,7 +34,9 @@ async def test_external_api_mock_server(session):
     mock_api.add_response("/fail", "POST", None, 400)
     assert len(mock_api.responses) == 2
 
-    async def test():
+    assert mock_api.status == "stopped"
+
+    async with mock_api.running():
         """A closure to test the runner."""
         assert mock_api.status == "running"
         assert mock_api.base_url == "http://localhost:8089"
@@ -55,10 +57,6 @@ async def test_external_api_mock_server(session):
         with pytest.raises(RuntimeError):
             mock_api.reset()
 
-        return True  # For assetion of run_test to test return is passed along
-
-    assert mock_api.status == "stopped"
-    assert await mock_api.run_test(test)
     assert mock_api.status == "stopped"
 
     mock_api.reset()
@@ -75,14 +73,11 @@ async def test_external_api_mock_server_port_in_use(bound_address, session):
 
     mock_api.add_response("/test", "GET", None, 200)
 
-    async def test():
-        """A closure to test the runner."""
-        await session.get(f"{mock_api.base_url}/test")
-
     # linux: Errno 98 (ADDRINUSE)
     # windows: Errno 10013 (WSAEACCESS) or 10048 (WSAEADDRINUSE)
     with pytest.raises(OSError):
-        await mock_api.run_test(test)
+        async with mock_api.running():
+            await session.get(f"{mock_api.base_url}/test")
 
 
 @pytest.mark.asyncio
@@ -163,7 +158,7 @@ async def test_mock_api_with_pytest_marks(mock_api, session):
 @pytest.mark.add_response("/test2", "GET", status=500)
 @pytest.mark.asyncio
 async def test_mock_api_obj_with_pytest_marks(mock_api_obj, session):
-    async with mock_api_obj.running_mock_api():
+    async with mock_api_obj.running():
         async with session.get(f"{mock_api_obj.base_url}/test") as resp:
             assert resp.status == 200
             assert mock_api_obj.called("/test")
