@@ -8,6 +8,7 @@ import asyncio
 import json
 from os import PathLike
 from typing import Any, Awaitable, Dict, List, Union
+from contextlib import asynccontextmanager
 
 from aiohttp import web
 from opsdroid.helper import Timeout
@@ -176,6 +177,13 @@ class ExternalAPIMockServer:
 
         _, run_output = await asyncio.gather(self._start(), _run_test_then_stop())
         return run_output
+
+    @asynccontextmanager
+    async def running_mock_api(self) -> "ExternalAPIMockServer":
+        """Start the External API server within a context manager."""
+        await self._start()
+        yield self
+        await self._stop()
 
     def reset(self) -> None:
         """Reset the mock back to a clean state."""

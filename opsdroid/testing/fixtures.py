@@ -76,7 +76,7 @@ def opsdroid() -> OpsDroid:
 
 
 @pytest.fixture
-def mock_api_obj():
+def mock_api_obj(request) -> ExternalAPIMockServer:
     """Initialize instance of :class:`opsdroid.testing.ExternalAPIMockServer`.
 
     This fixture returns an instance that hasn't been started, allowing you to
@@ -84,9 +84,12 @@ def mock_api_obj():
     There are a few options of how to start the server once this fixture has
     been used:
 
-        * Use `:meth:opsdroid.testing.ExternalAPIMockServer.run_test`
         * Use the ``mock_api`` fixture in the test *after* this fixture has
           been called to setup a route.
+        * Use :meth:`opsdroid.testing.ExternalAPIMockServer.run_test`
+        * Use the
+          :meth:`opsdroid.testing.ExternalAPIMockServer.running_mock_api`
+          context manager.
         * Manually start and stop the server.
 
     An example of the second method is to define a fixture which adds a
@@ -102,18 +105,30 @@ def mock_api_obj():
         def test_my_endpoint(canned_response, mock_api):
             ...
 
+    Routes can be specified with ``pytest.mark.add_response`` on tests using
+    this fixture, as described in :func:`~opsdroid.testing.fixtures.mock_api`
     """
-    return ExternalAPIMockServer()
+    mock_api = ExternalAPIMockServer()
+    markers = [
+        marker for marker in request.node.own_markers if marker.name == "add_response"
+    ]
+
+    for marker in markers:
+        mock_api.add_response(*marker.args, **marker.kwargs)
+
+    return mock_api
 
 
 @pytest.fixture
-async def mock_api(request, mock_api_obj) -> ExternalAPIMockServer:
+async def mock_api(mock_api_obj) -> ExternalAPIMockServer:
     """Fixture for mocking API calls to a web service.
 
     Will yield a running instance of
     :class:`opsdroid.testing.ExternalAPIMockServer`, which has been configured
     with any routes specified through ``@pytest.mark.add_response()``
-    decorators.
+    decorators, or modification of the
+    :func:`~opsdroid.testing.fixtures.mock_api_obj` fixture before the test is
+    called.
 
     All arguments and keyword arguments passed to ``pytest.mark.add_response``
     are passed through to `.ExternalAPIMockServer.add_response`.
@@ -134,14 +149,6 @@ async def mock_api(request, mock_api_obj) -> ExternalAPIMockServer:
                     assert mock_api.called("/test2")
 
     """
-    mock_api = mock_api_obj
-    markers = [
-        marker for marker in request.node.own_markers if marker.name == "add_response"
-    ]
-
-    for marker in markers:
-        mock_api.add_response(*marker.args, **marker.kwargs)
-
     # noinspection PyProtectedMember
     await mock_api._start()
     yield mock_api

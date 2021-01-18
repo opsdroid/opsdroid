@@ -157,3 +157,17 @@ async def test_mock_api_with_pytest_marks(mock_api, session):
     async with session.get(f"{mock_api.base_url}/test2") as resp:
         assert resp.status == 500
         assert mock_api.called("/test2")
+
+
+@pytest.mark.add_response("/test", "GET")
+@pytest.mark.add_response("/test2", "GET", status=500)
+@pytest.mark.asyncio
+async def test_mock_api_obj_with_pytest_marks(mock_api_obj, session):
+    async with mock_api_obj.running_mock_api():
+        async with session.get(f"{mock_api_obj.base_url}/test") as resp:
+            assert resp.status == 200
+            assert mock_api_obj.called("/test")
+
+            async with session.get(f"{mock_api_obj.base_url}/test2") as resp:
+                assert resp.status == 500
+                assert mock_api_obj.called("/test2")
