@@ -50,6 +50,7 @@ def matrix_call(method, path, content=None):
             path += "enceventid?access_token=arbitrarytoken"
             return call(nio.RoomGetEventResponse, method, path)
         else:
+            path = path.rstrip("/")
             path += "?access_token=arbitrarytoken"
             return call(
                 nio.RoomGetStateEventResponse,
@@ -67,6 +68,7 @@ def matrix_call(method, path, content=None):
             ("!notaroomid",),
         )
     else:
+        path = path.rstrip("/")
         path += "?access_token=arbitrarytoken"
         return call(
             nio.RoomPutStateResponse,
@@ -779,7 +781,7 @@ async def test_get_single_state_key(patched_send, opsdroid_matrix):
     patched_send.assert_called_once_with(
         nio.RoomGetStateEventResponse,
         "GET",
-        "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/?access_token=arbitrarytoken",
+        "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database?access_token=arbitrarytoken",
         response_data=("dev.opsdroid.database", "", "!notaroomid"),
     )
 
@@ -1074,7 +1076,7 @@ async def test_room_switch(patched_send, opsdroid_matrix):
     patched_send.assert_called_once_with(
         nio.RoomGetStateEventResponse,
         "GET",
-        "/_matrix/client/r0/rooms/%21notanotherroom/state/dev.opsdroid.database/?access_token=arbitrarytoken",
+        "/_matrix/client/r0/rooms/%21notanotherroom/state/dev.opsdroid.database?access_token=arbitrarytoken",
         response_data=("dev.opsdroid.database", "", "!notanotherroom"),
     )
 
