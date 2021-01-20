@@ -106,10 +106,12 @@ class ConnectorMatrix(Connector):
         )
         self._ignore_unverified = True
         self._allow_encryption = config.get("enable_encryption", False)
-        if self._allow_encryption and not nio.crypto.ENCRYPTION_ENABLED:
+        if (
+            self._allow_encryption and not nio.crypto.ENCRYPTION_ENABLED
+        ):  # pragma: no cover
             _LOGGER.warning(
                 "enable_encryption is True but encryption support is not available."
-            )  # pragma: no cover
+            )
             self._allow_encryption = False
 
         self._event_creator = MatrixEventCreator(self)
@@ -285,14 +287,10 @@ class ConnectorMatrix(Connector):
                         if event.source["type"] == "m.room.member":
                             event.source["content"] = event.content
                         if isinstance(event, nio.MegolmEvent):
-                            try:
-                                event = self.connection.decrypt_event(
-                                    event
-                                )  # pragma: nocover
-                            except nio.exceptions.EncryptionError:
-                                _LOGGER.exception(
-                                    f"Failed to decrypt event {event}"
-                                )  # pragma: nocover
+                            try:  # pragma: no cover
+                                event = self.connection.decrypt_event(event)
+                            except nio.exceptions.EncryptionError:  # pragma: no cover
+                                _LOGGER.exception(f"Failed to decrypt event {event}")
                         return await self._event_creator.create_event(
                             event.source, roomid
                         )
