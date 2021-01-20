@@ -109,7 +109,7 @@ class ConnectorMatrix(Connector):
         if self._allow_encryption and not nio.crypto.ENCRYPTION_ENABLED:
             _LOGGER.warning(
                 "enable_encryption is True but encryption support is not available."
-            )
+            )  # pragma: no cover
             self._allow_encryption = False
 
         self._event_creator = MatrixEventCreator(self)
