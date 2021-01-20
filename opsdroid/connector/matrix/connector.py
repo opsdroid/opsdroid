@@ -9,6 +9,7 @@ from urllib.parse import urlparse
 import aiohttp
 import nio
 import nio.responses
+import nio.exceptions
 
 from opsdroid import const, events
 from opsdroid.connector import Connector, register_event
@@ -284,9 +285,14 @@ class ConnectorMatrix(Connector):
                         if event.source["type"] == "m.room.member":
                             event.source["content"] = event.content
                         if isinstance(event, nio.MegolmEvent):
-                            _LOGGER.error(
-                                f"Failed to decrypt event {event}"
-                            )  # pragma: nocover
+                            try:
+                                event = self.connection.decrypt_event(
+                                    event
+                                )  # pragma: nocover
+                            except nio.exceptions.EncryptionError:
+                                _LOGGER.exception(
+                                    f"Failed to decrypt event {event}"
+                                )  # pragma: nocover
                         return await self._event_creator.create_event(
                             event.source, roomid
                         )
