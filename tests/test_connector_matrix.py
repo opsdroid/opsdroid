@@ -28,6 +28,7 @@ def connector():
             "mxid": "@opsdroid:localhost",
             "password": "hello",
             "homeserver": "http://localhost:8008",
+            "enable_encryption": True,
         }
     )
     api = nio.AsyncClient("https://notaurl.com", None)
