@@ -27,9 +27,6 @@ database:
 parser:
   - opsdroid/parsers/**/*
 
-dependencies:
-  - requirements*.txt
-
 documentation:
   - '**/*.md'
 
@@ -38,6 +35,16 @@ installation/packaging:
   - setup.py
   - setup.cfg
   - Dockerfile
+  - tox.ini
+  - versioneer.py
+  - 'requirements*.txt'
+  - .pre-commit-config.yaml
+  - .readthedocs.yml
+  - .coveragerc
+  - .codecov.yaml
+  - .github/**/*
 
 tests:
   - tests/**/*
+  - **/tests/**/*
+  - **/conftest.py
