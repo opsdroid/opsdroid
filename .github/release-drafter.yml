@@ -37,6 +37,9 @@ categories:
   - title: 'Websocket Connector Changes'
     labels:
       - 'connector/websocket'
+  - title: 'Database Changes'
+    labels:
+      - 'database'
   - title: 'Bug Fixes'
     labels:
       - 'bug'
