@@ -29,6 +29,7 @@ CONFIG_SCHEMA = {
     "device_name": str,
     "device_id": str,
     "store_path": str,
+    "enable_encryption": bool,
 }
 
 __all__ = ["ConnectorMatrix"]
@@ -103,7 +104,12 @@ class ConnectorMatrix(Connector):
             "store_path", str(Path(const.DEFAULT_ROOT_PATH, "matrix"))
         )
         self._ignore_unverified = True
-        self._allow_encryption = nio.crypto.ENCRYPTION_ENABLED
+        self._allow_encryption = config.get("enable_encryption", False)
+        if self._allow_encryption and not nio.crypto.ENCRYPTION_ENABLED:
+            _LOGGER.warning(
+                "enable_encryption is True but encryption support is not available."
+            )
+            self._allow_encryption = False
 
         self._event_creator = MatrixEventCreator(self)
 
