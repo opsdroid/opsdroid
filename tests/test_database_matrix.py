@@ -29,6 +29,7 @@ def opsdroid_matrix(mocker):
             "mxid": "@opsdroid:localhost",
             "password": "hello",
             "homeserver": "http://localhost:8008",
+            "enable_encryption": True,
         }
     )
     connector.room_ids = {"main": "!notaroomid"}

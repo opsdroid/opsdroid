@@ -9,6 +9,7 @@ from urllib.parse import urlparse
 import aiohttp
 import nio
 import nio.responses
+import nio.exceptions
 
 from opsdroid import const, events
 from opsdroid.connector import Connector, register_event
@@ -29,6 +30,7 @@ CONFIG_SCHEMA = {
     "device_name": str,
     "device_id": str,
     "store_path": str,
+    "enable_encryption": bool,
 }
 
 __all__ = ["ConnectorMatrix"]
@@ -103,7 +105,14 @@ class ConnectorMatrix(Connector):
             "store_path", str(Path(const.DEFAULT_ROOT_PATH, "matrix"))
         )
         self._ignore_unverified = True
-        self._allow_encryption = nio.crypto.ENCRYPTION_ENABLED
+        self._allow_encryption = config.get("enable_encryption", False)
+        if (
+            self._allow_encryption and not nio.crypto.ENCRYPTION_ENABLED
+        ):  # pragma: no cover
+            _LOGGER.warning(
+                "enable_encryption is True but encryption support is not available."
+            )
+            self._allow_encryption = False
 
         self._event_creator = MatrixEventCreator(self)
 
@@ -278,9 +287,10 @@ class ConnectorMatrix(Connector):
                         if event.source["type"] == "m.room.member":
                             event.source["content"] = event.content
                         if isinstance(event, nio.MegolmEvent):
-                            _LOGGER.error(
-                                f"Failed to decrypt event {event}"
-                            )  # pragma: nocover
+                            try:  # pragma: no cover
+                                event = self.connection.decrypt_event(event)
+                            except nio.exceptions.EncryptionError:  # pragma: no cover
+                                _LOGGER.exception(f"Failed to decrypt event {event}")
                         return await self._event_creator.create_event(
                             event.source, roomid
                         )
