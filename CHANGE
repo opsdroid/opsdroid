@@ -1,0 +1,32 @@
+This release of opsdroid will be the last to support Python 3.6 in line with [NEP 29](https://numpy.org/neps/nep-0029-deprecation_policy.html) which we follow for supported versions of Python.
+
+  Changes
+
+  - Change the deploy workflow so it is triggered on the release event Cadair (1530)
+  - Change test folder structure and migrate facebook connector tests to pytest jacobtomlinson (1506)
+  - Fix failing test jacobtomlinson (1500)
+  - Fix README badges Gideon357 (1489)
+  - Make autoreload optional and disabled by default jacobtomlinson (1482)
+  - Replace CI on Travis and AppVeyor with GitHub Actions  jacobtomlinson (1472)
+  - Add action to apply labels based on files changed jacobtomlinson (1473)
+
+  Enhancements
+
+  - Dockerfile: add g++ and linux-headers to container silvio (1503)
+  - Add convenience functions for getting connectors and databases jacobtomlinson (1485)
+  - Rename sqlite database location config option to 'path' to match other config jacobtomlinson (1481)
+  - Reload opsdroid if a local module is modified jacobtomlinson (1466)
+
+  Bug Fixes
+
+  - Fix webex teams config jacobtomlinson (1504)
+  - Add support for env var expansion in JSON configs jacobtomlinson (1478)
+  - Labeler doesn't work from forks so switching to a cron action jacobtomlinson (1479)
+  - Fix config path for reload jacobtomlinson (1477)
+  - Fix custom config path being ignored during reload jacobtomlinson (1476)
+  - Add support for identically named group in regex_matcher iobreaker (1454)
+
+  Documentation and code quality
+
+  - Fix broken links Gideon357 (1483)
+  - Fix outdated connector documentation IamMamad (1461)
