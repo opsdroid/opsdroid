@@ -1,0 +1,14 @@
+This adds a configuration option to enable end to end encryption in the matrix connector. Defaulting this to off means that an encryption enabled device will not be added to the matrix account, having an encryption enabled device means some clients, most notably, Element will automatically enable e2ee when creating rooms.
+This requires understanding the matrix-nio library for how (if at all) this information is exposed.
+
+The relevant section of the code is:
+
+
+opsdroid/opsdroid/connector/matrix/connector.py
+
+Lines 280 to 283 in 3fe47d8
+
+ if isinstance(event, nio.MegolmEvent): 
+     _LOGGER.error( 
+         f"Failed to decrypt event {event}" 
+     )  # pragma: nocover 
