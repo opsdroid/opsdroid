@@ -8,7 +8,8 @@ import unittest.mock as mock
 import aiohttp
 import asynctest
 import asynctest.mock as amock
-import slack
+from slack_sdk.rtm import RTMClient
+from slack_sdk.errors import SlackApiError
 from opsdroid import events
 from opsdroid.cli.start import configure_lang
 from opsdroid.connector.slack import ConnectorSlack
@@ -30,7 +31,7 @@ class TestConnectorSlack(unittest.TestCase):
         )
 
     def tearDown(self):
-        slack.RTMClient._callbacks = collections.defaultdict(list)
+        RTMClient._callbacks = collections.defaultdict(list)
         del self.connector
         del self.event_creator
         self.od.__exit__(None, None, None)
@@ -85,7 +86,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         )
 
     def tearDown(self):
-        slack.RTMClient._callbacks = collections.defaultdict(list)
+        RTMClient._callbacks = collections.defaultdict(list)
         del self.connector
         del self.event_creator
         self.od.__exit__(None, None, None)
@@ -111,7 +112,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
         opsdroid = amock.CoroutineMock()
         opsdroid.eventloop = self.loop
         connector.slack_rtm._connect_and_read = amock.Mock()
-        connector.slack_rtm._connect_and_read.side_effect = slack.errors.SlackApiError(
+        connector.slack_rtm._connect_and_read.side_effect = SlackApiError(
             message="", response=""
         )
 
@@ -298,7 +299,7 @@ class TestConnectorSlackAsync(asynctest.TestCase):
 
         connector = ConnectorSlack({"token": "abc123"}, opsdroid=self.od)
         connector.slack.api_call = amock.CoroutineMock(
-            side_effect=slack.errors.SlackApiError("invalid_name", "invalid_name")
+            side_effect=SlackApiError("invalid_name", "invalid_name")
         )
         prev_message = events.Message(
             text="test",
@@ -314,9 +315,9 @@ class TestConnectorSlackAsync(asynctest.TestCase):
 
         connector = ConnectorSlack({"token": "abc123"}, opsdroid=self.od)
         connector.slack.api_call = amock.CoroutineMock(
-            side_effect=slack.errors.SlackApiError("unknown", "unknown")
+            side_effect=SlackApiError("unknown", "unknown")
         )
-        with self.assertRaises(slack.errors.SlackApiError):
+        with self.assertRaises(SlackApiError):
             prev_message = events.Message(
                 text="test",
                 user="user",
