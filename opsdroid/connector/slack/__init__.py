@@ -8,7 +8,9 @@ import json
 
 import aiohttp
 
-import slack
+from slack_sdk.errors import SlackApiError
+from slack_sdk.web.async_client import AsyncWebClient
+from slack_sdk.rtm import RTMClient
 from emoji import demojize
 from voluptuous import Required
 
@@ -54,19 +56,17 @@ class ConnectorSlack(Connector):
         self.chat_as_user = config.get("chat-as-user", False)
         self.start_thread = config.get("start_thread", False)
         self.ssl_context = ssl.create_default_context(cafile=certifi.where())
-        self.slack = slack.WebClient(
+        self.slack = AsyncWebClient(
             token=self.token,
-            run_async=True,
             ssl=self.ssl_context,
             proxy=os.environ.get("HTTPS_PROXY"),
         )
-        self.slack_user = slack.WebClient(
+        self.slack_user = AsyncWebClient(
             token=self.user_token,
-            run_async=True,
             ssl=self.ssl_context,
             proxy=os.environ.get("HTTPS_PROXY"),
         )
-        self.slack_rtm = slack.RTMClient(
+        self.slack_rtm = RTMClient(
             token=self.token,
             run_async=True,
             ssl=self.ssl_context,
@@ -115,7 +115,7 @@ class ConnectorSlack(Connector):
             _LOGGER.debug(_("Using icon %s."), self.icon_emoji)
             _LOGGER.debug(_("Default room is %s."), self.default_target)
             _LOGGER.info(_("Connected successfully."))
-        except slack.errors.SlackApiError as error:
+        except SlackApiError as error:
             _LOGGER.error(
                 _(
                     "Unable to connect to Slack due to %s."
@@ -237,7 +237,7 @@ class ConnectorSlack(Connector):
                     "timestamp": reaction.linked_event.event_id,
                 },
             )
-        except slack.errors.SlackApiError as error:
+        except SlackApiError as error:
             if "invalid_name" in str(error):
                 _LOGGER.warning(_("Slack does not support the emoji %s."), emoji)
             else:
