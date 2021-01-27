@@ -1,0 +1,166 @@
+@@ -12,6 +12,7 @@
+_LOGGER = logging.getLogger(__name__)
+GITTER_STREAM_API = "https://stream.gitter.im/v1/rooms"
+GITTER_MESSAGE_BASE_API = "https://api.gitter.im/v1/rooms"
+CURRENT_USER_API = "https://api.gitter.im/v1/user/me"
+CONFIG_SCHEMA = {Required("token"): str, Required("room-id"): str, "bot-name": str}
+
+
+@@ -23,9 +24,9 @@ def __init__(self, config, opsdroid=None):
+        super().__init__(config, opsdroid=opsdroid)
+        _LOGGER.debug(_("Starting Gitter Connector."))
+        self.name = "gitter"
+        self.bot_name = None  # set at connection time
+        self.session = None
+        self.response = None
+        self.bot_name = self.config.get("bot-name", "opsdroid")
+        self.room_id = self.config.get("room-id")
+        self.access_token = self.config.get("token")
+        self.update_interval = 1
+@@ -40,13 +41,31 @@ async def connect(self):
+        _LOGGER.debug(_("Connecting with Gitter stream."))
+        self.session = aiohttp.ClientSession()
+
+        gitter_url = self.build_url(
+        # Gitter figures out who we are based on just our access token, but we
+        # need to additionally know our own user ID in order to know which
+        # messages comes from us.
+        current_user_url = self.build_url(
+            CURRENT_USER_API,
+            access_token=self.access_token,
+        )
+        response = await self.session.get(current_user_url, timeout=None)
+        # We cannot continue without a user ID, so raise if this failed.
+        response.raise_for_status()
+        response_json = await response.json()
+        self.bot_gitter_id = response_json["id"]
+        self.bot_name = response_json["username"]
+        _LOGGER.debug(
+            _("Successfully obtained bot's gitter id, %s."), self.bot_gitter_id
+        )
+
+        message_stream_url = self.build_url(
+            GITTER_STREAM_API,
+            self.room_id,
+            "chatMessages",
+            access_token=self.access_token,
+        )
+        self.response = await self.session.get(gitter_url, timeout=None)
+        self.response = await self.session.get(message_stream_url, timeout=None)
+        self.response.raise_for_status()
+
+    def build_url(self, base_url, *res, **params):
+        """Build the url. args ex:(base_url,p1,p2=1,p2=2)."""
+@@ -72,7 +91,8 @@ async def _get_messages(self):
+        await asyncio.sleep(self.update_interval)
+        async for data in self.response.content.iter_chunked(1024):
+            message = await self.parse_message(data)
+            if message is not None:
+            # Do not parse messages that we ourselves sent.
+            if message is not None and message.user_id != self.bot_gitter_id:
+                await self.opsdroid.parse(message)
+
+    async def parse_message(self, message):
+@@ -85,12 +105,12 @@ async def parse_message(self, message):
+                return Message(
+                    text=message["text"],
+                    user=message["fromUser"]["username"],
+                    user_id=message["fromUser"]["id"],
+                    target=self.room_id,
+                    connector=self,
+                )
+            except KeyError as err:
+                _LOGGER.error(_("Unable to parse message %s."), err)
+                _LOGGER.error(err)
+                _LOGGER.error(_("Unable to parse message %r."), err)
+
+    @register_event(Message)
+    async def send_message(self, message):
+ 48  tests/test_connector_gitter.py 
+@@ -1,6 +1,7 @@
+"""Tests for the RocketChat class."""
+
+import asyncio
+import json
+import unittest
+import asynctest
+import asynctest.mock as amock
+@@ -40,13 +41,21 @@ def setUp(self):
+            self.connector.session = mocked_session
+
+    async def test_connect(self):
+        BOT_GITTER_ID = "12345"
+        with amock.patch("aiohttp.ClientSession.get") as patched_request:
+            mockresponse = amock.CoroutineMock()
+            mockresponse.status = 200
+            mockresponse.json = amock.CoroutineMock(return_value={"login": "opsdroid"})
+            mockresponse.json = amock.CoroutineMock(
+                return_value={
+                    "login": "opsdroid",
+                    "id": BOT_GITTER_ID,
+                    "username": "bot",
+                }
+            )
+            patched_request.return_value = asyncio.Future()
+            patched_request.return_value.set_result(mockresponse)
+            await self.connector.connect()
+        assert self.connector.bot_gitter_id == BOT_GITTER_ID
+
+    def test_build_url(self):
+        self.assertEqual(
+@@ -91,10 +100,23 @@ async def test_listen_break_loop(self):
+    async def test_get_message(self):
+        """Test that listening consumes from the socket."""
+
+        BOT_GITTER_ID = "12345"
+        OTHER_GITTER_ID = "67890"
+
+        async def iter_chuncked1(n=None):
+            response = [{"message": "hi"}, {"message": "hi"}]
+            response = [
+                {
+                    "text": "hi",
+                    "fromUser": {"username": "not a bot", "id": OTHER_GITTER_ID},
+                },
+                {"text": "hi", "fromUser": {"username": "bot", "id": BOT_GITTER_ID}},
+                {
+                    "text": "hi",
+                    "fromUser": {"username": "not a bot", "id": OTHER_GITTER_ID},
+                },
+            ]
+            for doc in response:
+                yield doc
+                yield json.dumps(doc).encode()
+
+        response1 = amock.CoroutineMock()
+        response1.content.iter_chunked = iter_chuncked1
+@@ -103,12 +125,26 @@ async def iter_chuncked1(n=None):
+            {"bot-name": "github", "room-id": "test-id", "token": "test-token"},
+            opsdroid=OpsDroid(),
+        )
+        connector.parse_message = amock.CoroutineMock()
+        # Connect first, in order to set bot_gitter_id.
+        with amock.patch("aiohttp.ClientSession.get") as patched_request:
+            mockresponse = amock.CoroutineMock()
+            mockresponse.status = 200
+            mockresponse.json = amock.CoroutineMock(
+                return_value={
+                    "login": "opsdroid",
+                    "id": BOT_GITTER_ID,
+                    "username": "bot",
+                }
+            )
+            patched_request.return_value = asyncio.Future()
+            patched_request.return_value.set_result(mockresponse)
+            await connector.connect()
+
+        connector.opsdroid.parse = amock.CoroutineMock()
+        connector.response = response1
+        assert await connector._get_messages() is None
+        self.assertTrue(connector.parse_message.called)
+        self.assertTrue(connector.opsdroid.parse.called)
+        # Should be called *twice* given these three messages (skipping own message)
+        assert connector.opsdroid.parse.call_count == 2
+
+    async def test_send_message_success(self):
+        post_response = amock.Mock()
