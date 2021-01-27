@@ -1,0 +1,8 @@
+@@ -94,7 +94,7 @@ async def get(self, key):
+            data = await self.client.execute("GET", key)
+
+            if data:
+                return json.loads(data, encoding=JSONDecoder)
+                return json.loads(data, object_hook=JSONDecoder())
+
+            return None
