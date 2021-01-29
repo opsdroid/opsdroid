@@ -13,5 +13,5 @@ You can also find detailed information on how skills are structured in the [opsd
    how-are-you
    weather
    flip-a-coin
-   stock-portfolio
+   stocks-portfolio
 ```
