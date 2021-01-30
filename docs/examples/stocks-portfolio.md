@@ -1,4 +1,4 @@
-#Stocks Portfolio
+# Stocks Portfolio
 
 We will create a skill that will allow opsdroid to store a list of stocks and return each with the current market price and info of it.
 
