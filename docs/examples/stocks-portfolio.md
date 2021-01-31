@@ -55,7 +55,7 @@ conn = sqlite3.connect('/path/to/my/database')
 c = conn.cursor()
 ```
 
-### Recieving Input
+### Receiving Input
 
 Now we have to collect what the bot will receive, we will be doing this by first creating a class that inherits the Skill class. Inside we will be using the special opsdroid function which is `@match_regex`. This function will send the message, and to collect the input we will be using `(.*)` beside the message, like this `@match_regex(r"Stock: (.*)")`. We will then be accessing it with `message.regex.group(1)`. We can now assign what we receive from the bot. 
 
