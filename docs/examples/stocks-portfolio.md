@@ -221,7 +221,7 @@ headquartered in San Francisco, California.",
 }
 ```
 
-We want the `['longName']`, `['regularMarketOpen']` and `['longBusinessSummary']`. With the data we want the bot to send it, we will be using `await message.respond()`. Here is what it should look like:
+We want the `['longName']`, `['regularMarketOpen']` and `['longBusinessSummary']`. Now we want the bot to send the data, so we will be using `await message.respond()`. Here is what it should look like:
 
 ```python
 class StockSkill(Skill):
@@ -237,6 +237,168 @@ class StockSkill(Skill):
 
 Congratulations! You have now made a bot that can tell you the name, price and info on a stock. You can do this with `Stock: <symbol-of-stock>`. With the basic part of the bot finished we can make the portfolio/saving section.
 
-### Saving and Adding to Our Pfolio
+### Saving and Adding to the Portfolio
+
+#### Creating the Table
+
+We now have to use the SQLite3 database file that we had connected to earlier and add a table to it by doing `c.execute('''CREATE TABLE stocks (symbol text)''')`. We will be executing this command in a function similar to the one we had just made. We also want it to reset the database when making a new table. It should look something like this:
+
+```python
+@match_regex(r"Reset Portfolio")
+    async def new_table(self, message):
+        try:
+            file = open("stock_data.db","w")
+            file.close()
+            c.execute('''CREATE TABLE stocks
+                (symbol text)''')
+            await message.respond('New Portfolio Created')
+        except:
+            await message.respond('Portfolio Creation Failed')
+```
+
+With our table and database file we are set for the next section!
+
+#### Adding to the Portfolio
+
+Now we will be making another function which will be responsible for inserting the stock symbols into the database. We will get the info from the database with `c.execute("SELECT * FROM stocks")` and we will inserting it with `c.execute("INSERT INTO stocks VALUES (?)", (params,))`, params will equal our stock name/symbol. Here is what it should look like:
+
+```python
+@match_regex(r"Add Stock: (.*)")
+    async def add_stock(self, message):
+        stock_name = message.regex.group(1)
+        params = (stock_name)
+        
+        c.execute("SELECT * FROM stocks")
+        rows = c.fetchall()
+        
+        c.execute("INSERT INTO stocks VALUES (?)", (params,))
+        conn.commit()
+        
+        await message.respond(f'Stock "{stock_name}" Added to Portfolio')
+```
+
+The problem here is that the bot will allow duplicates of the same stock into the database. We will be solving this problem with some for loops. Here is what it should look like in the end:
+
+```python
+@match_regex(r"Add Stock: (.*)")
+    async def add_stock(self, message):
+        stock_name = message.regex.group(1)
+        params = (stock_name)
+        c.execute("SELECT * FROM stocks")
+        rows = c.fetchall()
+
+        dupe_name = []
+
+        for row in rows:
+            dupe_name.append(row[0])
+
+        if stock_name in dupe_name:
+            await message.respond(f"Duplicate of {stock_name}")
+
+        else:
+            c.execute("INSERT INTO stocks VALUES (?)", (params,))
+            conn.commit()
+            await message.respond(f'Stock "{stock_name}" Added to Portfolio')
+```
+
+#### Listing the Portfolio
+
+Now the easy part, which is listing the stocks that have been added to the database. We will be doing this by getting the data from the database the same as how we did for the adding to the database which is `c.execute("SELECT * FROM stocks")`. With the data we can use a for loop to go through all the things in the database. It should look something like this:
+
+```python
+@match_regex(r"List Stocks")
+    async def list_info_stock(self, message):
+        c.execute("SELECT * FROM stocks")
+        rows = c.fetchall()
+
+        for row in rows:
+            stock = yf.Ticker(row[0])
+            await message.respond(f"Name: {stock.info['longName']}")
+            await message.respond(f"Price: {stock.info['regularMarketOpen']} {stock.info['currency']}")
+            await message.respond(f"About: {stock.info['longBusinessSummary']}")
+```
+
+However we have a problem, if the user asks to `List Stocks` without anything in the database it will return an error. We can fix this by checking if the len of rows in the database is equal to 0. Here is what it should look like:
+
+```python
+@match_regex(r"List Stocks")
+    async def list_info_stock(self, message):
+        c.execute("SELECT * FROM stocks")
+        rows = c.fetchall()
+        
+        if len(rows) == 0:
+            await message.respond('No Stocks Added, Please Use Command "Add Stock:"')
+            
+        for row in rows:
+            stock = yf.Ticker(row[0])
+            await message.respond(f"Name: {stock.info['longName']}")
+            await message.respond(f"Price: {stock.info['regularMarketOpen']} {stock.info['currency']}")
+            await message.respond(f"About: {stock.info['longBusinessSummary']}")
+```
+
+Now you can add, list and find specific info about stocks. Congratulations! Goodluck with your opsdroid journey! Here is what the final code should look like:
+
+```python
+import yfinance as yf
+import sqlite3
+
+from opsdroid.matchers import match_regex
+from opsdroid.skill import Skill
+
+conn = sqlite3.connect('stock_data.db')
+c = conn.cursor()
 
 
+class StockSkill(Skill):
+
+    @match_regex(r"Stock: (.*)")
+    async def search_info_stock(self, message):
+        stock_name = message.regex.group(1)
+        stock = yf.Ticker(stock_name)
+        await message.respond(f"Name: {stock.info['longName']}")
+        await message.respond(f"Current Price: {stock.info['regularMarketOpen']} {stock.info['currency']}")
+        await message.respond(f"About: {stock.info['longBusinessSummary']}")
+
+    @match_regex(r"Add Stock: (.*)")
+    async def add_stock(self, message):
+        stock_name = message.regex.group(1)
+        params = (stock_name)
+        c.execute("SELECT * FROM stocks")
+        rows = c.fetchall()
+
+        dupe_name = []
+
+        for row in rows:
+            dupe_name.append(row[0])
+
+        if stock_name in dupe_name:
+            await message.respond(f"Duplicate of {stock_name}")
+
+        else:
+            c.execute("INSERT INTO stocks VALUES (?)", (params,))
+            conn.commit()
+            await message.respond(f'Stock "{stock_name}" Added to Portfolio')
+
+    @match_regex(r"List Stocks")
+    async def list_info_stock(self, message):
+        c.execute("SELECT * FROM stocks")
+        rows = c.fetchall()
+        if len(rows) == 0:
+            await message.respond('No Stocks Added, Please Use Command "Add Stock:"')
+        for row in rows:
+            stock = yf.Ticker(row[0])
+            await message.respond(f"Name: {stock.info['longName']}")
+            await message.respond(f"Price: {stock.info['regularMarketOpen']} {stock.info['currency']}")
+            await message.respond(f"About: {stock.info['longBusinessSummary']}")
+
+    @match_regex(r"Reset Portfolio")
+    async def new_table(self, message):
+        try:
+            file = open("stock_data.db", "w")
+            file.close()
+            c.execute('''CREATE TABLE stocks
+                (symbol text)''')
+            await message.respond('New Portfolio Created')
+        except:
+            await message.respond('Portfolio Creation Failed')
+```
