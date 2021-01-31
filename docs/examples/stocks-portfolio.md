@@ -83,7 +83,7 @@ class StockSkill(Skill):
         stock_name = message.regex.group(1)
         stock = yf.Ticker(stock_name) 
 ```
-Now `stock` is what we recieve from YFinance when we input a stock's symbol.
+Now `stock` is what we receive from YFinance when we input a stock's symbol.
 
 ### Using the Data
 
