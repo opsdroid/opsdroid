@@ -336,7 +336,7 @@ However we have a problem, if the user asks to `List Stocks` without anything in
             await message.respond(f"About: {stock.info['longBusinessSummary']}")
 ```
 
-Now you can add, list and find specific info about stocks. Congratulations! Goodluck with your opsdroid journey! Here is what the final code should look like:
+Now you can add, list and find specific info about stocks. Congratulations! Good luck with your opsdroid journey! Here is what the final code should look like:
 
 ```python
 import yfinance as yf
