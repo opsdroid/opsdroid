@@ -1,6 +1,6 @@
 # Stocks Portfolio
 
-We will create a skill that will allow opsdroid to store a portfolio of stocks and return each with the current market price and info of it.
+We will create a skill that will allow opsdroid to return info of specific stocks. It will also be able to store a portfolio of stocks and return each with the current market price and info of it.
 
 This example will use [YFinace](https://github.com/ranaroussi/yfinance) to get the information of the stocks and [SQLite3](https://www.sqlite.org/index.html) to keep our portfolio when we close the bot.
 
@@ -39,4 +39,204 @@ import sqlite3
 from opsdroid.matchers import match_regex
 from opsdroid.skill import Skill
 ```
+
+### Connecting to SQLite3 
+
+Our next step is to connect our `__init__.py` file to a SQLite database. Your `__init__.py` file should look something like this now:
+
+```python
+import yfinance as yf
+import sqlite3
+
+from opsdroid.matchers import match_regex
+from opsdroid.skill import Skill
+
+conn = sqlite3.connect('/path/to/my/database')
+c = conn.cursor()
+```
+
+### Recieving Input
+
+Now we have to collect what the bot will revieve, we will be doing this by first creating a class that inherits the Skill class. Inside we will be using the special opsdroid function which is `@match_regex`. This function will send the message, and to collect the input we will be using `(.*)` beside the message, like this `@match_regex(r"Stock: (.*)")`. We will then be accessing it with `message.regex.group(1)`. We can now assign what we recieve from the bot. 
+
+The `StockSkill` class should look something like this:
+
+```python
+class StockSkill(Skill):
+
+    @match_regex(r"Stock: (.*)")
+    async def search_info_stock(self, message):
+        stock_name = message.regex.group(1)
+```
+
+### Getting the Data
+
+Now the fun part! We will be using the YFinance module to get the data for the stocks, the module will take the stock's symbol and return the info. You can read the [documentation](https://github.com/ranaroussi/yfinance) for more info. 
+
+Make your `StockSkill` class look something like this:
+
+```python
+class StockSkill(Skill):
+
+    @match_regex(r"Stock: (.*)")
+    async def search_info_stock(self, message):
+        stock_name = message.regex.group(1)
+        stock = yf.Ticker(stock_name) 
+```
+Now `stock` is what we recieve from YFinance when we input a stock's symbol.
+
+### Using the Data
+
+Now after getting the data and assigning it to a variable we can start using it! We can now return the info to the connector. We will be using the info property but if you are interested on the different properties you can use their [documentation](https://github.com/ranaroussi/yfinance.
+
+The data from the YFinance module is returned back as JSON. Here it is:
+
+```json
+{
+   "zip":"94103",
+   "sector":"Technology",
+   "fullTimeEmployees":3719,
+   "longBusinessSummary":"Unity Software Inc. operates a real-time 3D development platform. Its platform provides software solutions to create, run, and monetize interactive, real-time 2D and 3D content for mobile phones, tablets, PCs, consoles, and augmented and virtual reality devices. The company offers its solutions directly through its online store and field sales operations in North America, Denmark, Finland, the United Kingdom, Germany, Japan, China, Singapore, and South Korea, as well as indirectly through independent distributors and resellers worldwide. The company was founded in 2004 and is 
+headquartered in San Francisco, California.",
+   "city":"San Francisco",
+   "phone":"415-539-3162",
+   "state":"CA",
+   "country":"United States",
+   "companyOfficers":[
+      
+   ],
+   "website":"http://www.unity.com",
+   "maxAge":1,
+   "address1":"30 3rd Street",
+   "industry":"Software—Application",
+   "previousClose":154.18,
+   "regularMarketOpen":152.33,
+   "twoHundredDayAverage":123.33359,
+   "trailingAnnualDividendYield":"None",
+   "payoutRatio":0,
+   "volume24Hr":"None",
+   "regularMarketDayHigh":156.92,
+   "navPrice":"None",
+   "averageDailyVolume10Day":1915112,
+   "totalAssets":"None",
+   "regularMarketPreviousClose":154.18,
+   "fiftyDayAverage":151.33788,
+   "trailingAnnualDividendRate":"None",
+   "open":152.33,
+   "toCurrency":"None",
+   "averageVolume10days":1915112,
+   "expireDate":"None",
+   "yield":"None",
+   "algorithm":"None",
+   "dividendRate":"None",
+   "exDividendDate":"None",
+   "beta":"None",
+   "circulatingSupply":"None",
+   "startDate":"None",
+   "regularMarketDayLow":147.61,
+   "priceHint":2,
+   "currency":"USD",
+   "regularMarketVolume":1362006,
+   "lastMarket":"None",
+   "maxSupply":"None",
+   "openInterest":"None",
+   "marketCap":40567812096,
+   "volumeAllCurrencies":"None",
+   "strikePrice":"None",
+   "averageVolume":2200304,
+   "priceToSalesTrailing12Months":57.123283,
+   "dayLow":147.61,
+   "ask":152,
+   "ytdReturn":"None",
+   "askSize":800,
+   "volume":1362006,
+   "fiftyTwoWeekHigh":174.94,
+   "forwardPE":"None",
+   "fromCurrency":"None",
+   "fiveYearAvgDividendYield":"None",
+   "fiftyTwoWeekLow":65.11,
+   "bid":148,
+   "tradeable":false,
+   "dividendYield":"None",
+   "bidSize":1800,
+   "dayHigh":156.92,
+   "exchange":"NYQ",
+   "shortName":"Unity Software Inc.",
+   "longName":"Unity Software Inc.",
+   "exchangeTimezoneName":"America/New_York",
+   "exchangeTimezoneShortName":"EST",
+   "isEsgPopulated":false,
+   "gmtOffSetMilliseconds":"-18000000",
+   "quoteType":"EQUITY",
+   "symbol":"U",
+   "messageBoardId":"finmb_241908542",
+   "market":"us_market",
+   "annualHoldingsTurnover":"None",
+   "enterpriseToRevenue":54.824,
+   "beta3Year":"None",
+   "profitMargins":-0.35116002,
+   "enterpriseToEbitda":-213.991,
+   "52WeekChange":1.1919534,
+   "morningStarRiskRating":"None",
+   "forwardEps":"None",
+   "revenueQuarterlyGrowth":"None",
+   "sharesOutstanding":270776992,
+   "fundInceptionDate":"None",
+   "annualReportExpenseRatio":"None",
+   "bookValue":"None",
+   "sharesShort":6390454,
+   "sharesPercentSharesOut":0.023599999,
+   "fundFamily":"None",
+   "lastFiscalYearEnd":1577750400,
+   "heldPercentInstitutions":0.61965,
+   "netIncomeToCommon":-317163008,
+   "trailingEps":"None",
+   "lastDividendValue":"None",
+   "SandP52WeekChange":0.14322305,
+   "priceToBook":"None",
+   "heldPercentInsiders":0.16246,
+   "nextFiscalYearEnd":1640908800,
+   "mostRecentQuarter":1601424000,
+   "shortRatio":3.2,
+   "sharesShortPreviousMonthDate":1607990400,
+   "floatShares":120820703,
+   "enterpriseValue":38934634496,
+   "threeYearAverageReturn":"None",
+   "lastSplitDate":"None",
+   "lastSplitFactor":"None",
+   "legalType":"None",
+   "lastDividendDate":"None",
+   "morningStarOverallRating":"None",
+   "earningsQuarterlyGrowth":"None",
+   "dateShortInterest":1610668800,
+   "pegRatio":-15.31,
+   "lastCapGain":"None",
+   "shortPercentOfFloat":0.048600003,
+   "sharesShortPriorMonth":5086368,
+   "impliedSharesOutstanding":"None",
+   "category":"None",
+   "fiveYearAverageReturn":"None",
+   "regularMarketPrice":152.33,
+   "logo_url":"https://logo.clearbit.com/unity.com"
+}
+```
+
+We want the `['longName']`, `['regularMarketOpen']` and `['longBusinessSummary']`. With the data we want the bot to send it, we will be using `await message.respond()`. Here is what it should look like:
+
+```python
+class StockSkill(Skill):
+
+    @match_regex(r"Stock: (.*)")
+    async def search_info_stock(self, message):
+        stock_name = message.regex.group(1)
+        stock = yf.Ticker(stock_name)
+        await message.respond(f"Name: {stock.info['longName']}")
+        await message.respond(f"Current Price: {stock.info['regularMarketOpen']} {stock.info['currency']}")
+        await message.respond(f"About: {stock.info['longBusinessSummary']}")
+```
+
+Congratulations! You have now made a bot that can tell you the name, price and info on a stock. You can do this with `Stock: <symbol-of-stock>`. With the basic part of the bot finished we can make the portfolio/saving section.
+
+### Saving and Adding to Our Pfolio
+
 
