@@ -87,7 +87,7 @@ Now `stock` is what we receive from YFinance when we input a stock's symbol.
 
 ### Using the Data
 
-Now after getting the data and assigning it to a variable we can start using it! We can now return the info to the connector. We will be using the info property but if you are interested on the different properties you can use their [documentation](https://github.com/ranaroussi/yfinance.
+After getting the data and assigning it to a variable, we can start using it! We can now return the info to the connector. We will be using the info property, but if you are interested in the different properties, you can use their [documentation](https://github.com/ranaroussi/yfinance).
 
 The data from the YFinance module is returned back as JSON. Here it is:
 
