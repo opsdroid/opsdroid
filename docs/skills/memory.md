@@ -14,6 +14,10 @@ Returns an object from the memory for the key provided.
 
 Stores the object provided for a specific key.
 
+### `delete(key)`
+
+Deletes the object provided the specific key.
+
 ### Example
 
 ```python
@@ -32,8 +36,15 @@ class RememberSkill(Skill):
     async def remember(self, message):
         information = await self.opsdroid.memory.get("remember")
         await message.respond(information)
+        
+    @match_regex(r'forget it')
+    async def remember(self, message):
+        await self.opsdroid.memory.delete("remember")
+        await message.respond("Ok I'll forget it)
 ```
 
-In the above example we have defined two skill functions. The first takes whatever the user says after the word "remember" and stores it in the database.
+In the above example we have defined three skill functions. The first takes whatever the user says after the word "remember" and stores it in the database.
 
 The second retrieves and prints out that text when the user says "remind me".
+
+The third deletes what is remembered in the database when the user says "forget it".
