@@ -247,11 +247,9 @@ We now have to use the SQLite3 database file that we had connected to earlier an
 @match_regex(r"Reset Portfolio")
     async def new_table(self, message):
         try:
-            file = open("stock_data.db","w")
-            file.close()
+            c.execute('''DROP TABLE IF EXISTS stocks''')
             c.execute('''CREATE TABLE stocks
                 (symbol text)''')
-            await message.respond('New Portfolio Created')
         except:
             await message.respond('Portfolio Creation Failed')
 ```
