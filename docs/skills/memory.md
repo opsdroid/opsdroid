@@ -48,3 +48,7 @@ In the above example we have defined three skill functions. The first takes what
 The second retrieves and prints out that text when the user says "remind me".
 
 The third deletes what is remembered in the database when the user says "forget it".
+
+```eval_rst
+.. autoclass:: opsdroid.memory.Memory
+    :members:
