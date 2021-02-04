@@ -40,7 +40,7 @@ class RememberSkill(Skill):
     @match_regex(r'forget it')
     async def remember(self, message):
         await self.opsdroid.memory.delete("remember")
-        await message.respond("Ok I'll forget it)
+        await message.respond("Ok I'll forget it")
 ```
 
 In the above example we have defined three skill functions. The first takes whatever the user says after the word "remember" and stores it in the database.
