@@ -53,4 +53,4 @@ The third deletes what is remembered in the database when the user says "forget 
 ```eval_rst
 .. autoclass:: opsdroid.memory.Memory
     :members:
-    ```
+```
