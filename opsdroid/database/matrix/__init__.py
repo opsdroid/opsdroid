@@ -182,6 +182,9 @@ class DatabaseMatrix(Database):
 
         data = ori_data.content
 
+        if not data:
+            return
+
         _LOGGER.debug(f"Got {data} from state in room {self.room_id}")
 
         if self._single_state_key:

@@ -45,6 +45,6 @@ installation/packaging:
   - .github/**/*
 
 tests:
-  - tests/**/*
-  - **/tests/**/*
-  - **/conftest.py
+  - "tests/**/*"
+  - "**/tests/**/*"
+  - "**/conftest.py"
