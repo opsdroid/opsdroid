@@ -996,6 +996,16 @@ async def test_delete_single_state_key_false(patched_send, opsdroid_matrix):
 
 
 @pytest.mark.asyncio
+async def test_get_empty(patched_send, opsdroid_matrix):
+    patched_send.return_value = nio.RoomGetStateEventResponse({}, "", "", "")
+
+    db = DatabaseMatrix({"single_state_key": False}, opsdroid=opsdroid_matrix)
+    db.should_migrate = False
+
+    assert await db.get("test") is None
+
+
+@pytest.mark.asyncio
 async def test_delete_multiple_keys(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"hello": "world", "twim": "hello", "pill": "red"}, "", "", ""
