@@ -299,14 +299,12 @@ class ConnectorMatrix(Connector):
             ][0]
             sender = await self.get_nick(None, invite_event.sender)
 
-            await self.opsdroid.parse(
-                events.UserInvite(
-                    target=roomid,
-                    user_id=invite_event.sender,
-                    user=sender,
-                    connector=self,
-                    raw_event=invite_event,
-                )
+            yield events.UserInvite(
+                target=roomid,
+                user_id=invite_event.sender,
+                user=sender,
+                connector=self,
+                raw_event=invite_event,
             )
 
         for roomid, roomInfo in response.rooms.join.items():
@@ -320,8 +318,8 @@ class ConnectorMatrix(Connector):
                                 event = self.connection.decrypt_event(event)
                             except nio.exceptions.EncryptionError:  # pragma: no cover
                                 _LOGGER.exception(f"Failed to decrypt event {event}")
-                        await self.opsdroid.parse(
-                            await self._event_creator.create_event(event.source, roomid)
+                        yield await self._event_creator.create_event(
+                            event.source, roomid
                         )
 
     async def listen(self):  # pragma: no cover
@@ -342,7 +340,8 @@ class ConnectorMatrix(Connector):
 
             await self.exchange_keys()
 
-            await self._parse_sync_response(response)
+            async for event in self._parse_sync_response(response):
+                await self.opsdroid.parse(event)
 
     def lookup_target(self, room):
         """Convert name or alias of a room to the corresponding room ID."""

@@ -295,7 +295,12 @@ class TestConnectorMatrixAsync:
                 nio.ProfileGetDisplayNameResponse("SomeUsersName")
             )
 
-            returned_message = await connector._parse_sync_response(self.sync_return)
+            returned_message = [
+                m async for m in connector._parse_sync_response(self.sync_return)
+            ]
+            assert len(returned_message) == 1
+
+            returned_message = returned_message[0]
 
             assert isinstance(returned_message, events.Message)
             assert returned_message.text == "LOUD NOISES"
@@ -309,9 +314,9 @@ class TestConnectorMatrixAsync:
             )
             assert returned_message.raw_event == raw_message
 
-            returned_message = await connector._parse_sync_response(
-                self.sync_return_join
-            )
+            returned_message = [
+                m async for m in connector._parse_sync_response(self.sync_return_join)
+            ][0]
 
             assert isinstance(returned_message, events.JoinRoom)
             assert returned_message.user == "SomeUsersName"
@@ -327,17 +332,14 @@ class TestConnectorMatrixAsync:
 
     async def test_sync_parse_invites(self, connector):
         with amock.patch(api_string.format("get_displayname")) as patched_name:
-            connector.opsdroid = amock.MagicMock()
-            connector.opsdroid.parse.return_value = asyncio.Future()
-            connector.opsdroid.parse.return_value.set_result("")
             patched_name.return_value = asyncio.Future()
             patched_name.return_value.set_result(
                 nio.ProfileGetDisplayNameResponse("SomeUsersName")
             )
 
-            await connector._parse_sync_response(self.sync_invite)
-
-            (invite,), _ = connector.opsdroid.parse.call_args
+            invite, = [
+                m async for m in connector._parse_sync_response(self.sync_invite)
+            ]
 
             assert invite.target == "!AWtmOvkBPTCSPbdaHn:localhost"
             assert invite.user == "SomeUsersName"
@@ -477,7 +479,8 @@ class TestConnectorMatrixAsync:
             patched_nick.return_value = asyncio.Future()
             patched_nick.return_value.set_result("Neo")
 
-            return await connector._parse_sync_response(self.sync_return)
+            async for x in connector._parse_sync_response(self.sync_return):
+                return x
 
     async def test_send_edited_message(self, connector):
         message = events.EditedMessage(
@@ -498,10 +501,7 @@ class TestConnectorMatrixAsync:
                 "msgtype": "m.text",
                 "m.new_content": new_content,
                 "body": f"* {new_content['body']}",
-                "m.relates_to": {
-                    "rel_type": "m.replace",
-                    "event_id": event_id,
-                },
+                "m.relates_to": {"rel_type": "m.replace", "event_id": event_id},
             }
 
         with amock.patch(
@@ -616,10 +616,7 @@ class TestConnectorMatrixAsync:
         assert connector.get_roomname("someroom") == "someroom"
 
     def test_lookup_target(self, connector):
-        connector.room_ids = {
-            "main": "!aroomid:localhost",
-            "test": "#test:localhost",
-        }
+        connector.room_ids = {"main": "!aroomid:localhost", "test": "#test:localhost"}
 
         assert connector.lookup_target("main") == "!aroomid:localhost"
         assert connector.lookup_target("#test:localhost") == "!aroomid:localhost"
@@ -1011,10 +1008,7 @@ class TestConnectorMatrixAsync:
 
     async def test_send_reaction(self, connector):
         message = events.Message(
-            "hello",
-            event_id="$11111",
-            connector=connector,
-            target="!test:localhost",
+            "hello", event_id="$11111", connector=connector, target="!test:localhost"
         )
         reaction = events.Reaction("⭕")
         with OpsDroid() as _:
@@ -1038,10 +1032,7 @@ class TestConnectorMatrixAsync:
 
     async def test_send_reply(self, connector):
         message = events.Message(
-            "hello",
-            event_id="$11111",
-            connector=connector,
-            target="!test:localhost",
+            "hello", event_id="$11111", connector=connector, target="!test:localhost"
         )
         reply = events.Reply("reply")
         with OpsDroid() as _:
@@ -1169,10 +1160,7 @@ class TestConnectorMatrixAsync:
             )
 
     def test_m_notice(self, connector):
-        connector.rooms["test"] = {
-            "alias": "#test:localhost",
-            "send_m_notice": True,
-        }
+        connector.rooms["test"] = {"alias": "#test:localhost", "send_m_notice": True}
 
         assert connector.message_type("main") == "m.text"
         assert connector.message_type("test") == "m.notice"
