@@ -9,16 +9,27 @@ def test_constructor(opsdroid, default_config):
     assert isinstance(connector, ConnectorMatrix)
 
 
+@pytest.fixture
+def mock_whoami_join(mock_api_obj):
+    mock_api_obj.add_response(
+        "/_matrix/client/r0/account/whoami", "GET", {"user_id": "@opsdroid:localhost"}
+    )
+    mock_api_obj.add_response(
+        "/_matrix/client/r0/join/#test:localhost",
+        "POST",
+        {"room_id": "!12355:localhost"},
+    )
+
+
 @pytest.mark.matrix_connector_config("token_config")
-@pytest.mark.add_response(
-    "/_matrix/client/r0/account/whoami", "GET", {"user_id": "@opsdroid:localhost"}
-)
-@pytest.mark.add_response(
-    "/_matrix/client/r0/join/#test:localhost", "POST", {"room_id": "!12355:localhost"}
-)
 @pytest.mark.asyncio
 async def test_connect_access_token(
-    opsdroid, connector, double_filter_response, single_message_sync_response, mock_api
+    opsdroid,
+    connector,
+    double_filter_response,
+    single_message_sync_response,
+    mock_whoami_join,
+    mock_api,
 ):
     assert isinstance(connector, ConnectorMatrix)
     assert connector.access_token == "token"
@@ -65,12 +76,14 @@ async def test_connect_invalid_access_token(caplog, opsdroid, connector, mock_ap
         "device_id": "GHTYAJCE",
     },
 )
-@pytest.mark.add_response(
-    "/_matrix/client/r0/join/#test:localhost", "POST", {"room_id": "!12355:localhost"}
-)
 @pytest.mark.asyncio
 async def test_connect_login(
-    opsdroid, connector, double_filter_response, single_message_sync_response, mock_api
+    opsdroid,
+    connector,
+    double_filter_response,
+    single_message_sync_response,
+    mock_whoami_join,
+    mock_api,
 ):
     assert isinstance(connector, ConnectorMatrix)
     await connector.connect()
@@ -139,12 +152,6 @@ async def test_connect_join_fail(
     {"access_token": "token", "rooms": {"main": "#test:localhost"}, "nick": "opsdroid"}
 )
 @pytest.mark.add_response(
-    "/_matrix/client/r0/account/whoami", "GET", {"user_id": "@opsdroid:localhost"}
-)
-@pytest.mark.add_response(
-    "/_matrix/client/r0/join/#test:localhost", "POST", {"room_id": "!12355:localhost"}
-)
-@pytest.mark.add_response(
     "/_matrix/client/r0/profile/@opsdroid:localhost/displayname",
     "PUT",
     {"errcode": "M_FORBIDDEN", "error": "Invalid user"},
@@ -156,6 +163,7 @@ async def test_connect_set_nick_errors(
     connector,
     double_filter_response,
     single_message_sync_response,
+    mock_whoami_join,
     mock_api,
     caplog,
 ):
@@ -181,12 +189,6 @@ async def test_connect_set_nick_errors(
     {"access_token": "token", "rooms": {"main": "#test:localhost"}, "nick": "opsdroid"}
 )
 @pytest.mark.add_response(
-    "/_matrix/client/r0/account/whoami", "GET", {"user_id": "@opsdroid:localhost"}
-)
-@pytest.mark.add_response(
-    "/_matrix/client/r0/join/#test:localhost", "POST", {"room_id": "!12355:localhost"}
-)
-@pytest.mark.add_response(
     "/_matrix/client/r0/profile/@opsdroid:localhost/displayname", "PUT", {}
 )
 @pytest.mark.add_response(
@@ -196,7 +198,12 @@ async def test_connect_set_nick_errors(
 )
 @pytest.mark.asyncio
 async def test_connect_set_nick(
-    opsdroid, connector, double_filter_response, single_message_sync_response, mock_api
+    opsdroid,
+    connector,
+    double_filter_response,
+    single_message_sync_response,
+    mock_whoami_join,
+    mock_api,
 ):
     await connector.connect()
     assert mock_api.called(
