@@ -13,7 +13,7 @@ import nio.exceptions
 
 from opsdroid import const, events
 from opsdroid.connector import Connector, register_event
-from voluptuous import Required
+from voluptuous import Required, Inclusive
 
 from . import events as matrixevents
 from .create_events import MatrixEventCreator
@@ -21,8 +21,9 @@ from .html_cleaner import clean
 
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = {
-    Required("mxid"): str,
-    Required("password"): str,
+    Inclusive("mxid", "login"): str,
+    Inclusive("password", "login"): str,
+    "access_token": str,
     Required("rooms"): dict,
     "homeserver": str,
     "nick": str,
@@ -90,10 +91,11 @@ class ConnectorMatrix(Connector):
         self.rooms = self._process_rooms_dict(config["rooms"])
         self.room_ids = {}
         self.default_target = self.rooms["main"]["alias"]
-        self.mxid = config["mxid"]
+        self.mxid = config.get("mxid")
+        self.password = config.get("password")
+        self.access_token = config.get("access_token")
         self.nick = config.get("nick")
         self.homeserver = config.get("homeserver", "https://matrix.org")
-        self.password = config["password"]
         self.room_specific_nicks = config.get("room_specific_nicks", False)
         self.send_m_notice = config.get("send_m_notice", False)
         self.session = None
@@ -144,18 +146,14 @@ class ConnectorMatrix(Connector):
                 "event_format": "client",
                 "account_data": {"limit": 0, "types": []},
                 "presence": {"limit": 0, "types": []},
-                "room": {
-                    "account_data": {"types": []},
-                    "ephemeral": {"types": []},
-                    "state": {"types": []},
-                },
+                "room": {"account_data": {"types": []}, "ephemeral": {"types": []}},
             }
         )
 
     async def make_filter(self, api, fjson):
         """Make a filter on the server for future syncs."""
         path = f"/_matrix/client/r0/user/{self.mxid}/filter"
-        headers = {"Authorization": f"Bearer {api.token}"}
+        headers = {"Authorization": f"Bearer {api.access_token}"}
         resp = await api.send(method="post", path=path, data=fjson, headers=headers)
 
         resp_json = await resp.json()
@@ -194,7 +192,7 @@ class ConnectorMatrix(Connector):
             pickle_key="",
             store_name="opsdroid.db" if self._allow_encryption else "",
         )
-        mapi = nio.AsyncClient(
+        self.connection = nio.AsyncClient(
             self.homeserver,
             self.mxid,
             config=config,
@@ -202,20 +200,41 @@ class ConnectorMatrix(Connector):
             device_id=self.device_id,
         )
 
-        login_response = await mapi.login(
-            password=self.password, device_name=self.device_name
-        )
-        if isinstance(login_response, nio.LoginError):
-            _LOGGER.error(
-                f"Error while connecting: {login_response.message} (status code {login_response.status_code})"
-            )
-            return
+        if self.access_token is not None:
+            self.connection.access_token = self.access_token
 
-        mapi.token = login_response.access_token
-        mapi.sync_token = None
+            whoami_response = await self.connection.whoami()
+            if isinstance(whoami_response, nio.responses.WhoamiError):
+                _LOGGER.error(
+                    f"Error while connecting: {whoami_response.message} (status code {whoami_response.status_code})"
+                )
+                return
+
+            self.mxid = whoami_response.user_id
+            self.connection.user_id = self.mxid
+
+        elif self.mxid is not None and self.password is not None:
+            login_response = await self.connection.login(
+                password=self.password, device_name=self.device_name
+            )
+            if isinstance(login_response, nio.LoginError):
+                _LOGGER.error(
+                    f"Error while connecting: {login_response.message} (status code {login_response.status_code})"
+                )
+                return
+
+            self.access_token = (
+                self.connection.access_token
+            ) = login_response.access_token
+        else:
+            raise ValueError(
+                "Configuration for the matrix connector should specify mxid and password or access_token."
+            )  # pragma: no cover
+
+        self.connection.sync_token = None
 
         for roomname, room in self.rooms.items():
-            response = await mapi.join(room["alias"])
+            response = await self.connection.join(room["alias"])
             if isinstance(response, nio.JoinError):
                 _LOGGER.error(
                     f"Error while joining room: {room['alias']}, Message: {response.message} (status code {response.status_code})"
@@ -224,12 +243,10 @@ class ConnectorMatrix(Connector):
             else:
                 self.room_ids[roomname] = response.room_id
 
-        self.connection = mapi
-
         # Create a filter now, saves time on each later sync
-        self.filter_id = await self.make_filter(mapi, self.filter_json)
+        self.filter_id = await self.make_filter(self.connection, self.filter_json)
         first_filter_id = await self.make_filter(
-            mapi, '{ "room": { "timeline" : { "limit" : 1 } } }'
+            self.connection, '{ "room": { "timeline" : { "limit" : 1 } } }'
         )
 
         # Do initial sync so we don't get old messages later.
@@ -249,8 +266,20 @@ class ConnectorMatrix(Connector):
 
         if self.nick:
             display_name = await self.connection.get_displayname(self.mxid)
+            if isinstance(display_name, nio.ErrorResponse):
+                _LOGGER.warning(
+                    f"Error fetching current display_name: {display_name.message} (status code {display_name.status_code})"
+                )
+                display_name = None
+            else:
+                display_name = display_name.displayname
+
             if display_name != self.nick:
-                await self.connection.set_displayname(self.nick)
+                display_name_resp = await self.connection.set_displayname(self.nick)
+                if isinstance(display_name_resp, nio.ErrorResponse):
+                    _LOGGER.warning(
+                        f"Error setting display_name: {display_name_resp.message} (status code {display_name_resp.status_code})"
+                    )
 
     async def disconnect(self):
         """Close the matrix session."""
