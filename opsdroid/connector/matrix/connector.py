@@ -201,29 +201,16 @@ class ConnectorMatrix(Connector):
         )
 
         if self.access_token is not None:
-            # Once https://github.com/poljar/matrix-nio/pull/235 is released use this:
-            # whoami_response = self.connection.whoami(access_token)
-            # if isinstance(whoami_response, nio.WhoamiError):
-            #     _LOGGER.error(
-            #         f"Error while connecting: {whoami_response.message} (status code {whoami_response.status_code})"
-            #     )
-            #     return
+            self.connection.access_token = self.access_token
 
-            # Hacky version to work around no support in nio
-            resp = await self.connection.send(
-                "GET",
-                f"/_matrix/client/r0/account/whoami?access_token={self.access_token}",
-            )
-            if resp.status != 200:
-                content = await resp.json()
+            whoami_response = await self.connection.whoami()
+            if isinstance(whoami_response, nio.responses.WhoamiError):
                 _LOGGER.error(
-                    f"Unable to connect with access token, {content['error']} (status code {content['errcode']})."
+                    f"Error while connecting: {whoami_response.message} (status code {whoami_response.status_code})"
                 )
                 return
 
-            content = await resp.json()
-            self.mxid = content["user_id"]
-            self.connection.access_token = self.access_token
+            self.mxid = whoami_response.user_id
 
         elif self.mxid is not None and self.password is not None:
             login_response = await self.connection.login(
