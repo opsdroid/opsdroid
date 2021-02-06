@@ -133,3 +133,71 @@ async def test_connect_join_fail(
             "Error while joining room: #test:localhost, Message: You are not invited to this room. (status code M_FORBIDDEN)",
         )
     ]
+
+
+@pytest.mark.matrix_connector_config(
+    {"access_token": "token", "rooms": {"main": "#test:localhost"}, "nick": "opsdroid"}
+)
+@pytest.mark.add_response(
+    "/_matrix/client/r0/account/whoami", "GET", {"user_id": "@opsdroid:localhost"}
+)
+@pytest.mark.add_response(
+    "/_matrix/client/r0/join/#test:localhost", "POST", {"room_id": "!12355:localhost"}
+)
+@pytest.mark.add_response(
+    "/_matrix/client/r0/profile/@opsdroid:localhost/displayname",
+    "PUT",
+    {"errcode": "M_FORBIDDEN", "error": "Invalid user"},
+    status=403,
+)
+@pytest.mark.asyncio
+async def test_connect_set_nick_errors(
+    opsdroid,
+    connector,
+    double_filter_response,
+    single_message_sync_response,
+    mock_api,
+    caplog,
+):
+    await connector.connect()
+
+    assert caplog.record_tuples == [
+        (
+            "opsdroid.connector.matrix.connector",
+            logging.WARNING,
+            "Error fetching current display_name: unknown error (status code None)",
+        ),
+        (
+            "opsdroid.connector.matrix.connector",
+            logging.WARNING,
+            "Error setting display_name: Invalid user (status code M_FORBIDDEN)",
+        ),
+    ]
+
+    caplog.clear()
+
+
+# @pytest.mark.matrix_connector_config({
+#     "access_token": "token",
+#     "rooms": {"main": "#test:localhost"},
+#     "nick": "opsdroid"
+# })
+# @pytest.mark.add_response(
+#     "/_matrix/client/r0/account/whoami", "GET", {"user_id": "@opsdroid:localhost"}
+# )
+# @pytest.mark.add_response(
+#     "/_matrix/client/r0/join/#test:localhost", "POST", {"room_id": "!12355:localhost"}
+# )
+# @pytest.mark.add_response(
+#     "/_matrix/client/r0/profile/@opsdroid:localhost/displayname", "PUT", {}
+# )
+# @pytest.mark.add_response(
+#     "/_matrix/client/r0/profile/@opsdroid:localhost/displayname", "GET", {"displayname": "Wibble"}
+# )
+# @pytest.mark.asyncio
+# async def test_connect_set_nick(
+#         opsdroid, connector, double_filter_response, single_message_sync_response, mock_api
+# ):
+#     await connector.connect()
+#     assert mock_api.called("/_matrix/client/r0/profile/@opsdroid:localhost/displayname", "GET")
+#     assert mock_api.called("/_matrix/client/r0/profile/@opsdroid:localhost/displayname", "PUT")

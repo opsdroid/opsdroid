@@ -35,14 +35,24 @@ def token_config(mock_api_obj):
 
 
 @pytest.fixture
-async def connector(opsdroid, request):
+async def connector(opsdroid, request, mock_api_obj):
     if hasattr(request, "param"):
         fix_name = request.param
     else:
         marker = request.node.get_closest_marker("matrix_connector_config")
         fix_name = marker.args[0]
 
-    config = request.getfixturevalue(fix_name)
+    if isinstance(fix_name, str):
+        config = request.getfixturevalue(fix_name)
+    elif isinstance(fix_name, dict):
+        config = fix_name
+    else:
+        raise TypeError(
+            "Config should be a string name for a fixture or a dict for the config"
+        )
+
+    if "homeserver" not in config:
+        config["homeserver"] = mock_api_obj.base_url
 
     conn = ConnectorMatrix(config, opsdroid=opsdroid)
     yield conn

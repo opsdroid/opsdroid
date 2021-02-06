@@ -211,6 +211,7 @@ class ConnectorMatrix(Connector):
                 return
 
             self.mxid = whoami_response.user_id
+            self.connection.user_id = self.mxid
 
         elif self.mxid is not None and self.password is not None:
             login_response = await self.connection.login(
@@ -265,8 +266,20 @@ class ConnectorMatrix(Connector):
 
         if self.nick:
             display_name = await self.connection.get_displayname(self.mxid)
+            if isinstance(display_name, nio.ErrorResponse):
+                _LOGGER.warning(
+                    f"Error fetching current display_name: {display_name.message} (status code {display_name.status_code})"
+                )
+                display_name = None
+            else:
+                display_name = display_name.displayname
+
             if display_name != self.nick:
-                await self.connection.set_displayname(self.nick)
+                display_name_resp = await self.connection.set_displayname(self.nick)
+                if isinstance(display_name_resp, nio.ErrorResponse):
+                    _LOGGER.warning(
+                        f"Error setting display_name: {display_name_resp.message} (status code {display_name_resp.status_code})"
+                    )
 
     async def disconnect(self):
         """Close the matrix session."""
