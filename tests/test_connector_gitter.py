@@ -1,6 +1,7 @@
 """Tests for the RocketChat class."""
 
 import asyncio
+import json
 import unittest
 import asynctest
 import asynctest.mock as amock
@@ -40,13 +41,21 @@ class TestConnectorGitterAsync(asynctest.TestCase):
             self.connector.session = mocked_session
 
     async def test_connect(self):
+        BOT_GITTER_ID = "12345"
         with amock.patch("aiohttp.ClientSession.get") as patched_request:
             mockresponse = amock.CoroutineMock()
             mockresponse.status = 200
-            mockresponse.json = amock.CoroutineMock(return_value={"login": "opsdroid"})
+            mockresponse.json = amock.CoroutineMock(
+                return_value={
+                    "login": "opsdroid",
+                    "id": BOT_GITTER_ID,
+                    "username": "bot",
+                }
+            )
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(mockresponse)
             await self.connector.connect()
+        assert self.connector.bot_gitter_id == BOT_GITTER_ID
 
     def test_build_url(self):
         self.assertEqual(
@@ -91,10 +100,23 @@ class TestConnectorGitterAsync(asynctest.TestCase):
     async def test_get_message(self):
         """Test that listening consumes from the socket."""
 
+        BOT_GITTER_ID = "12345"
+        OTHER_GITTER_ID = "67890"
+
         async def iter_chuncked1(n=None):
-            response = [{"message": "hi"}, {"message": "hi"}]
+            response = [
+                {
+                    "text": "hi",
+                    "fromUser": {"username": "not a bot", "id": OTHER_GITTER_ID},
+                },
+                {"text": "hi", "fromUser": {"username": "bot", "id": BOT_GITTER_ID}},
+                {
+                    "text": "hi",
+                    "fromUser": {"username": "not a bot", "id": OTHER_GITTER_ID},
+                },
+            ]
             for doc in response:
-                yield doc
+                yield json.dumps(doc).encode()
 
         response1 = amock.CoroutineMock()
         response1.content.iter_chunked = iter_chuncked1
@@ -103,12 +125,26 @@ class TestConnectorGitterAsync(asynctest.TestCase):
             {"bot-name": "github", "room-id": "test-id", "token": "test-token"},
             opsdroid=OpsDroid(),
         )
-        connector.parse_message = amock.CoroutineMock()
+        # Connect first, in order to set bot_gitter_id.
+        with amock.patch("aiohttp.ClientSession.get") as patched_request:
+            mockresponse = amock.CoroutineMock()
+            mockresponse.status = 200
+            mockresponse.json = amock.CoroutineMock(
+                return_value={
+                    "login": "opsdroid",
+                    "id": BOT_GITTER_ID,
+                    "username": "bot",
+                }
+            )
+            patched_request.return_value = asyncio.Future()
+            patched_request.return_value.set_result(mockresponse)
+            await connector.connect()
+
         connector.opsdroid.parse = amock.CoroutineMock()
         connector.response = response1
         assert await connector._get_messages() is None
-        self.assertTrue(connector.parse_message.called)
-        self.assertTrue(connector.opsdroid.parse.called)
+        # Should be called *twice* given these three messages (skipping own message)
+        assert connector.opsdroid.parse.call_count == 2
 
     async def test_send_message_success(self):
         post_response = amock.Mock()

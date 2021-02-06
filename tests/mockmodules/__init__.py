@@ -1,0 +1,1 @@
+"""Test mocks for opsdroid."""

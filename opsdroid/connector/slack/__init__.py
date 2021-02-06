@@ -8,7 +8,9 @@ import json
 
 import aiohttp
 
-import slack
+from slack_sdk.errors import SlackApiError
+from slack_sdk.web.async_client import AsyncWebClient
+from slack_sdk.rtm import RTMClient
 from emoji import demojize
 from voluptuous import Required
 
@@ -28,6 +30,7 @@ from opsdroid.connector.slack.events import (
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = {
     Required("token"): str,
+    "user-token": str,
     "bot-name": str,
     "default-room": str,
     "icon-emoji": str,
@@ -48,17 +51,22 @@ class ConnectorSlack(Connector):
         self.default_target = config.get("default-room", "#general")
         self.icon_emoji = config.get("icon-emoji", ":robot_face:")
         self.token = config["token"]
+        self.user_token = config.get("user-token")
         self.timeout = config.get("connect-timeout", 10)
         self.chat_as_user = config.get("chat-as-user", False)
         self.start_thread = config.get("start_thread", False)
         self.ssl_context = ssl.create_default_context(cafile=certifi.where())
-        self.slack = slack.WebClient(
+        self.slack = AsyncWebClient(
             token=self.token,
-            run_async=True,
             ssl=self.ssl_context,
             proxy=os.environ.get("HTTPS_PROXY"),
         )
-        self.slack_rtm = slack.RTMClient(
+        self.slack_user = AsyncWebClient(
+            token=self.user_token,
+            ssl=self.ssl_context,
+            proxy=os.environ.get("HTTPS_PROXY"),
+        )
+        self.slack_rtm = RTMClient(
             token=self.token,
             run_async=True,
             ssl=self.ssl_context,
@@ -107,7 +115,7 @@ class ConnectorSlack(Connector):
             _LOGGER.debug(_("Using icon %s."), self.icon_emoji)
             _LOGGER.debug(_("Default room is %s."), self.default_target)
             _LOGGER.info(_("Connected successfully."))
-        except slack.errors.SlackApiError as error:
+        except SlackApiError as error:
             _LOGGER.error(
                 _(
                     "Unable to connect to Slack due to %s."
@@ -229,7 +237,7 @@ class ConnectorSlack(Connector):
                     "timestamp": reaction.linked_event.event_id,
                 },
             )
-        except slack.errors.SlackApiError as error:
+        except SlackApiError as error:
             if "invalid_name" in str(error):
                 _LOGGER.warning(_("Slack does not support the emoji %s."), emoji)
             else:
@@ -332,7 +340,7 @@ class ConnectorSlack(Connector):
     @register_event(opsdroid.events.NewRoom)
     async def _send_room_creation(self, creation_event):
         _LOGGER.debug(_("Creating room %s."), creation_event.name)
-        return await self.slack.api_call(
+        return await self.slack_user.api_call(
             "conversations.create", data={"name": creation_event.name}
         )
 
@@ -341,14 +349,14 @@ class ConnectorSlack(Connector):
         _LOGGER.debug(
             _("Renaming room %s to '%s'."), name_event.target, name_event.name
         )
-        return await self.slack.api_call(
+        return await self.slack_user.api_call(
             "conversations.rename",
             data={"channel": name_event.target, "name": name_event.name},
         )
 
     @register_event(opsdroid.events.JoinRoom)
     async def _send_join_room(self, join_event):
-        return await self.slack.api_call(
+        return await self.slack_user.api_call(
             "conversations.join", data={"channel": join_event.target}
         )
 
@@ -357,14 +365,14 @@ class ConnectorSlack(Connector):
         _LOGGER.debug(
             _("Inviting user %s to room '%s'."), invite_event.user, invite_event.target
         )
-        return await self.slack.api_call(
+        return await self.slack_user.api_call(
             "conversations.invite",
             data={"channel": invite_event.target, "users": invite_event.user_id},
         )
 
     @register_event(opsdroid.events.RoomDescription)
     async def _send_room_desciption(self, desc_event):
-        return await self.slack.api_call(
+        return await self.slack_user.api_call(
             "conversations.setTopic",
             data={"channel": desc_event.target, "topic": desc_event.description},
         )

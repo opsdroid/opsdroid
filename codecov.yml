@@ -1,3 +1,4 @@
 ignore:
   - "opsdroid/_version.py"
   - "*/tests/*"
+  - "opsdroid/testing/mockmodules/skills/broken_skill.py"

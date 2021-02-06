@@ -2,16 +2,19 @@
 import asyncio
 import io
 import logging
+import tempfile
 from abc import ABCMeta
 from collections import defaultdict
 from datetime import datetime
 from random import randrange
+from bitstring import BitArray
 
 import aiohttp
-
 import puremagic
+import os
 from get_image_size import get_image_size_from_bytesio
 from opsdroid.helper import get_opsdroid
+from videoprops import get_video_properties
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -52,7 +55,7 @@ class EventMetaClass(ABCMeta):
         if "_no_register" in members:
             return cls
 
-        if name in mcls.event_registry:
+        if name in mcls.event_registry and mcls.event_registry[name] is not cls:
             raise NameError(
                 "An event subclass named {name} has already been "
                 "defined. Event subclass names must be globally "
@@ -74,14 +77,14 @@ class Event(metaclass=EventMetaClass):
     Args:
         user_id (string, optional): String id of user sending message
         user (string, optional): String name of user sending message
-        room (string, optional): String name of the room or chat channel in
-                                 which message was sent
+        target (string, optional): String name of the room or chat channel in
+                                   which message was sent
         connector (Connector, optional): Connector object used to interact with
                                          given chat service
         raw_event (dict, optional): Raw message as provided by chat service.
                                     None by default
         raw_parses (dict, optional): Raw response as provided by parse service.
-                            None by default
+                                     None by default
         event_id (object, optional): The unique id for this event as provided
                                      by the connector.
         linked_event (Event, optional): An event to link to this one, i.e. the
@@ -192,19 +195,19 @@ class Message(Event):
 
     Args:
         text (string): String text of message
-        room (string, optional): String name of the room or chat channel in
-                                 which message was sent
+        target (string, optional): String name of the room or chat channel in
+                                   which message was sent
         connector (Connector, optional): Connector object used to interact with
                                          given chat service
         raw_event (dict, optional): Raw message as provided by chat service.
                                     None by default
         raw_parses (dict, optional): Raw response as provided by parse service.
-                    None by default
+                                     None by default
 
     Attributes:
         created: Local date and time that message object was created
         user: String name of user sending message
-        room: String name of the room or chat channel in which message was sent
+        target: String name of the room or chat channel in which message was sent
         connector: Connector object used to interact with given chat service
         text: Text of message as string
         raw_event: Raw message provided by chat service
@@ -402,6 +405,55 @@ class Image(File):
         """Return the image dimensions `(w,h)`."""
         fbytes = await self.get_file_bytes()
         return get_image_size_from_bytesio(io.BytesIO(fbytes), len(fbytes))
+
+
+class Video(File):
+    """Event class specifically for video files."""
+
+    async def get_bin(self):
+        """Return the binary representation of video."""
+
+        """
+        The two below lines gets a bitarray of the video bytes.This method enable video bytes to be converted to hex/bin.
+        Doc: https://github.com/scott-griffiths/bitstring/blob/master/doc/bitarray.rst
+        """
+        fbytes = await self.get_file_bytes()
+        my_bit_array = BitArray(fbytes)
+
+        # Return that bitarray
+        return my_bit_array.bin
+
+    async def get_properties(self):
+        """Get the video properties like codec, resolution.Returns Video properties saved in a Dictionary."""
+
+        """
+        NamedTemporaryFile is too hard to use portably when you need to open the file by name after writing it.
+        On posix you can open the file for reading by name without closing it first.
+        But on Windows, To do that you need to close the file first, which means you have to pass delete=False,
+        which in turn means that you get no help in cleaning up the actual file resource.
+        """
+
+        fbytes = await self.get_file_bytes()  # get bytes of file
+
+        temp_vid = tempfile.NamedTemporaryFile(
+            prefix="opsdroid_vid_", delete=False
+        )  # create a file to store the bytes
+        temp_vid.write(fbytes)
+        temp_vid.close()
+
+        try:
+            vid_details = get_video_properties(temp_vid.name)
+            os.remove(temp_vid.name)  # delete the temp file
+            return vid_details
+        except RuntimeError as error:
+            if "ffmpeg" in str(error).lower():
+                _LOGGER.warning(
+                    _(
+                        "Video events are not supported unless ffmpeg is installed. Install FFMPEG on your system. Here is the error: "
+                    )
+                )
+                _LOGGER.warning(_(error))
+                os.remove(temp_vid.name)  # delete the temp file
 
 
 class NewRoom(Event):

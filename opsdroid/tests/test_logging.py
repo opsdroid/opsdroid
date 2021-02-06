@@ -3,6 +3,7 @@ import pytest
 import logging
 import os
 import tempfile
+import re
 
 import opsdroid.logging as opsdroid
 from opsdroid.cli.start import configure_lang
@@ -123,6 +124,20 @@ def test_configure_console_whitelist():
     assert rootlogger.handlers[0].level == logging.INFO
 
 
+def test_configure_logging_with_timestamp(capsys):
+    config = {
+        "logging": {"path": False, "level": "info", "console": True, "timestamp": True}
+    }
+    opsdroid.configure_logging(config)
+    rootlogger = logging.getLogger()
+    captured = capsys.readouterr()
+    assert len(rootlogger.handlers) == 1
+    assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
+    # Regex to match timestamp: 2020-12-02 17:46:33,158
+    regex = r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} INFO opsdroid\.logging:"
+    assert re.match(regex, captured.err)
+
+
 def test_configure_extended_logging():
     config = {
         "logging": {"path": False, "level": "error", "console": True, "extended": True}
@@ -131,6 +146,27 @@ def test_configure_extended_logging():
     rootlogger = logging.getLogger()
     assert len(rootlogger.handlers) == 1
     assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
+
+
+def test_configure_extended_logging_with_timestamp(capsys):
+    config = {
+        "logging": {
+            "path": False,
+            "level": "info",
+            "console": True,
+            "extended": True,
+            "timestamp": True,
+        }
+    }
+    opsdroid.configure_logging(config)
+    rootlogger = logging.getLogger()
+    captured = capsys.readouterr()
+    assert len(rootlogger.handlers) == 1
+    assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
+    # Regex to match timestamp: 2020-12-02 17:46:33,158
+    regex = r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} INFO opsdroid\.logging\.configure_logging\(\):"
+    print(captured.err)
+    assert re.match(regex, captured.err)
 
 
 def test_configure_default_logging(capsys):

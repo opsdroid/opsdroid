@@ -1,5 +1,6 @@
 """Submodule to handle web requests in opsdroid."""
 
+import asyncio
 import json
 import logging
 import ssl
@@ -7,6 +8,7 @@ import ssl
 from aiohttp import web
 
 from opsdroid import __version__
+from opsdroid.helper import Timeout
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -15,6 +17,8 @@ _LOGGER = logging.getLogger(__name__)
 class Web:
     """Create class for opsdroid Web server."""
 
+    start_timeout = 10  # seconds
+
     def __init__(self, opsdroid):
         """Create web object."""
         self.opsdroid = opsdroid
@@ -22,15 +26,6 @@ class Web:
             self.config = self.opsdroid.config["web"]
         except KeyError:
             self.config = {}
-        self.base_url = self.config.get("base-url")
-        if not self.base_url:
-            self.base_url = "{proto}://{host}{port}".format(
-                proto="http" if self.get_ssl_context is None else "https",
-                host=self.get_host,
-                port=":{}".format(self.get_port)
-                if self.get_port not in (80, 443)
-                else "",
-            )
         self.web_app = web.Application()
         self.runner = web.AppRunner(self.web_app)
         self.site = None
@@ -100,17 +95,37 @@ class Web:
         except KeyError:
             return None
 
+    @property
+    def base_url(self):
+        """Return the base url of the opsdroid web server."""
+        if self.config.get("base_url"):
+            return self.config.get("base_url")
+        protocol = "http" if self.get_ssl_context is None else "https"
+        return f"{protocol}://{self.get_host}:{self.get_port}"
+
     async def start(self):
         """Start web servers."""
         _LOGGER.info(_(f"Started web server on {self.base_url}"))
         await self.runner.setup()
-        self.site = web.TCPSite(
-            self.runner,
-            host=self.get_host,
-            port=self.get_port,
-            ssl_context=self.get_ssl_context,
-        )
-        await self.site.start()
+
+        timeout = Timeout(self.start_timeout, "Timed out starting web server")
+        while timeout.run():
+            try:
+                # We need to recreate the site each time we retry after an OSError.
+                # Just repeatedly calling site.start() results in RuntimeErrors that
+                # say the site was already registered in the runner.
+                self.site = web.TCPSite(
+                    self.runner,
+                    host=self.get_host,
+                    port=self.get_port,
+                    ssl_context=self.get_ssl_context,
+                )
+                await self.site.start()
+                break
+            except OSError as e:
+                await asyncio.sleep(0.1)
+                timeout.set_exception(e)
+                await self.site.stop()
 
     async def stop(self):
         """Stop the web server."""

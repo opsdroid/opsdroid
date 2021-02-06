@@ -13,7 +13,7 @@ $ opsdroid start
 
 ## Installation Methods
 
-Check out the [Getting Started](https://www.youtube.com/watch?v=7wyIi_cpodE&list=PLViQCHlMbEq5nZL6VNrUxu--Of1uCpflq) video series on YouTube. The video series demonstrates how to install and configure opsdroid and opsdroid desktop on Ubuntu 16.04. It also demonstrates how to create your own skill in opsdroid
+Check out the [Getting Started](https://www.youtube.com/watch?v=7wyIi_cpodE&list=PLViQCHlMbEq5nZL6VNrUxu--Of1uCpflq) video series on YouTube. The video series demonstrates how to install and configure opsdroid and opsdroid desktop on Ubuntu 16.04. It also demonstrates how to create your own skill in opsdroid.
 
 ### Ubuntu 16.04 LTS
 
@@ -60,7 +60,7 @@ pip install opsdroid[database_redis,connector_webex]
 ```
 
 `[common]` includes the matrix and slack connectors and sqlite database modules
-You can also use `[all]`, `[all_connectors]`, `[all_databases]`, `[all_parsers]` and `[test]`
+You can also use `[all]`, `[all_connectors]`, `[all_databases]`, `[all_parsers]` and `[test]`.
 Check out [this file](https://github.com/opsdroid/opsdroid/blob/master/setup.cfg#L79)
 for a list of all the modules you can install this way.
 
@@ -76,7 +76,7 @@ $ docker run --rm -it -v /path/to/config_folder:/root/.config/opsdroid opsdroid/
 
 The default docker image on Docker Hub contains all the module dependencies. To
 specify modules, build the image using the Dockerfile and write them as before
-in the build arg *EXTRAS* as follows(Note the .):
+in the build arg *EXTRAS* as follows **(Note the .)**:
 ```
 $ docker build --build-arg EXTRAS=.[common] .
 ```

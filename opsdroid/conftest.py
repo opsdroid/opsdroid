@@ -1,29 +1,11 @@
-"""Pytest config for all opsdroid tests."""
-import pytest
+"""Pytest config for all opsdroid tests.
 
-import asyncio
-
-from opsdroid.testing import opsdroid
-from opsdroid.connector import Connector
+This file includes definitions for any private (opsdroid-use-only) fixtures.
+All public fixtures should be defined in ``opsdroid.testing.fixtures``
+so that sub-projects can reuse them.
+"""
+from opsdroid.testing.fixtures import *  # noqa
 
 from opsdroid.cli.start import configure_lang
 
-__all__ = ["opsdroid"]
-
 configure_lang({})
-
-
-@pytest.fixture(scope="session")
-def get_connector():
-    def _get_connector(config={}):
-        return Connector(config, opsdroid=opsdroid)
-
-    return _get_connector
-
-
-@pytest.yield_fixture
-def event_loop():
-    """Create an instance of the default event loop for each test case."""
-    loop = asyncio.get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
