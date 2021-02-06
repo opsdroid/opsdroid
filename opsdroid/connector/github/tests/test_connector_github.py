@@ -57,7 +57,7 @@ async def test_connect(connector, mock_api):
     assert mock_api.called("/user")
     assert mock_api.call_count("/user") == 1
 
-    request = mock_api.get_request("/user")
+    request = mock_api.get_request("/user", "GET")
     assert "Authorization" in request.headers
     assert "abc123" in request.headers["Authorization"]
 
@@ -96,29 +96,20 @@ async def test_listen(connector):
 async def test_send(opsdroid, connector, mock_api):
     await opsdroid.send(
         Message(
-            text="test",
-            user="jacobtomlinson",
-            target=ISSUE_TARGET,
-            connector=connector,
+            text="test", user="jacobtomlinson", target=ISSUE_TARGET, connector=connector
         )
     )
     assert mock_api.called(COMMENTS_URI)
 
 
 @pytest.mark.add_response(
-    COMMENTS_URI,
-    "POST",
-    get_response_path("github_send_failure.json"),
-    status=400,
+    COMMENTS_URI, "POST", get_response_path("github_send_failure.json"), status=400
 )
 @pytest.mark.asyncio
 async def test_send_failure(opsdroid, connector, mock_api, caplog):
     await opsdroid.send(
         Message(
-            text="test",
-            user="jacobtomlinson",
-            target=ISSUE_TARGET,
-            connector=connector,
+            text="test", user="jacobtomlinson", target=ISSUE_TARGET, connector=connector
         )
     )
     assert mock_api.called(COMMENTS_URI)
@@ -132,10 +123,7 @@ async def test_do_not_send_to_self(opsdroid, connector, mock_api):
 
     await opsdroid.send(
         Message(
-            text="test",
-            user="opsdroid-bot",
-            target=ISSUE_TARGET,
-            connector=connector,
+            text="test", user="opsdroid-bot", target=ISSUE_TARGET, connector=connector
         )
     )
     assert not mock_api.called(COMMENTS_URI)

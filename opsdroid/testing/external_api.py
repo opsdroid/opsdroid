@@ -5,6 +5,7 @@ opsdroid provides a set of pytest fixtures and other helpers for writing tests
 for both opsdroid core and skills.
 """
 import asyncio
+from collections import defaultdict
 import json
 from contextlib import asynccontextmanager
 from os import PathLike
@@ -64,9 +65,9 @@ class ExternalAPIMockServer:
         self.site = None
         self.host = "localhost"
         self.port = 8089
-        self._calls = {}
-        self.responses = {}
-        self._payloads = {}
+        self._calls = defaultdict(list)
+        self.responses = defaultdict(list)
+        self._payloads = defaultdict(list)
         self.status = "stopped"
         self.start_timeout = 10  # seconds
 
@@ -99,14 +100,10 @@ class ExternalAPIMockServer:
     async def _handler(self, request: web.Request) -> web.Response:
         route = request.path
         method = request.method
-        if route in self._calls:
-            self._calls[(route, method)].append(request)
-        else:
-            self._calls[(route, method)] = [request]
-        if route in self._payloads:
-            self._payloads[route].append(await request.post())
-        else:
-            self._payloads[route] = [await request.post()]
+
+        self._calls[(route, method)].append(request)
+        self._payloads[route].append(await request.post())
+
         status, response = self.responses[(route, method)].pop(0)
         return web.json_response(response, status=status)
 
@@ -129,10 +126,7 @@ class ExternalAPIMockServer:
         else:
             response = response
 
-        if (route, method) in self.responses:
-            self.responses[(route, method)].append((status, response))
-        else:
-
+        if (route, method) not in self.responses:
             if method.upper() == "GET":
                 routes = [web.get(route, self._handler)]
             elif method.upper() == "POST":
@@ -141,9 +135,9 @@ class ExternalAPIMockServer:
                 routes = [web.put(route, self._handler)]
             else:
                 raise TypeError(f"Unsupported method {method}")
-
-            self.responses[(route, method)] = [(status, response)]
             self.app.add_routes(routes)
+
+        self.responses[(route, method)].append((status, response))
 
     @asynccontextmanager
     async def running(self) -> "ExternalAPIMockServer":
@@ -172,11 +166,11 @@ class ExternalAPIMockServer:
 
         """
         if not method:
-            return route in [k[1] for k in self._calls.keys()]
+            return route in [k[0] for k in self._calls.keys()]
 
         return (route, method) in self._calls
 
-    def call_count(self, route: str) -> int:
+    def call_count(self, route: str, method: str = None) -> int:
         """Route has been called n times.
 
         Args:
@@ -186,9 +180,15 @@ class ExternalAPIMockServer:
             The number of times it was called.
 
         """
-        return len(self._calls[route])
+        if not method:
+            all_calls = [
+                len(call[1]) for call in self._calls.items() if call[0][0] == route
+            ]
+            return sum(all_calls)
 
-    def get_request(self, route: str, idx: int = 0) -> web.Request:
+        return len(self._calls[(route, method)])
+
+    def get_request(self, route: str, method: str, idx: int = 0) -> web.Request:
         """Route has been called n times.
 
         Args:
@@ -199,7 +199,7 @@ class ExternalAPIMockServer:
             The request that was made.
 
         """
-        return self._calls[route][idx]
+        return self._calls[(route, method)][idx]
 
     def get_payload(self, route: str, idx: int = 0) -> Dict:
         """Return data payload that the route was called with.

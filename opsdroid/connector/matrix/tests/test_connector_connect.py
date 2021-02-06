@@ -31,7 +31,7 @@ async def test_connect_access_token(
     assert mock_api.called("/_matrix/client/r0/sync")
     assert mock_api.called("/_matrix/client/r0/join/#test:localhost")
 
-    whoami_call = mock_api.get_request("/_matrix/client/r0/account/whoami", 0)
+    whoami_call = mock_api.get_request("/_matrix/client/r0/account/whoami", "GET", 0)
     assert "access_token" in whoami_call.query
     assert whoami_call.query["access_token"] == "token"
 
