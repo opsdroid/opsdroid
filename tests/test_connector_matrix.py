@@ -337,7 +337,7 @@ class TestConnectorMatrixAsync:
                 nio.ProfileGetDisplayNameResponse("SomeUsersName")
             )
 
-            invite, = [
+            (invite,) = [
                 m async for m in connector._parse_sync_response(self.sync_invite)
             ]
 
