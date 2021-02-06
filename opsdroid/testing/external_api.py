@@ -98,15 +98,16 @@ class ExternalAPIMockServer:
 
     async def _handler(self, request: web.Request) -> web.Response:
         route = request.path
+        method = request.method
         if route in self._calls:
-            self._calls[route].append(request)
+            self._calls[(route, method)].append(request)
         else:
-            self._calls[route] = [request]
+            self._calls[(route, method)] = [request]
         if route in self._payloads:
             self._payloads[route].append(await request.post())
         else:
             self._payloads[route] = [await request.post()]
-        status, response = self.responses[route].pop(0)
+        status, response = self.responses[(route, method)].pop(0)
         return web.json_response(response, status=status)
 
     @property
@@ -128,18 +129,20 @@ class ExternalAPIMockServer:
         else:
             response = response
 
-        if route in self.responses:
-            self.responses[route].append((status, response))
+        if (route, method) in self.responses:
+            self.responses[(route, method)].append((status, response))
         else:
 
             if method.upper() == "GET":
                 routes = [web.get(route, self._handler)]
             elif method.upper() == "POST":
                 routes = [web.post(route, self._handler)]
+            elif method.upper() == "PUT":
+                routes = [web.put(route, self._handler)]
             else:
                 raise TypeError(f"Unsupported method {method}")
 
-            self.responses[route] = [(status, response)]
+            self.responses[(route, method)] = [(status, response)]
             self.app.add_routes(routes)
 
     @asynccontextmanager
@@ -158,7 +161,7 @@ class ExternalAPIMockServer:
         else:
             raise RuntimeError("Web server must be stopped before it can be reset.")
 
-    def called(self, route: str) -> bool:
+    def called(self, route: str, method: str = None) -> bool:
         """Route has been called.
 
         Args:
@@ -168,7 +171,10 @@ class ExternalAPIMockServer:
             Wether or not it was called.
 
         """
-        return route in self._calls
+        if not method:
+            return route in [k[1] for k in self._calls.keys()]
+
+        return (route, method) in self._calls
 
     def call_count(self, route: str) -> int:
         """Route has been called n times.

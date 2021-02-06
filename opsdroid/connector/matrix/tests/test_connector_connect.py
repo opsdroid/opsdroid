@@ -177,27 +177,31 @@ async def test_connect_set_nick_errors(
     caplog.clear()
 
 
-# @pytest.mark.matrix_connector_config({
-#     "access_token": "token",
-#     "rooms": {"main": "#test:localhost"},
-#     "nick": "opsdroid"
-# })
-# @pytest.mark.add_response(
-#     "/_matrix/client/r0/account/whoami", "GET", {"user_id": "@opsdroid:localhost"}
-# )
-# @pytest.mark.add_response(
-#     "/_matrix/client/r0/join/#test:localhost", "POST", {"room_id": "!12355:localhost"}
-# )
-# @pytest.mark.add_response(
-#     "/_matrix/client/r0/profile/@opsdroid:localhost/displayname", "PUT", {}
-# )
-# @pytest.mark.add_response(
-#     "/_matrix/client/r0/profile/@opsdroid:localhost/displayname", "GET", {"displayname": "Wibble"}
-# )
-# @pytest.mark.asyncio
-# async def test_connect_set_nick(
-#         opsdroid, connector, double_filter_response, single_message_sync_response, mock_api
-# ):
-#     await connector.connect()
-#     assert mock_api.called("/_matrix/client/r0/profile/@opsdroid:localhost/displayname", "GET")
-#     assert mock_api.called("/_matrix/client/r0/profile/@opsdroid:localhost/displayname", "PUT")
+@pytest.mark.matrix_connector_config(
+    {"access_token": "token", "rooms": {"main": "#test:localhost"}, "nick": "opsdroid"}
+)
+@pytest.mark.add_response(
+    "/_matrix/client/r0/account/whoami", "GET", {"user_id": "@opsdroid:localhost"}
+)
+@pytest.mark.add_response(
+    "/_matrix/client/r0/join/#test:localhost", "POST", {"room_id": "!12355:localhost"}
+)
+@pytest.mark.add_response(
+    "/_matrix/client/r0/profile/@opsdroid:localhost/displayname", "PUT", {}
+)
+@pytest.mark.add_response(
+    "/_matrix/client/r0/profile/@opsdroid:localhost/displayname",
+    "GET",
+    {"displayname": "Wibble"},
+)
+@pytest.mark.asyncio
+async def test_connect_set_nick(
+    opsdroid, connector, double_filter_response, single_message_sync_response, mock_api
+):
+    await connector.connect()
+    assert mock_api.called(
+        "/_matrix/client/r0/profile/@opsdroid:localhost/displayname", "GET"
+    )
+    assert mock_api.called(
+        "/_matrix/client/r0/profile/@opsdroid:localhost/displayname", "PUT"
+    )
