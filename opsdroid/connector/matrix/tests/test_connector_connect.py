@@ -1,4 +1,5 @@
 import pytest
+import logging
 
 from opsdroid.connector.matrix import ConnectorMatrix
 
@@ -39,10 +40,7 @@ async def test_connect_access_token(
 @pytest.mark.add_response(
     "/_matrix/client/r0/account/whoami",
     "GET",
-    {
-        "errcode": "M_UNKNOWN_TOKEN",
-        "error": "Invalid macaroon passed.",
-    },
+    {"errcode": "M_UNKNOWN_TOKEN", "error": "Invalid macaroon passed."},
     status=401,
 )
 @pytest.mark.asyncio
@@ -91,10 +89,7 @@ async def test_connect_login(
 @pytest.mark.add_response(
     "/_matrix/client/r0/login",
     "POST",
-    {
-        "errcode": "M_FORBIDDEN",
-        "error": "Invalid password",
-    },
+    {"errcode": "M_FORBIDDEN", "error": "Invalid password"},
     status=403,
 )
 @pytest.mark.asyncio
@@ -106,3 +101,35 @@ async def test_connect_login_error(caplog, opsdroid, connector, mock_api):
 
     assert "Invalid password" in caplog.records[0].message
     assert "M_FORBIDDEN" in caplog.records[0].message
+
+
+@pytest.mark.matrix_connector_config("token_config")
+@pytest.mark.add_response(
+    "/_matrix/client/r0/account/whoami", "GET", {"user_id": "@opsdroid:localhost"}
+)
+@pytest.mark.add_response(
+    "/_matrix/client/r0/join/#test:localhost",
+    "POST",
+    {"errcode": "M_FORBIDDEN", "error": "You are not invited to this room."},
+    status=403,
+)
+@pytest.mark.asyncio
+async def test_connect_join_fail(
+    opsdroid,
+    connector,
+    double_filter_response,
+    single_message_sync_response,
+    mock_api,
+    caplog,
+):
+    assert isinstance(connector, ConnectorMatrix)
+    assert connector.access_token == "token"
+    await connector.connect()
+
+    assert caplog.record_tuples == [
+        (
+            "opsdroid.connector.matrix.connector",
+            logging.ERROR,
+            "Error while joining room: #test:localhost, Message: You are not invited to this room. (status code M_FORBIDDEN)",
+        )
+    ]

@@ -228,7 +228,7 @@ class ConnectorMatrix(Connector):
         else:
             raise ValueError(
                 "Configuration for the matrix connector should specify mxid and password or access_token."
-            )
+            )  # pragma: no cover
 
         self.connection.sync_token = None
 

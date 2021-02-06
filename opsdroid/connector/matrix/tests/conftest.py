@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import pytest
@@ -11,10 +12,7 @@ from opsdroid.connector.matrix import ConnectorMatrix
 
 @pytest.fixture
 def default_config(mock_api_obj):
-    return {
-        "homeserver": mock_api_obj.base_url,
-        "rooms": {"main": "#test:localhost"},
-    }
+    return {"homeserver": mock_api_obj.base_url, "rooms": {"main": "#test:localhost"}}
 
 
 @pytest.fixture
@@ -63,10 +61,12 @@ def get_matrix_response(name):
 
 def empty_sync(room_id):
     with open(get_matrix_response("empty_sync_response")) as fobj:
-        empty_sync = json.load(fobj.read())
+        empty_sync = json.load(fobj)
 
     room_block = empty_sync["rooms"]["join"].pop("ROOMID")
     empty_sync["rooms"]["join"][room_id] = room_block
+
+    return empty_sync
 
 
 def event_factory(event_type, content, sender):
@@ -91,6 +91,28 @@ def sync_response(events, room_id="!12345:localhost"):
     return sync
 
 
+@pytest.fixture
+def message_sync_response(request):
+    room_id = "!12345:localhost"
+    room_id_markers = [
+        marker for marker in request.node.own_markers if marker.name == "sync_room_id"
+    ]
+    if room_id:
+        room_id = room_id_markers[0].args[0]
+
+    markers = [
+        marker
+        for marker in request.node.own_markers
+        if marker.name == "add_sync_messsage"
+    ]
+
+    events = []
+    for marker in markers:
+        events.append(message_factory(*marker.args, **marker.kwargs))
+
+    return sync_response(events, room_id=room_id)
+
+
 ################################################################################
 # Response Fixtures
 ################################################################################
@@ -112,6 +134,7 @@ def double_filter_response(mock_api_obj):
 
 @pytest.fixture
 def single_message_sync_response(mock_api_obj):
-    mock_api_obj.add_response(
-        "/_matrix/client/r0/sync", "GET", get_matrix_response("single_message_sync")
-    )
+    """Return a sync response with a single test message in it."""
+    event = message_factory("Test", "m.text", "@stuart:localhost")
+    sync = sync_response([event])
+    mock_api_obj.add_response("/_matrix/client/r0/sync", "GET", sync)
