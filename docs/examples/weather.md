@@ -4,7 +4,7 @@ We will create a skill, that will make opsdroid tell us the current weather in a
 
 This tutorial will use the  [OpenWeatherMap](https://openweathermap.org) API to get the weather information from a city. We will only need the free version of the API, so register and get your key from the [API](https://openweathermap.org/price) menu.
 
-*If you need help or if you are unsure about something join our* [matrix channel](https://riot.im/app/#/room/#opsdroid-general:matrix.org) *and ask away! We are more than happy to help you.*
+*If you need help or if you are unsure about something join our* [matrix channel](https://app.element.io/#/room/#opsdroid-general:matrix.org) *and ask away! We are more than happy to help you.*
 
 ## Setting Up
 

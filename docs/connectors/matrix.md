@@ -43,7 +43,7 @@ connectors:
     # One of these have to be named 'main'
     rooms:
       'main': '#matrix:matrix.org'
-      'other': '#riot:matrix.org'
+      'other': '#element-web:matrix.org'
     # Optional
     homeserver: "https://matrix.org"
     nick: "Botty McBotface"  # The nick will be set on startup
