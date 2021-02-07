@@ -100,7 +100,7 @@ class ConnectorMatrix(Connector):
         if config.get("room_specific_nicks", None):
             _LOGGER.warning(
                 "The `room_specific_nicks` config option is deprecated as it is now always True."
-            )
+            )  # pragma: no cover
         self.send_m_notice = config.get("send_m_notice", False)
         self.session = None
         self.filter_id = None
@@ -300,12 +300,11 @@ class ConnectorMatrix(Connector):
                 if isinstance(e, nio.InviteMemberEvent)
                 if e.membership == "invite"
             ][0]
-            sender = await self.get_nick(None, invite_event.sender)
 
             yield events.UserInvite(
                 target=roomid,
                 user_id=invite_event.sender,
-                user=sender,
+                user=invite_event.sender,
                 connector=self,
                 raw_event=invite_event,
             )
