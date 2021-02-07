@@ -6,7 +6,7 @@ __all__ = ["clean"]
 
 
 """
-Take the list of allowed tags and attributes from Riot for consistency:
+Take the list of allowed tags and attributes from Element for consistency:
 https://github.com/matrix-org/matrix-react-sdk/blob/master/src/HtmlUtils.js#L180-L195
 """
 
@@ -63,7 +63,7 @@ def clean(html, **kwargs):
     """
     Sanitise HTML fragments.
 
-    A version of `bleach.clean` but with Riot's allowed tags and ``strip=True``
+    A version of `bleach.clean` but with Element's allowed tags and ``strip=True``
     by default.
     """
     defaults = {
