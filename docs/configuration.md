@@ -616,4 +616,4 @@ Which would be represented in a dictionary format like this:
 
 You can have a look at the [example configuration file](https://github.com/opsdroid/opsdroid/blob/master/opsdroid/configuration/example_configuration.yaml) for a better grasp of the new layout.
 
-If you need help migrating your configuration to the new layout please get in touch with us on the [official matrix channel](https://riot.im/app/#/room/#opsdroid-general:matrix.org).
+If you need help migrating your configuration to the new layout please get in touch with us on the [official matrix channel](https://app.element.io/#/room/#opsdroid-general:matrix.org).
