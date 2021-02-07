@@ -182,7 +182,6 @@ class ConnectorMatrix(Connector):
 
     async def connect(self):
         """Create connection object with chat library."""
-
         if self._allow_encryption:
             _LOGGER.debug(f"Using {self.store_path} for the matrix client store.")
             Path(self.store_path).mkdir(exist_ok=True)

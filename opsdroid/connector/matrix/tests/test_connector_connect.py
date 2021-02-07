@@ -9,18 +9,6 @@ def test_constructor(opsdroid, default_config):
     assert isinstance(connector, ConnectorMatrix)
 
 
-@pytest.fixture
-def mock_whoami_join(mock_api_obj):
-    mock_api_obj.add_response(
-        "/_matrix/client/r0/account/whoami", "GET", {"user_id": "@opsdroid:localhost"}
-    )
-    mock_api_obj.add_response(
-        "/_matrix/client/r0/join/#test:localhost",
-        "POST",
-        {"room_id": "!12355:localhost"},
-    )
-
-
 @pytest.mark.matrix_connector_config("token_config")
 @pytest.mark.asyncio
 async def test_connect_access_token(
