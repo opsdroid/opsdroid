@@ -366,7 +366,7 @@ class ConnectorMatrix(Connector):
             )
             return mxid
 
-        return room_state.content.get("displayname", mxid)
+        return room_state.content.get("displayname", mxid) or mxid
 
     def get_roomname(self, room):
         """Get the name of a room from alias or room ID."""
