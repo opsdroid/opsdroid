@@ -95,11 +95,6 @@ async def test_get_nick_error(opsdroid, connector_connected, mock_api, caplog):
     "GET",
     {"displayname": "test"},
 )
-@pytest.mark.add_response(
-    "/_matrix/client/r0/rooms/!12345:localhost/state/m.room.member/@test:localhost",
-    "GET",
-    {"displayname": "test"},
-)
 @pytest.mark.matrix_connector_config(
     {"access_token": "hello", "rooms": {"main": "#test:localhost"}}
 )
