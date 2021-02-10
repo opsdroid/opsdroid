@@ -3,7 +3,7 @@
 We will create a basic skill that makes opsdroid respond to the text "how are you".
 The video tutorial for creating your own skill is also available [here](https://www.youtube.com/watch?v=gk7JN4e5l_4&index=3&list=PLViQCHlMbEq5nZL6VNrUxu--Of1uCpflq).
 
-*If you need help or if you are unsure about something join our* [matrix channel](https://riot.im/app/#/room/#opsdroid-general:matrix.org) *and ask away! We are more than happy to help you.*
+*If you need help or if you are unsure about something join our* [matrix channel](https://app.element.io/#/room/#opsdroid-general:matrix.org) *and ask away! We are more than happy to help you.*
 
 ## The Skill folder
 Opsdroid skills are located inside a folder with the name `skill-<skillname>`. Inside this folder you should have at least these files:

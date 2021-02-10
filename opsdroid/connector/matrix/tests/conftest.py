@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 import pytest
+import nio
 
 from opsdroid.connector.matrix import ConnectorMatrix
 
@@ -35,7 +36,7 @@ def token_config(mock_api_obj):
 
 
 @pytest.fixture
-async def connector(opsdroid, request, mock_api_obj):
+async def connector(opsdroid, request, mock_api_obj, mocker):
     if hasattr(request, "param"):
         fix_name = request.param
     else:
@@ -55,9 +56,29 @@ async def connector(opsdroid, request, mock_api_obj):
         config["homeserver"] = mock_api_obj.base_url
 
     conn = ConnectorMatrix(config, opsdroid=opsdroid)
+    conn.connection = mocker.MagicMock()
     yield conn
-    if conn.connection is not None:
+    if isinstance(conn.connection, nio.AsyncClient):
         await conn.disconnect()
+
+
+@pytest.fixture
+async def connector_connected(
+    opsdroid,
+    double_filter_response,
+    single_message_sync_response,
+    mock_whoami_join,
+    mock_api,
+):
+    config = {
+        "access_token": "token",
+        "homeserver": mock_api.base_url,
+        "rooms": {"main": "#test:localhost"},
+    }
+    conn = ConnectorMatrix(config, opsdroid=opsdroid)
+    await conn.connect()
+    yield conn
+    await conn.disconnect()
 
 
 ################################################################################
@@ -148,3 +169,15 @@ def single_message_sync_response(mock_api_obj):
     event = message_factory("Test", "m.text", "@stuart:localhost")
     sync = sync_response([event])
     mock_api_obj.add_response("/_matrix/client/r0/sync", "GET", sync)
+
+
+@pytest.fixture
+def mock_whoami_join(mock_api_obj):
+    mock_api_obj.add_response(
+        "/_matrix/client/r0/account/whoami", "GET", {"user_id": "@opsdroid:localhost"}
+    )
+    mock_api_obj.add_response(
+        "/_matrix/client/r0/join/#test:localhost",
+        "POST",
+        {"room_id": "!12355:localhost"},
+    )

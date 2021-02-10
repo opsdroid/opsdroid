@@ -284,179 +284,6 @@ class TestConnectorMatrixAsync:
         assert patched_keys_query.called
         patched_keys_claim.assert_called_with(patched_get_users())
 
-    async def test_parse_sync_response(self, connector):
-        connector.room_ids = {"main": "!aroomid:localhost"}
-        connector.filter_id = "arbitrary string"
-
-        with amock.patch(api_string.format("get_displayname")) as patched_name:
-
-            patched_name.return_value = asyncio.Future()
-            patched_name.return_value.set_result(
-                nio.ProfileGetDisplayNameResponse("SomeUsersName")
-            )
-
-            returned_message = await connector._parse_sync_response(self.sync_return)
-
-            assert isinstance(returned_message, events.Message)
-            assert returned_message.text == "LOUD NOISES"
-            assert returned_message.user == "SomeUsersName"
-            assert returned_message.target == "!aroomid:localhost"
-            assert returned_message.connector == connector
-            raw_message = (
-                self.sync_return.rooms.join["!aroomid:localhost"]
-                .timeline.events[0]
-                .source
-            )
-            assert returned_message.raw_event == raw_message
-
-            returned_message = await connector._parse_sync_response(
-                self.sync_return_join
-            )
-
-            assert isinstance(returned_message, events.JoinRoom)
-            assert returned_message.user == "SomeUsersName"
-            assert returned_message.target == "!aroomid:localhost"
-            assert returned_message.connector == connector
-            raw_message = (
-                self.sync_return_join.rooms.join["!aroomid:localhost"]
-                .timeline.events[0]
-                .source
-            )
-            raw_message["content"] = {"membership": "join"}
-            assert returned_message.raw_event == raw_message
-
-    async def test_sync_parse_invites(self, connector):
-        with amock.patch(api_string.format("get_displayname")) as patched_name:
-            connector.opsdroid = amock.MagicMock()
-            connector.opsdroid.parse.return_value = asyncio.Future()
-            connector.opsdroid.parse.return_value.set_result("")
-            patched_name.return_value = asyncio.Future()
-            patched_name.return_value.set_result(
-                nio.ProfileGetDisplayNameResponse("SomeUsersName")
-            )
-
-            await connector._parse_sync_response(self.sync_invite)
-
-            (invite,), _ = connector.opsdroid.parse.call_args
-
-            assert invite.target == "!AWtmOvkBPTCSPbdaHn:localhost"
-            assert invite.user == "SomeUsersName"
-            assert invite.user_id == "@neo:matrix.org"
-            assert invite.connector is connector
-
-    async def test_get_nick(self, connector):
-        connector.room_specific_nicks = False
-
-        with amock.patch(api_string.format("get_displayname")) as patched_globname:
-
-            mxid = "@notaperson:matrix.org"
-
-            patched_globname.return_value = asyncio.Future()
-            patched_globname.return_value.set_result(
-                nio.ProfileGetDisplayNameResponse(displayname="notaperson")
-            )
-            assert await connector.get_nick("#notaroom:localhost", mxid) == "notaperson"
-
-    async def test_get_room_specific_nick(self, caplog, connector):
-        connector.room_specific_nicks = True
-
-        with amock.patch(
-            api_string.format("get_displayname")
-        ) as patched_globname, amock.patch(
-            api_string.format("joined_members")
-        ) as patched_joined:
-
-            mxid = "@notaperson:matrix.org"
-
-            patched_globname.return_value = asyncio.Future()
-            patched_globname.return_value.set_result(
-                nio.ProfileGetDisplayNameResponse(displayname="notaperson")
-            )
-
-            patched_joined.return_value = asyncio.Future()
-            patched_joined.return_value.set_result(
-                nio.JoinedMembersResponse(
-                    members=[
-                        nio.RoomMember(
-                            user_id="@notaperson:matrix.org",
-                            display_name="notaperson",
-                            avatar_url="",
-                        )
-                    ],
-                    room_id="notanid",
-                )
-            )
-
-            assert await connector.get_nick("#notaroom:localhost", mxid) == "notaperson"
-
-            assert await connector.get_nick(None, mxid) == "notaperson"
-
-            # test member not in list
-            patched_joined.return_value = asyncio.Future()
-            patched_joined.return_value.set_result(
-                nio.JoinedMembersResponse(members=[], room_id="notanid")
-            )
-            assert await connector.get_nick("#notaroom:localhost", mxid) == mxid
-
-            # test JoinedMembersError
-            patched_joined.return_value = asyncio.Future()
-            patched_joined.return_value.set_result(
-                nio.JoinedMembersError(message="Some error", status_code=400)
-            )
-            caplog.clear()
-            assert await connector.get_nick("#notaroom:localhost", mxid) == "notaperson"
-            assert ["Failed to lookup room members for #notaroom:localhost."] == [
-                rec.message for rec in caplog.records
-            ]
-
-            # test displayname is not set
-            patched_globname.return_value = asyncio.Future()
-            patched_globname.return_value.set_result(
-                nio.ProfileGetDisplayNameResponse(displayname=None)
-            )
-            caplog.clear()
-            assert await connector.get_nick("#notaroom:localhost", mxid) == mxid
-            assert ["Failed to lookup room members for #notaroom:localhost."] == [
-                rec.message for rec in caplog.records
-            ]
-
-            # test ProfileGetDisplayNameError
-            patched_globname.return_value = asyncio.Future()
-            patched_globname.return_value.set_result(
-                nio.ProfileGetDisplayNameError(message="Some error", status_code=400)
-            )
-            caplog.clear()
-            assert await connector.get_nick("#notaroom:localhost", mxid) == mxid
-            assert f"Failed to lookup nick for {mxid}." == caplog.records[1].message
-
-    async def test_get_nick_not_set(self, connector):
-        connector.room_specific_nicks = False
-
-        with amock.patch(api_string.format("get_displayname")) as patched_globname:
-
-            mxid = "@notaperson:matrix.org"
-
-            # Test that failed nickname lookup returns the mxid
-            patched_globname.return_value = asyncio.Future()
-            patched_globname.return_value.set_result(
-                nio.ProfileGetDisplayNameResponse(displayname=None)
-            )
-            assert await connector.get_nick("#notaroom:localhost", mxid) == mxid
-
-    async def test_get_nick_error(self, connector):
-        connector.room_specific_nicks = False
-
-        with amock.patch(api_string.format("get_displayname")) as patched_globname:
-
-            mxid = "@notaperson:matrix.org"
-
-            # Test if that leads to a global displayname being returned
-            patched_globname.return_value = asyncio.Future()
-            patched_globname.return_value.set_result(
-                nio.ProfileGetDisplayNameError(message="Error")
-            )
-            assert await connector.get_nick("#notaroom:localhost", mxid) == mxid
-
     async def test_get_formatted_message_body(self, connector):
         original_html = "<p><h3><no>Hello World</no></h3></p>"
         original_body = "### Hello World"
@@ -477,7 +304,8 @@ class TestConnectorMatrixAsync:
             patched_nick.return_value = asyncio.Future()
             patched_nick.return_value.set_result("Neo")
 
-            return await connector._parse_sync_response(self.sync_return)
+            async for x in connector._parse_sync_response(self.sync_return):
+                return x
 
     async def test_send_edited_message(self, connector):
         message = events.EditedMessage(
@@ -498,10 +326,7 @@ class TestConnectorMatrixAsync:
                 "msgtype": "m.text",
                 "m.new_content": new_content,
                 "body": f"* {new_content['body']}",
-                "m.relates_to": {
-                    "rel_type": "m.replace",
-                    "event_id": event_id,
-                },
+                "m.relates_to": {"rel_type": "m.replace", "event_id": event_id},
             }
 
         with amock.patch(
@@ -616,10 +441,7 @@ class TestConnectorMatrixAsync:
         assert connector.get_roomname("someroom") == "someroom"
 
     def test_lookup_target(self, connector):
-        connector.room_ids = {
-            "main": "!aroomid:localhost",
-            "test": "#test:localhost",
-        }
+        connector.room_ids = {"main": "!aroomid:localhost", "test": "#test:localhost"}
 
         assert connector.lookup_target("main") == "!aroomid:localhost"
         assert connector.lookup_target("#test:localhost") == "!aroomid:localhost"
@@ -1011,10 +833,7 @@ class TestConnectorMatrixAsync:
 
     async def test_send_reaction(self, connector):
         message = events.Message(
-            "hello",
-            event_id="$11111",
-            connector=connector,
-            target="!test:localhost",
+            "hello", event_id="$11111", connector=connector, target="!test:localhost"
         )
         reaction = events.Reaction("⭕")
         with OpsDroid() as _:
@@ -1038,10 +857,7 @@ class TestConnectorMatrixAsync:
 
     async def test_send_reply(self, connector):
         message = events.Message(
-            "hello",
-            event_id="$11111",
-            connector=connector,
-            target="!test:localhost",
+            "hello", event_id="$11111", connector=connector, target="!test:localhost"
         )
         reply = events.Reply("reply")
         with OpsDroid() as _:
@@ -1169,10 +985,7 @@ class TestConnectorMatrixAsync:
             )
 
     def test_m_notice(self, connector):
-        connector.rooms["test"] = {
-            "alias": "#test:localhost",
-            "send_m_notice": True,
-        }
+        connector.rooms["test"] = {"alias": "#test:localhost", "send_m_notice": True}
 
         assert connector.message_type("main") == "m.text"
         assert connector.message_type("test") == "m.notice"
