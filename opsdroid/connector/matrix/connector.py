@@ -96,7 +96,11 @@ class ConnectorMatrix(Connector):
         self.access_token = config.get("access_token")
         self.nick = config.get("nick")
         self.homeserver = config.get("homeserver", "https://matrix.org")
-        self.room_specific_nicks = config.get("room_specific_nicks", False)
+        # deprecated in 0.21
+        if config.get("room_specific_nicks", None):
+            _LOGGER.warning(
+                "The `room_specific_nicks` config option is deprecated as it is now always True."
+            )  # pragma: no cover
         self.send_m_notice = config.get("send_m_notice", False)
         self.session = None
         self.filter_id = None
@@ -296,12 +300,11 @@ class ConnectorMatrix(Connector):
                 if isinstance(e, nio.InviteMemberEvent)
                 if e.membership == "invite"
             ][0]
-            sender = await self.get_nick(None, invite_event.sender)
 
             yield events.UserInvite(
                 target=roomid,
                 user_id=invite_event.sender,
-                user=sender,
+                user=invite_event.sender,
                 connector=self,
                 raw_event=invite_event,
             )
@@ -354,25 +357,16 @@ class ConnectorMatrix(Connector):
         Get the nickname of a sender depending on the room specific config
         setting.
         """
-        if self.room_specific_nicks and roomid is not None:
-
-            res = await self.connection.joined_members(roomid)
-            if isinstance(res, nio.JoinedMembersError):
-                logging.exception("Failed to lookup room members for %s.", roomid)
-                # fallback to global profile
-            else:
-                for member in res.members:
-                    if member.user_id == mxid:
-                        return member.display_name
-                return mxid
-
-        res = await self.connection.get_displayname(mxid)
-        if isinstance(res, nio.ProfileGetDisplayNameError):
-            _LOGGER.error("Failed to lookup nick for %s.", mxid)
+        room_state = await self.connection.room_get_state_event(
+            roomid, "m.room.member", mxid
+        )
+        if isinstance(room_state, nio.RoomGetStateEventError):
+            _LOGGER.error(
+                f"Error during getting display name from room state: {room_state.message} (status code {room_state.status_code})"
+            )
             return mxid
-        if res.displayname is None:
-            return mxid
-        return res.displayname
+
+        return room_state.content.get("displayname", mxid) or mxid
 
     def get_roomname(self, room):
         """Get the name of a room from alias or room ID."""
