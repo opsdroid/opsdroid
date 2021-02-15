@@ -56,7 +56,9 @@ class ConnectorTwitch(Connector):
         self.redirect = config.get("redirect", "http://localhost")
         self.bot_name = config.get("bot-name", "opsdroid")
         self.websocket = None
-        self.webhook_lease_seconds = config.get("webhook-lease-seconds", 60 * 60 * 24) # default 1 day
+        self.webhook_lease_seconds = config.get(
+            "webhook-lease-seconds", 60 * 60 * 24
+        )  # default 1 day
         self.user_id = None
         self.webhook_secret = secrets.token_urlsafe(18)
         # TODO: Allow usage of SSL connection
