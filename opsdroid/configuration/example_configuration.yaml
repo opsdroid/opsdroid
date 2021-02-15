@@ -131,6 +131,7 @@ connectors:
 #   redirect: http://localhost # Url to be passed to get oath token - defaults to localhost
 #   forward-url: 'http://94jfsd9ff.ngrok.io' # Either an URL provided by a forwarding service or an exposed ip address
 #   # optional
+#   webhook-lease-seconds: 86400 # how long for webhooks to expire
 #   always-listening: false # Turn on to connect to the chat server even if stream is offline.
 #
 #  ## Webexteams (core)

@@ -56,6 +56,9 @@ class ConnectorTwitch(Connector):
         self.redirect = config.get("redirect", "http://localhost")
         self.bot_name = config.get("bot-name", "opsdroid")
         self.websocket = None
+        self.webhook_lease_seconds = config.get(
+            "webhook-lease-seconds", 60 * 60 * 24
+        )  # default 1 day
         self.user_id = None
         self.webhook_secret = secrets.token_urlsafe(18)
         # TODO: Allow usage of SSL connection
@@ -328,7 +331,7 @@ class ConnectorTwitch(Connector):
                 "hub.callback": f"{self.base_url}/connector/{self.name}",
                 "hub.mode": mode,
                 "hub.topic": topic,
-                "hub.lease_seconds": 60 * 60 * 24 * 9,  # Expire after 9 days
+                "hub.lease_seconds": self.webhook_lease_seconds,
                 "hub.secret": self.webhook_secret,
             }
 
