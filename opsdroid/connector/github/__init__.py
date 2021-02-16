@@ -8,6 +8,7 @@ from voluptuous import Required
 
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
+from . import events as github_events
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -65,15 +66,55 @@ class ConnectorGitHub(Connector):
         req = await request.post()
         payload = json.loads(req["payload"])
         try:
+            repo = f"{payload['repository']['owner']['login']}/{payload['repository']['name']}#"
+            user = payload["sender"]["login"]
             if payload["action"] == "created" and "comment" in payload:
-                issue_number = payload["issue"]["number"]
-                body = payload["comment"]["body"]
+                event = github_events.IssueCommented(
+                    comment=payload["comment"]["body"],
+                    user=user,
+                    issue_title=payload["issue"]["tittle"],
+                    comment_url=payload["comment"]["body"],
+                    target=f"{repo}{payload['issue']['number']}",
+                    connector=self,
+                    raw_event=payload,
+                )
             elif payload["action"] == "opened" and "issue" in payload:
-                issue_number = payload["issue"]["number"]
-                body = payload["issue"]["body"]
+                event = github_events.IssueCreated(
+                    title=payload["issue"]["title"],
+                    description=payload["issue"]["body"],
+                    user=user,
+                    target=f"{repo}{payload['issue']['number']}",
+                    connector=self,
+                    raw_event=payload,
+                )
+            elif payload["action"] == "closed" and "issue" in payload:
+                event = github_events.IssueClosed(
+                    title=payload["issue"]["title"],
+                    user=user,
+                    description=payload["issue"]["body"],
+                    target=f"{repo}{payload['issue']['number']}",
+                    connector=self,
+                    raw_event=payload,
+                )
             elif payload["action"] == "opened" and "pull_request" in payload:
-                issue_number = payload["pull_request"]["number"]
-                body = payload["pull_request"]["body"]
+                event = github_events.PROpened(
+                    title=payload["pull_request"]["title"],
+                    description=payload["pull_request"]["body"],
+                    user=user,
+                    target=f"{repo}{payload['pull_request']['number']}",
+                    connector=self,
+                    raw_event=payload,
+                )
+            elif payload["action"] == "opened" and "pull_request" in payload:
+                event = github_events.PRMerged(
+                    title=payload["pull_request"]["title"],
+                    description=payload["pull_request"]["body"],
+                    user=payload["pull_request"]["user"]["login"],
+                    merger=payload["pull_request"]["merged_by"]["login"],
+                    target=f"{repo}{payload['pull_request']['number']}",
+                    connector=self,
+                    raw_event=payload,
+                )
             else:
                 _LOGGER.debug(_("No message to respond to."))
                 _LOGGER.debug(payload)
@@ -81,38 +122,29 @@ class ConnectorGitHub(Connector):
                     text=json.dumps("No message to respond to."), status=200
                 )
 
-            issue = "{}/{}#{}".format(
-                payload["repository"]["owner"]["login"],
-                payload["repository"]["name"],
-                issue_number,
-            )
-            message = Message(
-                text=body,
-                user=payload["sender"]["login"],
-                target=issue,
-                connector=self,
-                raw_event=payload,
-            )
-            await self.opsdroid.parse(message)
+            await self.opsdroid.parse(event)
         except KeyError as error:
             _LOGGER.error(_("Key %s not found in payload."), error)
             _LOGGER.debug(payload)
         return aiohttp.web.Response(text=json.dumps("Received"), status=201)
 
+    # @register_event(Message)
+    # async def send_message(self, message):
+    #     """Respond with a message."""
+    #     # stop immediately if the message is from the bot itself.
+    #     if message.user == self.github_username:
+    #         return True
+    #     _LOGGER.debug(_("Responding via GitHub."))
+    #     repo, issue = message.target.split("#")
+    #     url = "{}/repos/{}/issues/{}/comments".format(self.github_api_url, repo, issue)
+    #     headers = {"Authorization": " token {}".format(self.github_token)}
+    #     async with aiohttp.ClientSession(trust_env=True) as session:
+    #         resp = await session.post(url, json={"body": message.text}, headers=headers)
+    #         if resp.status == 201:
+    #             _LOGGER.info(_("Message sent."))
+    #             return True
+    #         _LOGGER.error(await resp.json())
+    #         return False
     @register_event(Message)
-    async def send_message(self, message):
-        """Respond with a message."""
-        # stop immediately if the message is from the bot itself.
-        if message.user == self.github_username:
-            return True
-        _LOGGER.debug(_("Responding via GitHub."))
-        repo, issue = message.target.split("#")
-        url = "{}/repos/{}/issues/{}/comments".format(self.github_api_url, repo, issue)
-        headers = {"Authorization": " token {}".format(self.github_token)}
-        async with aiohttp.ClientSession(trust_env=True) as session:
-            resp = await session.post(url, json={"body": message.text}, headers=headers)
-            if resp.status == 201:
-                _LOGGER.info(_("Message sent."))
-                return True
-            _LOGGER.error(await resp.json())
-            return False
+    async def pass_message(self, message):
+        pass
