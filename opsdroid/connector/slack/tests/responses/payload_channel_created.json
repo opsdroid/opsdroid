@@ -1,0 +1,32 @@
+{
+	"token": "here-comes-some-token",
+	"team_id": "T01ND2P8N91",
+	"api_app_id": "A01NK2M4ABE",
+	"event": {
+		"type": "channel_created",
+		"channel": {
+			"id": "C01N6CT022J",
+			"is_channel": true,
+			"name": "new-channel",
+			"name_normalized": "new-channel",
+			"created": 1613563705,
+			"creator": "U01NK1K9L68",
+			"is_shared": false,
+			"is_org_shared": false
+		},
+		"event_ts": "1613563705.005600"
+	},
+	"type": "event_callback",
+	"event_id": "Ev01NRQNDKLZ",
+	"event_time": 1613563705,
+	"authorizations": [
+		{
+			"enterprise_id": null,
+			"team_id": "T01ND2P8N91",
+			"user_id": "U01N9R657HB",
+			"is_bot": true,
+			"is_enterprise_install": false
+		}
+	],
+	"is_ext_shared_channel": false
+}

@@ -1,0 +1,67 @@
+{
+	"token": "here-comes-some-token",
+	"team_id": "T01ND2P8N91",
+	"api_app_id": "A01NK2M4ABE",
+	"event": {
+		"type": "team_join",
+		"user": {
+			"id": "U01P7131BA4",
+			"team_id": "T01ND2P8N91",
+			"name": "opsdroid.test_another",
+			"deleted": false,
+			"color": "e7392d",
+			"real_name": "Another User",
+			"tz": "Europe/Amsterdam",
+			"tz_label": "Central European Time",
+			"tz_offset": 3600,
+			"profile": {
+				"title": "",
+				"phone": "",
+				"skype": "",
+				"real_name": "Another User",
+				"real_name_normalized": "Another User",
+				"display_name": "Another User",
+				"display_name_normalized": "Another User",
+				"fields": null,
+				"status_text": "",
+				"status_emoji": "",
+				"status_expiration": 0,
+				"avatar_hash": "g90886a5e779",
+				"email": "opsdroid.test+anotheruser@gmail.com",
+				"image_24": "https://secure.gravatar.com/avatar/90886a5e779544374561dfc104c84a8c.jpg?s=24&d=https%3A%2F%2Fa.slack-edge.com%2Fdf10d%2Fimg%2Favatars%2Fava_0011-24.png",
+				"image_32": "https://secure.gravatar.com/avatar/90886a5e779544374561dfc104c84a8c.jpg?s=32&d=https%3A%2F%2Fa.slack-edge.com%2Fdf10d%2Fimg%2Favatars%2Fava_0011-32.png",
+				"image_48": "https://secure.gravatar.com/avatar/90886a5e779544374561dfc104c84a8c.jpg?s=48&d=https%3A%2F%2Fa.slack-edge.com%2Fdf10d%2Fimg%2Favatars%2Fava_0011-48.png",
+				"image_72": "https://secure.gravatar.com/avatar/90886a5e779544374561dfc104c84a8c.jpg?s=72&d=https%3A%2F%2Fa.slack-edge.com%2Fdf10d%2Fimg%2Favatars%2Fava_0011-72.png",
+				"image_192": "https://secure.gravatar.com/avatar/90886a5e779544374561dfc104c84a8c.jpg?s=192&d=https%3A%2F%2Fa.slack-edge.com%2Fdf10d%2Fimg%2Favatars%2Fava_0011-192.png",
+				"image_512": "https://secure.gravatar.com/avatar/90886a5e779544374561dfc104c84a8c.jpg?s=512&d=https%3A%2F%2Fa.slack-edge.com%2Fdf10d%2Fimg%2Favatars%2Fava_0011-512.png",
+				"status_text_canonical": "",
+				"team": "T01ND2P8N91"
+			},
+			"is_admin": false,
+			"is_owner": false,
+			"is_primary_owner": false,
+			"is_restricted": false,
+			"is_ultra_restricted": false,
+			"is_bot": false,
+			"is_app_user": false,
+			"updated": 1613627637,
+			"is_email_confirmed": true,
+			"presence": "away"
+		},
+		"cache_ts": 1613627637,
+		"event_ts": "1613627637.008800"
+	},
+	"type": "event_callback",
+	"event_id": "Ev01NH5VCZ18",
+	"event_time": 1613627637,
+	"authorizations": [
+		{
+			"enterprise_id": null,
+			"team_id": "T01ND2P8N91",
+			"user_id": "U01N9R657HB",
+			"is_bot": true,
+			"is_enterprise_install": false
+		}
+	],
+	"is_ext_shared_channel": false
+}
