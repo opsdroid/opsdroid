@@ -99,7 +99,7 @@ async def call_endpoint(
     method: str = "GET",
     data_path: str = None,
     data: Dict = None,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> web.Response:
     """Call an opsdroid API endpoint with the provided data.
 
@@ -164,7 +164,9 @@ async def call_endpoint(
         elif method.upper() == "POST":
             if data_path is None and data is None:
                 raise RuntimeError("Either data or data_path must be set")
-            async with session.post(f"{base_url}{endpoint}", data=data, **kwargs) as resp:
+            async with session.post(
+                f"{base_url}{endpoint}", data=data, **kwargs
+            ) as resp:
                 return resp
         else:
             raise TypeError(f"Unsupported method {method}")
