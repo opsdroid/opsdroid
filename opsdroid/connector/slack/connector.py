@@ -129,7 +129,9 @@ class ConnectorSlack(Connector):
             ):
                 event = await self._event_creator.create_event(payload, None)
             else:
-                _LOGGER.info(f"Payload: {payload['type']} is not implemented. Event wont be parsed")
+                _LOGGER.info(
+                    f"Payload: {payload['type']} is not implemented. Event wont be parsed"
+                )
 
         if isinstance(event, list):
             for e in event:
