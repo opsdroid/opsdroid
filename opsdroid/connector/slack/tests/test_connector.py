@@ -46,8 +46,8 @@ class TestConnectorSlack:
         await connector.connect()
         assert mock_api.called("/auth.test")
         assert mock_api.called("/users.info")
-        connector.auth_info["user_id"] == 'B061F7JD2'
-        connector.user_info["user"] = 'B061F7JD2'
+        connector.auth_info["user_id"] == "B061F7JD2"
+        connector.user_info["user"] = "B061F7JD2"
         assert connector.bot_id == "B061F7JD2"
 
     async def test_connect_failure(self, connector, mock_api, caplog):

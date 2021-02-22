@@ -68,7 +68,10 @@ class SlackEventCreator(events.EventCreator):
             return
 
         if await self.is_bot_message(event):
-            _LOGGER.debug(_("Message event won't be created, as it was sent by the bot itself"), event)
+            _LOGGER.debug(
+                _("Message event won't be created, as it was sent by the bot itself"),
+                event,
+            )
             return
 
         _LOGGER.debug("Replacing userids in message with usernames")

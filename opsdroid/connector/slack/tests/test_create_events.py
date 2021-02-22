@@ -41,9 +41,7 @@ async def test_receive_url_verification(opsdroid, connector, mock_api):
     await opsdroid.load(config=MINIMAL_CONFIG)
 
     async def receive_message_action():
-        headers, data = get_webhook_payload(
-            "payload_url_verification.json", "json"
-        )
+        headers, data = get_webhook_payload("payload_url_verification.json", "json")
         resp = await call_endpoint(
             opsdroid,
             CONNECTOR_ENDPOINT,
@@ -175,7 +173,7 @@ async def test_receive_unknown_payload(opsdroid, connector, mock_api, caplog):
             CONNECTOR_ENDPOINT,
             "POST",
             data=json.dumps({"type": "another_unknown type"}),
-            headers={"content-type": "application/json"}
+            headers={"content-type": "application/json"},
         )
         assert resp.status == 200
 
