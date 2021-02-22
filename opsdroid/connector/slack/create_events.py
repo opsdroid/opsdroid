@@ -55,7 +55,7 @@ class SlackEventCreator(events.EventCreator):
         return user_info["name"]
 
     async def is_bot_message(self, event):
-        """Check that a bot message is opsdroid, return True"""
+        """Check that a bot message is opsdroid, return True."""
         if event.get("bot_id") == self.connector.bot_id:
             return True
 
@@ -88,7 +88,7 @@ class SlackEventCreator(events.EventCreator):
         )
 
     async def edit_message(self, event, channel):
-        """Send an EditedMessage event"""
+        """Send an EditedMessage event."""
         user_name = await self._get_user_name(event["message"])
 
         if user_name is None:
@@ -109,7 +109,7 @@ class SlackEventCreator(events.EventCreator):
         )
 
     async def handle_channel_join(self, event, channel):
-        """Send a JoinRoom event when a user joins the channel"""
+        """Send a JoinRoom event when a user joins the channel."""
         user_id = event["user"]
         user_info = await self.connector.lookup_username(user_id)
 
@@ -207,7 +207,7 @@ class SlackEventCreator(events.EventCreator):
         )
 
     async def block_actions_triggered(self, event, channel):
-        """Send a BlockActions event"""
+        """Send a BlockActions event."""
         block_actions = []
 
         for action in event["actions"]:
@@ -235,7 +235,7 @@ class SlackEventCreator(events.EventCreator):
         return block_actions
 
     async def message_action_triggered(self, event, channel):
-        """Send a MessageAction event"""
+        """Send a MessageAction event."""
 
         return slack_events.MessageAction(
             event,
@@ -245,7 +245,7 @@ class SlackEventCreator(events.EventCreator):
         )
 
     async def view_submission_triggered(self, event, channel):
-        """Send a ViewSubmission event"""
+        """Send a ViewSubmission event."""
 
         return slack_events.ViewSubmission(
             event,
@@ -255,7 +255,7 @@ class SlackEventCreator(events.EventCreator):
         )
 
     async def view_closed_triggered(self, event, channel):
-        """Send a ViewClosed event"""
+        """Send a ViewClosed event."""
 
         return slack_events.ViewClosed(
             event,
