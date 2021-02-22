@@ -18,7 +18,7 @@ web:
   base-url: <secure url/ngrok url>
 ```
 
-> If you need any help migrating, please asks on our [matrix channel](https://riot.im/app/#/room/#opsdroid-general:matrix.org).
+> If you need any help migrating, please asks on our [matrix channel](https://app.element.io/#/room/#opsdroid-general:matrix.org).
 
 ## Requirements
 

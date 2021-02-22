@@ -129,8 +129,9 @@ connectors:
 #   client-secret: "kdksd0458j93847j"
 #   channel: theflyingdev # Broadcaster channel
 #   redirect: http://localhost # Url to be passed to get oath token - defaults to localhost
-#   foward-url: 'http://94jfsd9ff.ngrok.io' # Either an URL provided by a forwarding service or an exposed ip address
+#   forward-url: 'http://94jfsd9ff.ngrok.io' # Either an URL provided by a forwarding service or an exposed ip address
 #   # optional
+#   webhook-lease-seconds: 86400 # how long for webhooks to expire
 #   always-listening: false # Turn on to connect to the chat server even if stream is offline.
 #
 #  ## Webexteams (core)
@@ -156,7 +157,7 @@ connectors:
 #    # One of these should be named 'main'
 #    rooms:
 #      'main': '#matrix:matrix.org'
-#      'other': '#riot:matrix.org'
+#      'other': '#element-web:matrix.org'
 #    # Optional
 #    homeserver: "https://matrix.org"
 #    nick: "Botty McBotface"  # The nick will be set on startup

@@ -149,7 +149,7 @@ class OpsDroid:
             # pylint: disable=broad-except
             except Exception:  # pragma: nocover
                 print("Caught exception")
-                print(context)
+        print(context)
 
     def is_running(self):
         """Check whether opsdroid is running."""

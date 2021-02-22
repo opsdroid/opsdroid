@@ -1,0 +1,47 @@
+{
+    "account_data": {
+        "events": []
+    },
+    "device_lists": {
+        "changed": [],
+        "left": []
+    },
+    "device_one_time_keys_count": {
+        "signed_curve25519": 0
+    },
+    "next_batch": "s12_19_4_2_5_1_1_11_1",
+    "presence": {
+        "events": [
+        ]
+    },
+    "rooms": {
+        "invite": {},
+        "join": {
+            "ROOMID": {
+                "account_data": {
+                    "events": []
+                },
+                "ephemeral": {
+                    "events": []
+                },
+                "state": {
+                    "events": []
+                },
+                "summary": {},
+                "timeline": {
+                    "events": [],
+                    "limited": false,
+                    "prev_batch": "s11_19_4_2_5_1_1_11_1"
+                },
+                "unread_notifications": {
+                    "highlight_count": 0,
+                    "notification_count": 0
+                }
+            }
+        },
+        "leave": {}
+    },
+    "to_device": {
+        "events": []
+    }
+}

@@ -46,7 +46,7 @@ async def test_external_api_mock_server(session):
                 assert resp.status == 200
                 assert mock_api.called("/test")
                 assert mock_api.call_count("/test") == i + 1
-                assert mock_api.get_request("/test").path == "/test"
+                assert mock_api.get_request("/test", "GET").path == "/test"
 
         async with session.post(
             f"{mock_api.base_url}/fail", data={"hello": "world"}
