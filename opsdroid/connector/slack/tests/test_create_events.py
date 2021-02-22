@@ -1,4 +1,4 @@
-"""Test receive events that come from the Slack API. 
+"""Test receive events that come from the Slack API.
 Depending on payload different methods from create_events module will be tested
 """
 import json
@@ -9,7 +9,6 @@ from opsdroid.testing import (
     MINIMAL_CONFIG,
     call_endpoint,
     run_unit_test,
-    running_opsdroid,
 )
 
 from .conftest import get_path

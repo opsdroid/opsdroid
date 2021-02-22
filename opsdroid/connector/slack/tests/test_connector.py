@@ -1,6 +1,4 @@
 """Tests for the ConnectorSlack class."""
-import json
-
 import pytest
 from opsdroid import events
 from opsdroid.connector.slack.connector import SlackApiError
