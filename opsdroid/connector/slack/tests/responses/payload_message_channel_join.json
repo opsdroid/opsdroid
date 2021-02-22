@@ -1,0 +1,30 @@
+{
+	"token": "here-comes-some-token",
+	"team_id": "T01ND2P8N91",
+	"api_app_id": "A01NK2M4ABE",
+	"event": {
+		"type": "message",
+		"subtype": "channel_join",
+		"ts": "1613582904.000400",
+		"user": "U01NK1K9L68",
+		"text": "<@U01NK1K9L68> has joined the channel",
+		"inviter": "U04RC4Y8K40",
+		"channel": "C01N7UHFD54",
+		"event_ts": "1613582904.000400",
+		"channel_type": "channel"
+	},
+	"type": "event_callback",
+	"event_id": "Ev01NLSVPKEG",
+	"event_time": 1613582904,
+	"authorizations": [
+		{
+			"enterprise_id": null,
+			"team_id": "T01ND2P8N91",
+			"user_id": "U01N9R657HB",
+			"is_bot": true,
+			"is_enterprise_install": false
+		}
+	],
+	"is_ext_shared_channel": false,
+	"event_context": "1-message-T01ND2P8N91-C01N7UHFD54"
+}

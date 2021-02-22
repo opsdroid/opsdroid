@@ -1,0 +1,76 @@
+{
+	"token": "here-comes-some-token",
+	"team_id": "T01ND2P8N91",
+	"api_app_id": "A01NK2M4ABE",
+	"event": {
+		"type": "pin_removed",
+		"user": "U01NK1K9L68",
+		"channel_id": "C01N9PM1D53",
+		"item": {
+			"type": "message",
+			"created": 1613636609,
+			"created_by": "U01NK1K9L68",
+			"channel": "C01N9PM1D53",
+			"message": {
+				"client_msg_id": "ca6f5e8d-790f-48b9-ad19-98caace8a3d5",
+				"type": "message",
+				"text": "Hi opsdroid",
+				"user": "U01NK1K9L68",
+				"ts": "1613583318.003800",
+				"team": "T01ND2P8N91",
+				"blocks": [
+					{
+						"type": "rich_text",
+						"block_id": "yO57U",
+						"elements": [
+							{
+								"type": "rich_text_section",
+								"elements": [
+									{
+										"type": "text",
+										"text": "Hi opsdroid"
+									}
+								]
+							}
+						]
+					}
+				],
+				"thread_ts": "1613583318.003800",
+				"reply_count": 8,
+				"reply_users_count": 3,
+				"latest_reply": "1613627742.005700",
+				"reply_users": [
+					"U01N9R657HB",
+					"U01NK1K9L68",
+					"U01P7131BA4"
+				],
+				"subscribed": true,
+				"last_read": "1613583542.005100",
+				"permalink": "https://opsdroidtests.slack.com/archives/C01N9PM1D53/p1613583318003800"
+			}
+		},
+		"item_user": "U01NK1K9L68",
+		"pin_count": 0,
+		"pinned_info": {
+			"channel": "C01N9PM1D53",
+			"pinned_by": "U01NK1K9L68",
+			"pinned_ts": 1613636609
+		},
+		"has_pins": false,
+		"event_ts": "1613636625.006600"
+	},
+	"type": "event_callback",
+	"event_id": "Ev01N2PAQ5AB",
+	"event_time": 1613636625,
+	"authorizations": [
+		{
+			"enterprise_id": null,
+			"team_id": "T01ND2P8N91",
+			"user_id": "U01N9R657HB",
+			"is_bot": true,
+			"is_enterprise_install": false
+		}
+	],
+	"is_ext_shared_channel": false,
+	"event_context": "1-pin_removed-T01ND2P8N91-C01N9PM1D53"
+}

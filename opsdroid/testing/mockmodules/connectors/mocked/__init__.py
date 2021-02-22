@@ -15,6 +15,7 @@ class ConnectorTest(Connector):
         self.connect = amock.CoroutineMock()
         self.listen = amock.CoroutineMock()
         self.respond = amock.CoroutineMock()
+        self.send = amock.CoroutineMock()
         self.disconnect = amock.CoroutineMock()
         self.opsdroid = amock.CoroutineMock()
         self.send_message = register_event(Message)(amock.CoroutineMock())
