@@ -1,17 +1,18 @@
+"""Fixtures and functions for slack testsuite."""
 from pathlib import Path
 
 import pytest
 
 
 def get_path(file_name: str) -> str:
-    """Returns current path for the requested file_name"""
+    """Return current path for the requested file_name."""
 
     return Path(__file__).parent / "responses" / file_name
 
 
 @pytest.fixture
 async def connector(opsdroid, mock_api_obj):
-    """Initiate a basic connector setup for testing on"""
+    """Initiate a basic connector setup for testing on."""
 
     opsdroid.config["connectors"] = {"slack": {"token": "abc123"}}
     await opsdroid.load()

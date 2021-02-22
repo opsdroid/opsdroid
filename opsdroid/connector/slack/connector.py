@@ -43,9 +43,7 @@ class ConnectorSlack(Connector):
         self.start_thread = config.get("start_thread", False)
         self.ssl_context = ssl.create_default_context(cafile=certifi.where())
         self.slack_web_client = AsyncWebClient(
-            token=self.token,
-            ssl=self.ssl_context,
-            proxy=os.environ.get("HTTPS_PROXY"),
+            token=self.token, ssl=self.ssl_context, proxy=os.environ.get("HTTPS_PROXY"),
         )
         self.bot_name = config.get("bot-name", "opsdroid")
         self.auth_info = None
@@ -71,8 +69,7 @@ class ConnectorSlack(Connector):
             self.bot_id = self.user_info["user"]["profile"]["bot_id"]
 
             self.opsdroid.web_server.web_app.router.add_post(
-                "/connector/{}".format(self.name),
-                self.slack_event_handler,
+                "/connector/{}".format(self.name), self.slack_event_handler,
             )
 
             _LOGGER.debug(_("Connected as %s."), self.bot_name)
@@ -96,6 +93,7 @@ class ConnectorSlack(Connector):
 
     async def slack_event_handler(self, request):
         """Handle events from the Events API and Interactive actions in Slack.
+
         Following types are handled:
             url_verification, event_callback, block_actions, message_action, view_submission, view_closed
 
@@ -104,6 +102,7 @@ class ConnectorSlack(Connector):
             event every 20 seconds, until a 200 OK response is received.
             Failing to return a 200 OK may cause your webhook to be
             unsubscribed by the Messenger Platform.
+
         """
 
         event = None
@@ -194,10 +193,7 @@ class ConnectorSlack(Connector):
             elif self.start_thread:
                 data["thread_ts"] = message.linked_event.event_id
 
-        return await self.slack_web_client.api_call(
-            "chat.postMessage",
-            data=data,
-        )
+        return await self.slack_web_client.api_call("chat.postMessage", data=data,)
 
     @register_event(opsdroid.events.EditedMessage)
     async def _edit_message(self, message):
@@ -214,10 +210,7 @@ class ConnectorSlack(Connector):
             "text": message.text,
         }
 
-        return await self.slack_web_client.api_call(
-            "chat.update",
-            data=data,
-        )
+        return await self.slack_web_client.api_call("chat.update", data=data,)
 
     @register_event(Blocks)
     async def _send_blocks(self, blocks):
@@ -250,10 +243,7 @@ class ConnectorSlack(Connector):
             "blocks": blocks.blocks,
         }
 
-        return await self.slack_web_client.api_call(
-            "chat.update",
-            data=data,
-        )
+        return await self.slack_web_client.api_call("chat.update", data=data,)
 
     @register_event(opsdroid.events.Reaction)
     async def send_reaction(self, reaction):
