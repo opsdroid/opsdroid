@@ -96,15 +96,8 @@ class ConnectorSlack(Connector):
 
     async def slack_event_handler(self, request):
         """Handle events from the Events API and Interactive actions in Slack.
-        Payload comes with either a type key or an event key.
-        Following keys are handled:
-
-        type:
-            Events API: url_verification
-            Interactions: block_actions, message_actions, view_submissions, view_closed.
-        event:
-            Events API: message, channel_created, channel_archive, channel_unarchive,
-                        team_join, channel_rename, pin_added, pin_removed
+        Following types are handled:
+            url_verification, event_callback, block_actions, message_action, view_submission, view_closed
 
         Return:
             A 200 OK response. The Messenger Platform will resend the webhook
