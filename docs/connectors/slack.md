@@ -2,14 +2,20 @@
 
 A connector for [Slack](https://slack.com/).
 
+## ⚠️ **Breaking Changes introduced in opsdroid 0.21.0**
+
+We have dropped support for the RTM API. Now the Slack Connector uses the [events API](https://api.slack.com/apis/connections/events-api). 
+
+To use the Events API, you will need an **endpoint** which exposes your Opsdroid to the **internet**. In case you don't know how, [Exposing Opsdroid via tunnels](https://docs.opsdroid.dev/en/latest/exposing.html) might help out.
+
 ## Requirements
 
 * A Slack account
-* Create a [new classic Slack App](https://api.slack.com/apps?new_classic_app=1) give it a name and select the workspace you would like it in.
-  * Select `Bots` option inside the `Add features and functionality` tab
-  * Click Add Legacy Bot User and give it a name and a username
-  * Navigate to the "Install App" section and install the app in your workspace.
-  * Take note of the "Bot User OAuth Access Token" as this will be the `token` you need for your configuration (the token will start with `xoxb-`).
+* Create a [new Slack App](https://api.slack.com/apps) give it a name and select the workspace you would like it in.
+* Select "Bots" option inside the "Add features and functionality" tab
+* Click "Review Scopes to Add". "Under Scopes" --> "Bot Token Scopes select" `chat:write` or `chat:write.customize` (Note that you are required to select at least one scope to install the app)
+* Navigate to "OAuth Tokens & Redirect URLs" and click the "Install to Workspace" button. 
+* Take note of the "Bot User OAuth Access Token" as this will be the `token` you need for your configuration (the token will start with `xoxb-`).
 
 ## Configuration
 
@@ -19,34 +25,46 @@ connectors:
     # required
     token: "xoxb-abdcefghi-12345"
     # optional
-    user-token: "xoxp-abcdef-123" # default None. ** 
     bot-name: "mybot" # default "opsdroid"
     default-room: "#random" # default "#general"
     icon-emoji: ":smile:" # default ":robot_face:"
-    connect-timeout: 10 # default 10 seconds
-    chat-as-user: true # default false
     start_thread: false # default false. if true, opsdroid will start a thread when replying to a message
 ```
-** `user-token` has to be added if you want to send one of the following Events: NewRooom, RoomName, JoinRoom, UserInvite, RoomDescription. From the **classic app** the `user-token` will be the token starts with: `xoxp-`. Note that for you will have to add the scopes in your Slack App to use the different type of events.
 
+** In order to `bot-name` and `icon-emoji` to work, the `chat:write.customize` scope will have to be selected on the Slack App
+
+## Subscribe to events
+You will need to subscribe to events in your new Slack App, so Opsdroid can receive events from Slack.
+
+* On the left column go to "Event Subscriptions" and toogle the "Enable Events"
+* Under "Request URL" add the `/connector/slack` uri to your endpoint: https://slackbot.example.com/connector/slack. Note that you will have to have your Opsdroid instance running so Slack can validate the endpoint.
+* Under "Subscribe to bot events" choose the events you want to subscribe for. You need at least one, `message.channels` will allow you to receive events everytime a message is posted into a channel. The following events are also supported by opsdroid: `message.im`, `channel_archive`, `channel_unarchive`, `channel_created`, `channel_rename`, `pin_added`, `pin_removed` and `team_join`.
+* Don't forget to save your changes in the slack app.
+ 
 ## Usage
 The connector itself won't allow opsdroid to do much. It will connect to Slack and be active on the `default-room`
 but you will still need some skill to have opsdroid react to an input.
 
 Luckily, opsdroid comes with few skills out of the box as well. So once you run opsdroid you will see that it joined either the room that you set up on `default-room` parameter in the configuration or it will be in the `#general` room.
 
-_Note: If opsdroid failed to join the room you can always invite him by clicking `info>Members section>invite more people...`_
+_Note: If opsdroid failed to join the room you can always invite him by clicking "Channel Details" -> "Add Apps"_
 
-You can also interact with opsdroid through direct message. To do so, just click on opsdroid's name and type something on the box that says "Message opsdroid".
+You can also interact with opsdroid through direct message (make sure to be subscribed to the `message.im` event). To do so, just click on opsdroid's name and type interact like with any other user
 
-Example of a private message:
+Below is an example of a simple skill you can use to create your opsdroid. Checkout [Skill](https://docs.opsdroid.dev/en/stable/skills) for more info
 
-```
-fabiorosado [7:06 PM]
-hi
+***Sample Greeter Skill***
+```python
+from opsdroid.skill import Skill
+from opsdroid.matchers import match_regex
 
-opsdroid APP [7:06 PM]
-Hi fabiorosado
+class GreeterSkill(Skill):
+    """This is the most simple form of a skill, keeping it for pinging purposes"""
+
+    @match_regex(r"Hi Opsdroid")
+    async def hello(self, message):
+        """Respond Hi"""
+        await message.respond("Hi")
 ```
 
 ## Rich layouts and blocks
@@ -131,8 +149,8 @@ For example, when you click a button in a rich Slack message or use a message ac
 - Open your app's [management dashboard](https://api.slack.com/apps)
 - Click on `Interactive Components` in the sidebar.
 - Toggle the `Interactivity` switch on.
-- Save the HTTPS URL of your bot's slack interactivity endpoint (`/connector/slack/interactions`).
-    - *Example:* `https://slackbot.example.com/connector/slack/interactions`
+- Save the HTTPS URL of your bot's slack interactivity endpoint (`/connector/slack`).
+    - *Example:* `https://slackbot.example.com/connector/slack`
 
 ### [block_actions](https://api.slack.com/reference/interaction-payloads/block-actions)
 
