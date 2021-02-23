@@ -21,7 +21,6 @@ from opsdroid.connector.slack.events import Blocks, EditedBlocks
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = {
     Required("token"): str,
-    "user-token": str,
     "bot-name": str,
     "default-room": str,
     "icon-emoji": str,
