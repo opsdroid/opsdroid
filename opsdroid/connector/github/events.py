@@ -69,7 +69,6 @@ class PROpened(events.Event):
     def __init__(self, title, user, description, *args, **kwargs):
         """Event that is triggered when a user opens a PR.
 
-
         * ``title`` - The PR title
         * ``description`` - The full body of the PR
         * ``user`` - The user who created the PR
@@ -87,7 +86,6 @@ class PRMerged(events.Event):
     def __init__(self, title, user, merger, description, *args, **kwargs):
         """Event that is triggered when a user merges a PR.
 
-
         * ``title`` - The PR title
         * ``description`` - The full body of the PR
         * ``user`` - The user who created the PR
@@ -99,6 +97,23 @@ class PRMerged(events.Event):
         self.user = user
         self.description = description
         self.merger = merger
+
+
+class PRClosed(events.Event):
+    """Event class that triggers when a PR is closed."""
+
+    def __init__(self, title, user, closed_by, *args, **kwargs):
+        """Event that is triggered when a PR is closed.
+
+        * ``title`` - The PR title
+        * ``description`` - The user who created the PR
+        * ``closed_by`` - The user who closed the PR
+
+        """
+        super().__init__(*args, **kwargs)
+        self.title = title
+        self.user = user
+        self.closed_by = closed_by
 
 
 class Labeled(events.Event):
@@ -154,3 +169,100 @@ class Unlabeled(events.Event):
         super().__init__(*args, **kwargs)
         self.labels = labels
         self.state = state
+
+
+class CheckStarted(events.Event):
+    """Event that is triggered when a CI check is started."""
+
+    def __init__(self, action, status, conclusion, repository, sender, *args, **kwargs):
+        """Event that is triggered when a CI check starts.
+
+        * ``action`` - The action performed, in this case it will be ``created`` or ``rerequested``.
+        * ``status`` - The current status of the check run can be ``queued``, ``in_progress`` or ``completed``
+        * ``conclusion`` - The result of the completed check can be ``success``, ``failure``, ``neutral``,
+            ``cancelled``, ``timed_out``, ``action_required`` or ``stale``. The check needs to be completed
+            before we can get a conclusion report.
+        * ``repository`` - Which repository that the check was run from.
+        * ``sender`` - The user that triggered the check
+
+        """
+        super().__init__(*args, **kwargs)
+        self.action = action
+        self.status = status
+        self.conclusion = conclusion
+        self.repository = repository
+        self.sender = sender
+
+
+class CheckCompleted(events.Event):
+    """Event that is triggered when a CI check completes."""
+
+    def __init__(self, action, status, conclusion, repository, sender, *args, **kwargs):
+        """Event that is triggered when a CI check completes.
+
+        Since a check can have different conclusion results, this event will contain any conclusion
+        status that don't fit in the ``CheckedPassed`` or ``CheckedFailed`` event. If a check is cancelled
+        or times out, you might want to handle this differently so you can use this event to handle any
+        logic that you might need.
+
+        * ``action`` - The action performed, in this case it will be ``completed``.
+        * ``status`` - The current status of the check run can be ``queued``, ``in_progress`` or ``completed``
+        * ``conclusion`` - The result of the completed check can be ``success``, ``failure``, ``neutral``,
+            ``cancelled``, ``timed_out``, ``action_required`` or ``stale``. The check needs to be completed
+            before we can get a conclusion report.
+        * ``repository`` - Which repository that the check was run from.
+        * ``sender`` - The user that triggered the check
+
+        """
+        super().__init__(*args, **kwargs)
+        self.action = action
+        self.status = status
+        self.conclusion = conclusion
+        self.repository = repository
+        self.sender = sender
+
+
+class CheckPassed(events.Event):
+    """Event that is triggered when a CI check passes."""
+
+    def __init__(self, action, status, conclusion, repository, sender, *args, **kwargs):
+        """Event that is triggered when a CI check passes.
+
+        * ``action`` - The action performed, in this case it will be ``completed``.
+        * ``status`` - The current status of the check run can be ``queued``, ``in_progress`` or ``completed``
+        * ``conclusion`` - The result of the completed check can be ``success``, ``failure``, ``neutral``,
+            ``cancelled``, ``timed_out``, ``action_required`` or ``stale``. The check needs to be completed
+            before we can get a conclusion report.
+        * ``repository`` - Which repository that the check was run from.
+        * ``sender`` - The user that triggered the check
+
+        """
+        super().__init__(*args, **kwargs)
+        self.action = action
+        self.status = status
+        self.conclusion = conclusion
+        self.repository = repository
+        self.sender = sender
+
+
+class CheckFailed(events.Event):
+    """Event that is triggered when a CI check fails."""
+
+    def __init__(self, action, status, conclusion, repository, sender, *args, **kwargs):
+        """Event that is triggered when a CI check fails.
+
+        * ``action`` - The action performed, in this case it will be ``completed``.
+        * ``status`` - The current status of the check run can be ``queued``, ``in_progress`` or ``completed``
+        * ``conclusion`` - The result of the completed check can be ``success``, ``failure``, ``neutral``,
+            ``cancelled``, ``timed_out``, ``action_required`` or ``stale``. The check needs to be completed
+            before we can get a conclusion report.
+        * ``repository`` - Which repository that the check was run from.
+        * ``sender`` - The user that triggered the check
+
+        """
+        super().__init__(*args, **kwargs)
+        self.action = action
+        self.status = status
+        self.conclusion = conclusion
+        self.repository = repository
+        self.sender = sender

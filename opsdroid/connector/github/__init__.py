@@ -1,6 +1,9 @@
 """A connector for GitHub."""
+import hashlib
+import hmac
 import json
 import logging
+from typing import Optional
 
 import aiohttp
 
@@ -13,7 +16,7 @@ from . import events as github_events
 
 _LOGGER = logging.getLogger(__name__)
 GITHUB_API_URL = "https://api.github.com"
-CONFIG_SCHEMA = {Required("token"): str}
+CONFIG_SCHEMA = {Required("token"): str, Optional("secret"): str}
 
 
 class ConnectorGitHub(Connector):
@@ -23,14 +26,19 @@ class ConnectorGitHub(Connector):
         """Create the connector."""
         super().__init__(config, opsdroid=opsdroid)
         logging.debug("Loaded GitHub connector.")
-        try:
-            self.github_token = config["token"]
-        except KeyError:
-            _LOGGER.error(_("Missing auth token! You must set 'token' in your config."))
+        self.github_token = config["token"]
         self.name = self.config.get("name", "github")
         self.opsdroid = opsdroid
         self.github_username = None
         self.github_api_url = self.config.get("api_base_url", GITHUB_API_URL)
+        try:
+            self.secret = self.config["secret"]
+        except KeyError:
+            _LOGGER.warning(
+                _(
+                    "Secret is missing from your configuration. You should use it to improve security."
+                )
+            )
 
     async def connect(self):
         """Connect to GitHub."""
@@ -61,90 +69,188 @@ class ConnectorGitHub(Connector):
 
         """
 
+    async def validate_request(self, request, secret: str) -> bool:
+        """Compute the sha256 hash of the request and secret.
+
+        It's recommended that you select a secure secret when using webhooks, otherwise
+        someone could craft a request in a way that might make the bot react to unexpected
+        events that didn't come from github.
+
+        You can read more about secrets here:
+        https://docs.github.com/en/developers/webhooks-and-events/creating-webhooks#secret
+
+        If no secret is provided then we will assume that the request is a valid one.
+
+        """
+        if self.secret:
+            signature = request.headers.get("X-Hub-Signature-256")
+
+            if signature:
+                signature = signature.replace("sha256=", "")
+
+            payload = await request.read()
+
+            computed_hash = hmac.new(
+                secret.encode(), msg=payload, digestmod=hashlib.sha256
+            ).hexdigest()
+
+            return signature == computed_hash
+        return True
+
+    async def handle_check_event(self, payload: json, user: str) -> github_events:
+        """Handle check events.
+
+        Since we created a few check events, this method should make it
+        easy to keep the ``github_message_handler`` a bit cleaner.
+
+        """
+        if payload["action"] == "created" in ["created", "rerequested"]:
+            event = github_events.CheckStarted(
+                action=payload["action"],
+                status=payload["check_run"]["status"],
+                conclusion=payload["check_run"]["conclusion"],
+                repository=payload["repository"]["name"],
+                sender=user,
+            )
+
+        if payload["action"] == "completed":
+            if payload["check_run"]["conclusion"] == "success":
+                event = github_events.CheckPassed(
+                    action=payload["action"],
+                    status=payload["check_run"]["status"],
+                    conclusion=payload["check_run"]["conclusion"],
+                    repository=payload["repository"]["name"],
+                    sender=user,
+                )
+            elif payload["check_run"]["conclusion"] == "failure":
+                event = github_events.CheckFailed(
+                    action=payload["action"],
+                    status=payload["check_run"]["status"],
+                    conclusion=payload["check_run"]["conclusion"],
+                    repository=payload["repository"]["name"],
+                    sender=user,
+                )
+            else:
+                event = github_events.CheckCompleted(
+                    action=payload["action"],
+                    status=payload["check_run"]["status"],
+                    conclusion=payload["check_run"]["conclusion"],
+                    repository=payload["repository"]["name"],
+                    sender=user,
+                )
+        return event
+
+    async def handle_issue_event(
+        self, payload: json, repo: str, user: str
+    ) -> github_events:
+        """Handle issue events."""
+        if payload["opened"]:
+            event = github_events.IssueCreated(
+                title=payload["issue"]["title"],
+                description=payload["issue"]["body"],
+                user=user,
+                target=f"{repo}{payload['issue']['number']}",
+                connector=self,
+                raw_event=payload,
+            )
+        if payload["closed"]:
+            event = github_events.IssueClosed(
+                title=payload["issue"]["title"],
+                user=user,
+                description=payload["issue"]["body"],
+                target=f"{repo}{payload['issue']['number']}",
+                connector=self,
+                raw_event=payload,
+            )
+        return event
+
+    async def handle_pr_event(
+        self, payload: json, repo: str, user: str
+    ) -> github_events:
+        """Handle PR events."""
+        if payload["action"] == "opened":
+            event = github_events.PROpened(
+                title=payload["pull_request"]["title"],
+                description=payload["pull_request"]["body"],
+                user=user,
+                target=f"{repo}{payload['pull_request']['number']}",
+                connector=self,
+                raw_event=payload,
+            )
+        if payload["action"] == "closed" and payload["merged"]:
+            event = github_events.PRMerged(
+                title=payload["pull_request"]["title"],
+                description=payload["pull_request"]["body"],
+                user=payload["pull_request"]["user"]["login"],
+                merger=payload["pull_request"]["merged_by"]["login"],
+                target=f"{repo}{payload['pull_request']['number']}",
+                connector=self,
+                raw_event=payload,
+            )
+        if payload["action"] == "closed":
+            event = github_events.PRClosed(
+                title=payload["pull_request"]["title"],
+                user=payload["pull_request"]["user"]["login"],
+                closed_by=user,
+                target=f"{repo}{payload['pull_request']['number']}",
+                connector=self,
+                raw_event=payload,
+            )
+        return event
+
     async def github_message_handler(self, request):
         """Handle event from GitHub."""
         req = await request.post()
         payload = json.loads(req["payload"])
-        try:
-            repo = f"{payload['repository']['owner']['login']}/{payload['repository']['name']}#"
-            user = payload["sender"]["login"]
-            if payload["action"] == "created" and "comment" in payload:
-                event = github_events.IssueCommented(
-                    comment=payload["comment"]["body"],
-                    user=user,
-                    issue_title=payload["issue"]["tittle"],
-                    comment_url=payload["comment"]["body"],
-                    target=f"{repo}{payload['issue']['number']}",
-                    connector=self,
-                    raw_event=payload,
-                )
-            elif payload["action"] == "opened" and "issue" in payload:
-                event = github_events.IssueCreated(
-                    title=payload["issue"]["title"],
-                    description=payload["issue"]["body"],
-                    user=user,
-                    target=f"{repo}{payload['issue']['number']}",
-                    connector=self,
-                    raw_event=payload,
-                )
-            elif payload["action"] == "closed" and "issue" in payload:
-                event = github_events.IssueClosed(
-                    title=payload["issue"]["title"],
-                    user=user,
-                    description=payload["issue"]["body"],
-                    target=f"{repo}{payload['issue']['number']}",
-                    connector=self,
-                    raw_event=payload,
-                )
-            elif payload["action"] == "opened" and "pull_request" in payload:
-                event = github_events.PROpened(
-                    title=payload["pull_request"]["title"],
-                    description=payload["pull_request"]["body"],
-                    user=user,
-                    target=f"{repo}{payload['pull_request']['number']}",
-                    connector=self,
-                    raw_event=payload,
-                )
-            elif payload["action"] == "opened" and "pull_request" in payload:
-                event = github_events.PRMerged(
-                    title=payload["pull_request"]["title"],
-                    description=payload["pull_request"]["body"],
-                    user=payload["pull_request"]["user"]["login"],
-                    merger=payload["pull_request"]["merged_by"]["login"],
-                    target=f"{repo}{payload['pull_request']['number']}",
-                    connector=self,
-                    raw_event=payload,
-                )
-            else:
-                _LOGGER.debug(_("No message to respond to."))
+        is_valid_request = await self.validate_request(request, self.secret)
+
+        if is_valid_request:
+            try:
+                repo = f"{payload['repository']['owner']['login']}/{payload['repository']['name']}#"
+                user = payload["sender"]["login"]
+                if payload["action"] == "created" and "comment" in payload:
+                    event = github_events.IssueCommented(
+                        comment=payload["comment"]["body"],
+                        user=user,
+                        issue_title=payload["issue"]["tittle"],
+                        comment_url=payload["comment"]["body"],
+                        target=f"{repo}{payload['issue']['number']}",
+                        connector=self,
+                        raw_event=payload,
+                    )
+                elif "issue" in payload:
+                    event = await self.handle_issue_event(payload, repo, user)
+                elif "pull_request" in payload:
+                    event = await self.handle_pr_event(payload, repo, user)
+                elif payload.get("check_run"):
+                    event = await self.handle_check_event(payload)
+                else:
+                    _LOGGER.debug(_("No message to respond to."))
+                    _LOGGER.debug(payload)
+                    return aiohttp.web.Response(
+                        text=json.dumps("No message to respond to."), status=200
+                    )
+                await self.opsdroid.parse(event)
+            except KeyError as error:
+                _LOGGER.error(_("Key %s not found in payload."), error)
                 _LOGGER.debug(payload)
-                return aiohttp.web.Response(
-                    text=json.dumps("No message to respond to."), status=200
-                )
+            return aiohttp.web.Response(text=json.dumps("Received"), status=201)
+        return aiohttp.web.Response(status=401)
 
-            await self.opsdroid.parse(event)
-        except KeyError as error:
-            _LOGGER.error(_("Key %s not found in payload."), error)
-            _LOGGER.debug(payload)
-        return aiohttp.web.Response(text=json.dumps("Received"), status=201)
-
-    # @register_event(Message)
-    # async def send_message(self, message):
-    #     """Respond with a message."""
-    #     # stop immediately if the message is from the bot itself.
-    #     if message.user == self.github_username:
-    #         return True
-    #     _LOGGER.debug(_("Responding via GitHub."))
-    #     repo, issue = message.target.split("#")
-    #     url = "{}/repos/{}/issues/{}/comments".format(self.github_api_url, repo, issue)
-    #     headers = {"Authorization": " token {}".format(self.github_token)}
-    #     async with aiohttp.ClientSession(trust_env=True) as session:
-    #         resp = await session.post(url, json={"body": message.text}, headers=headers)
-    #         if resp.status == 201:
-    #             _LOGGER.info(_("Message sent."))
-    #             return True
-    #         _LOGGER.error(await resp.json())
-    #         return False
     @register_event(Message)
-    async def pass_message(self, message):
-        pass
+    async def send_message(self, message):
+        """Respond with a message."""
+        # stop immediately if the message is from the bot itself.
+        if message.user == self.github_username:
+            return True
+        _LOGGER.debug(_("Responding via GitHub."))
+        repo, issue = message.target.split("#")
+        url = "{}/repos/{}/issues/{}/comments".format(self.github_api_url, repo, issue)
+        headers = {"Authorization": " token {}".format(self.github_token)}
+        async with aiohttp.ClientSession(trust_env=True) as session:
+            resp = await session.post(url, json={"body": message.text}, headers=headers)
+            if resp.status == 201:
+                _LOGGER.info(_("Message sent."))
+                return True
+            _LOGGER.error(await resp.json())
+            return False
