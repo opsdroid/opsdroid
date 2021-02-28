@@ -32,6 +32,7 @@ class SlackEventCreator(events.EventCreator):
         self.message_subtypes.update(
             {
                 "message": self.create_message,
+                "bot_message": self.handle_bot_message,
                 "message_changed": self.edit_message,
                 "channel_join": self.handle_channel_join,
             }
@@ -54,10 +55,10 @@ class SlackEventCreator(events.EventCreator):
 
         return user_info["name"]
 
-    async def is_bot_message(self, event):
-        """Check that a bot message is opsdroid, return True."""
-        if event.get("bot_id") == self.connector.bot_id:
-            return True
+    async def handle_bot_message(self, event, channel):
+        """Check that a bot message is opsdroid if not create the message"""
+        if event["bot_id"] != self.connector.bot_id:
+            return await self.create_message(event, channel)
 
     async def create_message(self, event, channel):
         """Send a Message event."""
@@ -65,13 +66,6 @@ class SlackEventCreator(events.EventCreator):
         user_name = await self._get_user_name(event)
 
         if user_name is None:
-            return
-
-        if await self.is_bot_message(event):
-            _LOGGER.debug(
-                _("Message event won't be created, as it was sent by the bot itself"),
-                event,
-            )
             return
 
         _LOGGER.debug("Replacing userids in message with usernames")
