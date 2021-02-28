@@ -3,7 +3,6 @@ import hashlib
 import hmac
 import json
 import logging
-from typing import Optional
 
 import aiohttp
 
@@ -16,7 +15,7 @@ from . import events as github_events
 
 _LOGGER = logging.getLogger(__name__)
 GITHUB_API_URL = "https://api.github.com"
-CONFIG_SCHEMA = {Required("token"): str, Optional("secret"): str}
+CONFIG_SCHEMA = {Required("token"): str, "secret": str}
 
 
 class ConnectorGitHub(Connector):
