@@ -1,8 +1,10 @@
 """Tests for the ConnectorSlack class."""
+import asynctest.mock as amock
 import pytest
 from opsdroid import events
 from opsdroid.connector.slack.connector import SlackApiError
 from opsdroid.connector.slack.events import Blocks, EditedBlocks
+from slack_sdk.socket_mode.request import SocketModeRequest
 
 from .conftest import get_path
 
@@ -40,7 +42,7 @@ class TestConnectorSlack:
 
     @pytest.mark.add_response(*USERS_INFO)
     @pytest.mark.add_response(*AUTH_TEST)
-    async def test_connect(self, connector, mock_api):
+    async def test_connect_events_api(self, connector, mock_api):
         await connector.connect()
         assert mock_api.called("/auth.test")
         assert mock_api.called("/users.info")
@@ -48,9 +50,47 @@ class TestConnectorSlack:
         connector.user_info["user"] = "B061F7JD2"
         assert connector.bot_id == "B061F7JD2"
 
+    @pytest.mark.add_response(*USERS_INFO)
+    @pytest.mark.add_response(*AUTH_TEST)
+    async def test_connect_socket_mode(self, opsdroid, mock_api_obj, mock_api):
+        opsdroid.config["connectors"] = {
+            "slack": {"token": "abc123", "socket-mode": True, "app-token": "bcd456"}
+        }
+        await opsdroid.load()
+        connector = opsdroid.get_connector("slack")
+        connector.slack_web_client.base_url = mock_api_obj.base_url
+        connector.socket_mode_client.connect = amock.CoroutineMock()
+        await connector.connect()
+        assert connector.socket_mode_client.connect.called
+
     async def test_connect_failure(self, connector, mock_api, caplog):
         await connector.connect()
         assert "The Slack Connector will not be available" in caplog.messages[0]
+
+    async def test_disconnect(self, opsdroid, mock_api_obj, mock_api):
+        opsdroid.config["connectors"] = {
+            "slack": {"token": "abc123", "socket-mode": True, "app-token": "bcd456"}
+        }
+        await opsdroid.load()
+        connector = opsdroid.get_connector("slack")
+        connector.socket_mode_client.disconnect = amock.CoroutineMock()
+        connector.socket_mode_client.close = amock.CoroutineMock()
+        await connector.disconnect()
+        assert connector.socket_mode_client.disconnect.called
+        assert connector.socket_mode_client.close.called
+
+    async def test_socket_event_handler(self, opsdroid, mock_api_obj, mock_api):
+        opsdroid.config["connectors"] = {
+            "slack": {"token": "abc123", "socket-mode": True, "app-token": "bcd456"}
+        }
+        await opsdroid.load()
+        connector = opsdroid.get_connector("slack")
+        request = SocketModeRequest(
+            type="mock", envelope_id="random-sring", payload={"type": "random_payload"}
+        )
+        connector.socket_mode_client.send_socket_mode_response = amock.CoroutineMock()
+        await connector.socket_event_handler(connector.socket_mode_client, request)
+        assert connector.socket_mode_client.send_socket_mode_response.called
 
     @pytest.mark.add_response(
         "/users.info",

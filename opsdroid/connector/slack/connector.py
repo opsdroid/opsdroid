@@ -7,20 +7,23 @@ import ssl
 
 import aiohttp
 import certifi
-from emoji import demojize
-from slack_sdk.errors import SlackApiError
-from slack_sdk.web.async_client import AsyncWebClient
-from voluptuous import Required
-
 import opsdroid.events
+from emoji import demojize
 from opsdroid.connector import Connector, register_event
 from opsdroid.connector.slack.create_events import SlackEventCreator
 from opsdroid.connector.slack.events import Blocks, EditedBlocks
-
+from slack_sdk.errors import SlackApiError
+from slack_sdk.socket_mode.aiohttp import SocketModeClient
+from slack_sdk.socket_mode.request import SocketModeRequest
+from slack_sdk.socket_mode.response import SocketModeResponse
+from slack_sdk.web.async_client import AsyncWebClient
+from voluptuous import Inclusive, Required
 
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = {
     Required("token"): str,
+    Inclusive("socket-mode", "backend"): bool,
+    Inclusive("app-token", "backend"): str,
     "bot-name": str,
     "default-room": str,
     "icon-emoji": str,
@@ -46,6 +49,13 @@ class ConnectorSlack(Connector):
             ssl=self.ssl_context,
             proxy=os.environ.get("HTTPS_PROXY"),
         )
+        self.socket_mode_client = (
+            SocketModeClient(
+                app_token=config["app-token"], web_client=self.slack_web_client
+            )
+            if config.get("socket-mode")
+            else None
+        )
         self.bot_name = config.get("bot-name", "opsdroid")
         self.auth_info = None
         self.user_info = None
@@ -69,10 +79,16 @@ class ConnectorSlack(Connector):
             ).data
             self.bot_id = self.user_info["user"]["profile"]["bot_id"]
 
-            self.opsdroid.web_server.web_app.router.add_post(
-                "/connector/{}".format(self.name),
-                self.slack_event_handler,
-            )
+            if self.socket_mode_client:
+                self.socket_mode_client.socket_mode_request_listeners.append(
+                    self.socket_event_handler
+                )
+                await self.socket_mode_client.connect()
+            else:
+                self.opsdroid.web_server.web_app.router.add_post(
+                    "/connector/{}".format(self.name),
+                    self.web_event_handler,
+                )
 
             _LOGGER.debug(_("Connected as %s."), self.bot_name)
             _LOGGER.debug(_("Using icon %s."), self.icon_emoji)
@@ -88,39 +104,21 @@ class ConnectorSlack(Connector):
             )
 
     async def disconnect(self):
-        """Disconnect from Slack."""
+        """Disconnect from Slack. Only needed when socket_mode_client is used
+        as the Events API uses the aiohttp server"""
+
+        if self.socket_mode_client:
+            await self.socket_mode_client.disconnect()
+            await self.socket_mode_client.close()
 
     async def listen(self):
         """Listen for and parse new messages."""
 
-    async def slack_event_handler(self, request):
-        """Handle events from the Events API and Interactive actions in Slack.
-
-        Following types are handled:
-            url_verification, event_callback, block_actions, message_action, view_submission, view_closed
-
-        Return:
-            A 200 OK response. The Messenger Platform will resend the webhook
-            event every 20 seconds, until a 200 OK response is received.
-            Failing to return a 200 OK may cause your webhook to be
-            unsubscribed by the Messenger Platform.
-
-        """
-
+    async def event_handler(self, payload):
         event = None
-        payload = {}
-
-        if request.content_type == "application/x-www-form-urlencoded":
-            req = await request.post()
-            payload = json.loads(req["payload"])
-        elif request.content_type == "application/json":
-            payload = await request.json()
 
         if "type" in payload:
-            if payload["type"] == "url_verification":
-                return aiohttp.web.json_response({"challenge": payload["challenge"]})
-
-            elif payload["type"] == "event_callback":
+            if payload["type"] == "event_callback":
                 event = await self._event_creator.create_event(payload["event"], None)
             elif payload["type"] in (
                 "block_actions",
@@ -142,6 +140,44 @@ class ConnectorSlack(Connector):
         if isinstance(event, opsdroid.events.Event):
             _LOGGER.debug(f"Got slack event: {event}")
             await self.opsdroid.parse(event)
+
+    async def socket_event_handler(
+        self, client: SocketModeClient, req: SocketModeRequest
+    ):
+        payload = {}
+
+        response = SocketModeResponse(envelope_id=req.envelope_id)
+        await client.send_socket_mode_response(response)
+
+        payload = req.payload
+
+        await self.event_handler(payload)
+
+    async def web_event_handler(self, request):
+        """Handle events from the Events API and Interactive actions in Slack.
+        Following types are handled:
+            url_verification, event_callback, block_actions, message_action, view_submission, view_closed
+
+        Return:
+            A 200 OK response. The Messenger Platform will resend the webhook
+            event every 20 seconds, until a 200 OK response is received.
+            Failing to return a 200 OK may cause your webhook to be
+            unsubscribed by the Messenger Platform.
+        """
+
+        payload = {}
+
+        if request.content_type == "application/x-www-form-urlencoded":
+            req = await request.post()
+            payload = json.loads(req["payload"])
+        elif request.content_type == "application/json":
+            payload = await request.json()
+
+        if "type" in payload:
+            if payload["type"] == "url_verification":
+                return aiohttp.web.json_response({"challenge": payload["challenge"]})
+            else:
+                await self.event_handler(payload)
 
         return aiohttp.web.Response(text=json.dumps("Received"), status=200)
 
