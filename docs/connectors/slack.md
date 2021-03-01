@@ -18,7 +18,6 @@ We have dropped support for the RTM API. Now the Slack Connector uses the [event
 * Navigate to "OAuth Tokens & Redirect URLs" and click the "Install to Workspace" button. 
 * Take note of the "Bot User OAuth Access Token" as this will be the `token` you need for your configuration (the token will start with `xoxb-`).
 
-
 ## Configuration
 
 ```yaml

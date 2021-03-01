@@ -164,7 +164,6 @@ class ConnectorSlack(Connector):
             Failing to return a 200 OK may cause your webhook to be
             unsubscribed by the Messenger Platform.
         """
-
         payload = {}
 
         if request.content_type == "application/x-www-form-urlencoded":
