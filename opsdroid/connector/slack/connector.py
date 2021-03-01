@@ -135,7 +135,7 @@ class ConnectorSlack(Connector):
         if isinstance(event, list):
             for e in event:
                 _LOGGER.debug(f"Got slack event: {e}")
-                await self.opsdroid.parse(event)
+                await self.opsdroid.parse(e)
 
         if isinstance(event, opsdroid.events.Event):
             _LOGGER.debug(f"Got slack event: {event}")
