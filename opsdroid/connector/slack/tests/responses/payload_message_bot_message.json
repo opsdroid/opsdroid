@@ -1,0 +1,20 @@
+{
+	"type": "event_callback",
+	"event": {
+		"type": "message",
+		"subtype": "bot_message",
+		"text": "Hi opsdroid",
+		"ts": "1614540108.001500",
+		"username": "opsdroid",
+		"icons": {
+			"emoji": ":robot_face:",
+			"image_64": "https://a.slack-edge.com/production-standard-emoji-assets/13.0/apple-large/1f916.png"
+		},
+		"bot_id": "B01MY4ZRP5M",
+		"thread_ts": "1614540106.001400",
+		"parent_user_id": "U01NK1K9L68",
+		"channel": "C01N9PM1D53",
+		"event_ts": "1614540108.001500",
+		"channel_type": "channel"
+	}
+}

@@ -59,6 +59,7 @@ async def test_receive_url_verification(opsdroid, connector, mock_api):
     "payload",
     [
         "payload_message.json",
+        "payload_message_bot_message.json",
         "payload_message_message_changed.json",
         "payload_message_channel_join.json",
         "payload_channel_created.json",
@@ -191,17 +192,6 @@ class TestSlackEventCreator:
     async def test_create_message_user_name_not_found(self, connector, mock_api):
         event_creator = SlackEventCreator(connector=connector)
         message = await event_creator.create_message({}, None)
-        assert not message
-
-    async def test_create_message_is_bot_message(self, connector, mock_api):
-        connector.known_users = {
-            "U54RT8L9P90": {"bot_id": "B32NK3O9L39", "name": "opsdroid"}
-        }
-        connector.bot_id = "B32NK3O9L39"
-        event_creator = SlackEventCreator(connector=connector)
-        message = await event_creator.create_message(
-            {"user": "U54RT8L9P90", "bot_id": "B32NK3O9L39"}, None
-        )
         assert not message
 
     async def test_edit_message_user_name_not_found(self, connector, mock_api):
