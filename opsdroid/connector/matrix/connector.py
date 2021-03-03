@@ -385,11 +385,16 @@ class ConnectorMatrix(Connector):
             return
         else:
             room_ids = room_ids.rooms
-            if encrypted_only == True:
+            if encrypted_only is True:
                 for room_id in room_ids:
-                    if isinstance(await self.connection.room_get_state_event(room_id, "m.room.encryption"), nio.responses.RoomGetStateError):
+                    if isinstance(
+                        await self.connection.room_get_state_event(
+                            room_id, "m.room.encryption"
+                        ),
+                        nio.responses.RoomGetStateError,
+                    ):
                         room_ids.remove(room_id)
-                        
+
             return room_ids
 
     @staticmethod
