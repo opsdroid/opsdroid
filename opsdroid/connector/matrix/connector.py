@@ -383,19 +383,19 @@ class ConnectorMatrix(Connector):
                 f"Error while getting list of joined rooms from room state: {room_ids.message} (status code {room_ids.status_code})"
             )
             return
-        else:
-            room_ids = room_ids.rooms
-            if encrypted_only is True:
-                for room_id in room_ids:
-                    if isinstance(
-                        await self.connection.room_get_state_event(
-                            room_id, "m.room.encryption"
-                        ),
-                        nio.responses.RoomGetStateError,
-                    ):
-                        room_ids.remove(room_id)
 
-            return room_ids
+        room_ids = room_ids.rooms
+        if encrypted_only is True:
+            for room_id in room_ids:
+                if isinstance(
+                    await self.connection.room_get_state_event(
+                        room_id, "m.room.encryption"
+                    ),
+                    nio.responses.RoomGetStateError,
+                ):
+                    room_ids.remove(room_id)
+
+        return room_ids
 
     @staticmethod
     def _get_formatted_message_body(message, body=None, msgtype="m.text"):
