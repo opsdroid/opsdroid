@@ -39,7 +39,7 @@ async def send_event(connector, mock_api):
 @pytest.mark.asyncio
 @pytest.mark.add_response(*USERS_INFO)
 @pytest.mark.add_response(*AUTH_TEST)
-async def test_connect_events_api(self, connector, mock_api):
+async def test_connect_events_api(connector, mock_api):
     await connector.connect()
     assert mock_api.called("/auth.test")
     assert mock_api.called("/users.info")
@@ -51,7 +51,7 @@ async def test_connect_events_api(self, connector, mock_api):
 @pytest.mark.asyncio
 @pytest.mark.add_response(*USERS_INFO)
 @pytest.mark.add_response(*AUTH_TEST)
-async def test_connect_socket_mode(self, opsdroid, mock_api_obj, mock_api):
+async def test_connect_socket_mode(opsdroid, mock_api_obj, mock_api):
     opsdroid.config["connectors"] = {
         "slack": {"token": "abc123", "socket-mode": True, "app-token": "bcd456"}
     }
@@ -64,13 +64,13 @@ async def test_connect_socket_mode(self, opsdroid, mock_api_obj, mock_api):
 
 
 @pytest.mark.asyncio
-async def test_connect_failure(self, connector, mock_api, caplog):
+async def test_connect_failure(connector, mock_api, caplog):
     await connector.connect()
     assert "The Slack Connector will not be available" in caplog.messages[0]
 
 
 @pytest.mark.asyncio
-async def test_disconnect(self, opsdroid, mock_api_obj, mock_api):
+async def test_disconnect(opsdroid, mock_api_obj, mock_api):
     opsdroid.config["connectors"] = {
         "slack": {"token": "abc123", "socket-mode": True, "app-token": "bcd456"}
     }
@@ -84,7 +84,7 @@ async def test_disconnect(self, opsdroid, mock_api_obj, mock_api):
 
 
 @pytest.mark.asyncio
-async def test_socket_event_handler(self, opsdroid, mock_api_obj, mock_api):
+async def test_socket_event_handler(opsdroid, mock_api_obj, mock_api):
     opsdroid.config["connectors"] = {
         "slack": {"token": "abc123", "socket-mode": True, "app-token": "bcd456"}
     }
@@ -105,14 +105,14 @@ async def test_socket_event_handler(self, opsdroid, mock_api_obj, mock_api):
     {"ok": True, "user": {"id": "U01NK1K9L68", "name": "Test User"}},
     200,
 )
-async def test_lookup_username_user_not_present(self, connector, mock_api):
+async def test_lookup_username_user_not_present(connector, mock_api):
     user = await connector.lookup_username("U01NK1K9L68")
     assert mock_api.called("/users.info")
     assert user["id"] == "U01NK1K9L68"
 
 
 @pytest.mark.asyncio
-async def test_replace_usernames(self, connector):
+async def test_replace_usernames(connector):
     connector.known_users = {"U01NK1K9L68": {"name": "Test User"}}
     message = "hello <@U01NK1K9L68>"
     replaced_message = await connector.replace_usernames(message)
@@ -121,7 +121,7 @@ async def test_replace_usernames(self, connector):
 
 @pytest.mark.asyncio
 @pytest.mark.add_response(*CHAT_POST_MESSAGE)
-async def test_send_message(self, send_event, connector):
+async def test_send_message(send_event, connector):
     event = events.Message(text="test", user="user", target="room", connector=connector)
     payload, response = await send_event(CHAT_POST_MESSAGE, event)
     assert payload == {
@@ -135,7 +135,7 @@ async def test_send_message(self, send_event, connector):
 
 @pytest.mark.asyncio
 @pytest.mark.add_response(*CHAT_POST_MESSAGE)
-async def test_send_message_inside_thread(self, send_event, connector):
+async def test_send_message_inside_thread(send_event, connector):
     linked_event = events.Message(
         text="linked text", raw_event={"thread_ts": "1582838099.000600"}
     )
@@ -160,7 +160,7 @@ async def test_send_message_inside_thread(self, send_event, connector):
 
 @pytest.mark.asyncio
 @pytest.mark.add_response(*CHAT_POST_MESSAGE)
-async def test_send_message_inside_thread_is_true(self, connector, send_event):
+async def test_send_message_inside_thread_is_true(connector, send_event):
     connector.start_thread = True
     linked_event = events.Message(
         text="linked text", event_id="1582838099.000601", raw_event={}
@@ -185,7 +185,7 @@ async def test_send_message_inside_thread_is_true(self, connector, send_event):
 
 @pytest.mark.asyncio
 @pytest.mark.add_response(*CHAT_UPDATE_MESSAGE)
-async def test_edit_message(self, send_event, connector):
+async def test_edit_message(send_event, connector):
     linked_event = "1582838099.000600"
 
     event = events.EditedMessage(
@@ -208,7 +208,7 @@ async def test_edit_message(self, send_event, connector):
 
 @pytest.mark.asyncio
 @pytest.mark.add_response(*CHAT_POST_MESSAGE)
-async def test_send_blocks(self, send_event, connector):
+async def test_send_blocks(send_event, connector):
     event = Blocks(
         [{"type": "section", "text": {"type": "mrkdwn", "text": "*Test*"}}],
         target="room",
@@ -226,7 +226,7 @@ async def test_send_blocks(self, send_event, connector):
 
 @pytest.mark.asyncio
 @pytest.mark.add_response(*CHAT_UPDATE_MESSAGE)
-async def test_edit_blocks(self, send_event, connector):
+async def test_edit_blocks(send_event, connector):
     event = EditedBlocks(
         [{"type": "section", "text": {"type": "mrkdwn", "text": "*Test*"}}],
         user="user",
@@ -245,7 +245,7 @@ async def test_edit_blocks(self, send_event, connector):
 
 @pytest.mark.asyncio
 @pytest.mark.add_response(*REACTIONS_ADD)
-async def test_send_reaction(self, send_event, connector):
+async def test_send_reaction(send_event, connector):
     message = events.Message(
         text="linked text",
         target="room",
@@ -267,7 +267,7 @@ async def test_send_reaction(self, send_event, connector):
 @pytest.mark.add_response(
     "/reactions.add", "POST", {"ok": False, "error": "invalid_name"}, 200
 )
-async def test_send_reaction_invalid_name(self, send_event):
+async def test_send_reaction_invalid_name(send_event):
     message = events.Message(
         text="linked text",
         target="room",
@@ -280,7 +280,7 @@ async def test_send_reaction_invalid_name(self, send_event):
 
 @pytest.mark.asyncio
 @pytest.mark.add_response("/reactions.add", "POST", {"ok": False}, 200)
-async def test_send_reaction_unknown_error(self, send_event):
+async def test_send_reaction_unknown_error(send_event):
     message = events.Message(
         text="linked text",
         target="room",
@@ -295,7 +295,7 @@ async def test_send_reaction_unknown_error(self, send_event):
 
 @pytest.mark.asyncio
 @pytest.mark.add_response(*CONVERSATIONS_CREATE)
-async def test_send_room_creation(self, send_event):
+async def test_send_room_creation(send_event):
     event = events.NewRoom(name="new_room")
     payload, response = await send_event(CONVERSATIONS_CREATE, event)
     assert payload == {"name": "new_room"}
@@ -304,7 +304,7 @@ async def test_send_room_creation(self, send_event):
 
 @pytest.mark.asyncio
 @pytest.mark.add_response(*CONVERSATIONS_RENAME)
-async def test_send_room_name_set(self, send_event):
+async def test_send_room_name_set(send_event):
     event = events.RoomName(name="new_name_room", target="room")
     payload, response = await send_event(CONVERSATIONS_RENAME, event)
     assert payload == {"name": "new_name_room", "channel": "room"}
@@ -313,7 +313,7 @@ async def test_send_room_name_set(self, send_event):
 
 @pytest.mark.asyncio
 @pytest.mark.add_response(*CONVERSATIONS_JOIN)
-async def test_join_room(self, send_event):
+async def test_join_room(send_event):
     event = events.JoinRoom(target="room")
     payload, response = await send_event(CONVERSATIONS_JOIN, event)
     assert payload == {"channel": "room"}
@@ -322,7 +322,7 @@ async def test_join_room(self, send_event):
 
 @pytest.mark.asyncio
 @pytest.mark.add_response(*CONVERSATIONS_INVITE)
-async def test_send_user_invitation(self, send_event):
+async def test_send_user_invitation(send_event):
     event = events.UserInvite(user_id="U2345678901", target="room")
     payload, response = await send_event(CONVERSATIONS_INVITE, event)
     assert payload == {"channel": "room", "users": "U2345678901"}
@@ -331,7 +331,7 @@ async def test_send_user_invitation(self, send_event):
 
 @pytest.mark.asyncio
 @pytest.mark.add_response(*CONVERSATIONS_SET_TOPIC)
-async def test_send_room_description(self, send_event):
+async def test_send_room_description(send_event):
     event = events.RoomDescription(description="Topic Update", target="room")
     payload, response = await send_event(CONVERSATIONS_SET_TOPIC, event)
     assert payload == {"channel": "room", "topic": "Topic Update"}
@@ -340,7 +340,7 @@ async def test_send_room_description(self, send_event):
 
 @pytest.mark.asyncio
 @pytest.mark.add_response(*PINS_ADD)
-async def test_send_pin_added(self, send_event, connector):
+async def test_send_pin_added(send_event, connector):
     message = events.Message(
         "An important message",
         user="User McUserface",
@@ -359,7 +359,7 @@ async def test_send_pin_added(self, send_event, connector):
 
 @pytest.mark.asyncio
 @pytest.mark.add_response(*PINS_REMOVE)
-async def test_send_pin_removed(self, send_event, connector):
+async def test_send_pin_removed(send_event, connector):
     message = events.Message(
         "An important message",
         user="User McUserface",
