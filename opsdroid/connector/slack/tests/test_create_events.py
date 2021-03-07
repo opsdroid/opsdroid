@@ -5,11 +5,7 @@ import json
 
 import pytest
 from opsdroid.connector.slack.create_events import SlackEventCreator
-from opsdroid.testing import (
-    MINIMAL_CONFIG,
-    call_endpoint,
-    run_unit_test,
-)
+from opsdroid.testing import MINIMAL_CONFIG, call_endpoint, run_unit_test
 
 from .conftest import get_path
 
@@ -183,18 +179,21 @@ async def test_receive_unknown_payload(opsdroid, connector, mock_api, caplog):
 
 
 @pytest.mark.asyncio
-class TestSlackEventCreator:
-    async def test__create_user_name_user_not_found(self, connector, mock_api):
-        event_creator = SlackEventCreator(connector=connector)
-        user_name = await event_creator._get_user_name({})
-        assert not user_name
+async def test__create_user_name_user_not_found(self, connector, mock_api):
+    event_creator = SlackEventCreator(connector=connector)
+    user_name = await event_creator._get_user_name({})
+    assert not user_name
 
-    async def test_create_message_user_name_not_found(self, connector, mock_api):
-        event_creator = SlackEventCreator(connector=connector)
-        message = await event_creator.create_message({}, None)
-        assert not message
 
-    async def test_edit_message_user_name_not_found(self, connector, mock_api):
-        event_creator = SlackEventCreator(connector=connector)
-        message = await event_creator.edit_message({"message": {}}, None)
-        assert not message
+@pytest.mark.asyncio
+async def test_create_message_user_name_not_found(self, connector, mock_api):
+    event_creator = SlackEventCreator(connector=connector)
+    message = await event_creator.create_message({}, None)
+    assert not message
+
+
+@pytest.mark.asyncio
+async def test_edit_message_user_name_not_found(self, connector, mock_api):
+    event_creator = SlackEventCreator(connector=connector)
+    message = await event_creator.edit_message({"message": {}}, None)
+    assert not message
