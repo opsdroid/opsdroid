@@ -86,7 +86,7 @@ class ConnectorSlack(Connector):
                 await self.socket_mode_client.connect()
             else:
                 self.opsdroid.web_server.web_app.router.add_post(
-                    "/connector/{}".format(self.name),
+                    f"/connector/{self.name}".format(),
                     self.web_event_handler,
                 )
 
@@ -131,6 +131,7 @@ class ConnectorSlack(Connector):
                 _LOGGER.info(
                     f"Payload: {payload['type']} is not implemented. Event wont be parsed"
                 )
+                return
 
         if isinstance(event, list):
             for e in event:
