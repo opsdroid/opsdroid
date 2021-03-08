@@ -2,9 +2,9 @@
 
 A connector for [Slack](https://slack.com/).
 
-## ⚠️ **Breaking Changes introduced in opsdroid 0.21.0**
+## ⚠️ **Breaking Changes introduced in opsdroid 0.22.0**
 
-We have dropped support for the RTM API. Now the Slack Connector uses the [events API](https://api.slack.com/apis/connections/events-api) and [Socket Mode](https://api.slack.com/apis/connections/socket)
+We have dropped support for the RTM API. Now the Slack Connector supports the [events API](https://api.slack.com/apis/connections/events-api) and [Socket Mode](https://api.slack.com/apis/connections/socket) from new apps
 
 ### Migrating away from RTM
 * Follow Requirements and Configuration steps and choose the *Socket Mode* Backend.
@@ -26,7 +26,7 @@ connectors:
     # required
     token: "xoxb-abdcefghi-12345"
     # optional
-    socket-mode: True # defaul false. if true app-token is required
+    socket-mode: true # defaul true. *
     app-token: "xapp-abdcfkje-12345" # socket-mode needs to be true
     bot-name: "mybot" # default "opsdroid" **
     icon-emoji: ":smile:" # default ":robot_face:" **
@@ -34,6 +34,7 @@ connectors:
     start_thread: false # default false. if true, opsdroid will start a thread when replying to a message
 ```
 
+\* when `socket-mode` is true, you need to set also an `app-token` (more info: [app level tokens](https://api.slack.com/authentication/token-types#app)
 ** In order for `bot-name` and/or `icon-emoji` to work, the `chat:write.customize` scope will have to be selected
 
 ### Choose the Backend API
@@ -42,19 +43,17 @@ You need to choose between two backends. The [Events API](https://api.slack.com/
 
 If you are unsure which one is the best for you, [Slack Faq](https://api.slack.com/faq#events_api) provide differences between those two.
 
-**Events API**
+**Socket Mode**
+* Go to your [Slack App](https://api.slack.com/apps)
+* On the left columnt go to "Socket Mode" and toogle the "Enable Socket Mode"
+* Copy your new token add add it to your opsdroid configuration file as your `app-token`. 
 
+**Events API**
+* Make sure to set `socket-mode` to `false`
 * You will need an **endpoint** which exposes your Opsdroid to the **internet**. [Exposing Opsdroid via tunnels](https://docs.opsdroid.dev/en/latest/exposing.html) might help out.
 * Go to your [Slack App](https://api.slack.com/apps)
 * On the left column go to "Event Subscriptions" and toogle the "Enable Events"
 * Under "Request URL" add the `/connector/slack` uri to your endpoint: https://slackbot.example.com/connector/slack. Note that you will have to have your Opsdroid instance running so Slack can validate the endpoint.
-For Socket Mode, you will nee 
-
-**Socket Mode**
-* Go to your [Slack App](https://api.slack.com/apps)
-* On the left columnt go to "Socket Mode" and toogle the "Enable Socket Mode"
-* Copy your new token add add it to your opsdroid configuration file as your `app-token`. Make sure also to set `socket-mode` to `True`
-
 
 ### Subscribe to events
 You will need to subscribe to events in your new Slack App, so Opsdroid can receive those events.
