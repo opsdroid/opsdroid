@@ -14,7 +14,7 @@ def get_path(file_name: str) -> str:
 async def connector(opsdroid, mock_api_obj):
     """Initiate a basic connector setup for testing on."""
 
-    opsdroid.config["connectors"] = {"slack": {"token": "abc123"}}
+    opsdroid.config["connectors"] = {"slack": {"token": "abc123", "socket-mode": False}}
     await opsdroid.load()
     slack_connector = opsdroid.get_connector("slack")
     slack_connector.slack_web_client.base_url = mock_api_obj.base_url

@@ -39,10 +39,13 @@ class ConnectorSlack(Connector):
         super().__init__(config, opsdroid=opsdroid)
         _LOGGER.debug(_("Starting Slack connector."))
         self.name = "slack"
+        self.token = config["token"]
+        self.bot_name = config.get("bot-name", "opsdroid")
         self.default_target = config.get("default-room", "#general")
         self.icon_emoji = config.get("icon-emoji", ":robot_face:")
-        self.token = config["token"]
         self.start_thread = config.get("start_thread", False)
+        self.socket_mode = config.get("socket-mode", True)
+        self.app_token = config.get("app-token")
         self.ssl_context = ssl.create_default_context(cafile=certifi.where())
         self.slack_web_client = AsyncWebClient(
             token=self.token,
@@ -50,19 +53,27 @@ class ConnectorSlack(Connector):
             proxy=os.environ.get("HTTPS_PROXY"),
         )
         self.socket_mode_client = (
-            SocketModeClient(
-                app_token=config["app-token"], web_client=self.slack_web_client
-            )
-            if config.get("socket-mode")
+            SocketModeClient(self.app_token, web_client=self.slack_web_client)
+            if self.app_token
             else None
         )
-        self.bot_name = config.get("bot-name", "opsdroid")
         self.auth_info = None
         self.user_info = None
         self.bot_id = None
         self.known_users = {}
 
         self._event_creator = SlackEventCreator(self)
+
+    async def inform_backend_changes(self):
+        """Inform about backend changes"""
+        _LOGGER.error(_("You need to have an app-token in your config."))
+        _LOGGER.error(
+            _("Startig v0.22.0 RTM support has been dropped in favour of Socket Mode.")
+        )
+        _LOGGER.error(
+            _("Please check Slack Connector docs for instructions on how to migrate.")
+        )
+        _LOGGER.error(_("The Slack Connector will not be available."))
 
     async def connect(self):
         """Connect to the chat service."""
@@ -78,22 +89,6 @@ class ConnectorSlack(Connector):
                 )
             ).data
             self.bot_id = self.user_info["user"]["profile"]["bot_id"]
-
-            if self.socket_mode_client:
-                self.socket_mode_client.socket_mode_request_listeners.append(
-                    self.socket_event_handler
-                )
-                await self.socket_mode_client.connect()
-            else:
-                self.opsdroid.web_server.web_app.router.add_post(
-                    f"/connector/{self.name}".format(),
-                    self.web_event_handler,
-                )
-
-            _LOGGER.debug(_("Connected as %s."), self.bot_name)
-            _LOGGER.debug(_("Using icon %s."), self.icon_emoji)
-            _LOGGER.debug(_("Default room is %s."), self.default_target)
-            _LOGGER.info(_("Connected successfully."))
         except SlackApiError as error:
             _LOGGER.error(
                 _(
@@ -102,6 +97,27 @@ class ConnectorSlack(Connector):
                 ),
                 error,
             )
+        else:
+
+            if self.socket_mode:
+                if not self.socket_mode_client:
+                    await self.inform_backend_changes()
+                    return
+                self.socket_mode_client.socket_mode_request_listeners.append(
+                    self.socket_event_handler
+                )
+                await self.socket_mode_client.connect()
+                _LOGGER.info(_("Connected successfully with socket mode"))
+            else:
+                self.opsdroid.web_server.web_app.router.add_post(
+                    f"/connector/{self.name}".format(),
+                    self.web_event_handler,
+                )
+                _LOGGER.info(_("Connected successfully with events api"))
+
+            _LOGGER.debug(_("Connected as %s."), self.bot_name)
+            _LOGGER.debug(_("Using icon %s."), self.icon_emoji)
+            _LOGGER.debug(_("Default room is %s."), self.default_target)
 
     async def disconnect(self):
         """Disconnect from Slack. Only needed when socket_mode_client is used
@@ -131,6 +147,7 @@ class ConnectorSlack(Connector):
                 _LOGGER.info(
                     f"Payload: {payload['type']} is not implemented. Event wont be parsed"
                 )
+
                 return
 
         if isinstance(event, list):
