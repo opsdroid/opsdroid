@@ -234,6 +234,8 @@ class ConnectorMatrix(Connector):
                 "Configuration for the matrix connector should specify mxid and password or access_token."
             )  # pragma: no cover
 
+        self.connection.sync_token = None
+
         for roomname, room in self.rooms.items():
             response = await self.connection.join(room["alias"])
             if isinstance(response, nio.JoinError):
@@ -261,6 +263,8 @@ class ConnectorMatrix(Connector):
             )
             return
 
+        self.connection.sync_token = response.next_batch
+
         await self.exchange_keys(initial_sync=True)
 
         if self.nick:
@@ -280,13 +284,13 @@ class ConnectorMatrix(Connector):
                         f"Error setting display_name: {display_name_resp.message} (status code {display_name_resp.status_code})"
                     )
 
-        _LOGGER.info("Successfully connected to matrix.")
-
     async def disconnect(self):
         """Close the matrix session."""
         await self.connection.close()
 
     async def _parse_sync_response(self, response):
+        self.connection.sync_token = response.next_batch
+
         # Emit Invite events for every room in the invite list.
         for roomid, roomInfo in response.rooms.invite.items():
             # Process the invite list to extract the person who invited us.
@@ -326,6 +330,7 @@ class ConnectorMatrix(Connector):
             response = await self.connection.sync(
                 timeout=int(60 * 1e3),  # 1m in ms
                 sync_filter=self.filter_id,
+                since=self.connection.sync_token,
             )
             if isinstance(response, nio.SyncError):
                 _LOGGER.error(
