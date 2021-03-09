@@ -17,13 +17,20 @@ from slack_sdk.socket_mode.aiohttp import SocketModeClient
 from slack_sdk.socket_mode.request import SocketModeRequest
 from slack_sdk.socket_mode.response import SocketModeResponse
 from slack_sdk.web.async_client import AsyncWebClient
-from voluptuous import Inclusive, Required
+from voluptuous import Required
 
 _LOGGER = logging.getLogger(__name__)
+
+_USE_BOT_TOKEN_MSG = (
+    "Please upgrade your config with a new Slack 'bot-token' instead of the classic 'token'. "
+    "Startig v0.22.0 RTM support has been dropped in favour of Socket Mode. "
+    "Please check Slack Connector docs for instructions on how to migrate. "
+    "https://docs.opsdroid.dev/en/stable/connectors/slack.html"
+)
 CONFIG_SCHEMA = {
-    Required("token"): str,
-    Inclusive("socket-mode", "backend"): bool,
-    Inclusive("app-token", "backend"): str,
+    Required("bot-token", msg=_USE_BOT_TOKEN_MSG): str,
+    "socket-mode": bool,
+    "app-token": str,
     "bot-name": str,
     "default-room": str,
     "icon-emoji": str,
@@ -39,7 +46,7 @@ class ConnectorSlack(Connector):
         super().__init__(config, opsdroid=opsdroid)
         _LOGGER.debug(_("Starting Slack connector."))
         self.name = "slack"
-        self.token = config["token"]
+        self.bot_token = config["bot-token"]
         self.bot_name = config.get("bot-name", "opsdroid")
         self.default_target = config.get("default-room", "#general")
         self.icon_emoji = config.get("icon-emoji", ":robot_face:")
@@ -48,7 +55,7 @@ class ConnectorSlack(Connector):
         self.app_token = config.get("app-token")
         self.ssl_context = ssl.create_default_context(cafile=certifi.where())
         self.slack_web_client = AsyncWebClient(
-            token=self.token,
+            token=self.bot_token,
             ssl=self.ssl_context,
             proxy=os.environ.get("HTTPS_PROXY"),
         )
@@ -64,15 +71,6 @@ class ConnectorSlack(Connector):
 
         self._event_creator = SlackEventCreator(self)
 
-    async def inform_backend_changes(self):
-        """Inform about backend changes"""
-        _LOGGER.error(_("You need to have an app-token in your config."))
-        _LOGGER.error(
-            _("Startig v0.22.0 RTM support has been dropped in favour of Socket Mode.")
-        )
-        _LOGGER.error(
-            _("Please check Slack Connector docs for instructions on how to migrate.")
-        )
         _LOGGER.error(_("The Slack Connector will not be available."))
 
     async def connect(self):
@@ -101,7 +99,9 @@ class ConnectorSlack(Connector):
 
             if self.socket_mode:
                 if not self.socket_mode_client:
-                    await self.inform_backend_changes()
+                    _LOGGER.error(_(_USE_BOT_TOKEN_MSG))
+                    _LOGGER.error(_("The Slack Connector will not be available."))
+
                     return
                 self.socket_mode_client.socket_mode_request_listeners.append(
                     self.socket_event_handler
@@ -137,6 +137,7 @@ class ConnectorSlack(Connector):
                 event = await self._event_creator.create_event(payload["event"], None)
             else:
                 event = await self._event_creator.create_event(payload, None)
+
                 if not event:
                     _LOGGER.info(
                         f"Payload: {payload['type']} is not implemented. Event wont be parsed"
