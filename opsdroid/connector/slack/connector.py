@@ -131,24 +131,18 @@ class ConnectorSlack(Connector):
         """Listen for and parse new messages."""
 
     async def event_handler(self, payload):
-        event = None
 
         if "type" in payload:
             if payload["type"] == "event_callback":
                 event = await self._event_creator.create_event(payload["event"], None)
-            elif payload["type"] in (
-                "block_actions",
-                "message_action",
-                "view_submission",
-                "view_closed",
-            ):
-                event = await self._event_creator.create_event(payload, None)
             else:
-                _LOGGER.info(
-                    f"Payload: {payload['type']} is not implemented. Event wont be parsed"
-                )
+                event = await self._event_creator.create_event(payload, None)
+                if not event:
+                    _LOGGER.info(
+                        f"Payload: {payload['type']} is not implemented. Event wont be parsed"
+                    )
 
-                return
+                    return
 
         if isinstance(event, list):
             for e in event:
