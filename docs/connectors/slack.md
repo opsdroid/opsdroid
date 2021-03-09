@@ -16,7 +16,7 @@ We have dropped support for the RTM API. Now the Slack Connector supports the [e
 * Select "Bots" option inside the "Add features and functionality" tab
 * Click "Review Scopes to Add". "Under Scopes" --> "Bot Token Scopes select" `chat:write` or `chat:write.customize` (Note that you are required to select at least one scope to install the app)
 * Navigate to "OAuth Tokens & Redirect URLs" and click the "Install to Workspace" button. 
-* Take note of the "Bot User OAuth Access Token" as this will be the `token` you need for your configuration (the token will start with `xoxb-`).
+* Take note of the "Bot User OAuth Access Token" as this will be the `bot-token` you need for your configuration (the bot-token will start with `xoxb-`).
 
 ## Configuration
 
@@ -24,7 +24,7 @@ We have dropped support for the RTM API. Now the Slack Connector supports the [e
 connectors:
   slack:
     # required
-    token: "xoxb-abdcefghi-12345"
+    bot-token: "xoxb-abdcefghi-12345"
     # optional
     socket-mode: true # defaul true. *
     app-token: "xapp-abdcfkje-12345" # socket-mode needs to be true
@@ -46,7 +46,7 @@ If you are unsure which one is the best for you, [Slack Faq](https://api.slack.c
 **Socket Mode**
 * Go to your [Slack App](https://api.slack.com/apps)
 * On the left columnt go to "Socket Mode" and toogle the "Enable Socket Mode"
-* Copy your new token add add it to your opsdroid configuration file as your `app-token`. 
+* Copy your new token add add it to your opsdroid configuration file as your `app-token`. (the app-token will start with xapp-abcdef-1233)
 
 **Events API**
 * Make sure to set `socket-mode` to `false`
