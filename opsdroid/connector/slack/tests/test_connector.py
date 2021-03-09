@@ -67,9 +67,7 @@ async def test_connect_socket_mode(opsdroid, mock_api_obj, mock_api):
 @pytest.mark.add_response(*USERS_INFO)
 @pytest.mark.add_response(*AUTH_TEST)
 async def test_connect_no_socket_mode_client(opsdroid, mock_api_obj, mock_api, caplog):
-    opsdroid.config["connectors"] = {
-        "slack": {"token": "abc123", "socket-mode": True}
-    }
+    opsdroid.config["connectors"] = {"slack": {"token": "abc123", "socket-mode": True}}
     await opsdroid.load()
     connector = opsdroid.get_connector("slack")
     connector.slack_web_client.base_url = mock_api_obj.base_url
