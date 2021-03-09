@@ -80,7 +80,7 @@ async def test_connect_no_socket_mode_client(opsdroid, mock_api_obj, mock_api, c
 @pytest.mark.asyncio
 async def test_connect_failure(connector, mock_api, caplog):
     await connector.connect()
-    assert "The Slack Connector will not be available" in caplog.messages[0]
+    assert "The Slack Connector will not be available" in caplog.text
 
 
 @pytest.mark.asyncio
