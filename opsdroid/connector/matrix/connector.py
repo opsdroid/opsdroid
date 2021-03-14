@@ -9,11 +9,10 @@ from urllib.parse import urlparse
 import aiohttp
 import nio
 import nio.responses
-import nio.exceptions
 
 from opsdroid import const, events
 from opsdroid.connector import Connector, register_event
-from voluptuous import Required, Inclusive
+from voluptuous import Required
 
 from . import events as matrixevents
 from .create_events import MatrixEventCreator
@@ -21,9 +20,8 @@ from .html_cleaner import clean
 
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = {
-    Inclusive("mxid", "login"): str,
-    Inclusive("password", "login"): str,
-    "access_token": str,
+    Required("mxid"): str,
+    Required("password"): str,
     Required("rooms"): dict,
     "homeserver": str,
     "nick": str,
@@ -31,7 +29,6 @@ CONFIG_SCHEMA = {
     "device_name": str,
     "device_id": str,
     "store_path": str,
-    "enable_encryption": bool,
 }
 
 __all__ = ["ConnectorMatrix"]
@@ -42,6 +39,72 @@ class MatrixException(Exception):
 
     def __init__(self, nio_error):
         self.nio_error = nio_error
+
+
+class NioResponseHandler:
+    """
+    Extension for logging.
+    https://github.com/opsdroid/opsdroid/issues/1714
+    Will log different nio.errors types all in 1 call.
+    """
+    def __init__(self, response):
+        self.response = response
+
+    def handle_response(self):
+        if isinstance(self.response, nio.RoomResolveAliasError):
+            _LOGGER.error(
+                f"Error resolving room id: {self.response.message} (status code {self.response.status_code})"
+            )
+            return True
+        elif isinstance(self.response, nio.LoginError):
+            _LOGGER.error(
+                f"Error while connecting: {self.response.message} (status code {self.response.status_code})"
+            )
+            return True
+        elif isinstance(self.response, nio.JoinError):
+            _LOGGER.error(
+                f"Error while joining room: {self.response.message} (status code {self.response.status_code})"
+            )
+            return True
+        elif isinstance(self.response, nio.SyncError):
+            _LOGGER.error(
+                f"Error during initial sync: {self.response.message} (status code {self.response.status_code})"
+            )
+            return True
+        elif isinstance(self.response, nio.JoinedMembersError):
+            _LOGGER.error(
+                f"Failed to lookup room members: {self.response.message} (status code {self.response.status_code})"
+            )
+            return True
+        elif isinstance(self.response, nio.ProfileGetDisplayNameError):
+            _LOGGER.error(
+                f"Failed to lookup display name: {self.response.message} (status code {self.response.status_code})"
+            )
+            return True
+        elif isinstance(self.response, nio.UploadError):
+            _LOGGER.error(
+                f"Error while sending the file: {self.response.message} (status code {self.response.status_code})"
+            )
+            return True
+        elif isinstance(self.response, nio.RoomCreateError):
+            _LOGGER.error(
+                f"Error while creating the room: {self.response.message} (status code {self.response.status_code})"
+            )
+            return True
+        # set a generic response at the very end if any of the other ones were not logged
+        elif isinstance(self.response, nio.ErrorResponse):
+            _LOGGER.error(
+                f"Generic Error Response : {self.response.message} (status code {self.response.status_code})"
+            )
+            return True
+        elif isinstance(self.response, nio.responses.ErrorResponse):
+            _LOGGER.error(
+                f"Generic Error Response : {self.response.message} (status code {self.response.status_code})"
+            )
+            return True
+        # if the error object is not in here
+        _LOGGER.debug(f"Error not implemented OR no Error.")
+        return False
 
 
 def ensure_room_id_and_send(func):
@@ -58,10 +121,8 @@ def ensure_room_id_and_send(func):
 
         if not event.target.startswith("!"):
             response = await self.connection.room_resolve_alias(event.target)
-            if isinstance(response, nio.RoomResolveAliasError):
-                _LOGGER.error(
-                    f"Error resolving room id for {event.target}: {response.message} (status code {response.status_code})"
-                )
+            if NioResponseHandler.handle_response(response):
+                _LOGGER.debug(f"Error resolving room id for {event.target}")
             else:
                 event.target = response.room_id
 
@@ -91,16 +152,11 @@ class ConnectorMatrix(Connector):
         self.rooms = self._process_rooms_dict(config["rooms"])
         self.room_ids = {}
         self.default_target = self.rooms["main"]["alias"]
-        self.mxid = config.get("mxid")
-        self.password = config.get("password")
-        self.access_token = config.get("access_token")
+        self.mxid = config["mxid"]
         self.nick = config.get("nick")
         self.homeserver = config.get("homeserver", "https://matrix.org")
-        # deprecated in 0.21
-        if config.get("room_specific_nicks", None):
-            _LOGGER.warning(
-                "The `room_specific_nicks` config option is deprecated as it is now always True."
-            )  # pragma: no cover
+        self.password = config["password"]
+        self.room_specific_nicks = config.get("room_specific_nicks", False)
         self.send_m_notice = config.get("send_m_notice", False)
         self.session = None
         self.filter_id = None
@@ -111,14 +167,7 @@ class ConnectorMatrix(Connector):
             "store_path", str(Path(const.DEFAULT_ROOT_PATH, "matrix"))
         )
         self._ignore_unverified = True
-        self._allow_encryption = config.get("enable_encryption", False)
-        if (
-            self._allow_encryption and not nio.crypto.ENCRYPTION_ENABLED
-        ):  # pragma: no cover
-            _LOGGER.warning(
-                "enable_encryption is True but encryption support is not available."
-            )
-            self._allow_encryption = False
+        self._allow_encryption = nio.crypto.ENCRYPTION_ENABLED
 
         self._event_creator = MatrixEventCreator(self)
 
@@ -150,14 +199,18 @@ class ConnectorMatrix(Connector):
                 "event_format": "client",
                 "account_data": {"limit": 0, "types": []},
                 "presence": {"limit": 0, "types": []},
-                "room": {"account_data": {"types": []}, "ephemeral": {"types": []}},
+                "room": {
+                    "account_data": {"types": []},
+                    "ephemeral": {"types": []},
+                    "state": {"types": []},
+                },
             }
         )
 
     async def make_filter(self, api, fjson):
         """Make a filter on the server for future syncs."""
         path = f"/_matrix/client/r0/user/{self.mxid}/filter"
-        headers = {"Authorization": f"Bearer {api.access_token}"}
+        headers = {"Authorization": f"Bearer {api.token}"}
         resp = await api.send(method="post", path=path, data=fjson, headers=headers)
 
         resp_json = await resp.json()
@@ -186,6 +239,7 @@ class ConnectorMatrix(Connector):
 
     async def connect(self):
         """Create connection object with chat library."""
+
         if self._allow_encryption:
             _LOGGER.debug(f"Using {self.store_path} for the matrix client store.")
             Path(self.store_path).mkdir(exist_ok=True)
@@ -195,7 +249,7 @@ class ConnectorMatrix(Connector):
             pickle_key="",
             store_name="opsdroid.db" if self._allow_encryption else "",
         )
-        self.connection = nio.AsyncClient(
+        mapi = nio.AsyncClient(
             self.homeserver,
             self.mxid,
             config=config,
@@ -203,51 +257,28 @@ class ConnectorMatrix(Connector):
             device_id=self.device_id,
         )
 
-        if self.access_token is not None:
-            self.connection.access_token = self.access_token
+        login_response = await mapi.login(
+            password=self.password, device_name=self.device_name
+        )
+        if NioResponseHandler.handle_response(login_response):
+            return
 
-            whoami_response = await self.connection.whoami()
-            if isinstance(whoami_response, nio.responses.WhoamiError):
-                _LOGGER.error(
-                    f"Error while connecting: {whoami_response.message} (status code {whoami_response.status_code})"
-                )
-                return
-
-            self.mxid = whoami_response.user_id
-            self.connection.user_id = self.mxid
-
-        elif self.mxid is not None and self.password is not None:
-            login_response = await self.connection.login(
-                password=self.password, device_name=self.device_name
-            )
-            if isinstance(login_response, nio.LoginError):
-                _LOGGER.error(
-                    f"Error while connecting: {login_response.message} (status code {login_response.status_code})"
-                )
-                return
-
-            self.access_token = (
-                self.connection.access_token
-            ) = login_response.access_token
-        else:
-            raise ValueError(
-                "Configuration for the matrix connector should specify mxid and password or access_token."
-            )  # pragma: no cover
+        mapi.token = login_response.access_token
+        mapi.sync_token = None
 
         for roomname, room in self.rooms.items():
-            response = await self.connection.join(room["alias"])
-            if isinstance(response, nio.JoinError):
-                _LOGGER.error(
-                    f"Error while joining room: {room['alias']}, Message: {response.message} (status code {response.status_code})"
-                )
-
+            response = await mapi.join(room["alias"])
+            if NioResponseHandler.handle_response(response):
+                _LOGGER.debug(f"Error while joining room: {room['alias']}")
             else:
                 self.room_ids[roomname] = response.room_id
 
+        self.connection = mapi
+
         # Create a filter now, saves time on each later sync
-        self.filter_id = await self.make_filter(self.connection, self.filter_json)
+        self.filter_id = await self.make_filter(mapi, self.filter_json)
         first_filter_id = await self.make_filter(
-            self.connection, '{ "room": { "timeline" : { "limit" : 1 } } }'
+            mapi, '{ "room": { "timeline" : { "limit" : 1 } } }'
         )
 
         # Do initial sync so we don't get old messages later.
@@ -255,38 +286,25 @@ class ConnectorMatrix(Connector):
             timeout=3000, sync_filter=first_filter_id, full_state=True
         )
 
-        if isinstance(response, nio.SyncError):
-            _LOGGER.error(
-                f"Error during initial sync: {response.message} (status code {response.status_code})"
-            )
+        if NioResponseHandler.handle_response(response):
             return
+
+        self.connection.sync_token = response.next_batch
 
         await self.exchange_keys(initial_sync=True)
 
         if self.nick:
             display_name = await self.connection.get_displayname(self.mxid)
-            if isinstance(display_name, nio.ErrorResponse):
-                _LOGGER.warning(
-                    f"Error fetching current display_name: {display_name.message} (status code {display_name.status_code})"
-                )
-                display_name = None
-            else:
-                display_name = display_name.displayname
-
             if display_name != self.nick:
-                display_name_resp = await self.connection.set_displayname(self.nick)
-                if isinstance(display_name_resp, nio.ErrorResponse):
-                    _LOGGER.warning(
-                        f"Error setting display_name: {display_name_resp.message} (status code {display_name_resp.status_code})"
-                    )
-
-        _LOGGER.info("Successfully connected to matrix.")
+                await self.connection.set_displayname(self.nick)
 
     async def disconnect(self):
         """Close the matrix session."""
         await self.connection.close()
 
     async def _parse_sync_response(self, response):
+        self.connection.sync_token = response.next_batch
+
         # Emit Invite events for every room in the invite list.
         for roomid, roomInfo in response.rooms.invite.items():
             # Process the invite list to extract the person who invited us.
@@ -296,13 +314,16 @@ class ConnectorMatrix(Connector):
                 if isinstance(e, nio.InviteMemberEvent)
                 if e.membership == "invite"
             ][0]
+            sender = await self.get_nick(None, invite_event.sender)
 
-            yield events.UserInvite(
-                target=roomid,
-                user_id=invite_event.sender,
-                user=invite_event.sender,
-                connector=self,
-                raw_event=invite_event,
+            await self.opsdroid.parse(
+                events.UserInvite(
+                    target=roomid,
+                    user_id=invite_event.sender,
+                    user=sender,
+                    connector=self,
+                    raw_event=invite_event,
+                )
             )
 
         for roomid, roomInfo in response.rooms.join.items():
@@ -312,11 +333,10 @@ class ConnectorMatrix(Connector):
                         if event.source["type"] == "m.room.member":
                             event.source["content"] = event.content
                         if isinstance(event, nio.MegolmEvent):
-                            try:  # pragma: no cover
-                                event = self.connection.decrypt_event(event)
-                            except nio.exceptions.EncryptionError:  # pragma: no cover
-                                _LOGGER.exception(f"Failed to decrypt event {event}")
-                        yield await self._event_creator.create_event(
+                            _LOGGER.error(
+                                f"Failed to decrypt event {event}"
+                            )  # pragma: nocover
+                        return await self._event_creator.create_event(
                             event.source, roomid
                         )
 
@@ -326,19 +346,20 @@ class ConnectorMatrix(Connector):
             response = await self.connection.sync(
                 timeout=int(60 * 1e3),  # 1m in ms
                 sync_filter=self.filter_id,
+                since=self.connection.sync_token,
             )
-            if isinstance(response, nio.SyncError):
-                _LOGGER.error(
-                    f"Error during sync: {response.message} (status code {response.status_code})"
-                )
-                continue
+
+            # try the response logger and continue
+            NioResponseHandler.handle_response(response)
 
             _LOGGER.debug(_("Matrix sync request returned."))
 
             await self.exchange_keys()
 
-            async for event in self._parse_sync_response(response):
-                await self.opsdroid.parse(event)
+            message = await self._parse_sync_response(response)
+
+            if message:
+                await self.opsdroid.parse(message)
 
     def lookup_target(self, room):
         """Convert name or alias of a room to the corresponding room ID."""
@@ -352,16 +373,25 @@ class ConnectorMatrix(Connector):
         Get the nickname of a sender depending on the room specific config
         setting.
         """
-        room_state = await self.connection.room_get_state_event(
-            roomid, "m.room.member", mxid
-        )
-        if isinstance(room_state, nio.RoomGetStateEventError):
-            _LOGGER.error(
-                f"Error during getting display name from room state: {room_state.message} (status code {room_state.status_code})"
-            )
-            return mxid
+        if self.room_specific_nicks and roomid is not None:
 
-        return room_state.content.get("displayname", mxid) or mxid
+            res = await self.connection.joined_members(roomid)
+            if NioResponseHandler.handle_response(res):
+                _LOGGER.debug(f"Failed to lookup room members for {roomid}.")
+                # fallback to global profile
+            else:
+                for member in res.members:
+                    if member.user_id == mxid:
+                        return member.display_name
+                return mxid
+
+        res = await self.connection.get_displayname(mxid)
+        if NioResponseHandler.handle_response(res):
+            _LOGGER.debug(f"Failed to lookup display name for {mxid}.")
+            return mxid
+        if res.displayname is None:
+            return mxid
+        return res.displayname
 
     def get_roomname(self, room):
         """Get the name of a room from alias or room ID."""
@@ -515,10 +545,7 @@ class ConnectorMatrix(Connector):
 
             response, file_dict = response
 
-            if isinstance(response, nio.UploadError):
-                _LOGGER.error(
-                    f"Error while sending the file. Reason: {response.message} (status code {response.status_code})"
-                )
+            if NioResponseHandler.handle_response(response):
                 return response, None, None
 
             mxc_url = response.content_uri
@@ -536,7 +563,7 @@ class ConnectorMatrix(Connector):
     async def _send_file(self, file_event):
         mxc_url, uploaded, file_dict = await self._file_to_mxc_url(file_event)
 
-        if isinstance(mxc_url, nio.UploadError):
+        if NioResponseHandler.handle_response(mxc_url):
             return
 
         name = file_event.name or "opsdroid_upload"
@@ -570,10 +597,7 @@ class ConnectorMatrix(Connector):
         params = creation_event.room_params
         params = params.get("matrix", params)
         response = await self.connection.room_create(**params)
-        if isinstance(response, nio.RoomCreateError):
-            _LOGGER.error(
-                f"Error while creating the room. Reason: {response.message} (status code {response.status_code})"
-            )
+        if NioResponseHandler.handle_response(response):
             return
         room_id = response.room_id
         if creation_event.name is not None:
