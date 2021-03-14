@@ -24,7 +24,6 @@ To use the GitHub connector you will need a user for the bot to use and generate
   
 _*Note:* You should add a secure secret when setting up your webhook, this will allow opsdroid to confirm that the event received is authentic and came from GitHub._
 
-
 ## Configuration
 
 ```yaml

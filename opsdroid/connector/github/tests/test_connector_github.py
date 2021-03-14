@@ -1,14 +1,13 @@
 """Tests for the GitHub class."""
-import pytest
-from asynctest.mock import CoroutineMock
 from pathlib import Path
 
-
+import opsdroid.connector.github.events as github_event
+import pytest
+from asynctest.mock import CoroutineMock
 from opsdroid.connector.github import ConnectorGitHub
 from opsdroid.events import Message
 from opsdroid.matchers import match_event
 from opsdroid.testing import call_endpoint, running_opsdroid
-
 
 # these strings are used in several tests
 ORG, REPO, ISSUE = "opsdroid", "opsdroid", "1"
@@ -45,6 +44,12 @@ def test_missing_token(caplog):
     """Test that attempt to connect without info raises an error."""
     ConnectorGitHub({})
     assert "Missing auth token!" in caplog.text
+
+
+def test_missing_secret(caplog):
+    """Test that missing secret will log a message."""
+    ConnectorGitHub({})
+    assert "You should use it to improve security" in caplog.text
 
 
 @pytest.mark.add_response(
@@ -148,11 +153,17 @@ async def test_do_not_send_to_self(opsdroid, connector, mock_api):
 async def test_receive_comment(opsdroid, connector, mock_api):
     """Test a comment create event creates a message and parses it."""
 
-    @match_event(Message)
+    @match_event(github_event.IssueCommented)
     async def test_skill(opsdroid, config, event):
         assert event.connector.name == "github"
-        assert event.text == "hello"
         assert event.target == "opsdroid/opsdroid#237"
+        assert event.comment == "hello"
+        assert event.issue_title == "test issue, please ignore"
+        assert (
+            event.comment_url
+            == "https://api.github.com/repos/opsdroid/opsdroid/issues/comments/439318644"
+        )
+        assert event.user == "jacobtomlinson"
 
     opsdroid.register_skill(test_skill, config={"name": "test"})
 
@@ -173,11 +184,12 @@ async def test_receive_comment(opsdroid, connector, mock_api):
 async def test_receive_pr(opsdroid, connector, mock_api):
     """Test a PR create event creates a message and parses it."""
 
-    @match_event(Message)
+    @match_event(github_event.PROpened)
     async def test_skill(opsdroid, config, event):
         assert event.connector.name == "github"
-        assert event.text == "hello world"
         assert event.target == "opsdroid/opsdroid-audio#175"
+        assert event.title == "Update pytest-timeout to 1.3.3"
+        assert event.description == "hello world"
 
     opsdroid.register_skill(test_skill, config={"name": "test"})
 
@@ -196,13 +208,14 @@ async def test_receive_pr(opsdroid, connector, mock_api):
 )
 @pytest.mark.asyncio
 async def test_receive_issue(opsdroid, connector, mock_api):
-    """Test a PR create event creates a message and parses it."""
+    """Test a issue create event creates a message and parses it."""
 
-    @match_event(Message)
+    @match_event(github_event.IssueCreated)
     async def test_skill(opsdroid, config, event):
         assert event.connector.name == "github"
-        assert event.text == "test"
         assert event.target == "opsdroid/opsdroid#740"
+        assert event.title == "A test please ignore"
+        assert event.description == "test"
 
     opsdroid.register_skill(test_skill, config={"name": "test"})
 
@@ -220,10 +233,36 @@ async def test_receive_issue(opsdroid, connector, mock_api):
     "/user", "GET", get_response_path("github_user.json"), status=200
 )
 @pytest.mark.asyncio
+async def test_received_issue_close(opsdroid, connector, mock_api):
+    """Test a issue close event creates an event and parses it."""
+
+    @match_event(github_event.IssueClosed)
+    async def test_skill(opsdroid, config, event):
+        assert event.connector.name == "github"
+        assert event.target == "FabioRosado/github-actions-test#10"
+        assert event.title == "Test integration"
+        assert event.description == "this is a test for the integration"
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/github",
+            "POST",
+            data=get_webhook_payload("github_issue_close_payload.json"),
+        )
+        assert resp.status == 200
+
+
+@pytest.mark.add_response(
+    "/user", "GET", get_response_path("github_user.json"), status=200
+)
+@pytest.mark.asyncio
 async def test_receive_label(opsdroid, connector, mock_api):
     """Test a PR create event creates a message and parses it."""
 
-    test_skill = match_event(Message)(CoroutineMock())
+    test_skill = match_event(github_event.Labeled)(CoroutineMock())
     opsdroid.register_skill(test_skill, config={"name": "test"})
 
     async with running_opsdroid(opsdroid):

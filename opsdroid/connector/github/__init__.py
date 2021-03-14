@@ -5,13 +5,11 @@ import json
 import logging
 
 import aiohttp
-
-from voluptuous import Required
-
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
-from . import events as github_events
+from voluptuous import Required
 
+from . import events as github_events
 
 _LOGGER = logging.getLogger(__name__)
 GITHUB_API_URL = "https://api.github.com"
@@ -25,11 +23,14 @@ class ConnectorGitHub(Connector):
         """Create the connector."""
         super().__init__(config, opsdroid=opsdroid)
         logging.debug("Loaded GitHub connector.")
-        self.github_token = config["token"]
         self.name = self.config.get("name", "github")
         self.opsdroid = opsdroid
         self.github_username = None
         self.github_api_url = self.config.get("api_base_url", GITHUB_API_URL)
+        try:
+            self.github_token = config["token"]
+        except KeyError:
+            _LOGGER.error(_("Missing auth token! You must set 'token' in your config."))
         try:
             self.secret = self.config["secret"]
         except KeyError:
@@ -96,7 +97,7 @@ class ConnectorGitHub(Connector):
             return signature == computed_hash
         return True
 
-    async def handle_check_event(self, payload: json, user: str) -> github_events:
+    async def handle_check_event(self, payload: dict, user: str) -> github_events:
         """Handle check events.
 
         Since we created a few check events, this method should make it
@@ -140,7 +141,7 @@ class ConnectorGitHub(Connector):
         return event
 
     async def handle_issue_event(
-        self, payload: json, repo: str, user: str
+        self, payload: dict, repo: str, user: str
     ) -> github_events:
         """Handle issue events."""
         if payload["opened"]:
@@ -161,10 +162,20 @@ class ConnectorGitHub(Connector):
                 connector=self,
                 raw_event=payload,
             )
+        if payload["comment"]:
+            event = github_events.IssueCommented(
+                comment=payload["comment"]["body"],
+                user=payload["comment"]["user"]["login"],
+                issue_title=payload["issue"]["title"],
+                comment_url=payload["comment"]["url"],
+                target=f"{repo}{payload['issue']['number']}",
+                connector=self,
+                raw_event=payload,
+            )
         return event
 
     async def handle_pr_event(
-        self, payload: json, repo: str, user: str
+        self, payload: dict, repo: str, user: str
     ) -> github_events:
         """Handle PR events."""
         if payload["action"] == "opened":
@@ -201,7 +212,10 @@ class ConnectorGitHub(Connector):
         """Handle event from GitHub."""
         req = await request.post()
         payload = json.loads(req["payload"])
-        is_valid_request = await self.validate_request(request, self.secret)
+        if self.secret:
+            is_valid_request = await self.validate_request(request, self.secret)
+        else:
+            is_valid_request = True
 
         if is_valid_request:
             try:
@@ -217,12 +231,21 @@ class ConnectorGitHub(Connector):
                         connector=self,
                         raw_event=payload,
                     )
+                elif payload["action"] == "labeled":
+                    event = github_events.Labeled(
+                        labels=payload["issue"]["labels"],
+                        state=payload["issue"]["state"],
+                        user=user,
+                        target=f"{repo}{payload['issue']['number']}",
+                        connector=self,
+                        raw_event=payload,
+                    )
                 elif "issue" in payload:
                     event = await self.handle_issue_event(payload, repo, user)
                 elif "pull_request" in payload:
                     event = await self.handle_pr_event(payload, repo, user)
                 elif payload.get("check_run"):
-                    event = await self.handle_check_event(payload)
+                    event = await self.handle_check_event(payload, user)
                 else:
                     _LOGGER.debug(_("No message to respond to."))
                     _LOGGER.debug(payload)
