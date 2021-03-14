@@ -252,7 +252,7 @@ async def test_received_issue_close(opsdroid, connector, mock_api):
             "POST",
             data=get_webhook_payload("github_issue_close_payload.json"),
         )
-        assert resp.status == 200
+        assert resp.status == 201
 
 
 @pytest.mark.add_response(
@@ -272,7 +272,7 @@ async def test_receive_label(opsdroid, connector, mock_api):
             "POST",
             data=get_webhook_payload("github_label_payload.json"),
         )
-        assert resp.status == 200
+        assert resp.status == 201
 
     assert not test_skill.called
 

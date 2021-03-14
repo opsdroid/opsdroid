@@ -31,9 +31,9 @@ class ConnectorGitHub(Connector):
             self.github_token = config["token"]
         except KeyError:
             _LOGGER.error(_("Missing auth token! You must set 'token' in your config."))
-        try:
-            self.secret = self.config["secret"]
-        except KeyError:
+
+        self.secret = self.config.get("secret")
+        if not self.secret:
             _LOGGER.warning(
                 _(
                     "Secret is missing from your configuration. You should use it to improve security."
