@@ -14,9 +14,10 @@ We have dropped support for the RTM API. Now the Slack Connector supports the [e
 * A Slack account
 * Create a [new Slack App](https://api.slack.com/apps) give it a name and select the workspace you would like it in.
 * Select "Bots" option inside the "Add features and functionality" tab
-* Click "Review Scopes to Add". "Under Scopes" --> "Bot Token Scopes select" `chat:write` or `chat:write.customize` (Note that you are required to select at least one scope to install the app)
+* Click "Review Scopes to Add". "Under Scopes" --> "Bot Token Scopes select" `users:read` **and** `chat:write` or `chat:write.customize` (Note that you are required to select at least one scope to install the app)
 * Navigate to "OAuth Tokens & Redirect URLs" and click the "Install to Workspace" button. 
 * Take note of the "Bot User OAuth Access Token" as this will be the `bot-token` you need for your configuration (the bot-token will start with `xoxb-`).
+
 
 ## Configuration
 
