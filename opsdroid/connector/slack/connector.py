@@ -71,8 +71,6 @@ class ConnectorSlack(Connector):
 
         self._event_creator = SlackEventCreator(self)
 
-        _LOGGER.error(_("The Slack Connector will not be available."))
-
     async def connect(self):
         """Connect to the chat service."""
         _LOGGER.info(_("Connecting to Slack."))
