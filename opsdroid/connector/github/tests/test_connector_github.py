@@ -1,6 +1,7 @@
 """Tests for the GitHub class."""
 from pathlib import Path
 
+import asynctest.mock as amock
 import opsdroid.connector.github.events as github_event
 import pytest
 from asynctest.mock import CoroutineMock
@@ -207,6 +208,61 @@ async def test_receive_pr(opsdroid, connector, mock_api):
     "/user", "GET", get_response_path("github_user.json"), status=200
 )
 @pytest.mark.asyncio
+async def test_close_pr(opsdroid, connector, mock_api):
+    """Test a PR close event creates an event and parses it."""
+
+    @match_event(github_event.PRClosed)
+    async def test_skill(opsdroid, config, event):
+        assert event.connector.name == "github"
+        assert event.target == "opsdroid/opsdroid-audio#175"
+        assert event.title == "Update pytest-timeout to 1.3.3"
+        assert event.closed_by == "pyup-bot"
+        assert event.user == "pyup-bot"
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/github",
+            "POST",
+            data=get_webhook_payload("github_pr_closed_payload.json"),
+        )
+        assert resp.status == 201
+
+
+@pytest.mark.add_response(
+    "/user", "GET", get_response_path("github_user.json"), status=200
+)
+@pytest.mark.asyncio
+async def test_pr_merged(opsdroid, connector, mock_api):
+    """Test a PR merge event creates an event and parses it."""
+
+    @match_event(github_event.PROpened)
+    async def test_skill(opsdroid, config, event):
+        assert event.connector.name == "github"
+        assert event.target == "opsdroid/opsdroid-audio#175"
+        assert event.title == "Update pytest-timeout to 1.3.3"
+        assert event.description == "hello world"
+        assert event.merger == "FabioRosado"
+        assert event.user == "pyup-bot"
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/github",
+            "POST",
+            data=get_webhook_payload("github_pr_merged_payload.json"),
+        )
+        assert resp.status == 201
+
+
+@pytest.mark.add_response(
+    "/user", "GET", get_response_path("github_user.json"), status=200
+)
+@pytest.mark.asyncio
 async def test_receive_issue(opsdroid, connector, mock_api):
     """Test a issue create event creates a message and parses it."""
 
@@ -297,3 +353,20 @@ async def test_receive_status(opsdroid, connector, mock_api):
         assert resp.status == 201
 
     assert not test_skill.called
+
+
+@pytest.mark.asyncio
+async def test_validate_request(opsdroid):
+    connector_config = {"secret": "client-secret", "token": "test"}
+    connector = ConnectorGitHub(connector_config, opsdroid=opsdroid)
+    request = amock.CoroutineMock()
+    request.headers = {
+        "X-Hub-Signature-256": "sha256=fcfa24b327e3467f1586cc1ace043c016cabfe9c15dabc0020aca45440338be9"
+    }
+
+    request.read = amock.CoroutineMock()
+    request.read.return_value = b'{"test": "test"}'
+
+    validation = await connector.validate_request(request, "test")
+
+    assert validation

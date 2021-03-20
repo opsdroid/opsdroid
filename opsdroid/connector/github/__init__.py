@@ -212,10 +212,7 @@ class ConnectorGitHub(Connector):
         """Handle event from GitHub."""
         req = await request.post()
         payload = json.loads(req["payload"])
-        if self.secret:
-            is_valid_request = await self.validate_request(request, self.secret)
-        else:
-            is_valid_request = True
+        is_valid_request = await self.validate_request(request, self.secret)
 
         if is_valid_request:
             try:
@@ -267,8 +264,8 @@ class ConnectorGitHub(Connector):
             return True
         _LOGGER.debug(_("Responding via GitHub."))
         repo, issue = message.target.split("#")
-        url = "{}/repos/{}/issues/{}/comments".format(self.github_api_url, repo, issue)
-        headers = {"Authorization": " token {}".format(self.github_token)}
+        url = f"{self.github_api_url}/repos/{repo}/issues/{issue}/comments"
+        headers = {"Authorization": f" token {self.github_token}"}
         async with aiohttp.ClientSession(trust_env=True) as session:
             resp = await session.post(url, json={"body": message.text}, headers=headers)
             if resp.status == 201:
