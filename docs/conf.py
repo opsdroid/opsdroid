@@ -74,7 +74,7 @@ html_theme_options = {
 
 # -- Recommonmark ------------------------------------------------------------
 
-github_doc_root = "https://github.com/rtfd/recommonmark/tree/master/doc/"
+github_doc_root = "https://github.com/readthedocs/recommonmark/tree/master/docs"
 
 
 def setup(app):
