@@ -1,0 +1,65 @@
+{
+	"token": "here-comes-some-token",
+	"team_id": "T01ND2P8N91",
+	"api_app_id": "A01NK2M4ABE",
+	"event": {
+		"type": "pin_added",
+		"user": "U01NK1K9L68",
+		"channel_id": "C01N9PM1D53",
+		"item": {
+			"type": "message",
+			"created": 1613563798,
+			"created_by": "U01NK1K9L68",
+			"channel": "C01N9PM1D53",
+			"message": {
+				"client_msg_id": "7284d32a-1e3a-4c2c-bab8-a51785639736",
+				"type": "message",
+				"text": "hello this is a test message",
+				"user": "U01NK1K9L68",
+				"ts": "1613563664.001200",
+				"team": "T01ND2P8N91",
+				"blocks": [
+					{
+						"type": "rich_text",
+						"block_id": "cQ5A",
+						"elements": [
+							{
+								"type": "rich_text_section",
+								"elements": [
+									{
+										"type": "text",
+										"text": "hello this is a test message"
+									}
+								]
+							}
+						]
+					}
+				],
+				"pinned_to": ["C01N9PM1D53"],
+				"permalink": "https://opsdroidtests.slack.com/archives/C01N9PM1D53/p1613563664001200"
+			}
+		},
+		"item_user": "U01NK1K9L68",
+		"pin_count": 1,
+		"pinned_info": {
+			"channel": "C01N9PM1D53",
+			"pinned_by": "U01NK1K9L68",
+			"pinned_ts": 1613563798
+		},
+		"event_ts": "1613563798.001400"
+	},
+	"type": "event_callback",
+	"event_id": "Ev01MYD0204F",
+	"event_time": 1613563798,
+	"authorizations": [
+		{
+			"enterprise_id": null,
+			"team_id": "T01ND2P8N91",
+			"user_id": "U01N9R657HB",
+			"is_bot": true,
+			"is_enterprise_install": false
+		}
+	],
+	"is_ext_shared_channel": false,
+	"event_context": "1-pin_added-T01ND2P8N91-C01N9PM1D53"
+}

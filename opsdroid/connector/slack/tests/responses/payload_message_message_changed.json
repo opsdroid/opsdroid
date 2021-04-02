@@ -1,0 +1,84 @@
+{
+	"token": "here-comes-some-token",
+	"team_id": "T01ND2P8N91",
+	"api_app_id": "A01NK2M4ABE",
+	"event": {
+		"type": "message",
+		"subtype": "message_changed",
+		"hidden": true,
+		"message": {
+			"client_msg_id": "c1e1b23a-bc1d-4c23-a7d1-11886570df77",
+			"type": "message",
+			"text": "this is an edited message",
+			"user": "U01NK1K9L68",
+			"team": "T01ND2P8N91",
+			"edited": {
+				"user": "U01NK1K9L68",
+				"ts": "1613632704.000000"
+			},
+			"blocks": [
+				{
+					"type": "rich_text",
+					"block_id": "jXe4",
+					"elements": [
+						{
+							"type": "rich_text_section",
+							"elements": [
+								{
+									"type": "text",
+									"text": "this is an edited message"
+								}
+							]
+						}
+					]
+				}
+			],
+			"ts": "1613632675.006300",
+			"source_team": "T01ND2P8N91",
+			"user_team": "T01ND2P8N91"
+		},
+		"channel": "C01N9PM1D53",
+		"previous_message": {
+			"client_msg_id": "c1e1b23a-bc1d-4c23-a7d1-11886570df77",
+			"type": "message",
+			"text": "hello this is  a test",
+			"user": "U01NK1K9L68",
+			"ts": "1613632675.006300",
+			"team": "T01ND2P8N91",
+			"blocks": [
+				{
+					"type": "rich_text",
+					"block_id": "zv4",
+					"elements": [
+						{
+							"type": "rich_text_section",
+							"elements": [
+								{
+									"type": "text",
+									"text": "hello this is  a test"
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		"event_ts": "1613632704.006400",
+		"ts": "1613632704.006400",
+		"channel_type": "channel"
+	},
+	"type": "event_callback",
+	"event_id": "Ev01NE8M3HE1",
+	"event_time": 1613632704,
+	"authorizations": [
+		{
+			"enterprise_id": null,
+			"team_id": "T01ND2P8N91",
+			"user_id": "U01N9R657HB",
+			"is_bot": true,
+			"is_enterprise_install": false
+		}
+	],
+	"is_ext_shared_channel": false,
+	"event_context": "1-message-T01ND2P8N91-C01N9PM1D53"
+}
