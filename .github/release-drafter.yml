@@ -1,9 +1,45 @@
 name-template: 'v$NEXT_MINOR_VERSION'
 tag-template: 'v$NEXT_MINOR_VERSION'
 categories:
+  - title: 'Breaking Changes'
+    labels:
+      - 'breaking'
   - title: 'Enhancements'
     labels:
       - 'enhancement'
+  - title: 'Facebook Connector Changes'
+    labels:
+      - 'connector/facebook'
+  - title: 'GitHub Connector Changes'
+    labels:
+      - 'connector/github'
+  - title: 'Gitter Connector Changes'
+    labels:
+      - 'connector/gitter'
+  - title: 'Matrix Connector Changes'
+    labels:
+      - 'connector/matrix'
+  - title: 'Rocketchat Connector Changes'
+    labels:
+      - 'connector/rocketchat'
+  - title: 'Slack Connector Changes'
+    labels:
+      - 'connector/slack'
+  - title: 'Telegram Connector Changes'
+    labels:
+      - 'connector/telegram'
+  - title: 'Twitch Connector Changes'
+    labels:
+      - 'connector/twitch'
+  - title: 'Webex Teams Connector Changes'
+    labels:
+      - 'connector/webexteams'
+  - title: 'Websocket Connector Changes'
+    labels:
+      - 'connector/websocket'
+  - title: 'Database Changes'
+    labels:
+      - 'database'
   - title: 'Bug Fixes'
     labels:
       - 'bug'
@@ -12,6 +48,9 @@ categories:
       - 'documentation'
 exclude-labels:
   - 'dependencies'
+  - 'installation/packaging'
+  - 'tests'
+  - 'infrastructure'
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 template: |
   ## Changes

@@ -47,51 +47,48 @@ welcome-message: true
 ## Parsers
 # parsers:
 #
-#  ## Rasanlu (http://opsdroid.readthedocs.io/en/stable/matchers/rasanlu)
+#  ## Rasanlu (http://docs.opsdroid.dev/en/stable/skills/matchers/rasanlu.html)
 #  rasanlu:
 #    url: http://localhost:5000
 #    project: opsdroid
 #    token: 85769fjoso084jd
 #    min-score: 0.8
 #
-#  ## Dialogflow (http://opsdroid.readthedocs.io/en/stable/matchers/dialogflow)
-
+#  ## Dialogflow (http://docs.opsdroid.dev/en/stable/skills/matchers/dialogflow.html)
 #  dialogflow:
 #    project-id: <project id>
 #    min-score: 0.6
 #
-#  ## Regex (http://opsdroid.readthedocs.io/en/stable/matchers/regex)
+#  ## Regex (http://docs.opsdroid.dev/en/stable/skills/matchers/regex.html)
 #  regex:
 #    enabled: true
 #
-#  ## Parse_format (http://opsdroid.readthedocs.io/en/stable/matchers/parse_format)
+#  ## Parse_format (http://docs.opsdroid.dev/en/stable/skills/matchers/parse_format.html)
 #  parse_format:
 #    enabled: true
 #
-#  ## Wit.ai (http://opsdroid.readthedocs.io/en/stable/matchers/wit.ai)
-
+#  ## Wit.ai (http://docs.opsdroid.dev/en/stable/skills/matchers/wit.ai.html)
 #  witai:
 #    token: XJF475SKGITJ98KHFO
 #    min-score: 0.6
 #
-#  ## Luis.ai (http://opsdroid.readthedocs.io/en/stable/matchers/luis.ai)
+#  ## Luis.ai (http://docs.opsdroid.dev/en/stable/skills/matchers/luis.ai.html)
 #   luisai:
 #     appid: "<application-id>"
 #     appkey: "<subscription-key>"
 #     verbose: True
 #     min-score: 0.6
 #
-#  ## Crontab (http://opsdroid.readthedocs.io/en/stable/matchers/crontab)
+#  ## Crontab (http://docs.opsdroid.dev/en/stable/skills/matchers/crontab.html)
 #  crontab:
 #    enabled: true
 #
-#  ## Sapcai (http://opsdroid.readthedocs.io/en/stable/matchers/sapcai)
+#  ## Sapcai (http://docs.opsdroid.dev/en/stable/skills/matchers/sapcai.html)
 #  sapcai:
 #    token: 85769fjoso084jd
 #    min-score: 0.8
 #
-#  ## Watson (http://opsdroid.readthedocs.io/en/stable/matchers/watson)
-#
+#  ## Watson (http://docs.opsdroid.dev/en/stable/skills/matchers/watson.html)
 #  watson:
 #    gateway: gateway-fra # Required
 #    assistant-id: '74yhfhis9-kfirj1e-jfir34-kfdir345' # Required
@@ -129,8 +126,9 @@ connectors:
 #   client-secret: "kdksd0458j93847j"
 #   channel: theflyingdev # Broadcaster channel
 #   redirect: http://localhost # Url to be passed to get oath token - defaults to localhost
-#   foward-url: 'http://94jfsd9ff.ngrok.io' # Either an URL provided by a forwarding service or an exposed ip address
+#   forward-url: 'http://94jfsd9ff.ngrok.io' # Either an URL provided by a forwarding service or an exposed ip address
 #   # optional
+#   webhook-lease-seconds: 86400 # how long for webhooks to expire
 #   always-listening: false # Turn on to connect to the chat server even if stream is offline.
 #
 #  ## Webexteams (core)
@@ -156,7 +154,7 @@ connectors:
 #    # One of these should be named 'main'
 #    rooms:
 #      'main': '#matrix:matrix.org'
-#      'other': '#riot:matrix.org'
+#      'other': '#element-web:matrix.org'
 #    # Optional
 #    homeserver: "https://matrix.org"
 #    nick: "Botty McBotface"  # The nick will be set on startup

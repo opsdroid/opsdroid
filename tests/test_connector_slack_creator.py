@@ -1,7 +1,7 @@
 import asyncio
 import asynctest
 import asynctest.mock as amock
-import slack
+from slack_sdk.rtm import RTMClient
 import collections
 
 from opsdroid.core import OpsDroid
@@ -22,7 +22,7 @@ class TestEventCreatorAsync(asynctest.TestCase):
         )
 
     def tearDown(self):
-        slack.RTMClient._callbacks = collections.defaultdict(list)
+        RTMClient._callbacks = collections.defaultdict(list)
         del self.connector
         del self.event_creator
         self.od.__exit__(None, None, None)

@@ -43,12 +43,13 @@ connectors:
     # One of these have to be named 'main'
     rooms:
       'main': '#matrix:matrix.org'
-      'other': '#riot:matrix.org'
+      'other': '#element-web:matrix.org'
     # Optional
     homeserver: "https://matrix.org"
     nick: "Botty McBotface"  # The nick will be set on startup
     room_specific_nicks: False  # Look up room specific nicknames of senders (expensive in large rooms)
     device_name: "opsdroid"
+    enable_encryption: False
     device_id: "opsdroid" # A unique string to use as an ID for a persistent opsdroid device
     store_path: "path/to/store/" # Path to the directory where the matrix store will be saved
 ```
@@ -56,7 +57,8 @@ connectors:
 
 ## End to End Encryption
 
-The connector supports interacting with end to end encrypted rooms for which it will create a sqlite database to store the encryption keys into, where this database is kept can be configured with ``store_path``.
 To be able to use E2EE you need to have the 'olm' library installed, this is currently not available through pip, you can find it [here](https://gitlab.matrix.org/matrix-org/olm/), in most linux distributions or by using the opsdroid docker images.
 Once olm is installed you need to install opsdroid with the ``connector_matrix_e2e`` extra (by running ``pip install opsdroid[connector_matrix_e2e]``, this is not done by default as it required you to have already installed the olm library.
+You also need to set the `enable_encryption: True` configuration option to enable encryption.
+The connector supports interacting with end to end encrypted rooms for which it will create a sqlite database to store the encryption keys into, where this database is kept can be configured with ``store_path``.
 Currently there is no device verification implemented which means messages will be sent regardless of whether encrypted rooms have users with unverified devices.
