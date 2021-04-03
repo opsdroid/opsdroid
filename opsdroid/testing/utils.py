@@ -100,6 +100,7 @@ async def call_endpoint(
     data_path: str = None,
     data: Dict = None,
     headers: Dict = None,
+    **kwargs: Any,
 ) -> web.Response:
     """Call an opsdroid API endpoint with the provided data.
 
@@ -166,7 +167,7 @@ async def call_endpoint(
             if data_path is None and data is None:
                 raise RuntimeError("Either data or data_path must be set")
             async with session.post(
-                f"{base_url}{endpoint}", data=data, headers=headers
+                f"{base_url}{endpoint}", data=data, headers=headers, **kwargs
             ) as resp:
                 return resp
         else:
