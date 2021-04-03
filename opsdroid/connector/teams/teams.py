@@ -1,6 +1,7 @@
 """A connector for Slack."""
 
 import logging
+import json
 from urllib.parse import unquote
 
 from aiohttp.web import Request, Response
@@ -56,6 +57,7 @@ class TeamsConnector(Connector):
         """Handle incoming webhooks from Teams."""
         if "application/json" in req.headers["Content-Type"]:
             body = await req.json()
+            _LOGGER.debug(json.dumps(body))
         else:
             return Response(status=415)
 

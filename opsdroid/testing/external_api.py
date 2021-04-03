@@ -74,6 +74,13 @@ class ExternalAPIMockServer:
     def _initialize_web_app(self) -> None:
         self.app = web.Application()
         self.runner = web.AppRunner(self.app)
+        self.app.add_routes(
+            [
+                web.get("/{tail:.*}", self._catch_all_handler),
+                web.post("/{tail:.*}", self._catch_all_handler),
+                web.put("/{tail:.*}", self._catch_all_handler),
+            ]
+        )
 
     async def start(self) -> None:
         """Start the server."""
@@ -106,6 +113,10 @@ class ExternalAPIMockServer:
 
         status, response = self.responses[(route, method)].pop(0)
         return web.json_response(response, status=status)
+
+    async def _catch_all_handler(self, request: web.Request) -> web.Response:
+        """Handler to raise if unknown route is requested."""
+        raise RuntimeError(f"Unknown route {request.method} {request.path}")
 
     @property
     def base_url(self) -> str:
