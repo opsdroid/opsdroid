@@ -36,9 +36,6 @@ async def test_connect(connector, mock_api):
     assert connector.service_endpoints == {}
 
 
-# @pytest.mark.add_response(
-#     "/user", "GET", get_response_path("github_user.json"), status=200
-# )
 @pytest.mark.asyncio
 @vcr.use_cassette(
     "opsdroid/connector/teams/tests/test_ping_pong.yaml",
@@ -59,7 +56,6 @@ async def test_ping_pong(opsdroid, connector, mock_api, mock_api_obj):
     async with running_opsdroid(opsdroid):
         with open(get_response_path("teams_ping_payload.json"), "r") as fh:
             data = fh.read()
-            # data.replace("<mock_api_obj>", mock_api_obj.base_url)
 
             resp = await call_endpoint(
                 opsdroid,
