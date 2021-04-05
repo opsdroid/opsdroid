@@ -1,4 +1,5 @@
 """Tests for the GitHub class."""
+import logging
 from pathlib import Path
 
 import asynctest.mock as amock
@@ -238,7 +239,7 @@ async def test_close_pr(opsdroid, connector, mock_api):
 async def test_pr_merged(opsdroid, connector, mock_api):
     """Test a PR merge event creates an event and parses it."""
 
-    @match_event(github_event.PROpened)
+    @match_event(github_event.PRMerged)
     async def test_skill(opsdroid, config, event):
         assert event.connector.name == "github"
         assert event.target == "opsdroid/opsdroid-audio#175"
@@ -263,13 +264,120 @@ async def test_pr_merged(opsdroid, connector, mock_api):
     "/user", "GET", get_response_path("github_user.json"), status=200
 )
 @pytest.mark.asyncio
+async def test_check_started(opsdroid, connector, mock_api):
+    """Test a check started event creates an event and parses it."""
+
+    @match_event(github_event.CheckStarted)
+    async def test_skill(opsdroid, config, event):
+        assert event.action == "created"
+        assert event.status == "queued"
+        assert not event.conclusion
+        assert event.repository == "Hello-World"
+        assert event.sender == "Codertocat"
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/github",
+            "POST",
+            data=get_webhook_payload("github_check_created_payload.json"),
+        )
+        assert resp.status == 201
+
+
+@pytest.mark.add_response(
+    "/user", "GET", get_response_path("github_user.json"), status=200
+)
+@pytest.mark.asyncio
+async def test_check_failed(opsdroid, connector, mock_api):
+    """Test a check failed event creates an event and parses it."""
+
+    @match_event(github_event.CheckFailed)
+    async def test_skill(opsdroid, config, event):
+        assert event.action == "completed"
+        assert event.status == "completed"
+        assert event.conclusion == "failure"
+        assert event.repository == "Hello-World"
+        assert event.sender == "Codertocat"
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/github",
+            "POST",
+            data=get_webhook_payload("github_check_failed_payload.json"),
+        )
+        assert resp.status == 201
+
+
+@pytest.mark.add_response(
+    "/user", "GET", get_response_path("github_user.json"), status=200
+)
+@pytest.mark.asyncio
+async def test_check_passed(opsdroid, connector, mock_api):
+    """Test a check passed event creates an event and parses it."""
+
+    @match_event(github_event.CheckPassed)
+    async def test_skill(opsdroid, config, event):
+        assert event.action == "completed"
+        assert event.status == "completed"
+        assert event.conclusion == "success"
+        assert event.repository == "Hello-World"
+        assert event.sender == "Codertocat"
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/github",
+            "POST",
+            data=get_webhook_payload("github_check_passed_payload.json"),
+        )
+        assert resp.status == 201
+
+
+@pytest.mark.add_response(
+    "/user", "GET", get_response_path("github_user.json"), status=200
+)
+@pytest.mark.asyncio
+async def test_check_completed(opsdroid, connector, mock_api):
+    """Test a check completed event creates an event and parses it."""
+
+    @match_event(github_event.CheckCompleted)
+    async def test_skill(opsdroid, config, event):
+        assert event.action == "completed"
+        assert event.status == "completed"
+        assert event.conclusion == "timed_out"
+        assert event.repository == "Hello-World"
+        assert event.sender == "Codertocat"
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/github",
+            "POST",
+            data=get_webhook_payload("github_check_completed_payload.json"),
+        )
+        assert resp.status == 201
+
+
+@pytest.mark.add_response(
+    "/user", "GET", get_response_path("github_user.json"), status=200
+)
+@pytest.mark.asyncio
 async def test_receive_issue(opsdroid, connector, mock_api):
     """Test a issue create event creates a message and parses it."""
 
     @match_event(github_event.IssueCreated)
     async def test_skill(opsdroid, config, event):
-        assert event.connector.name == "github"
-        assert event.target == "opsdroid/opsdroid#740"
+        assert event.user == "jacobtomlinson"
         assert event.title == "A test please ignore"
         assert event.description == "test"
 
@@ -298,6 +406,7 @@ async def test_received_issue_close(opsdroid, connector, mock_api):
         assert event.target == "FabioRosado/github-actions-test#10"
         assert event.title == "Test integration"
         assert event.description == "this is a test for the integration"
+        assert event.user == "FabioRosado"
 
     opsdroid.register_skill(test_skill, config={"name": "test"})
 
@@ -316,9 +425,13 @@ async def test_received_issue_close(opsdroid, connector, mock_api):
 )
 @pytest.mark.asyncio
 async def test_receive_label(opsdroid, connector, mock_api):
-    """Test a PR create event creates a message and parses it."""
+    """Test a receive label event creates a message and parses it."""
 
-    test_skill = match_event(github_event.Labeled)(CoroutineMock())
+    @match_event(github_event.Unlabeled)
+    async def test_skill(opsdroid, config, event):
+        assert event.labels == "bug"
+        assert event.state == "open"
+
     opsdroid.register_skill(test_skill, config={"name": "test"})
 
     async with running_opsdroid(opsdroid):
@@ -330,7 +443,29 @@ async def test_receive_label(opsdroid, connector, mock_api):
         )
         assert resp.status == 201
 
-    assert not test_skill.called
+
+@pytest.mark.add_response(
+    "/user", "GET", get_response_path("github_user.json"), status=200
+)
+@pytest.mark.asyncio
+async def test_receive_unlabel_event(opsdroid, connector, mock_api):
+    """Test a unlabel event creates a message and parses it."""
+
+    @match_event(github_event.Unlabeled)
+    async def test_skill(opsdroid, config, event):
+        assert event.labels == "bug"
+        assert event.state == "open"
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/github",
+            "POST",
+            data=get_webhook_payload("github_unlabel_payload.json"),
+        )
+        assert resp.status == 201
 
 
 @pytest.mark.add_response(
@@ -370,3 +505,98 @@ async def test_validate_request(opsdroid):
     validation = await connector.validate_request(request, "test")
 
     assert validation
+
+
+@pytest.mark.add_response(
+    "/user", "GET", get_response_path("github_user.json"), status=200
+)
+@pytest.mark.asyncio
+async def test_no_key_in_payload(opsdroid, connector, mock_api, caplog):
+    """Test if payload doesn't contain 'action' key."""
+
+    @match_event(github_event.PROpened)
+    async def test_skill(opsdroid, config, event):
+        assert event.connector.name == "github"
+        assert event.target == "opsdroid/opsdroid-audio#175"
+        assert event.title == "Update pytest-timeout to 1.3.3"
+        assert event.description == "hello world"
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        caplog.set_level(logging.DEBUG)
+        await call_endpoint(
+            opsdroid,
+            "/connector/github",
+            "POST",
+            data=get_webhook_payload("github_user_forked_payload.json"),
+        )
+        assert "Key 'action' not found in payload" in caplog.text
+
+
+@pytest.mark.add_response(
+    "/user", "GET", get_response_path("github_user.json"), status=200
+)
+@pytest.mark.asyncio
+async def test_no_event_to_parse(opsdroid, connector, mock_api, caplog):
+    """Test a payload that github doesn't know how to parse."""
+
+    @match_event(github_event.PROpened)
+    async def test_skill(opsdroid, config, event):
+        assert event.connector.name == "github"
+        assert event.target == "opsdroid/opsdroid-audio#175"
+        assert event.title == "Update pytest-timeout to 1.3.3"
+        assert event.description == "hello world"
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        caplog.set_level(logging.DEBUG)
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/github",
+            "POST",
+            data=get_webhook_payload("github_deployment_payload.json"),
+        )
+        assert "No message to respond to." in caplog.text
+        assert resp.status == 200
+
+
+@pytest.fixture
+async def connector_with_validation(opsdroid, mock_api_obj):
+    opsdroid.config["connectors"] = {
+        "github": {
+            "token": "abc123",
+            "api_base_url": mock_api_obj.base_url,
+            "secret": "test",
+        }
+    }
+    await opsdroid.load()
+    return opsdroid.get_connector("github")
+
+
+@pytest.mark.add_response(
+    "/user", "GET", get_response_path("github_user.json"), status=200
+)
+@pytest.mark.asyncio
+async def test_invalid_request(opsdroid, connector_with_validation, mock_api, caplog):
+    """Test a payload with an invalid request."""
+
+    @match_event(github_event.PROpened)
+    async def test_skill(opsdroid, config, event):
+        assert event.connector.name == "github"
+        assert event.target == "opsdroid/opsdroid-audio#175"
+        assert event.title == "Update pytest-timeout to 1.3.3"
+        assert event.description == "hello world"
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        caplog.set_level(logging.DEBUG)
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/github",
+            "POST",
+            data=get_webhook_payload("github_deployment_payload.json"),
+        )
+        assert resp.status == 401

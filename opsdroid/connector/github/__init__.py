@@ -144,7 +144,7 @@ class ConnectorGitHub(Connector):
         self, payload: dict, repo: str, user: str
     ) -> github_events:
         """Handle issue events."""
-        if payload["opened"]:
+        if payload["action"] == "opened":
             event = github_events.IssueCreated(
                 title=payload["issue"]["title"],
                 description=payload["issue"]["body"],
@@ -153,7 +153,7 @@ class ConnectorGitHub(Connector):
                 connector=self,
                 raw_event=payload,
             )
-        if payload["closed"]:
+        if payload["action"] == "closed":
             event = github_events.IssueClosed(
                 title=payload["issue"]["title"],
                 user=user,
@@ -162,7 +162,7 @@ class ConnectorGitHub(Connector):
                 connector=self,
                 raw_event=payload,
             )
-        if payload["comment"]:
+        if "comment" in payload:
             event = github_events.IssueCommented(
                 comment=payload["comment"]["body"],
                 user=payload["comment"]["user"]["login"],
@@ -187,12 +187,12 @@ class ConnectorGitHub(Connector):
                 connector=self,
                 raw_event=payload,
             )
-        if payload["action"] == "closed" and payload["merged"]:
+        if payload["action"] == "closed" and payload["pull_request"]["merged"]:
             event = github_events.PRMerged(
                 title=payload["pull_request"]["title"],
                 description=payload["pull_request"]["body"],
                 user=payload["pull_request"]["user"]["login"],
-                merger=payload["pull_request"]["merged_by"]["login"],
+                merger=payload["pull_request"]["merged_by"],
                 target=f"{repo}{payload['pull_request']['number']}",
                 connector=self,
                 raw_event=payload,
@@ -218,19 +218,18 @@ class ConnectorGitHub(Connector):
             try:
                 repo = f"{payload['repository']['owner']['login']}/{payload['repository']['name']}#"
                 user = payload["sender"]["login"]
-                if payload["action"] == "created" and "comment" in payload:
-                    event = github_events.IssueCommented(
-                        comment=payload["comment"]["body"],
+                if payload["action"] == "labeled":
+                    event = github_events.Labeled(
+                        labels=payload["issue"]["labels"],
+                        state=payload["issue"]["state"],
                         user=user,
-                        issue_title=payload["issue"]["tittle"],
-                        comment_url=payload["comment"]["body"],
                         target=f"{repo}{payload['issue']['number']}",
                         connector=self,
                         raw_event=payload,
                     )
-                elif payload["action"] == "labeled":
-                    event = github_events.Labeled(
-                        labels=payload["issue"]["labels"],
+                elif payload["action"] == "unlabeled":
+                    event = github_events.Unlabeled(
+                        labels=payload["label"]["name"],
                         state=payload["issue"]["state"],
                         user=user,
                         target=f"{repo}{payload['issue']['number']}",
@@ -244,8 +243,9 @@ class ConnectorGitHub(Connector):
                 elif payload.get("check_run"):
                     event = await self.handle_check_event(payload, user)
                 else:
-                    _LOGGER.debug(_("No message to respond to."))
-                    _LOGGER.debug(payload)
+                    _LOGGER.debug(
+                        _("No message to respond to. Got payload: \n %s"), payload
+                    )
                     return aiohttp.web.Response(
                         text=json.dumps("No message to respond to."), status=200
                     )
