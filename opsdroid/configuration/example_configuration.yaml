@@ -179,6 +179,7 @@ connectors:
 #  github:
 #    # required
 #    token: aaabbbcccdddeee111222333444
+#    secret: <your secret>
 #
 #  ## Gitter (core)
 #  gitter:
