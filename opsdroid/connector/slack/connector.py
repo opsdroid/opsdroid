@@ -7,17 +7,18 @@ import ssl
 
 import aiohttp
 import certifi
-import opsdroid.events
 from emoji import demojize
-from opsdroid.connector import Connector, register_event
-from opsdroid.connector.slack.create_events import SlackEventCreator
-from opsdroid.connector.slack.events import Blocks, EditedBlocks
 from slack_sdk.errors import SlackApiError
 from slack_sdk.socket_mode.aiohttp import SocketModeClient
 from slack_sdk.socket_mode.request import SocketModeRequest
 from slack_sdk.socket_mode.response import SocketModeResponse
 from slack_sdk.web.async_client import AsyncWebClient
 from voluptuous import Required
+
+import opsdroid.events
+from opsdroid.connector import Connector, register_event
+from opsdroid.connector.slack.create_events import SlackEventCreator
+from opsdroid.connector.slack.events import Blocks, EditedBlocks
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -35,6 +36,7 @@ CONFIG_SCHEMA = {
     "default-room": str,
     "icon-emoji": str,
     "start_thread": bool,
+    "channel-limit": int
 }
 
 
@@ -53,6 +55,7 @@ class ConnectorSlack(Connector):
         self.start_thread = config.get("start_thread", False)
         self.socket_mode = config.get("socket-mode", True)
         self.app_token = config.get("app-token")
+        self.channel_limit = config.get("channel_limit", 100)
         self.ssl_context = ssl.create_default_context(cafile=certifi.where())
         self.slack_web_client = AsyncWebClient(
             token=self.bot_token,
@@ -61,6 +64,7 @@ class ConnectorSlack(Connector):
         )
         self.socket_mode_client = (
             SocketModeClient(self.app_token, web_client=self.slack_web_client)
+
             if self.app_token
             else None
         )
@@ -68,6 +72,7 @@ class ConnectorSlack(Connector):
         self.user_info = None
         self.bot_id = None
         self.known_users = {}
+        self.known_channels = {}
 
         self._event_creator = SlackEventCreator(self)
 
@@ -85,6 +90,7 @@ class ConnectorSlack(Connector):
                 )
             ).data
             self.bot_id = self.user_info["user"]["profile"]["bot_id"]
+            await self.get_channels()
         except SlackApiError as error:
             _LOGGER.error(
                 _(
@@ -190,6 +196,35 @@ class ConnectorSlack(Connector):
                 await self.event_handler(payload)
 
         return aiohttp.web.Response(text=json.dumps("Received"), status=200)
+
+    async def get_channels(self):
+        """Grab all the channels from the Slack API"""
+        channels = await self.slack_web_client.conversations_list(limit=100)
+        cursor = channels["response_metadata"].get("next_cursor")
+        _LOGGER.info(
+            "Grabbing channels from Slack API. This might take some time"
+        )
+
+        while True:
+            self.known_channels.update({c["name"]: name for c in channels["channels"]})
+
+            if cursor:
+                channels = await self.slack_web_client.conversations_list(
+                    cursor=cursor, limit=self.channel_limit
+                )
+                cursor = channels["response_metadata"].get("next_cursor")
+            else:
+                break
+        channel_count = len(self.known_channels.keys())
+        _LOGGER.info("Grabbed a total of %s channels from Slack", channel_count)
+
+    async def find_channel(self, channel_name):
+        """Given a channel name return the channel properties"""
+
+        if channel_name in self.known_channels:
+            return self.known_channels[channel_name]
+        else:
+            _LOGGER.debug(_("Channel with name %s not found", channel_name))
 
     async def lookup_username(self, userid):
         """Lookup a username and cache it."""
