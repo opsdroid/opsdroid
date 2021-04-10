@@ -33,11 +33,14 @@ connectors:
     icon-emoji: ":smile:" # default ":robot_face:" **
     default-room: "#random" # default "#general"
     start_thread: false # default false. if true, opsdroid will start a thread when replying to a message
+    channel_limit: 100 # default 100. ***
 ```
 
-\* when `socket-mode` is true, you need to set also an `app-token` (more info: [app level tokens](https://api.slack.com/authentication/token-types#app)
+\* when `socket-mode` is true, you need to set also an `app-token` (more info: [app level tokens](https://api.slack.com/authentication/token-types#app))
+
 ** In order for `bot-name` and/or `icon-emoji` to work, the `chat:write.customize` scope will have to be selected
 
+\*** [Maximum channels](https://api.slack.com/methods/conversations.list#arg_limit) to return on a single iteration.
 ### Choose the Backend API
 
 You need to choose between two backends. The [Events API](https://api.slack.com/apis/connections/events-api) or [Socket Mode](https://api.slack.com/apis/connections/socket).
