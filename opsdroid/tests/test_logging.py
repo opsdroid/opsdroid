@@ -1,12 +1,13 @@
 """Test the logging module."""
-import pytest
 import logging
 import os
-import tempfile
 import re
+import tempfile
 
 import opsdroid.logging as opsdroid
+import pytest
 from opsdroid.cli.start import configure_lang
+from rich.logging import RichHandler
 
 configure_lang({})
 
@@ -38,9 +39,8 @@ def test_configure_file_logging():
     rootlogger = logging.getLogger()
     assert len(rootlogger.handlers), 2
     assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
-    assert rootlogger.handlers[0].level, logging.CRITICAL
-    assert isinstance(rootlogger.handlers[1], logging.handlers.RotatingFileHandler)
-    assert rootlogger.handlers[1].level == logging.INFO
+    assert isinstance(rootlogger.handlers[0], logging.handlers.RotatingFileHandler)
+    assert rootlogger.handlers[0].level == logging.INFO
 
 
 def test_configure_file_blacklist(capsys):
@@ -54,10 +54,10 @@ def test_configure_file_blacklist(capsys):
         }
     opsdroid.configure_logging(config)
     rootlogger = logging.getLogger()
-    assert len(rootlogger.handlers) == 2
+    assert len(rootlogger.handlers) == 1
     assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
     assert rootlogger.handlers[0].level == logging.CRITICAL
-    assert isinstance(rootlogger.handlers[1], logging.handlers.RotatingFileHandler)
+    assert isinstance(rootlogger.handlers[0], logging.handlers.RotatingFileHandler)
 
     captured = capsys.readouterr()
     assert captured.out == ""
@@ -174,7 +174,7 @@ def test_configure_default_logging(capsys):
     opsdroid.configure_logging(config)
     rootlogger = logging.getLogger()
     assert len(rootlogger.handlers), 2
-    assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
+    assert isinstance(rootlogger.handlers[0], RichHandler)
     assert rootlogger.handlers[0].level == logging.INFO
     assert isinstance(rootlogger.handlers[1], logging.handlers.RotatingFileHandler)
     assert rootlogger.handlers[1].level == logging.INFO

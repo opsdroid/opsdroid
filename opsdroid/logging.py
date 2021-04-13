@@ -104,7 +104,6 @@ def configure_logging(config):
         logfile_path = DEFAULT_LOG_FILENAME
 
     log_level = get_logging_level(config.get("level", "critical"))
-    breakpoint()
     rootlogger.setLevel(log_level)
 
     formatter_str = set_formatter_string(config)
