@@ -1,10 +1,11 @@
 """Class for Filter logs and logging logic."""
 
-import os
 import logging
-import contextlib
-
+import os
 from logging.handlers import RotatingFileHandler
+
+from rich.logging import RichHandler
+
 from opsdroid.const import DEFAULT_LOG_FILENAME, __version__
 
 _LOGGER = logging.getLogger(__name__)
@@ -16,7 +17,7 @@ class ParsingFilter(logging.Filter):
     def __init__(self, config, *parse_list):
         """Create object to implement filtering."""
         super(ParsingFilter, self).__init__()
-        self.config = config["logging"]
+        self.config = config
         try:
             if (
                 self.config["filter"]["whitelist"]
@@ -60,71 +61,76 @@ class ParsingFilter(logging.Filter):
         return not any(name.filter(record) for name in self.parse_list)
 
 
+def set_formatter_string(config: dict):
+    """Set the formatter string dependending on the config.
+
+    Currently our logs allow you to pass different configuration parameters to
+    format the logs that are returned to us. This is a helper function to handle
+    these cases.
+
+    Args:
+        config: contains only the logging section of the configuration since we
+            don't care about anything else for logs.
+
+    """
+    formatter_str = "%(levelname)s %(name)s"
+
+    if config.get("formatter_str"):
+        return config["formatter_str"]
+
+    if config.get("extended"):
+        formatter_str += ".%(funcName)s():"
+
+    if config.get("timestamp"):
+        formatter_str = "%(asctime)s " + formatter_str
+
+    formatter_str += " %(message)s"
+
+    return formatter_str
+
+
 def configure_logging(config):
     """Configure the root logger based on user config."""
     rootlogger = logging.getLogger()
-    logging_config = config or {}
-
     while rootlogger.handlers:
         rootlogger.handlers.pop()
 
     try:
-        if config["logging"]["path"]:
-            logfile_path = os.path.expanduser(config["logging"]["path"])
+        if config["path"]:
+            logfile_path = os.path.expanduser(config["path"])
         else:
-            logfile_path = config["logging"]["path"]
+            logfile_path = config["path"]
     except KeyError:
         logfile_path = DEFAULT_LOG_FILENAME
 
-    try:
-        log_level = get_logging_level(config["logging"]["level"])
-    except KeyError:
-        log_level = logging.INFO
-
+    log_level = get_logging_level(config.get("level", "critical"))
+    breakpoint()
     rootlogger.setLevel(log_level)
 
-    formatter_str = "%(levelname)s %(name)s:"
-
-    with contextlib.suppress(KeyError):
-        if config["logging"]["timestamp"]:
-            formatter_str = "%(asctime)s " + formatter_str
-
-    with contextlib.suppress(KeyError):
-        if config["logging"]["extended"]:
-            formatter_str = formatter_str[:-1] + ".%(funcName)s():"
-
-    formatter_str += " %(message)s"
+    formatter_str = set_formatter_string(config)
     formatter = logging.Formatter(formatter_str)
 
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(log_level)
-    console_handler.setFormatter(formatter)
+    file_handler = RotatingFileHandler(
+        logfile_path, maxBytes=config.get("file-size", 50e6)
+    )
+    file_handler.setLevel(log_level)
+    file_handler.setFormatter(formatter)
 
-    with contextlib.suppress(KeyError):
-        console_handler.addFilter(ParsingFilter(config, config["logging"]["filter"]))
+    if not config or config.get("rich"):
+        handler = RichHandler()
+    elif config.get("console"):
+        handler = logging.StreamHandler()
+        handler.setFormatter(formatter)
+    else:
+        handler = file_handler
 
-    rootlogger.addHandler(console_handler)
+    if config.get("filter"):
+        handler.addFilter(ParsingFilter(config, config["filter"]))
 
-    with contextlib.suppress(KeyError):
-        if not config["logging"]["console"]:
-            console_handler.setLevel(logging.CRITICAL)
+    handler.setLevel(log_level)
+    rootlogger.addHandler(handler)
+    rootlogger.addHandler(file_handler)
 
-    if logfile_path:
-        logdir = os.path.dirname(os.path.realpath(logfile_path))
-        if not os.path.isdir(logdir):
-            os.makedirs(logdir)
-
-        file_handler = RotatingFileHandler(
-            logfile_path, maxBytes=logging_config.get("file-size", 50e6)
-        )
-
-        file_handler.setLevel(log_level)
-        file_handler.setFormatter(formatter)
-
-        with contextlib.suppress(KeyError):
-            file_handler.addFilter(ParsingFilter(config, config["logging"]["filter"]))
-
-        rootlogger.addHandler(file_handler)
     _LOGGER.info("=" * 40)
     _LOGGER.info(_("Started opsdroid %s."), __version__)
 
