@@ -588,3 +588,28 @@ async def test_invalid_request(opsdroid, connector_with_validation, mock_api, ca
             data=get_webhook_payload("github_deployment_payload.json"),
         )
         assert resp.status == 401
+
+@pytest.mark.add_response(
+    '/user', 'GET', get_response_path('github_user.json'), status=200)
+@pytest.mark.asyncio
+async def test_codescan_alert(opsdroid,connector_with_validation):
+
+
+    @match_event(github_event.CodeScanAlertOpened)
+    async def test_skill(opsdroid, config, event):
+            assert event.connector == "github"
+            assert event.repository == "Hello-World"
+            assert event.sender == "github"
+            assert event.action == "reopened"
+            assert event.alert == "Style/FrozenStringLiteralComment"
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/github",
+            "POST",
+            data=get_webhook_payload("github_codescan_alert_payload.json"),
+        )
+        assert resp.status == 201

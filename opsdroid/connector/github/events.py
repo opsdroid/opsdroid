@@ -266,3 +266,42 @@ class CheckFailed(events.Event):
         self.conclusion = conclusion
         self.repository = repository
         self.sender = sender
+
+
+class CodeScanAlertOpened(events.Event):
+    ''' Event is triggered when a codescan alert is created or reopened '''
+
+    def __init__(self, action, repository, sender, alert, *args, **kwargs):
+        ''' Event triggered when a codescan alert is created or reopened
+
+            * "action" - The action that was performed. This can be one of:
+                         created, reopened_by_user,  appeared_in_branch, or reopened.
+            * "repository" - The repository where the event occurred.
+            * "sender" -If the action is reopened_by_user, the sender object will be the user 
+                that triggered the event. Otherwise, is "github"
+            * "alert" - The code scanning alert involved in the event.'''
+
+        super().__init__(*args, **kwargs) 
+        self.action = action
+        self.repository = repository
+        self.sender = sender
+        self.alert = alert
+
+class CodeScanAlertClosed(events.Event):
+    ''' Event is triggered when a codescan alert is closed or fixed '''
+
+    def __init__(self, action, repository, sender, alert, *args, **kwargs):
+        ''' Event triggered when a codescan alert is closed or fixed
+
+            * "action" - The action that was performed. This can be one of:
+                         closed_by_user or fixed,
+            * "repository" - The repository where the event occurred.
+            * "sender" -If the action is closed_by_user, the sender object will be the user 
+                        that triggered the event. Otherwise, is "github"
+            * "alert" - The code scanning alert involved in the event.'''
+
+        super().__init__(*args, **kwargs) 
+        self.action = action
+        self.repository = repository
+        self.sender = sender
+        self.alert = alert

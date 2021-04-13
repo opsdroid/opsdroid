@@ -173,7 +173,29 @@ class ConnectorGitHub(Connector):
                 raw_event=payload,
             )
         return event
+    
+    async def handle_codescan_event(self, payload : dict) -> github_events:
+        ''' Handling codescan alerts '''
 
+        if payload['action'] in ['created', 'reopened', 'reopened_by_user', 
+                                'appeared_in_branch']:
+            event = github_events.CodeScanAlertOpened(
+                action= payload['action'],
+                repository=payload['repository']['name'],
+                sender = payload['sender']['login'],
+                alert = payload['alert']['rule']['id'] 
+            )
+        
+        else:
+            event = github_events.CodeScanAlertClosed(
+                action= payload['action'],
+                repository=payload['repository']['name'],
+                sender = payload['sender']['login'],
+                alert = payload['alert']['rule']['id'] 
+            )
+        
+        return event
+        
     async def handle_pr_event(
         self, payload: dict, repo: str, user: str
     ) -> github_events:
@@ -255,7 +277,7 @@ class ConnectorGitHub(Connector):
                 _LOGGER.debug(payload)
             return aiohttp.web.Response(text=json.dumps("Received"), status=201)
         return aiohttp.web.Response(status=401)
-
+    
     @register_event(Message)
     async def send_message(self, message):
         """Respond with a message."""
