@@ -22,9 +22,10 @@ def test_set_logging_level():
 
 
 def test_configure_no_logging():
-    config = {"logging": {"path": False, "console": False}}
+    config = {"path": False, "console": False}
     opsdroid.configure_logging(config)
     rootlogger = logging.getLogger()
+
     assert len(rootlogger.handlers) == 1
     assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
     assert rootlogger.handlers[0].level == logging.CRITICAL
@@ -32,9 +33,8 @@ def test_configure_no_logging():
 
 def test_configure_file_logging():
     with tempfile.TemporaryDirectory() as tmp_dir:
-        config = {
-            "logging": {"path": os.path.join(tmp_dir, "output.log"), "console": False}
-        }
+        config = {"path": os.path.join(tmp_dir, "output.log"), "console": False}
+
     opsdroid.configure_logging(config)
     rootlogger = logging.getLogger()
     assert len(rootlogger.handlers), 2
@@ -46,11 +46,9 @@ def test_configure_file_logging():
 def test_configure_file_blacklist(capsys):
     with tempfile.TemporaryDirectory() as tmp_dir:
         config = {
-            "logging": {
-                "path": os.path.join(tmp_dir, "output.log"),
-                "console": False,
-                "filter": {"blacklist": "opsdroid.logging"},
-            }
+            "path": os.path.join(tmp_dir, "output.log"),
+            "console": False,
+            "filter": {"blacklist": "opsdroid.logging"},
         }
     opsdroid.configure_logging(config)
     rootlogger = logging.getLogger()
@@ -71,16 +69,14 @@ def test_configure_file_logging_directory_not_exists(mocker):
     logmock.return_value = mocklogger
     with tempfile.TemporaryDirectory() as tmp_dir:
         config = {
-            "logging": {
-                "path": os.path.join(tmp_dir, "mynonexistingdirectory", "output.log"),
-                "console": False,
-            }
+            "path": os.path.join(tmp_dir, "mynonexistingdirectory", "output.log"),
+            "console": False,
         }
     opsdroid.configure_logging(config)
 
 
 def test_configure_console_logging():
-    config = {"logging": {"path": False, "level": "error", "console": True}}
+    config = {"path": False, "level": "error", "console": True}
     opsdroid.configure_logging(config)
     rootlogger = logging.getLogger()
     assert len(rootlogger.handlers) == 1
@@ -90,13 +86,12 @@ def test_configure_console_logging():
 
 def test_configure_console_blacklist(capsys):
     config = {
-        "logging": {
-            "path": False,
-            "level": "error",
-            "console": True,
-            "filter": {"blacklist": "opsdroid"},
-        }
+        "path": False,
+        "level": "error",
+        "console": True,
+        "filter": {"blacklist": "opsdroid"},
     }
+
     opsdroid.configure_logging(config)
     rootlogger = logging.getLogger()
     assert len(rootlogger.handlers) == 1
@@ -110,13 +105,12 @@ def test_configure_console_blacklist(capsys):
 
 def test_configure_console_whitelist():
     config = {
-        "logging": {
-            "path": False,
-            "level": "info",
-            "console": True,
-            "filter": {"whitelist": "opsdroid.logging"},
-        }
+        "path": False,
+        "level": "info",
+        "console": True,
+        "filter": {"whitelist": "opsdroid.logging"},
     }
+
     opsdroid.configure_logging(config)
     rootlogger = logging.getLogger()
     assert len(rootlogger.handlers) == 1
@@ -125,9 +119,8 @@ def test_configure_console_whitelist():
 
 
 def test_configure_logging_with_timestamp(capsys):
-    config = {
-        "logging": {"path": False, "level": "info", "console": True, "timestamp": True}
-    }
+    config = {"path": False, "level": "info", "console": True, "timestamp": True}
+
     opsdroid.configure_logging(config)
     rootlogger = logging.getLogger()
     captured = capsys.readouterr()
@@ -139,9 +132,8 @@ def test_configure_logging_with_timestamp(capsys):
 
 
 def test_configure_extended_logging():
-    config = {
-        "logging": {"path": False, "level": "error", "console": True, "extended": True}
-    }
+    config = {"path": False, "level": "error", "console": True, "extended": True}
+
     opsdroid.configure_logging(config)
     rootlogger = logging.getLogger()
     assert len(rootlogger.handlers) == 1
@@ -150,13 +142,11 @@ def test_configure_extended_logging():
 
 def test_configure_extended_logging_with_timestamp(capsys):
     config = {
-        "logging": {
-            "path": False,
-            "level": "info",
-            "console": True,
-            "extended": True,
-            "timestamp": True,
-        }
+        "path": False,
+        "level": "info",
+        "console": True,
+        "extended": True,
+        "timestamp": True,
     }
     opsdroid.configure_logging(config)
     rootlogger = logging.getLogger()
@@ -174,26 +164,25 @@ def test_configure_default_logging(capsys):
     opsdroid.configure_logging(config)
     rootlogger = logging.getLogger()
     assert len(rootlogger.handlers), 2
-    assert isinstance(rootlogger.handlers[0], RichHandler)
+    assert isinstance(rootlogger.handlers[0], logging.handlers.RotatingFileHandler)
     assert rootlogger.handlers[0].level == logging.INFO
-    assert isinstance(rootlogger.handlers[1], logging.handlers.RotatingFileHandler)
+    assert isinstance(rootlogger.handlers[1], RichHandler)
     assert rootlogger.handlers[1].level == logging.INFO
 
     captured = capsys.readouterr()
-    assert "INFO opsdroid.logging: Started opsdroid" in captured.err
+    assert "Started opsdroid" in captured.out
 
 
 @pytest.fixture
 def white_and_black_config():
     # Set up
     config = {
-        "logging": {
-            "path": False,
-            "level": "info",
-            "console": True,
-            "filter": {"whitelist": ["opsdroid"], "blacklist": ["opsdroid.core"]},
-        }
+        "path": False,
+        "level": "info",
+        "console": True,
+        "filter": {"whitelist": ["opsdroid"], "blacklist": ["opsdroid.core"]},
     }
+
     yield config
 
     # Tear down
@@ -205,7 +194,7 @@ def test_configure_whitelist_and_blacklist(capsys, white_and_black_config):
     opsdroid.configure_logging(white_and_black_config)
     captured = capsys.readouterr()
 
-    log1 = "Both whitelist and blacklist filters found in configuration. "
+    log1 = "Both whitelist and blacklist filters found in configuration."
     log2 = "Only one can be used at a time - only the whitelist filter will be used."
 
     assert log1 in captured.err

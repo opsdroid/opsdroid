@@ -103,32 +103,35 @@ def configure_logging(config):
     except KeyError:
         logfile_path = DEFAULT_LOG_FILENAME
 
-    log_level = get_logging_level(config.get("level", "critical"))
+    log_level = get_logging_level(config.get("level", "info"))
     rootlogger.setLevel(log_level)
-
     formatter_str = set_formatter_string(config)
     formatter = logging.Formatter(formatter_str)
+    handler = None
 
-    file_handler = RotatingFileHandler(
-        logfile_path, maxBytes=config.get("file-size", 50e6)
-    )
-    file_handler.setLevel(log_level)
-    file_handler.setFormatter(formatter)
+    if logfile_path:
+        file_handler = RotatingFileHandler(
+            logfile_path, maxBytes=config.get("file-size", 50e6)
+        )
+        file_handler.setLevel(log_level)
+        file_handler.setFormatter(formatter)
+        rootlogger.addHandler(file_handler)
 
     if not config or config.get("rich"):
         handler = RichHandler()
-    elif config.get("console"):
+
+    if config.get("console") or config.get("console") is False:
         handler = logging.StreamHandler()
         handler.setFormatter(formatter)
-    else:
-        handler = file_handler
 
-    if config.get("filter"):
+        if config.get("console") is False:
+            log_level = get_logging_level("critical")
+
+    if config.get("filter") and handler:
         handler.addFilter(ParsingFilter(config, config["filter"]))
-
-    handler.setLevel(log_level)
-    rootlogger.addHandler(handler)
-    rootlogger.addHandler(file_handler)
+    if handler:
+        handler.setLevel(log_level)
+        rootlogger.addHandler(handler)
 
     _LOGGER.info("=" * 40)
     _LOGGER.info(_("Started opsdroid %s."), __version__)
