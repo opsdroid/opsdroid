@@ -52,9 +52,9 @@ def test_configure_file_blacklist(capsys):
         }
     opsdroid.configure_logging(config)
     rootlogger = logging.getLogger()
-    assert len(rootlogger.handlers) == 1
+    assert len(rootlogger.handlers) == 2
     assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
-    assert rootlogger.handlers[0].level == logging.CRITICAL
+    assert rootlogger.handlers[1].level == logging.CRITICAL
     assert isinstance(rootlogger.handlers[0], logging.handlers.RotatingFileHandler)
 
     captured = capsys.readouterr()
@@ -127,7 +127,7 @@ def test_configure_logging_with_timestamp(capsys):
     assert len(rootlogger.handlers) == 1
     assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
     # Regex to match timestamp: 2020-12-02 17:46:33,158
-    regex = r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} INFO opsdroid\.logging:"
+    regex = r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} INFO opsdroid\.logging"
     assert re.match(regex, captured.err)
 
 

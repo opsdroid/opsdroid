@@ -103,6 +103,11 @@ def configure_logging(config):
     except KeyError:
         logfile_path = DEFAULT_LOG_FILENAME
 
+    if logfile_path:
+        logdir = os.path.dirname(os.path.realpath(logfile_path))
+        if not os.path.isdir(logdir):
+            os.makedirs(logdir)
+
     log_level = get_logging_level(config.get("level", "info"))
     rootlogger.setLevel(log_level)
     formatter_str = set_formatter_string(config)
