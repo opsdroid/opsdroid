@@ -16,19 +16,19 @@ For configuration, opsdroid uses a single YAML file named `configuration.yaml`. 
                 `C:\Documents and Settings\<User>\Application Data\opsdroid\opsdroid`
 - System `/etc/opsdroid/configuration.yaml` (*nix only)
 
-_Note: If no file named `configuration.yaml` can be found on one of these folders one will be created for you taken from the [example configuration file](https://github.com/opsdroid/opsdroid/blob/master/opsdroid/configuration/example_configuration.yaml)_
+_Note: If no file named `configuration.yaml` can be found on one of these folders, one will be created for you taken from the [example configuration file](https://github.com/opsdroid/opsdroid/blob/master/opsdroid/configuration/example_configuration.yaml)_
 
-If you are using one of the default locations you can run the command `opsdroid config edit` to open the configuration with your favorite editor (taken from the environment variable `EDITOR`) or the default editor vim.
+Suppose you are using one of the default locations. In that case, you can run the command `opsdroid config edit` to open the configuration with your favourite editor (taken from the environment variable `EDITOR`) or the default editor vim.
 
-The opsdroid project itself is very simple and requires modules to give it functionality. In your configuration file, you must specify the connector, skill, and database* modules you wish to use and any options they may require.
+The opsdroid project itself is very simple and requires modules to give it functionality. You must specify the connector, skill, and database* modules you wish to use in your configuration file and any options they may require.
 
 **Connectors** are modules for connecting opsdroid to your specific chat service.
 
-**Skills** are modules which define what actions opsdroid should perform based on different chat messages.
+**Skills** are modules that define what actions opsdroid should perform based on different chat messages.
 
 **Database** modules connect opsdroid to your chosen database and allow skills to store information between messages.
 
-For example, a simple barebones configuration would look like:
+For example, a simple barebones configuration would look like this:
 
 ```yaml
 connectors:
@@ -70,7 +70,7 @@ Configuration options such as the `token` in the slack connector or the `host`, 
 
 ### Connector Modules
 
-Opsdroid comes with some built-in connectors out of the box. A connector is a module which is either installed as a plugin or built-in that connects opsdroid to a specific chat service.
+Opsdroid comes with some built-in connectors out of the box. A connector is a module that is either installed as a plugin or built-in that connects opsdroid to a specific chat service.
 
 The built-in connectors are:
 
@@ -111,13 +111,13 @@ connectors:
     typing-delay: <int, float or two element list>
 ```
 
-_Note: As expected this will cause a delay on opsdroid time of response so make sure you don't pass a high number._
+_Note: As expected, this will cause a delay on opsdroid time of response so make sure you don't pass a high number._
 
 See [module options](#module-options) for installing custom connectors.
 
 ### Database Modules
 
-Opsdroid comes with some built-in databases out of the box. Databases are modules which connect opsdroid to a persistent data storage service.
+Opsdroid comes with some built-in databases out of the box. Databases are modules that connect opsdroid to a persistent data storage service.
 
 Skills can store data in opsdroid's "memory", this is a dictionary which can be persisted in an external database.
 
@@ -130,7 +130,7 @@ The built-in databases are:
    databases/index
 ```
 
-_Config options of the databases themselves differ between databases, see the database documentation for details._
+_Config options of the databases themselves differ between databases. See the database documentation for details._
 
 ```yaml
 databases:
@@ -146,7 +146,7 @@ See [module options](#module-options) for installing custom databases.
 
 Configure the welcome message.
 
-If set to true then a welcome message is printed in the log at startup. It defaults to true.
+If set to true, then a welcome message is printed in the log at startup. It defaults to true.
 
 ```yaml
 welcome-message: true
@@ -154,7 +154,7 @@ welcome-message: true
 
 ### Logging
 
-Configure logging in opsdroid.
+Configure logging in opsdroid. If you don't have logging settings configured, opsdroid will use rich logging.
 
 Setting `path` will configure where opsdroid writes the log file to. This location must be writable by the user running opsdroid. Setting this to `false` will disable log file output.
 
@@ -162,7 +162,7 @@ _Note: If you forget to declare a path for the logs but have logging active, one
 
 All python logging levels are available in opsdroid. `level` can be set to `debug`, `info`, `warning`, `error` and `critical`.
 
-You may not want opsdroid to log to the console, for example, if you are using the shell connector. However, if running in a container you may want exactly that. Setting `console` to `true` or `false` will enable or disable console logging.
+You may not want opsdroid to log to the console, for example, using the shell connector. However, if running in a container, you may want exactly that. Setting `console: false` and `rich: false` will disable console logging.
 
 The default locations for the logs are:
 
@@ -170,13 +170,14 @@ The default locations for the logs are:
 - Linux: `/home/<User>/.cache/opsdroid/log`
 - Windows: `C:\Users\<User>\AppData\Local\opsdroid\Logs\`
 
-If you are using one of the default paths for your log you can run the command `opsdroid logs` to print the logs into the terminal. 
+If you are using one of the default paths for your log, you can run the command `opsdroid logs` to print the logs into the terminal. 
 
 ```yaml
 logging:
   level: info
   path: ~/.opsdroid/output.log
-  console: true
+  rich: true
+  console: false
 
 connectors:
   shell: {}
@@ -186,12 +187,19 @@ skills:
   seen: {}
 ```
 
+#### Rich logging
+
+When using rich logging, opsdroid will use the [RichHandler](https://rich.readthedocs.io/en/stable/logging.html) from the Rich library. These logs will contain a timestap, log location (file and line number) and will show different colours depending on which level the log was set. You can use some options to disable some of these things.
+
+- set `timestamp: false` to disable timestamps
+- set `extended: false` to disable log location
+
 #### Optional logging arguments
 
 You can pass optional arguments to the logging configuration to extend the opsdroid logging.
 
 ##### Logs timestamp
-Sometimes it is useful to have the timestamp when logs happen. You can enable them with the `timestamp` boolean. Defaults to false
+Sometimes it is helpful to have the timestamp when logs happen. You can enable them with the `timestamp` boolean. Defaults to false
 
 ```yaml
 logging:
@@ -207,7 +215,7 @@ logging:
 ```
 
 ##### Logs rotation
-To keep the logs under control the file will grow to 50MB before being rotated back. You can change the default value by passing the `file-size` argument.
+To keep the logs under control, the file will grow to 50MB before being rotated back. You can change the default value by passing the `file-size` argument.
 
 ```yaml
 logging:
@@ -334,6 +342,36 @@ INFO opsdroid.core: Opsdroid is now running, press ctrl+c to exit.
 INFO opsdroid.web: Started web server on http://0.0.0.0:8080
 ```
 
+##### Logs formatter
+
+You can create your formatter string to pass to the logs. This option will give you more flexibility and get logs in your prefered format. Note that this option only works if you set `console: true` since rich logging will have its own 
+formatter.
+
+```yaml
+logging:
+  level: info
+  console: true
+  formatter: "%(name)s %(levelname)s - %(message)s"
+```
+
+###### Example
+
+
+```shell
+opsdroid.logging INFO - ========================================
+opsdroid.logging INFO - Started opsdroid v0.8.1+976.g150b605.dirty.
+opsdroid INFO - ========================================
+opsdroid INFO - You can customise your opsdroid by modifying your configuration.yaml.
+opsdroid INFO - Read more at: http://opsdroid.readthedocs.io/#configuration
+opsdroid INFO - Watch the Get Started Videos at: http://bit.ly/2fnC0Fh
+opsdroid INFO - Install Opsdroid Desktop at:
+https://github.com/opsdroid/opsdroid-desktop/releases
+opsdroid INFO - ========================================
+opsdroid.loader WARNING - No databases in configuration. This will cause skills which store things in memory to lose data when opsdroid is restarted.
+opsdroid.core INFO - Opsdroid is now running, press ctrl+c to exit.
+opsdroid.web INFO - Started web server on http://0.0.0.0:8080
+```
+
 ### Installation Path
 
 Set the path for opsdroid to use when installing skills. Defaults to the current working directory.
@@ -427,13 +465,13 @@ web:
 
 ### Install Location
 
-Modules in opsdroid can be installed in a variety of ways. By default, if no additional options are specified opsdroid will first look to see if the module is built in to opsdroid's core library and then it will look for the repository at `https://github.com/opsdroid/<moduletype>-<modulename>.git`.
+Modules in opsdroid can be installed in a variety of ways. By default, if no additional options are specified, opsdroid will first look to see if the module is built into opsdroid's core library and then look for the repository https://github.com/opsdroid/<moduletype>-<modulename>.git`.
 
 However, if you wish to install a module from a different location you can specify one of the following options.
 
 #### Git Repository
 
-A git URL to install the module from.
+A git URL to install the module.
 
 ```yaml
 connectors:
@@ -447,7 +485,7 @@ _Note: When using a git repository, opsdroid will try to update it at startup pu
 
 #### Local Directory
 
-A local path to install the module from.
+A local path to install the module.
 
 ```yaml
 skills:
@@ -473,8 +511,8 @@ skills:
 
 #### GitHub Gist
 
-A gist URL to download and install the module from. This downloads the gist
-to a temporary file and then uses the single file local installer above. Therefore
+A gist URL to download and install the module. This downloads the gist
+to a temporary file and then uses the single-file local installer above. Therefore
 Notebooks are also supported.
 
 ```yaml
@@ -491,7 +529,7 @@ skills:
    gist: 6dd35e0f62d6b779d3d0d140f338d3e5
 ```
 
-You can also directly specify the module name to import which skips all of the opsdroid module generation.
+You can also directly specify the module name to import, which skips all of the opsdroid module generation.
 
 ```yaml
 skills:
@@ -522,7 +560,7 @@ skills:
     no-deps: true
 ```
 
-_Note: This might be useful when you are developing a skill and already have the dependencies installed._
+_Note: This might be useful when developing a skill and already have the dependencies installed._
 
 ## Environment variables
 
@@ -534,7 +572,7 @@ skills:
     somekey: $ENVIRONMENT_VARIABLE
 ```
 
-_Note: Your environment variable names must consist of uppercase characters and underscores only. The value must also be just the environment variable, you cannot currently mix env vars inside strings._
+_Note: Your environment variable names must consist of uppercase characters and underscores only. The value must also be just the environment variable. You cannot currently mix env vars inside strings._
 
 ## Validating modules
 
@@ -547,14 +585,14 @@ _Note: If the validation fails, opsdroid will exit with error code 1._
 
 You can add rules to your custom made modules by setting the constant variable and adding rules to it. The `CONFIG_SCHEMA` variable needs to be a dictionary where you pass expected arguments and type.
 
-To validate a module/configuration, we use the _voluptuous_ dependency, that means that you need to follow certain patterns expected by the dependency.
+To validate a module/configuration, we use the _voluptuous_ dependency, which means you need to follow specific patterns expected by the dependency.
 
 - Required values need to be set with `voluptuous.Required()`
 - Optional values can be set with or without `voluptuous.Optional()`
 
 ### Example
 
-Let's take the example of our matrix connector. Inside the module we set the const `CONFIG_SCHEMA` with some rules:
+Let's take the example of our matrix connector. Inside the module, we set the const `CONFIG_SCHEMA` with some rules:
 
 ```python
 from voluptuous import Required
@@ -574,7 +612,7 @@ CONFIG_SCHEMA = {
 
 As you can see `mxid`, `password` and `rooms` are required fields for this connector and we expect them to be either strings or a dictionary.
 
-Since we don't need to explicitly declare a value as Optional we can just write the expected value and type.
+Since we don't need to declare a value as Optional explicitly, we can write the expected value and type.
 
 _Note: If a module doesn't contain the const variable, the module will be loaded anyway and should handle any potential errors found in the configuration._
 
@@ -584,7 +622,7 @@ If you need to use a HTTP proxy, set the HTTP_PROXY and HTTPS_PROXY environment 
 
 ## Migrate to new configuration layout
 
-Since version 0.17.0 came out we have migrated to a new configuration layout. We will check your configuration and give you a deprecation warning if your configuration is using the old layout.
+Since version 0.17.0 came out we have migrated to a new configuration layout. We will check your configuration and give you a deprecation warning if your configuration uses the old layout.
 
 ### What changed
 
