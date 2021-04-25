@@ -173,6 +173,21 @@ def test_configure_default_logging(capsys):
     assert "Started opsdroid" in captured.out
 
 
+def test_configure_logging_formatter(capsys):
+    config = {
+        "path": False,
+        "console": True,
+        "formatter": "%(name)s:",
+    }
+
+    opsdroid.configure_logging(config)
+    captured = capsys.readouterr()
+
+    log = "opsdroid.logging:\nopsdroid.logging:\n"
+
+    assert log in captured.err
+
+
 @pytest.fixture
 def white_and_black_config():
     # Set up

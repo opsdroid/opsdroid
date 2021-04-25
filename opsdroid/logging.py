@@ -75,8 +75,8 @@ def set_formatter_string(config: dict):
     """
     formatter_str = "%(levelname)s %(name)s"
 
-    if config.get("formatter_str"):
-        return config["formatter_str"]
+    if config.get("formatter"):
+        return config["formatter"]
 
     if config.get("extended"):
         formatter_str += ".%(funcName)s():"
@@ -123,7 +123,11 @@ def configure_logging(config):
         rootlogger.addHandler(file_handler)
 
     if not config or config.get("rich"):
-        handler = RichHandler()
+        handler = RichHandler(
+            rich_tracebacks=True,
+            show_time=config.get("timestamp", True),
+            show_path=config.get("extended", True),
+        )
 
     if config.get("console") or config.get("console") is False:
         handler = logging.StreamHandler()
