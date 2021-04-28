@@ -95,11 +95,11 @@ Sometimes you need to search trough a history of a channel. For this you can you
 from opsdroid.skill import Skill
 from opsdroid.matchers import match_regex
 
-class GreeterSkill(Skill):
+class SearchMessagesSkill(Skill):
     """This is the most simple form of a skill, keeping it for pinging purposes"""
 
-    @match_regex(r"Hi Opsdroid")
-    async def hello(self, message):
+    @match_regex(r"search messages")
+    async def search_messages(self, message):
         """"""
         slack = self.opsdroid.get_connector("slack")
         messages = await slack.search_history_messages(
