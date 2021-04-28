@@ -88,15 +88,15 @@ class GreeterSkill(Skill):
         await message.respond("Hi")
 ```
 
-## Get Message History
-Sometimes you need to search trough a history of a channel. For this you can you the `search_history_messages` method from connector.
+## Get messages from History
+Sometimes you need to search trough the history of a channel. For this you can use the `search_history_messages` method from the slack connector which returns all the messages on a specified range of time.
 
 ```python
 from opsdroid.skill import Skill
 from opsdroid.matchers import match_regex
 
 class SearchMessagesSkill(Skill):
-    """This is the most simple form of a skill, keeping it for pinging purposes"""
+    """This is the most simple form of a skill"""
 
     @match_regex(r"search messages")
     async def search_messages(self, message):
