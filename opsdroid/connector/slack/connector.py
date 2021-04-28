@@ -7,17 +7,18 @@ import ssl
 
 import aiohttp
 import certifi
-import opsdroid.events
 from emoji import demojize
-from opsdroid.connector import Connector, register_event
-from opsdroid.connector.slack.create_events import SlackEventCreator
-from opsdroid.connector.slack.events import Blocks, EditedBlocks
 from slack_sdk.errors import SlackApiError
 from slack_sdk.socket_mode.aiohttp import SocketModeClient
 from slack_sdk.socket_mode.request import SocketModeRequest
 from slack_sdk.socket_mode.response import SocketModeResponse
 from slack_sdk.web.async_client import AsyncWebClient
 from voluptuous import Required
+
+import opsdroid.events
+from opsdroid.connector import Connector, register_event
+from opsdroid.connector.slack.create_events import SlackEventCreator
+from opsdroid.connector.slack.events import Blocks, EditedBlocks
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -190,6 +191,34 @@ class ConnectorSlack(Connector):
                 await self.event_handler(payload)
 
         return aiohttp.web.Response(text=json.dumps("Received"), status=200)
+
+    async def search_history_messages(self, channel, start_time, end_time, limit=100):
+        """Search for messages in a conversation given the intial and end timestamp"""
+        messages = []
+        history = await self.slack_web_client.conversations_history(
+            channel=channel, oldest=start_time, latest=end_time, limit=limit
+        )
+        cursor = history.get("response_metadata", {}).get("next_cursor")
+
+        if limit > 1000:
+            _LOGGER.info(
+                "Grabbing message history from Slack API. This might take some time"
+            )
+
+        while True:
+            messages += history["messages"]
+
+            if cursor:
+                history = await self.slack_web_client.conversations_history(
+                    channel=channel, oldest=start_time, latest=end_time, cursor=cursor
+                )
+                cursor = history.get("response_metadata", {}).get("next_cursor")
+            else:
+                break
+        messages_count = len(messages)
+        _LOGGER.debug("Grabbed a total of %s messages from Slack", messages_count)
+
+        return messages
 
     async def lookup_username(self, userid):
         """Lookup a username and cache it."""

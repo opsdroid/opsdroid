@@ -57,7 +57,8 @@ If you are unsure which one is the best for you, [Slack Faq](https://api.slack.c
 * Under "Request URL" add the `/connector/slack` uri to your endpoint: https://slackbot.example.com/connector/slack. Note that you will have to have your Opsdroid instance running so Slack can validate the endpoint.
 
 ### Subscribe to events
-You will need to subscribe to events in your new Slack App, so Opsdroid can receive those events.
+You will need to subscribe to events in your new Slack App, so Opsdroid can receive those events. 
+You need to subscribe to events regardless of the backend: **Socket Mode** or **Events API**
 * Under "Subscribe to bot events" choose the events you want to subscribe for. You need at least one, `message.channels` will allow you to receive events everytime a message is posted into a channel. The following events are also supported by opsdroid: `message.im`, `channel_archive`, `channel_unarchive`, `channel_created`, `channel_rename`, `pin_added`, `pin_removed` and `team_join`.
 * Don't forget to save your changes in the slack app.
  
@@ -86,6 +87,27 @@ class GreeterSkill(Skill):
         """Respond Hi"""
         await message.respond("Hi")
 ```
+
+## Get Message History
+Sometimes you need to search trough a history of a channel. For this you can you the `search_history_messages` method from connector.
+
+```python
+from opsdroid.skill import Skill
+from opsdroid.matchers import match_regex
+
+class GreeterSkill(Skill):
+    """This is the most simple form of a skill, keeping it for pinging purposes"""
+
+    @match_regex(r"Hi Opsdroid")
+    async def hello(self, message):
+        """"""
+        slack = self.opsdroid.get_connector("slack")
+        messages = await slack.search_history_messages(
+            "CHANEL_ID", start_time="1512085950.000216", end_time="1512104434.000490"
+        )
+        await message.respond(messages)
+```
+
 
 ## Rich layouts and blocks
 

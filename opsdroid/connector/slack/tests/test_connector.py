@@ -1,10 +1,13 @@
 """Tests for the ConnectorSlack class."""
+import logging
+
 import asynctest.mock as amock
 import pytest
+from slack_sdk.socket_mode.request import SocketModeRequest
+
 from opsdroid import events
 from opsdroid.connector.slack.connector import SlackApiError
 from opsdroid.connector.slack.events import Blocks, EditedBlocks
-from slack_sdk.socket_mode.request import SocketModeRequest
 
 from .conftest import get_path
 
@@ -13,6 +16,12 @@ AUTH_TEST = ("/auth.test", "POST", get_path("method_auth.test.json"), 200)
 CHAT_POST_MESSAGE = ("/chat.postMessage", "POST", {"ok": True}, 200)
 CHAT_UPDATE_MESSAGE = ("/chat.update", "POST", {"ok": True}, 200)
 REACTIONS_ADD = ("/reactions.add", "POST", {"ok": True}, 200)
+CONVERSATIONS_HISTORY = (
+    "/conversations.history",
+    "GET",
+    get_path("method_conversations.history.json"),
+    200,
+)
 CONVERSATIONS_CREATE = ("/conversations.create", "POST", {"ok": True}, 200)
 CONVERSATIONS_RENAME = ("/conversations.rename", "POST", {"ok": True}, 200)
 CONVERSATIONS_JOIN = ("/conversations.join", "POST", {"ok": True}, 200)
@@ -123,6 +132,54 @@ async def test_lookup_username_user_not_present(connector, mock_api):
     user = await connector.lookup_username("U01NK1K9L68")
     assert mock_api.called("/users.info")
     assert user["id"] == "U01NK1K9L68"
+
+
+@pytest.mark.asyncio
+@pytest.mark.add_response(*CONVERSATIONS_HISTORY)
+async def test_search_history_messages(connector, mock_api):
+    history = await connector.search_history_messages(
+        "C01N639ECTY", "1512085930.000000", "1512085980.000000"
+    )
+    assert mock_api.called("/conversations.history")
+    assert len(history) == 2
+    assert isinstance(history, list)
+
+
+@pytest.mark.asyncio
+@pytest.mark.add_response(*CONVERSATIONS_HISTORY)
+async def test_search_history_messages_limit_more_than_1000(
+    connector, mock_api, caplog
+):
+    caplog.set_level(logging.INFO)
+    await connector.search_history_messages(
+        "C01N639ECTY", "1512085930.000000", "1512085980.000000", 1001
+    )
+    assert mock_api.called("/conversations.history")
+    assert "This might take some time" in caplog.text
+
+
+@pytest.mark.asyncio
+@pytest.mark.add_response(
+    "/conversations.history",
+    "GET",
+    get_path("method_conversations.history_second_page.json"),
+    200,
+)
+@pytest.mark.add_response(
+    "/conversations.history",
+    "GET",
+    get_path("method_conversations.history_first_page.json"),
+    200,
+)
+async def test_search_history_messages_more_than_one_api_request(
+    connector, mock_api
+):
+    history = await connector.search_history_messages(
+        "C01N639ECTY", "1512085930.000000", "1512085980.000000"
+    )
+    assert mock_api.called("/conversations.history")
+    assert len(history) == 4
+    assert isinstance(history, list)
 
 
 @pytest.mark.asyncio
@@ -274,7 +331,6 @@ async def test_send_reaction(send_event, connector):
         "timestamp": "1582838099.000601",
     }
     assert response["ok"]
-    # TODO: Verify manually
 
 
 @pytest.mark.asyncio
