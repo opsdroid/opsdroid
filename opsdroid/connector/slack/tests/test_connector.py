@@ -171,9 +171,7 @@ async def test_search_history_messages_limit_more_than_1000(
     get_path("method_conversations.history_first_page.json"),
     200,
 )
-async def test_search_history_messages_more_than_one_api_request(
-    connector, mock_api
-):
+async def test_search_history_messages_more_than_one_api_request(connector, mock_api):
     history = await connector.search_history_messages(
         "C01N639ECTY", "1512085930.000000", "1512085980.000000"
     )
