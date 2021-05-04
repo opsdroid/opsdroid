@@ -33,7 +33,7 @@ class Memory:
             A data object for the given key, otherwise `None`.
 
         """
-        _LOGGER.debug(_("Getting %s from table %s in memory."), key)
+        _LOGGER.debug(_("Getting %s from table %s in memory."), key, kwargs['table_name'])
         result = await self._get_from_database(key, **kargs)
         return result or default
 
@@ -47,7 +47,7 @@ class Memory:
             data (obj): Data object to store.
 
         """
-        _LOGGER.debug(_("Putting %s to table %s in memory."), key)
+        _LOGGER.debug(_("Putting %s to table %s in memory."), key, kwargs['table_name'])
         await self._put_to_database(key, data, **kargs)
 
     async def delete(self, key):
@@ -59,7 +59,7 @@ class Memory:
             key (str): Key to delete data.
 
         """
-        _LOGGER.debug(_("Deleting %s from table %s in memory."), key)
+        _LOGGER.debug(_("Deleting %s from table %s in memory."), key, kwargs['table_name'])
         await self._delete_from_database(key)
 
     async def _get_from_database(self, key, **kargs):
