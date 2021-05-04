@@ -82,7 +82,7 @@ class pgtestSkill(Skill):
         )
 ```
 
-Using  a [shell](../connectors/shell) connector it returns:
+Using  a [shell](../connectors/shell) connector, the skill returns:
 ```
 opsdroid> !put test1 data1
 ok, stored test1
@@ -98,4 +98,12 @@ opsdroid> !put test2 data3
 ok, stored test2
 opsdroid> !get test2
 data3
+```
+As expected, `psql` shows:
+```
+opsdroid_db=# select * from custom_table_name;
+  key  |  data   
+-------+---------
+ test2 | "data3"
+(1 row)
 ```
