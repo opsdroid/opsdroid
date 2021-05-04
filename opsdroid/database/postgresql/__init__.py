@@ -91,10 +91,17 @@ class DatabasePostgres(Database):
         json_data = json.dumps(data, cls=JSONEncoder)
 
         async with self.connection.transaction():
-            await self.connection.execute(
-                "UPDATE {} SET data = $2 WHERE key = $1".format(table_name),
-                key, json_data
-            )
+            key_already_exists = await self.get(key, table_name=table_name)
+            if key_already_exists:
+                await self.connection.execute(
+                    "UPDATE {} SET data = $2 WHERE key = $1".format(table_name),
+                    key, json_data
+                )
+            else:
+                await self.connection.execute(
+                    "INSERT INTO {} VALUES ($1, $2)".format(table_name),
+                    key, json_data
+                )
 
     @check_table
     async def get(self, key, table_name='opsdroid_default'):
@@ -105,7 +112,7 @@ class DatabasePostgres(Database):
 
         """
         _LOGGER.debug("Getting %s from PostgreSQL.", key)
-        
+
         values = await self.connection.fetch(
             'SELECT data FROM {} WHERE key = $1'.format(table_name),
             key,
