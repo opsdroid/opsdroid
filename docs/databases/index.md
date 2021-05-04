@@ -7,6 +7,7 @@ Databases are modules which allow opsdroid to persist data in an external databa
    :titlesonly:
 
    sqlite
+   postgres
    mongo
    redis
    matrix
