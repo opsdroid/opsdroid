@@ -35,7 +35,7 @@ def check_table(func):
             valid &= data_structure[0]['column_name'] == 'key' and data_structure[0]['data_type'] == 'text'
             valid &= data_structure[1]['column_name'] == 'data' and data_structure[1]['data_type'] == 'text'
             if not valid:
-                _LOGGER.error('PostgresSQL table {} has incorrect data structure'.format(table_name))
+                _LOGGER.error('PostgresSQL table %s has incorrect data structure', table_name)
         return await func(*args, **kwargs)
     return wrapper
 
@@ -86,7 +86,7 @@ class DatabasePostgres(Database):
             data (object): the data to be inserted or replaced
 
         """
-        _LOGGER.debug("Putting %s into PostgreSQL", key)
+        _LOGGER.debug("Putting %s into PostgreSQL table %s", key, table_name)
 
         json_data = json.dumps(data, cls=JSONEncoder)
 
@@ -111,7 +111,7 @@ class DatabasePostgres(Database):
             key (str): the key is the database name.
 
         """
-        _LOGGER.debug("Getting %s from PostgreSQL.", key)
+        _LOGGER.debug("Getting %s from PostgreSQL table %s", key, table_name)
 
         values = await self.connection.fetch(
             'SELECT data FROM {} WHERE key = $1'.format(table_name),
@@ -122,7 +122,7 @@ class DatabasePostgres(Database):
             data = json.loads(values[0]['data'], object_hook=JSONDecoder())
             return data
         elif len(values) > 1:
-            _LOGGER.error(str(len(values)) + ' entries with same key name in PostgresSQL table {}'.format(table_name))
+            _LOGGER.error(str(len(values)) + ' entries with same key name in PostgresSQL table %s', table_name)
         else:
             return None
 
@@ -134,7 +134,7 @@ class DatabasePostgres(Database):
             key (str): the key is the database name.
 
         """
-        _LOGGER.debug("Deleting %s from PostgreSQL.", key)
+        _LOGGER.debug("Deleting %s from PostgreSQL table %s.", key, table_name)
 
         async with self.connection.transaction():
             await self.connection.execute(
