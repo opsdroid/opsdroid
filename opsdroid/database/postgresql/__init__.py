@@ -105,6 +105,7 @@ class DatabasePostgres(Database):
 
         """
         _LOGGER.debug("Getting %s from PostgreSQL.", key)
+        
         values = await self.connection.fetch(
             'SELECT data FROM {} WHERE key = $1'.format(table_name),
             key,
