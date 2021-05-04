@@ -44,7 +44,7 @@ class pgtestSkill(Skill):
 
     @match_regex('^!put (?P<key>\w+) (?P<data>\w+)$')
     async def putter(self, message):
-		key = message.entities['key']['value']
+        key = message.entities['key']['value']
         await self.opsdroid.memory.put(
             key,
             message.entities['data']['value'],
@@ -70,7 +70,7 @@ class pgtestSkill(Skill):
 
     @match_regex('^!delete (?P<key>\w+)')
     async def deleter(self, message):
-		key = message.entities['key']['value']
+        key = message.entities['key']['value']
         await self.opsdroid.memory.delete(
             key,
             table_name=self.table_name
