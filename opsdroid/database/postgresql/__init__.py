@@ -20,7 +20,6 @@ def check_table(func):
             table_name = kwargs['table_name']
         else:
             table_name = 'opsdroid_default'
-        print(table_name)
 
         async with connection.transaction():
             # Create table if it does not exist
@@ -92,7 +91,6 @@ class DatabasePostgres(Database):
         json_data = json.dumps(data, cls=JSONEncoder)
 
         async with self.connection.transaction():
-            print(table_name)
             await self.connection.execute(
                 "UPDATE {} SET data = $2 WHERE key = $1".format(table_name),
                 key, json_data
@@ -107,7 +105,6 @@ class DatabasePostgres(Database):
 
         """
         _LOGGER.debug("Getting %s from PostgreSQL.", key)
-        print(table_name)
         values = await self.connection.fetch(
             'SELECT data FROM {} WHERE key = $1'.format(table_name),
             key,
