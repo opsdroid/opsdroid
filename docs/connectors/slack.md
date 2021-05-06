@@ -35,7 +35,7 @@ connectors:
     start_thread: false # default false. if true, opsdroid will start a thread when replying to a message
 ```
 
-\* when `socket-mode` is true, you need to set also an `app-token` (more info: [app level tokens](https://api.slack.com/authentication/token-types#app)
+\* when `socket-mode` is true, you need to set also an `app-token` (more info: [app level tokens](https://api.slack.com/authentication/token-types#app))
 ** In order for `bot-name` and/or `icon-emoji` to work, the `chat:write.customize` scope will have to be selected
 
 ### Choose the Backend API
@@ -57,7 +57,8 @@ If you are unsure which one is the best for you, [Slack Faq](https://api.slack.c
 * Under "Request URL" add the `/connector/slack` uri to your endpoint: https://slackbot.example.com/connector/slack. Note that you will have to have your Opsdroid instance running so Slack can validate the endpoint.
 
 ### Subscribe to events
-You will need to subscribe to events in your new Slack App, so Opsdroid can receive those events.
+You will need to subscribe to events in your new Slack App, so Opsdroid can receive those events. 
+You need to subscribe to events regardless of the backend: **Socket Mode** or **Events API**
 * Under "Subscribe to bot events" choose the events you want to subscribe for. You need at least one, `message.channels` will allow you to receive events everytime a message is posted into a channel. The following events are also supported by opsdroid: `message.im`, `channel_archive`, `channel_unarchive`, `channel_created`, `channel_rename`, `pin_added`, `pin_removed` and `team_join`.
 * Don't forget to save your changes in the slack app.
  
@@ -86,6 +87,14 @@ class GreeterSkill(Skill):
         """Respond Hi"""
         await message.respond("Hi")
 ```
+
+## Get messages from History
+Sometimes you need to search through the history of a channel. For this you can use the `search_history_messages` method from the slack connector which returns all the messages on a specified range of time.
+
+```eval_rst
+.. autofunction:: opsdroid.connector.slack.ConnectorSlack.search_history_messages
+```
+
 
 ## Rich layouts and blocks
 
