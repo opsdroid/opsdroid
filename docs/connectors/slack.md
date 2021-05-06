@@ -35,7 +35,7 @@ connectors:
     start_thread: false # default false. if true, opsdroid will start a thread when replying to a message
 ```
 
-\* when `socket-mode` is true, you need to set also an `app-token` (more info: [app level tokens](https://api.slack.com/authentication/token-types#app)
+\* when `socket-mode` is true, you need to set also an `app-token` (more info: [app level tokens](https://api.slack.com/authentication/token-types#app))
 ** In order for `bot-name` and/or `icon-emoji` to work, the `chat:write.customize` scope will have to be selected
 
 ### Choose the Backend API
@@ -91,21 +91,8 @@ class GreeterSkill(Skill):
 ## Get messages from History
 Sometimes you need to search through the history of a channel. For this you can use the `search_history_messages` method from the slack connector which returns all the messages on a specified range of time.
 
-```python
-from opsdroid.skill import Skill
-from opsdroid.matchers import match_regex
-
-class SearchMessagesSkill(Skill):
-    """This is the most simple form of a skill"""
-
-    @match_regex(r"search messages")
-    async def search_messages(self, message):
-        """"""
-        slack = self.opsdroid.get_connector("slack")
-        messages = await slack.search_history_messages(
-            "CHANEL_ID", start_time="1512085950.000216", end_time="1512104434.000490"
-        )
-        await message.respond(messages)
+```eval_rst
+.. autofunction:: opsdroid.connector.slack.ConnectorSlack.search_history_messages
 ```
 
 

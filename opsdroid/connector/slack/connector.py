@@ -193,7 +193,35 @@ class ConnectorSlack(Connector):
         return aiohttp.web.Response(text=json.dumps("Received"), status=200)
 
     async def search_history_messages(self, channel, start_time, end_time, limit=100):
-        """Search for messages in a conversation given the intial and end timestamp"""
+        """
+        Search for messages in a conversation given the intial and end timestamp.
+
+        args:
+            channel: channel id
+            start_time: epoch timestamp with micro seconds when to start the search
+            end_time: epoch timestime with micro seconds when to end the search
+            limit: limit of results per query to the API
+
+        returns:
+            list of messages between the that timeframe
+
+        **Basic Usage Example in a Skill:**
+
+        .. code-block:: python
+
+            from opsdroid.skill import Skill
+            from opsdroid.matchers import match_regex
+
+            class SearchMessagesSkill(Skill):
+                @match_regex(r"search messages")
+                async def search_messages(self, message):
+                    """ """
+                    slack = self.opsdroid.get_connector("slack")
+                    messages = await slack.search_history_messages(
+                        "CHANEL_ID", start_time="1512085950.000216", end_time="1512104434.000490"
+                    )
+                    await message.respond(messages)
+        """
         messages = []
         history = await self.slack_web_client.conversations_history(
             channel=channel, oldest=start_time, latest=end_time, limit=limit
