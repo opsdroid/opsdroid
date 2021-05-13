@@ -95,10 +95,10 @@ class ConnectorMattermost(Connector):
             post = json.loads(data["post"])
             await self.opsdroid.parse(
                 Message(
-                    post["message"],
-                    data["sender_name"],
-                    data["channel_name"],
-                    self,
+                    text=post["message"],
+                    user=data["sender_name"],
+                    target=data["channel_name"],
+                    connector=self,
                     raw_event=message,
                 )
             )
