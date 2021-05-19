@@ -89,6 +89,7 @@ class InteractiveAction(events.Event):
                         headers=headers,
                         ssl=self.ssl_context,
                     )
+
                     if response.content_type == "application/json":
                         response_txt = await response.json()
                     elif response.content_type == "text/html":
@@ -130,7 +131,25 @@ class ViewClosed(InteractiveAction):
 
 
 class SlashCommand(InteractiveAction):
-    """Event class to represent a slash command"""
+    """
+    Event class to represent a slash command.
+
+    args:
+        payload: Incomming payload from the Slack API
+
+    **Basic Usage in a Skill:**
+
+    .. code-block:: python
+
+        from opsdroid.skill import Skill
+        from opsdroid.matchers import match_regex
+
+        class SearchMessagesSkill(Skill):
+            @match_event(SlashCommand, command="/testcommand")
+            async def caca(self, message):
+                await self.responder.wave("cloudroid-test")
+                await message.respond("Hi")
+    """
 
 
 class ChannelArchived(events.Event):
@@ -139,4 +158,3 @@ class ChannelArchived(events.Event):
 
 class ChannelUnarchived(events.Event):
     """Event for when a slack channel is unarchived."""
-
