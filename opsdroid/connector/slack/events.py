@@ -89,7 +89,10 @@ class InteractiveAction(events.Event):
                         headers=headers,
                         ssl=self.ssl_context,
                     )
-                    response_txt = await response.json()
+                    if response.content_type == "application/json":
+                        response_txt = await response.json()
+                    elif response.content_type == "text/html":
+                        response_txt = await response.text()
             else:
                 response_txt = {"error": "Response URL not available in payload."}
         else:
@@ -125,9 +128,9 @@ class ViewSubmission(InteractiveAction):
 class ViewClosed(InteractiveAction):
     """Event class to represent view_closed in Slack."""
 
-    def __init__(self, payload, *args, **kwargs):
-        """Create object with minimum properties."""
-        super().__init__(payload, *args, **kwargs)
+
+class SlashCommand(InteractiveAction):
+    """Event class to represent a slash command"""
 
 
 class ChannelArchived(events.Event):
@@ -136,3 +139,4 @@ class ChannelArchived(events.Event):
 
 class ChannelUnarchived(events.Event):
     """Event for when a slack channel is unarchived."""
+
