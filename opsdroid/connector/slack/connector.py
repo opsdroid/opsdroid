@@ -398,7 +398,7 @@ class ConnectorSlack(Connector):
 
         https://api.slack.com/methods/views.push
         """
-        _LOGGER.debug(_("Opening modal with trigger id: %s.", modal.trigger_id))
+        _LOGGER.debug(_("Pushing modal with trigger id: %s.", modal.trigger_id))
 
         return await self.slack_web_client.api_call(
             "views.push",
