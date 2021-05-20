@@ -114,6 +114,54 @@ class MessageAction(InteractiveAction):
         super().__init__(payload, *args, **kwargs)
 
 
+class Modal(events.Event):
+    """Base Event class to represent a Modal in Slack.
+
+    Modals are the Slack app equivalent of alert boxes, pop-ups, or dialog boxes.
+    https://api.slack.com/surfaces/modals/using
+
+    args:
+        view: a view payload. this can be a dict or a json encoded string
+    """
+
+    def __init__(self, view, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.view = view
+
+        if isinstance(self.view, dict):
+            self.view = json.dumps(self.view)
+
+
+class ModalOpen(Modal):
+    """Event class to represent a new Modal in Slack.
+    args:
+        trigger_id: trigger to post to a user
+    """
+
+    def __init__(self, trigger_id, view, *args, **kwargs):
+        super().__init__(view, *args, **kwargs)
+        self.trigger_id = trigger_id
+
+
+class ModalUpdate(Modal):
+    """Event class to represent a Modal Update in Slack
+
+    args:
+        external_id: A unique identifier of the view set by the developer
+        _hash: A string that represents view state to protect against possible race conditions
+    """
+
+    def __init__(self, external_id, view, *args, _hash=None, **kwargs):
+        self.external_id = external_id
+        self.hash = _hash
+        super().__init__(view, *args, **kwargs)
+
+
+class ModalPush(ModalOpen):
+    """Event class to represent a Modal Push in Slack"""
+
+
 class ViewSubmission(InteractiveAction):
     """Event class to represent view_submission in Slack."""
 

@@ -18,7 +18,13 @@ from voluptuous import Required
 import opsdroid.events
 from opsdroid.connector import Connector, register_event
 from opsdroid.connector.slack.create_events import SlackEventCreator
-from opsdroid.connector.slack.events import Blocks, EditedBlocks
+from opsdroid.connector.slack.events import (
+    Blocks,
+    EditedBlocks,
+    ModalOpen,
+    ModalPush,
+    ModalUpdate,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -357,6 +363,46 @@ class ConnectorSlack(Connector):
         return await self.slack_web_client.api_call(
             "chat.update",
             data=data,
+        )
+
+    @register_event(ModalOpen)
+    async def _open_modal(self, modal):
+        """Respond with opening a Modal.
+
+        https://api.slack.com/methods/views.open
+        """
+        _LOGGER.debug(_("Opening modal with trigger id: %s.", modal.trigger_id))
+
+        return await self.slack_web_client.api_call(
+            "views.open",
+            data={"trigger_id": modal.trigger_id, "view": modal.view},
+        )
+
+    @register_event(ModalUpdate)
+    async def _update_modal(self, modal):
+        """Respond an update to a Modal.
+
+        https://api.slack.com/methods/views.update
+        """
+        _LOGGER.debug(_("Opening modal with trigger id: %s.", modal.external_id))
+        data = {"external_id": modal.external_id, "view": modal.view}
+
+        if modal.hash:
+            data["hash"] = modal.hash
+
+        return await self.slack_web_client.api_call("views.update", data=data)
+
+    @register_event(ModalPush)
+    async def _push_modal(self, modal):
+        """Respond by pushing a view onto the stack of a root view.
+
+        https://api.slack.com/methods/views.push
+        """
+        _LOGGER.debug(_("Opening modal with trigger id: %s.", modal.trigger_id))
+
+        return await self.slack_web_client.api_call(
+            "views.push",
+            data={"trigger_id": modal.trigger_id, "view": modal.view},
         )
 
     @register_event(opsdroid.events.Reaction)
