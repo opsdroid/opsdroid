@@ -166,7 +166,6 @@ class ConnectorSlack(Connector):
 
         response = SocketModeResponse(envelope_id=req.envelope_id)
         await client.send_socket_mode_response(response)
-
         payload = req.payload
 
         await self.event_handler(payload)
@@ -371,7 +370,7 @@ class ConnectorSlack(Connector):
 
         https://api.slack.com/methods/views.open
         """
-        _LOGGER.debug(_("Opening modal with trigger id: %s.", modal.trigger_id))
+        _LOGGER.debug(_("Opening modal with trigger id: %s."), modal.trigger_id)
 
         return await self.slack_web_client.api_call(
             "views.open",
@@ -384,7 +383,7 @@ class ConnectorSlack(Connector):
 
         https://api.slack.com/methods/views.update
         """
-        _LOGGER.debug(_("Opening modal with trigger id: %s.", modal.external_id))
+        _LOGGER.debug(_("Opening modal with trigger id: %s."), modal.external_id)
         data = {"external_id": modal.external_id, "view": modal.view}
 
         if modal.hash:
@@ -398,7 +397,7 @@ class ConnectorSlack(Connector):
 
         https://api.slack.com/methods/views.push
         """
-        _LOGGER.debug(_("Pushing modal with trigger id: %s.", modal.trigger_id))
+        _LOGGER.debug(_("Pushing modal with trigger id: %s."), modal.trigger_id)
 
         return await self.slack_web_client.api_call(
             "views.push",
