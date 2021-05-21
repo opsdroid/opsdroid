@@ -57,6 +57,7 @@ class SlackEventCreator(events.EventCreator):
 
     async def handle_bot_message(self, event, channel):
         """Check that a bot message is opsdroid if not create the message"""
+
         if event["bot_id"] != self.connector.bot_id:
             return await self.create_message(event, channel)
 
@@ -241,12 +242,17 @@ class SlackEventCreator(events.EventCreator):
     async def view_submission_triggered(self, event, channel):
         """Send a ViewSubmission event."""
 
-        return slack_events.ViewSubmission(
+        view_submission = slack_events.ViewSubmission(
             event,
             user=event["user"]["id"],
             target=event["user"]["id"],
             connector=self.connector,
         )
+
+        if callback_id := event.get("view", {}).get("callback_id"):
+            view_submission.update_entity("callback_id", callback_id)
+
+        return view_submission
 
     async def view_closed_triggered(self, event, channel):
         """Send a ViewClosed event."""
