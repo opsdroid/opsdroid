@@ -170,6 +170,8 @@ class TestConnectorMattermostAsync(asynctest.TestCase):
         )
         connector.mm_driver.posts = mock.Mock()
         connector.mm_driver.posts.create_post = mock.MagicMock()
-        await connector.send(Message("test", "user", "room", connector))
+        await connector.send(
+            Message(text="test", user="user", target="room", connector=connector)
+        )
         self.assertTrue(connector.mm_driver.channels.get_channel_by_name_and_team_name)
         self.assertTrue(connector.mm_driver.posts.create_post.called)
