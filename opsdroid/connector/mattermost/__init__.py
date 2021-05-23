@@ -69,7 +69,6 @@ class ConnectorMattermost(Connector):
             self.bot_name = login_response["username"]
             _LOGGER.info(_("Connected as %s"), self.bot_name)
 
-
         self.mm_driver.websocket = Websocket(
             self.mm_driver.options, self.mm_driver.client.token
         )
