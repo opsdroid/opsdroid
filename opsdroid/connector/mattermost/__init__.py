@@ -95,15 +95,14 @@ class ConnectorMattermost(Connector):
             post = json.loads(data["post"])
             # don't parse our own messages (https://github.com/opsdroid/opsdroid/issues/1775)
             if self.bot_id and post["user_id"] != self.bot_id:
-                await self.opsdroid.parse(
-                    Message(
-                        text=post["message"],
-                        user=data["sender_name"],
-                        target=data["channel_name"],
-                        connector=self,
-                        raw_event=message,
-                    )
-                )
+              await self.opsdroid.parse(
+                  Message(
+                      text=post["message"],
+                      user=data["sender_name"],
+                      target=data["channel_name"],
+                      connector=self,
+                      raw_event=message,
+                  )
 
     @register_event(Message)
     async def send_message(self, message):
