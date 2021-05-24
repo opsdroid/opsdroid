@@ -288,13 +288,12 @@ class ConnectorSlack(Connector):
         }
 
         if message.linked_event:
-            if "thread_ts" in message.linked_event.raw_event:
-                if (
-                    message.linked_event.event_id
-                    != message.linked_event.raw_event["thread_ts"]
-                ):
+            raw_event = message.linked_event.raw_event
+
+            if isinstance(raw_event, dict) and "thread_ts" in raw_event:
+                if message.linked_event.event_id != raw_event["thread_ts"]:
                     # Linked Event is inside a thread
-                    data["thread_ts"] = message.linked_event.raw_event["thread_ts"]
+                    data["thread_ts"] = raw_event["thread_ts"]
             elif self.start_thread:
                 data["thread_ts"] = message.linked_event.event_id
 
