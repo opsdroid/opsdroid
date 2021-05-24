@@ -94,7 +94,8 @@ class ConnectorMattermost(Connector):
             data = message["data"]
             post = json.loads(data["post"])
             # don't parse our own messages (https://github.com/opsdroid/opsdroid/issues/1775)
-            if self.bot_id and post["user_id"] != self.bot_id:
+            # (but also parse if somehow our bot_id is unknown, like in the unit tests)
+            if self.bot_id is None or self.bot_id != post["user_id"]:
                 await self.opsdroid.parse(
                     Message(
                         text=post["message"],
