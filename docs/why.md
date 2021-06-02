@@ -7,4 +7,6 @@
  * Designed with Docker in mind for simple deployment
  * Configurable with a single YAML file
  * Can connect to multiple chat services simultaneously
- * No coding necessary if using the official modules
+ * No coding necessary if using the official modules 
+ * Being a framework of python, it is readable and scalable
+ * It is simple to install unlike other frameworks
