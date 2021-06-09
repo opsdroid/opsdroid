@@ -93,8 +93,8 @@ class ConnectorMattermost(Connector):
         if "event" in message and message["event"] == "posted":
             data = message["data"]
             post = json.loads(data["post"])
-            # don't parse our own messages (https://github.com/opsdroid/opsdroid/issues/1775)
-            # (but also parse if somehow our bot_id is unknown, like in the unit tests)
+            # if connected to Mattermost, don't parse our own messages
+            # (https://github.com/opsdroid/opsdroid/issues/1775)
             if self.bot_id is None or self.bot_id != post["user_id"]:
                 await self.opsdroid.parse(
                     Message(
