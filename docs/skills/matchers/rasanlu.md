@@ -94,6 +94,8 @@ nlu:
 
 > **Note** - Rasa NLU requires an intent to have at least three training examples in the list. There must also be a minimum of two intents in your file for Rasa to train.
 
+> **Note** - The intent matching (`@match_rasanlu('greetings')` will perform a case-sentitive RegEx search on the intent returned by Rasa.
+
 The above skill would be called on any intent which has a name of `'greetings'` and `'bye'`.
 
 ## Example 2

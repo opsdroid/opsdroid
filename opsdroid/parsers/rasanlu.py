@@ -8,6 +8,7 @@ from hashlib import sha256
 
 import aiohttp
 import arrow
+import regex
 
 from opsdroid.const import RASANLU_DEFAULT_URL, RASANLU_DEFAULT_MODELS_PATH
 
@@ -273,7 +274,10 @@ async def parse_rasanlu(opsdroid, skills, message, config):
         for skill in skills:
             for matcher in skill.matchers:
                 if "rasanlu_intent" in matcher:
-                    if matcher["rasanlu_intent"] == result["intent"]["name"]:
+                    matched_regex = regex.search(
+                        matcher["rasanlu_intent"], result["intent"]["name"]
+                    )
+                    if matched_regex:
                         message.rasanlu = result
                         for entity in result["entities"]:
                             message.update_entity(
