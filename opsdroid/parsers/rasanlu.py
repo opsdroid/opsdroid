@@ -116,6 +116,8 @@ async def _load_model(config):
                 config["model_filename"],
             ),
         }
+        _LOGGER.info(_("Loading Rasa NLU model from %s."), data["model_file"])
+        training_start = arrow.now()
         url = config.get("url", RASANLU_DEFAULT_URL) + "/model"
         if "token" in config:
             url += "?token={}".format(config["token"])
@@ -130,6 +132,10 @@ async def _load_model(config):
             result = await resp.text()
             _LOGGER.error(_("Bad Rasa NLU response - %s."), result)
 
+        time_taken = (arrow.now() - training_start).total_seconds()
+        _LOGGER.info(
+            _("Rasa NLU model load is completed in %s seconds."), int(time_taken)
+        )
         return result
 
 
