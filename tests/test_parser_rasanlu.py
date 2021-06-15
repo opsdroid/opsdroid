@@ -131,7 +131,7 @@ class TestParserRasaNLU(asynctest.TestCase):
                             "end": 32,
                             "entity": "state",
                             "extractor": "ner_crf",
-                            "confidence": 0.854,
+                            "confidence_entity": 0.854,
                             "start": 25,
                             "value": "running",
                         }
@@ -175,7 +175,7 @@ class TestParserRasaNLU(asynctest.TestCase):
                             "value": "chinese",
                             "entity": "cuisine",
                             "extractor": "CRFEntityExtractor",
-                            "confidence": 0.854,
+                            "confidence_entity": 0.854,
                             "processors": [],
                         }
                     ],
@@ -215,7 +215,7 @@ class TestParserRasaNLU(asynctest.TestCase):
                             "end": 32,
                             "entity": "state",
                             "extractor": "ner_crf",
-                            "confidence": 0.854,
+                            "confidence_entity": 0.854,
                             "start": 25,
                             "value": "running",
                         }

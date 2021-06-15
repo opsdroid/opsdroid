@@ -287,7 +287,9 @@ async def parse_rasanlu(opsdroid, skills, message, config):
                         message.rasanlu = result
                         for entity in result["entities"]:
                             message.update_entity(
-                                entity["entity"], entity["value"], entity["confidence"]
+                                entity["entity"],
+                                entity["value"],
+                                entity["confidence_entity"],
                             )
                         matched_skills.append(
                             {
