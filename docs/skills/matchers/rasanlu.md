@@ -141,30 +141,135 @@ The above skill would be called on any intent which has a name of `'ask-joke'`.
 An http response object which has been returned by the Rasa NLU API. This allows you to access any information from the matched intent including other entities, intents, values, etc.
 
 
-## Example Skill
+## Example Skill: weatherbot
+
+`__init__.py`:
 
 ```python
 from opsdroid.skill import Skill
-from opsdroid.matchers import match_rasanlu
+from opsdroid.matchers import match_rasanlu, match_regex
 
+import logging
 import json
+import random
+
+_LOGGER = logging.getLogger(__name__)
 
 class MySkill(Skill):
-    @match_rasanlu('restaurants')
-    async def dumpResponse(self, message):
-        print(json.dumps(message.rasanlu))
+    @match_rasanlu("ask_weather")
+    async def ask_weather(self, message):
+        _LOGGER.info(_("Rasa result data - %s"), json.dumps(message.rasanlu))
+        _LOGGER.info(_("Entities got from Rasa - %s"), json.dumps(message.entities))
+        if "city" in message.entities:
+            city = message.entities["city"]["value"]
+            response = "Looking up the weather in {}...".format(city)
+            await message.respond(response)
+            # Implement getting the weather
+        else:
+            await message.respond("I don't know this city. :(")
+
+    @match_rasanlu(".")  # Matches all
+    async def passthrough(self, message):
+        _LOGGER.info(_("Rasa result data - %s"), json.dumps(message.rasanlu))
+        if (
+            "response_selector" in message.rasanlu
+            and "default" in message.rasanlu["response_selector"]
+            and "response" in message.rasanlu["response_selector"]["default"]
+            and "responses"
+            in message.rasanlu["response_selector"]["default"]["response"]
+            and message.rasanlu["response_selector"]["default"]["response"]["responses"]
+        ):
+            response = random.choices(
+                message.rasanlu["response_selector"]["default"]["response"]["responses"]
+            )
+            response = response[0]["text"]
+            _LOGGER.info(response)
+            await message.respond(response)
+
 ```
 
-### Return Value on "I am looking for a Mexican restaurant in the center of town"
+`intents.yml`:
 
-The example skill will print the following .
+```yaml
+version: "2.0"
 
-```json
-{
-  "intent": "search_restaurant",
-  "entities": {
-    "cuisine" : "Mexican",
-    "location" : "center"
-  }
-}
+language: en
+
+pipeline:
+  - name: WhitespaceTokenizer
+  - name: RegexEntityExtractor
+  - name: LexicalSyntacticFeaturizer
+  - name: CountVectorsFeaturizer
+  - name: CountVectorsFeaturizer
+    analyzer: char_wb
+    min_ngram: 1
+    max_ngram: 4
+  - name: DIETClassifier
+    epochs: 100
+  - name: EntitySynonymMapper
+  - name: ResponseSelector
+    epochs: 100
+
+policies:
+- name: RulePolicy
+
+intents:
+- greet
+- ask_weather
+
+entities:
+- city
+
+responses:
+  utter_greet/hi:
+  - text: Hello, my name is WeatherBot. You can ask me what's the weather in a city.
+  utter_greet/bye:
+  - text: Bye, bye
+  - text: See you
+  utter_greet/are_you_bot:
+  - text: Yes, I'm a bot.
+
+nlu:
+  - intent: greet/hi
+    examples: |
+      - Hey
+      - Hello
+      - Hi
+      - Hiya
+      - heycode
+      - whats up
+      - wazzup
+      - heya
+  - intent: greet/bye
+    examples: |
+      - Bye
+      - Bye bye
+      - Seeya
+      - Take care
+  - intent: greet/are_you_bot
+    examples: |
+      - Are you a human?
+      - Are you a bot?
+      - Are you a robot?
+  - lookup: city
+    examples: |
+      - Cologne
+      - Berlin
+      - Munich
+  - intent: ask_weather
+    examples: |
+      - What's the weather like today in [city](city)?
+      - Does it look sunny outside today in [city](city)?
+      - Do you mind checking the weather for me please in the [city](city)?
+      - What is the weather in [city](city)?
+      - Is it raining in [city](city)?
+
 ```
+
+This skill uses Rasa for detecting intents (mapping user input to "meaning" and this way to a function in the skill code) and detecting  entities (parameters like city).
+
+We can train Rasa (using `ResponseSelector`) to propose responses and send the response (using `passthrough` function) back to the user.
+
+If `ask_weather` intent is detected then the function of getting the weather data is triggered and sent to the user.
+
+> **Note** - The code for actually getting the weather is not implemented because it's not in scope for this example.
