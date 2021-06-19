@@ -189,6 +189,29 @@ class TestParserRasaNLU(asynctest.TestCase):
                 self.assertEqual(
                     skill["message"].entities["cuisine"]["value"], "chinese"
                 )
+            with amock.patch.object(rasanlu, "call_rasanlu") as mocked_call_rasanlu:
+                mocked_call_rasanlu.return_value = {
+                    "text": "show me chinese restaurants",
+                    "intent": {"name": "restaurant_search", "confidence": 0.98343},
+                    "entities": [
+                        {
+                            "start": 8,
+                            "end": 15,
+                            "value": "chinese",
+                            "entity": "cuisine",
+                            "extractor": "RegexEntityExtractor",
+                        }
+                    ],
+                }
+                [skill] = await rasanlu.parse_rasanlu(
+                    opsdroid, opsdroid.skills, message, opsdroid.config["parsers"][0]
+                )
+
+                self.assertEqual(len(skill["message"].entities.keys()), 1)
+                self.assertTrue("cuisine" in skill["message"].entities.keys())
+                self.assertEqual(
+                    skill["message"].entities["cuisine"]["value"], "chinese"
+                )
 
     async def test_parse_rasanlu_raises(self):
         with OpsDroid() as opsdroid:
