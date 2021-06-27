@@ -211,7 +211,9 @@ class SlackEventCreator(events.EventCreator):
                 target=event["channel"]["id"],
                 connector=self.connector,
             )
-            action_value = None
+            action_value =  None
+            action_id = action.get("action_id", None)
+            block_id = action.get("block_id", None)
 
             if action["type"] == "button":
                 action_value = action["value"]
@@ -224,6 +226,10 @@ class SlackEventCreator(events.EventCreator):
 
             if action_value:
                 block_action.update_entity("value", action_value)
+            if action_id:
+                block_action.update_entity("action_id", action_id)
+            if block_id:
+                block_action.update_entity("block_id", block_id)
             block_actions.append(block_action)
 
         return block_actions
