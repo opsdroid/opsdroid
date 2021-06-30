@@ -211,7 +211,7 @@ class SlackEventCreator(events.EventCreator):
                 target=event["channel"]["id"],
                 connector=self.connector,
             )
-            action_value =  None
+            action_value = None
             action_id = action.get("action_id", None)
             block_id = action.get("block_id", None)
 
