@@ -236,3 +236,15 @@ class InteractionsSkill(Skill):
     async def slack_interactions(self, event):
         await self.opsdroid.send(Message("View Closed interactivity has been triggered."))
 ```
+
+## Matching events in Interactive Actions
+
+In the [block_actions](https://docs.opsdroid.dev/en/stable/connectors/slack.html#block-actions) example above, you can also match on `action_id` and/or `block_id` in addition to `value` for `match_event` like any of these:
+
+```python
+    @match_event(BlockActions, action_id="text1234")
+    @match_event(BlockActions, action_id="text1234", value="click_me_123")
+    @match_event(BlockActions, block_id="section678")
+    @match_event(BlockActions, block_id="section678", value="click_me_123")
+    @match_event(BlockActions, block_id="section678", action_id="text1234", value="click_me_123")
+```
