@@ -156,7 +156,7 @@ import random
 _LOGGER = logging.getLogger(__name__)
 
 class MySkill(Skill):
-    @match_rasanlu("ask_weather")
+    @match_rasanlu("^ask_weather$")
     async def ask_weather(self, message):
         _LOGGER.info(_("Rasa result data - %s"), json.dumps(message.rasanlu))
         _LOGGER.info(_("Entities got from Rasa - %s"), json.dumps(message.entities))
@@ -168,7 +168,7 @@ class MySkill(Skill):
         else:
             await message.respond("I don't know this city. :(")
 
-    @match_rasanlu(".")  # Matches all
+    @match_rasanlu("^.*$")  # Matches all
     async def passthrough(self, message):
         _LOGGER.info(_("Rasa result data - %s"), json.dumps(message.rasanlu))
         if (
