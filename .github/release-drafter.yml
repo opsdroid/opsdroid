@@ -16,6 +16,9 @@ categories:
   - title: 'Gitter Connector Changes'
     labels:
       - 'connector/gitter'
+  - title: 'Mattermost Connector Changes'
+    labels:
+      - 'connector/mattermost'
   - title: 'Matrix Connector Changes'
     labels:
       - 'connector/matrix'
