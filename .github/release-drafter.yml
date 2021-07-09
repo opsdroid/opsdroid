@@ -43,6 +43,9 @@ categories:
   - title: 'Database Changes'
     labels:
       - 'database'
+  - title: 'Parser and Matcher Changes'
+    labels:
+      - 'parser'
   - title: 'Bug Fixes'
     labels:
       - 'bug'
