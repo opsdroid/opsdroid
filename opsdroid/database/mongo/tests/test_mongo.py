@@ -9,7 +9,13 @@ def database(config):
     return DatabaseMongo(config)
 
 
-@pytest.mark.parametrize("config", [{"database": "test_db"}])
+@pytest.mark.parametrize(
+    "config",
+    [
+        {"database": "test_db"},
+        {"database": "test_db", "user": "root", "password": "mongo"},
+    ]
+)
 def test_init(database):
     """Test that the database is initialised properly."""
     assert database.name == "mongo"
