@@ -37,8 +37,8 @@ class DatabaseMongo(Database):
         host = self.config.get("host", "localhost")
         port = self.config.get("port", "27017")
         database = self.config.get("database", "opsdroid")
-        user = self.config.get("user", "root")
-        pwd = self.config.get("password", "mongo")
+        user = self.config.get("user")
+        pwd = self.config.get("password")
         if user and pwd:
             path = "mongodb://{user}:{pwd}@{host}:{port}".format(user=user, pwd=pwd, host=host, port=port)
         else:

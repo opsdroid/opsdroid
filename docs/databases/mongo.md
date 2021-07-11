@@ -14,8 +14,8 @@ databases:
     host:       "my_host"     # (optional) default "localhost"
     port:       "12345"       # (optional) default "27017"
     database:   "my_database" # (optional) default "opsdroid"
-    user:       "my_user"     # (optional) default "root"
-    password:   "pwd123!"     # (optional) default "mongo"
+    user:       "my_user"     # (optional)
+    password:   "pwd123!"     # (optional)
 ```
 
 ## Usage
