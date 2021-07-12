@@ -40,7 +40,9 @@ class DatabaseMongo(Database):
         user = self.config.get("user")
         pwd = self.config.get("password")
         if user and pwd:
-            path = "mongodb://{user}:{pwd}@{host}:{port}".format(user=user, pwd=pwd, host=host, port=port)
+            path = "mongodb://{user}:{pwd}@{host}:{port}".format(
+                user=user, pwd=pwd, host=host, port=port
+            )
         else:
             path = "mongodb://{host}:{port}".format(host=host, port=port)
         self.client = AsyncIOMotorClient(path)

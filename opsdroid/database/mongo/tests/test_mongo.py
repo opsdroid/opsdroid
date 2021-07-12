@@ -14,7 +14,7 @@ def database(config):
     [
         {"database": "test_db"},
         {"database": "test_db", "user": "root", "password": "mongo"},
-    ]
+    ],
 )
 def test_init(database):
     """Test that the database is initialised properly."""
