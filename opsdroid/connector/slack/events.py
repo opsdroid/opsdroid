@@ -69,9 +69,8 @@ class InteractiveAction(events.Event):
         self.payload = payload
         self.ssl_context = ssl.create_default_context(cafile=certifi.where())
 
-    async def respond(self, response_event, **kwargs):
+    async def respond(self, response_event):
         """Respond to this message using the response_url field in the payload."""
-        response_type = kwargs.get("response_type", "in_channel")
 
         if isinstance(response_event, str):
             if "response_url" in self.payload:
@@ -84,7 +83,7 @@ class InteractiveAction(events.Event):
                                 "text": response_event,
                                 "replace_original": False,
                                 "delete_original": False,
-                                "response_type": response_type,
+                                "response_type": "in_channel",
                             }
                         ),
                         headers=headers,
