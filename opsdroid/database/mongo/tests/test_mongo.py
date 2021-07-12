@@ -9,13 +9,7 @@ def database(config):
     return DatabaseMongo(config)
 
 
-@pytest.mark.parametrize(
-    "config",
-    [
-        {"database": "test_db"},
-        {"database": "test_db", "user": "root", "password": "mongo"},
-    ],
-)
+@pytest.mark.parametrize("config", [{"database": "test_db"}])
 def test_init(database):
     """Test that the database is initialised properly."""
     assert database.name == "mongo"
@@ -23,7 +17,13 @@ def test_init(database):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("config", [{}])
+@pytest.mark.parametrize(
+    "config",
+    [
+        {},
+        {"database": "test_db", "user": "root", "password": "mongo"},
+    ],
+)
 async def test_connect(database):
     """Test that the mongo database has implemented connect function properly"""
     try:
