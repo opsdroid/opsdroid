@@ -7,7 +7,13 @@ from voluptuous import Any
 from opsdroid.database import Database
 
 _LOGGER = logging.getLogger(__name__)
-CONFIG_SCHEMA = {"host": str, "port": Any(int, str), "database": str}
+CONFIG_SCHEMA = {
+    "host": str,
+    "port": Any(int, str),
+    "database": str,
+    "user": str,
+    "password": str,
+}
 
 
 class DatabaseMongo(Database):
