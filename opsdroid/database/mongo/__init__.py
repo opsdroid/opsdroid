@@ -7,7 +7,13 @@ from voluptuous import Any
 from opsdroid.database import Database
 
 _LOGGER = logging.getLogger(__name__)
-CONFIG_SCHEMA = {"host": str, "port": Any(int, str), "database": str}
+CONFIG_SCHEMA = {
+    "host": str,
+    "port": Any(int, str),
+    "database": str,
+    "user": str,
+    "password": str,
+}
 
 
 class DatabaseMongo(Database):
@@ -37,7 +43,14 @@ class DatabaseMongo(Database):
         host = self.config.get("host", "localhost")
         port = self.config.get("port", "27017")
         database = self.config.get("database", "opsdroid")
-        path = "mongodb://{host}:{port}".format(host=host, port=port)
+        user = self.config.get("user")
+        pwd = self.config.get("password")
+        if user and pwd:
+            path = "mongodb://{user}:{pwd}@{host}:{port}".format(
+                user=user, pwd=pwd, host=host, port=port
+            )
+        else:
+            path = "mongodb://{host}:{port}".format(host=host, port=port)
         self.client = AsyncIOMotorClient(path)
         self.database = self.client[database]
         _LOGGER.info("Connected to MongoDB.")
