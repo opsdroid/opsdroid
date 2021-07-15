@@ -45,6 +45,16 @@ async def test_get(database):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("config", [{}])
+async def test_get_with_key(database):
+    database.database = {}
+    database.database["test_db"] = DatabaseMongoTest({})
+    with pytest.raises(TypeError):
+        database.query_data = {"_id": "0"}
+        await database.get("test_db")
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("config", [{}])
 async def test_put(database):
     database.database = {}
     database.database["test_db"] = DatabaseMongoTest({})
@@ -76,6 +86,18 @@ async def test_put2(database):
 @pytest.mark.parametrize("config", [{}])
 async def test_delete(database):
     try:
+        await database.delete("test_db")
+    except TypeError:
+        pass
+    else:
+        raise Exception
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("config", [{}])
+async def test_delete_with_key(database):
+    try:
+        database.query_data = {"_id": "0"}
         await database.delete("test_db")
     except TypeError:
         pass

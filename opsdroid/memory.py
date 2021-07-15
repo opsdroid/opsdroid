@@ -20,6 +20,7 @@ class Memory:
     def __init__(self):
         """Create object with minimum properties."""
         self.databases = []
+        self.query_data = {}
 
     async def get(self, key, default=None):
         """Get data object for a given key.
@@ -83,6 +84,7 @@ class Memory:
 
         results = []
         for database in self.databases:
+            database.query_data = self.query_data
             results.append(await database.get(key))
         return results[0]
 
@@ -111,4 +113,5 @@ class Memory:
         """
         if self.databases:
             for database in self.databases:
+                database.query_data = self.query_data
                 await database.delete(key)

@@ -37,6 +37,7 @@ class DatabaseMongo(Database):
         self.config = config
         self.client = None
         self.database = None
+        self.query_data = {}
 
     async def connect(self):
         """Connect to the database."""
@@ -65,9 +66,13 @@ class DatabaseMongo(Database):
         """
         _LOGGER.debug("Putting %s into MongoDB.", key)
         if "_id" in data:
-            await self.database[key].update_one({"_id": data["_id"]}, {"$set": data})
-        else:
-            await self.database[key].insert_one(data)
+            response = await self.database[key].update_one(
+                {"_id": data["_id"]}, {"$set": data}
+            )
+            if response.raw_result["updatedExisting"]:
+                return
+
+        await self.database[key].insert_one(data)
 
     async def get(self, key):
         """Get a document from the database (key).
@@ -77,9 +82,14 @@ class DatabaseMongo(Database):
 
         """
         _LOGGER.debug("Getting %s from MongoDB.", key)
-        return await self.database[key].find_one(
-            {"$query": {}, "$orderby": {"$natural": -1}}
-        )
+        if self.query_data:
+            return await self.database[key].find_one(
+                {"$query": self.query_data, "$orderby": {"$natural": -1}}
+            )
+        else:
+            return await self.database[key].find_one(
+                {"$query": {}, "$orderby": {"$natural": -1}}
+            )
 
     async def delete(self, key):
         """Delete a document from the database (key).
@@ -89,4 +99,7 @@ class DatabaseMongo(Database):
 
         """
         _LOGGER.debug("Deleting %s from MongoDB.", key)
-        return await self.database[key].delete_one({"$query": {}})
+        if self.query_data:
+            return await self.database[key].delete_one(self.query_data)
+        else:
+            return await self.database[key].delete_one({"$query": {}})
