@@ -102,4 +102,4 @@ class DatabaseMongo(Database):
         if self.query_data:
             return await self.database[key].delete_one(self.query_data)
         else:
-            return await self.database[key].delete_one({"$query": {}})
+            return await self.database.drop_collection(key)
