@@ -37,6 +37,7 @@ class DatabaseMongo(Database):
         self.config = config
         self.client = None
         self.database = None
+        self.collection = config.get("collection", "opsdroid")
 
     async def connect(self):
         """Connect to the database."""
@@ -64,10 +65,18 @@ class DatabaseMongo(Database):
 
         """
         _LOGGER.debug("Putting %s into MongoDB.", key)
-        if "_id" in data:
-            await self.database[key].update_one({"_id": data["_id"]}, {"$set": data})
-        else:
-            await self.database[key].insert_one(data)
+        if isinstance(data, str):
+            data = {"value": data}
+        if "_id" not in data:
+            data["_id"] = key
+
+        response = await self.database[self.collection].update_one(
+            {"_id": data["_id"]}, {"$set": data}
+        )
+        if response.raw_result["updatedExisting"]:
+            return
+
+        await self.database[self.collection].insert_one(data)
 
     async def get(self, key):
         """Get a document from the database (key).
@@ -77,9 +86,12 @@ class DatabaseMongo(Database):
 
         """
         _LOGGER.debug("Getting %s from MongoDB.", key)
-        return await self.database[key].find_one(
-            {"$query": {}, "$orderby": {"$natural": -1}}
+        response = await self.database[self.collection].find_one(
+            {"$query": {"_id": key}, "$orderby": {"$natural": -1}}
         )
+        if response.keys() == {"_id", "value"}:
+            response = response["value"]
+        return response
 
     async def delete(self, key):
         """Delete a document from the database (key).
@@ -89,4 +101,4 @@ class DatabaseMongo(Database):
 
         """
         _LOGGER.debug("Deleting %s from MongoDB.", key)
-        return await self.database[key].delete_one({"$query": {}})
+        return await self.database[self.collection].delete_one({"_id": key})

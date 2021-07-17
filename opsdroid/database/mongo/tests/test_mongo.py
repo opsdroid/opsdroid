@@ -9,11 +9,14 @@ def database(config):
     return DatabaseMongo(config)
 
 
-@pytest.mark.parametrize("config", [{"database": "test_db"}])
+@pytest.mark.parametrize(
+    "config", [{"database": "test_db", "collection": "test_collection"}]
+)
 def test_init(database):
     """Test that the database is initialised properly."""
     assert database.name == "mongo"
     assert database.config["database"] == "test_db"
+    assert database.config["collection"] == "test_collection"
 
 
 @pytest.mark.asyncio
@@ -21,7 +24,12 @@ def test_init(database):
     "config",
     [
         {},
-        {"database": "test_db", "user": "root", "password": "mongo"},
+        {
+            "database": "test_db",
+            "collection": "test_collection",
+            "user": "root",
+            "password": "mongo",
+        },
     ],
 )
 async def test_connect(database):
@@ -35,24 +43,22 @@ async def test_connect(database):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("config", [{}])
+@pytest.mark.parametrize("config", [{"collection": "test_collection"}])
 async def test_get(database):
-    database.database = {}
-    database.database["test_db"] = DatabaseMongoTest({})
+    database.database = {"test_collection": DatabaseMongoTest({})}
     with pytest.raises(TypeError):
         await database.get("test_db")
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("config", [{}])
+@pytest.mark.parametrize("config", [{"collection": "test_collection"}])
 async def test_put(database):
-    database.database = {}
-    database.database["test_db"] = DatabaseMongoTest({})
+    database.database = {"test_collection": DatabaseMongoTest({})}
     try:
-        await database.put("test_db", {"_id": "0", "key": "value"})
+        await database.put("test_key", {"key": "value"})
     except TypeError:
         try:
-            await database.put("test_db", {})
+            await database.put("test_key", {})
         except NotImplementedError:
             raise Exception
         else:
@@ -62,10 +68,10 @@ async def test_put(database):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("config", [{}])
+@pytest.mark.parametrize("config", [{"collection": "test_collection"}])
 async def test_put2(database):
     try:
-        await database.put("test_db", {})
+        await database.put("test_key", {})
     except TypeError:
         pass
     else:
@@ -73,7 +79,7 @@ async def test_put2(database):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("config", [{}])
+@pytest.mark.parametrize("config", [{"collection": "test_collection"}])
 async def test_delete(database):
     try:
         await database.delete("test_db")
