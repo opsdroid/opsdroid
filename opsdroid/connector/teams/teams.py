@@ -1,4 +1,4 @@
-"""A connector for Slack."""
+"""A connector for Microsoft Teams."""
 
 import logging
 import json
@@ -28,7 +28,7 @@ CONFIG_SCHEMA = {
 
 
 class TeamsConnector(Connector):
-    """A connector for Slack."""
+    """A connector for Microsoft Teams."""
 
     def __init__(self, config, opsdroid=None):
         """Create the connector."""
