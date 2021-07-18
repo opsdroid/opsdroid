@@ -89,10 +89,7 @@ class ConnectorGitter(Connector):
         """Keep listing to the gitter channel."""
         _LOGGER.debug(_("Listening with Gitter stream."))
         while self.listening:
-            try:
-                await self._get_messages()
-            except AttributeError:
-                break
+            await self._get_messages()
 
     async def _get_messages(self):
         """Message listener."""
