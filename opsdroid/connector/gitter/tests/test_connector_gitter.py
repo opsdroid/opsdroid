@@ -5,6 +5,7 @@ import pytest
 from pathlib import Path
 
 
+from opsdroid.connector.gitter import ConnectorGitter
 from opsdroid.events import Message
 from opsdroid.matchers import match_regex
 from opsdroid.testing import running_opsdroid
