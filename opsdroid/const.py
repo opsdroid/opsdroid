@@ -32,7 +32,7 @@ EXAMPLE_CONFIG_FILE = os.path.join(
 REGEX_PARSE_SCORE_FACTOR = 0.6
 
 RASANLU_DEFAULT_URL = "http://localhost:5000"
-RASANLU_DEFAULT_PROJECT = "opsdroid"
+RASANLU_DEFAULT_MODELS_PATH = "models"
 
 LUISAI_DEFAULT_URL = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/"
 

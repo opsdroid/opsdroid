@@ -11,9 +11,11 @@ None.
 ```yaml
 databases:
   mongo:
-    host:       "my host"     # (optional) default "localhost"
+    host:       "my_host"     # (optional) default "localhost"
     port:       "12345"       # (optional) default "27017"
-    database:   "mydatabase"  # (optional) default "opsdroid"
+    database:   "my_database" # (optional) default "opsdroid"
+    user:       "my_user"     # (optional)
+    password:   "pwd123!"     # (optional)
 ```
 
 ## Usage
