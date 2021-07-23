@@ -7,7 +7,7 @@ from opsdroid import __version__  # noqa # pylint: disable=unused-import
 NAME = "opsdroid"
 MODULE_ROOT = os.path.dirname(os.path.abspath(opsdroid.__file__))
 DEFAULT_GIT_URL = "https://github.com/opsdroid/"
-MODULES_DIRECTORY = "opsdroid-modules"
+MODULES_DIRECTORY = "opsdroid_modules"
 DEFAULT_ROOT_PATH = user_data_dir(NAME)
 DEFAULT_LOG_FILENAME = os.path.join(user_log_dir(NAME, appauthor=False), "output.log")
 DEFAULT_MODULES_PATH = user_data_dir(NAME, MODULES_DIRECTORY)
