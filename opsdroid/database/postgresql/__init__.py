@@ -16,15 +16,18 @@ def check_table(func):
     async def wrapper(*args, **kwargs):
         # args[0].connection will get DatabasePostgres.connection
         connection = args[0].connection
-        if 'table_name' in kwargs:
+        if 'table_name' in kwargs and kwargs['table_name']:
             table_name = kwargs['table_name']
         else:
             table_name = 'opsdroid_default'
 
+        if ' ' in table_name:
+            _LOGGER.warning('table_name contains a space character. Suggest changing "' + table_name + '" to "' + table_name.strip(' ') + '"')
+
         async with connection.transaction():
             # Create table if it does not exist
             await connection.execute(
-                'CREATE TABLE IF NOT EXISTS {} ( key text PRIMARY KEY, data text)'.format(table_name)
+                'CREATE TABLE IF NOT EXISTS "{}" ( key text PRIMARY KEY, data text)'.format(table_name)
             )
 
             # Check Table's data structure is correct
@@ -94,12 +97,12 @@ class DatabasePostgres(Database):
             key_already_exists = await self.get(key, table_name=table_name)
             if key_already_exists:
                 await self.connection.execute(
-                    "UPDATE {} SET data = $2 WHERE key = $1".format(table_name),
+                    'UPDATE "{}" SET data = $2 WHERE key = $1'.format(table_name),
                     key, json_data
                 )
             else:
                 await self.connection.execute(
-                    "INSERT INTO {} VALUES ($1, $2)".format(table_name),
+                    'INSERT INTO "{}" VALUES ($1, $2)'.format(table_name),
                     key, json_data
                 )
 
@@ -114,7 +117,7 @@ class DatabasePostgres(Database):
         _LOGGER.debug("Getting %s from PostgreSQL table %s", key, table_name)
 
         values = await self.connection.fetch(
-            'SELECT data FROM {} WHERE key = $1'.format(table_name),
+            'SELECT data FROM "{}" WHERE key = $1'.format(table_name),
             key,
         )
 
@@ -138,6 +141,6 @@ class DatabasePostgres(Database):
 
         async with self.connection.transaction():
             await self.connection.execute(
-                "DELETE FROM {} WHERE key = $1".format(table_name),
+                'DELETE FROM "{}" WHERE key = $1'.format(table_name),
                 key
             )
