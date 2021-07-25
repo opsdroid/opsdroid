@@ -66,9 +66,7 @@ class TeamsConnector(Connector):
         # Cache service endpoint for channel
         teams_channel_id = teams_get_channel_id(activity)
         if teams_channel_id not in self.service_endpoints:
-            self.service_endpoints[
-                teams_get_channel_id(activity)
-            ] = activity.service_url
+            self.service_endpoints[teams_channel_id] = activity.service_url
             await self.opsdroid.memory.put(
                 "teams_service_endpoints", self.service_endpoints
             )

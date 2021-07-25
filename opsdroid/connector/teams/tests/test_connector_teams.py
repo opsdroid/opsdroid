@@ -18,8 +18,8 @@ def get_response_path(response):
 async def connector(opsdroid, mock_api_obj):
     opsdroid.config["connectors"] = {
         "teams": {
-            "app-id": "abcdef",
-            "password": "123456",
+            "app-id": "abc123",
+            "password": "def456",
         }
     }
     await opsdroid.load()
@@ -60,7 +60,7 @@ async def test_ping_pong(opsdroid, connector, mock_api, mock_api_obj, caplog):
     opsdroid.register_skill(test_skill, config={"name": "test"})
 
     with mock.patch("uuid.uuid4") as mock_uuid:
-        mock_uuid.return_value = "d6d49420-f39b-4df7-a1dc-d59a935871db"
+        mock_uuid.return_value = "d6d49420-f39b-4df7-a1ac-d59a935871db"
         async with running_opsdroid(opsdroid):
             with open(get_response_path("teams_ping_payload.json"), "r") as fh:
                 data = fh.read()
