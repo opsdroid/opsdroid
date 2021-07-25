@@ -41,7 +41,7 @@ async def test_connect(connector, mock_api):
 @pytest.mark.asyncio
 @vcr.use_cassette(
     "opsdroid/connector/teams/tests/test_ping_pong.yaml",
-    record_mode="new_episodes",
+    record_mode="once",
     filter_post_data_parameters=["client_id", "client_secret"],
     ignore_localhost=True,
 )
@@ -59,8 +59,8 @@ async def test_ping_pong(opsdroid, connector, mock_api, mock_api_obj, caplog):
 
     opsdroid.register_skill(test_skill, config={"name": "test"})
 
-    with mock.patch("uuid.uuid4") as mock_uuid:
-        mock_uuid.return_value = "d6d49420-f39b-4df7-a1ac-d59a935871db"
+    with mock.patch("uuid.uuid1") as mock_uuid:
+        mock_uuid.return_value = "ca153e8e-ed8c-11eb-9208-1e2940309485"
         async with running_opsdroid(opsdroid):
             with open(get_response_path("teams_ping_payload.json"), "r") as fh:
                 data = fh.read()

@@ -28,13 +28,13 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sun, 25 Jul 2021 20:02:18 GMT
+      - Sun, 25 Jul 2021 21:13:36 GMT
       P3P:
       - CP="DSP CUR OTPi IND OTRi ONL FIN"
       Set-Cookie:
-      - fpc=Apd7OVHpEqRJk0gBgJD_DPU; expires=Tue, 24-Aug-2021 20:02:18 GMT; path=/;
+      - fpc=AnhM9ajgQR9Hsig1cWvneMI; expires=Tue, 24-Aug-2021 21:13:37 GMT; path=/;
         secure; HttpOnly; SameSite=None
-      - esctx=AQABAAAAAAD--DLA3VO7QrddgJg7WevrV37KGj50fALyD7Qm1q1SznOUGPmrqObf4tozkX2-BOEGCoeAuRmQEsQlmwoiJ6h4AfmsQTHlRmhlQocT3rVzB2UyxgVjRbZoVtpw-4oOeB6YUKv4nIHBcdq5BwQ4r6w_F_QHEEEIepzfJvblxCVMmk-r5KkBGCwflIdDlvROMeAgAA;
+      - esctx=AQABAAAAAAD--DLA3VO7QrddgJg7WevrKtV50mNn7Rc6AvspdFwyX0KzM99fLb2X4nBVOCtjkcUZXzgbIKogW3SKqDgmk0wcjWXjjnfYfbrjCVYOSl7uEm4zqbW59iWq0p11ICCv54QI77vlt5VhWPodStT9e-mRsHNHI8V8b9aJ84xqcsPwY-lt99n0YrFOIEvYawz48bUgAA;
         domain=.login.microsoftonline.com; path=/; secure; HttpOnly; SameSite=None
       - x-ms-gateway-slice=estsfd; path=/; secure; samesite=none; httponly
       - stsservicecookie=estsfd; path=/; secure; samesite=none; httponly
@@ -43,9 +43,9 @@ interactions:
       X-Content-Type-Options:
       - nosniff
       x-ms-ests-server:
-      - 2.1.11898.8 - NCUS ProdSlices
+      - 2.1.11898.8 - WUS2 ProdSlices
       x-ms-request-id:
-      - f500237c-15e7-4086-9444-a7a753667f00
+      - ec459164-d36c-4df0-b06f-056feb87ed00
     status:
       code: 200
       message: OK
@@ -77,13 +77,13 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sun, 25 Jul 2021 20:02:18 GMT
+      - Sun, 25 Jul 2021 21:13:37 GMT
       P3P:
       - CP="DSP CUR OTPi IND OTRi ONL FIN"
       Set-Cookie:
-      - fpc=Ag4el14VaP9KuxDg0WzqCIE; expires=Tue, 24-Aug-2021 20:02:18 GMT; path=/;
+      - fpc=Atm5Qa-t7NFAqE904f5WCX8; expires=Tue, 24-Aug-2021 21:13:37 GMT; path=/;
         secure; HttpOnly; SameSite=None
-      - esctx=AQABAAAAAAD--DLA3VO7QrddgJg7WevrWEKjOhzwcVKo9Ozlr1Tv6egq2UN_y0FKCwNzcn5Q6fvPx4UUlyeKZ5a1aDbvsfwVk52H_G6nNHS50cqHtIFpkA4bs3tArYf08xmXtDpM7_GB6yCBpsaubpzwapu4yLeqRDBpzdkMdHmCjMVfeXWA_T1oxOK2RzXfPwjyFmIBEkogAA;
+      - esctx=AQABAAAAAAD--DLA3VO7QrddgJg7WevrA1hHchB6DglDT-NdPNa6299CWSmNprQhwBAv7Oez_Z7m9xDUGIt8iBuJIV_zs_fQrIf39II7RjWA19o3cd74douv7_ah9dj7DudHpJXGGGEiyYG5A3oAv2V_B2kF00OJxx7kYR8T6yqBzLtWSfyaCG12hL6MMssru57N2UjE7UYgAA;
         domain=.login.microsoftonline.com; path=/; secure; HttpOnly; SameSite=None
       - x-ms-gateway-slice=estsfd; path=/; secure; samesite=none; httponly
       - stsservicecookie=estsfd; path=/; secure; samesite=none; httponly
@@ -92,9 +92,9 @@ interactions:
       X-Content-Type-Options:
       - nosniff
       x-ms-ests-server:
-      - 2.1.11898.8 - NEULR2 ProdSlices
+      - 2.1.11898.8 - WEULR1 ProdSlices
       x-ms-request-id:
-      - bab12db5-3e2b-4321-8113-f7e9498a4d00
+      - c1bb3f91-5719-4f41-9ebe-677ecdf35100
     status:
       code: 200
       message: OK
@@ -127,13 +127,13 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sun, 25 Jul 2021 20:02:18 GMT
+      - Sun, 25 Jul 2021 21:13:37 GMT
       P3P:
       - CP="DSP CUR OTPi IND OTRi ONL FIN"
       Set-Cookie:
-      - fpc=AgmrbOuwtXBEh62O6EE-3Fg; expires=Tue, 24-Aug-2021 20:02:19 GMT; path=/;
+      - fpc=Av-f9qVSKrVNlYVCtUzO_0Q; expires=Tue, 24-Aug-2021 21:13:38 GMT; path=/;
         secure; HttpOnly; SameSite=None
-      - esctx=AQABAAAAAAD--DLA3VO7QrddgJg7WevrrMBhb-GJ7NMA21optNRz3I_gn8Z_MAM0zPMl2XreGWAznTSZiWaFmI7f380ne1qwV7kM7SYwY_M_Ar_vKD3aIGa9cI3t93Pdh6Yr4yqglc3r8-XHJaudeXqY2uPScVeLA-og4OaCpdT_JUEnZR0H4Mp3xKV7ZeMdNNyYswUnrlcgAA;
+      - esctx=AQABAAAAAAD--DLA3VO7QrddgJg7Wevrei4Dvu6YsXnuVzUh6GAGri2kfoKdWn1yuVjxmsrJuRCYx5onKjb3NLrZBISqFvlXQUHgcrMV7X1af4WqnM6Ybq5z-y5pLa3e1Y3iGBx0Qn5Vku6qGeUJYNNrSU72830YM3EUBDxFjvQNI3WsVj19YQjL9kkp6wa5IxMCbrKNvZwgAA;
         domain=.sts.windows.net; path=/; secure; HttpOnly; SameSite=None
       - x-ms-gateway-slice=estsfd; path=/; secure; samesite=none; httponly
       - stsservicecookie=estsfd; path=/; secure; samesite=none; httponly
@@ -142,7 +142,7 @@ interactions:
       x-ms-ests-server:
       - 2.1.11898.8 - EUS ProdSlices
       x-ms-request-id:
-      - 5a30daf1-7e16-4184-97b3-710295b7a700
+      - 78ad181f-df45-4e6e-82c0-77c15dabf000
     status:
       code: 200
       message: OK
@@ -175,13 +175,13 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sun, 25 Jul 2021 20:02:19 GMT
+      - Sun, 25 Jul 2021 21:13:38 GMT
       P3P:
       - CP="DSP CUR OTPi IND OTRi ONL FIN"
       Set-Cookie:
-      - fpc=AsaMeYUnd-9DsIISZ0owwdI; expires=Tue, 24-Aug-2021 20:02:19 GMT; path=/;
+      - fpc=AvAHeleZKZdDld3YmlaAtl4; expires=Tue, 24-Aug-2021 21:13:38 GMT; path=/;
         secure; HttpOnly; SameSite=None
-      - esctx=AQABAAAAAAD--DLA3VO7QrddgJg7WevrCCjoBHtRT24tcbcE8Vw-CkTl_mFJXUFPqhclGuE88P-4NCsulTPagskMAIMIeyNOo-VvXyENTm6wjyT2hm7BBLrGAym-9wG4RG-gBzfRAoRLTYzrfmEEtIRbLQS33-vo5k7VScTB1z522spOzOP58INtS-CWfyRLW6enbaSXza8gAA;
+      - esctx=AQABAAAAAAD--DLA3VO7QrddgJg7WevruJ2_A4JQ_DHXndjAMm0F_6EpEcINesgoceEOC_dnnKXwzsSu52A9kODTqOQl9Yr-vetu7iqW1UETABCIVrhtRT4PB5aIpa58NjxRZbXfdcihkZNOHsu_CpMMlpi6ZH2sjotgYemjapQ7PmyCc_cTnlnbeP_tdXBZCaU7dL4Z6LAgAA;
         domain=.login.microsoft.com; path=/; secure; HttpOnly; SameSite=None
       - x-ms-gateway-slice=estsfd; path=/; secure; samesite=none; httponly
       - stsservicecookie=estsfd; path=/; secure; samesite=none; httponly
@@ -190,9 +190,9 @@ interactions:
       X-Content-Type-Options:
       - nosniff
       x-ms-ests-server:
-      - 2.1.11898.8 - SCUS ProdSlices
+      - 2.1.11898.8 - EUS ProdSlices
       x-ms-request-id:
-      - 2e71cb91-c5e9-4421-bff0-528df0f6e700
+      - 7bfb275c-c97c-4760-8fdb-6f6ca7a0cb00
     status:
       code: 200
       message: OK
@@ -225,13 +225,13 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sun, 25 Jul 2021 20:02:19 GMT
+      - Sun, 25 Jul 2021 21:13:38 GMT
       P3P:
       - CP="DSP CUR OTPi IND OTRi ONL FIN"
       Set-Cookie:
-      - fpc=AqeuNbuGOTZArV1Wf_j1gtw; expires=Tue, 24-Aug-2021 20:02:19 GMT; path=/;
+      - fpc=AmQUO5Cr2_hLuZLMpSThuLY; expires=Tue, 24-Aug-2021 21:13:38 GMT; path=/;
         secure; HttpOnly; SameSite=None
-      - esctx=AQABAAAAAAD--DLA3VO7QrddgJg7WevrzXg_c3Le0dh92tu5E27LpDAsDXTd3IJLKqlt9hq772kR2SYjRZL-_NZn76y2fcEBWu0K6Gqn-ETjQsKmUMGBY3g4POGL88szQ2LntrcocYjjwSX5ZufRtkxUeKB1HNgS_gJTHnHhR1VrlmNRF2g4kwCQ7hUUJECPL-jVDXweR3MgAA;
+      - esctx=AQABAAAAAAD--DLA3VO7QrddgJg7Wevr2_eJAUWou54E7419Ld41nDbC9vbHGOaZ88Hiic7IPsksnvFiNbIM-CPI9gg0BaawL_6MUtKhbnbaV_8px_FHbWXDpTqKqjwiI8PxihqF-g8AwrGeu3N4QV50DCic0lrgr_QWJGHeNHLYH9xgkjdDd3zGvjAhG-XhtD7FJgB3gFsgAA;
         domain=.login.windows.net; path=/; secure; HttpOnly; SameSite=None
       - x-ms-gateway-slice=estsfd; path=/; secure; samesite=none; httponly
       - stsservicecookie=estsfd; path=/; secure; samesite=none; httponly
@@ -240,9 +240,9 @@ interactions:
       X-Content-Type-Options:
       - nosniff
       x-ms-ests-server:
-      - 2.1.11898.8 - NCUS ProdSlices
+      - 2.1.11898.8 - EUS ProdSlices
       x-ms-request-id:
-      - 70d82af5-67db-4fee-a507-e2cb354bd100
+      - 97409ded-880a-4828-b99a-b269fba49900
     status:
       code: 200
       message: OK
@@ -262,7 +262,7 @@ interactions:
       User-Agent:
       - python-requests/2.25.1
       client-request-id:
-      - d6d49420-f39b-4df7-a1ac-d59a935871db
+      - f665480b-66f2-4c9f-b423-067000b99660
       x-client-cpu:
       - x64
       x-client-current-telemetry:
@@ -277,7 +277,7 @@ interactions:
     uri: https://login.microsoftonline.com/d6d49420-f39b-4df7-a1dc-d59a935871db/oauth2/v2.0/token
   response:
     body:
-      string: '{"token_type":"Bearer","expires_in":86399,"ext_expires_in":86399,"access_token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6Im5PbzNaRHJPRFhFSzFqS1doWHNsSFJfS1hFZyIsImtpZCI6Im5PbzNaRHJPRFhFSzFqS1doWHNsSFJfS1hFZyJ9.eyJhdWQiOiJodHRwczovL2FwaS5ib3RmcmFtZXdvcmsuY29tIiwiaXNzIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvZDZkNDk0MjAtZjM5Yi00ZGY3LWExZGMtZDU5YTkzNTg3MWRiLyIsImlhdCI6MTYyNzI0MzA0MCwibmJmIjoxNjI3MjQzMDQwLCJleHAiOjE2MjczMjk3NDAsImFpbyI6IkUyWmdZTEQxbXM0eW4zblI2OW9Jc1hYekovRG9Bd0E9IiwiYXBwaWQiOiI1MzUzYTg2ZS01MmZiLTQ5NzktOGE2OS1jN2VmY2QxYjBiZDMiLCJhcHBpZGFjciI6IjEiLCJpZHAiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC9kNmQ0OTQyMC1mMzliLTRkZjctYTFkYy1kNTlhOTM1ODcxZGIvIiwicmgiOiIwLkFXNEFJSlRVMXB2ejkwMmgzTldhazFoeDIyNm9VMVA3VW5sSmltbkg3ODBiQzlOdUFBQS4iLCJ0aWQiOiJkNmQ0OTQyMC1mMzliLTRkZjctYTFkYy1kNTlhOTM1ODcxZGIiLCJ1dGkiOiIyb05UcE5lOXBVcXJ3VDR1Smw1ZkFBIiwidmVyIjoiMS4wIn0.f3hdCWljU66z9yS2q1adAcUr9Q1ty6rJ98MRfauro8SXN46nSE3QcOGAzsUamS0gqJgpt6ZWcuyeUsaqy_MM6-AmeX2_5UrXkFvTZPcDhSOF6Mt4_SmfGT3F_lk50KQkX8fpWtI6wOWYyzu4p-YP6VryBVOlEpGPoyXr4R9IfaYVsdgF0s4n5hz0YgdAVpoofS7m5J6xx2yE5d-ynqziDW4oVd2gt5Bm1_tzNmf12EJtNjbVwbGyn5ZQ4jQIfOvBydxIEGSWdKWGlrgX-NbSIvXhPSGh8PSMTc_ogXS54cWpAx594Ua2hgnboMWd-UFXcy7Js421T-f5x2LOzBJ_9w"}'
+      string: '{"token_type":"Bearer","expires_in":86398,"ext_expires_in":86398,"access_token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6Im5PbzNaRHJPRFhFSzFqS1doWHNsSFJfS1hFZyIsImtpZCI6Im5PbzNaRHJPRFhFSzFqS1doWHNsSFJfS1hFZyJ9.eyJhdWQiOiJodHRwczovL2FwaS5ib3RmcmFtZXdvcmsuY29tIiwiaXNzIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvZDZkNDk0MjAtZjM5Yi00ZGY3LWExZGMtZDU5YTkzNTg3MWRiLyIsImlhdCI6MTYyNzI0NzMxOSwibmJmIjoxNjI3MjQ3MzE5LCJleHAiOjE2MjczMzQwMTksImFpbyI6IkUyWmdZSEJYamVpN1ZLbXh4SHpuN2hJak1kWUxBQT09IiwiYXBwaWQiOiI1MzUzYTg2ZS01MmZiLTQ5NzktOGE2OS1jN2VmY2QxYjBiZDMiLCJhcHBpZGFjciI6IjEiLCJpZHAiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC9kNmQ0OTQyMC1mMzliLTRkZjctYTFkYy1kNTlhOTM1ODcxZGIvIiwicmgiOiIwLkFXNEFJSlRVMXB2ejkwMmgzTldhazFoeDIyNm9VMVA3VW5sSmltbkg3ODBiQzlOdUFBQS4iLCJ0aWQiOiJkNmQ0OTQyMC1mMzliLTRkZjctYTFkYy1kNTlhOTM1ODcxZGIiLCJ1dGkiOiJ1ODM4TEphblFVNkx3LXJJYUZxSEFBIiwidmVyIjoiMS4wIn0.buV6XXNWhqZ23Hw4K7pTVo_uYwhjyBzDzuBOtps6u6s7XiNLSz7JVNbMcfkjDwRKgtqspgVGI_7_5tGgrdLFaqq8l0wjI4QF8IrV00P0b4jubBdgG_8-FyBAiUfDP9CNbtr0w3BAU_wf-J-JVUoyqOIxikwHgo_En2RNB3nWYd8eHR5dUrWccVLpjZW7HOCiDAWO-TicBMt86n2yCNwABXIklrGar-JqOZdGfIvvnNn9oWP5dsZ-AlxBbl2Y-JypVnBle_4yfawHNiwk-HpcPhBJlgl3nbx9_KdbVfn9dRDeVg6_sHrMMBzQqWeCwIZwuz_mnHdUzwyFs77eLnur4Q"}'
     headers:
       Cache-Control:
       - no-store, no-cache
@@ -286,7 +286,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sun, 25 Jul 2021 20:02:20 GMT
+      - Sun, 25 Jul 2021 21:13:39 GMT
       Expires:
       - '-1'
       P3P:
@@ -294,8 +294,8 @@ interactions:
       Pragma:
       - no-cache
       Set-Cookie:
-      - fpc=ApLby8BmHktPjHwRJzOHBzm4dhZ9AQAAAEu6j9gOAAAA; expires=Tue, 24-Aug-2021
-        20:02:21 GMT; path=/; secure; HttpOnly; SameSite=None
+      - fpc=AlIb0mMedBhGnAfT1rYzMEW4dhZ9AQAAAALLj9gOAAAA; expires=Tue, 24-Aug-2021
+        21:13:40 GMT; path=/; secure; HttpOnly; SameSite=None
       - x-ms-gateway-slice=estsfd; path=/; secure; samesite=none; httponly
       - stsservicecookie=estsfd; path=/; secure; samesite=none; httponly
       Strict-Transport-Security:
@@ -303,13 +303,13 @@ interactions:
       X-Content-Type-Options:
       - nosniff
       client-request-id:
-      - d6d49420-f39b-4df7-a1ac-d59a935871db
+      - f665480b-66f2-4c9f-b423-067000b99660
       x-ms-clitelem:
       - 1,0,0,,
       x-ms-ests-server:
       - 2.1.11898.8 - NCUS ProdSlices
       x-ms-request-id:
-      - a45383da-bdd7-4aa5-abc1-3e2e265e5f00
+      - 2cfccdbb-a796-4e41-8bc3-eac8685a8700
     status:
       code: 200
       message: OK
@@ -320,14 +320,14 @@ interactions:
       "a:1bR3bAgRDGDoLRBJm7zrHrYAXZuVoyjijEmUbb-t00nDjcyPL2fenwr_xQ0Cv2-6_dn_OAj17bujvlp5a7Eeb-2ct2eHfSgLai6yok7WY7pR6rsqzls5gYeOcTsUD-6ON"},
       "recipient": {"id": "29:1WlulF5q2n12i6sXKzPTrnj2Lj6Oa5zfG5b2Y5TL1k41_IZwKJF_2-lRCbTjsTzPLEWFMUmJ4U_OcnYBbOjDc0g",
       "name": "Jacob Tomlinson", "aadObjectId": "a437c99b-3703-4dd6-80c8-82c69f181061"},
-      "text": "pong", "inputHint": "acceptingInput", "replyToId": "36d6cf92-ed83-11eb-8a27-1e2940309485"}'
+      "text": "pong", "inputHint": "acceptingInput", "replyToId": "ca153e8e-ed8c-11eb-9208-1e2940309485"}'
     headers:
       Accept:
       - application/json
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6Im5PbzNaRHJPRFhFSzFqS1doWHNsSFJfS1hFZyIsImtpZCI6Im5PbzNaRHJPRFhFSzFqS1doWHNsSFJfS1hFZyJ9.eyJhdWQiOiJodHRwczovL2FwaS5ib3RmcmFtZXdvcmsuY29tIiwiaXNzIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvZDZkNDk0MjAtZjM5Yi00ZGY3LWExZGMtZDU5YTkzNTg3MWRiLyIsImlhdCI6MTYyNzI0MzA0MCwibmJmIjoxNjI3MjQzMDQwLCJleHAiOjE2MjczMjk3NDAsImFpbyI6IkUyWmdZTEQxbXM0eW4zblI2OW9Jc1hYekovRG9Bd0E9IiwiYXBwaWQiOiI1MzUzYTg2ZS01MmZiLTQ5NzktOGE2OS1jN2VmY2QxYjBiZDMiLCJhcHBpZGFjciI6IjEiLCJpZHAiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC9kNmQ0OTQyMC1mMzliLTRkZjctYTFkYy1kNTlhOTM1ODcxZGIvIiwicmgiOiIwLkFXNEFJSlRVMXB2ejkwMmgzTldhazFoeDIyNm9VMVA3VW5sSmltbkg3ODBiQzlOdUFBQS4iLCJ0aWQiOiJkNmQ0OTQyMC1mMzliLTRkZjctYTFkYy1kNTlhOTM1ODcxZGIiLCJ1dGkiOiIyb05UcE5lOXBVcXJ3VDR1Smw1ZkFBIiwidmVyIjoiMS4wIn0.f3hdCWljU66z9yS2q1adAcUr9Q1ty6rJ98MRfauro8SXN46nSE3QcOGAzsUamS0gqJgpt6ZWcuyeUsaqy_MM6-AmeX2_5UrXkFvTZPcDhSOF6Mt4_SmfGT3F_lk50KQkX8fpWtI6wOWYyzu4p-YP6VryBVOlEpGPoyXr4R9IfaYVsdgF0s4n5hz0YgdAVpoofS7m5J6xx2yE5d-ynqziDW4oVd2gt5Bm1_tzNmf12EJtNjbVwbGyn5ZQ4jQIfOvBydxIEGSWdKWGlrgX-NbSIvXhPSGh8PSMTc_ogXS54cWpAx594Ua2hgnboMWd-UFXcy7Js421T-f5x2LOzBJ_9w
+      - Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6Im5PbzNaRHJPRFhFSzFqS1doWHNsSFJfS1hFZyIsImtpZCI6Im5PbzNaRHJPRFhFSzFqS1doWHNsSFJfS1hFZyJ9.eyJhdWQiOiJodHRwczovL2FwaS5ib3RmcmFtZXdvcmsuY29tIiwiaXNzIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvZDZkNDk0MjAtZjM5Yi00ZGY3LWExZGMtZDU5YTkzNTg3MWRiLyIsImlhdCI6MTYyNzI0NzMxOSwibmJmIjoxNjI3MjQ3MzE5LCJleHAiOjE2MjczMzQwMTksImFpbyI6IkUyWmdZSEJYamVpN1ZLbXh4SHpuN2hJak1kWUxBQT09IiwiYXBwaWQiOiI1MzUzYTg2ZS01MmZiLTQ5NzktOGE2OS1jN2VmY2QxYjBiZDMiLCJhcHBpZGFjciI6IjEiLCJpZHAiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC9kNmQ0OTQyMC1mMzliLTRkZjctYTFkYy1kNTlhOTM1ODcxZGIvIiwicmgiOiIwLkFXNEFJSlRVMXB2ejkwMmgzTldhazFoeDIyNm9VMVA3VW5sSmltbkg3ODBiQzlOdUFBQS4iLCJ0aWQiOiJkNmQ0OTQyMC1mMzliLTRkZjctYTFkYy1kNTlhOTM1ODcxZGIiLCJ1dGkiOiJ1ODM4TEphblFVNkx3LXJJYUZxSEFBIiwidmVyIjoiMS4wIn0.buV6XXNWhqZ23Hw4K7pTVo_uYwhjyBzDzuBOtps6u6s7XiNLSz7JVNbMcfkjDwRKgtqspgVGI_7_5tGgrdLFaqq8l0wjI4QF8IrV00P0b4jubBdgG_8-FyBAiUfDP9CNbtr0w3BAU_wf-J-JVUoyqOIxikwHgo_En2RNB3nWYd8eHR5dUrWccVLpjZW7HOCiDAWO-TicBMt86n2yCNwABXIklrGar-JqOZdGfIvvnNn9oWP5dsZ-AlxBbl2Y-JypVnBle_4yfawHNiwk-HpcPhBJlgl3nbx9_KdbVfn9dRDeVg6_sHrMMBzQqWeCwIZwuz_mnHdUzwyFs77eLnur4Q
       Connection:
       - keep-alive
       Content-Length:
@@ -338,99 +338,17 @@ interactions:
       - python/3.8.8 (macOS-11.2.3-arm64-arm-64bit) msrest/0.6.10 botframework-connector/v3
         Microsoft-BotFramework/3.1 (BotBuilder Python/4.10.0)
     method: POST
-    uri: https://smba.trafficmanager.net/uk/v3/conversations/a%3A1bR3bAgRDGDoLRBJm7zrHrYAXZuVoyjijEmUbb-t00nDjcyPL2fenwr_xQ0Cv2-6_dn_OAj17bujvlp5a7Eeb-2ct2eHfSgLai6yok7WY7pR6rsqzls5gYeOcTsUD-6ON/activities/36d6cf92-ed83-11eb-8a27-1e2940309485
+    uri: https://smba.trafficmanager.net/uk/v3/conversations/a%3A1bR3bAgRDGDoLRBJm7zrHrYAXZuVoyjijEmUbb-t00nDjcyPL2fenwr_xQ0Cv2-6_dn_OAj17bujvlp5a7Eeb-2ct2eHfSgLai6yok7WY7pR6rsqzls5gYeOcTsUD-6ON/activities/ca153e8e-ed8c-11eb-9208-1e2940309485
   response:
     body:
-      string: '{"id":"1627243342919"}'
+      string: '{"id":"1627247621870"}'
     headers:
       Content-Length:
       - '22'
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sun, 25 Jul 2021 20:02:22 GMT
-      Server:
-      - Microsoft-HTTPAPI/2.0
-    status:
-      code: 201
-      message: Created
-- request:
-    body: '{"type": "message", "serviceUrl": "https://smba.trafficmanager.net/uk/",
-      "channelId": "msteams", "from": {"id": "28:5353a86e-52fb-4979-8a69-c7efcd1b0bd3",
-      "name": "Opsdroid Dev"}, "conversation": {"conversationType": "personal", "id":
-      "a:1bR3bAgRDGDoLRBJm7zrHrYAXZuVoyjijEmUbb-t00nDjcyPL2fenwr_xQ0Cv2-6_dn_OAj17bujvlp5a7Eeb-2ct2eHfSgLai6yok7WY7pR6rsqzls5gYeOcTsUD-6ON"},
-      "recipient": {"id": "29:1WlulF5q2n12i6sXKzPTrnj2Lj6Oa5zfG5b2Y5TL1k41_IZwKJF_2-lRCbTjsTzPLEWFMUmJ4U_OcnYBbOjDc0g",
-      "name": "Jacob Tomlinson", "aadObjectId": "a437c99b-3703-4dd6-80c8-82c69f181061"},
-      "text": "pong", "inputHint": "acceptingInput", "replyToId": "43622644-ed83-11eb-aece-1e2940309485"}'
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate
-      Authorization:
-      - Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6Im5PbzNaRHJPRFhFSzFqS1doWHNsSFJfS1hFZyIsImtpZCI6Im5PbzNaRHJPRFhFSzFqS1doWHNsSFJfS1hFZyJ9.eyJhdWQiOiJodHRwczovL2FwaS5ib3RmcmFtZXdvcmsuY29tIiwiaXNzIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvZDZkNDk0MjAtZjM5Yi00ZGY3LWExZGMtZDU5YTkzNTg3MWRiLyIsImlhdCI6MTYyNzI0MzA0MCwibmJmIjoxNjI3MjQzMDQwLCJleHAiOjE2MjczMjk3NDAsImFpbyI6IkUyWmdZTEQxbXM0eW4zblI2OW9Jc1hYekovRG9Bd0E9IiwiYXBwaWQiOiI1MzUzYTg2ZS01MmZiLTQ5NzktOGE2OS1jN2VmY2QxYjBiZDMiLCJhcHBpZGFjciI6IjEiLCJpZHAiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC9kNmQ0OTQyMC1mMzliLTRkZjctYTFkYy1kNTlhOTM1ODcxZGIvIiwicmgiOiIwLkFXNEFJSlRVMXB2ejkwMmgzTldhazFoeDIyNm9VMVA3VW5sSmltbkg3ODBiQzlOdUFBQS4iLCJ0aWQiOiJkNmQ0OTQyMC1mMzliLTRkZjctYTFkYy1kNTlhOTM1ODcxZGIiLCJ1dGkiOiIyb05UcE5lOXBVcXJ3VDR1Smw1ZkFBIiwidmVyIjoiMS4wIn0.f3hdCWljU66z9yS2q1adAcUr9Q1ty6rJ98MRfauro8SXN46nSE3QcOGAzsUamS0gqJgpt6ZWcuyeUsaqy_MM6-AmeX2_5UrXkFvTZPcDhSOF6Mt4_SmfGT3F_lk50KQkX8fpWtI6wOWYyzu4p-YP6VryBVOlEpGPoyXr4R9IfaYVsdgF0s4n5hz0YgdAVpoofS7m5J6xx2yE5d-ynqziDW4oVd2gt5Bm1_tzNmf12EJtNjbVwbGyn5ZQ4jQIfOvBydxIEGSWdKWGlrgX-NbSIvXhPSGh8PSMTc_ogXS54cWpAx594Ua2hgnboMWd-UFXcy7Js421T-f5x2LOzBJ_9w
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '667'
-      Content-Type:
-      - application/json; charset=utf-8
-      User-Agent:
-      - python/3.8.8 (macOS-11.2.3-arm64-arm-64bit) msrest/0.6.10 botframework-connector/v3
-        Microsoft-BotFramework/3.1 (BotBuilder Python/4.10.0)
-    method: POST
-    uri: https://smba.trafficmanager.net/uk/v3/conversations/a%3A1bR3bAgRDGDoLRBJm7zrHrYAXZuVoyjijEmUbb-t00nDjcyPL2fenwr_xQ0Cv2-6_dn_OAj17bujvlp5a7Eeb-2ct2eHfSgLai6yok7WY7pR6rsqzls5gYeOcTsUD-6ON/activities/43622644-ed83-11eb-aece-1e2940309485
-  response:
-    body:
-      string: '{"id":"1627243361479"}'
-    headers:
-      Content-Length:
-      - '22'
-      Content-Type:
-      - application/json; charset=utf-8
-      Date:
-      - Sun, 25 Jul 2021 20:02:41 GMT
-      Server:
-      - Microsoft-HTTPAPI/2.0
-    status:
-      code: 201
-      message: Created
-- request:
-    body: '{"type": "message", "serviceUrl": "https://smba.trafficmanager.net/uk/",
-      "channelId": "msteams", "from": {"id": "28:5353a86e-52fb-4979-8a69-c7efcd1b0bd3",
-      "name": "Opsdroid Dev"}, "conversation": {"conversationType": "personal", "id":
-      "a:1bR3bAgRDGDoLRBJm7zrHrYAXZuVoyjijEmUbb-t00nDjcyPL2fenwr_xQ0Cv2-6_dn_OAj17bujvlp5a7Eeb-2ct2eHfSgLai6yok7WY7pR6rsqzls5gYeOcTsUD-6ON"},
-      "recipient": {"id": "29:1WlulF5q2n12i6sXKzPTrnj2Lj6Oa5zfG5b2Y5TL1k41_IZwKJF_2-lRCbTjsTzPLEWFMUmJ4U_OcnYBbOjDc0g",
-      "name": "Jacob Tomlinson", "aadObjectId": "a437c99b-3703-4dd6-80c8-82c69f181061"},
-      "text": "pong", "inputHint": "acceptingInput", "replyToId": "07274b2c-ed84-11eb-a46d-1e2940309485"}'
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate
-      Authorization:
-      - Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6Im5PbzNaRHJPRFhFSzFqS1doWHNsSFJfS1hFZyIsImtpZCI6Im5PbzNaRHJPRFhFSzFqS1doWHNsSFJfS1hFZyJ9.eyJhdWQiOiJodHRwczovL2FwaS5ib3RmcmFtZXdvcmsuY29tIiwiaXNzIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvZDZkNDk0MjAtZjM5Yi00ZGY3LWExZGMtZDU5YTkzNTg3MWRiLyIsImlhdCI6MTYyNzI0MzA0MCwibmJmIjoxNjI3MjQzMDQwLCJleHAiOjE2MjczMjk3NDAsImFpbyI6IkUyWmdZTEQxbXM0eW4zblI2OW9Jc1hYekovRG9Bd0E9IiwiYXBwaWQiOiI1MzUzYTg2ZS01MmZiLTQ5NzktOGE2OS1jN2VmY2QxYjBiZDMiLCJhcHBpZGFjciI6IjEiLCJpZHAiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC9kNmQ0OTQyMC1mMzliLTRkZjctYTFkYy1kNTlhOTM1ODcxZGIvIiwicmgiOiIwLkFXNEFJSlRVMXB2ejkwMmgzTldhazFoeDIyNm9VMVA3VW5sSmltbkg3ODBiQzlOdUFBQS4iLCJ0aWQiOiJkNmQ0OTQyMC1mMzliLTRkZjctYTFkYy1kNTlhOTM1ODcxZGIiLCJ1dGkiOiIyb05UcE5lOXBVcXJ3VDR1Smw1ZkFBIiwidmVyIjoiMS4wIn0.f3hdCWljU66z9yS2q1adAcUr9Q1ty6rJ98MRfauro8SXN46nSE3QcOGAzsUamS0gqJgpt6ZWcuyeUsaqy_MM6-AmeX2_5UrXkFvTZPcDhSOF6Mt4_SmfGT3F_lk50KQkX8fpWtI6wOWYyzu4p-YP6VryBVOlEpGPoyXr4R9IfaYVsdgF0s4n5hz0YgdAVpoofS7m5J6xx2yE5d-ynqziDW4oVd2gt5Bm1_tzNmf12EJtNjbVwbGyn5ZQ4jQIfOvBydxIEGSWdKWGlrgX-NbSIvXhPSGh8PSMTc_ogXS54cWpAx594Ua2hgnboMWd-UFXcy7Js421T-f5x2LOzBJ_9w
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '667'
-      Content-Type:
-      - application/json; charset=utf-8
-      User-Agent:
-      - python/3.8.8 (macOS-11.2.3-arm64-arm-64bit) msrest/0.6.10 botframework-connector/v3
-        Microsoft-BotFramework/3.1 (BotBuilder Python/4.10.0)
-    method: POST
-    uri: https://smba.trafficmanager.net/uk/v3/conversations/a%3A1bR3bAgRDGDoLRBJm7zrHrYAXZuVoyjijEmUbb-t00nDjcyPL2fenwr_xQ0Cv2-6_dn_OAj17bujvlp5a7Eeb-2ct2eHfSgLai6yok7WY7pR6rsqzls5gYeOcTsUD-6ON/activities/07274b2c-ed84-11eb-a46d-1e2940309485
-  response:
-    body:
-      string: '{"id":"1627243689919"}'
-    headers:
-      Content-Length:
-      - '22'
-      Content-Type:
-      - application/json; charset=utf-8
-      Date:
-      - Sun, 25 Jul 2021 20:08:09 GMT
+      - Sun, 25 Jul 2021 21:13:41 GMT
       Server:
       - Microsoft-HTTPAPI/2.0
     status:
