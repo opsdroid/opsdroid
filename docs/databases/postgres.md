@@ -13,13 +13,14 @@ databases:
   postgresql:
     host: "hostname" # (optional) default: "localhost"
     port: 5432 # (optional) default: 5432
-    user: opsdroid # (optional) default: opsdroid
+    user: "opsdroid" # (optional) default: "opsdroid"
     password: "Please change me"
-    database: opsdroid_db # (optional) default: opsdroid
+    database: "opsdroid_db" # (optional) default: "opsdroid"
+    default_table_name: "opsdroid_table" # (optional) default: "opsdroid_default"
 ```
 
 ## Usage
-This database connector is unique at the time of writing in it's ability to use different tables to place the key value pairs into. This is optional. Code that doesn't specify a table name will be placed into `opsdroid_default`.
+This database connector is unique at the time of writing in it's ability to use different tables to place the key value pairs into. This is optional. Code that doesn't specify a table name will be placed into the table specified in the postgresql database configuration.
 ```python
 await opsdroid.memory.put(key, value, table_name='example_table')
 await opsdroid.memory.get(key, table_name='example_table')
