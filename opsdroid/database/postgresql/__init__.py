@@ -19,7 +19,7 @@ def check_table(func):
         if 'table_name' in kwargs and kwargs['table_name']:
             table_name = kwargs['table_name']
         else:
-            table_name = 'opsdroid_default'
+            table_name = args[0].table_name
 
         if ' ' in table_name:
             _LOGGER.warning('table_name contains a space character. Suggest changing "' + table_name + '" to "' + table_name.strip(' ') + '"')
