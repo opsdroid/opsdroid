@@ -35,9 +35,9 @@ $ opsdroid start
 ```
 
 ### Windows 10
-
+Pre-requisites: Python <br/>
+Install Python from [here](https://www.python.org/downloads/)
 ```
-# Install Python from https://www.python.org/downloads/
 # Launch powershell command prompt
 
 # Install opsdroid
