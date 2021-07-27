@@ -40,46 +40,53 @@ from opsdroid.matchers import match_regex
 from opsdroid.events import Message
 
 class pgtestSkill(Skill):
-	table_name = self.config.get('table_name')
+    def __init__(self, *args, **kwargs):
+        super(pgtestSkill, self).__init__(*args, **kwargs)
+        self.table_name=self.config.get('table_name')
 
     @match_regex('^!put (?P<key>\w+) (?P<data>\w+)$')
     async def putter(self, message):
-        key = message.entities['key']['value']
         await self.opsdroid.memory.put(
-            key,
+            message.entities['key']['value'],
             message.entities['data']['value'],
             table_name=self.table_name
         )
         await message.respond(
             Message(
-                text='OK! Stored ' + key
+                text='ok, stored'
             )
         )
 
-    @match_regex('^!get (?P<key>\w+)')
+    @match_regex('^!get (?P<key>\w+)$')
     async def getter(self, message):
         data = await self.opsdroid.memory.get(
             message.entities['key']['value'],
             table_name=self.table_name
         )
+
         await message.respond(
             Message(
                 text=str(data)
             )
         )
 
-    @match_regex('^!delete (?P<key>\w+)')
+    @match_regex('^!delete (?P<key>\w+)$')
     async def deleter(self, message):
-        key = message.entities['key']['value']
-        await self.opsdroid.memory.delete(
-            key,
+        data = await self.opsdroid.memory.delete(
+            message.entities['key']['value'],
             table_name=self.table_name
         )
+
         await message.respond(
             Message(
-                text="OK! Deleted " + key
+            text="OK! deleted"
             )
         )
+
+    @match_regex('^!list$')
+    async def lister(self, message):
+        # SELECT * from self.table_name
+        pass
 ```
 
 Using  a [shell](../connectors/shell) connector, the skill returns:
