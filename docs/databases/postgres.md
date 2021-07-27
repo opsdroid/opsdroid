@@ -72,7 +72,7 @@ class pgtestSkill(Skill):
 
     @match_regex('^!delete (?P<key>\w+)$')
     async def deleter(self, message):
-        data = await self.opsdroid.memory.delete(
+        await self.opsdroid.memory.delete(
             message.entities['key']['value'],
             table_name=self.table_name
         )
