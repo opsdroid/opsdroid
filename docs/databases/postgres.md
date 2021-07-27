@@ -16,7 +16,7 @@ databases:
     user: "opsdroid" # (optional) default: "opsdroid"
     password: "Please change me"
     database: "opsdroid_db" # (optional) default: "opsdroid"
-    table_name: "opsdroid_table" # (optional) default: "opsdroid_default"
+    default_table_name: "opsdroid_table" # (optional) default: "opsdroid_default"
 ```
 
 ## Usage

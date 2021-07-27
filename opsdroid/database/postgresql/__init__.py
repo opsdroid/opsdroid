@@ -68,7 +68,7 @@ class DatabasePostgres(Database):
         self.user = self.config.get("user", "opsdroid")
         self.password = self.config.get("password")
         self.database = self.config.get("database", "opsdroid")
-        self.table_name = self.config.get("table_name", "opsdroid_default")
+        self.table_name = self.config.get("default_table_name", "opsdroid_default")
         self.host = self.config.get("host", "localhost")
         self.port = self.config.get("port", 5432)
 
