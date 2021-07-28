@@ -1,10 +1,16 @@
 {
     "text": "ping",
     "textFormat": "plain",
+    "attachments": [
+        {
+            "contentType": "text/html",
+            "content": "<div><div>ping</div>\n</div>"
+        }
+    ],
     "type": "message",
-    "timestamp": "2021-04-03T13:12:12.5042273Z",
-    "localTimestamp": "2021-04-03T14:12:12.5042273+01:00",
-    "id": "1617455532474",
+    "timestamp": "2021-07-28T20:45:52.5324341Z",
+    "localTimestamp": "2021-07-28T21:45:52.5324341+01:00",
+    "id": "1627505152512",
     "channelId": "msteams",
     "serviceUrl": "https://smba.trafficmanager.net/uk/",
     "from": {
@@ -13,15 +19,24 @@
         "aadObjectId": "a437c99b-3703-4dd6-80c8-82c69f181061"
     },
     "conversation": {
-        "conversationType": "personal",
+        "isGroup": true,
+        "conversationType": "channel",
         "tenantId": "a0e78124-8cd4-4887-a704-1d4c829cf888",
-        "id": "a:1bR3bAgRDGDoLRBJm7zrHrYAXZuVoyjijEmUbb-t00nDjcyPL2fenwr_xQ0Cv2-6_dn_OAj17bujvlp5a7Eeb-2ct2eHfSgLai6yok7WY7pR6rsqzls5gYeOcTsUD-6ON"
+        "id": "19:a510e386817e473aa6f115a8dc27ea38@thread.tacv2;messageid=1627505122598"
     },
     "recipient": {
         "id": "28:5353a86e-52fb-4979-8a69-c7efcd1b0bd3",
         "name": "Opsdroid Dev"
     },
     "entities": [
+        {
+            "mentioned": {
+                "id": "28:5353a86e-52fb-4979-8a69-c7efcd1b0bd3",
+                "name": "Opsdroid Dev"
+            },
+            "text": "<at>Opsdroid Dev</at>",
+            "type": "mention"
+        },
         {
             "locale": "en-GB",
             "country": "GB",
@@ -31,6 +46,14 @@
         }
     ],
     "channelData": {
+        "teamsChannelId": "19:a510e386817e473aa6f115a8dc27ea38@thread.tacv2",
+        "teamsTeamId": "19:a510e386817e473aa6f115a8dc27ea38@thread.tacv2",
+        "channel": {
+            "id": "19:a510e386817e473aa6f115a8dc27ea38@thread.tacv2"
+        },
+        "team": {
+            "id": "19:a510e386817e473aa6f115a8dc27ea38@thread.tacv2"
+        },
         "tenant": {
             "id": "a0e78124-8cd4-4887-a704-1d4c829cf888"
         }
