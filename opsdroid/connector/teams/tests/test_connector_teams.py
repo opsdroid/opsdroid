@@ -6,6 +6,7 @@ import logging
 from pathlib import Path
 
 from opsdroid.connector.teams import TeamsConnector
+from opsdroid.events import Message
 from opsdroid.matchers import match_regex
 from opsdroid.testing import call_endpoint, running_opsdroid
 
@@ -66,6 +67,12 @@ async def test_ping_pong(opsdroid, connector, mock_api, mock_api_obj, caplog):
 
         logging.getLogger(__name__).info("ping called")
         await event.respond("pong")
+
+        msg = Message(
+            text="pong",
+            target=f"{event.target.conversation.id}",
+        )
+        await event.connector.send(msg)
 
     opsdroid.register_skill(test_skill, config={"name": "test"})
 
