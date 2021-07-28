@@ -37,7 +37,7 @@ class DatabaseMongo(Database):
         self.config = config
         self.client = None
         self.database = None
-        self.collection = config.get("collection", "opsdroid")
+        self.collection_name = config.get("default_collection_name") or config.get("default_table_name", "opsdroid")
 
     async def connect(self):
         """Connect to the database."""
@@ -56,7 +56,7 @@ class DatabaseMongo(Database):
         self.database = self.client[database]
         _LOGGER.info("Connected to MongoDB.")
 
-    async def put(self, key, data):
+    async def put(self, key, data, collection_name="", table_name=""):
         """Insert or replace an object into the database for a given key.
 
         Args:
@@ -64,41 +64,53 @@ class DatabaseMongo(Database):
             data (object): the data to be inserted or replaced
 
         """
-        _LOGGER.debug("Putting %s into MongoDB.", key)
+        if collection_name or table_name:
+            self.collection_name = collection_name or table_name
+
+        _LOGGER.debug("Putting %s into MongoDB collection %s", key, self.collection_name)
+
         if isinstance(data, str):
             data = {"value": data}
-        if "_id" not in data:
-            data["_id"] = key
+        if "key" not in data:
+            data["key"] = key
 
-        response = await self.database[self.collection].update_one(
-            {"_id": data["_id"]}, {"$set": data}
+        response = await self.database[self.collection_name].update_one(
+            {"key": data["key"]}, {"$set": data}
         )
         if response.raw_result["updatedExisting"]:
             return
 
-        await self.database[self.collection].insert_one(data)
+        await self.database[self.collection_name].insert_one(data)
 
-    async def get(self, key):
+    async def get(self, key, collection_name="", table_name=""):
         """Get a document from the database (key).
 
         Args:
             key (str): the key is the database name.
 
         """
-        _LOGGER.debug("Getting %s from MongoDB.", key)
-        response = await self.database[self.collection].find_one(
-            {"$query": {"_id": key}, "$orderby": {"$natural": -1}}
+        if collection_name or table_name:
+            self.collection_name = collection_name or table_name
+
+        _LOGGER.debug("Getting %s from MongoDB collection %s", key, self.collection_name)
+
+        response = await self.database[self.collection_name].find_one(
+            {"$query": {"key": key}, "$orderby": {"$natural": -1}}
         )
-        if response.keys() == {"_id", "value"}:
+        if response.keys() == {"_id", "key", "value"}:
             response = response["value"]
         return response
 
-    async def delete(self, key):
+    async def delete(self, key, collection_name="", table_name=""):
         """Delete a document from the database (key).
 
         Args:
             key (str): the key is the database name.
 
         """
-        _LOGGER.debug("Deleting %s from MongoDB.", key)
-        return await self.database[self.collection].delete_one({"_id": key})
+        if collection_name or table_name:
+            self.collection_name = collection_name or table_name
+
+        _LOGGER.debug("Deleting %s from MongoDB collection %s.", key, self.collection_name)
+
+        return await self.database[self.collection_name].delete_one({"key": key})
