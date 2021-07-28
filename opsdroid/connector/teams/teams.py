@@ -85,10 +85,7 @@ class TeamsConnector(Connector):
                 f"Recieved {activity.type} activity which is not currently supported."
             )
 
-        try:
-            return Response(status=200)
-        except Exception as exception:
-            raise exception
+        return Response(status=200)
 
     async def listen(self):
         """Listen for new message.

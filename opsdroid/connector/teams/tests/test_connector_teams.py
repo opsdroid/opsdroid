@@ -39,6 +39,16 @@ async def test_connect(connector, mock_api):
 
 
 @pytest.mark.asyncio
+async def test_parse_channel_id(connector, mock_api):
+    valid_ids = [
+        "https://teams.microsoft.com/l/channel/abc123",
+        "abc123",
+    ]
+    for id in valid_ids:
+        assert connector.parse_channel_id(id) == "abc123"
+
+
+@pytest.mark.asyncio
 @vcr.use_cassette(
     "opsdroid/connector/teams/tests/test_ping_pong.yaml",
     record_mode="once",
@@ -74,3 +84,37 @@ async def test_ping_pong(opsdroid, connector, mock_api, mock_api_obj, caplog):
                 )
                 assert resp.status == 200
                 assert "ping called" in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_invalid_calls(opsdroid, connector, mock_api, mock_api_obj, caplog):
+    caplog.set_level(logging.INFO)
+
+    @match_regex(r"ping")
+    async def test_skill(opsdroid, config, event):
+        pass
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/teams",
+            "POST",
+            data={},
+            headers={"Content-Type": "application/text"},
+        )
+        assert resp.status == 415
+
+        with open(get_response_path("teams_invalid_message.json"), "r") as fh:
+            data = fh.read()
+
+            resp = await call_endpoint(
+                opsdroid,
+                "/connector/teams",
+                "POST",
+                data=data,
+                headers={"Content-Type": "application/json"},
+            )
+            assert resp.status == 200
+            assert "Recieved invalid activity" in caplog.text
