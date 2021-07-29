@@ -69,9 +69,10 @@ async def test_ping_pong(opsdroid, connector, mock_api, mock_api_obj, caplog):
         await event.respond("pong")
 
         # Send message to the room with a string target too
+        [target, *_] = event.target.conversation.id.split(";")
         msg = Message(
             text="pong",
-            target=f"{event.target.conversation.id}",
+            target=target,
         )
         await event.connector.send(msg)
 
