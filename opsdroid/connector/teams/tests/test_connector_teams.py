@@ -68,6 +68,7 @@ async def test_ping_pong(opsdroid, connector, mock_api, mock_api_obj, caplog):
         logging.getLogger(__name__).info("ping called")
         await event.respond("pong")
 
+        # Send message to the room with a string target too
         msg = Message(
             text="pong",
             target=f"{event.target.conversation.id}",
@@ -125,3 +126,20 @@ async def test_invalid_calls(opsdroid, connector, mock_api, mock_api_obj, caplog
             )
             assert resp.status == 200
             assert "Recieved invalid activity" in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_send_message_to_invalid_target(
+    opsdroid, connector, mock_api, mock_api_obj, caplog
+):
+    caplog.set_level(logging.INFO)
+
+    @match_regex(r"ping")
+    async def test_skill(opsdroid, config, event):
+        pass
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        await connector.send(Message("hello", target=None, connector=connector))
+        assert "not a valid place to send a message" in caplog.text
