@@ -144,3 +144,20 @@ async def test_send_message_to_invalid_target(
     async with running_opsdroid(opsdroid):
         await connector.send(Message("hello", target=None, connector=connector))
         assert "not a valid place to send a message" in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_send_message_to_room_not_spoken_in(
+    opsdroid, connector, mock_api, mock_api_obj, caplog
+):
+    caplog.set_level(logging.INFO)
+
+    @match_regex(r"ping")
+    async def test_skill(opsdroid, config, event):
+        pass
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        await connector.send(Message("hello", target="foo_room", connector=connector))
+        assert "Unable to send a message" in caplog.text
