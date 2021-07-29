@@ -1,7 +1,7 @@
 {
     "text": "ping",
     "textFormat": "plain",
-    "type": "message",
+    "type": "invalid",
     "timestamp": "2021-04-03T13:12:12.5042273Z",
     "localTimestamp": "2021-04-03T14:12:12.5042273+01:00",
     "id": "1617455532474",
