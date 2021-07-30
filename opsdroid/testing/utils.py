@@ -99,6 +99,7 @@ async def call_endpoint(
     method: str = "GET",
     data_path: str = None,
     data: Dict = None,
+    headers: Dict = None,
     **kwargs: Any,
 ) -> web.Response:
     """Call an opsdroid API endpoint with the provided data.
@@ -116,6 +117,7 @@ async def call_endpoint(
         method: The HTTP method to use when calling.
         data_path: A local file path to load a JSON payload from to be sent in supported methods.
         data: A dictionary payload to be sent in supported methods.
+        headers: A dictionary of headers to be sent in supported methods.
 
     Returns:
         The response from the HTTP request.
@@ -159,13 +161,13 @@ async def call_endpoint(
 
     async with aiohttp.ClientSession() as session:
         if method.upper() == "GET":
-            async with session.get(f"{base_url}{endpoint}") as resp:
+            async with session.get(f"{base_url}{endpoint}", headers=headers) as resp:
                 return resp
         elif method.upper() == "POST":
             if data_path is None and data is None:
                 raise RuntimeError("Either data or data_path must be set")
             async with session.post(
-                f"{base_url}{endpoint}", data=data, **kwargs
+                f"{base_url}{endpoint}", data=data, headers=headers, **kwargs
             ) as resp:
                 return resp
         else:

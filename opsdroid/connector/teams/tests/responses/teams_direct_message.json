@@ -1,0 +1,40 @@
+{
+    "text": "ping",
+    "textFormat": "plain",
+    "type": "message",
+    "timestamp": "2021-04-03T13:12:12.5042273Z",
+    "localTimestamp": "2021-04-03T14:12:12.5042273+01:00",
+    "id": "1617455532474",
+    "channelId": "msteams",
+    "serviceUrl": "https://smba.trafficmanager.net/uk/",
+    "from": {
+        "id": "29:1WlulF5q2n12i6sXKzPTrnj2Lj6Oa5zfG5b2Y5TL1k41_IZwKJF_2-lRCbTjsTzPLEWFMUmJ4U_OcnYBbOjDc0g",
+        "name": "Jacob Tomlinson",
+        "aadObjectId": "a437c99b-3703-4dd6-80c8-82c69f181061"
+    },
+    "conversation": {
+        "conversationType": "personal",
+        "tenantId": "a0e78124-8cd4-4887-a704-1d4c829cf888",
+        "id": "a:1bR3bAgRDGDoLRBJm7zrHrYAXZuVoyjijEmUbb-t00nDjcyPL2fenwr_xQ0Cv2-6_dn_OAj17bujvlp5a7Eeb-2ct2eHfSgLai6yok7WY7pR6rsqzls5gYeOcTsUD-6ON"
+    },
+    "recipient": {
+        "id": "28:5353a86e-52fb-4979-8a69-c7efcd1b0bd3",
+        "name": "Opsdroid Dev"
+    },
+    "entities": [
+        {
+            "locale": "en-GB",
+            "country": "GB",
+            "platform": "Web",
+            "timezone": "Europe/London",
+            "type": "clientInfo"
+        }
+    ],
+    "channelData": {
+        "tenant": {
+            "id": "a0e78124-8cd4-4887-a704-1d4c829cf888"
+        }
+    },
+    "locale": "en-GB",
+    "localTimezone": "Europe/London"
+}
