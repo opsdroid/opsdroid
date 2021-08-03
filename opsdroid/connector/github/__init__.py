@@ -113,7 +113,7 @@ class ConnectorGitHub(Connector):
                 sender=user,
             )
 
-        if payload["action"] == "completed":
+        elif payload["action"] == "completed":
             if payload["check_run"]["conclusion"] == "success":
                 event = github_events.CheckPassed(
                     action=payload["action"],
@@ -153,7 +153,7 @@ class ConnectorGitHub(Connector):
                 connector=self,
                 raw_event=payload,
             )
-        if payload["action"] == "closed":
+        elif payload["action"] == "closed":
             event = github_events.IssueClosed(
                 title=payload["issue"]["title"],
                 user=user,
@@ -162,7 +162,7 @@ class ConnectorGitHub(Connector):
                 connector=self,
                 raw_event=payload,
             )
-        if "comment" in payload:
+        elif "comment" in payload:
             event = github_events.IssueCommented(
                 comment=payload["comment"]["body"],
                 user=payload["comment"]["user"]["login"],
@@ -187,7 +187,7 @@ class ConnectorGitHub(Connector):
                 connector=self,
                 raw_event=payload,
             )
-        if payload["action"] == "closed" and payload["pull_request"]["merged"]:
+        elif payload["action"] == "closed" and payload["pull_request"]["merged"]:
             event = github_events.PRMerged(
                 title=payload["pull_request"]["title"],
                 description=payload["pull_request"]["body"],
@@ -197,7 +197,7 @@ class ConnectorGitHub(Connector):
                 connector=self,
                 raw_event=payload,
             )
-        if payload["action"] == "closed":
+        elif payload["action"] == "closed":
             event = github_events.PRClosed(
                 title=payload["pull_request"]["title"],
                 user=payload["pull_request"]["user"]["login"],
