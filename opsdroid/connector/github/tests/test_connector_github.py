@@ -1,5 +1,4 @@
 """Tests for the GitHub class."""
-import asyncio
 import logging
 from pathlib import Path
 
@@ -250,8 +249,7 @@ async def test_pr_merged(opsdroid, connector, mock_api, caplog):
             data=get_webhook_payload("github_pr_merged_payload.json"),
         )
         assert resp.status == 201
-        while "Test skill complete" not in caplog.text:
-            await asyncio.sleep(0.1)
+        assert "Test skill complete" in caplog.text
         assert "Exception when running skill" not in caplog.text
 
 
