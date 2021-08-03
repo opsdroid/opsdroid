@@ -224,7 +224,6 @@ async def test_close_pr(opsdroid, connector, mock_api):
     "/user", "GET", get_response_path("github_user.json"), status=200
 )
 @pytest.mark.asyncio
-@pytest.mark.timeout(120)
 async def test_pr_merged(opsdroid, connector, mock_api, caplog):
     """Test a PR merge event creates an event and parses it."""
     caplog.set_level(logging.INFO)
