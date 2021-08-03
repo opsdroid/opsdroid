@@ -197,7 +197,7 @@ async def test_receive_pr(opsdroid, connector, mock_api):
     "/user", "GET", get_response_path("github_user.json"), status=200
 )
 @pytest.mark.asyncio
-async def test_close_pr(opsdroid, connector, mock_api):
+async def test_close_pr(opsdroid, connector, mock_api, caplog):
     """Test a PR close event creates an event and parses it."""
 
     @match_event(github_event.PRClosed)
@@ -218,14 +218,16 @@ async def test_close_pr(opsdroid, connector, mock_api):
             data=get_webhook_payload("github_pr_closed_payload.json"),
         )
         assert resp.status == 201
+        assert "Exception when running skill" not in caplog.text
 
 
 @pytest.mark.add_response(
     "/user", "GET", get_response_path("github_user.json"), status=200
 )
 @pytest.mark.asyncio
-async def test_pr_merged(opsdroid, connector, mock_api):
+async def test_pr_merged(opsdroid, connector, mock_api, caplog):
     """Test a PR merge event creates an event and parses it."""
+    caplog.set_level(logging.INFO)
 
     @match_event(github_event.PRMerged)
     async def test_skill(opsdroid, config, event):
@@ -235,6 +237,7 @@ async def test_pr_merged(opsdroid, connector, mock_api):
         assert event.description == "hello world"
         assert event.merger == "FabioRosado"
         assert event.user == "pyup-bot"
+        logging.getLogger(__name__).info("Test skill complete")
 
     opsdroid.register_skill(test_skill, config={"name": "test"})
 
@@ -246,6 +249,8 @@ async def test_pr_merged(opsdroid, connector, mock_api):
             data=get_webhook_payload("github_pr_merged_payload.json"),
         )
         assert resp.status == 201
+        assert "Test skill complete" in caplog.text
+        assert "Exception when running skill" not in caplog.text
 
 
 @pytest.mark.add_response(
