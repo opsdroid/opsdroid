@@ -458,6 +458,7 @@ async def test_receive_label(opsdroid, connector, mock_api, caplog):
 
     @match_event(github_event.Labeled)
     async def test_skill(opsdroid, config, event):
+        assert event.label_added == "bug"
         assert len(event.labels) == 1 and event.labels[0]["name"] == "bug"
         assert event.state == "open"
         logging.getLogger(__name__).info("Test skill complete")
@@ -486,7 +487,8 @@ async def test_receive_unlabel(opsdroid, connector, mock_api, caplog):
 
     @match_event(github_event.Unlabeled)
     async def test_skill(opsdroid, config, event):
-        assert event.labels == "bug"
+        assert event.label_removed == "bug"
+        assert len(event.labels) == 0
         assert event.state == "open"
         logging.getLogger(__name__).info("Test skill complete")
 

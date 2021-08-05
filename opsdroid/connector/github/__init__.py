@@ -220,6 +220,7 @@ class ConnectorGitHub(Connector):
                 user = payload["sender"]["login"]
                 if payload["action"] == "labeled":
                     event = github_events.Labeled(
+                        label_added=payload["label"]["name"],
                         labels=payload["issue"]["labels"],
                         state=payload["issue"]["state"],
                         user=user,
@@ -229,7 +230,8 @@ class ConnectorGitHub(Connector):
                     )
                 elif payload["action"] == "unlabeled":
                     event = github_events.Unlabeled(
-                        labels=payload["label"]["name"],
+                        label_removed=payload["label"]["name"],
+                        labels=payload["issue"]["labels"],
                         state=payload["issue"]["state"],
                         user=user,
                         target=f"{repo}{payload['issue']['number']}",

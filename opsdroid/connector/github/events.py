@@ -119,7 +119,7 @@ class PRClosed(events.Event):
 class Labeled(events.Event):
     """Event class that triggers when an issue/PR is labeled.."""
 
-    def __init__(self, labels, state, *args, **kwargs):
+    def __init__(self, label_added, labels, state, *args, **kwargs):
         """Event that is triggered when a user adds a label.
 
         Note that if a user creates a new issue/PR and labels it at the same time,
@@ -133,6 +133,7 @@ class Labeled(events.Event):
         multiple labels. This allows you to iterate over the list of ``labels`` and
         do actions on it.
 
+        * ``label_added`` - Name of the label that was added during labeling
         * ``labels`` - A list of dicts, containing all the labels. Each label contains
             an ``id``, ``url``, `name``, ``color``, ``description``, ``default`` and
             ``node_id`` key.
@@ -140,6 +141,7 @@ class Labeled(events.Event):
 
         """
         super().__init__(*args, **kwargs)
+        self.label_added = label_added
         self.labels = labels
         self.state = state
 
@@ -147,7 +149,7 @@ class Labeled(events.Event):
 class Unlabeled(events.Event):
     """Event class that triggers when a label is removed from an issue/PR."""
 
-    def __init__(self, labels, state, *args, **kwargs):
+    def __init__(self, label_removed, labels, state, *args, **kwargs):
         """Event that is triggered when a user removes a label.
 
         If you have an issue/PR with multiple labels, you need to do some checking to
@@ -160,6 +162,7 @@ class Unlabeled(events.Event):
 
         Note that the labels list can be empty if we remove all the labels!
 
+        * ``label_removed`` - Name of the label that was removed during unlabeling
         * ``labels`` - A list of dicts, containing all the labels. Each label contains
             an ``id``, ``url``, `name``, ``color``, ``description``, ``default`` and
             ``node_id`` key.
@@ -167,6 +170,7 @@ class Unlabeled(events.Event):
 
         """
         super().__init__(*args, **kwargs)
+        self.label_removed = label_removed
         self.labels = labels
         self.state = state
 
