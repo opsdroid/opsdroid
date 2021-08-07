@@ -39,6 +39,8 @@ $ opsdroid start
 ```
 # Install Python from https://www.python.org/downloads/
 # Launch powershell command prompt
+#shortcut to launch powershell => winkey+R and search powershell.
+#another shortcut Ctrl+Shift+Enter
 
 # Install opsdroid
 C:\Users\myaccount> pip install opsdroid[common]
