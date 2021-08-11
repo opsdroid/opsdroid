@@ -64,12 +64,52 @@ connectors:
 ```
 
 ```eval_rst
+.. autoclass:: opsdroid.connector.github.events.PRReopened
+  :members:
+```
+
+```eval_rst
+.. autoclass:: opsdroid.connector.github.events.PREdited
+  :members:
+```
+
+```eval_rst
 .. autoclass:: opsdroid.connector.github.events.PRMerged
   :members:
 ```
 
 ```eval_rst
 .. autoclass:: opsdroid.connector.github.events.PRClosed
+  :members:
+```
+
+```eval_rst
+.. autoclass:: opsdroid.connector.github.events.PRReviewSubmitted
+  :members:
+```
+
+```eval_rst
+.. autoclass:: opsdroid.connector.github.events.PRReviewEdited
+  :members:
+```
+
+```eval_rst
+.. autoclass:: opsdroid.connector.github.events.PRReviewDismissed
+  :members:
+```
+
+```eval_rst
+.. autoclass:: opsdroid.connector.github.events.PRReviewCommentCreated
+  :members:
+```
+
+```eval_rst
+.. autoclass:: opsdroid.connector.github.events.PRReviewCommentEdited
+  :members:
+```
+
+```eval_rst
+.. autoclass:: opsdroid.connector.github.events.PRReviewCommentDeleted
   :members:
 ```
 
