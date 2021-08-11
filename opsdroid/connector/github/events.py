@@ -133,7 +133,7 @@ class PRReviewCommentEdited(events.Event):
     """Event class that triggers when a PR Review Comment is edited."""
 
     def __init__(self, body, user, edited_by, *args, **kwargs):
-        """Event that is triggered when a user submits a PR Review Comment.
+        """Event that is triggered when a user edits a PR Review Comment.
 
         * ``body`` - The PR Review Comment body
         * ``user`` - The user who submitted the PR Review Comment
@@ -150,7 +150,7 @@ class PRReviewCommentDeleted(events.Event):
     """Event class that triggers when a PR Review Comment is deleted."""
 
     def __init__(self, body, user, deleted_by, *args, **kwargs):
-        """Event that is triggered when a user submits a PR Review Comment.
+        """Event that is triggered when a user deletes a PR Review Comment.
 
         * ``body`` - The PR Review Comment body
         * ``user`` - The user who submitted the PR Review Comment
