@@ -156,7 +156,8 @@ class ConnectorGitHub(Connector):
         elif payload["action"] == "closed":
             event = github_events.IssueClosed(
                 title=payload["issue"]["title"],
-                user=user,
+                user=payload["issue"]["user"]["login"],
+                closed_by=user,
                 description=payload["issue"]["body"],
                 target=f"{repo}{payload['issue']['number']}",
                 connector=self,
@@ -165,7 +166,7 @@ class ConnectorGitHub(Connector):
         elif "comment" in payload:
             event = github_events.IssueCommented(
                 comment=payload["comment"]["body"],
-                user=payload["comment"]["user"]["login"],
+                user=user,
                 issue_title=payload["issue"]["title"],
                 comment_url=payload["comment"]["url"],
                 target=f"{repo}{payload['issue']['number']}",
@@ -178,11 +179,83 @@ class ConnectorGitHub(Connector):
         self, payload: dict, repo: str, user: str
     ) -> github_events:
         """Handle PR events."""
-        if payload["action"] == "opened":
+        if payload["action"] == "submitted" and "review" in payload:
+            event = github_events.PRReviewSubmitted(
+                body=payload["review"]["body"],
+                user=user,
+                target=f"{repo}{payload['pull_request']['number']}",
+                connector=self,
+                raw_event=payload,
+            )
+        elif payload["action"] == "edited" and "review" in payload:
+            event = github_events.PRReviewEdited(
+                body=payload["review"]["body"],
+                user=payload["review"]["user"]["login"],
+                edited_by=user,
+                target=f"{repo}{payload['pull_request']['number']}",
+                connector=self,
+                raw_event=payload,
+            )
+        elif payload["action"] == "dismissed" and "review" in payload:
+            event = github_events.PRReviewDismissed(
+                body=payload["review"]["body"],
+                user=payload["review"]["user"]["login"],
+                dismissed_by=user,
+                target=f"{repo}{payload['pull_request']['number']}",
+                connector=self,
+                raw_event=payload,
+            )
+        elif payload["action"] == "created" and "comment" in payload:
+            event = github_events.PRReviewCommentCreated(
+                body=payload["comment"]["body"],
+                user=user,
+                target=f"{repo}{payload['pull_request']['number']}",
+                connector=self,
+                raw_event=payload,
+            )
+        elif payload["action"] == "edited" and "comment" in payload:
+            event = github_events.PRReviewCommentEdited(
+                body=payload["comment"]["body"],
+                user=payload["comment"]["user"]["login"],
+                edited_by=user,
+                target=f"{repo}{payload['pull_request']['number']}",
+                connector=self,
+                raw_event=payload,
+            )
+        elif payload["action"] == "deleted" and "comment" in payload:
+            event = github_events.PRReviewCommentDeleted(
+                body=payload["comment"]["body"],
+                user=payload["comment"]["user"]["login"],
+                deleted_by=user,
+                target=f"{repo}{payload['pull_request']['number']}",
+                connector=self,
+                raw_event=payload,
+            )
+        elif payload["action"] == "opened":
             event = github_events.PROpened(
                 title=payload["pull_request"]["title"],
                 description=payload["pull_request"]["body"],
-                user=user,
+                user=payload["pull_request"]["user"]["login"],
+                target=f"{repo}{payload['pull_request']['number']}",
+                connector=self,
+                raw_event=payload,
+            )
+        elif payload["action"] == "reopened":
+            event = github_events.PRReopened(
+                title=payload["pull_request"]["title"],
+                description=payload["pull_request"]["body"],
+                user=payload["pull_request"]["user"]["login"],
+                reopened_by=user,
+                target=f"{repo}{payload['pull_request']['number']}",
+                connector=self,
+                raw_event=payload,
+            )
+        elif payload["action"] == "edited":
+            event = github_events.PREdited(
+                title=payload["pull_request"]["title"],
+                description=payload["pull_request"]["body"],
+                user=payload["pull_request"]["user"]["login"],
+                edited_by=user,
                 target=f"{repo}{payload['pull_request']['number']}",
                 connector=self,
                 raw_event=payload,
@@ -192,7 +265,7 @@ class ConnectorGitHub(Connector):
                 title=payload["pull_request"]["title"],
                 description=payload["pull_request"]["body"],
                 user=payload["pull_request"]["user"]["login"],
-                merger=payload["pull_request"]["merged_by"],
+                merged_by=payload["pull_request"]["merged_by"],
                 target=f"{repo}{payload['pull_request']['number']}",
                 connector=self,
                 raw_event=payload,

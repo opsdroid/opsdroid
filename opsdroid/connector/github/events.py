@@ -26,7 +26,7 @@ class IssueCreated(events.Event):
 class IssueClosed(events.Event):
     """Event class that triggers when an issue is closed."""
 
-    def __init__(self, title, user, description, *args, **kwargs):
+    def __init__(self, title, user, closed_by, description, *args, **kwargs):
         """Event that is triggered when an issue is closed.
 
         GitHub allows us to have access to a lot of things when a
@@ -34,13 +34,15 @@ class IssueClosed(events.Event):
         be accessed with the following attributes:
 
         * ``title`` - The issue title
-        * ``description`` - The full body of the issue
         * ``user`` - The user who created the issue
+        * ``closed_by`` - The user who closed the issue
+        * ``description`` - The full body of the issue
 
         """
         super().__init__(*args, **kwargs)
         self.title = title
         self.user = user
+        self.closed_by = closed_by
         self.description = description
 
 
@@ -50,7 +52,7 @@ class IssueCommented(events.Event):
     def __init__(self, comment, user, issue_title, comment_url, *args, **kwargs):
         """Event that is triggered when a user comment on an issue.
 
-        * ``user`` - The user who created the issue
+        * ``user`` - The user who created the issue comment
         * ``comment`` - The comment made by the user
         * ``issue_title` - The title of the issue where the user made the comment
         * ``comment_url`` - The URL of the comment
@@ -63,6 +65,104 @@ class IssueCommented(events.Event):
         self.comment_url = comment_url
 
 
+class PRReviewSubmitted(events.Event):
+    """Event class that triggers when a PR Review is submitted."""
+
+    def __init__(self, body, user, *args, **kwargs):
+        """Event that is triggered when a user submits a PR Review.
+
+        * ``body`` - The PR Review body
+        * ``user`` - The user who submitted the PR Review
+
+        """
+        super().__init__(*args, **kwargs)
+        self.body = body
+        self.user = user
+
+
+class PRReviewEdited(events.Event):
+    """Event class that triggers when a PR Review is edited."""
+
+    def __init__(self, body, user, edited_by, *args, **kwargs):
+        """Event that is triggered when a user edits a PR Review.
+
+        * ``body`` - The PR Review body
+        * ``user`` - The user who submitted the PR Review
+        * ``edited_by`` - The user who edited the PR Review
+
+        """
+        super().__init__(*args, **kwargs)
+        self.body = body
+        self.user = user
+        self.edited_by = edited_by
+
+
+class PRReviewDismissed(events.Event):
+    """Event class that triggers when a PR Review is dismissed."""
+
+    def __init__(self, body, user, dismissed_by, *args, **kwargs):
+        """Event that is triggered when a user dismisses a PR Review.
+
+        * ``body`` - The PR Review body
+        * ``user`` - The user who submitted the PR Review
+        * ``dismissed_by`` - The user who edited the PR Review
+
+        """
+        super().__init__(*args, **kwargs)
+        self.body = body
+        self.user = user
+        self.dismissed_by = dismissed_by
+
+
+class PRReviewCommentCreated(events.Event):
+    """Event class that triggers when a PR Review Comment is created."""
+
+    def __init__(self, body, user, *args, **kwargs):
+        """Event that is triggered when a user submits a PR Review Comment.
+
+        * ``body`` - The PR Review Comment body
+        * ``user`` - The user who submitted the PR Review Comment
+
+        """
+        super().__init__(*args, **kwargs)
+        self.body = body
+        self.user = user
+
+
+class PRReviewCommentEdited(events.Event):
+    """Event class that triggers when a PR Review Comment is edited."""
+
+    def __init__(self, body, user, edited_by, *args, **kwargs):
+        """Event that is triggered when a user submits a PR Review Comment.
+
+        * ``body`` - The PR Review Comment body
+        * ``user`` - The user who submitted the PR Review Comment
+        * ``edited_by`` - The user who edited the PR Review Comment
+
+        """
+        super().__init__(*args, **kwargs)
+        self.body = body
+        self.user = user
+        self.edited_by = edited_by
+
+
+class PRReviewCommentDeleted(events.Event):
+    """Event class that triggers when a PR Review Comment is deleted."""
+
+    def __init__(self, body, user, deleted_by, *args, **kwargs):
+        """Event that is triggered when a user submits a PR Review Comment.
+
+        * ``body`` - The PR Review Comment body
+        * ``user`` - The user who submitted the PR Review Comment
+        * ``deleted_by`` - The user who edited the PR Review Comment
+
+        """
+        super().__init__(*args, **kwargs)
+        self.body = body
+        self.user = user
+        self.deleted_by = deleted_by
+
+
 class PROpened(events.Event):
     """Event class that triggers when a PR is opened."""
 
@@ -70,33 +170,71 @@ class PROpened(events.Event):
         """Event that is triggered when a user opens a PR.
 
         * ``title`` - The PR title
-        * ``description`` - The full body of the PR
         * ``user`` - The user who created the PR
+        * ``description`` - The full body of the PR
 
         """
         super().__init__(*args, **kwargs)
         self.title = title
         self.user = user
         self.description = description
+
+
+class PRReopened(events.Event):
+    """Event class that triggers when a PR is reopened."""
+
+    def __init__(self, title, user, reopened_by, description, *args, **kwargs):
+        """Event that is triggered when a user reopens a PR.
+
+        * ``title`` - The PR title
+        * ``user`` - The user who created the PR
+        * ``description`` - The full body of the PR
+        * ``reopened_by`` - The user who reopened the PR
+
+        """
+        super().__init__(*args, **kwargs)
+        self.title = title
+        self.user = user
+        self.reopened_by = reopened_by
+        self.description = description
+
+
+class PREdited(events.Event):
+    """Event class that triggers when a PR is edited."""
+
+    def __init__(self, title, user, edited_by, description, *args, **kwargs):
+        """Event that is triggered when a user edits a PR.
+
+        * ``title`` - The PR title
+        * ``user`` - The user who created the PR
+        * ``description`` - The full body of the PR
+        * ``edited_by`` - The user who edited the PR
+
+        """
+        super().__init__(*args, **kwargs)
+        self.title = title
+        self.user = user
+        self.description = description
+        self.edited_by = edited_by
 
 
 class PRMerged(events.Event):
     """Event class that triggers when a PR is merged."""
 
-    def __init__(self, title, user, merger, description, *args, **kwargs):
+    def __init__(self, title, user, merged_by, description, *args, **kwargs):
         """Event that is triggered when a user merges a PR.
 
         * ``title`` - The PR title
-        * ``description`` - The full body of the PR
         * ``user`` - The user who created the PR
-        * ``merger`` - The user who merged the PR
+        * ``description`` - The full body of the PR
+        * ``merged_by`` - The user who merged the PR
 
         """
         super().__init__(*args, **kwargs)
         self.title = title
         self.user = user
         self.description = description
-        self.merger = merger
+        self.merged_by = merged_by
 
 
 class PRClosed(events.Event):
@@ -106,7 +244,7 @@ class PRClosed(events.Event):
         """Event that is triggered when a PR is closed.
 
         * ``title`` - The PR title
-        * ``description`` - The user who created the PR
+        * ``user`` - The user who created the PR
         * ``closed_by`` - The user who closed the PR
 
         """
