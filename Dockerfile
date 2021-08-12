@@ -4,7 +4,7 @@ LABEL maintainer="Rémy Greinhofer <remy.greinhofer@gmail.com>"
 
 WORKDIR /usr/src/app
 
-ARG EXTRAS=[all,connector_matrix_e2e]
+ARG EXTRAS=.[all,connector_matrix_e2e]
 ENV DEPS_DIR=/usr/src/app/deps
 
 # Copy source
@@ -31,7 +31,7 @@ RUN apk update \
     setuptools-scm \
     wheel \
     && mkdir -p "${DEPS_DIR}" \
-    && pip download --prefer-binary -d ${DEPS_DIR} .${EXTRAS} \
+    && pip download --use-feature=in-tree-build --prefer-binary -d ${DEPS_DIR} ${EXTRAS} \
     && pip wheel -w ${DEPS_DIR} ${DEPS_DIR}/*.tar.gz \
     && python -m build --wheel --outdir ${DEPS_DIR}
 
@@ -41,7 +41,7 @@ LABEL maintainer="Rémy Greinhofer <remy.greinhofer@gmail.com>"
 
 WORKDIR /usr/src/app
 
-ARG EXTRAS=[all,connector_matrix_e2e]
+ARG EXTRAS=.[all,connector_matrix_e2e]
 ENV DEPS_DIR=/usr/src/app/deps
 
 # Copy the pre-built dependencies.
