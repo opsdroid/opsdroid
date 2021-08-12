@@ -4,7 +4,7 @@ LABEL maintainer="Rémy Greinhofer <remy.greinhofer@gmail.com>"
 
 WORKDIR /usr/src/app
 
-ARG EXTRAS=.[all,connector_matrix_e2e]
+ARG EXTRAS=[all,connector_matrix_e2e]
 ENV DEPS_DIR=/usr/src/app/deps
 
 # Copy source
@@ -14,6 +14,7 @@ COPY . .
 RUN apk update \
     && apk add \
     build-base \
+    cargo \
     gcc \
     g++ \
     libffi-dev \
@@ -31,7 +32,7 @@ RUN apk update \
     setuptools-scm \
     wheel \
     && mkdir -p "${DEPS_DIR}" \
-    && pip download --use-feature=in-tree-build --prefer-binary -d ${DEPS_DIR} ${EXTRAS} \
+    && pip download --use-feature=in-tree-build --prefer-binary -d ${DEPS_DIR} .${EXTRAS} \
     && pip wheel -w ${DEPS_DIR} ${DEPS_DIR}/*.tar.gz \
     && python -m build --wheel --outdir ${DEPS_DIR}
 
@@ -41,7 +42,7 @@ LABEL maintainer="Rémy Greinhofer <remy.greinhofer@gmail.com>"
 
 WORKDIR /usr/src/app
 
-ARG EXTRAS=.[all,connector_matrix_e2e]
+ARG EXTRAS=[all,connector_matrix_e2e]
 ENV DEPS_DIR=/usr/src/app/deps
 
 # Copy the pre-built dependencies.
@@ -52,7 +53,7 @@ RUN apk add --no-cache \
     git \
     libzmq \
     && pip install --no-cache-dir --no-index -f ${DEPS_DIR} \
-    ${DEPS_DIR}/opsdroid-0+unknown-py3-none-any.whl${EXTRAS} \
+    $(find ${DEPS_DIR} -type f -name opsdroid-*-any.whl)${EXTRAS} \
     && rm -rf /tmp/* /var/tmp/* ${DEPS_DIR}/* \
     && adduser -u 1001 -S -G root opsdroid
 
