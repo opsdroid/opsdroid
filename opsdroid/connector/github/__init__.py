@@ -281,6 +281,19 @@ class ConnectorGitHub(Connector):
             )
         return event
 
+    async def handle_push_event(
+        self, payload: dict, repo: str, user: str
+    ) -> github_events:
+        """Handle PR events."""
+        event = github_events.Push(
+            user=user,
+            pushed_by=payload["pusher"]["name"],
+            target=payload["ref"],
+            connector=self,
+            raw_event=payload,
+        )
+        return event
+
     async def github_message_handler(self, request):
         """Handle event from GitHub."""
         req = await request.post()
@@ -291,7 +304,9 @@ class ConnectorGitHub(Connector):
             try:
                 repo = f"{payload['repository']['owner']['login']}/{payload['repository']['name']}#"
                 user = payload["sender"]["login"]
-                if payload["action"] == "labeled":
+                if "pusher" in payload:
+                    event = await self.handle_push_event(payload, repo, user)
+                elif payload["action"] == "labeled":
                     event = github_events.Labeled(
                         label_added=payload["label"]["name"],
                         labels=payload["issue"]["labels"],
