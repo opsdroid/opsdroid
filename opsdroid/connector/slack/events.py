@@ -146,8 +146,7 @@ class SlashCommand(InteractiveAction):
 
         class SearchMessagesSkill(Skill):
             @match_event(SlashCommand, command="/testcommand")
-            async def caca(self, message):
-                await self.responder.wave("cloudroid-test")
+            async def slash_command(self, message):
                 await message.respond("Hi")
     """
 
