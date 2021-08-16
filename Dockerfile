@@ -16,6 +16,7 @@ RUN apk update \
     build-base \
     cargo \
     gcc \
+    git \
     g++ \
     libffi-dev \
     linux-headers \
