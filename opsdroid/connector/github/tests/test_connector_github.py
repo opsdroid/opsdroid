@@ -483,6 +483,34 @@ async def test_close_pr(opsdroid, connector, mock_api, caplog):
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
 @pytest.mark.asyncio
+async def test_push_commit(opsdroid, connector, mock_api, caplog):
+    """Test that pushing a commit creates an event and parses it."""
+    caplog.set_level(logging.INFO)
+
+    @match_event(github_event.Push)
+    async def test_skill(opsdroid, config, event):
+        assert event.connector.name == "github"
+        assert event.target == "refs/heads/readme-change"
+        assert event.pushed_by == "test-user"
+        assert event.user == "test-user"
+        logging.getLogger(__name__).info("Test skill complete")
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/github",
+            "POST",
+            data=get_webhook_payload("push.json"),
+        )
+        assert resp.status == 201
+        assert "Test skill complete" in caplog.text
+        assert "Exception when running skill" not in caplog.text
+
+
+@pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
+@pytest.mark.asyncio
 async def test_check_started(opsdroid, connector, mock_api, caplog):
     """Test a check started event creates an event and parses it."""
     caplog.set_level(logging.INFO)

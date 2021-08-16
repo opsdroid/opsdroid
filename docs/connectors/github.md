@@ -59,6 +59,11 @@ connectors:
 ```
 
 ```eval_rst
+.. autoclass:: opsdroid.connector.github.events.Push
+  :members:
+```
+
+```eval_rst
 .. autoclass:: opsdroid.connector.github.events.PROpened
   :members:
 ```

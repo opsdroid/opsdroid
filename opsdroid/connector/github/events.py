@@ -254,6 +254,21 @@ class PRClosed(events.Event):
         self.closed_by = closed_by
 
 
+class Push(events.Event):
+    """Event class that triggers when one or more commits is pushed."""
+
+    def __init__(self, user, pushed_by, *args, **kwargs):
+        """Event that is triggered when commits are pushed.
+
+        * ``user`` - The user who created the event
+        * ``pushed_by`` - The user who pushed the commits
+
+        """
+        super().__init__(*args, **kwargs)
+        self.user = user
+        self.pushed_by = pushed_by
+
+
 class Labeled(events.Event):
     """Event class that triggers when an issue/PR is labeled.."""
 
