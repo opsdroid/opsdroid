@@ -52,6 +52,7 @@ COPY --from=builder ${DEPS_DIR}/*.whl ${DEPS_DIR}/
 # Install Opsdroid using only pre-built dependencies.
 RUN apk add --no-cache \
     git \
+    olm \
     libzmq \
     && pip install --no-cache-dir --no-index -f ${DEPS_DIR} \
     $(find ${DEPS_DIR} -type f -name opsdroid-*-any.whl)${EXTRAS} \
