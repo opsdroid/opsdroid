@@ -1,6 +1,5 @@
 FROM python:3.9.6-alpine3.14 as builder
 LABEL maintainer="Jacob Tomlinson <jacob@tomlinson.email>"
-LABEL maintainer="Rémy Greinhofer <remy.greinhofer@gmail.com>"
 
 WORKDIR /usr/src/app
 
