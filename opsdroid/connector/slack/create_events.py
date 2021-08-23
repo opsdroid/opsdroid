@@ -263,7 +263,7 @@ class SlackEventCreator(events.EventCreator):
         """Send a Slash command event"""
 
         command = slack_events.SlashCommand(
-            event,
+            payload=event,
             user=event["user_id"],
             target=event["channel_id"],
             connector=self.connector,

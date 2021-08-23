@@ -6,7 +6,6 @@ import ssl
 
 import aiohttp
 import certifi
-
 from opsdroid import events
 
 _LOGGER = logging.getLogger(__name__)
@@ -144,10 +143,16 @@ class SlashCommand(InteractiveAction):
         from opsdroid.skill import Skill
         from opsdroid.matchers import match_regex
 
-        class SearchMessagesSkill(Skill):
+        class CommandsSkill(Skill):
             @match_event(SlashCommand, command="/testcommand")
-            async def slash_command(self, message):
-                await message.respond("Hi")
+            async def slash_command(self, event):
+
+                cmd = event.payload["command"]
+
+                # event.payload["text"] holds the arguments from the command
+                arguments = event.payload["text"]
+
+                await message.respond(f"{cmd} {arguments}")
     """
 
 
