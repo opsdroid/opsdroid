@@ -35,17 +35,30 @@ def get_webhook_payload(path):
         return {"payload": fh.read()}
 
 
-def test_init():
-    """Test that the connector is initialised properly."""
+def test_token_init():
+    """Test that the connector is initialised properly when using a personal api token."""
     connector = ConnectorGitHub({"name": "github", "token": "test"})
     assert connector.default_target is None
     assert connector.name == "github"
 
 
-def test_missing_token(caplog):
+def test_app_init():
+    """Test that the connector is initialised properly when using a Github app."""
+    connector = ConnectorGitHub(
+        {
+            "name": "github",
+            "private_key_file": "./test-private-key.pem",
+            "app_id": 1234567,
+        }
+    )
+    assert connector.default_target is None
+    assert connector.name == "github"
+
+
+def test_missing_token_and_app_settings(caplog):
     """Test that attempt to connect without info raises an error."""
     ConnectorGitHub({})
-    assert "Missing auth token!" in caplog.text
+    assert "Missing auth token or app settings!" in caplog.text
 
 
 def test_missing_secret(caplog):
