@@ -9,7 +9,6 @@ import time
 import aiohttp
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
-from voluptuous import Required
 
 from . import events as github_events
 
@@ -349,7 +348,7 @@ class ConnectorGitHub(Connector):
         """Handle event from GitHub."""
         try:
             payload = await request.json()
-        except:
+        except Exception:
             req = await request.post()
             payload = json.loads(req["payload"])
         is_valid_request = await self.validate_request(request, self.secret)
