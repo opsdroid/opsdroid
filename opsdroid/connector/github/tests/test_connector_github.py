@@ -29,7 +29,11 @@ async def connector(opsdroid, mock_api_obj):
 @pytest.fixture
 async def app_connector(opsdroid, mock_api_obj):
     opsdroid.config["connectors"] = {
-        "github": {"private_key_file": "./opsdroid/connector/github/tests/test_private_key.pem", "app_id": 123456, "api_base_url": mock_api_obj.base_url}
+        "github": {
+            "private_key_file": "./opsdroid/connector/github/tests/test_private_key.pem",
+            "app_id": 123456,
+            "api_base_url": mock_api_obj.base_url,
+        }
     }
     await opsdroid.load()
     return opsdroid.get_connector("github")
@@ -92,8 +96,15 @@ async def test_token_connect(connector, mock_api):
     assert connector.github_username == "opsdroid"
 
 
-@pytest.mark.add_response("/app/installations", "GET", get_response_path("installations.json"), status=200)
-@pytest.mark.add_response("/app/installations/123456/access_tokens", "POST", get_response_path("access_token.json"), status=200)
+@pytest.mark.add_response(
+    "/app/installations", "GET", get_response_path("installations.json"), status=200
+)
+@pytest.mark.add_response(
+    "/app/installations/123456/access_tokens",
+    "POST",
+    get_response_path("access_token.json"),
+    status=200,
+)
 @pytest.mark.asyncio
 async def test_app_connect(app_connector, mock_api):
     await app_connector.connect()
@@ -110,11 +121,35 @@ async def test_app_connect(app_connector, mock_api):
 
 
 @pytest.mark.add_response(
-    "/user", "GET", get_response_path("user_bad_credentials.json"), status=401
+    "/user", "GET", get_response_path("bad_credentials.json"), status=401
 )
 @pytest.mark.asyncio
-async def test_connect_failure(connector, mock_api, caplog):
+async def test_token_connect_failure(connector, mock_api, caplog):
     await connector.connect()
+    assert "Bad credentials" in caplog.text
+
+
+@pytest.mark.add_response(
+    "/app/installations", "GET", get_response_path("bad_credentials.json"), status=401
+)
+@pytest.mark.asyncio
+async def test_installations_connect_failure(app_connector, mock_api, caplog):
+    await app_connector.connect()
+    assert "Bad credentials" in caplog.text
+
+
+@pytest.mark.add_response(
+    "/app/installations", "GET", get_response_path("installations.json"), status=200
+)
+@pytest.mark.add_response(
+    "/app/installations/123456/access_tokens",
+    "POST",
+    get_response_path("bad_credentials.json"),
+    status=401,
+)
+@pytest.mark.asyncio
+async def test_access_token_connect_failure(app_connector, mock_api, caplog):
+    await app_connector.connect()
     assert "Bad credentials" in caplog.text
 
 
