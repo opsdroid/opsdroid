@@ -26,6 +26,15 @@ async def connector(opsdroid, mock_api_obj):
     return opsdroid.get_connector("github")
 
 
+@pytest.fixture
+async def app_connector(opsdroid, mock_api_obj):
+    opsdroid.config["connectors"] = {
+        "github": {"private_key_file": "./opsdroid/connector/github/tests/test_private_key.pem", "app_id": 123456, "api_base_url": mock_api_obj.base_url}
+    }
+    await opsdroid.load()
+    return opsdroid.get_connector("github")
+
+
 def get_response_path(response):
     return Path(__file__).parent / "github_response_payloads" / response
 
@@ -69,7 +78,7 @@ def test_missing_secret(caplog):
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
 @pytest.mark.asyncio
-async def test_connect(connector, mock_api):
+async def test_token_connect(connector, mock_api):
     await connector.connect()
 
     assert mock_api.called("/user")
@@ -81,6 +90,23 @@ async def test_connect(connector, mock_api):
 
     # Populated by the call to /user
     assert connector.github_username == "opsdroid"
+
+
+@pytest.mark.add_response("/app/installations", "GET", get_response_path("installations.json"), status=200)
+@pytest.mark.add_response("/app/installations/123456/access_tokens", "POST", get_response_path("access_token.json"), status=200)
+@pytest.mark.asyncio
+async def test_app_connect(app_connector, mock_api):
+    await app_connector.connect()
+
+    assert mock_api.called("/app/installations")
+    assert mock_api.call_count("/app/installations") == 1
+
+    assert mock_api.called("/app/installations/123456/access_tokens")
+    assert mock_api.call_count("/app/installations/123456/access_tokens") == 1
+
+    request = mock_api.get_request("/app/installations", "GET")
+    assert "Authorization" in request.headers
+    assert "Bearer" in request.headers["Authorization"]
 
 
 @pytest.mark.add_response(
