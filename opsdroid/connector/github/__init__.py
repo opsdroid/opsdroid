@@ -2,18 +2,19 @@
 import hashlib
 import hmac
 import json
+import jwt
 import logging
+import time
 
 import aiohttp
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
-from voluptuous import Required
 
 from . import events as github_events
 
 _LOGGER = logging.getLogger(__name__)
 GITHUB_API_URL = "https://api.github.com"
-CONFIG_SCHEMA = {Required("token"): str, "secret": str}
+CONFIG_SCHEMA = {"token": str, "private_key_file": str, "app_id": int, "secret": str}
 
 
 class ConnectorGitHub(Connector):
@@ -28,9 +29,17 @@ class ConnectorGitHub(Connector):
         self.github_username = None
         self.github_api_url = self.config.get("api_base_url", GITHUB_API_URL)
         try:
-            self.github_token = config["token"]
+            if config.get("token"):
+                self.github_token = config["token"]
+            else:
+                self.private_key_file = config["private_key_file"]
+                self.app_id = config["app_id"]
         except KeyError:
-            _LOGGER.error(_("Missing auth token! You must set 'token' in your config."))
+            _LOGGER.error(
+                _(
+                    "Missing auth token or app settings! You must either set an 'token' in your config or a 'private_key' and 'app_id'."
+                )
+            )
 
         self.secret = self.config.get("secret")
         if not self.secret:
@@ -42,18 +51,59 @@ class ConnectorGitHub(Connector):
 
     async def connect(self):
         """Connect to GitHub."""
-        headers = {"Authorization": f"token {self.github_token}"}
-        async with aiohttp.ClientSession(trust_env=True, headers=headers) as session:
-            url = f"{self.github_api_url}/user"
-            response = await session.get(url)
-            if response.status >= 300:
-                response_text = await response.text()
-                _LOGGER.error(_("Error connecting to GitHub: %s."), response_text)
-                return False
-            _LOGGER.debug(_("Reading bot information..."))
-            bot_data = await response.json()
-        _LOGGER.debug(_("Done."))
-        self.github_username = bot_data["login"]
+        if not hasattr(self, "github_token"):
+            current_time = int(time.time())
+            payload = {
+                "iat": current_time - 60,
+                "exp": current_time + (10 * 60),
+                "iss": self.app_id,
+            }
+            private_key = open(self.private_key_file, "rt").read()
+            installation_access_token = jwt.encode(
+                payload, private_key, algorithm="RS256"
+            ).decode("utf-8")
+            headers = {"Authorization": f"Bearer {installation_access_token}"}
+
+            async with aiohttp.ClientSession(
+                trust_env=True, headers=headers
+            ) as session:
+                url = f"{self.github_api_url}/app/installations"
+                response = await session.get(url)
+                if response.status >= 300:
+                    response_text = await response.text()
+                    _LOGGER.error(_("Error connecting to GitHub: %s."), response_text)
+                    return False
+                _LOGGER.debug(_("Reading installation information..."))
+                installations = await response.json()
+                installation_id = installations[0]["id"]
+
+            async with aiohttp.ClientSession(
+                trust_env=True, headers=headers
+            ) as session:
+                url = f"{self.github_api_url}/app/installations/{installation_id}/access_tokens"
+                response = await session.post(url)
+                if response.status >= 300:
+                    response_text = await response.text()
+                    _LOGGER.error(_("Error connecting to GitHub: %s."), response_text)
+                    return False
+                _LOGGER.debug(_("Reading installation access token information..."))
+                access_token = await response.json()
+                self.github_token = access_token["token"]
+        else:
+            headers = {"Authorization": f"token {self.github_token}"}
+            async with aiohttp.ClientSession(
+                trust_env=True, headers=headers
+            ) as session:
+                url = f"{self.github_api_url}/user"
+                response = await session.get(url)
+                if response.status >= 300:
+                    response_text = await response.text()
+                    _LOGGER.error(_("Error connecting to GitHub: %s."), response_text)
+                    return False
+                _LOGGER.debug(_("Reading bot information..."))
+                bot_data = await response.json()
+            _LOGGER.debug(_("Done."))
+            self.github_username = bot_data["login"]
 
         self.opsdroid.web_server.web_app.router.add_post(
             "/connector/{}".format(self.name), self.github_message_handler
@@ -296,8 +346,11 @@ class ConnectorGitHub(Connector):
 
     async def github_message_handler(self, request):
         """Handle event from GitHub."""
-        req = await request.post()
-        payload = json.loads(req["payload"])
+        try:
+            payload = await request.json()
+        except Exception:
+            req = await request.post()
+            payload = json.loads(req["payload"])
         is_valid_request = await self.validate_request(request, self.secret)
 
         if is_valid_request:

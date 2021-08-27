@@ -8,6 +8,31 @@ To use the GitHub connector you will need a user for the bot to use and generate
 
 ### Creating your application
 
+There are 2 ways to connect opsdroid to Github. You can create a Github App and point it at opsdroid for event handling. This app can be installed by multiple organizations and would only be configured once. The other way is to use a Webhook within Github and point that to opsdroid for event handling. Each webhook needs to be individually configured.
+
+#### Github Apps method
+
+- Create Github app under and organization or individuals `Settings` (in `Developer Settings` -> `Github Apps`.)
+- Specify the Webhook URL pointing to your opsdroid url.
+- Select which permissions you would like to ask the user for. Currently supported are:
+  - "Checks"
+  - "Contents"
+  - "Issues"
+  - "Pull requests"
+- Based on your selection, you can check which events you would like Github to send to your opsdroid. Currently supported are:
+  - "Check runs"
+  - "Issues"
+  - "Issue comment"
+  - "Pull request"
+  - "Pull request review"
+  - "Pull request review comment"
+  - "Push"
+- After clicking "Create GitHub App", download the Private Key file for use in configuration.
+
+_*Note:* You should add a secure secret when setting up your webhook, this will allow opsdroid to confirm that the event received is authentic and came from GitHub._
+
+#### Webhook method
+
 - Create GitHub user for the bot to use and log into it
   - If the bot sends too many messages to GitHub the account might get banned
 - Create a [personal api token](https://github.com/blog/1509-personal-api-tokens)
@@ -17,14 +42,30 @@ To use the GitHub connector you will need a user for the bot to use and generate
 - Make sure you select `application/x-www-form-urlencoded` as Content type otherwise the connector won't work.
 - Create a webhook pointing to your opsdroid url
 - Select what kind of events should be sent to the bot, you can select "Let me select individual events" and check:
+  - "Check runs"
   - "Issues"
   - "Issue comment"
   - "Pull request"
-  - "Check runs
+  - "Pull request review"
+  - "Pull request review comment"
+  - "Push"
   
 _*Note:* You should add a secure secret when setting up your webhook, this will allow opsdroid to confirm that the event received is authentic and came from GitHub._
 
 ## Configuration
+
+#### Github app
+
+```yaml
+connectors:
+  github:
+    # required
+    app_id: 123456
+    private_key_file: <path/to/private_key.pem>
+    secret: <webhook secret>
+```
+
+#### Webhook method
 
 ```yaml
 connectors:

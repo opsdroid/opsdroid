@@ -45,6 +45,7 @@ You need to choose between two backends. The [Events API](https://api.slack.com/
 If you are unsure which one is the best for you, [Slack Faq](https://api.slack.com/faq#events_api) provide differences between those two.
 
 **Socket Mode**
+
 _Note:_ Due to a Slack inconsistency, you will need to complete the *Events API* instructions below first before setting up Socket Mode. The reason for this is that the Request URL verification step is needed and is only available via the *Events API*.
 * Go to your [Slack App](https://api.slack.com/apps)
 * On the left column go to "Socket Mode" and set the "Enable Socket Mode" toggle to enabled.
