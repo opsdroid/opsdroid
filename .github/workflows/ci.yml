@@ -47,7 +47,8 @@ jobs:
       - name: Run tests
         env:
           PLATFORM: ${{ runner.os }}
-        run: tox
+        run: tox -vv
+        timeout-minutes: 20
       - name: Upload coverage report
         uses: codecov/codecov-action@v1
         with:
@@ -69,4 +70,5 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -U tox
       - name: Run checks
-        run: tox -e ${{ matrix.component }}
+        run: tox -vv -e ${{ matrix.component }}
+        timeout-minutes: 30

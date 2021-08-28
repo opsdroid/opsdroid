@@ -45,16 +45,20 @@ You need to choose between two backends. The [Events API](https://api.slack.com/
 If you are unsure which one is the best for you, [Slack Faq](https://api.slack.com/faq#events_api) provide differences between those two.
 
 **Socket Mode**
+
+_Note:_ Due to a Slack inconsistency, you will need to complete the *Events API* instructions below first before setting up Socket Mode. The reason for this is that the Request URL verification step is needed and is only available via the *Events API*.
 * Go to your [Slack App](https://api.slack.com/apps)
-* On the left columnt go to "Socket Mode" and toogle the "Enable Socket Mode"
-* Copy your new token add add it to your opsdroid configuration file as your `app-token`. (the app-token will start with xapp-abcdef-1233)
+* On the left column go to "Socket Mode" and set the "Enable Socket Mode" toggle to enabled.
+* Make sure to set `socket-mode` to `true` in your Opsdroid configuration.
+* Copy your new token add add it to your Opsdroid configuration file as your `app-token`. (the `app-token` will start with `xapp-abcdef-1233`)
 
 **Events API**
-* Make sure to set `socket-mode` to `false`
+* Make sure to set `socket-mode` to `false` in your Opsdroid configuration.
 * You will need an **endpoint** which exposes your Opsdroid to the **internet**. [Exposing Opsdroid via tunnels](https://docs.opsdroid.dev/en/latest/exposing.html) might help out.
 * Go to your [Slack App](https://api.slack.com/apps)
-* On the left column go to "Event Subscriptions" and toogle the "Enable Events"
-* Under "Request URL" add the `/connector/slack` uri to your endpoint: https://slackbot.example.com/connector/slack. Note that you will have to have your Opsdroid instance running so Slack can validate the endpoint.
+* On the left column go to "Socket Mode" and make sure the "Enable Socket Mode" toggle is set to disabled.
+* On the left column go to "Event Subscriptions" and set the "Enable Events" toggle to enabled.
+* Under "Request URL" add the `/connector/slack` uri to your endpoint: https://slackbot.example.com/connector/slack. Note that you will have to have your Opsdroid instance running so Slack can verify the endpoint.
 
 ### Subscribe to events
 You will need to subscribe to events in your new Slack App, so Opsdroid can receive those events. 
