@@ -73,13 +73,9 @@ class DatabaseMongo(Database):
         if "key" not in data:
             data["key"] = key
 
-        response = await self.database[self.collection].update_one(
-            {"key": data["key"]}, {"$set": data}
+        return await self.database[self.collection].update_one(
+            {"key": data["key"]}, {"$set": data}, upsert=True
         )
-        if bool(response) and response.raw_result["updatedExisting"]:
-            return response
-
-        return await self.database[self.collection].insert_one(data)
 
     async def get(self, key):
         """Get a document from the database (key).
