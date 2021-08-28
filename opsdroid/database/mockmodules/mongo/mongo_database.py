@@ -16,7 +16,7 @@ class DatabaseMongoTest:
         """
         return await self.dummy_db
 
-    async def update_one(self, key, update):
+    async def update_one(self, key, update, **kwargs):
         """Mock method update_one.
 
         Args: key(object) not considered for test
