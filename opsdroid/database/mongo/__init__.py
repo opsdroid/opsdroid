@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """A module for opsdroid to allow persist in mongo database."""
 import logging
+from contextlib import contextmanager
 from motor.motor_asyncio import AsyncIOMotorClient
 from voluptuous import Any
 
@@ -13,6 +14,7 @@ CONFIG_SCHEMA = {
     "database": str,
     "user": str,
     "password": str,
+    "collection": str,
 }
 
 
@@ -37,7 +39,7 @@ class DatabaseMongo(Database):
         self.config = config
         self.client = None
         self.database = None
-        self.collection_name = config.get("default_collection_name") or config.get("default_table_name", "opsdroid")
+        self.collection = config.get("collection", "opsdroid")
 
     async def connect(self):
         """Connect to the database."""
@@ -56,7 +58,7 @@ class DatabaseMongo(Database):
         self.database = self.client[database]
         _LOGGER.info("Connected to MongoDB.")
 
-    async def put(self, key, data, collection_name="", table_name=""):
+    async def put(self, key, data):
         """Insert or replace an object into the database for a given key.
 
         Args:
@@ -64,53 +66,52 @@ class DatabaseMongo(Database):
             data (object): the data to be inserted or replaced
 
         """
-        if collection_name or table_name:
-            self.collection_name = collection_name or table_name
-
-        _LOGGER.debug("Putting %s into MongoDB collection %s", key, self.collection_name)
+        _LOGGER.debug("Putting %s into MongoDB collection %s", key, self.collection)
 
         if isinstance(data, str):
             data = {"value": data}
         if "key" not in data:
             data["key"] = key
 
-        response = await self.database[self.collection_name].update_one(
+        response = await self.database[self.collection].update_one(
             {"key": data["key"]}, {"$set": data}
         )
-        if response.raw_result["updatedExisting"]:
-            return
+        if bool(response) and response.raw_result["updatedExisting"]:
+            return response
 
-        await self.database[self.collection_name].insert_one(data)
+        return await self.database[self.collection].insert_one(data)
 
-    async def get(self, key, collection_name="", table_name=""):
+    async def get(self, key):
         """Get a document from the database (key).
 
         Args:
             key (str): the key is the database name.
 
         """
-        if collection_name or table_name:
-            self.collection_name = collection_name or table_name
+        _LOGGER.debug("Getting %s from MongoDB collection %s", key, self.collection)
 
-        _LOGGER.debug("Getting %s from MongoDB collection %s", key, self.collection_name)
-
-        response = await self.database[self.collection_name].find_one(
+        response = await self.database[self.collection].find_one(
             {"$query": {"key": key}, "$orderby": {"$natural": -1}}
         )
         if response.keys() == {"_id", "key", "value"}:
             response = response["value"]
         return response
 
-    async def delete(self, key, collection_name="", table_name=""):
+    async def delete(self, key):
         """Delete a document from the database (key).
 
         Args:
             key (str): the key is the database name.
 
         """
-        if collection_name or table_name:
-            self.collection_name = collection_name or table_name
+        _LOGGER.debug("Deleting %s from MongoDB collection %s.", key, self.collection)
 
-        _LOGGER.debug("Deleting %s from MongoDB collection %s.", key, self.collection_name)
+        return await self.database[self.collection].delete_one({"key": key})
 
-        return await self.database[self.collection_name].delete_one({"key": key})
+    @contextmanager
+    def memory_in_collection(self, collection):
+        """Use collection state in the given collection rather than the default."""
+        original_collection = self.collection
+        self.collection = collection
+        yield
+        self.collection = original_collection

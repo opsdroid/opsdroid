@@ -21,7 +21,7 @@ class DatabaseMongoTest:
 
         Args: key(object) not considered for test
         """
-        return await self.dummy_db
+        return self.dummy_db
 
     async def insert_one(self, key):
         """Mock method insert_one.
