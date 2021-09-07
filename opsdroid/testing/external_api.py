@@ -105,6 +105,8 @@ class ExternalAPIMockServer:
         self._payloads[route].append(await request.post())
 
         status, response = self.responses[(route, method)].pop(0)
+        if isinstance(response, str):
+            return web.Response(text=response, status=status, content_type="text/html")
         return web.json_response(response, status=status)
 
     @property

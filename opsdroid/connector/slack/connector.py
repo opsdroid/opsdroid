@@ -130,6 +130,10 @@ class ConnectorSlack(Connector):
         """Listen for and parse new messages."""
 
     async def event_handler(self, payload):
+        """Handle different payload types and parse the resulting events"""
+
+        if "command" in payload:
+            payload["type"] = "command"
 
         if "type" in payload:
             if payload["type"] == "event_callback":
@@ -137,12 +141,12 @@ class ConnectorSlack(Connector):
             else:
                 event = await self._event_creator.create_event(payload, None)
 
-                if not event:
-                    _LOGGER.info(
-                        f"Payload: {payload['type']} is not implemented. Event wont be parsed"
-                    )
+        if not event:
+            _LOGGER.error(
+                "Payload: %s is not implemented. Event wont be parsed", payload
+            )
 
-                    return
+            return
 
         if isinstance(event, list):
             for e in event:
@@ -180,15 +184,18 @@ class ConnectorSlack(Connector):
 
         if request.content_type == "application/x-www-form-urlencoded":
             req = await request.post()
-            payload = json.loads(req["payload"])
+
+            if "payload" in req:
+                payload = json.loads(req["payload"])
+            else:
+                payload = dict(req)
         elif request.content_type == "application/json":
             payload = await request.json()
 
-        if "type" in payload:
-            if payload["type"] == "url_verification":
-                return aiohttp.web.json_response({"challenge": payload["challenge"]})
-            else:
-                await self.event_handler(payload)
+        if payload.get("type") == "url_verification":
+            return aiohttp.web.json_response({"challenge": payload["challenge"]})
+
+        await self.event_handler(payload)
 
         return aiohttp.web.Response(text=json.dumps("Received"), status=200)
 
