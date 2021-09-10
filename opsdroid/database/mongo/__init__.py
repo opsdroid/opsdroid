@@ -106,7 +106,7 @@ class DatabaseMongo(Database):
 
     @contextmanager
     def memory_in_collection(self, collection):
-        """Use collection state in the given collection rather than the default."""
+        """Use the specified collection rather than the default."""
         original_collection = self.collection
         self.collection = collection
         yield
