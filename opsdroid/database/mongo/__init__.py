@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """A module for opsdroid to allow persist in mongo database."""
 import logging
-from contextlib import contextmanager
+from contextlib import asynccontextmanager
 from motor.motor_asyncio import AsyncIOMotorClient
 from voluptuous import Any
 
@@ -104,10 +104,14 @@ class DatabaseMongo(Database):
 
         return await self.database[self.collection].delete_one({"key": key})
 
-    @contextmanager
-    def memory_in_collection(self, collection):
+    @asynccontextmanager
+    async def memory_in_collection(self, collection):
         """Use the specified collection rather than the default."""
-        original_collection = self.collection
-        self.collection = collection
-        yield
-        self.collection = original_collection
+        db_copy = DatabaseMongo(self.config, self.opsdroid)
+        try:
+            await db_copy.connect()
+            db_copy.collection = collection
+            yield db_copy
+        finally:
+            if db_copy.client:
+                db_copy.client.close()

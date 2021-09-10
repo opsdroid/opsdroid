@@ -32,7 +32,10 @@ An addition to the usual use of memory, the mongo database provides a context ma
 
 ```
 db = opsdroid.get_database("mongo")
-with db.memory_in_colection("new_collection"):
+async with db.memory_in_colection("new_collection") as new_db:
+    await new_db.put("key", "value")
+    await new_db.get("key")
+    await new_db.delete("key")
    ...
 ```
 
