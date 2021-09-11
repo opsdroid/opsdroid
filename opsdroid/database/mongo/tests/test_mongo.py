@@ -1,12 +1,19 @@
 import pytest
 
-from opsdroid.database.mockmodules.mongo.mongo_database import DatabaseMongoTest
+from opsdroid.database.mockmodules.mongo.mongo_database import DatabaseMongoCollectionMock
 from opsdroid.database.mongo import DatabaseMongo
 
 
 @pytest.fixture()
 def database(config):
     return DatabaseMongo(config)
+
+
+@pytest.fixture()
+def mocked_database(database):
+    collection = database.collection
+    database.database = {collection: DatabaseMongoCollectionMock({})}
+    return database
 
 
 @pytest.mark.parametrize(
@@ -44,46 +51,45 @@ async def test_connect(database):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("config", [{"collection": "test_collection"}])
-async def test_get(database):
-    database.database = {"test_collection": DatabaseMongoTest({})}
-    with pytest.raises(TypeError):
-        await database.get("test_db")
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize("config", [{"collection": "test_collection"}])
-async def test_put(database):
-    database.database = {"test_collection": DatabaseMongoTest({})}
+async def test_get(mocked_database):
+    mocked_database.database = {"test_collection": DatabaseMongoCollectionMock({})}
     try:
-        await database.put("test_key", {"key": "value"})
-    except TypeError:
-        try:
-            await database.put("test_key", {})
-        except NotImplementedError:
-            raise Exception
-        else:
-            pass
-    else:
+        await mocked_database.get("test_key")
+    except:
         raise Exception
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize("config", [{"collection": "test_collection"}])
-async def test_put2(database):
-    try:
-        await database.put("test_key", {})
-    except TypeError:
+    else:
         pass
-    else:
-        raise Exception
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("config", [{"collection": "test_collection"}])
-async def test_delete(database):
+async def test_put(mocked_database):
+    mocked_database.database = {"test_collection": DatabaseMongoCollectionMock({})}
     try:
-        await database.delete("test_db")
-    except TypeError:
-        pass
-    else:
+        await mocked_database.put("test_key", {"key": "value"})
+    except:
         raise Exception
+    else:
+        pass
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("config", [{"collection": "test_collection"}])
+async def test_put2(mocked_database):
+    try:
+        await mocked_database.put("test_key", {})
+    except:
+        raise Exception
+    else:
+        pass
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("config", [{"collection": "test_collection"}])
+async def test_delete(mocked_database):
+    try:
+        await mocked_database.delete("test_key")
+    except:
+        raise Exception
+    else:
+        pass

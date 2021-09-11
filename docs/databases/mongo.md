@@ -31,8 +31,7 @@ await opsdroid.memory.get(key, collection_name='example_collection')
 An addition to the usual use of memory, the mongo database provides a context manager `memory_in_collection` to perform some operations in a collection other than the one specified in the configuration.
 
 ```
-db = opsdroid.get_database("mongo")
-async with db.memory_in_colection("new_collection") as new_db:
+async with opsdroid.get_database("mongo").memory_in_colection("new_collection") as new_db:
     await new_db.put("key", "value")
     await new_db.get("key")
     await new_db.delete("key")
