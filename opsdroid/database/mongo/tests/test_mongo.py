@@ -55,7 +55,7 @@ async def test_get(mocked_database):
     mocked_database.database = {"test_collection": DatabaseMongoCollectionMock({})}
     try:
         await mocked_database.get("test_key")
-    except:
+    except Exception:
         raise Exception
     else:
         pass
@@ -67,7 +67,7 @@ async def test_put(mocked_database):
     mocked_database.database = {"test_collection": DatabaseMongoCollectionMock({})}
     try:
         await mocked_database.put("test_key", {"key": "value"})
-    except:
+    except Exception:
         raise Exception
     else:
         pass
@@ -78,7 +78,18 @@ async def test_put(mocked_database):
 async def test_put2(mocked_database):
     try:
         await mocked_database.put("test_key", {})
-    except:
+    except Exception:
+        raise Exception
+    else:
+        pass
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("config", [{"collection": "test_collection"}])
+async def test_put3(mocked_database):
+    try:
+        await mocked_database.put("test_key", "test_value")
+    except Exception:
         raise Exception
     else:
         pass
@@ -89,7 +100,7 @@ async def test_put2(mocked_database):
 async def test_delete(mocked_database):
     try:
         await mocked_database.delete("test_key")
-    except:
+    except Exception:
         raise Exception
     else:
         pass

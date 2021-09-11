@@ -62,7 +62,7 @@ class DatabaseMongo(Database):
         """Insert or replace an object into the database for a given key.
 
         Args:
-            key (str): the key is the databasename
+            key (str): the key is the document lookup key.
             data (object): the data to be inserted or replaced
 
         """
@@ -81,7 +81,7 @@ class DatabaseMongo(Database):
         """Get a document from the database (key).
 
         Args:
-            key (str): the key is the database name.
+            key (str): the key is the document lookup key.
 
         """
         _LOGGER.debug("Getting %s from MongoDB collection %s", key, self.collection)
@@ -97,7 +97,7 @@ class DatabaseMongo(Database):
         """Delete a document from the database (key).
 
         Args:
-            key (str): the key is the database name.
+            key (str): the key is the document lookup key.
 
         """
         _LOGGER.debug("Deleting %s from MongoDB collection %s.", key, self.collection)

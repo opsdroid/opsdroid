@@ -23,13 +23,6 @@ class DatabaseMongoCollectionMock:
         """
         return self.dummy_doc
 
-    async def insert_one(self, key):
-        """Mock method insert_one.
-
-        Args: key(object) not considered for test
-        """
-        return self.dummy_doc
-
     async def delete_one(self, key):
         """Mock method delete_one.
 
