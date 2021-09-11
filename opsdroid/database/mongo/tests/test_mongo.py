@@ -1,6 +1,8 @@
 import pytest
 
-from opsdroid.database.mockmodules.mongo.mongo_database import DatabaseMongoCollectionMock
+from opsdroid.database.mockmodules.mongo.mongo_database import (
+    DatabaseMongoCollectionMock,
+)
 from opsdroid.database.mongo import DatabaseMongo
 
 
