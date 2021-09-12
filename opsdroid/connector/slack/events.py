@@ -6,7 +6,6 @@ import ssl
 
 import aiohttp
 import certifi
-
 from opsdroid import events
 
 _LOGGER = logging.getLogger(__name__)
@@ -89,7 +88,11 @@ class InteractiveAction(events.Event):
                         headers=headers,
                         ssl=self.ssl_context,
                     )
-                    response_txt = await response.json()
+
+                    if response.content_type == "application/json":
+                        response_txt = await response.json()
+                    elif response.content_type == "text/html":
+                        response_txt = await response.text()
             else:
                 response_txt = {"error": "Response URL not available in payload."}
         else:
@@ -173,9 +176,32 @@ class ViewSubmission(InteractiveAction):
 class ViewClosed(InteractiveAction):
     """Event class to represent view_closed in Slack."""
 
-    def __init__(self, payload, *args, **kwargs):
-        """Create object with minimum properties."""
-        super().__init__(payload, *args, **kwargs)
+
+class SlashCommand(InteractiveAction):
+    """
+    Event class to represent a slash command.
+
+    args:
+        payload: Incomming payload from the Slack API
+
+    **Basic Usage in a Skill:**
+
+    .. code-block:: python
+
+        from opsdroid.skill import Skill
+        from opsdroid.matchers import match_regex
+
+        class CommandsSkill(Skill):
+            @match_event(SlashCommand, command="/testcommand")
+            async def slash_command(self, event):
+
+                cmd = event.payload["command"]
+
+                # event.payload["text"] holds the arguments from the command
+                arguments = event.payload["text"]
+
+                await message.respond(f"{cmd} {arguments}")
+    """
 
 
 class ChannelArchived(events.Event):

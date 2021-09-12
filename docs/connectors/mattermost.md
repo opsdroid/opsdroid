@@ -44,3 +44,5 @@ hi
 opsdroid APP [9:06 PM]
 Hi daniccan
 ```
+
+The connector doesn't parse messages that have been posted by the bot itself.

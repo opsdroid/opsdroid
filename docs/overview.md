@@ -16,7 +16,7 @@ Opsdroid is an event-driven framework powered by [asyncio](#asyncio). The event 
 - **Skills** are then run to process the event in whatever way you like. You define these as Python functions which take an event object and run any arbitrary code you like. This may be to respond to a chat message with another chat message or to take some more advanced course of action such as deploying an application, restarting a server or anything you can do in Python. You can learn more about writing skills in [this section of the documentation](skills/index.md).
 
 
-![Opsdroid Event Flow](https://user-images.githubusercontent.com/1610850/57621414-488ee280-7583-11e9-9eaa-f739300331f1.png)
+![Opsdroid Event Flow](diagrams/event-flow.png)
 
 ## Modules
 
