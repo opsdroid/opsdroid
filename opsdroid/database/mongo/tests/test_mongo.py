@@ -55,54 +55,37 @@ async def test_connect(database):
 @pytest.mark.parametrize("config", [{"collection": "test_collection"}])
 async def test_get(mocked_database):
     mocked_database.database = {"test_collection": DatabaseMongoCollectionMock({})}
-    try:
-        await mocked_database.get("test_key")
-    except Exception:
-        raise Exception
-    else:
-        pass
+    await mocked_database.get("test_key")
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("config", [{"collection": "test_collection"}])
+async def test_get2(database):
+    database.database = {"test_collection": DatabaseMongoCollectionMock({})}
+    async with database.memory_in_collection("new_collection") as new_db:
+        await new_db.get("test_key")
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("config", [{"collection": "test_collection"}])
 async def test_put(mocked_database):
     mocked_database.database = {"test_collection": DatabaseMongoCollectionMock({})}
-    try:
-        await mocked_database.put("test_key", {"key": "value"})
-    except Exception:
-        raise Exception
-    else:
-        pass
+    await mocked_database.put("test_key", {"key": "value"})
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("config", [{"collection": "test_collection"}])
 async def test_put2(mocked_database):
-    try:
-        await mocked_database.put("test_key", {})
-    except Exception:
-        raise Exception
-    else:
-        pass
+    await mocked_database.put("test_key", {})
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("config", [{"collection": "test_collection"}])
 async def test_put3(mocked_database):
-    try:
-        await mocked_database.put("test_key", "test_value")
-    except Exception:
-        raise Exception
-    else:
-        pass
+    await mocked_database.put("test_key", "test_value")
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("config", [{"collection": "test_collection"}])
 async def test_delete(mocked_database):
-    try:
-        await mocked_database.delete("test_key")
-    except Exception:
-        raise Exception
-    else:
-        pass
+    await mocked_database.delete("test_key")
