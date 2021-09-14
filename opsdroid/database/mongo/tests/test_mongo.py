@@ -67,12 +67,13 @@ async def test_get(mocked_database):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("config", [{"collection": "test_collection"}])
-async def test_get2(mocked_connect_database):
+async def test_get2(mocker, mocked_connect_database):
     collections = {
         "test_collection": DatabaseMongoCollectionMock({}),
         "new_collection": DatabaseMongoCollectionMock({}),
     }
     async with mocked_connect_database.memory_in_collection("new_collection") as new_db:
+        mocker.patch.object(new_db, "client", return_value=mocker.AsyncMock())
         new_db.database = collections
         await new_db.get("test_key")
         assert new_db.collection == "new_collection"
