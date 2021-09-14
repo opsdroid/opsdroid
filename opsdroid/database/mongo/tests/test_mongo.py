@@ -62,7 +62,6 @@ async def test_connect(database):
 @pytest.mark.asyncio
 @pytest.mark.parametrize("config", [{"collection": "test_collection"}])
 async def test_get(mocked_database):
-    mocked_database.database = {"test_collection": DatabaseMongoCollectionMock({})}
     await mocked_database.get("test_key")
 
 
@@ -73,7 +72,6 @@ async def test_get2(mocked_connect_database):
         "test_collection": DatabaseMongoCollectionMock({}),
         "new_collection": DatabaseMongoCollectionMock({}),
     }
-    mocked_connect_database.database = collections
     async with mocked_connect_database.memory_in_collection("new_collection") as new_db:
         new_db.database = collections
         await new_db.get("test_key")
@@ -83,7 +81,6 @@ async def test_get2(mocked_connect_database):
 @pytest.mark.asyncio
 @pytest.mark.parametrize("config", [{"collection": "test_collection"}])
 async def test_put(mocked_database):
-    mocked_database.database = {"test_collection": DatabaseMongoCollectionMock({})}
     await mocked_database.put("test_key", {"key": "value"})
 
 
