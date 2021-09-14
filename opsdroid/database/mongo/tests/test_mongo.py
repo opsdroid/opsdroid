@@ -12,6 +12,14 @@ def database(config):
 
 
 @pytest.fixture()
+def mocked_connect_database(mocker, config):
+    mocker.patch(
+        "opsdroid.database.mongo.DatabaseMongo.connect", return_value=mocker.AsyncMock()
+    )
+    return DatabaseMongo(config)
+
+
+@pytest.fixture()
 def mocked_database(database):
     collection = database.collection
     database.database = {collection: DatabaseMongoCollectionMock({})}
@@ -60,10 +68,16 @@ async def test_get(mocked_database):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("config", [{"collection": "test_collection"}])
-async def test_get2(database):
-    database.database = {"test_collection": DatabaseMongoCollectionMock({})}
-    async with database.memory_in_collection("new_collection") as new_db:
+async def test_get2(mocked_connect_database):
+    collections = {
+        "test_collection": DatabaseMongoCollectionMock({}),
+        "new_collection": DatabaseMongoCollectionMock({}),
+    }
+    mocked_connect_database.database = collections
+    async with mocked_connect_database.memory_in_collection("new_collection") as new_db:
+        new_db.database = collections
         await new_db.get("test_key")
+        assert new_db.collection == "new_collection"
 
 
 @pytest.mark.asyncio
