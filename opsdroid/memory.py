@@ -21,7 +21,7 @@ class Memory:
         """Create object with minimum properties."""
         self.databases = []
 
-    async def get(self, key, default=None, **kwargs):
+    async def get(self, key, default=None):
         """Get data object for a given key.
 
         Gets the key value found in-memory or from the database(s).
@@ -34,10 +34,10 @@ class Memory:
 
         """
         _LOGGER.debug(_("Getting %s from memory."), key)
-        result = await self._get_from_database(key, **kwargs)
+        result = await self._get_from_database(key)
         return result or default
 
-    async def put(self, key, data, **kwargs):
+    async def put(self, key, data):
         """Put a data object to a given key.
 
         Stores the key and value in memory and the database(s).
@@ -48,9 +48,9 @@ class Memory:
 
         """
         _LOGGER.debug(_("Putting %s to memory."), key)
-        await self._put_to_database(key, data, **kwargs)
+        await self._put_to_database(key, data)
 
-    async def delete(self, key, **kwargs):
+    async def delete(self, key):
         """Delete data object for a given key.
 
         Deletes the key value found in-memory or from the database(s).
@@ -60,9 +60,9 @@ class Memory:
 
         """
         _LOGGER.debug(_("Deleting %s from memory."), key)
-        await self._delete_from_database(key, **kwargs)
+        await self._delete_from_database(key)
 
-    async def _get_from_database(self, key, **kwargs):
+    async def _get_from_database(self, key):
         """Get updates from databases for a given key.
 
         Gets the first key value found from the database(s).
@@ -83,10 +83,10 @@ class Memory:
 
         results = []
         for database in self.databases:
-            results.append(await database.get(key, **kwargs))
+            results.append(await database.get(key))
         return results[0]
 
-    async def _put_to_database(self, key, data, **kwargs):
+    async def _put_to_database(self, key, data):
         """Put updates into databases for a given key.
 
         Stores the key and value on each database defined.
@@ -98,9 +98,9 @@ class Memory:
         """
         if self.databases:
             for database in self.databases:
-                await database.put(key, data, **kwargs)
+                await database.put(key, data)
 
-    async def _delete_from_database(self, key, **kwargs):
+    async def _delete_from_database(self, key):
         """Delete data from databases for a given key.
 
         Deletes the key and value on each database defined.
@@ -111,4 +111,4 @@ class Memory:
         """
         if self.databases:
             for database in self.databases:
-                await database.delete(key, **kwargs)
+                await database.delete(key)
