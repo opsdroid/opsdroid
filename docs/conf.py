@@ -72,6 +72,8 @@ html_theme_options = {
     "code_font_family": "'Fira Code', monospace",
 }
 
+autodoc_mock_imports = ["jwt", "motor"]
+
 # -- Recommonmark ------------------------------------------------------------
 
 github_doc_root = "https://github.com/readthedocs/recommonmark/tree/master/docs"
