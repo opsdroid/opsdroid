@@ -29,17 +29,17 @@ class RememberSkill(Skill):
     @match_regex(r'remember (.*)')
     async def remember(self, message):
         remember = message.regex.group(1)
-        await self.opsdroid.memory.put("remember", remember)
+        await self.opsdroid.memory.put("remember_this", remember)
         await message.respond("OK I'll remember that")
 
     @match_regex(r'remind me')
-    async def remember(self, message):
-        information = await self.opsdroid.memory.get("remember")
+    async def remind_me(self, message):
+        information = await self.opsdroid.memory.get("remember_this")
         await message.respond(information)
         
     @match_regex(r'forget it')
-    async def remember(self, message):
-        await self.opsdroid.memory.delete("remember")
+    async def forget_it(self, message):
+        await self.opsdroid.memory.delete("remember_this")
         await message.respond("Ok I'll forget it")
 ```
 
