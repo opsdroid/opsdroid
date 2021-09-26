@@ -1,13 +1,21 @@
 # -*- coding: utf-8 -*-
 """A module for opsdroid to allow persist in mongo database."""
 import logging
+from contextlib import asynccontextmanager
 from motor.motor_asyncio import AsyncIOMotorClient
 from voluptuous import Any
 
 from opsdroid.database import Database
 
 _LOGGER = logging.getLogger(__name__)
-CONFIG_SCHEMA = {"host": str, "port": Any(int, str), "database": str}
+CONFIG_SCHEMA = {
+    "host": str,
+    "port": Any(int, str),
+    "database": str,
+    "user": str,
+    "password": str,
+    "collection": str,
+}
 
 
 class DatabaseMongo(Database):
@@ -31,13 +39,21 @@ class DatabaseMongo(Database):
         self.config = config
         self.client = None
         self.database = None
+        self.collection = config.get("collection", "opsdroid")
 
     async def connect(self):
         """Connect to the database."""
         host = self.config.get("host", "localhost")
         port = self.config.get("port", "27017")
         database = self.config.get("database", "opsdroid")
-        path = "mongodb://{host}:{port}".format(host=host, port=port)
+        user = self.config.get("user")
+        pwd = self.config.get("password")
+        if user and pwd:
+            path = "mongodb://{user}:{pwd}@{host}:{port}".format(
+                user=user, pwd=pwd, host=host, port=port
+            )
+        else:
+            path = "mongodb://{host}:{port}".format(host=host, port=port)
         self.client = AsyncIOMotorClient(path)
         self.database = self.client[database]
         _LOGGER.info("Connected to MongoDB.")
@@ -46,34 +62,56 @@ class DatabaseMongo(Database):
         """Insert or replace an object into the database for a given key.
 
         Args:
-            key (str): the key is the databasename
+            key (str): the key is the document lookup key.
             data (object): the data to be inserted or replaced
 
         """
-        _LOGGER.debug("Putting %s into MongoDB.", key)
-        if "_id" in data:
-            await self.database[key].update_one({"_id": data["_id"]}, {"$set": data})
-        else:
-            await self.database[key].insert_one(data)
+        _LOGGER.debug("Putting %s into MongoDB collection %s", key, self.collection)
+
+        if isinstance(data, str):
+            data = {"value": data}
+        if "key" not in data:
+            data["key"] = key
+
+        return await self.database[self.collection].update_one(
+            {"key": data["key"]}, {"$set": data}, upsert=True
+        )
 
     async def get(self, key):
         """Get a document from the database (key).
 
         Args:
-            key (str): the key is the database name.
+            key (str): the key is the document lookup key.
 
         """
-        _LOGGER.debug("Getting %s from MongoDB.", key)
-        return await self.database[key].find_one(
-            {"$query": {}, "$orderby": {"$natural": -1}}
+        _LOGGER.debug("Getting %s from MongoDB collection %s", key, self.collection)
+
+        response = await self.database[self.collection].find_one(
+            {"$query": {"key": key}, "$orderby": {"$natural": -1}}
         )
+        if response.keys() == {"_id", "key", "value"}:
+            response = response["value"]
+        return response
 
     async def delete(self, key):
         """Delete a document from the database (key).
 
         Args:
-            key (str): the key is the database name.
+            key (str): the key is the document lookup key.
 
         """
-        _LOGGER.debug("Deleting %s from MongoDB.", key)
-        return await self.database[key].delete_one({"$query": {}})
+        _LOGGER.debug("Deleting %s from MongoDB collection %s.", key, self.collection)
+
+        return await self.database[self.collection].delete_one({"key": key})
+
+    @asynccontextmanager
+    async def memory_in_collection(self, collection):
+        """Use the specified collection rather than the default."""
+        db_copy = DatabaseMongo(self.config, self.opsdroid)
+        try:
+            await db_copy.connect()
+            db_copy.collection = collection
+            yield db_copy
+        finally:
+            if db_copy.client:
+                db_copy.client.close()

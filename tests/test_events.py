@@ -116,7 +116,7 @@ class TestMessage(asynctest.TestCase):
                     "name": "shell",
                     "thinking-delay": 3,
                     "type": "connector",
-                    "module_path": "opsdroid-modules.connector.shell",
+                    "module_path": "opsdroid_modules.connector.shell",
                 },
                 opsdroid=opsdroid,
             )
@@ -137,7 +137,7 @@ class TestMessage(asynctest.TestCase):
                     "name": "shell",
                     "thinking-delay": 3,
                     "type": "connector",
-                    "module_path": "opsdroid-modules.connector.shell",
+                    "module_path": "opsdroid_modules.connector.shell",
                 },
                 opsdroid=opsdroid,
             )
@@ -158,7 +158,7 @@ class TestMessage(asynctest.TestCase):
                     "name": "shell",
                     "thinking-delay": [1, 4],
                     "type": "connector",
-                    "module_path": "opsdroid-modules.connector.shell",
+                    "module_path": "opsdroid_modules.connector.shell",
                 },
                 opsdroid=opsdroid,
             )
@@ -179,7 +179,7 @@ class TestMessage(asynctest.TestCase):
                     "name": "shell",
                     "typing-delay": 0.3,
                     "type": "connector",
-                    "module_path": "opsdroid-modules.connector.shell",
+                    "module_path": "opsdroid_modules.connector.shell",
                 },
                 opsdroid=opsdroid,
             )
@@ -201,7 +201,7 @@ class TestMessage(asynctest.TestCase):
                     "name": "shell",
                     "typing-delay": [1, 4],
                     "type": "connector",
-                    "module_path": "opsdroid-modules.connector.shell",
+                    "module_path": "opsdroid_modules.connector.shell",
                 },
                 opsdroid=opsdroid,
             )
@@ -222,7 +222,7 @@ class TestMessage(asynctest.TestCase):
                     "name": "shell",
                     "typing-delay": 6,
                     "type": "connector",
-                    "module_path": "opsdroid-modules.connector.shell",
+                    "module_path": "opsdroid_modules.connector.shell",
                 },
                 opsdroid=opsdroid,
             )

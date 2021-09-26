@@ -27,6 +27,7 @@ class SlackEventCreator(events.EventCreator):
         self.event_types["message_action"] = self.message_action_triggered
         self.event_types["view_submission"] = self.view_submission_triggered
         self.event_types["view_closed"] = self.view_closed_triggered
+        self.event_types["command"] = self.slash_command
 
         self.message_subtypes = defaultdict(lambda: self.create_message)
         self.message_subtypes.update(
@@ -212,6 +213,8 @@ class SlackEventCreator(events.EventCreator):
                 connector=self.connector,
             )
             action_value = None
+            action_id = action.get("action_id", None)
+            block_id = action.get("block_id", None)
 
             if action["type"] == "button":
                 action_value = action["value"]
@@ -224,6 +227,10 @@ class SlackEventCreator(events.EventCreator):
 
             if action_value:
                 block_action.update_entity("value", action_value)
+            if action_id:
+                block_action.update_entity("action_id", action_id)
+            if block_id:
+                block_action.update_entity("block_id", block_id)
             block_actions.append(block_action)
 
         return block_actions
@@ -257,3 +264,15 @@ class SlackEventCreator(events.EventCreator):
             target=event["user"]["id"],
             connector=self.connector,
         )
+
+    async def slash_command(self, event, channel):
+        """Send a Slash command event"""
+
+        command = slack_events.SlashCommand(
+            payload=event,
+            user=event["user_id"],
+            target=event["channel_id"],
+            connector=self.connector,
+        )
+        command.update_entity("command", event["command"])
+        return command

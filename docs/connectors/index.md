@@ -14,6 +14,7 @@ Connectors are modules which connect opsdroid to an external event source. This 
    rocketchat
    shell
    slack
+   teams
    telegram
    twitch
    webexteams

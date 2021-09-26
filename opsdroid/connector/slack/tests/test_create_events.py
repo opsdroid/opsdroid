@@ -4,6 +4,7 @@ Depending on payload different methods from create_events module will be tested
 import json
 
 import pytest
+
 from opsdroid.connector.slack.create_events import SlackEventCreator
 from opsdroid.testing import MINIMAL_CONFIG, call_endpoint, run_unit_test
 
@@ -155,6 +156,30 @@ async def test_receive_message_action(opsdroid, connector, mock_api):
         return True
 
     assert await run_unit_test(opsdroid, receive_message_action)
+
+
+@pytest.mark.asyncio
+@pytest.mark.add_response(*USERS_INFO)
+@pytest.mark.add_response(*AUTH_TEST)
+async def test_receive_slash_command(opsdroid, connector, mock_api):
+    await opsdroid.load(config=MINIMAL_CONFIG)
+
+    async def receive_slash_command():
+        headers, data = get_webhook_payload(
+            "payload_slash_command.urlencoded", "urlencoded"
+        )
+        resp = await call_endpoint(
+            opsdroid,
+            CONNECTOR_ENDPOINT,
+            "POST",
+            data=data,
+            headers=headers,
+        )
+        assert resp.status == 200
+
+        return True
+
+    assert await run_unit_test(opsdroid, receive_slash_command)
 
 
 @pytest.mark.asyncio
