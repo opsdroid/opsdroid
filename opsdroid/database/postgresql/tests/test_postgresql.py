@@ -1,6 +1,6 @@
 import pytest
 
-from opsdroid.database.postgresql import *
+from opsdroid.database.postgresql import DatabasePostgresql
 
 
 @pytest.fixture()

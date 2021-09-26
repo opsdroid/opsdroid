@@ -55,7 +55,7 @@ def create_table_if_not_exists(func):
         try:
             await create_table_query(connection, table)
             return await func(*args, **kwargs)
-        except:
+        except Exception:
             _LOGGER.error("PostgresSQL Could not create table %s", table)
             return None
 
@@ -82,7 +82,7 @@ def check_table_format(func):
 
         try:
             data_structure = await get_table_structure_query(connection, table)
-        
+
             key_column = [
                 x
                 for x in data_structure
@@ -93,8 +93,10 @@ def check_table_format(func):
                 for x in data_structure
                 if x["column_name"] == "data" and x["data_type"] == "jsonb"
             ][0]
+            if key_column and data_column:
+                _LOGGER.info("PostgresSQL table %s verified correct data structure", table)
             return await func(*args, **kwargs)
-        except:
+        except Exception:
             _LOGGER.error("PostgresSQL table %s has incorrect data structure", table)
             return None
 
