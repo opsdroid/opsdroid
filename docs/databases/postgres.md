@@ -52,5 +52,5 @@ async with opsdroid.get_database("postgresql").memory_in_colection("new_table") 
 ```
 
 ```eval_rst
-.. automethod:: opsdroid.database.postgresql.DatabaseMongo.memory_in_table
+.. automethod:: opsdroid.database.postgresql.DatabasePostgresql.memory_in_table
 ```
