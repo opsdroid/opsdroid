@@ -94,7 +94,9 @@ def check_table_format(func):
                 if x["column_name"] == "data" and x["data_type"] == "jsonb"
             ][0]
             if key_column and data_column:
-                _LOGGER.info("PostgresSQL table %s verified correct data structure", table)
+                _LOGGER.info(
+                    "PostgresSQL table %s verified correct data structure", table
+                )
             return await func(*args, **kwargs)
         except Exception:
             _LOGGER.error("PostgresSQL table %s has incorrect data structure", table)
