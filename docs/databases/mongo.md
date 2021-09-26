@@ -22,13 +22,13 @@ databases:
 ## Usage
 This module helps opsdroid to persist memory using a MongoDB database.
 
-If desired, you can specify a default collection in the database configuration, but specify a different collection per call. Code that doesn't specify a collection name will be placed into the collection specified in the mongo database configuration.
 ```python
-await opsdroid.memory.put(key, value, collection_name='example_collection')
-await opsdroid.memory.get(key, collection_name='example_collection')
+await opsdroid.memory.put(key, value)
+await opsdroid.memory.get(key)
+await opsdroid.memory.delete(key)
 ```
 
-An addition to the usual use of memory, the mongo database provides a context manager `memory_in_collection` to perform some operations in a collection other than the one specified in the configuration.
+In addition to the usual use of memory, the mongo database provides a context manager `memory_in_collection` to perform some operations in a collection other than the one specified in the configuration.
 
 ```
 async with opsdroid.get_database("mongo").memory_in_colection("new_collection") as new_db:
