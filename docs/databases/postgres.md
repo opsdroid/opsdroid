@@ -44,7 +44,7 @@ In the `get` operation, if the only key contained in the `data` object is `value
 In addition to the usual use of memory, the postgresql database provides a context manager `memory_in_table` to perform operations in tables other than the one specified in the configuration.
 
 ```python
-async with opsdroid.get_database("postgresql").memory_in_colection("new_table") as new_db:
+async with opsdroid.get_database("postgresql").memory_in_table("new_table") as new_db:
     await new_db.put("key", "value")
     await new_db.get("key")
     await new_db.delete("key")
