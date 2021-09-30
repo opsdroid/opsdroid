@@ -142,14 +142,14 @@ class OpsDroid:
             context (String): Describes the exception encountered.
 
         """
-        print("ERROR: Unhandled exception in opsdroid, exiting...")
+        _LOGGER.error("Unhandled exception in opsdroid")
         if "future" in context:
             try:  # pragma: nocover
                 context["future"].result()
             # pylint: disable=broad-except
             except Exception:  # pragma: nocover
-                print("Caught exception")
-        print(context)
+                _LOGGER.error("Caught exception while retreiving result")
+        _LOGGER.error(context)
 
     def is_running(self):
         """Check whether opsdroid is running."""
