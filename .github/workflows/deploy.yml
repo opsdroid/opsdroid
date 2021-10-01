@@ -45,3 +45,4 @@ jobs:
       with:
         push: true
         tags: ${{ steps.docker_meta.outputs.tags }}
+        labels: ${{ steps.docker_meta.outputs.labels }}
