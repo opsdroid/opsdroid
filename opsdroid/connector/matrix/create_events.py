@@ -32,7 +32,7 @@ class MatrixEventCreator(events.EventCreator):
     async def create_event_from_eventid(self, eventid, roomid):
         """Return an ``Event`` based on an event id in a room."""
         room_context = await self.connector.connection.room_context(roomid, eventid, 1)
-        if not isinstance(room_context,nio.response.RoomContextResponse):
+        if not isinstance(room_context, nio.responses.RoomContextResponse):
             _LOGGER.error(f"Unable to fetch room context with event id {eventid}")
             return eventid
         event_json = room_context.event.source
