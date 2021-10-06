@@ -28,6 +28,9 @@ categories:
   - title: 'Slack Connector Changes'
     labels:
       - 'connector/slack'
+  - title: 'Teams Connector Changes'
+    labels:
+      - 'connector/teams'
   - title: 'Telegram Connector Changes'
     labels:
       - 'connector/telegram'
