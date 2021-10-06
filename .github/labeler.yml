@@ -20,6 +20,8 @@ connector/webexteams:
   - opsdroid/connector/webexteams/**/*
 connector/websocket:
   - opsdroid/connector/websocket/**/*
+connector/teams:
+  - opsdroid/connector/teams/**/*
 
 database:
   - opsdroid/database/**/*
