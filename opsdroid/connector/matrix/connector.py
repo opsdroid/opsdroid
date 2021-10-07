@@ -324,27 +324,30 @@ class ConnectorMatrix(Connector):
                             event.source, roomid
                         )
 
-    async def listen(self):  # pragma: no cover
-        """Listen for new messages from the chat service."""
-        while True:  # pylint: disable=R1702
-            response = await self.connection.sync(
+    async def sync(self):
+        response = await self.connection.sync(
                 timeout=int(60 * 1e3),  # 1m in ms
                 sync_filter=self.filter_id,
                 since=self.connection.sync_token,
             )
-            if isinstance(response, nio.SyncError):
-                _LOGGER.error(
-                    f"Error during sync: {response.message} (status code {response.status_code})"
-                )
-                continue
+        if isinstance(response, nio.SyncError):
+            _LOGGER.error(
+                f"Error during sync: {response.message} (status code {response.status_code})"
+            )
+            return
 
-            _LOGGER.debug(_("Matrix sync request returned."))
+        _LOGGER.debug(_("Matrix sync request returned."))
 
-            await self.exchange_keys()
+        await self.exchange_keys()
 
-            async for event in self._parse_sync_response(response):
-                await self.opsdroid.parse(event)
+        async for event in self._parse_sync_response(response):
+            await self.opsdroid.parse(event)
 
+    async def listen(self):  # pragma: no cover
+        """Listen for new messages from the chat service."""
+        while True:  # pylint: disable=R1702
+            await self.sync()
+            
     def lookup_target(self, room):
         """Convert name or alias of a room to the corresponding room ID."""
         room = self.get_roomname(room)
@@ -585,6 +588,8 @@ class ConnectorMatrix(Connector):
             await self._send_room_name_set(
                 events.RoomName(creation_event.name, target=room_id)
             )
+
+        await self.sync()
         return room_id
 
     @register_event(events.RoomName)
@@ -612,7 +617,9 @@ class ConnectorMatrix(Connector):
     @register_event(events.JoinRoom)
     @ensure_room_id_and_send
     async def _send_join_room(self, join_event):
-        return await self.connection.join(join_event.target)
+        join_result = await self.connection.join(join_event.target)
+        await self.sync()
+        return join_result
 
     @register_event(events.UserInvite)
     @ensure_room_id_and_send
