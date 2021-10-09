@@ -4,6 +4,8 @@ import pytest
 
 from nio.responses import SyncResponse
 
+from opsdroid import events
+
 from opsdroid.connector.matrix.tests.conftest import message_factory, sync_response
 
 from opsdroid.connector.matrix.create_events import MatrixEventCreator
@@ -149,120 +151,59 @@ async def test_invite_with_message(opsdroid, connector_connected, mock_api, capl
 @pytest.mark.add_response(
     "/_matrix/client/r0/rooms/!636q39766251:example.com/context/$f3h4d129462ha:example.com",
     "GET",
-    """{
-  "end": "t29-57_2_0_2",
-  "event": {
-    "content": {
-      "body": "filename.jpg",
-      "info": {
-        "h": 398,
-        "mimetype": "image/jpeg",
-        "size": 31037,
-        "w": 394
-      },
-      "msgtype": "m.image",
-      "url": "mxc://example.org/JWEIFJgwEIhweiWJE"
-    },
-    "event_id": "$f3h4d129462ha:example.com",
-    "origin_server_ts": 1432735824653,
-    "room_id": "!636q39766251:example.com",
-    "sender": "@example:example.org",
-    "type": "m.room.message",
-    "unsigned": {
-      "age": 1234
-    }
-  },
-  "events_after": [
     {
-      "content": {
-        "body": "This is an example text message",
-        "format": "org.matrix.custom.html",
-        "formatted_body": "<b>This is an example text message</b>",
-        "msgtype": "m.text"
-      },
-      "event_id": "$143273582443PhrSn:example.org",
-      "origin_server_ts": 1432735824653,
-      "room_id": "!636q39766251:example.com",
-      "sender": "@example:example.org",
-      "type": "m.room.message",
-      "unsigned": {
-        "age": 1234
-      }
-    }
-  ],
-  "events_before": [
-    {
-      "content": {
-        "body": "something-important.doc",
-        "filename": "something-important.doc",
-        "info": {
-          "mimetype": "application/msword",
-          "size": 46144
+        "content": {
+            "body": "filename.jpg",
+            "info": {"h": 398, "mimetype": "image/jpeg", "size": 31037, "w": 394},
+            "msgtype": "m.image",
+            "url": "mxc://example.org/JWEIFJgwEIhweiWJE",
         },
-        "msgtype": "m.file",
-        "url": "mxc://example.org/FHyPlCeYUSFFxlgbQYZmoEoe"
-      },
-      "event_id": "$143273582443PhrSn:example.org",
-      "origin_server_ts": 1432735824653,
-      "room_id": "!636q39766251:example.com",
-      "sender": "@example:example.org",
-      "type": "m.room.message",
-      "unsigned": {
-        "age": 1234
-      }
-    }
-  ],
-  "start": "t27-54_2_0_2",
-  "state": [
-    {
-      "content": {
-        "creator": "@example:example.org",
-        "m.federate": true,
-        "predecessor": {
-          "event_id": "$something:example.org",
-          "room_id": "!oldroom:example.org"
-        },
-        "room_version": "1"
-      },
-      "event_id": "$143273582443PhrSn:example.org",
-      "origin_server_ts": 1432735824653,
-      "room_id": "!636q39766251:example.com",
-      "sender": "@example:example.org",
-      "state_key": "",
-      "type": "m.room.create",
-      "unsigned": {
-        "age": 1234
-      }
+        "event_id": "$f3h4d129462ha:example.com",
+        "origin_server_ts": 1432735824653,
+        "room_id": "!636q39766251:example.com",
+        "sender": "@example:example.org",
+        "type": "m.room.message",
+        "unsigned": {"age": 1234},
     },
-    {
-      "content": {
-        "avatar_url": "mxc://example.org/SEsfnsuifSDFSSEF",
-        "displayname": "Alice Margatroid",
-        "membership": "join",
-        "reason": "Looking for support"
-      },
-      "event_id": "$143273582443PhrSn:example.org",
-      "origin_server_ts": 1432735824653,
-      "room_id": "!636q39766251:example.com",
-      "sender": "@example:example.org",
-      "state_key": "@alice:example.org",
-      "type": "m.room.member",
-      "unsigned": {
-        "age": 1234
-      }
-    }
-  ]
-}""",
+)
+@pytest.mark.matrix_connector_config(
+    {"access_token": "hello", "rooms": {"main": "#test:localhost"}}
 )
 @pytest.mark.asyncio
 async def test_matrix_event_creator(opsdroid, connector_connected, mock_api, caplog):
-    event = MatrixEventCreator.create_event_from_eventid(
-        "$f3h4d129462ha:example.com", "!636q39766251:example.com"
+    event = MatrixEventCreator(connector_connected).create_event_from_eventid(
+        eventid="$f3h4d129462ha:example.com", roomid="!636q39766251:example.com"
     )
+
+    assert isinstance(event, events.File)
 
     assert_event_properties(
         event,
         event_id="$f3h4d129462ha:example.com",
         room_id="!636q39766251:example.com",
         type="m.room.message",
+    )
+
+
+@pytest.mark.add_response(
+    "/_matrix/client/r0/rooms/!636q39766251:example.com/context/$f3h4d129462ha:example.com",
+    "GET",
+    {"errcode": "M_NOT_FOUND", "error": "Event not found."},
+)
+@pytest.mark.matrix_connector_config(
+    {"access_token": "hello", "rooms": {"main": "#test:localhost"}}
+)
+@pytest.mark.asyncio
+async def test_matrix_event_creator_incorrect(
+    opsdroid, connector_connected, mock_api, caplog
+):
+    event = MatrixEventCreator(connector_connected).create_event_from_eventid(
+        eventid="$f3h4example.com", roomid="!636q39766251:example.com"
+    )
+
+    assert isinstance(event, str)
+
+    assert_event_properties(
+        event,
+        event_id="$f3h4example.com",
     )
