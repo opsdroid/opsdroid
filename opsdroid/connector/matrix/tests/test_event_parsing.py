@@ -152,18 +152,22 @@ async def test_invite_with_message(opsdroid, connector_connected, mock_api, capl
     "/_matrix/client/r0/rooms/!636q39766251:example.com/context/$f3h4d129462ha:example.com",
     "GET",
     {
-        "content": {
-            "body": "filename.jpg",
-            "info": {"h": 398, "mimetype": "image/jpeg", "size": 31037, "w": 394},
-            "msgtype": "m.image",
-            "url": "mxc://example.org/JWEIFJgwEIhweiWJE",
+        "end": "t29-57_2_0_2",
+        "event": {
+            "content": {
+                "body": "filename.jpg",
+                "info": {"h": 398, "mimetype": "image/jpeg", "size": 31037, "w": 394},
+                "msgtype": "m.image",
+                "url": "mxc://example.org/JWEIFJgwEIhweiWJE",
+            },
+            "event_id": "$f3h4d129462ha:example.com",
+            "origin_server_ts": 1432735824653,
+            "room_id": "!636q39766251:example.com",
+            "sender": "@example:example.org",
+            "type": "m.room.message",
+            "unsigned": {"age": 1234},
         },
-        "event_id": "$f3h4d129462ha:example.com",
-        "origin_server_ts": 1432735824653,
-        "room_id": "!636q39766251:example.com",
-        "sender": "@example:example.org",
-        "type": "m.room.message",
-        "unsigned": {"age": 1234},
+        "start": "t27-54_2_0_2",
     },
 )
 @pytest.mark.matrix_connector_config(
@@ -171,11 +175,9 @@ async def test_invite_with_message(opsdroid, connector_connected, mock_api, capl
 )
 @pytest.mark.asyncio
 async def test_matrix_event_creator(opsdroid, connector_connected, mock_api, caplog):
-    event = MatrixEventCreator(connector_connected).create_event_from_eventid(
+    event = await MatrixEventCreator(connector_connected).create_event_from_eventid(
         eventid="$f3h4d129462ha:example.com", roomid="!636q39766251:example.com"
     )
-
-    assert isinstance(event, events.File)
 
     assert_event_properties(
         event,
@@ -184,9 +186,11 @@ async def test_matrix_event_creator(opsdroid, connector_connected, mock_api, cap
         type="m.room.message",
     )
 
+    assert isinstance(event, events.Image)
+
 
 @pytest.mark.add_response(
-    "/_matrix/client/r0/rooms/!636q39766251:example.com/context/$f3h4d129462ha:example.com",
+    "/_matrix/client/r0/rooms/!636q39766251:example.com/context/$f3h4example.com",
     "GET",
     {"errcode": "M_NOT_FOUND", "error": "Event not found."},
 )
@@ -197,13 +201,10 @@ async def test_matrix_event_creator(opsdroid, connector_connected, mock_api, cap
 async def test_matrix_event_creator_incorrect(
     opsdroid, connector_connected, mock_api, caplog
 ):
-    event = MatrixEventCreator(connector_connected).create_event_from_eventid(
+    event = await MatrixEventCreator(connector_connected).create_event_from_eventid(
         eventid="$f3h4example.com", roomid="!636q39766251:example.com"
     )
 
     assert isinstance(event, str)
 
-    assert_event_properties(
-        event,
-        event_id="$f3h4example.com",
-    )
+    assert event == "$f3h4example.com"
