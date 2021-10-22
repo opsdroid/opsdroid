@@ -29,7 +29,7 @@ class TeamsConnector(Connector):
 
     def __init__(self, config, opsdroid=None):
         """Create the connector."""
-        self.name = self.config.get("name", "teams")
+        self.name = config.get("name", "teams")
         self.config = config
         self.default_target = None  # Teams has no default room
         self.opsdroid = opsdroid

@@ -45,7 +45,7 @@ class ConnectorSlack(Connector):
         """Create the connector."""
         super().__init__(config, opsdroid=opsdroid)
         _LOGGER.debug(_("Starting Slack connector."))
-        self.name = self.config.get("name", "slack")
+        self.name = config.get("name", "slack")
         self.bot_token = config["bot-token"]
         self.bot_name = config.get("bot-name", "opsdroid")
         self.default_target = config.get("default-room", "#general")

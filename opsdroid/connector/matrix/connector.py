@@ -86,7 +86,7 @@ class ConnectorMatrix(Connector):
         """Init the config for the connector."""
         super().__init__(config, opsdroid=opsdroid)
 
-        self.name = self.config.get("name", "matrix")  # The name of your connector
+        self.name = config.get("name", "matrix")  # The name of your connector
         self.rooms = self._process_rooms_dict(config["rooms"])
         self.room_ids = {}
         self.default_target = self.rooms["main"]["alias"]

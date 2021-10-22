@@ -2,11 +2,11 @@
 import hashlib
 import hmac
 import json
-import jwt
 import logging
 import time
 
 import aiohttp
+import jwt
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
 
@@ -24,7 +24,7 @@ class ConnectorGitHub(Connector):
         """Create the connector."""
         super().__init__(config, opsdroid=opsdroid)
         logging.debug("Loaded GitHub connector.")
-        self.name = self.config.get("name", "github")
+        self.name = config.get("name", "github")
         self.opsdroid = opsdroid
         self.github_username = None
         self.github_api_url = self.config.get("api_base_url", GITHUB_API_URL)

@@ -43,7 +43,7 @@ class ConnectorTwitch(Connector):
         """Set up all the needed things for the connector."""
         super().__init__(config, opsdroid=opsdroid)
         _LOGGER.debug(_("Starting Twitch connector."))
-        self.name = self.config.get("name", "twitch")
+        self.name = config.get("name", "twitch")
         self.opsdroid = opsdroid
         self.is_live = config.get("always-listening", False)
         self.default_target = config["channel"]

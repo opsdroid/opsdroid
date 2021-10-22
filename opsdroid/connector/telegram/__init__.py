@@ -44,7 +44,7 @@ class ConnectorTelegram(Connector):
         """
         _LOGGER.debug(_("Loaded Telegram Connector"))
         super().__init__(config, opsdroid=opsdroid)
-        self.name = self.config.get("telegram")
+        self.name = config.get("name", "telegram")
         self.bot_name = config.get("bot-name", "opsdroid")
         self.opsdroid = opsdroid
         self.whitelisted_users = config.get("whitelisted-users", None)

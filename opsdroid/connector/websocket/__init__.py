@@ -22,7 +22,7 @@ class ConnectorWebsocket(Connector):
         """Create the connector."""
         super().__init__(config, opsdroid=opsdroid)
         _LOGGER.debug(_("Starting Websocket connector."))
-        self.name = self.config.get("name", "websocket")
+        self.name = config.get("name", "websocket")
         self.max_connections = self.config.get("max-connections", 10)
         self.connection_timeout = self.config.get("connection-timeout", 60)
         self.accepting_connections = True

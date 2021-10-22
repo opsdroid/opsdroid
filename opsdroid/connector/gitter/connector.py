@@ -29,7 +29,7 @@ class ConnectorGitter(Connector):
         """Create the connector."""
         super().__init__(config, opsdroid=opsdroid)
         _LOGGER.debug(_("Starting Gitter Connector."))
-        self.name = self.config.get("name", "gitter")
+        self.name = config.get("name", "gitter")
         self.bot_name = None  # set at connection time
         self.session = None
         self.response = None

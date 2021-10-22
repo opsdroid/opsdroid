@@ -21,7 +21,7 @@ class ConnectorWebexTeams(Connector):
         """Create a connector."""
         _LOGGER.debug(_("Loaded WebEx Teams Connector."))
         super().__init__(config, opsdroid=opsdroid)
-        self.name = self.config.get("name", "webexteams")
+        self.name = config.get("name", "webexteams")
         self.config = config
         self.opsdroid = opsdroid
         self.default_target = None
