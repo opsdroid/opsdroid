@@ -1,13 +1,12 @@
 """A connector for Rocket.Chat."""
 import asyncio
-import logging
 import datetime
+import logging
+
 import aiohttp
-
-from voluptuous import Required, Url
-
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
+from voluptuous import Required, Url
 
 _LOGGER = logging.getLogger(__name__)
 API_PATH = "/api/v1/"
@@ -38,7 +37,7 @@ class RocketChat(Connector):
 
         """
         super().__init__(config, opsdroid=opsdroid)
-        self.name = "rocket.chat"
+        self.name = self.config.get("name", "rocket.chat")
         self.default_target = config.get("default-room", "general")
         self.group = config.get("group", None)
         self.url = config.get("channel-url", "https://open.rocket.chat")

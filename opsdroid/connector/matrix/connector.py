@@ -8,12 +8,11 @@ from urllib.parse import urlparse
 
 import aiohttp
 import nio
-import nio.responses
 import nio.exceptions
-
+import nio.responses
 from opsdroid import const, events
 from opsdroid.connector import Connector, register_event
-from voluptuous import Required, Inclusive
+from voluptuous import Inclusive, Required
 
 from . import events as matrixevents
 from .create_events import MatrixEventCreator
@@ -87,7 +86,7 @@ class ConnectorMatrix(Connector):
         """Init the config for the connector."""
         super().__init__(config, opsdroid=opsdroid)
 
-        self.name = "matrix"  # The name of your connector
+        self.name = self.config.get("name", "matrix")  # The name of your connector
         self.rooms = self._process_rooms_dict(config["rooms"])
         self.room_ids = {}
         self.default_target = self.rooms["main"]["alias"]

@@ -1,17 +1,14 @@
 """A connector for Webex Teams."""
 import json
 import logging
-import uuid
 import os
+import uuid
 
 import aiohttp
-
-from webexteamssdk import WebexTeamsAPI
-from voluptuous import Required, Url
-
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
-
+from voluptuous import Required, Url
+from webexteamssdk import WebexTeamsAPI
 
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = {Required("webhook-url"): Url(), Required("token"): str}
@@ -24,7 +21,7 @@ class ConnectorWebexTeams(Connector):
         """Create a connector."""
         _LOGGER.debug(_("Loaded WebEx Teams Connector."))
         super().__init__(config, opsdroid=opsdroid)
-        self.name = "webexteams"
+        self.name = self.config.get("name", "webexteams")
         self.config = config
         self.opsdroid = opsdroid
         self.default_target = None

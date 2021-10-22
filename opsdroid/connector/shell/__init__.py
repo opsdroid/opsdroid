@@ -1,9 +1,9 @@
 """A connector to send messages using the command line."""
+import asyncio
 import logging
 import os
-import sys
 import platform
-import asyncio
+import sys
 
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
@@ -19,7 +19,7 @@ class ConnectorShell(Connector):
         """Create the connector."""
         _LOGGER.debug(_("Loaded shell Connector."))
         super().__init__(config, opsdroid=opsdroid)
-        self.name = "shell"
+        self.name = self.config.get("name", "shell")
         self.config = config
         self.bot_name = config.get("bot-name", "opsdroid")
         self.prompt_length = None

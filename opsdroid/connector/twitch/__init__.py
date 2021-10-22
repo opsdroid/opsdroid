@@ -1,28 +1,23 @@
 """A connector for Twitch."""
 import asyncio
-import os
-import re
-import logging
-import aiohttp
-import json
-import secrets
 import hashlib
 import hmac
+import json
+import logging
+import os
+import re
+import secrets
 
+import aiohttp
+from opsdroid.connector import Connector, register_event
+from opsdroid.const import (TWITCH_API_ENDPOINT, TWITCH_IRC_MESSAGE_REGEX,
+                            TWITCH_JSON, TWITCH_OAUTH_ENDPOINT,
+                            TWITCH_WEBHOOK_ENDPOINT)
+from opsdroid.events import (BanUser, DeleteMessage, JoinRoom, LeaveRoom,
+                             Message)
 from voluptuous import Required
 
-from opsdroid.connector import Connector, register_event
-from opsdroid.events import Message, JoinRoom, DeleteMessage, LeaveRoom, BanUser
-from opsdroid.const import (
-    TWITCH_API_ENDPOINT,
-    TWITCH_OAUTH_ENDPOINT,
-    TWITCH_WEBHOOK_ENDPOINT,
-    TWITCH_IRC_MESSAGE_REGEX,
-    TWITCH_JSON,
-)
-
 from . import events as twitch_event
-
 
 CONFIG_SCHEMA = {
     Required("code"): str,
@@ -45,7 +40,7 @@ class ConnectorTwitch(Connector):
         """Set up all the needed things for the connector."""
         super().__init__(config, opsdroid=opsdroid)
         _LOGGER.debug(_("Starting Twitch connector."))
-        self.name = "twitch"
+        self.name = self.config.get("name", "twitch")
         self.opsdroid = opsdroid
         self.is_live = config.get("always-listening", False)
         self.default_target = config["channel"]
