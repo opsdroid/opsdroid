@@ -10,11 +10,14 @@ import secrets
 
 import aiohttp
 from opsdroid.connector import Connector, register_event
-from opsdroid.const import (TWITCH_API_ENDPOINT, TWITCH_IRC_MESSAGE_REGEX,
-                            TWITCH_JSON, TWITCH_OAUTH_ENDPOINT,
-                            TWITCH_WEBHOOK_ENDPOINT)
-from opsdroid.events import (BanUser, DeleteMessage, JoinRoom, LeaveRoom,
-                             Message)
+from opsdroid.const import (
+    TWITCH_API_ENDPOINT,
+    TWITCH_IRC_MESSAGE_REGEX,
+    TWITCH_JSON,
+    TWITCH_OAUTH_ENDPOINT,
+    TWITCH_WEBHOOK_ENDPOINT,
+)
+from opsdroid.events import BanUser, DeleteMessage, JoinRoom, LeaveRoom, Message
 from voluptuous import Required
 
 from . import events as twitch_event

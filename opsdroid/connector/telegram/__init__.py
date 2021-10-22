@@ -6,8 +6,16 @@ import secrets
 import aiohttp
 import emoji
 from opsdroid.connector import Connector, register_event
-from opsdroid.events import (EditedMessage, File, Image, JoinGroup, LeaveGroup,
-                             Message, PinMessage, Reply)
+from opsdroid.events import (
+    EditedMessage,
+    File,
+    Image,
+    JoinGroup,
+    LeaveGroup,
+    Message,
+    PinMessage,
+    Reply,
+)
 from voluptuous import Required
 
 from . import events as telegram_events

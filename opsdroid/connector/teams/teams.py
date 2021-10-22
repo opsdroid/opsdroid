@@ -5,12 +5,14 @@ import logging
 from urllib.parse import unquote
 
 from aiohttp.web import Request, Response
-from botbuilder.core import (BotFrameworkAdapter, BotFrameworkAdapterSettings,
-                             MessageFactory)
+from botbuilder.core import (
+    BotFrameworkAdapter,
+    BotFrameworkAdapterSettings,
+    MessageFactory,
+)
 from botbuilder.core.teams import teams_get_channel_id
 from botbuilder.core.turn_context import TurnContext
-from botbuilder.schema import (Activity, ConversationParameters,
-                               ConversationReference)
+from botbuilder.schema import Activity, ConversationParameters, ConversationReference
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
 
