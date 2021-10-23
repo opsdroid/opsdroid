@@ -9,10 +9,10 @@ from hashlib import sha256
 import aiohttp
 import arrow
 
-from opsdroid.const import RASANLU_DEFAULT_URL, RASANLU_DEFAULT_PROJECT
+from opsdroid.const import RASANLU_DEFAULT_URL, RASANLU_DEFAULT_MODELS_PATH
 
 _LOGGER = logging.getLogger(__name__)
-CONFIG_SCHEMA = {"url": str, "project": str, "token": str, "min-score": float}
+CONFIG_SCHEMA = {"url": str, "token": str, "models-path": str, "min-score": float}
 
 
 async def _get_all_intents(skills):
@@ -31,21 +31,22 @@ async def _get_intents_fingerprint(intents):
 
 async def _build_training_url(config):
     """Build the url for training a Rasa NLU model."""
-    url = "{}/train?project={}&fixed_model_name={}".format(
+    url = "{}/model/train".format(
         config.get("url", RASANLU_DEFAULT_URL),
-        config.get("project", RASANLU_DEFAULT_PROJECT),
-        config["model"],
     )
 
     if "token" in config:
-        url += "&token={}".format(config["token"])
+        url += "?&token={}".format(config["token"])
 
     return url
 
 
 async def _build_status_url(config):
     """Build the url for getting the status of Rasa NLU."""
-    return "{}/status".format(config.get("url", RASANLU_DEFAULT_URL))
+    url = "{}/status".format(config.get("url", RASANLU_DEFAULT_URL))
+    if "token" in config:
+        url += "?&token={}".format(config["token"])
+    return url
 
 
 async def _init_model(config):
@@ -65,20 +66,88 @@ async def _init_model(config):
     return True
 
 
-async def _get_existing_models(config):
-    """Get a list of models already trained in the Rasa NLU project."""
-    project = config.get("project", RASANLU_DEFAULT_PROJECT)
+async def _get_rasa_nlu_version(config):
+    """Get Rasa NLU version data"""
     async with aiohttp.ClientSession(trust_env=True) as session:
+        url = config.get("url", RASANLU_DEFAULT_URL) + "/version"
+        try:
+            resp = await session.get(url)
+        except aiohttp.client_exceptions.ClientConnectorError:
+            _LOGGER.error(_("Unable to connect to Rasa NLU."))
+            return None
+        if resp.status == 200:
+            result = await resp.json()
+            _LOGGER.debug(_("Rasa NLU response - %s."), json.dumps(result))
+        else:
+            result = await resp.text()
+            _LOGGER.error(_("Bad Rasa NLU response - %s."), result)
+        return result
+
+
+async def _check_rasanlu_compatibility(config):
+    """Check if Rasa NLU is compatible with the API we implement"""
+    _LOGGER.debug(_("Checking Rasa NLU version."))
+    json_object = await _get_rasa_nlu_version(config)
+    version = json_object["version"]
+    minimum_compatible_version = json_object["minimum_compatible_version"]
+    # Make sure we don't run against a 1.x.x Rasa NLU because it has a different API
+    if int(minimum_compatible_version[0:1]) >= 2:
+        _LOGGER.debug(_("Rasa NLU version {}.".format(version)))
+        return True
+
+    _LOGGER.error(
+        _(
+            "Incompatible Rasa NLU version ({}). Use Rasa Version >= 2.X.X.".format(
+                version
+            )
+        )
+    )
+    return False
+
+
+async def _load_model(config):
+    """Load model from the filesystem of the Rasa NLU environment"""
+    async with aiohttp.ClientSession(trust_env=True) as session:
+        headers = {}
+        data = {
+            "model_file": "{}/{}".format(
+                config.get("models-path", RASANLU_DEFAULT_MODELS_PATH),
+                config["model_filename"],
+            ),
+        }
+        url = config.get("url", RASANLU_DEFAULT_URL) + "/model"
+        if "token" in config:
+            url += "?token={}".format(config["token"])
+        try:
+            resp = await session.put(url, data=json.dumps(data), headers=headers)
+        except aiohttp.client_exceptions.ClientConnectorError:
+            _LOGGER.error(_("Unable to connect to Rasa NLU."))
+            return None
+        if resp.status == 204:
+            result = await resp.json()
+        else:
+            result = await resp.text()
+            _LOGGER.error(_("Bad Rasa NLU response - %s."), result)
+
+        return result
+
+
+async def _is_model_loaded(config):
+    """Check whether the model is loaded in Rasa NLU"""
+    async with aiohttp.ClientSession(trust_env=True) as session:
+        url = config.get("url", RASANLU_DEFAULT_URL) + "/status"
+        if "token" in config:
+            url += "?token={}".format(config["token"])
         try:
             resp = await session.get(await _build_status_url(config))
-            if resp.status == 200:
-                result = await resp.json()
-                if project in result["available_projects"]:
-                    project_models = result["available_projects"][project]
-                    return project_models["available_models"]
-        except aiohttp.ClientOSError:
-            pass
-    return []
+        except aiohttp.client_exceptions.ClientConnectorError:
+            _LOGGER.error(_("Unable to connect to Rasa NLU."))
+            return None
+        if resp.status == 200:
+            result = await resp.json()
+            if result["model_file"].find(config["model_filename"]):
+                return True
+        return False
 
 
 async def train_rasanlu(config, skills):
@@ -89,23 +158,19 @@ async def train_rasanlu(config, skills):
         _LOGGER.warning(_("No intents found, skipping training."))
         return False
 
-    config["model"] = await _get_intents_fingerprint(intents)
-    if config["model"] in await _get_existing_models(config):
-        _LOGGER.info(_("This model already exists, skipping training..."))
-        await _init_model(config)
-        return True
+    await _check_rasanlu_compatibility(config)
+
+    """
+    TODO: think about how to correlate intent with trained model
+          so we can just load the model without training it again if it wasn't changed
+    """
 
     async with aiohttp.ClientSession(trust_env=True) as session:
         _LOGGER.info(_("Now training the model. This may take a while..."))
 
         url = await _build_training_url(config)
 
-        # https://github.com/RasaHQ/rasa_nlu/blob/master/docs/http.rst#post-train
-        # Note : The request should always be sent as
-        # application/x-yml regardless of wether you use
-        # json or md for the data format. Do not send json as
-        # application/json for example.+
-        headers = {"content-type": "application/x-yml"}
+        headers = {"Content-Type": "application/x-yaml"}
 
         try:
             training_start = arrow.now()
@@ -115,39 +180,41 @@ async def train_rasanlu(config, skills):
             return False
 
         if resp.status == 200:
-            if resp.content_type == "application/json":
-                result = await resp.json()
-                if "info" in result and "new model trained" in result["info"]:
-                    time_taken = (arrow.now() - training_start).total_seconds()
-                    _LOGGER.info(
-                        _("Rasa NLU training completed in %s seconds."), int(time_taken)
-                    )
-                    await _init_model(config)
-                    return True
-
-                _LOGGER.debug(result)
             if (
-                resp.content_type == "application/zip"
+                resp.content_type == "application/x-tar"
                 and resp.content_disposition.type == "attachment"
             ):
                 time_taken = (arrow.now() - training_start).total_seconds()
                 _LOGGER.info(
                     _("Rasa NLU training completed in %s seconds."), int(time_taken)
                 )
-                await _init_model(config)
+                config["model_filename"] = resp.content_disposition.filename
+                # close the connection and don't retrieve the model tar
+                # because using it is currently not implemented
+                resp.close()
+
                 """
-                As inditated in the issue #886, returned zip file is ignored, this can be changed
-                This can be changed in future release if needed
-                Saving model.zip file example :
+                model_path = "/tmp/{}".format(resp.content_disposition.filename)
                 try:
-                    output_file = open("/target/directory/model.zip","wb")
+                    output_file = open(model_path,"wb")
                     data = await resp.read()
                     output_file.write(data)
                     output_file.close()
-                    _LOGGER.debug("Rasa taining model file saved to /target/directory/model.zip")
+                    _LOGGER.debug("Rasa taining model file saved to {}", model_path)
                 except:
-                    _LOGGER.error("Cannot save rasa taining model file to /target/directory/model.zip")
+                    _LOGGER.error("Cannot save rasa taining model file to {}", model_path)
                 """
+
+                await _load_model(config)
+                # Check if the current trained model is loaded
+                if await _is_model_loaded(config):
+                    _LOGGER.info(_("Successfully loaded Rasa NLU model."))
+                else:
+                    _LOGGER.error(_("Failed getting Rasa NLU server status."))
+                    return False
+
+                # Check if we will get a valid response from Rasa
+                await call_rasanlu("", config)
                 return True
 
         _LOGGER.error(_("Bad Rasa NLU response - %s."), await resp.text())
@@ -159,14 +226,10 @@ async def call_rasanlu(text, config):
     """Call the Rasa NLU api and return the response."""
     async with aiohttp.ClientSession(trust_env=True) as session:
         headers = {}
-        data = {
-            "q": text,
-            "project": config.get("project", "default"),
-            "model": config.get("model", "fallback"),
-        }
+        data = {"text": text}
+        url = config.get("url", RASANLU_DEFAULT_URL) + "/model/parse"
         if "token" in config:
-            data["token"] = config["token"]
-        url = config.get("url", RASANLU_DEFAULT_URL) + "/parse"
+            url += "?&token={}".format(config["token"])
         try:
             resp = await session.post(url, data=json.dumps(data), headers=headers)
         except aiohttp.client_exceptions.ClientConnectorError:
