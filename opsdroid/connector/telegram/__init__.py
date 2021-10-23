@@ -1,22 +1,24 @@
 """A connector for Telegram."""
-import logging
-import aiohttp
-import secrets
 import json
+import logging
+import secrets
+
+import aiohttp
 import emoji
 from voluptuous import Required
 
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import (
-    Message,
-    Image,
-    File,
     EditedMessage,
-    Reply,
+    File,
+    Image,
     JoinGroup,
     LeaveGroup,
+    Message,
     PinMessage,
+    Reply,
 )
+
 from . import events as telegram_events
 
 _LOGGER = logging.getLogger(__name__)
@@ -43,7 +45,7 @@ class ConnectorTelegram(Connector):
         """
         _LOGGER.debug(_("Loaded Telegram Connector"))
         super().__init__(config, opsdroid=opsdroid)
-        self.name = "telegram"
+        self.name = config.get("name", "telegram")
         self.bot_name = config.get("bot-name", "opsdroid")
         self.opsdroid = opsdroid
         self.whitelisted_users = config.get("whitelisted-users", None)

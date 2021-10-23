@@ -38,7 +38,7 @@ class RocketChat(Connector):
 
         """
         super().__init__(config, opsdroid=opsdroid)
-        self.name = "rocket.chat"
+        self.name = config.get("name", "rocket.chat")
         self.default_target = config.get("default-room", "general")
         self.group = config.get("group", None)
         self.url = config.get("channel-url", "https://open.rocket.chat")

@@ -27,7 +27,7 @@ class ConnectorMattermost(Connector):
         """Create the connector."""
         super().__init__(config, opsdroid=opsdroid)
         _LOGGER.debug(_("Starting Mattermost connector"))
-        self.name = "mattermost"
+        self.name = config.get("name", "mattermost")
         self.token = config["token"]
         self.url = config["url"]
         self.team_name = config["team-name"]

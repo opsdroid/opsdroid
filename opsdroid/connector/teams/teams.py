@@ -1,23 +1,20 @@
 """A connector for Microsoft Teams."""
 
-import logging
 import json
+import logging
 from urllib.parse import unquote
 
 from aiohttp.web import Request, Response
-
 from botbuilder.core import (
-    BotFrameworkAdapterSettings,
     BotFrameworkAdapter,
+    BotFrameworkAdapterSettings,
     MessageFactory,
 )
 from botbuilder.core.teams import teams_get_channel_id
 from botbuilder.core.turn_context import TurnContext
 from botbuilder.schema import Activity, ConversationParameters, ConversationReference
-
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
-
 
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = {
@@ -32,7 +29,7 @@ class TeamsConnector(Connector):
 
     def __init__(self, config, opsdroid=None):
         """Create the connector."""
-        self.name = "teams"
+        self.name = config.get("name", "teams")
         self.config = config
         self.default_target = None  # Teams has no default room
         self.opsdroid = opsdroid
