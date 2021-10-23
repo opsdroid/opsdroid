@@ -1,11 +1,12 @@
 """A connector for Mattermost."""
-import json
 import logging
+import json
 
 from mattermostdriver import Driver, Websocket
+from voluptuous import Required
+
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
-from voluptuous import Required
 
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = {

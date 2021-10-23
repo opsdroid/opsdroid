@@ -3,9 +3,11 @@ import json
 import logging
 
 import aiohttp
+
+from voluptuous import Required
+
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
-from voluptuous import Required
 
 _LOGGER = logging.getLogger(__name__)
 _FACEBOOK_SEND_URL = "https://graph.facebook.com/v2.6/me/messages" "?access_token={}"

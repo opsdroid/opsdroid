@@ -7,8 +7,10 @@ import logging
 import os
 import re
 import secrets
-
 import aiohttp
+
+from voluptuous import Required
+
 from opsdroid.connector import Connector, register_event
 from opsdroid.const import (
     TWITCH_API_ENDPOINT,
@@ -18,7 +20,6 @@ from opsdroid.const import (
     TWITCH_WEBHOOK_ENDPOINT,
 )
 from opsdroid.events import BanUser, DeleteMessage, JoinRoom, LeaveRoom, Message
-from voluptuous import Required
 
 from . import events as twitch_event
 

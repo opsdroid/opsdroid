@@ -5,6 +5,8 @@ import secrets
 
 import aiohttp
 import emoji
+from voluptuous import Required
+
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import (
     EditedMessage,
@@ -16,7 +18,6 @@ from opsdroid.events import (
     PinMessage,
     Reply,
 )
-from voluptuous import Required
 
 from . import events as telegram_events
 

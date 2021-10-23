@@ -3,12 +3,13 @@ import json
 import logging
 import os
 import uuid
-
 import aiohttp
-from opsdroid.connector import Connector, register_event
-from opsdroid.events import Message
+
 from voluptuous import Required, Url
 from webexteamssdk import WebexTeamsAPI
+
+from opsdroid.connector import Connector, register_event
+from opsdroid.events import Message
 
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = {Required("webhook-url"): Url(), Required("token"): str}

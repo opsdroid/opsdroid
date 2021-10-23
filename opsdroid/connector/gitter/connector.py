@@ -1,13 +1,13 @@
 """A connector for Gitter."""
+import logging
+import aiohttp
 import asyncio
 import json
-import logging
 import urllib
+from voluptuous import Required
 
-import aiohttp
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
-from voluptuous import Required
 
 _LOGGER = logging.getLogger(__name__)
 GITTER_STREAM_API = "https://stream.gitter.im"

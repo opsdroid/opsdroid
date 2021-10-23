@@ -2,11 +2,11 @@
 import hashlib
 import hmac
 import json
+import jwt
 import logging
 import time
 
 import aiohttp
-import jwt
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
 

@@ -1,12 +1,13 @@
 """A connector for Rocket.Chat."""
 import asyncio
-import datetime
 import logging
-
+import datetime
 import aiohttp
+
+from voluptuous import Required, Url
+
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
-from voluptuous import Required, Url
 
 _LOGGER = logging.getLogger(__name__)
 API_PATH = "/api/v1/"

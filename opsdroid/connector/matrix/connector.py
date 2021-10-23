@@ -8,8 +8,8 @@ from urllib.parse import urlparse
 
 import aiohttp
 import nio
-import nio.exceptions
 import nio.responses
+import nio.exceptions
 from opsdroid import const, events
 from opsdroid.connector import Connector, register_event
 from voluptuous import Inclusive, Required
