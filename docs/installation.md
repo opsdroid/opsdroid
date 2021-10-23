@@ -71,7 +71,7 @@ for a list of all the modules you can install this way.
 $ docker pull opsdroid/opsdroid:latest
 
 # Run the container
-$ docker run --rm -it -v /path/to/config_folder:/root/.config/opsdroid opsdroid/opsdroid:latest
+$ docker run --rm -it -v /path/to/config_folder:/home/opsdroid/.config/opsdroid opsdroid/opsdroid:latest
 ```
 
 The default docker image on Docker Hub contains all the module dependencies. To
@@ -88,7 +88,7 @@ $ docker build --build-arg EXTRAS=.[common] .
 $ docker config create OpsdroidConfig /path/to/configuration.yaml
 
 # Create the service
-$ docker service create --name opsdroid --config source=OpsdroidConfig,target=/root/.config/opsdroid/configuration.yaml --mount 'type=volume,src=OpsdroidData,dst=/root/.config/opsdroid' opsdroid/opsdroid:latest
+$ docker service create --name opsdroid --config source=OpsdroidConfig,target=/home/opsdroid/.config/opsdroid/configuration.yaml --mount 'type=volume,src=OpsdroidData,dst=/home/opsdroid/.config/opsdroid' opsdroid/opsdroid:latest
 ```
 
 ### Docker Swarm
@@ -111,10 +111,10 @@ services:
     networks:
       - opsdroid
     volumes:
-      -  opsdroid:/root/.config/opsdroid
+      -  opsdroid:/home/opsdroid/.config/opsdroid
     configs:
       -  source: opsdroid_conf
-         target: /root/.config/opsdroid/configuration.yaml
+         target: /home/opsdroid/.config/opsdroid/configuration.yaml
     deploy:
       restart_policy:
         condition: any
