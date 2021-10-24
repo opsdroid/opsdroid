@@ -25,18 +25,17 @@ def create_table_if_not_exists(func):
     Creates table if it does not exist"""
 
     async def create_table_query(connection, table):
-        async with connection.transaction():
-            # Create table if it does not exist
-            await connection.execute(
-                'CREATE TABLE IF NOT EXISTS "{}" ( key text PRIMARY KEY, data JSONb)'.format(
-                    table
-                )
+        # Create table if it does not exist
+        await connection.execute(
+            'CREATE TABLE IF NOT EXISTS "{}" ( key text PRIMARY KEY, data JSONb)'.format(
+                table
             )
-            await connection.execute(
-                'CREATE INDEX IF NOT EXISTS idxgin ON "{}" USING gin (data);'.format(
-                    table
-                )
+        )
+        await connection.execute(
+            'CREATE INDEX IF NOT EXISTS idxgin ON "{}" USING gin (data);'.format(
+                table
             )
+        )
 
     async def wrapper(*args, **kwargs):
         # args[0].connection will get DatabasePostgresql.connection
@@ -67,13 +66,12 @@ def check_table_format(func):
     Creates table if it does not exist"""
 
     async def get_table_structure_query(connection, table):
-        async with connection.transaction():
-            # Check Table's data structure is correct
-            return await connection.fetch(
-                "SELECT column_name,data_type FROM information_schema.columns WHERE table_name = '{}'".format(
-                    table
-                )
+        # Check Table's data structure is correct
+        return await connection.fetch(
+            "SELECT column_name,data_type FROM information_schema.columns WHERE table_name = '{}'".format(
+                table
             )
+        )
 
     async def wrapper(*args, **kwargs):
         # args[0].connection will get DatabasePostgresql.connection
@@ -161,20 +159,19 @@ class DatabasePostgresql(Database):
 
     async def put_query(self, key, json_data):
         """SQL transaction to write data to the specified table"""
-        async with self.connection.transaction():
-            key_already_exists = await self.get(key)
-            if key_already_exists:
-                await self.connection.execute(
-                    'UPDATE "{}" SET data = $2 WHERE key = $1'.format(self.table),
-                    key,
-                    json_data,
-                )
-            else:
-                await self.connection.execute(
-                    'INSERT INTO "{}" (key, data) VALUES ($1, $2)'.format(self.table),
-                    key,
-                    json_data,
-                )
+        key_already_exists = await self.get(key)
+        if key_already_exists:
+            await self.connection.execute(
+                'UPDATE "{}" SET data = $2 WHERE key = $1'.format(self.table),
+                key,
+                json_data,
+            )
+        else:
+            await self.connection.execute(
+                'INSERT INTO "{}" (key, data) VALUES ($1, $2)'.format(self.table),
+                key,
+                json_data,
+            )
 
     @check_table_format
     async def get(self, key):
@@ -226,10 +223,9 @@ class DatabasePostgresql(Database):
 
     async def delete_query(self, key):
         """SQL transaction to delete data from the specified table"""
-        async with self.connection.transaction():
-            await self.connection.execute(
-                'DELETE FROM "{}" WHERE key = $1'.format(self.table), key
-            )
+        await self.connection.execute(
+            'DELETE FROM "{}" WHERE key = $1'.format(self.table), key
+        )
 
     @asynccontextmanager
     async def memory_in_table(self, table):

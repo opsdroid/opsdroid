@@ -29,7 +29,7 @@ async def test_connect(mocker, database):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("config", [{"table": "test_table"}])
+@pytest.mark.parametrize("config", [{"table": "test_table"}, {"table": "test table"}])
 async def test_put(mocker, database, transacted_postgresql_db):
     mocker.patch("asyncpg.connect", return_value=transacted_postgresql_db)
     await database.connect()
