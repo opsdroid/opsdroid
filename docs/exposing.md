@@ -228,7 +228,7 @@ localhost.run uses SSH to port forward a local service to an HTTP/HTTPS endpoint
 
 ### Install
 
-localhost.run uses SSH, so there is nothing to install.
+localhost.run uses SSH, so there is no installation required.
 
 
 ### Start tunnel
