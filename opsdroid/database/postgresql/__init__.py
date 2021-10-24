@@ -25,6 +25,7 @@ def create_table_if_not_exists(func):
     Creates table if it does not exist"""
 
     async def create_table_query(connection, table):
+        # async with connection.transaction():
         # Create table if it does not exist
         await connection.execute(
             'CREATE TABLE IF NOT EXISTS "{}" ( key text PRIMARY KEY, data JSONb)'.format(
@@ -64,6 +65,7 @@ def check_table_format(func):
     Creates table if it does not exist"""
 
     async def get_table_structure_query(connection, table):
+        # async with connection.transaction():
         # Check Table's data structure is correct
         return await connection.fetch(
             "SELECT column_name,data_type FROM information_schema.columns WHERE table_name = '{}'".format(
@@ -157,6 +159,7 @@ class DatabasePostgresql(Database):
 
     async def put_query(self, key, json_data):
         """SQL transaction to write data to the specified table"""
+        # async with self.connection.transaction():
         key_already_exists = await self.get(key)
         if key_already_exists:
             await self.connection.execute(
@@ -221,6 +224,7 @@ class DatabasePostgresql(Database):
 
     async def delete_query(self, key):
         """SQL transaction to delete data from the specified table"""
+        # async with self.connection.transaction():
         await self.connection.execute(
             'DELETE FROM "{}" WHERE key = $1'.format(self.table), key
         )

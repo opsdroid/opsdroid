@@ -31,7 +31,7 @@ async def test_connect(mocker, database):
 @pytest.mark.asyncio
 @pytest.mark.parametrize("config", [{"table": "test_table"}, {"table": "test table"}])
 async def test_put(mocker, database, transacted_postgresql_db):
-    mocker.patch("asyncpg.connect", return_value=transacted_postgresql_db)
+    mocker.patch("asyncpg.connect", return_value=transacted_postgresql_db.connection)
     await database.connect()
     await database.put("test_key", {"value": "test_value"})
 
@@ -47,12 +47,12 @@ async def test_put(mocker, database, transacted_postgresql_db):
     ],
 )
 async def test_get(mocker, database, return_value, transacted_postgresql_db):
-    mocker.patch("asyncpg.connect", return_value=transacted_postgresql_db)
+    mocker.patch("asyncpg.connect", return_value=transacted_postgresql_db.connection)
     await database.get("test_key")
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("config", [{"table": "test_table"}])
 async def test_delete(mocker, database, transacted_postgresql_db):
-    mocker.patch("asyncpg.connect", return_value=transacted_postgresql_db)
+    mocker.patch("asyncpg.connect", return_value=transacted_postgresql_db.connection)
     await database.delete("test_key")
