@@ -32,9 +32,7 @@ def create_table_if_not_exists(func):
             )
         )
         await connection.execute(
-            'CREATE INDEX IF NOT EXISTS idxgin ON "{}" USING gin (data);'.format(
-                table
-            )
+            'CREATE INDEX IF NOT EXISTS idxgin ON "{}" USING gin (data);'.format(table)
         )
 
     async def wrapper(*args, **kwargs):
