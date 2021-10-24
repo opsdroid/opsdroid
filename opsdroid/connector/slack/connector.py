@@ -35,7 +35,7 @@ CONFIG_SCHEMA = {
     "bot-name": str,
     "default-room": str,
     "icon-emoji": str,
-    "start_thread": bool,
+    "start-thread": bool,
 }
 
 
@@ -51,7 +51,7 @@ class ConnectorSlack(Connector):
         self.bot_name = config.get("bot-name", "opsdroid")
         self.default_target = config.get("default-room", "#general")
         self.icon_emoji = config.get("icon-emoji", ":robot_face:")
-        self.start_thread = config.get("start_thread", False)
+        self.start_thread = config.get("start-thread", False)
         self.socket_mode = config.get("socket-mode", True)
         self.app_token = config.get("app-token")
         self.ssl_context = ssl.create_default_context(cafile=certifi.where())
@@ -109,7 +109,7 @@ class ConnectorSlack(Connector):
                 _LOGGER.info(_("Connected successfully with socket mode"))
             else:
                 self.opsdroid.web_server.web_app.router.add_post(
-                    f"/connector/{self.name}".format(),
+                    f"/connector/{self.name}",
                     self.web_event_handler,
                 )
                 _LOGGER.info(_("Connected successfully with events api"))
