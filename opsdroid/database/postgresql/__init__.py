@@ -183,7 +183,7 @@ class DatabasePostgresql(Database):
         values = await self.get_query(key)
 
         if len(values) > 1:
-            _LOGGER.error(
+            _LOGGER.error(f"{len(values) entries with the same key name '{values}', in PostgressSQL table {self.table}. Only one is allowed.")
                 str(len(values))
                 + " entries with same key name in PostgresSQL table %s. Only one allowed.",
                 self.table,
