@@ -50,7 +50,7 @@ def test_init(database):
     ],
 )
 async def test_connect(database):
-    """test that the mongo database has implemented connect function properly"""
+    """Test that the mongo database has implemented connect function properly."""
     try:
         await database.connect()
     except NotImplementedError:
