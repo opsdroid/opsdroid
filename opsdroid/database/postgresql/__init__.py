@@ -22,6 +22,10 @@ CONFIG_SCHEMA = {
 
 def create_table_if_not_exists(func):
     """Decorator to check if the table specified exists.
+    
+    Creates table if it does not exist.
+    
+    """
     Creates table if it does not exist"""
 
     async def create_table_query(connection, table):
