@@ -22,15 +22,10 @@ CONFIG_SCHEMA = {
 
 def create_table_if_not_exists(func):
     """Decorator to check if the table specified exists.
-    
     Creates table if it does not exist.
-    
     """
-    Creates table if it does not exist"""
 
     async def create_table_query(connection, table):
-        # async with connection.transaction():
-        # Create table if it does not exist
         await connection.execute(
             'CREATE TABLE IF NOT EXISTS "{}" ( key text PRIMARY KEY, data JSONb)'.format(
                 table
@@ -46,19 +41,16 @@ def create_table_if_not_exists(func):
         table = args[0].table
 
         if " " in table:
+
             _LOGGER.warning(
-                'table contains a space character. Suggest changing "'
-                + table
-                + '" to "'
-                + table.strip(" ")
-                + '"'
+                f"Table contains a space character. Consider changing '{table}' to {table.strip(' ')}"
             )
 
         try:
             await create_table_query(connection, table)
             return await func(*args, **kwargs)
-        except Exception:
-            _LOGGER.error("PostgresSQL Could not create table %s", table)
+        except Exception as error:
+            _LOGGER.exception("PostgresSQL Could not create table %s", table)
             return None
 
     return wrapper
@@ -163,7 +155,6 @@ class DatabasePostgresql(Database):
 
     async def put_query(self, key, json_data):
         """SQL transaction to write data to the specified table"""
-        # async with self.connection.transaction():
         key_already_exists = await self.get(key)
         if key_already_exists:
             await self.connection.execute(
@@ -227,7 +218,7 @@ class DatabasePostgresql(Database):
         await self.delete_query(key)
 
     async def delete_query(self, key):
-        """SQL transaction to delete data from the specified table"""
+        """SQL transaction to delete data from the specified table."""
         # async with self.connection.transaction():
         await self.connection.execute(
             'DELETE FROM "{}" WHERE key = $1'.format(self.table), key
