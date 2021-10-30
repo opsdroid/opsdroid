@@ -199,7 +199,7 @@ class DatabasePostgresql(Database):
         return None
 
     async def get_query(self, key):
-        """SQL transaction to get data from the specified table"""
+        """SQL transaction to get data from the specified table."""
         return await self.connection.fetch(
             'SELECT data FROM "{}" WHERE key = $1'.format(self.table),
             key,
