@@ -44,14 +44,12 @@ def create_table_if_not_exists(func):
 
             _LOGGER.warning(
                 f"Table contains a space character. Consider changing '{table}' to {table.strip(' ')}"
-             )
-                f"Table contains a space character. Consider changing '{table}' to {table.strip(' ')}"
             )
 
         try:
             await create_table_query(connection, table)
             return await func(*args, **kwargs)
-        except Exception as error:
+        except Exception:
             _LOGGER.exception("PostgresSQL Could not create table %s", table)
             return None
 
@@ -185,11 +183,10 @@ class DatabasePostgresql(Database):
         values = await self.get_query(key)
 
         if len(values) > 1:
-            _LOGGER.error(f"{len(values) entries with the same key name '{values}', in PostgressSQL table {self.table}. Only one is allowed.")
-                str(len(values))
-                + " entries with same key name in PostgresSQL table %s. Only one allowed.",
-                self.table,
+            _LOGGER.error(
+                f"{len(values)} entries with the same key name '{values}', in PostgressSQL table {self.table}. Only one is allowed."
             )
+
             return None
 
         if (len(values) == 1) and values[0]["data"]:
