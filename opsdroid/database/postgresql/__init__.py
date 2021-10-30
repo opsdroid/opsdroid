@@ -78,17 +78,17 @@ def check_table_format(func):
             data_structure = await get_table_structure_query(connection, table)
 
             key_column = [
-                x
-                for x in data_structure
-                if x["column_name"] == "key" and x["data_type"] == "text"
+                data
+                for data in data_structure
+                if data["column_name"] == "key" and data["data_type"] == "text"
             ][0]
             data_column = [
-                x
-                for x in data_structure
-                if x["column_name"] == "data" and x["data_type"] == "jsonb"
+                data
+                for data in data_structure
+                if data["column_name"] == "data" and data["data_type"] == "jsonb"
             ][0]
             if key_column and data_column:
-                _LOGGER.info(
+                _LOGGER.debug(
                     "PostgresSQL table %s verified correct data structure", table
                 )
             return await func(*args, **kwargs)
