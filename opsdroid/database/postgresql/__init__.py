@@ -44,6 +44,8 @@ def create_table_if_not_exists(func):
 
             _LOGGER.warning(
                 f"Table contains a space character. Consider changing '{table}' to {table.strip(' ')}"
+             )
+                f"Table contains a space character. Consider changing '{table}' to {table.strip(' ')}"
             )
 
         try:
