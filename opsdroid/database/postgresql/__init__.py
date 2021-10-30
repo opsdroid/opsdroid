@@ -156,7 +156,7 @@ class DatabasePostgresql(Database):
         await self.put_query(key, json_data)
 
     async def put_query(self, key, json_data):
-        """SQL transaction to write data to the specified table"""
+        """SQL transaction to write data to the specified table."""
         key_already_exists = await self.get(key)
         if key_already_exists:
             await self.connection.execute(
