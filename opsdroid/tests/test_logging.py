@@ -38,7 +38,18 @@ def test_configure_file_logging():
     opsdroid.configure_logging(config)
     rootlogger = logging.getLogger()
     assert len(rootlogger.handlers), 2
-    assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
+    assert isinstance(rootlogger.handlers[0], logging.handlers.RotatingFileHandler)
+    assert isinstance(rootlogger.handlers[1], RichHandler)
+    assert rootlogger.handlers[0].level == logging.INFO
+
+
+def test_configure_file_logging_only():
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        config = {"path": os.path.join(tmp_dir, "output.log"), "rich": False}
+
+    opsdroid.configure_logging(config)
+    rootlogger = logging.getLogger()
+    assert len(rootlogger.handlers), 1
     assert isinstance(rootlogger.handlers[0], logging.handlers.RotatingFileHandler)
     assert rootlogger.handlers[0].level == logging.INFO
 
