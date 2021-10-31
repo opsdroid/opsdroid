@@ -53,6 +53,7 @@ welcome-message: true
 #    project: opsdroid
 #    token: 85769fjoso084jd
 #    min-score: 0.8
+#    train: False # Defaults to True
 #
 #  ## Dialogflow (http://docs.opsdroid.dev/en/stable/skills/matchers/dialogflow.html)
 #  dialogflow:
