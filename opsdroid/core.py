@@ -351,7 +351,6 @@ class OpsDroid:
         if "parsers" in self.modules:
             parsers = self.modules.get("parsers", {})
             rasanlu = get_parser_config("rasanlu", parsers)
-            breakpoint()
             if rasanlu and rasanlu["enabled"] and rasanlu.get("train", True):
                 await train_rasanlu(rasanlu, skills)
 
