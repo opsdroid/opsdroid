@@ -114,6 +114,13 @@ def configure_logging(config):
     formatter = logging.Formatter(formatter_str)
     handler = None
 
+    if config.get("rich") is not False:
+        handler = RichHandler(
+            rich_tracebacks=True,
+            show_time=config.get("timestamp", True),
+            show_path=config.get("extended", True),
+        )
+
     if logfile_path:
         file_handler = RotatingFileHandler(
             logfile_path, maxBytes=config.get("file-size", 50e6)
@@ -122,19 +129,17 @@ def configure_logging(config):
         file_handler.setFormatter(formatter)
         rootlogger.addHandler(file_handler)
 
-    if not config or config.get("rich"):
-        handler = RichHandler(
-            rich_tracebacks=True,
-            show_time=config.get("timestamp", True),
-            show_path=config.get("extended", True),
-        )
-
-    if config.get("console") or config.get("console") is False:
+    if config.get("console"):
         handler = logging.StreamHandler()
         handler.setFormatter(formatter)
 
-        if config.get("console") is False:
-            log_level = get_logging_level("critical")
+    # If we still don't have the handler, we are assuming that
+    # the user wants to switch off logging, let's log only
+    # Critical errors
+    if not handler:
+        handler = logging.StreamHandler()
+        handler.setFormatter(formatter)
+        log_level = get_logging_level("critical")
 
     if config.get("filter") and handler:
         handler.addFilter(ParsingFilter(config, config["filter"]))

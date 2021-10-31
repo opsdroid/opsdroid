@@ -162,7 +162,7 @@ _Note: If you forget to declare a path for the logs but have logging active, one
 
 All python logging levels are available in opsdroid. `level` can be set to `debug`, `info`, `warning`, `error` and `critical`.
 
-You may not want opsdroid to log to the console, for example, using the shell connector. However, if running in a container, you may want exactly that. Setting `console: false` and `rich: false` will disable console logging.
+You may not want opsdroid to log to the console, for example, using the shell connector. However, if running in a container, you may want exactly that. Setting `console: false` and `rich: false` will log only critial level logs, removing any of the other logs.
 
 The default locations for the logs are:
 
@@ -199,6 +199,7 @@ When using rich logging, opsdroid will use the [RichHandler](https://rich.readth
 You can pass optional arguments to the logging configuration to extend the opsdroid logging.
 
 ##### Logs timestamp
+
 Sometimes it is helpful to have the timestamp when logs happen. You can enable them with the `timestamp` boolean. Defaults to false
 
 ```yaml
@@ -208,6 +209,7 @@ logging:
 ```
 
 *example:*
+
 ```shell
 2020-12-02 10:39:51,255 INFO opsdroid.logging: ========================================                                 
 2020-12-02 10:39:51,255 INFO opsdroid.logging: Started opsdroid v0.19.0+66.g8b839bc.dirty.                             
@@ -215,6 +217,7 @@ logging:
 ```
 
 ##### Logs rotation
+
 To keep the logs under control, the file will grow to 50MB before being rotated back. You can change the default value by passing the `file-size` argument.
 
 ```yaml
@@ -238,6 +241,7 @@ logging:
 ```
 
 *example:*
+
 ```shell
 INFO opsdroid.logging.configure_logging(): ========================================
 INFO opsdroid.logging.configure_logging(): Started opsdroid v0.14.1
@@ -259,6 +263,7 @@ logging:
 ```
 
 *example:*
+
 ```shell
 DEBUG opsdroid.core: Loaded 5 skills
 DEBUG opsdroid.core: Adding database: DatabaseSqlite
@@ -269,6 +274,7 @@ _Note: You can also use the extended mode to filter out logs - this should allow
 ##### Blacklist log names
 
 If you want to get logs from all the files but one, you can choose a file to blacklist and opsdroid will filter that result from the logs. This is particularly important if you have huge objects inside your database.
+
 ```yaml
 logging:
   level: info
@@ -281,6 +287,7 @@ logging:
 ```
 
 *example:*
+
 ```shell
 INFO opsdroid.logging: ========================================
 INFO opsdroid.logging: Started opsdroid v0.14.1+93.g3513177.dirty
@@ -310,6 +317,7 @@ INFO opsdroid.web: Started web server on http://0.0.0.0:8080
 _Note: You can also use the extended mode to filter out logs - this should allow you to have even more flexibility while dealing with your logs._
 
 ##### Using both whitelist and blacklist filter
+
 You are only able to filter either with the whitelist filter or the blacklist filter. If you add both in your configuration file, you will get a warning
 and only the whitelist filter will be used. This behaviour was done because setting two filters causes an `RuntimeError` to be raised (_maximum recursion depth exceeded_).
 
@@ -355,7 +363,6 @@ logging:
 ```
 
 ###### Example
-
 
 ```shell
 opsdroid.logging INFO - ========================================

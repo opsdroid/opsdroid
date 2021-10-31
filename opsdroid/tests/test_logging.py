@@ -22,7 +22,7 @@ def test_set_logging_level():
 
 
 def test_configure_no_logging():
-    config = {"path": False, "console": False}
+    config = {"path": False, "console": False, "rich": False}
     opsdroid.configure_logging(config)
     rootlogger = logging.getLogger()
 
@@ -43,11 +43,12 @@ def test_configure_file_logging():
     assert rootlogger.handlers[0].level == logging.INFO
 
 
-def test_configure_file_blacklist(capsys):
+def test_log_to_file_only(capsys):
     with tempfile.TemporaryDirectory() as tmp_dir:
         config = {
             "path": os.path.join(tmp_dir, "output.log"),
             "console": False,
+            "rich": False,
             "filter": {"blacklist": "opsdroid.logging"},
         }
     opsdroid.configure_logging(config)
@@ -155,7 +156,6 @@ def test_configure_extended_logging_with_timestamp(capsys):
     assert isinstance(rootlogger.handlers[0], logging.StreamHandler)
     # Regex to match timestamp: 2020-12-02 17:46:33,158
     regex = r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} INFO opsdroid\.logging\.configure_logging\(\):"
-    print(captured.err)
     assert re.match(regex, captured.err)
 
 
