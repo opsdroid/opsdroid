@@ -162,7 +162,7 @@ _Note: If you forget to declare a path for the logs but have logging active, one
 
 All python logging levels are available in opsdroid. `level` can be set to `debug`, `info`, `warning`, `error` and `critical`.
 
-You may not want opsdroid to log to the console, for example, using the shell connector. However, if running in a container, you may want exactly that. Setting `console: false` and `rich: false` will log only critial level logs, removing any of the other logs.
+You may not want opsdroid to log to the console, for example, using the shell connector. However, if running in a container, you may want exactly that. Setting `rich: false` will log only critial level logs, removing any of the other logs.
 
 The default locations for the logs are:
 
