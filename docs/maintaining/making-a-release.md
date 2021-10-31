@@ -11,7 +11,7 @@ Currently opsdroid builds:
 
 - A Python distribution on [pypi](https://pypi.org/project/opsdroid/)
 - A Python distribution on [Conda Forge](https://github.com/conda-forge/opsdroid-feedstock)
-- A container image on [Docker Hub](https://hub.docker.com/r/opsdroid/opsdroid/)
+- A container image on [Docker Hub](https://hub.docker.com/r/opsdroid/opsdroid/) and [Github container registry](https://github.com/opsdroid/opsdroid/pkgs/container/opsdroid)
 
 The building and distributing is automated by Travis CI and run when a [release is created](https://help.github.com/articles/creating-releases/) on GitHub.
 
@@ -52,7 +52,7 @@ This will result in a number of automated actions:
 
 - The new [release tag](https://github.com/opsdroid/opsdroid/tags) will be created on GitHub.
 - [Travis CI](https://travis-ci.org/opsdroid/opsdroid) will build the [pypi distribution](https://pypi.python.org/pypi/opsdroid) and upload it.
-- [Docker Hub](https://hub.docker.com/r/opsdroid/opsdroid/) will build a new container image, create the [new release tag](https://hub.docker.com/r/opsdroid/opsdroid/tags/) and also update `latest` to point to this release.
+- [Docker Hub](https://hub.docker.com/r/opsdroid/opsdroid/) and [Github container registry](https://github.com/opsdroid/opsdroid/pkgs/container/opsdroid) will build a new container image, create the [new release tag](https://hub.docker.com/r/opsdroid/opsdroid/tags/) and also update `latest` to point to this release.
 - The @opsdroid [twitter account](https://twitter.com/opsdroid) will tweet that the release has been generated (via [IFTTT](https://ifttt.com)).
 
 There are also the following manual actions which need to be performed:

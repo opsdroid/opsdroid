@@ -1,0 +1,23 @@
+{
+    "id": "5330521e20d939a3be000018",
+    "text": "Hello world",
+    "html": "Hello world",
+    "sent": "2014-03-24T15:41:18.991Z",
+    "editedAt": null,
+    "fromUser": {
+        "id": "5315ef029517002db7dde53b",
+        "username": "foo",
+        "displayName": "Mauro Pompilio",
+        "url": "/malditogeek",
+        "avatarUrlSmall": "https://avatars.githubusercontent.com/u/14751?",
+        "avatarUrlMedium": "https://avatars.githubusercontent.com/u/14751?",
+        "v": 2
+    },
+    "unread": false,
+    "readBy": 0,
+    "urls": [],
+    "mentions": [],
+    "issues": [],
+    "meta": {},
+    "v": 1
+}

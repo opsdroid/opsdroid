@@ -1,16 +1,14 @@
 """A connector which allows websocket connections."""
-import logging
 import json
+import logging
 import uuid
 from datetime import datetime
 
 import aiohttp
 import aiohttp.web
 from aiohttp import WSCloseCode
-
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
-
 
 _LOGGER = logging.getLogger(__name__)
 HEADERS = {"Access-Control-Allow-Origin": "*"}
@@ -24,7 +22,7 @@ class ConnectorWebsocket(Connector):
         """Create the connector."""
         super().__init__(config, opsdroid=opsdroid)
         _LOGGER.debug(_("Starting Websocket connector."))
-        self.name = "websocket"
+        self.name = config.get("name", "websocket")
         self.max_connections = self.config.get("max-connections", 10)
         self.connection_timeout = self.config.get("connection-timeout", 60)
         self.accepting_connections = True

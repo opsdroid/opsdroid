@@ -16,7 +16,7 @@ Opsdroid is an event-driven framework powered by [asyncio](#asyncio). The event 
 - **Skills** are then run to process the event in whatever way you like. You define these as Python functions which take an event object and run any arbitrary code you like. This may be to respond to a chat message with another chat message or to take some more advanced course of action such as deploying an application, restarting a server or anything you can do in Python. You can learn more about writing skills in [this section of the documentation](skills/index.md).
 
 
-![Opsdroid Event Flow](https://user-images.githubusercontent.com/1610850/57621414-488ee280-7583-11e9-9eaa-f739300331f1.png)
+![Opsdroid Event Flow](diagrams/event-flow.png)
 
 ## Modules
 
@@ -87,7 +87,7 @@ class ConnectorExample(Connector):
 
 In the above example connector, we have an infinite loop which is repeatedly checking for new messages and passing them to opsdroid to be parsed. In a typical application, this loop would block forever and nothing else would be able to happen. For example, we may have another infinite loop somewhere checking the time every second and running cron scheduled tasks.
 
-But with asyncio every time we hit an `await` statement the event loop adds the function call to a queue, and it may not be at the top of the queue. So it might then switch it's attention to a different function call that has been waiting. This enables multiple code paths to execute concurrently and take it in turns to have the Python interpreters attention.
+But with asyncio every time we hit an `await` statement the event loop adds the function call to a queue, and it may not be at the top of the queue. So it might then switch its attention to a different function call that has been waiting. This enables multiple code paths to execute concurrently and take it in turns to have the Python interpreter's attention.
 
 ```eval_rst
 .. warning::

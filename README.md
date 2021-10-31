@@ -38,7 +38,7 @@ See [our full documentation](https://docs.opsdroid.dev) to get started.
 
 ### Contributors
 
-This project exists thanks to all the people who contribute. [[Contribute](https://docs.opsdroid.dev/en/stable/contributing.html#contributing)].
+This project exists thanks to all the people who contribute. [[Contribute](https://docs.opsdroid.dev/en/stable/contributing/)].
 <a href="https://github.com/opsdroid/opsdroid/graphs/contributors"><img src="https://opencollective.com/opsdroid/contributors.svg?width=890" /></a>
 
 ## Backers

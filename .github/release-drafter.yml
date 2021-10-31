@@ -16,6 +16,9 @@ categories:
   - title: 'Gitter Connector Changes'
     labels:
       - 'connector/gitter'
+  - title: 'Mattermost Connector Changes'
+    labels:
+      - 'connector/mattermost'
   - title: 'Matrix Connector Changes'
     labels:
       - 'connector/matrix'
@@ -25,6 +28,9 @@ categories:
   - title: 'Slack Connector Changes'
     labels:
       - 'connector/slack'
+  - title: 'Teams Connector Changes'
+    labels:
+      - 'connector/teams'
   - title: 'Telegram Connector Changes'
     labels:
       - 'connector/telegram'
@@ -40,6 +46,9 @@ categories:
   - title: 'Database Changes'
     labels:
       - 'database'
+  - title: 'Parser and Matcher Changes'
+    labels:
+      - 'parser'
   - title: 'Bug Fixes'
     labels:
       - 'bug'

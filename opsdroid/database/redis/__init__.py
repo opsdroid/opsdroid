@@ -2,8 +2,7 @@
 import json
 import logging
 
-import aioredis
-from aioredis import parser
+from aioredis import Redis
 from voluptuous import Any
 
 from opsdroid.database import Database
@@ -46,12 +45,13 @@ class RedisDatabase(Database):
 
         """
         try:
-            self.client = await aioredis.create_pool(
-                address=(self.host, int(self.port)),
+            self.client = Redis(
+                host=self.host,
+                port=int(self.port),
                 db=self.database,
                 password=self.password,
-                parser=parser.PyReader,
             )
+            await self.client.ping()  # to actually initiate a connection
 
             _LOGGER.info(
                 _("Connected to Redis database %s from %s on port %s."),
@@ -76,7 +76,9 @@ class RedisDatabase(Database):
         """
         if self.client:
             _LOGGER.debug(_("Putting %s into Redis."), key)
-            await self.client.execute("SET", key, json.dumps(data, cls=JSONEncoder))
+            await self.client.execute_command(
+                "SET", key, json.dumps(data, cls=JSONEncoder)
+            )
 
     async def get(self, key):
         """Get data from Redis for a given key.
@@ -91,7 +93,7 @@ class RedisDatabase(Database):
         """
         if self.client:
             _LOGGER.debug(_("Getting %s from Redis."), key)
-            data = await self.client.execute("GET", key)
+            data = await self.client.execute_command("GET", key)
 
             if data:
                 return json.loads(data, object_hook=JSONDecoder())
@@ -107,9 +109,9 @@ class RedisDatabase(Database):
         """
         if self.client:
             _LOGGER.debug(_("Deleting %s from Redis."), key)
-            await self.client.execute("DEL", key)
+            await self.client.execute_command("DEL", key)
 
     async def disconnect(self):
         """Disconnect from the database."""
         if self.client:
-            self.client.close()
+            await self.client.close()

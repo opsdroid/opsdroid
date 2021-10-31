@@ -2,6 +2,18 @@
 
 A connector for [Slack](https://slack.com/).
 
+- [Requirements](#requirements)
+- [Configuration](#configuration)
+    - [Choose the backend API](#choose-the-backend-api)
+    - [Subscribe to events](#subscribe-to-events)
+- [Usage](#usage)
+    - [Basic Skill Example](#basic-skill-example)
+    - [Get Messages from History](#get-messages-from-history)
+    - [Rich layouts and blocks](#rich-layouts-and-blocks)
+    - [Slash Commands](#slash-commands)
+    - [Interactive Actions](#interactive-actions)
+
+
 ## ⚠️ **Breaking Changes introduced in opsdroid 0.22.0**
 
 We have dropped support for the RTM API. Now the Slack Connector supports the [events API](https://api.slack.com/apis/connections/events-api) and [Socket Mode](https://api.slack.com/apis/connections/socket) from new apps
@@ -35,7 +47,8 @@ connectors:
     start_thread: false # default false. if true, opsdroid will start a thread when replying to a message
 ```
 
-\* when `socket-mode` is true, you need to set also an `app-token` (more info: [app level tokens](https://api.slack.com/authentication/token-types#app)
+\* when `socket-mode` is true, you need to set also an `app-token` (more info: [app level tokens](https://api.slack.com/authentication/token-types#app))
+
 ** In order for `bot-name` and/or `icon-emoji` to work, the `chat:write.customize` scope will have to be selected
 
 ### Choose the Backend API
@@ -45,19 +58,24 @@ You need to choose between two backends. The [Events API](https://api.slack.com/
 If you are unsure which one is the best for you, [Slack Faq](https://api.slack.com/faq#events_api) provide differences between those two.
 
 **Socket Mode**
+
+_Note:_ Due to a Slack inconsistency, you will need to complete the *Events API* instructions below first before setting up Socket Mode. The reason for this is that the Request URL verification step is needed and is only available via the *Events API*.
 * Go to your [Slack App](https://api.slack.com/apps)
-* On the left columnt go to "Socket Mode" and toogle the "Enable Socket Mode"
-* Copy your new token add add it to your opsdroid configuration file as your `app-token`. (the app-token will start with xapp-abcdef-1233)
+* On the left column go to "Socket Mode" and set the "Enable Socket Mode" toggle to enabled.
+* Make sure to set `socket-mode` to `true` in your Opsdroid configuration.
+* Copy your new token add add it to your Opsdroid configuration file as your `app-token`. (the `app-token` will start with `xapp-abcdef-1233`)
 
 **Events API**
-* Make sure to set `socket-mode` to `false`
+* Make sure to set `socket-mode` to `false` in your Opsdroid configuration.
 * You will need an **endpoint** which exposes your Opsdroid to the **internet**. [Exposing Opsdroid via tunnels](https://docs.opsdroid.dev/en/latest/exposing.html) might help out.
 * Go to your [Slack App](https://api.slack.com/apps)
-* On the left column go to "Event Subscriptions" and toogle the "Enable Events"
-* Under "Request URL" add the `/connector/slack` uri to your endpoint: https://slackbot.example.com/connector/slack. Note that you will have to have your Opsdroid instance running so Slack can validate the endpoint.
+* On the left column go to "Socket Mode" and make sure the "Enable Socket Mode" toggle is set to disabled.
+* On the left column go to "Event Subscriptions" and set the "Enable Events" toggle to enabled.
+* Under "Request URL" add the `/connector/slack` uri to your endpoint: https://slackbot.example.com/connector/slack. Note that you will have to have your Opsdroid instance running so Slack can verify the endpoint.
 
 ### Subscribe to events
-You will need to subscribe to events in your new Slack App, so Opsdroid can receive those events.
+You will need to subscribe to events in your new Slack App, so Opsdroid can receive those events. 
+You need to subscribe to events regardless of the backend: **Socket Mode** or **Events API**
 * Under "Subscribe to bot events" choose the events you want to subscribe for. You need at least one, `message.channels` will allow you to receive events everytime a message is posted into a channel. The following events are also supported by opsdroid: `message.im`, `channel_archive`, `channel_unarchive`, `channel_created`, `channel_rename`, `pin_added`, `pin_removed` and `team_join`.
 * Don't forget to save your changes in the slack app.
  
@@ -73,7 +91,7 @@ You can also interact with opsdroid through direct message (make sure to be subs
 
 Below is an example of a simple skill you can use to create your opsdroid. Checkout [Skill](https://docs.opsdroid.dev/en/stable/skills) for more info
 
-***Sample Greeter Skill***
+### Basic Skill Example
 ```python
 from opsdroid.skill import Skill
 from opsdroid.matchers import match_regex
@@ -86,6 +104,14 @@ class GreeterSkill(Skill):
         """Respond Hi"""
         await message.respond("Hi")
 ```
+
+### Get messages from History
+Sometimes you need to search through the history of a channel. For this you can use the `search_history_messages` method from the slack connector which returns all the messages on a specified range of time.
+
+```eval_rst
+.. autofunction:: opsdroid.connector.slack.ConnectorSlack.search_history_messages
+```
+
 
 ## Rich layouts and blocks
 
@@ -154,6 +180,21 @@ class UpdateBlocksSkill(Skill):
     	# target == channel id
 	blocks = ["the blocks datastructure"]
         await self.opsdroid.send(EditedBlocks(blocks, linked_event=1605646357.261200, target="channel_id"))
+```
+
+## Slash Commands
+[Slash Commands](https://api.slack.com/interactivity/slash-commands) allow users to invoke opsdroid by typing a string into the message composer box.
+
+### Configure Slack App for Slash Commands
+- Open your app's [management dashboard](https://api.slack.com/apps)
+- Click on `Slash Commands` in the sidebar.
+- Click the `Create New Command` button
+- If you are using the events API, save the HTTPS URL of your bot's slack connector entpoint (`/connector/slack`).
+    - *Example:* `https://slackbot.example.com/connector/slack`
+
+### Slash Command
+```eval_rst
+.. autofunction:: opsdroid.connector.slack.events.SlashCommand
 ```
 
 ## Interactive Actions
@@ -226,4 +267,16 @@ class InteractionsSkill(Skill):
     @match_event(ViewClosed)
     async def slack_interactions(self, event):
         await self.opsdroid.send(Message("View Closed interactivity has been triggered."))
+```
+
+## Matching events in Interactive Actions
+
+In the [block_actions](https://docs.opsdroid.dev/en/stable/connectors/slack.html#block-actions) example above, you can also match on `action_id` and/or `block_id` in addition to `value` for `match_event` like any of these:
+
+```python
+    @match_event(BlockActions, action_id="text1234")
+    @match_event(BlockActions, action_id="text1234", value="click_me_123")
+    @match_event(BlockActions, block_id="section678")
+    @match_event(BlockActions, block_id="section678", value="click_me_123")
+    @match_event(BlockActions, block_id="section678", action_id="text1234", value="click_me_123")
 ```
