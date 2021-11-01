@@ -10,6 +10,9 @@ You can also set a `min-score` option to tell opsdroid to ignore any matches whi
 
 `models-path` is used to load the model in Rasa. It defaults to `models`. If your Rasa instance writes trained models somewhere else, you can set this option to whatever path you need.
 
+`train` is used to make opsdroid train your model on each start. Setting this configuration flag to `False` allows you to use a previously trained
+model.
+
 ```yaml
 
 parsers:
@@ -18,11 +21,13 @@ parsers:
     models-path: models
     token: 85769fjoso084jd
     min-score: 0.8
+    train: True
 ```
 
 [Rasa NLU](https://github.com/RasaHQ/rasa) is an open source tool for running your own NLP API for matching strings to [intents](https://rasa.com/docs/rasa/). This is the recommended parser if you have privacy concerns but want the power of a full NLU parsing engine.
 
 Rasa NLU is also trained via the [API](https://rasa.com/docs/rasa/pages/http-api) and so opsdroid can do the training for you if you provide an intents [YAML file](https://rasa.com/docs/rasa/nlu-training-data) along with your skill. This file must contain intents with headers in the format `- intent: <intent name>` followed by a list of example phrases for that intent. Rasa NLU will then use those examples to build a statistical model for matching new and unseen variations on those sentences.
+
 
 > **Note** - Rasa version >= 2.x.x is supported.
 

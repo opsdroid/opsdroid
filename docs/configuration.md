@@ -366,6 +366,7 @@ parsers:
     project: opsdroid
     token: 85769fjoso084jd
     min-score: 0.8
+    train: True
 ```
 
 Some parsers will allow you to specify a min-score to tell opsdroid to ignore any matches which score less than a given number between 0 and 1. You just need to add the required min-score under a parser in the configuration.yaml file.
