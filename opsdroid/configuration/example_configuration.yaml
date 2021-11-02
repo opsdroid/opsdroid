@@ -167,7 +167,7 @@ connectors:
 #  ## Mattermost (core)
 #  mattermost:
 #    # Required
-#    api-token: "zyxw-abdcefghi-12345"
+#    token: "zyxw-abdcefghi-12345"
 #    url: "mattermost.server.com"
 #    team-name: "myteam"
 #    # Optional
@@ -201,16 +201,24 @@ connectors:
 #      - user1
 #      - user2
 #
+#  ## Teams (core)
+#  teams:
+#    # Required
+#    app-id: "yourappid"
+#    password: "yourpassword"
+#    # Optional
+#    bot-name: "mybot" # default "opsdroid"
 #  ## Slack (core)
 #  slack:
 #    # required
-#    token: "zyxw-abdcefghi-12345"
+#    bot-token: "zyxw-abdcefghi-12345"
 #    # optional
+#    socket-mode: false # default true
+#    app-token: "xapp-abdcfkje-12345" # socket-mode needs to be true
+#    start-thread: true # default false, if true opsdroid will reply in a thread
 #    bot-name: "mybot" # default "opsdroid"
 #    default-room: "#random" # default "#general"
 #    icon-emoji: ":smile:" # default ":robot_face:"
-#    connect-timeout: 10 # default 10 seconds
-#    chat-as-user: true # default false
 #
 #  ## Rocketchat (core)
 #  rocketchat:
