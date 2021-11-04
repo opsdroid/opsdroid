@@ -7,8 +7,8 @@ import pytest
 configure_lang({})
 
 
-async def test_message():
-    mock_connector = Connector()
+async def test_message(opsdroid):
+    mock_connector = Connector({}, opsdroid=opsdroid)
     raw_message = {
         "text": "Hello world",
         "user": "user",
@@ -39,19 +39,19 @@ def test_depreacted_properties():
 
     message.target = "spam"
 
-    with pytest.raises(DeprecationWarning):
+    with pytest.warns(DeprecationWarning):
         assert message.room == "spam"
 
-    with pytest.raises(DeprecationWarning):
+    with pytest.warns(DeprecationWarning):
         message.room = "eggs"
 
     assert message.room == "eggs"
 
     message.raw_event = "spam"
-    with pytest.raises(DeprecationWarning):
+    with pytest.warns(DeprecationWarning):
         assert message.raw_event == "spam"
 
-    with pytest.raises(DeprecationWarning):
+    with pytest.warns(DeprecationWarning):
         message.raw_event = "eggs"
 
     assert message.raw_event == "eggs"
