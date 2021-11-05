@@ -45,6 +45,7 @@ def test_init(database):
             "database": "test_db",
             "collection": "test_collection",
             "protocol": "mongodb://",
+            "port": "1234",
             "user": "root",
             "password": "mongo",
         },
