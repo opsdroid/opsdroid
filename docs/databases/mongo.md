@@ -11,12 +11,13 @@ An accessible MongoDB server with the database that you provide already created.
 ```yaml
 databases:
   mongo:
-    host:                       "my_host"       # (optional) default "localhost"
-    port:                       "12345"         # (optional) default "27017"
-    database:                   "my_database"   # (optional) default "opsdroid"
-    collection:                 "my_collection" # (optional) default "opsdroid"
-    user:                       "my_user"       # (optional)
-    password:                   "pwd123!"       # (optional)
+    host:                       "my_host"         # (optional) default "localhost"
+    port:                       "12345"           # (optional) default "27017"
+    database:                   "my_database"     # (optional) default "opsdroid"
+    protocol:                   "mongodb://"      # (optional) default "mongodb://"
+    collection:                 "my_collection"   # (optional) default "opsdroid"
+    user:                       "my_user"         # (optional)
+    password:                   "pwd123!"         # (optional)
 ```
 
 ## Usage
