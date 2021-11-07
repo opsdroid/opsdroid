@@ -298,6 +298,239 @@ async def test_issues_event(opsdroid, caplog):
 
 
 @pytest.mark.asyncio
+async def test_issue_closed_event(opsdroid, caplog):
+    connector = ConnectorGitlab({}, opsdroid)
+
+    mock_request = amock.CoroutineMock()
+    mock_request.json = amock.CoroutineMock()
+    mock_request.json.return_value = {
+        "object_kind": "issue",
+        "event_type": "issue",
+        "user": {
+            "id": 3612771,
+            "name": "Fabio Rosado",
+            "username": "FabioRosado",
+            "avatar_url": "https://secure.gravatar.com/avatar/c13aab50cd7f21b8c340136ac4ce515a?s=80&d=identicon",
+            "email": "[REDACTED]",
+        },
+        "project": {
+            "id": 30456730,
+            "name": "test-project",
+            "description": "",
+            "web_url": "https://gitlab.com/FabioRosado/test-project",
+            "avatar_url": None,
+            "git_ssh_url": "git@gitlab.com:FabioRosado/test-project.git",
+            "git_http_url": "https://gitlab.com/FabioRosado/test-project.git",
+            "namespace": "Fabio Rosado",
+            "visibility_level": 0,
+            "path_with_namespace": "FabioRosado/test-project",
+            "default_branch": "main",
+            "ci_config_path": "",
+            "homepage": "https://gitlab.com/FabioRosado/test-project",
+            "url": "git@gitlab.com:FabioRosado/test-project.git",
+            "ssh_url": "git@gitlab.com:FabioRosado/test-project.git",
+            "http_url": "https://gitlab.com/FabioRosado/test-project.git",
+        },
+        "object_attributes": {
+            "author_id": 3612771,
+            "closed_at": "2021-11-07 20:20:06 UTC",
+            "confidential": False,
+            "created_at": "2021-11-07 18:10:32 UTC",
+            "description": "This should have been filled",
+            "discussion_locked": None,
+            "due_date": None,
+            "id": 96886238,
+            "iid": 1,
+            "last_edited_at": "2021-11-07 20:17:43 UTC",
+            "last_edited_by_id": 3612771,
+            "milestone_id": None,
+            "moved_to_id": None,
+            "duplicated_to_id": None,
+            "project_id": 30456730,
+            "relative_position": 513,
+            "state_id": 2,
+            "time_estimate": 0,
+            "title": "New test issue",
+            "updated_at": "2021-11-07 20:20:06 UTC",
+            "updated_by_id": 3612771,
+            "weight": None,
+            "url": "https://gitlab.com/FabioRosado/test-project/-/issues/1",
+            "total_time_spent": 0,
+            "time_change": 0,
+            "human_total_time_spent": None,
+            "human_time_change": None,
+            "human_time_estimate": None,
+            "assignee_ids": [],
+            "assignee_id": None,
+            "labels": [
+                {
+                    "id": 22478741,
+                    "title": "test-label",
+                    "color": "#009966",
+                    "project_id": 30456730,
+                    "created_at": "2021-11-07 18:10:43 UTC",
+                    "updated_at": "2021-11-07 18:10:43 UTC",
+                    "template": False,
+                    "description": None,
+                    "type": "ProjectLabel",
+                    "group_id": None,
+                }
+            ],
+            "state": "closed",
+            "severity": "unknown",
+            "action": "close",
+        },
+        "labels": [
+            {
+                "id": 22478741,
+                "title": "test-label",
+                "color": "#009966",
+                "project_id": 30456730,
+                "created_at": "2021-11-07 18:10:43 UTC",
+                "updated_at": "2021-11-07 18:10:43 UTC",
+                "template": False,
+                "description": None,
+                "type": "ProjectLabel",
+                "group_id": None,
+            }
+        ],
+        "changes": {
+            "closed_at": {"previous": None, "current": "2021-11-07 20:20:06 UTC"},
+            "state_id": {"previous": 1, "current": 2},
+            "updated_at": {
+                "previous": "2021-11-07 20:17:43 UTC",
+                "current": "2021-11-07 20:20:06 UTC",
+            },
+        },
+        "repository": {
+            "name": "test-project",
+            "url": "git@gitlab.com:FabioRosado/test-project.git",
+            "description": "",
+            "homepage": "https://gitlab.com/FabioRosado/test-project",
+        },
+    }
+
+    assert connector
+
+
+@pytest.mark.asyncio
+async def test_issue_message_edited_event(opsdroid, caplog):
+    connector = ConnectorGitlab({}, opsdroid)
+
+    mock_request = amock.CoroutineMock()
+    mock_request.json = amock.CoroutineMock()
+    mock_request.json.return_value = {
+        "object_kind": "issue",
+        "event_type": "issue",
+        "user": {
+            "id": 3612771,
+            "name": "Fabio Rosado",
+            "username": "FabioRosado",
+            "avatar_url": "https://secure.gravatar.com/avatar/c13aab50cd7f21b8c340136ac4ce515a?s=80&d=identicon",
+            "email": "[REDACTED]",
+        },
+        "project": {
+            "id": 30456730,
+            "name": "test-project",
+            "description": "",
+            "web_url": "https://gitlab.com/FabioRosado/test-project",
+            "avatar_url": None,
+            "git_ssh_url": "git@gitlab.com:FabioRosado/test-project.git",
+            "git_http_url": "https://gitlab.com/FabioRosado/test-project.git",
+            "namespace": "Fabio Rosado",
+            "visibility_level": 0,
+            "path_with_namespace": "FabioRosado/test-project",
+            "default_branch": "main",
+            "ci_config_path": "",
+            "homepage": "https://gitlab.com/FabioRosado/test-project",
+            "url": "git@gitlab.com:FabioRosado/test-project.git",
+            "ssh_url": "git@gitlab.com:FabioRosado/test-project.git",
+            "http_url": "https://gitlab.com/FabioRosado/test-project.git",
+        },
+        "object_attributes": {
+            "author_id": 3612771,
+            "closed_at": None,
+            "confidential": False,
+            "created_at": "2021-11-07 18:10:32 UTC",
+            "description": "This should have been filled",
+            "discussion_locked": None,
+            "due_date": None,
+            "id": 96886238,
+            "iid": 1,
+            "last_edited_at": "2021-11-07 20:17:43 UTC",
+            "last_edited_by_id": 3612771,
+            "milestone_id": None,
+            "moved_to_id": None,
+            "duplicated_to_id": None,
+            "project_id": 30456730,
+            "relative_position": 513,
+            "state_id": 1,
+            "time_estimate": 0,
+            "title": "New test issue",
+            "updated_at": "2021-11-07 20:17:43 UTC",
+            "updated_by_id": 3612771,
+            "weight": None,
+            "url": "https://gitlab.com/FabioRosado/test-project/-/issues/1",
+            "total_time_spent": 0,
+            "time_change": 0,
+            "human_total_time_spent": None,
+            "human_time_change": None,
+            "human_time_estimate": None,
+            "assignee_ids": [],
+            "assignee_id": None,
+            "labels": [
+                {
+                    "id": 22478741,
+                    "title": "test-label",
+                    "color": "#009966",
+                    "project_id": 30456730,
+                    "created_at": "2021-11-07 18:10:43 UTC",
+                    "updated_at": "2021-11-07 18:10:43 UTC",
+                    "template": False,
+                    "description": None,
+                    "type": "ProjectLabel",
+                    "group_id": None,
+                }
+            ],
+            "state": "opened",
+            "severity": "unknown",
+            "action": "update",
+        },
+        "labels": [
+            {
+                "id": 22478741,
+                "title": "test-label",
+                "color": "#009966",
+                "project_id": 30456730,
+                "created_at": "2021-11-07 18:10:43 UTC",
+                "updated_at": "2021-11-07 18:10:43 UTC",
+                "template": False,
+                "description": None,
+                "type": "ProjectLabel",
+                "group_id": None,
+            }
+        ],
+        "changes": {
+            "description": {"previous": "", "current": "This should have been filled"},
+            "last_edited_at": {"previous": None, "current": "2021-11-07 20:17:43 UTC"},
+            "last_edited_by_id": {"previous": None, "current": 3612771},
+            "updated_at": {
+                "previous": "2021-11-07 18:10:47 UTC",
+                "current": "2021-11-07 20:17:43 UTC",
+            },
+        },
+        "repository": {
+            "name": "test-project",
+            "url": "git@gitlab.com:FabioRosado/test-project.git",
+            "description": "",
+            "homepage": "https://gitlab.com/FabioRosado/test-project",
+        },
+    }
+
+    assert connector
+
+
+@pytest.mark.asyncio
 async def test_confidential_issue_event(opsdroid, caplog):
     connector = ConnectorGitlab({}, opsdroid)
 
@@ -541,7 +774,7 @@ async def test_merge_event(opsdroid, caplog):
 
 
 @pytest.mark.asyncio
-async def test_mr_tagged_event(opsdroid, caplog):
+async def test_mr_labeled_event(opsdroid, caplog):
     connector = ConnectorGitlab({}, opsdroid)
 
     mock_request = amock.CoroutineMock()
@@ -895,7 +1128,7 @@ async def test_mr_changed_tag_event(opsdroid, caplog):
 
 
 @pytest.mark.asyncio
-async def test_push_commit_event(opsdroid, caplog):
+async def test_mr_approved_event(opsdroid, caplog):
     connector = ConnectorGitlab({}, opsdroid)
 
     mock_request = amock.CoroutineMock()
@@ -941,7 +1174,7 @@ async def test_push_commit_event(opsdroid, caplog):
             "merge_commit_sha": None,
             "merge_error": None,
             "merge_params": {"force_remove_source_branch": "1"},
-            "merge_status": "unchecked",
+            "merge_status": "can_be_merged",
             "merge_user_id": None,
             "merge_when_pipeline_succeeds": False,
             "milestone_id": None,
@@ -952,7 +1185,7 @@ async def test_push_commit_event(opsdroid, caplog):
             "target_project_id": 30456730,
             "time_estimate": 0,
             "title": "Test MR",
-            "updated_at": "2021-11-07 18:19:34 UTC",
+            "updated_at": "2021-11-07 20:12:18 UTC",
             "updated_by_id": 3612771,
             "url": "https://gitlab.com/FabioRosado/test-project/-/merge_requests/1",
             "source": {
@@ -1007,8 +1240,7 @@ async def test_push_commit_event(opsdroid, caplog):
             "human_time_estimate": None,
             "assignee_ids": [3612771],
             "state": "opened",
-            "action": "update",
-            "oldrev": "32117d8dffa9c0788c7a1842df1333772dc6aaf6",
+            "action": "approved",
         },
         "labels": [
             {
@@ -1024,12 +1256,7 @@ async def test_push_commit_event(opsdroid, caplog):
                 "group_id": None,
             }
         ],
-        "changes": {
-            "updated_at": {
-                "previous": "2021-11-07 18:17:29 UTC",
-                "current": "2021-11-07 18:19:34 UTC",
-            }
-        },
+        "changes": {},
         "repository": {
             "name": "test-project",
             "url": "git@gitlab.com:FabioRosado/test-project.git",

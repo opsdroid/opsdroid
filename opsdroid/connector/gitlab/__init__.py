@@ -13,6 +13,7 @@ from typing import Optional
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector import Connector
+from opsdroid.events import Event
 
 # from opsdroid.events import Message
 
@@ -99,5 +100,22 @@ class ConnectorGitlab(Connector):
         if valid and payload:
             _LOGGER.info(f"Received: {payload}")
 
+            if payload.get("event_type") == "merge_request":
+                event = await self.handle_merge_request_event(payload)
+
+            await self.opsdroid.parse(event)
             return Response(text=json.dumps("Received"), status=200)
         return Response(text=json.dumps("Unauthorized"), status=401)
+
+    async def handle_merge_request_event(self, payload: dict) -> Event:
+        """Handle Merge Request Events.
+
+        When a user opens a MR Gitlab will throw an event, then when something
+        happens within that particular MR (labels, commits, milestones), Gitlab
+        will emit new events. This method handles all of these events based on
+        the payload and builds the appropriate opsdroid events.
+
+        """
+        if not payload.get("changes"):
+            # merge_request event has no changes, so it must be a new MR
+            pass

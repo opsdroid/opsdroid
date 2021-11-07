@@ -1,0 +1,185 @@
+"""Events for the Gitlab Connector."""
+from opsdroid.events import Event
+
+
+class IssueCreated(Event):
+    """Event class that triggers when a new issue is created."""
+
+    def __init__(
+        self,
+        project: str,
+        user: str,
+        title: str,
+        description: str,
+        labels: list,
+        url: str,
+        *args,
+        **kwargs
+    ):
+        super().__init__(*args, **kwargs)
+        self.project = project
+        self.user = user
+        self.title = title
+        self.description = description
+        self.labels = labels
+        self.url = url
+
+
+class IssueClosed(Event):
+    """Event class that triggers when an issue is closed."""
+
+    def __init__(
+        self,
+        project: str,
+        user: str,
+        title: str,
+        description: str,
+        labels: list,
+        url: str,
+        *args,
+        **kwargs
+    ):
+        super().__init__(*args, **kwargs)
+        self.project = project
+        self.user = user
+        self.title = title
+        self.description = description
+        self.labels = labels
+        self.url = url
+
+
+class IssueEdited(Event):
+    """Event class that triggers when an issue is edited."""
+
+    def __init__(
+        self,
+        project: str,
+        user: str,
+        title: str,
+        description: str,
+        labels: list,
+        url: str,
+        *args,
+        **kwargs
+    ):
+        super().__init__(*args, **kwargs)
+        self.project = project
+        self.user = user
+        self.title = title
+        self.description = description
+        self.labels = labels
+
+
+class IssueLabeled(Event):
+    """Event class that triggers when an issue is labeled."""
+
+    def __init__(
+        self,
+        project: str,
+        user: str,
+        title: str,
+        description: str,
+        labels: list,
+        url: str,
+        *args,
+        **kwargs
+    ):
+        super().__init__(*args, **kwargs)
+        self.project = project
+        self.user = user
+        self.title = title
+        self.description = description
+        self.labels = labels
+        self.url = url
+
+
+class MRCreated(Event):
+    """Event class that triggers when a MR is created."""
+
+    def __init__(
+        self,
+        project: str,
+        user: str,
+        title: str,
+        description: str,
+        labels: list,
+        url: str,
+        *args,
+        **kwargs
+    ):
+        super().__init__(*args, **kwargs)
+        self.project = project
+        self.user = user
+        self.title = title
+        self.description = description
+        self.labels = labels
+        self.url = url
+
+
+class MRClosed(Event):
+    """Event class that triggers when a MR is closed."""
+
+    def __init__(
+        self,
+        project: str,
+        user: str,
+        title: str,
+        description: str,
+        labels: list,
+        url: str,
+        *args,
+        **kwargs
+    ):
+        super().__init__(*args, **kwargs)
+        self.project = project
+        self.user = user
+        self.title = title
+        self.description = description
+        self.labels = labels
+        self.url = url
+
+
+class MRLabeled(Event):
+    """Event class that triggers when a MR is created."""
+
+    def __init__(
+        self,
+        project: str,
+        user: str,
+        title: str,
+        description: str,
+        labels: list,
+        url: str,
+        *args,
+        **kwargs
+    ):
+        super().__init__(*args, **kwargs)
+        self.project = project
+        self.user = user
+        self.title = title
+        self.description = description
+        self.labels = labels
+        self.url = url
+
+
+class MRApproved(Event):
+    """Event class that triggers when a MR is created."""
+
+    def __init__(
+        self,
+        project: str,
+        user: str,
+        title: str,
+        description: str,
+        labels: list,
+        url: str,
+        *args,
+        **kwargs
+    ):
+        super().__init__(*args, **kwargs)
+        self.project = project
+        self.user = user
+        self.title = title
+        self.description = description
+        self.labels = labels
+        self.url = url
