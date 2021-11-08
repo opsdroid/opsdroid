@@ -44,6 +44,8 @@ def test_init(database):
         {
             "database": "test_db",
             "collection": "test_collection",
+            "protocol": "mongodb://",
+            "port": "1234",
             "user": "root",
             "password": "mongo",
         },
@@ -53,6 +55,7 @@ async def test_connect(database):
     """Test that the mongo database has implemented connect function properly"""
     try:
         await database.connect()
+        assert "mongodb://" in database.db_url
     except NotImplementedError:
         raise Exception
     else:

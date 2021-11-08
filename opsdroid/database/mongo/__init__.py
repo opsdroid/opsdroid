@@ -44,17 +44,18 @@ class DatabaseMongo(Database):
     async def connect(self):
         """Connect to the database."""
         host = self.config.get("host", "localhost")
+        protocol = self.config.get("protocol", "mongodb").replace("://", "")
         port = self.config.get("port", "27017")
+        if port != "27017":
+            host = f"{host}:{port}"
         database = self.config.get("database", "opsdroid")
         user = self.config.get("user")
         pwd = self.config.get("password")
         if user and pwd:
-            path = "mongodb://{user}:{pwd}@{host}:{port}".format(
-                user=user, pwd=pwd, host=host, port=port
-            )
+            self.db_url = f"{protocol}://{user}:{pwd}@{host}"
         else:
-            path = "mongodb://{host}:{port}".format(host=host, port=port)
-        self.client = AsyncIOMotorClient(path)
+            self.db_url = f"{protocol}://{host}"
+        self.client = AsyncIOMotorClient(self.db_url)
         self.database = self.client[database]
         _LOGGER.info("Connected to MongoDB.")
 
