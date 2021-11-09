@@ -1,13 +1,14 @@
 # import os
 # import logging
 # import asyncio
+# from unittest import mock
 import pytest
 import asynctest.mock as amock
 
 from opsdroid.connector.gitlab import ConnectorGitlab
 
 # import opsdroid.events as opsdroid_events
-# import opsdroid.connector.gitlab.events as gitlab_events
+import opsdroid.connector.gitlab.events as gitlab_events
 
 
 def test_init(opsdroid):
@@ -1131,9 +1132,29 @@ async def test_mr_changed_tag_event(opsdroid, caplog):
 async def test_mr_approved_event(opsdroid, caplog):
     connector = ConnectorGitlab({}, opsdroid)
 
-    mock_request = amock.CoroutineMock()
-    mock_request.json = amock.CoroutineMock()
-    mock_request.json.return_value = {
+    event = await connector.handle_merge_request_event(
+        labels=["blah"],
+        project_name="test-project",
+        username="FabioRosado",
+        url="https://gitlab.com/FabioRosado/test-project/-/merge_requests/1",
+        title="Test MR",
+        description="Test description",
+        action="approved",
+    )
+
+    assert isinstance(event, gitlab_events.MRApproved)
+    assert event.user == "FabioRosado"
+    assert event.title == "Test MR"
+    assert event.project == "test-project"
+    assert event.description == "Test description"
+    assert event.url == "https://gitlab.com/FabioRosado/test-project/-/merge_requests/1"
+    assert isinstance(event.labels, list)
+    assert "blah" in event.labels
+
+
+@pytest.mark.asyncio
+async def test_get_labels(opsdroid):
+    payload = {
         "object_kind": "merge_request",
         "event_type": "merge_request",
         "user": {
@@ -1165,7 +1186,7 @@ async def test_mr_approved_event(opsdroid, caplog):
             "assignee_id": 3612771,
             "author_id": 3612771,
             "created_at": "2021-11-07 18:14:50 UTC",
-            "description": "",
+            "description": "Test description",
             "head_pipeline_id": None,
             "id": 124957728,
             "iid": 1,
@@ -1274,4 +1295,167 @@ async def test_mr_approved_event(opsdroid, caplog):
         ],
     }
 
-    assert connector
+    connector = ConnectorGitlab({}, opsdroid)
+
+    labels = await connector.get_labels(payload)
+
+    assert "blah" in labels
+    assert isinstance(labels, list)
+
+    labels = await connector.get_labels({})
+    assert isinstance(labels, list)
+    assert labels == []
+
+
+@pytest.mark.asyncio
+async def test_get_project_name(opsdroid):
+    payload = {
+        "object_kind": "merge_request",
+        "event_type": "merge_request",
+        "user": {
+            "id": 3612771,
+            "name": "Fabio Rosado",
+            "username": "FabioRosado",
+            "avatar_url": "https://secure.gravatar.com/avatar/c13aab50cd7f21b8c340136ac4ce515a?s=80&d=identicon",
+            "email": "[REDACTED]",
+        },
+        "project": {
+            "id": 30456730,
+            "name": "test-project",
+            "description": "",
+            "web_url": "https://gitlab.com/FabioRosado/test-project",
+            "avatar_url": None,
+            "git_ssh_url": "git@gitlab.com:FabioRosado/test-project.git",
+            "git_http_url": "https://gitlab.com/FabioRosado/test-project.git",
+            "namespace": "Fabio Rosado",
+            "visibility_level": 0,
+            "path_with_namespace": "FabioRosado/test-project",
+            "default_branch": "main",
+            "ci_config_path": "",
+            "homepage": "https://gitlab.com/FabioRosado/test-project",
+            "url": "git@gitlab.com:FabioRosado/test-project.git",
+            "ssh_url": "git@gitlab.com:FabioRosado/test-project.git",
+            "http_url": "https://gitlab.com/FabioRosado/test-project.git",
+        },
+        "object_attributes": {
+            "assignee_id": 3612771,
+            "author_id": 3612771,
+            "created_at": "2021-11-07 18:14:50 UTC",
+            "description": "Test description",
+            "head_pipeline_id": None,
+            "id": 124957728,
+            "iid": 1,
+            "last_edited_at": None,
+            "last_edited_by_id": None,
+            "merge_commit_sha": None,
+            "merge_error": None,
+            "merge_params": {"force_remove_source_branch": "1"},
+            "merge_status": "can_be_merged",
+            "merge_user_id": None,
+            "merge_when_pipeline_succeeds": False,
+            "milestone_id": None,
+            "source_branch": "test",
+            "source_project_id": 30456730,
+            "state_id": 1,
+            "target_branch": "main",
+            "target_project_id": 30456730,
+            "time_estimate": 0,
+            "title": "Test MR",
+            "updated_at": "2021-11-07 20:12:18 UTC",
+            "updated_by_id": 3612771,
+            "url": "https://gitlab.com/FabioRosado/test-project/-/merge_requests/1",
+            "source": {
+                "id": 30456730,
+                "name": "test-project",
+                "description": "",
+                "web_url": "https://gitlab.com/FabioRosado/test-project",
+                "avatar_url": None,
+                "git_ssh_url": "git@gitlab.com:FabioRosado/test-project.git",
+                "git_http_url": "https://gitlab.com/FabioRosado/test-project.git",
+                "namespace": "Fabio Rosado",
+                "visibility_level": 0,
+                "path_with_namespace": "FabioRosado/test-project",
+                "default_branch": "main",
+                "ci_config_path": "",
+                "homepage": "https://gitlab.com/FabioRosado/test-project",
+                "url": "git@gitlab.com:FabioRosado/test-project.git",
+                "ssh_url": "git@gitlab.com:FabioRosado/test-project.git",
+                "http_url": "https://gitlab.com/FabioRosado/test-project.git",
+            },
+            "target": {
+                "id": 30456730,
+                "name": "test-project",
+                "description": "",
+                "web_url": "https://gitlab.com/FabioRosado/test-project",
+                "avatar_url": None,
+                "git_ssh_url": "git@gitlab.com:FabioRosado/test-project.git",
+                "git_http_url": "https://gitlab.com/FabioRosado/test-project.git",
+                "namespace": "Fabio Rosado",
+                "visibility_level": 0,
+                "path_with_namespace": "FabioRosado/test-project",
+                "default_branch": "main",
+                "ci_config_path": "",
+                "homepage": "https://gitlab.com/FabioRosado/test-project",
+                "url": "git@gitlab.com:FabioRosado/test-project.git",
+                "ssh_url": "git@gitlab.com:FabioRosado/test-project.git",
+                "http_url": "https://gitlab.com/FabioRosado/test-project.git",
+            },
+            "last_commit": {
+                "id": "fcad4dba40a75eb106df49e90dd7eb162ac95589",
+                "message": "Add new commit\n",
+                "title": "Add new commit",
+                "timestamp": "2021-11-07T18:19:26+00:00",
+                "url": "https://gitlab.com/FabioRosado/test-project/-/commit/fcad4dba40a75eb106df49e90dd7eb162ac95589",
+                "author": {"name": "FabioRosado", "email": "fabioglrosado@gmail.com"},
+            },
+            "work_in_progress": False,
+            "total_time_spent": 0,
+            "time_change": 0,
+            "human_total_time_spent": None,
+            "human_time_change": None,
+            "human_time_estimate": None,
+            "assignee_ids": [3612771],
+            "state": "opened",
+            "action": "approved",
+        },
+        "labels": [
+            {
+                "id": 22478750,
+                "title": "blah",
+                "color": "#ff0000",
+                "project_id": 30456730,
+                "created_at": "2021-11-07 18:17:22 UTC",
+                "updated_at": "2021-11-07 18:17:22 UTC",
+                "template": False,
+                "description": None,
+                "type": "ProjectLabel",
+                "group_id": None,
+            }
+        ],
+        "changes": {},
+        "repository": {
+            "name": "test-project",
+            "url": "git@gitlab.com:FabioRosado/test-project.git",
+            "description": "",
+            "homepage": "https://gitlab.com/FabioRosado/test-project",
+        },
+        "assignees": [
+            {
+                "id": 3612771,
+                "name": "Fabio Rosado",
+                "username": "FabioRosado",
+                "avatar_url": "https://secure.gravatar.com/avatar/c13aab50cd7f21b8c340136ac4ce515a?s=80&d=identicon",
+                "email": "[REDACTED]",
+            }
+        ],
+    }
+
+    connector = ConnectorGitlab({}, opsdroid)
+
+    project_name = await connector.get_project_name(payload)
+
+    assert project_name == "test-project"
+
+    project_name = await connector.get_project_name({})
+
+    assert project_name == ""

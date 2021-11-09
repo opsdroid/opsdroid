@@ -10,6 +10,7 @@ from aiohttp.web_response import Response
 
 
 from typing import Optional
+from opsdroid.connector.gitlab.events import MRApproved, MRClosed, MRCreated
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector import Connector
@@ -98,16 +99,64 @@ class ConnectorGitlab(Connector):
             )
 
         if valid and payload:
-            _LOGGER.info(f"Received: {payload}")
+            attributes = payload.get("object_attributes", {})
+            labels = await self.get_labels(payload)
+            project_name = await self.get_project_name(payload)
+            username = await self.get_username(payload)
+            url = attributes.get("url", "")
+            description = attributes.get("description")
+            title = attributes.get("title")
 
             if payload.get("event_type") == "merge_request":
-                event = await self.handle_merge_request_event(payload)
+                event = await self.handle_merge_request_event(
+                    labels=labels,
+                    project_name=project_name,
+                    username=username,
+                    url=url,
+                    title=title,
+                    action=attributes.get("action"),
+                    description=description,
+                )
 
             await self.opsdroid.parse(event)
             return Response(text=json.dumps("Received"), status=200)
         return Response(text=json.dumps("Unauthorized"), status=401)
 
-    async def handle_merge_request_event(self, payload: dict) -> Event:
+    async def get_labels(self, payload: dict) -> list:
+        """Get labels from labels payload.
+
+        Gitlab returns a list of dictionaries for each label added,
+        we want to get a list of label titles only. This method will
+        return just that.
+
+        """
+        labels = payload.get("labels", [])
+        return [label["title"] for label in labels]
+
+    async def get_project_name(self, payload: dict) -> str:
+        """Get project name from payload.
+
+        Helper method to get project name from the project section
+        of the payload.
+
+        """
+        return payload.get("project", {}).get("name", "")
+
+    async def get_username(self, payload: dict) -> str:
+        """Get username from payload."""
+
+        return payload.get("user", {}).get("username", "")
+
+    async def handle_merge_request_event(
+        self,
+        labels: list,
+        project_name: str,
+        username: str,
+        url: str,
+        title: str,
+        action: str,
+        description: str,
+    ) -> Event:
         """Handle Merge Request Events.
 
         When a user opens a MR Gitlab will throw an event, then when something
@@ -116,6 +165,31 @@ class ConnectorGitlab(Connector):
         the payload and builds the appropriate opsdroid events.
 
         """
-        if not payload.get("changes"):
-            # merge_request event has no changes, so it must be a new MR
-            pass
+        if action == "approved":
+            event = MRApproved(
+                project=project_name,
+                user=username,
+                title=title,
+                description=description,
+                url=url,
+                labels=labels,
+            )
+        elif action == "opened":
+            event = MRCreated(
+                project=project_name,
+                user=username,
+                title=title,
+                description=description,
+                url=url,
+                labels=labels,
+            )
+        elif action == "closed":
+            event = MRClosed(
+                project=project_name,
+                user=username,
+                title=title,
+                description=description,
+                url=url,
+                labels=labels,
+            )
+        return event
