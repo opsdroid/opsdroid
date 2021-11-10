@@ -1,6 +1,6 @@
 # Command line
 
-When installing opsdroid a command line utility is created for starting the bot and managing the bot configuration.
+opsdroid를 설치할 때 봇을 시작하고 봇 환경설정을 관리하는 커맨드 라인 유틸리티가 생성됩니다.
 
 ```
 $ opsdroid start

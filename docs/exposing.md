@@ -1,19 +1,17 @@
 # Exposing Opsdroid via tunnels
 
-Many chat connectors require your Opsdroid instance to be accessible on the public internet. This is because
-they send events to Opsdroid by calling HTTP endpoints directly.
+많은 챗 커넥터가 공용 인터넷에 접근하기 위해 opsdroid의 인스턴스를 필요로 합니다. HTTP 엔드포인트를 바로 호출하는 것으로 opsdroid에 이벤트를 보내기 때문입니다.
 
-You may choose to run Opsdroid on an internet facing machine such as a VM from a cloud vendor. You also have the option
-to configure DNS (or at home [Dynamic DNS](https://www.duckdns.org/)) and open up ports on your router.
+클라우드 기업의 가상머신 같은 인터넷을 대면하는 머신으로 opsdroid를 작동하는걸 고를 것입니다. 또한 DNS를(또는 집에서 [Dynamic DNS](https://www.duckdns.org/)) 설정하여 라우터의 포트를 여는 선택지도 있습니다.
 
-Alternatively you can tunnel traffic to Opsdroid through a variety of services. This page documents many of those tunneling options.
+또는 다양한 서비스를 통해 트래픽을 opsdroid로 터널링할 수 있습니다. 이 페이지는 많은 터널링 옵션을 설명합니다.
 
-Most connectors will read the `web.base-url` config option and configure things for you, but this is not always the case.
-For some connectors you may need to configure the URL of your bot yourself. See your specific connector's docs for info.
+대부분의 커넥터는 `web.base-url` 설정 옵션을 읽어들이고 설정을 해주지만, 항상 그런 케이스는 아닙니다.
+일부 커넥터는 봇의 URL을 직접 설정해줘야 할 것입니다. 정보를 위해 특정 커넥터의 문서를 확인해보세요.
 
 ```eval_rst
 .. note::
-    As this page documents third-party tools and sevices it may become out of date. If you notice any errors or omissions please
+    이 페이지는 타사의 툴과 서비스를 기록하므로 오래된 문서일 수 있습니다. If you notice any errors or omissions please
     consider `raising a Pull Request <https://github.com/opsdroid/opsdroid/edit/master/docs/exposing.md>`_.
 ```
 
@@ -27,7 +25,7 @@ For some connectors you may need to configure the URL of your bot yourself. See 
 
 **Website:** [https://ngrok.com/](https://ngrok.com/)
 
-Ngrok forwards any local web server to the internet via HTTP/HTTPS.
+Ngrok은 HTTP/HTTPS를 통해서 로컬 웹서버를 인터넷으로 포워딩합니다.
 
 ### Install
 
@@ -36,7 +34,7 @@ See the [official instructions](https://ngrok.com/download).
 
 ### Start tunnel
 
-Opsdroid will run on port `8080` by default so let's start an HTTP tunnel to that port.
+opsdroid는 기본값으로 8080포트에서 동작할 것이므로 포트에 HTTP 터널링을 시작해봅시다.
 
 ```console
 $ ngrok http 8080
@@ -60,7 +58,7 @@ Connections                   ttl     opn     rt1     rt5     p50     p90
 $ opsdroid config edit
 ```
 
-Add the following to your config.
+다음을 환경 설정에 추가해주세요.
 
 
 ```yaml
@@ -85,9 +83,9 @@ INFO opsdroid.core: Opsdroid is now running, press ctrl+c to exit.
 
 ### Running as a service
 
-It is likely that you are running Opsdroid as a service via something like systemd or Docker.
+systemd나 도커 등을 통해 opsdroid를 서비스로 실행하고 있을것으로 예상됩니다.
 
-You can also run Ngrok as a service via [systemd](https://github.com/vincenthsu/systemd-ngrok) and [Docker](https://hub.docker.com/r/wernight/ngrok/).
+Ngrok 또한 [systemd](https://github.com/vincenthsu/systemd-ngrok)와 [Docker](https://hub.docker.com/r/wernight/ngrok/)를 통해 서비스로써 실행할 수 있습니다.
 
 ## PageKite
 
@@ -99,23 +97,22 @@ You can also run Ngrok as a service via [systemd](https://github.com/vincenthsu/
 
 **Website:** [https://pagekite.net/](https://pagekite.net/)
 
-PageKite forwards any local web server to the internet via HTTP/HTTPS.
+PageKite는 HTTP/HTTPS를 통해서 로컬 웹서버를 인터넷으로 포워딩합니다.
 
 ### Install
 
-See the [official instructions](https://pagekite.net/downloads).
+[official instructions](https://pagekite.net/downloads)를 확인하세요.
 
 
 ### Start tunnel
 
-Opsdroid will run on port `8080` by default so let's start an HTTP tunnel to that port.
+opsdroid는 기본값으로 8080포트에서 동작할 것이므로 포트에 HTTP 터널링을 시작해봅시다.
 
 ```console
 $ pagekite 8080 YOUR_CHOSEN_SUBDOMAIN.pagekite.me
 ```
 
-You will then be prompted to answer some questions and enter your email address. Once you have clicked the
-link in the email your session should start.
+그 다음 몇 가지 질문에 대답하고 이메일 주소를 입력하라는 메시지가 표시될 겁니다. 일단 이메일에 있는 링크를 클릭했다면 세션이 시작되어야 합니다.
 
 ```
 >>> Hello! This is pagekite v1.5.2.201011.                      [CTRL+C = Stop]
@@ -136,7 +133,7 @@ link in the email your session should start.
 $ opsdroid config edit
 ```
 
-Add the following to your config.
+다음을 환경 설정에 추가해주세요.
 
 
 ```yaml
@@ -155,9 +152,9 @@ INFO opsdroid.core: Opsdroid is now running, press ctrl+c to exit.
 
 ### Running as a service
 
-It is likely that you are running Opsdroid as a service via something like systemd or Docker.
+systemd나 도커 등을 통해 opsdroid를 서비스로 실행하고 있을것으로 예상됩니다.
 
-You can also run PageKite as a serivce, [see their FAQ](https://pagekite.net/wiki/HowTo/) for info.
+PageKite 또한 서비스로써 실행할 수 있습니다. [see their FAQ](https://pagekite.net/wiki/HowTo/) 를 확인하세요.
 
 ## LocalTunnel
 
@@ -169,16 +166,16 @@ You can also run PageKite as a serivce, [see their FAQ](https://pagekite.net/wik
 
 **Website:** [https://localtunnel.github.io/www/](https://localtunnel.github.io/www/)
 
-LocalTunnel forwards any local web server to the internet via HTTP/HTTPS.
+LocalTunnel는 HTTP/HTTPS를 통해서 로컬 웹서버를 인터넷으로 포워딩합니다.
 
 ### Install
 
-See the [official instructions](https://localtunnel.github.io/www/).
+[official instructions](https://localtunnel.github.io/www/)를 확인하세요.
 
 
 ### Start tunnel
 
-Opsdroid will run on port `8080` by default so let's start an HTTP tunnel to that port.
+opsdroid는 기본값으로 8080포트에서 동작할 것이므로 포트에 HTTP 터널링을 시작해봅시다.
 
 ```console
 $ lt --port 8080 --subdomain YOUR_CHOSEN_SUBDOMAIN
@@ -191,7 +188,7 @@ your url is: https://LOCALTUNNEL_URL.loca.lt
 $ opsdroid config edit
 ```
 
-Add the following to your config.
+다음을 환경 설정에 추가해주세요.
 
 
 ```yaml
@@ -224,16 +221,16 @@ INFO opsdroid.core: Opsdroid is now running, press ctrl+c to exit.
 
 **Website:** [http://localhost.run/](http://localhost.run/)
 
-localhost.run uses SSH to port forward a local service to an HTTP/HTTPS endpoint.
+localhost.run 은 HTTP/HTTPS 엔드포인트로 로컬 서비스를 포워딩하기 위해 SSH를 포트로 사용합니다.
 
 ### Install
 
-localhost.run uses SSH, so there is nothing to install.
+localhost.run은 SSH를 사용하므로, 설치할 것이 없습니다.
 
 
 ### Start tunnel
 
-Opsdroid will run on port `8080` by default so let's start an HTTP tunnel to that port.
+opsdroid는 기본값으로 8080포트에서 동작할 것이므로 포트에 HTTP 터널링을 시작해봅시다.
 
 ```console
 $ ssh -R 80:localhost:8080 ssh.localhost.run
@@ -266,7 +263,7 @@ Connect to http://LOCALHOST_RUN_URL.localhost.run
 $ opsdroid config edit
 ```
 
-Add the following to your config.
+다음을 환경 설정에 추가해주세요.
 
 
 ```yaml
@@ -299,22 +296,22 @@ INFO opsdroid.core: Opsdroid is now running, press ctrl+c to exit.
 
 **Website:** [https://docs.inlets.dev/](https://docs.inlets.dev/)
 
-Inlets is a client/server application which tunnels traffic between them. You run the server on a machine with a public
-IP and the client inside your network.
+Inlets은 서로간의 트래픽을 터널링하는 클라이언트/서버 어플리케이션입니다. 공용 IP와 네트워크 안에 클라이언트가 있는 컴퓨터에서 서버를 실행합니다.
 
-Inlets also [has support for Kubernetes](https://github.com/inlets/inlets-operator) to simplify exposing your services to the internet.
+
+Inlets은 또한 서비스를 인터넷에 노출시키는 것을 간소화하기 위해 [Kubernetes를 위한 지원](https://github.com/inlets/inlets-operator)을 하고 있습니다
 
 ### Install
 
-To install inlets you must install both the client and server applications.
+Inlets을 설치하기 위해서 클라이언트와 서버 어플리케이션 모두 설치해야 합니다
 
-On your local machine install the client following the [official instructions](https://github.com/inlets/inlets#get-inlets).
+로컬 컴퓨터에는 다음 지침을 따르는 클라이언트를 설치하세요 [official instructions](https://github.com/inlets/inlets#get-inlets).
 
-To install the server you must first create an exit-node server with a public IP address. Inlets [has many scripts](https://github.com/inlets/inlets/tree/master/hack) for creating one automatically for you from a variety of cloud vendors. Alternatively you can install it yourself on a VM and set it to run as a service with [this script](https://github.com/inlets/inlets/blob/master/hack/userdata.sh).
+서버를 설치하기 위해서 공용 IP주소를 가진 exit-node 서버를 생성해야 합니다. Inlet은 다양한 클라우드 기업으로부터 자동적으로 하나를 생성해주는[많은 스크립트](https://github.com/inlets/inlets/tree/master/hack)가 있습니다. 또는 [이 스크립트로](https://github.com/inlets/inlets/blob/master/hack/userdata.sh)서비스로써 실행시키기 위해 가상머신에 직접 설치하고 설정할 수 있습니다.
 
-For the sake of this guide we are going to create an inlet on Digital Ocean, which will cost $5/month, using the official script. First we must [install doctl](https://github.com/digitalocean/doctl) and [authenticate](https://github.com/digitalocean/doctl#authenticating-with-digitalocean).
+이 가이드를 위해 디지털 오션에 공식 스크립트를 사용하여 한달에 5$ 비용이 드는  inlet을 생성할 것입니다. 먼저 [doctl 설치와](https://github.com/digitalocean/doctl) and [인증](https://github.com/digitalocean/doctl#authenticating-with-digitalocean)을 해야합니다.
 
-Then we can download and run the DO script.
+그 다음 DO스크립트를 다운로드하고 실행할 수 있습니다.
 
 ```console
 $ git clone https://github.com/inlets/inlets.git
@@ -329,7 +326,7 @@ Login: ssh root@DROPLET_IP
 To destroy this droplet run: doctl compute droplet delete -f DROPLET_NAME
 ```
 
-Once you have your inlets server running you must take note of the server token. We can do this by using SSH to connect to the droplet and checking the logs.
+Once you have your inlets server running you must take note of the server token. 일단 inlets 서버가 실행되면 서버 토큰을 기록해야 합니다. SSH를 사용하여 droplet과 연결하고 로그를 확인하여 수행할 수 있습니다.
 
 ```console
 $ ssh root@DROPLET_IP
@@ -349,11 +346,11 @@ Nov 02 12:24:15 inlets7c442412 inlets[1789]: 2020/11/02 12:24:15 Control Plane L
 Nov 02 12:24:15 inlets7c442412 inlets[1789]: 2020/11/02 12:24:15 Data Plane Listening on :80
 ```
 
-Here we can see the SERVER_TOKEN in the output which we will need to open the tunnel.
+여기서 출력내용에 터널을 열기위해 필요한 SERVER_TOKEN을 볼 수 있습니다.
 
 ### Start tunnel
 
-Opsdroid will run on port `8080` by default so let's start an HTTP tunnel to that port. We need to specify the IP of the droplet, the local connection and the token.
+opsdroid는 기본값으로 8080포트에서 동작할 것이므로 포트에 HTTP 터널링을 시작해봅시다. droplet의 IP, 로컬 연결, 토큰을 지정해줘야 합니다.
 
 ```console
 $ inlets client \
@@ -368,7 +365,7 @@ $ inlets client \
 $ opsdroid config edit
 ```
 
-Add the following to your config.
+다음을 환경 설정에 추가해주세요.
 
 
 ```yaml
