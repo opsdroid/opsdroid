@@ -184,8 +184,8 @@ class OpsDroid:
         if len(self.skills) == 0:
             self.critical(_("No skills in configuration, at least 1 required"), 1)
 
+        await self.start_databases()
         await self.start_connectors()
-        self.create_task(self.start_databases())
         self.create_task(self.watch_paths())
         self.create_task(parse_crontab(self))
         self.create_task(self.web_server.start())
