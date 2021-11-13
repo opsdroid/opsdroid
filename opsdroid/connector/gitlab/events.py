@@ -1,4 +1,6 @@
 """Events for the Gitlab Connector."""
+from typing import Optional
+
 from opsdroid.events import Event
 
 
@@ -9,8 +11,8 @@ class IssueCreated(Event):
         self,
         project: str,
         user: str,
-        title: str,
-        description: str,
+        title: Optional[str],
+        description: Optional[str],
         labels: list,
         url: str,
         *args,
@@ -32,8 +34,8 @@ class IssueClosed(Event):
         self,
         project: str,
         user: str,
-        title: str,
-        description: str,
+        title: Optional[str],
+        description: Optional[str],
         labels: list,
         url: str,
         *args,
@@ -55,8 +57,8 @@ class IssueEdited(Event):
         self,
         project: str,
         user: str,
-        title: str,
-        description: str,
+        title: Optional[str],
+        description: Optional[str],
         labels: list,
         url: str,
         *args,
@@ -77,8 +79,8 @@ class IssueLabeled(Event):
         self,
         project: str,
         user: str,
-        title: str,
-        description: str,
+        title: Optional[str],
+        description: Optional[str],
         labels: list,
         url: str,
         *args,
@@ -100,8 +102,8 @@ class MRCreated(Event):
         self,
         project: str,
         user: str,
-        title: str,
-        description: str,
+        title: Optional[str],
+        description: Optional[str],
         labels: list,
         url: str,
         *args,
@@ -123,8 +125,8 @@ class MRClosed(Event):
         self,
         project: str,
         user: str,
-        title: str,
-        description: str,
+        title: Optional[str],
+        description: Optional[str],
         labels: list,
         url: str,
         *args,
@@ -139,15 +141,15 @@ class MRClosed(Event):
         self.url = url
 
 
-class MRLabeled(Event):
+class MRLabelUpdated(Event):
     """Event class that triggers when a MR is created."""
 
     def __init__(
         self,
         project: str,
         user: str,
-        title: str,
-        description: str,
+        title: Optional[str],
+        description: Optional[str],
         labels: list,
         url: str,
         *args,
@@ -169,8 +171,8 @@ class MRApproved(Event):
         self,
         project: str,
         user: str,
-        title: str,
-        description: str,
+        title: Optional[str],
+        description: Optional[str],
         labels: list,
         url: str,
         *args,

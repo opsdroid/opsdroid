@@ -1,24 +1,66 @@
 """A connector for Gitlab."""
 # import asyncio
+import dataclasses
 import json
 
 # import aiohttp
 import logging
+from typing import Optional
 
 from aiohttp.web_request import Request
 from aiohttp.web_response import Response
-
-
-from typing import Optional
-from opsdroid.connector.gitlab.events import MRApproved, MRClosed, MRCreated
-
-from opsdroid.core import OpsDroid
 from opsdroid.connector import Connector
+from opsdroid.connector.gitlab.events import (
+    MRApproved,
+    MRClosed,
+    MRCreated,
+    MRLabelUpdated,
+)
+from opsdroid.core import OpsDroid
 from opsdroid.events import Event
 
 # from opsdroid.events import Message
 
 # from . import events as gitlab_events
+
+
+@dataclasses.dataclass
+class GitlabPayload:
+    attributes: dict
+    changes: dict
+    labels: list
+    project_name: str
+    url: str
+    description: Optional[str]
+    title: Optional[str]
+    username: str
+    action: Optional[str]
+    raw_payload: dict
+
+    @classmethod
+    def from_dict(cls, payload: dict):
+        labels = payload.get("labels", [])
+        attributes = payload.get("object_attributes", {})
+        changes = payload.get("changes", {})
+        project_name = payload.get("project", {}).get("name", "")
+        username = payload.get("user", {}).get("username", "")
+        url = attributes.get("url", "")
+        description = attributes.get("description")
+        title = attributes.get("title")
+        action = attributes.get("action")
+
+        return cls(
+            attributes=attributes,
+            changes=changes,
+            labels=[label["title"] for label in labels],
+            project_name=project_name,
+            url=url,
+            description=description,
+            title=title,
+            username=username,
+            action=action,
+            raw_payload=payload,
+        )
 
 
 CONFIG_SCHEMA = {"webhook-token": str, "forward-url": str}
@@ -99,64 +141,15 @@ class ConnectorGitlab(Connector):
             )
 
         if valid and payload:
-            attributes = payload.get("object_attributes", {})
-            labels = await self.get_labels(payload)
-            project_name = await self.get_project_name(payload)
-            username = await self.get_username(payload)
-            url = attributes.get("url", "")
-            description = attributes.get("description")
-            title = attributes.get("title")
-
+            gitlab_payload = GitlabPayload.from_dict(payload=payload)
             if payload.get("event_type") == "merge_request":
-                event = await self.handle_merge_request_event(
-                    labels=labels,
-                    project_name=project_name,
-                    username=username,
-                    url=url,
-                    title=title,
-                    action=attributes.get("action"),
-                    description=description,
-                )
+                event = await self.handle_merge_request_event(payload=gitlab_payload)
 
             await self.opsdroid.parse(event)
             return Response(text=json.dumps("Received"), status=200)
         return Response(text=json.dumps("Unauthorized"), status=401)
 
-    async def get_labels(self, payload: dict) -> list:
-        """Get labels from labels payload.
-
-        Gitlab returns a list of dictionaries for each label added,
-        we want to get a list of label titles only. This method will
-        return just that.
-
-        """
-        labels = payload.get("labels", [])
-        return [label["title"] for label in labels]
-
-    async def get_project_name(self, payload: dict) -> str:
-        """Get project name from payload.
-
-        Helper method to get project name from the project section
-        of the payload.
-
-        """
-        return payload.get("project", {}).get("name", "")
-
-    async def get_username(self, payload: dict) -> str:
-        """Get username from payload."""
-
-        return payload.get("user", {}).get("username", "")
-
-    async def handle_merge_request_event(
-        self,
-        labels: list,
-        project_name: str,
-        username: str,
-        url: str,
-        title: str,
-        action: str,
-        description: str,
-    ) -> Event:
+    async def handle_merge_request_event(self, payload: GitlabPayload) -> Event:
         """Handle Merge Request Events.
 
         When a user opens a MR Gitlab will throw an event, then when something
@@ -165,31 +158,45 @@ class ConnectorGitlab(Connector):
         the payload and builds the appropriate opsdroid events.
 
         """
-        if action == "approved":
+        if payload.action == "approved":
             event = MRApproved(
-                project=project_name,
-                user=username,
-                title=title,
-                description=description,
-                url=url,
-                labels=labels,
+                project=payload.project_name,
+                user=payload.username,
+                title=payload.title,
+                description=payload.description,
+                url=payload.url,
+                labels=payload.labels,
             )
-        elif action == "opened":
+        elif payload.action == "opened":
             event = MRCreated(
-                project=project_name,
-                user=username,
-                title=title,
-                description=description,
-                url=url,
-                labels=labels,
+                project=payload.project_name,
+                user=payload.username,
+                title=payload.title,
+                description=payload.description,
+                url=payload.url,
+                labels=payload.labels,
             )
-        elif action == "closed":
+        elif payload.action == "closed":
             event = MRClosed(
-                project=project_name,
-                user=username,
-                title=title,
-                description=description,
-                url=url,
-                labels=labels,
+                project=payload.project_name,
+                user=payload.username,
+                title=payload.title,
+                description=payload.description,
+                url=payload.url,
+                labels=payload.labels,
             )
+        elif payload.action == "update" and (
+            labels := payload.changes.get("labels", {})
+        ):
+            updated_labels = labels.get("current", [])
+            labels = [label["title"] for label in updated_labels]
+            event = MRLabelUpdated(
+                project=payload.project_name,
+                user=payload.username,
+                title=payload.title,
+                description=payload.description,
+                labels=payload.labels,
+                url=payload.url,
+            )
+
         return event
