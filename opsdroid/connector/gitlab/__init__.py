@@ -11,6 +11,11 @@ from aiohttp.web_request import Request
 from aiohttp.web_response import Response
 from opsdroid.connector import Connector
 from opsdroid.connector.gitlab.events import (
+    GenericIssueEvent,
+    GenericMREvent,
+    IssueClosed,
+    IssueCreated,
+    IssueEdited,
     MRApproved,
     MRClosed,
     MRCreated,
@@ -39,6 +44,7 @@ class GitlabPayload:
 
     @classmethod
     def from_dict(cls, payload: dict):
+        """Create the GitlabPayload object from a dictionary."""
         labels = payload.get("labels", [])
         attributes = payload.get("object_attributes", {})
         changes = payload.get("changes", {})
@@ -47,7 +53,7 @@ class GitlabPayload:
         url = attributes.get("url", "")
         description = attributes.get("description")
         title = attributes.get("title")
-        action = attributes.get("action")
+        action = attributes.get("action") or attributes.get("state")
 
         return cls(
             attributes=attributes,
@@ -144,7 +150,8 @@ class ConnectorGitlab(Connector):
             gitlab_payload = GitlabPayload.from_dict(payload=payload)
             if payload.get("event_type") == "merge_request":
                 event = await self.handle_merge_request_event(payload=gitlab_payload)
-
+            elif payload.get("event_type") == "issue":
+                event = await self.handle_issue_event(payload=gitlab_payload)
             await self.opsdroid.parse(event)
             return Response(text=json.dumps("Received"), status=200)
         return Response(text=json.dumps("Unauthorized"), status=401)
@@ -191,6 +198,59 @@ class ConnectorGitlab(Connector):
             updated_labels = labels.get("current", [])
             labels = [label["title"] for label in updated_labels]
             event = MRLabelUpdated(
+                project=payload.project_name,
+                user=payload.username,
+                title=payload.title,
+                description=payload.description,
+                labels=payload.labels,
+                url=payload.url,
+            )
+        else:
+            event = GenericMREvent(
+                project=payload.project_name,
+                user=payload.username,
+                title=payload.title,
+                description=payload.description,
+                labels=payload.labels,
+                url=payload.url,
+            )
+
+        return event
+
+    async def handle_issue_event(self, payload: GitlabPayload) -> Event:
+        """Handle issues events.
+
+        # TODO: Need to handle issue labeled event
+        """
+        if payload.action == "opened":
+            event = IssueCreated(
+                project=payload.project_name,
+                user=payload.username,
+                title=payload.title,
+                description=payload.description,
+                labels=payload.labels,
+                url=payload.url,
+            )
+        elif payload.action == "close":
+            event = IssueClosed(
+                project=payload.project_name,
+                user=payload.username,
+                title=payload.title,
+                description=payload.description,
+                labels=payload.labels,
+                url=payload.url,
+            )
+        elif payload.action == "update" and payload.changes.get("last_edited_at"):
+            event = IssueEdited(
+                project=payload.project_name,
+                user=payload.username,
+                title=payload.title,
+                description=payload.description,
+                labels=payload.labels,
+                url=payload.url,
+            )
+        else:
+            event = GenericIssueEvent(
                 project=payload.project_name,
                 user=payload.username,
                 title=payload.title,
