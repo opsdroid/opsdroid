@@ -11,6 +11,7 @@ from aiohttp.web_request import Request
 from aiohttp.web_response import Response
 from opsdroid.connector import Connector
 from opsdroid.connector.gitlab.events import (
+    GenericGitlabEvent,
     GenericIssueEvent,
     GenericMREvent,
     IssueClosed,
@@ -50,6 +51,7 @@ class GitlabPayload:
         changes = payload.get("changes", {})
         project_name = payload.get("project", {}).get("name", "")
         username = payload.get("user", {}).get("username", "")
+        # TODO: Some events don't have object attributes, handle that case here!
         url = attributes.get("url", "")
         description = attributes.get("description")
         title = attributes.get("title")
@@ -152,6 +154,18 @@ class ConnectorGitlab(Connector):
                 event = await self.handle_merge_request_event(payload=gitlab_payload)
             elif payload.get("event_type") == "issue":
                 event = await self.handle_issue_event(payload=gitlab_payload)
+            else:
+                event = GenericGitlabEvent(
+                    project=gitlab_payload.project_name,
+                    user=gitlab_payload.username,
+                    title=gitlab_payload.title,
+                    description=gitlab_payload.description,
+                    url=gitlab_payload.url,
+                    labels=gitlab_payload.labels,
+                    target=gitlab_payload.url,
+                    connector=self,
+                    raw_event=gitlab_payload.raw_payload,
+                )
             await self.opsdroid.parse(event)
             return Response(text=json.dumps("Received"), status=200)
         return Response(text=json.dumps("Unauthorized"), status=401)
@@ -173,6 +187,9 @@ class ConnectorGitlab(Connector):
                 description=payload.description,
                 url=payload.url,
                 labels=payload.labels,
+                target=payload.url,
+                connector=self,
+                raw_event=payload.raw_payload,
             )
         elif payload.action == "opened":
             event = MRCreated(
@@ -180,8 +197,11 @@ class ConnectorGitlab(Connector):
                 user=payload.username,
                 title=payload.title,
                 description=payload.description,
-                url=payload.url,
                 labels=payload.labels,
+                url=payload.url,
+                target=payload.url,
+                connector=self,
+                raw_event=payload.raw_payload,
             )
         elif payload.action == "closed":
             event = MRClosed(
@@ -191,6 +211,9 @@ class ConnectorGitlab(Connector):
                 description=payload.description,
                 url=payload.url,
                 labels=payload.labels,
+                target=payload.url,
+                connector=self,
+                raw_event=payload.raw_payload,
             )
         elif payload.action == "update" and (
             labels := payload.changes.get("labels", {})
@@ -204,6 +227,9 @@ class ConnectorGitlab(Connector):
                 description=payload.description,
                 labels=payload.labels,
                 url=payload.url,
+                target=payload.url,
+                connector=self,
+                raw_event=payload.raw_payload,
             )
         else:
             event = GenericMREvent(
@@ -213,6 +239,9 @@ class ConnectorGitlab(Connector):
                 description=payload.description,
                 labels=payload.labels,
                 url=payload.url,
+                target=payload.url,
+                connector=self,
+                raw_event=payload.raw_payload,
             )
 
         return event
@@ -230,6 +259,9 @@ class ConnectorGitlab(Connector):
                 description=payload.description,
                 labels=payload.labels,
                 url=payload.url,
+                target=payload.url,
+                connector=self,
+                raw_event=payload.raw_payload,
             )
         elif payload.action == "close":
             event = IssueClosed(
@@ -239,6 +271,9 @@ class ConnectorGitlab(Connector):
                 description=payload.description,
                 labels=payload.labels,
                 url=payload.url,
+                target=payload.url,
+                connector=self,
+                raw_event=payload.raw_payload,
             )
         elif payload.action == "update" and payload.changes.get("last_edited_at"):
             event = IssueEdited(
@@ -248,6 +283,9 @@ class ConnectorGitlab(Connector):
                 description=payload.description,
                 labels=payload.labels,
                 url=payload.url,
+                target=payload.url,
+                connector=self,
+                raw_event=payload.raw_payload,
             )
         else:
             event = GenericIssueEvent(
@@ -257,6 +295,9 @@ class ConnectorGitlab(Connector):
                 description=payload.description,
                 labels=payload.labels,
                 url=payload.url,
+                target=payload.url,
+                connector=self,
+                raw_event=payload.raw_payload,
             )
 
         return event
