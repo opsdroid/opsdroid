@@ -1,15 +1,10 @@
-# import os
-# import asyncio
-# from unittest import mock
-# import json
 import logging
+import pytest
 from pathlib import Path
 
 import asynctest.mock as amock
 
-# import opsdroid.events as opsdroid_events
 import opsdroid.connector.gitlab.events as gitlab_events
-import pytest
 from opsdroid.connector.gitlab import ConnectorGitlab
 from opsdroid.matchers import match_event
 from opsdroid.testing import call_endpoint, running_opsdroid
@@ -69,6 +64,19 @@ def test_base_url(opsdroid):
 
 
 @pytest.mark.asyncio
+async def test_gitlab_webhook_handler_excepion(caplog):
+    caplog.set_level(logging.DEBUG)
+    connector = ConnectorGitlab({"name": "gitlab"})
+    mocked_request = amock.CoroutineMock()
+    mocked_request.json.side_effect = Exception()
+
+    resp = await connector.gitlab_webhook_handler(mocked_request)
+
+    assert resp.status == 400
+    assert "Unable to get JSON from request" in caplog.text
+
+
+@pytest.mark.asyncio
 async def test_validate_request(opsdroid):
     config = {"webhook-token": "secret-stuff"}
     connector = ConnectorGitlab(config, opsdroid)
@@ -122,6 +130,150 @@ async def test_issue_created(opsdroid, connector, mock_api, caplog):
                 "Content-Type": "application/json",
             },
             data=get_webhook_payload("issue_created.json"),
+        )
+
+        assert resp.status == 200
+        assert "Test skill complete" in caplog.text
+        assert "Exception when running skill" not in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_issue_label_updated(opsdroid, connector, mock_api, caplog):
+    caplog.set_level(logging.INFO)
+
+    @match_event(gitlab_events.IssueLabeled)
+    async def test_skill(opsdroid, config, event):
+        url = "https://gitlab.com/FabioRosado/test-project/-/issues/1"
+        assert event.connector.name == "gitlab"
+        assert event.target == url
+        assert event.project == "test-project"
+        assert event.user == "FabioRosado"
+        assert event.title == "New test issue"
+        assert event.description == "This should have been filled"
+        assert event.labels == ["test-label"]
+        assert event.url == url
+        logging.getLogger(__name__).info("Test skill complete")
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/gitlab",
+            "POST",
+            headers={
+                "X-Gitlab-Token": "secret-stuff!",
+                "Content-Type": "application/json",
+            },
+            data=get_webhook_payload("issue_label_update.json"),
+        )
+
+        assert resp.status == 200
+        assert "Test skill complete" in caplog.text
+        assert "Exception when running skill" not in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_issue_labeled(opsdroid, connector, mock_api, caplog):
+    caplog.set_level(logging.INFO)
+
+    @match_event(gitlab_events.IssueLabeled)
+    async def test_skill(opsdroid, config, event):
+        url = "https://gitlab.com/FabioRosado/test-project/-/issues/2"
+        assert event.connector.name == "gitlab"
+        assert event.target == url
+        assert event.project == "test-project"
+        assert event.user == "FabioRosado"
+        assert event.title == "test"
+        assert event.description == ""
+        assert event.labels == ["blah"]
+        assert event.url == url
+        logging.getLogger(__name__).info("Test skill complete")
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/gitlab",
+            "POST",
+            headers={
+                "X-Gitlab-Token": "secret-stuff!",
+                "Content-Type": "application/json",
+            },
+            data=get_webhook_payload("issue_labeled.json"),
+        )
+
+        assert resp.status == 200
+        assert "Test skill complete" in caplog.text
+        assert "Exception when running skill" not in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_issue_edited(opsdroid, connector, mock_api, caplog):
+    caplog.set_level(logging.INFO)
+
+    @match_event(gitlab_events.IssueEdited)
+    async def test_skill(opsdroid, config, event):
+        url = "https://gitlab.com/FabioRosado/test-project/-/issues/1"
+        assert event.connector.name == "gitlab"
+        assert event.target == url
+        assert event.project == "test-project"
+        assert event.user == "FabioRosado"
+        assert event.title == "New test issue"
+        assert event.description == "This should have been filled"
+        assert event.labels == ["test-label"]
+        assert event.url == url
+        logging.getLogger(__name__).info("Test skill complete")
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/gitlab",
+            "POST",
+            headers={
+                "X-Gitlab-Token": "secret-stuff!",
+                "Content-Type": "application/json",
+            },
+            data=get_webhook_payload("issue_message_edited.json"),
+        )
+
+        assert resp.status == 200
+        assert "Test skill complete" in caplog.text
+        assert "Exception when running skill" not in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_generic_issue(opsdroid, connector, mock_api, caplog):
+    caplog.set_level(logging.INFO)
+
+    @match_event(gitlab_events.GenericIssueEvent)
+    async def test_skill(opsdroid, config, event):
+        url = "https://gitlab.com/FabioRosado/test-project/-/issues/1"
+        assert event.connector.name == "gitlab"
+        assert event.target == url
+        assert event.project == "test-project"
+        assert event.user == "FabioRosado"
+        assert event.title == "New test issue"
+        assert event.description == "This should have been filled"
+        assert event.labels == ["test-label"]
+        assert event.url == url
+        logging.getLogger(__name__).info("Test skill complete")
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/gitlab",
+            "POST",
+            headers={
+                "X-Gitlab-Token": "secret-stuff!",
+                "Content-Type": "application/json",
+            },
+            data=get_webhook_payload("generic_issue.json"),
         )
 
         assert resp.status == 200
@@ -207,7 +359,6 @@ async def test_generic_issue_event(opsdroid, connector, mock_api, caplog):
     @match_event(gitlab_events.GenericGitlabEvent)
     async def test_skill(opsdroid, config, event):
         url = "http://example.com/mike/diaspora"
-        breakpoint()
         assert event.connector.name == "gitlab"
         assert event.target == url
         assert event.project == "Diaspora"
@@ -230,6 +381,259 @@ async def test_generic_issue_event(opsdroid, connector, mock_api, caplog):
                 "Content-Type": "application/json",
             },
             data=get_webhook_payload("push.json"),
+        )
+
+        assert resp.status == 200
+        assert "Test skill complete" in caplog.text
+        assert "Exception when running skill" not in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_bad_json_file(opsdroid, connector, mock_api, caplog):
+    caplog.set_level(logging.DEBUG)
+
+    @match_event(gitlab_events.GenericGitlabEvent)
+    async def test_skill(opsdroid, config, event):
+        url = "http://example.com/mike/diaspora"
+        assert event.connector.name == "gitlab"
+        assert event.target == url
+        assert event.project == "Diaspora"
+        assert event.user == "jsmith"
+        assert event.title is None
+        assert event.description is None
+        assert event.labels == []
+        assert event.url == url
+        logging.getLogger(__name__).info("Test skill complete")
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/gitlab",
+            "POST",
+            headers={
+                "X-Gitlab-Token": "secret-stuff!",
+                "Content-Type": "application/json",
+            },
+            data=get_webhook_payload("bad_json.json"),
+        )
+
+        assert resp.status == 400
+        assert "Unable to decode json!" in caplog.text
+        assert "Test skill complete" not in caplog.text
+        assert "Exception when running skill" not in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_mr_label_update_event(opsdroid, connector, mock_api, caplog):
+    caplog.set_level(logging.INFO)
+
+    @match_event(gitlab_events.MRLabelUpdated)
+    async def test_skill(opsdroid, config, event):
+        url = "https://gitlab.com/FabioRosado/test-project/-/merge_requests/1"
+        assert event.connector.name == "gitlab"
+        assert event.target == url
+        assert event.project == "test-project"
+        assert event.user == "FabioRosado"
+        assert event.title == "Test MR"
+        assert event.description == ""
+        assert event.labels == ["blah"]
+        assert event.url == url
+        logging.getLogger(__name__).info("Test skill complete")
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/gitlab",
+            "POST",
+            headers={
+                "X-Gitlab-Token": "secret-stuff!",
+                "Content-Type": "application/json",
+            },
+            data=get_webhook_payload("mr_label_update.json"),
+        )
+
+        assert resp.status == 200
+        assert "Test skill complete" in caplog.text
+        assert "Exception when running skill" not in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_mr_opened_event(opsdroid, connector, mock_api, caplog):
+    caplog.set_level(logging.INFO)
+
+    @match_event(gitlab_events.MRCreated)
+    async def test_skill(opsdroid, config, event):
+        url = "https://gitlab.com/FabioRosado/test-project/-/merge_requests/1"
+        assert event.connector.name == "gitlab"
+        assert event.target == url
+        assert event.project == "test-project"
+        assert event.user == "FabioRosado"
+        assert event.title == "Test MR"
+        assert event.description == ""
+        assert event.labels == []
+        assert event.url == url
+        logging.getLogger(__name__).info("Test skill complete")
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/gitlab",
+            "POST",
+            headers={
+                "X-Gitlab-Token": "secret-stuff!",
+                "Content-Type": "application/json",
+            },
+            data=get_webhook_payload("mr_opened.json"),
+        )
+
+        assert resp.status == 200
+        assert "Test skill complete" in caplog.text
+        assert "Exception when running skill" not in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_mr_merged_event(opsdroid, connector, mock_api, caplog):
+    caplog.set_level(logging.INFO)
+
+    @match_event(gitlab_events.MRMerged)
+    async def test_skill(opsdroid, config, event):
+        url = "https://gitlab.com/FabioRosado/test-project/-/merge_requests/1"
+        assert event.connector.name == "gitlab"
+        assert event.target == url
+        assert event.project == "test-project"
+        assert event.user == "FabioRosado"
+        assert event.title == "Test MR"
+        assert event.description == ""
+        assert event.labels == ["blah"]
+        assert event.url == url
+        logging.getLogger(__name__).info("Test skill complete")
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/gitlab",
+            "POST",
+            headers={
+                "X-Gitlab-Token": "secret-stuff!",
+                "Content-Type": "application/json",
+            },
+            data=get_webhook_payload("mr_merged.json"),
+        )
+
+        assert resp.status == 200
+        assert "Test skill complete" in caplog.text
+        assert "Exception when running skill" not in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_mr_approved_event(opsdroid, connector, mock_api, caplog):
+    caplog.set_level(logging.INFO)
+
+    @match_event(gitlab_events.MRApproved)
+    async def test_skill(opsdroid, config, event):
+        url = "https://gitlab.com/FabioRosado/test-project/-/merge_requests/1"
+        assert event.connector.name == "gitlab"
+        assert event.target == url
+        assert event.project == "test-project"
+        assert event.user == "FabioRosado"
+        assert event.title == "Test MR"
+        assert event.description == ""
+        assert event.labels == ["blah"]
+        assert event.url == url
+        logging.getLogger(__name__).info("Test skill complete")
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/gitlab",
+            "POST",
+            headers={
+                "X-Gitlab-Token": "secret-stuff!",
+                "Content-Type": "application/json",
+            },
+            data=get_webhook_payload("mr_approved.json"),
+        )
+
+        assert resp.status == 200
+        assert "Test skill complete" in caplog.text
+        assert "Exception when running skill" not in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_mr_closed_event(opsdroid, connector, mock_api, caplog):
+    caplog.set_level(logging.INFO)
+
+    @match_event(gitlab_events.MRClosed)
+    async def test_skill(opsdroid, config, event):
+        url = "https://gitlab.com/FabioRosado/test-project/-/merge_requests/2"
+        assert event.connector.name == "gitlab"
+        assert event.target == url
+        assert event.project == "test-project"
+        assert event.user == "FabioRosado"
+        assert event.title == 'Revert Merge branch "test" into "main"'
+        assert event.description == "This reverts merge request !1"
+        assert event.labels == []
+        assert event.url == url
+        logging.getLogger(__name__).info("Test skill complete")
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/gitlab",
+            "POST",
+            headers={
+                "X-Gitlab-Token": "secret-stuff!",
+                "Content-Type": "application/json",
+            },
+            data=get_webhook_payload("mr_closed.json"),
+        )
+
+        assert resp.status == 200
+        assert "Test skill complete" in caplog.text
+        assert "Exception when running skill" not in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_mr_generic_event(opsdroid, connector, mock_api, caplog):
+    caplog.set_level(logging.INFO)
+
+    @match_event(gitlab_events.GenericMREvent)
+    async def test_skill(opsdroid, config, event):
+        url = "https://gitlab.com/FabioRosado/test-project/-/merge_requests/2"
+        assert event.connector.name == "gitlab"
+        assert event.target == url
+        assert event.project == "test-project"
+        assert event.user == "FabioRosado"
+        assert event.title == 'Revert Merge branch "test" into "main"'
+        assert event.description == "This reverts merge request !1"
+        assert event.labels == []
+        assert event.url == url
+        logging.getLogger(__name__).info("Test skill complete")
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/gitlab",
+            "POST",
+            headers={
+                "X-Gitlab-Token": "secret-stuff!",
+                "Content-Type": "application/json",
+            },
+            data=get_webhook_payload("generic_mr.json"),
         )
 
         assert resp.status == 200
