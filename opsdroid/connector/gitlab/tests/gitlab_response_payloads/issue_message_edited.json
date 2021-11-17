@@ -86,7 +86,7 @@
             "template": false,
             "description": null,
             "type": "ProjectLabel",
-            "group_id": null,
+            "group_id": null
         }
     ],
     "changes": {
@@ -102,6 +102,6 @@
         "name": "test-project",
         "url": "git@gitlab.com:FabioRosado/test-project.git",
         "description": "",
-        "homepage": "https://gitlab.com/FabioRosado/test-project",
+        "homepage": "https://gitlab.com/FabioRosado/test-project"
     }
 }

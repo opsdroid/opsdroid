@@ -50,9 +50,10 @@ class GitlabPayload:
         attributes = payload.get("object_attributes", {})
         changes = payload.get("changes", {})
         project_name = payload.get("project", {}).get("name", "")
-        username = payload.get("user", {}).get("username", "")
-        # TODO: Some events don't have object attributes, handle that case here!
-        url = attributes.get("url", "")
+        username = payload.get("user", {}).get("username", "") or payload.get(
+            "user_username", ""
+        )
+        url = attributes.get("url") or payload.get("project", {}).get("homepage", "")
         description = attributes.get("description")
         title = attributes.get("title")
         action = attributes.get("action") or attributes.get("state")
@@ -87,7 +88,7 @@ class ConnectorGitlab(Connector):
         self.webhook_token = config.get("webhook-token")
         try:
             self.base_url = opsdroid.config["web"]["base-url"]  # type: ignore
-        except KeyError:
+        except (KeyError, AttributeError):
             self.base_url = config.get("forward-url")
 
     async def connect(self):
@@ -140,12 +141,19 @@ class ConnectorGitlab(Connector):
         payload = None
         try:
             payload = await request.json()
-        # TODO: Narrow this exception!
+        except json.JSONDecodeError:
+            _LOGGER.error(_("Unable to decode json!"))
+            return Response(
+                text=json.dumps("Unable to parse event, received bad data"), status=400
+            )
         except Exception as error:
             _LOGGER.exception(
                 _(
                     f"Unable to get JSON from request. Reason - {str(error)}. Request is: {request}"
                 )
+            )
+            return Response(
+                text=json.dumps("Unable to parse data received."), status=400
             )
 
         if valid and payload:
@@ -179,6 +187,7 @@ class ConnectorGitlab(Connector):
         the payload and builds the appropriate opsdroid events.
 
         """
+        labels = payload.changes.get("labels", {})
         if payload.action == "approved":
             event = MRApproved(
                 project=payload.project_name,
@@ -215,9 +224,7 @@ class ConnectorGitlab(Connector):
                 connector=self,
                 raw_event=payload.raw_payload,
             )
-        elif payload.action == "update" and (
-            labels := payload.changes.get("labels", {})
-        ):
+        elif payload.action == "update" and labels:
             updated_labels = labels.get("current", [])
             labels = [label["title"] for label in updated_labels]
             event = MRLabelUpdated(

@@ -1,8 +1,8 @@
 # import os
-# import logging
 # import asyncio
 # from unittest import mock
-import json
+# import json
+import logging
 from pathlib import Path
 
 import asynctest.mock as amock
@@ -28,15 +28,14 @@ def get_response_path(response: str) -> Path:
     return Path(__file__).parent / "gitlab_response_payloads" / response
 
 
-def get_webhook_payload(path: str) -> dict:
+def get_webhook_payload(path: str) -> str:
     with open(get_response_path(path), "r") as fh:
-        return json.loads(fh.read())
+        return fh.read()
 
 
 def test_app_init():
     """Test that the connector is initialised properly when using Gitlab"""
     connector = ConnectorGitlab({"name": "gitlab", "webhook-token": "secret-stuff!"})
-    assert connector.default_target is None
     assert connector.name == "gitlab"
     assert connector.webhook_token == "secret-stuff!"
 
@@ -95,7 +94,9 @@ async def test_listen(connector):
 
 
 @pytest.mark.asyncio
-async def test_issue_created(opsdroid, connector, mock_api):
+async def test_issue_created(opsdroid, connector, mock_api, caplog):
+    caplog.set_level(logging.INFO)
+
     @match_event(gitlab_events.IssueCreated)
     async def test_skill(opsdroid, config, event):
         url = "https://gitlab.com/FabioRosado/test-project/-/issues/1"
@@ -107,6 +108,7 @@ async def test_issue_created(opsdroid, connector, mock_api):
         assert event.description == "Test description"
         assert event.labels == ["test-label"]
         assert event.url == url
+        logging.getLogger(__name__).info("Test skill complete")
 
     opsdroid.register_skill(test_skill, config={"name": "test"})
 
@@ -115,7 +117,121 @@ async def test_issue_created(opsdroid, connector, mock_api):
             opsdroid,
             "/connector/gitlab",
             "POST",
+            headers={
+                "X-Gitlab-Token": "secret-stuff!",
+                "Content-Type": "application/json",
+            },
             data=get_webhook_payload("issue_created.json"),
         )
 
         assert resp.status == 200
+        assert "Test skill complete" in caplog.text
+        assert "Exception when running skill" not in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_no_token_returns_401(opsdroid, connector, mock_api, caplog):
+    caplog.set_level(logging.INFO)
+
+    @match_event(gitlab_events.IssueCreated)
+    async def test_skill(opsdroid, config, event):
+        url = "https://gitlab.com/FabioRosado/test-project/-/issues/1"
+        assert event.connector.name == "gitlab"
+        assert event.target == url
+        assert event.project == "test-project"
+        assert event.user == "FabioRosado"
+        assert event.title == "New test issue"
+        assert event.description == "Test description"
+        assert event.labels == ["test-label"]
+        assert event.url == url
+        logging.getLogger(__name__).info("Test skill complete")
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/gitlab",
+            "POST",
+            headers={
+                "Content-Type": "application/json",
+            },
+            data=get_webhook_payload("issue_created.json"),
+        )
+
+        assert resp.status == 401
+        assert "Test skill complete" not in caplog.text
+        assert "Exception when running skill" not in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_issue_closed(opsdroid, connector, mock_api, caplog):
+    caplog.set_level(logging.INFO)
+
+    @match_event(gitlab_events.IssueClosed)
+    async def test_skill(opsdroid, config, event):
+        url = "https://gitlab.com/FabioRosado/test-project/-/issues/1"
+        assert event.connector.name == "gitlab"
+        assert event.target == url
+        assert event.project == "test-project"
+        assert event.user == "FabioRosado"
+        assert event.title == "New test issue"
+        assert event.description == "This should have been filled"
+        assert event.labels == ["test-label"]
+        assert event.url == url
+        logging.getLogger(__name__).info("Test skill complete")
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/gitlab",
+            "POST",
+            headers={
+                "X-Gitlab-Token": "secret-stuff!",
+                "Content-Type": "application/json",
+            },
+            data=get_webhook_payload("issue_closed.json"),
+        )
+
+        assert resp.status == 200
+        assert "Test skill complete" in caplog.text
+        assert "Exception when running skill" not in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_generic_issue_event(opsdroid, connector, mock_api, caplog):
+    caplog.set_level(logging.INFO)
+
+    @match_event(gitlab_events.GenericGitlabEvent)
+    async def test_skill(opsdroid, config, event):
+        url = "http://example.com/mike/diaspora"
+        breakpoint()
+        assert event.connector.name == "gitlab"
+        assert event.target == url
+        assert event.project == "Diaspora"
+        assert event.user == "jsmith"
+        assert event.title is None
+        assert event.description is None
+        assert event.labels == []
+        assert event.url == url
+        logging.getLogger(__name__).info("Test skill complete")
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/gitlab",
+            "POST",
+            headers={
+                "X-Gitlab-Token": "secret-stuff!",
+                "Content-Type": "application/json",
+            },
+            data=get_webhook_payload("push.json"),
+        )
+
+        assert resp.status == 200
+        assert "Test skill complete" in caplog.text
+        assert "Exception when running skill" not in caplog.text
