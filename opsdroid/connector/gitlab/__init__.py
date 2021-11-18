@@ -1,9 +1,6 @@
 """A connector for Gitlab."""
-# import asyncio
 import dataclasses
 import json
-
-# import aiohttp
 import logging
 from typing import Optional
 
@@ -26,10 +23,6 @@ from opsdroid.connector.gitlab.events import (
 )
 from opsdroid.core import OpsDroid
 from opsdroid.events import Event
-
-# from opsdroid.events import Message
-
-# from . import events as gitlab_events
 
 
 @dataclasses.dataclass
@@ -112,12 +105,13 @@ class ConnectorGitlab(Connector):
     async def validate_request(self, request) -> bool:
         """Validate webhook request.
 
-        Gitlab allow us to add a secret token to be added to the X-Gitlab-Token HTTP header,
-        this method will simply check the request and compare the value of this header against
+        Gitlab allow us to add a secret token to be added to the
+        X-Gitlab-Token HTTP header, this method will simply check
+        the request and compare the value of this header against
         the token that the user specified in the configuration.
 
-        If no secret is specified in opsdroid configuration, then we are
-        assuming that every request is a valid one. Note that, you should
+        If no secret is specified in opsdroid configuration, then
+        assume that every request is a valid one. Note that, you should
         add a secret otherwise anyone could submit a POST request to the
         URL and pretent to be GitLab.
 
@@ -168,7 +162,6 @@ class ConnectorGitlab(Connector):
                     user=gitlab_payload.username,
                     title=gitlab_payload.title,
                     description=gitlab_payload.description,
-                    url=gitlab_payload.url,
                     labels=gitlab_payload.labels,
                     target=gitlab_payload.url,
                     connector=self,
@@ -194,7 +187,6 @@ class ConnectorGitlab(Connector):
                 user=payload.username,
                 title=payload.title,
                 description=payload.description,
-                url=payload.url,
                 labels=payload.labels,
                 target=payload.url,
                 connector=self,
@@ -207,7 +199,6 @@ class ConnectorGitlab(Connector):
                 title=payload.title,
                 description=payload.description,
                 labels=payload.labels,
-                url=payload.url,
                 target=payload.url,
                 connector=self,
                 raw_event=payload.raw_payload,
@@ -221,7 +212,6 @@ class ConnectorGitlab(Connector):
                 title=payload.title,
                 description=payload.description,
                 labels=payload.labels,
-                url=payload.url,
                 target=payload.url,
                 connector=self,
                 raw_event=payload.raw_payload,
@@ -233,7 +223,6 @@ class ConnectorGitlab(Connector):
                 title=payload.title,
                 description=payload.description,
                 labels=payload.labels,
-                url=payload.url,
                 target=payload.url,
                 connector=self,
                 raw_event=payload.raw_payload,
@@ -245,7 +234,6 @@ class ConnectorGitlab(Connector):
                 title=payload.title,
                 description=payload.description,
                 labels=payload.labels,
-                url=payload.url,
                 target=payload.url,
                 connector=self,
                 raw_event=payload.raw_payload,
@@ -257,7 +245,6 @@ class ConnectorGitlab(Connector):
                 title=payload.title,
                 description=payload.description,
                 labels=payload.labels,
-                url=payload.url,
                 target=payload.url,
                 connector=self,
                 raw_event=payload.raw_payload,
@@ -265,7 +252,15 @@ class ConnectorGitlab(Connector):
         return event
 
     async def handle_issue_event(self, payload: GitlabPayload) -> Event:
-        """Handle issues events."""
+        """Handle Issue Events.
+
+        When a user opens a Gitlab issue will throw an event, then
+        when something happens within that particular issue (labels,
+        weights, milestones), Gitlab will emit new events. This method
+        handles all of these events based on the payload and builds the
+        appropriate opsdroid events.
+
+        """
         labels = payload.changes.get("labels", {})
         if payload.action == "opened":
             event = IssueCreated(
@@ -274,7 +269,6 @@ class ConnectorGitlab(Connector):
                 title=payload.title,
                 description=payload.description,
                 labels=payload.labels,
-                url=payload.url,
                 target=payload.url,
                 connector=self,
                 raw_event=payload.raw_payload,
@@ -286,7 +280,6 @@ class ConnectorGitlab(Connector):
                 title=payload.title,
                 description=payload.description,
                 labels=payload.labels,
-                url=payload.url,
                 target=payload.url,
                 connector=self,
                 raw_event=payload.raw_payload,
@@ -298,7 +291,6 @@ class ConnectorGitlab(Connector):
                 title=payload.title,
                 description=payload.description,
                 labels=payload.labels,
-                url=payload.url,
                 target=payload.url,
                 connector=self,
                 raw_event=payload.raw_payload,
@@ -312,7 +304,6 @@ class ConnectorGitlab(Connector):
                 title=payload.title,
                 description=payload.description,
                 labels=payload.labels,
-                url=payload.url,
                 target=payload.url,
                 connector=self,
                 raw_event=payload.raw_payload,
@@ -324,7 +315,6 @@ class ConnectorGitlab(Connector):
                 title=payload.title,
                 description=payload.description,
                 labels=payload.labels,
-                url=payload.url,
                 target=payload.url,
                 connector=self,
                 raw_event=payload.raw_payload,

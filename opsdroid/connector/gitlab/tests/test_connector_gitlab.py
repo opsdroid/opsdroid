@@ -1,10 +1,9 @@
 import logging
-import pytest
 from pathlib import Path
 
 import asynctest.mock as amock
-
 import opsdroid.connector.gitlab.events as gitlab_events
+import pytest
 from opsdroid.connector.gitlab import ConnectorGitlab
 from opsdroid.matchers import match_event
 from opsdroid.testing import call_endpoint, running_opsdroid
@@ -115,7 +114,6 @@ async def test_issue_created(opsdroid, connector, mock_api, caplog):
         assert event.title == "New test issue"
         assert event.description == "Test description"
         assert event.labels == ["test-label"]
-        assert event.url == url
         logging.getLogger(__name__).info("Test skill complete")
 
     opsdroid.register_skill(test_skill, config={"name": "test"})
@@ -151,7 +149,6 @@ async def test_issue_label_updated(opsdroid, connector, mock_api, caplog):
         assert event.title == "New test issue"
         assert event.description == "This should have been filled"
         assert event.labels == ["test-label"]
-        assert event.url == url
         logging.getLogger(__name__).info("Test skill complete")
 
     opsdroid.register_skill(test_skill, config={"name": "test"})
@@ -187,7 +184,6 @@ async def test_issue_labeled(opsdroid, connector, mock_api, caplog):
         assert event.title == "test"
         assert event.description == ""
         assert event.labels == ["blah"]
-        assert event.url == url
         logging.getLogger(__name__).info("Test skill complete")
 
     opsdroid.register_skill(test_skill, config={"name": "test"})
@@ -223,7 +219,6 @@ async def test_issue_edited(opsdroid, connector, mock_api, caplog):
         assert event.title == "New test issue"
         assert event.description == "This should have been filled"
         assert event.labels == ["test-label"]
-        assert event.url == url
         logging.getLogger(__name__).info("Test skill complete")
 
     opsdroid.register_skill(test_skill, config={"name": "test"})
@@ -259,7 +254,6 @@ async def test_generic_issue(opsdroid, connector, mock_api, caplog):
         assert event.title == "New test issue"
         assert event.description == "This should have been filled"
         assert event.labels == ["test-label"]
-        assert event.url == url
         logging.getLogger(__name__).info("Test skill complete")
 
     opsdroid.register_skill(test_skill, config={"name": "test"})
@@ -295,7 +289,6 @@ async def test_no_token_returns_401(opsdroid, connector, mock_api, caplog):
         assert event.title == "New test issue"
         assert event.description == "Test description"
         assert event.labels == ["test-label"]
-        assert event.url == url
         logging.getLogger(__name__).info("Test skill complete")
 
     opsdroid.register_skill(test_skill, config={"name": "test"})
@@ -330,7 +323,6 @@ async def test_issue_closed(opsdroid, connector, mock_api, caplog):
         assert event.title == "New test issue"
         assert event.description == "This should have been filled"
         assert event.labels == ["test-label"]
-        assert event.url == url
         logging.getLogger(__name__).info("Test skill complete")
 
     opsdroid.register_skill(test_skill, config={"name": "test"})
@@ -366,7 +358,6 @@ async def test_generic_issue_event(opsdroid, connector, mock_api, caplog):
         assert event.title is None
         assert event.description is None
         assert event.labels == []
-        assert event.url == url
         logging.getLogger(__name__).info("Test skill complete")
 
     opsdroid.register_skill(test_skill, config={"name": "test"})
@@ -402,7 +393,6 @@ async def test_bad_json_file(opsdroid, connector, mock_api, caplog):
         assert event.title is None
         assert event.description is None
         assert event.labels == []
-        assert event.url == url
         logging.getLogger(__name__).info("Test skill complete")
 
     opsdroid.register_skill(test_skill, config={"name": "test"})
@@ -439,7 +429,6 @@ async def test_mr_label_update_event(opsdroid, connector, mock_api, caplog):
         assert event.title == "Test MR"
         assert event.description == ""
         assert event.labels == ["blah"]
-        assert event.url == url
         logging.getLogger(__name__).info("Test skill complete")
 
     opsdroid.register_skill(test_skill, config={"name": "test"})
@@ -475,7 +464,6 @@ async def test_mr_opened_event(opsdroid, connector, mock_api, caplog):
         assert event.title == "Test MR"
         assert event.description == ""
         assert event.labels == []
-        assert event.url == url
         logging.getLogger(__name__).info("Test skill complete")
 
     opsdroid.register_skill(test_skill, config={"name": "test"})
@@ -511,7 +499,6 @@ async def test_mr_merged_event(opsdroid, connector, mock_api, caplog):
         assert event.title == "Test MR"
         assert event.description == ""
         assert event.labels == ["blah"]
-        assert event.url == url
         logging.getLogger(__name__).info("Test skill complete")
 
     opsdroid.register_skill(test_skill, config={"name": "test"})
@@ -547,7 +534,6 @@ async def test_mr_approved_event(opsdroid, connector, mock_api, caplog):
         assert event.title == "Test MR"
         assert event.description == ""
         assert event.labels == ["blah"]
-        assert event.url == url
         logging.getLogger(__name__).info("Test skill complete")
 
     opsdroid.register_skill(test_skill, config={"name": "test"})
@@ -583,7 +569,6 @@ async def test_mr_closed_event(opsdroid, connector, mock_api, caplog):
         assert event.title == 'Revert Merge branch "test" into "main"'
         assert event.description == "This reverts merge request !1"
         assert event.labels == []
-        assert event.url == url
         logging.getLogger(__name__).info("Test skill complete")
 
     opsdroid.register_skill(test_skill, config={"name": "test"})
@@ -619,7 +604,6 @@ async def test_mr_generic_event(opsdroid, connector, mock_api, caplog):
         assert event.title == 'Revert Merge branch "test" into "main"'
         assert event.description == "This reverts merge request !1"
         assert event.labels == []
-        assert event.url == url
         logging.getLogger(__name__).info("Test skill complete")
 
     opsdroid.register_skill(test_skill, config={"name": "test"})

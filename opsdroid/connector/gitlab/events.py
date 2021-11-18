@@ -3,12 +3,6 @@ from typing import Optional
 
 from opsdroid.events import Event
 
-"""
-TODO:  We need to remove the 'url' argument from the events,
-url will become 'target' which is available in the base class
-Event!
-"""
-
 
 class GenericGitlabEvent(Event):
     """Event class that triggers when an unhandled event is sent."""
@@ -20,7 +14,6 @@ class GenericGitlabEvent(Event):
         title: Optional[str],
         description: Optional[str],
         labels: list,
-        url: str,
         *args,
         **kwargs
     ):
@@ -30,7 +23,6 @@ class GenericGitlabEvent(Event):
         self.title = title
         self.description = description
         self.labels = labels
-        self.url = url
 
 
 class IssueCreated(Event):
@@ -43,7 +35,6 @@ class IssueCreated(Event):
         title: Optional[str],
         description: Optional[str],
         labels: list,
-        url: str,
         *args,
         **kwargs
     ):
@@ -53,7 +44,6 @@ class IssueCreated(Event):
         self.title = title
         self.description = description
         self.labels = labels
-        self.url = url
 
 
 class IssueClosed(Event):
@@ -66,7 +56,6 @@ class IssueClosed(Event):
         title: Optional[str],
         description: Optional[str],
         labels: list,
-        url: str,
         *args,
         **kwargs
     ):
@@ -76,7 +65,6 @@ class IssueClosed(Event):
         self.title = title
         self.description = description
         self.labels = labels
-        self.url = url
 
 
 class IssueEdited(Event):
@@ -89,7 +77,6 @@ class IssueEdited(Event):
         title: Optional[str],
         description: Optional[str],
         labels: list,
-        url: str,
         *args,
         **kwargs
     ):
@@ -99,7 +86,6 @@ class IssueEdited(Event):
         self.title = title
         self.description = description
         self.labels = labels
-        self.url = url
 
 
 class IssueLabeled(Event):
@@ -112,7 +98,6 @@ class IssueLabeled(Event):
         title: Optional[str],
         description: Optional[str],
         labels: list,
-        url: str,
         *args,
         **kwargs
     ):
@@ -122,7 +107,6 @@ class IssueLabeled(Event):
         self.title = title
         self.description = description
         self.labels = labels
-        self.url = url
 
 
 class GenericIssueEvent(Event):
@@ -135,7 +119,6 @@ class GenericIssueEvent(Event):
         title: Optional[str],
         description: Optional[str],
         labels: list,
-        url: str,
         *args,
         **kwargs
     ):
@@ -145,7 +128,6 @@ class GenericIssueEvent(Event):
         self.title = title
         self.description = description
         self.labels = labels
-        self.url = url
 
 
 class MRCreated(Event):
@@ -158,7 +140,6 @@ class MRCreated(Event):
         title: Optional[str],
         description: Optional[str],
         labels: list,
-        url: str,
         *args,
         **kwargs
     ):
@@ -168,7 +149,6 @@ class MRCreated(Event):
         self.title = title
         self.description = description
         self.labels = labels
-        self.url = url
 
 
 class MRMerged(Event):
@@ -181,7 +161,6 @@ class MRMerged(Event):
         title: Optional[str],
         description: Optional[str],
         labels: list,
-        url: str,
         *args,
         **kwargs
     ):
@@ -191,7 +170,6 @@ class MRMerged(Event):
         self.title = title
         self.description = description
         self.labels = labels
-        self.url = url
 
 
 class MRClosed(Event):
@@ -204,7 +182,6 @@ class MRClosed(Event):
         title: Optional[str],
         description: Optional[str],
         labels: list,
-        url: str,
         *args,
         **kwargs
     ):
@@ -214,7 +191,6 @@ class MRClosed(Event):
         self.title = title
         self.description = description
         self.labels = labels
-        self.url = url
 
 
 class MRLabelUpdated(Event):
@@ -227,7 +203,6 @@ class MRLabelUpdated(Event):
         title: Optional[str],
         description: Optional[str],
         labels: list,
-        url: str,
         *args,
         **kwargs
     ):
@@ -237,7 +212,6 @@ class MRLabelUpdated(Event):
         self.title = title
         self.description = description
         self.labels = labels
-        self.url = url
 
 
 class MRApproved(Event):
@@ -250,7 +224,6 @@ class MRApproved(Event):
         title: Optional[str],
         description: Optional[str],
         labels: list,
-        url: str,
         *args,
         **kwargs
     ):
@@ -260,7 +233,6 @@ class MRApproved(Event):
         self.title = title
         self.description = description
         self.labels = labels
-        self.url = url
 
 
 class GenericMREvent(Event):
@@ -273,7 +245,6 @@ class GenericMREvent(Event):
         title: Optional[str],
         description: Optional[str],
         labels: list,
-        url: str,
         *args,
         **kwargs
     ):
@@ -283,4 +254,3 @@ class GenericMREvent(Event):
         self.title = title
         self.description = description
         self.labels = labels
-        self.url = url
