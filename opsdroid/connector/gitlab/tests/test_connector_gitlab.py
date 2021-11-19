@@ -104,7 +104,7 @@ async def test_listen(connector):
 async def test_issue_created(opsdroid, connector, mock_api, caplog):
     caplog.set_level(logging.INFO)
 
-    @match_event(gitlab_events.IssueCreated)
+    @match_event(gitlab_events.GitlabIssueCreated)
     async def test_skill(opsdroid, config, event):
         url = "https://gitlab.com/FabioRosado/test-project/-/issues/1"
         assert event.connector.name == "gitlab"
@@ -139,7 +139,7 @@ async def test_issue_created(opsdroid, connector, mock_api, caplog):
 async def test_issue_label_updated(opsdroid, connector, mock_api, caplog):
     caplog.set_level(logging.INFO)
 
-    @match_event(gitlab_events.IssueLabeled)
+    @match_event(gitlab_events.GitlabIssueLabeled)
     async def test_skill(opsdroid, config, event):
         url = "https://gitlab.com/FabioRosado/test-project/-/issues/1"
         assert event.connector.name == "gitlab"
@@ -174,7 +174,7 @@ async def test_issue_label_updated(opsdroid, connector, mock_api, caplog):
 async def test_issue_labeled(opsdroid, connector, mock_api, caplog):
     caplog.set_level(logging.INFO)
 
-    @match_event(gitlab_events.IssueLabeled)
+    @match_event(gitlab_events.GitlabIssueLabeled)
     async def test_skill(opsdroid, config, event):
         url = "https://gitlab.com/FabioRosado/test-project/-/issues/2"
         assert event.connector.name == "gitlab"
@@ -209,7 +209,7 @@ async def test_issue_labeled(opsdroid, connector, mock_api, caplog):
 async def test_issue_edited(opsdroid, connector, mock_api, caplog):
     caplog.set_level(logging.INFO)
 
-    @match_event(gitlab_events.IssueEdited)
+    @match_event(gitlab_events.GitlabIssueEdited)
     async def test_skill(opsdroid, config, event):
         url = "https://gitlab.com/FabioRosado/test-project/-/issues/1"
         assert event.connector.name == "gitlab"
@@ -279,7 +279,7 @@ async def test_generic_issue(opsdroid, connector, mock_api, caplog):
 async def test_no_token_returns_401(opsdroid, connector, mock_api, caplog):
     caplog.set_level(logging.INFO)
 
-    @match_event(gitlab_events.IssueCreated)
+    @match_event(gitlab_events.GitlabIssueCreated)
     async def test_skill(opsdroid, config, event):
         url = "https://gitlab.com/FabioRosado/test-project/-/issues/1"
         assert event.connector.name == "gitlab"
@@ -313,7 +313,7 @@ async def test_no_token_returns_401(opsdroid, connector, mock_api, caplog):
 async def test_issue_closed(opsdroid, connector, mock_api, caplog):
     caplog.set_level(logging.INFO)
 
-    @match_event(gitlab_events.IssueClosed)
+    @match_event(gitlab_events.GitlabIssueClosed)
     async def test_skill(opsdroid, config, event):
         url = "https://gitlab.com/FabioRosado/test-project/-/issues/1"
         assert event.connector.name == "gitlab"
@@ -410,7 +410,7 @@ async def test_bad_json_file(opsdroid, connector, mock_api, caplog):
         )
 
         assert resp.status == 400
-        assert "Unable to decode json!" in caplog.text
+        assert "Unable to decode json" in caplog.text
         assert "Test skill complete" not in caplog.text
         assert "Exception when running skill" not in caplog.text
 
@@ -419,7 +419,7 @@ async def test_bad_json_file(opsdroid, connector, mock_api, caplog):
 async def test_mr_label_update_event(opsdroid, connector, mock_api, caplog):
     caplog.set_level(logging.INFO)
 
-    @match_event(gitlab_events.MRLabelUpdated)
+    @match_event(gitlab_events.MRLabeled)
     async def test_skill(opsdroid, config, event):
         url = "https://gitlab.com/FabioRosado/test-project/-/merge_requests/1"
         assert event.connector.name == "gitlab"
