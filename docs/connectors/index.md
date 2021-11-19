@@ -7,6 +7,7 @@ Connectors are modules which connect opsdroid to an external event source. This 
    :maxdepth: 1
 
    facebook
+   gitlab
    github
    gitter
    mattermost

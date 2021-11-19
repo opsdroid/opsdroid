@@ -7,22 +7,10 @@ from typing import Optional
 from aiohttp.web_request import Request
 from aiohttp.web_response import Response
 from opsdroid.connector import Connector
-from opsdroid.connector.gitlab.events import (
-    GenericGitlabEvent,
-    GenericIssueEvent,
-    GenericMREvent,
-    IssueClosed,
-    IssueCreated,
-    IssueEdited,
-    IssueLabeled,
-    MRApproved,
-    MRClosed,
-    MRCreated,
-    MRLabelUpdated,
-    MRMerged,
-)
 from opsdroid.core import OpsDroid
 from opsdroid.events import Event
+
+from . import events as gitlab_events
 
 
 @dataclasses.dataclass
@@ -40,7 +28,21 @@ class GitlabPayload:
 
     @classmethod
     def from_dict(cls, payload: dict):
-        """Create the GitlabPayload object from a dictionary."""
+        """Create the GitlabPayload object from a dictionary.
+
+        Depending what kind of event Gitlab emits, we might have some
+        keys that other events don't have. For example some events have
+        a user section which contains the username of the user, but other
+        events return a ``user_username`` key that contains the user username.
+
+        This method is used to build the GitlabPayload object from a single
+        dictionary, which will be the payload received from the Gitlab webhook.
+
+        Since different events return different structures, you have access to the
+        raw payload with the ``raw_payload`` attribute which allows us to return a
+        generic event so you can handle it in your skills however you see fit.
+
+        """
         labels = payload.get("labels", [])
         attributes = payload.get("object_attributes", {})
         changes = payload.get("changes", {})
@@ -129,14 +131,23 @@ class ConnectorGitlab(Connector):
         """
 
     async def gitlab_webhook_handler(self, request: Request) -> Response:
-        """Handle event from Gitlab webhooks."""
+        """Handle event from Gitlab webhooks.
+
+        Currenty we are only handling Merge Request events and Issue events,
+        any other event that Gitlab sends, will be returned as a
+        ``GenericGitlabEvent`` instead. This will give you to possibility to
+        use this event on your skill if you want to handle different events
+        outside Merge Requests and Issues.
+
+        """
         valid = await self.validate_request(request)
         payload = None
         try:
             payload = await request.json()
-            _LOGGER.info(payload)
         except json.JSONDecodeError:
-            _LOGGER.error(_("Unable to decode json!"))
+            _LOGGER.error(
+                _("Unable to decode json, possibly received bad JSON format..")
+            )
             return Response(
                 text=json.dumps("Unable to parse event, received bad data"), status=400
             )
@@ -157,7 +168,7 @@ class ConnectorGitlab(Connector):
             elif payload.get("event_type") == "issue":
                 event = await self.handle_issue_event(payload=gitlab_payload)
             else:
-                event = GenericGitlabEvent(
+                event = gitlab_events.GenericGitlabEvent(
                     project=gitlab_payload.project_name,
                     user=gitlab_payload.username,
                     title=gitlab_payload.title,
@@ -182,7 +193,7 @@ class ConnectorGitlab(Connector):
         """
         labels = payload.changes.get("labels", {})
         if payload.action == "approved":
-            event = MRApproved(
+            event = gitlab_events.MRApproved(
                 project=payload.project_name,
                 user=payload.username,
                 title=payload.title,
@@ -193,7 +204,7 @@ class ConnectorGitlab(Connector):
                 raw_event=payload.raw_payload,
             )
         elif payload.action == "opened":
-            event = MRCreated(
+            event = gitlab_events.MRCreated(
                 project=payload.project_name,
                 user=payload.username,
                 title=payload.title,
@@ -206,7 +217,7 @@ class ConnectorGitlab(Connector):
         elif payload.action == "update" and labels:
             updated_labels = labels.get("current", [])
             labels = [label["title"] for label in updated_labels]
-            event = MRLabelUpdated(
+            event = gitlab_events.MRLabeled(
                 project=payload.project_name,
                 user=payload.username,
                 title=payload.title,
@@ -217,7 +228,7 @@ class ConnectorGitlab(Connector):
                 raw_event=payload.raw_payload,
             )
         elif payload.action == "merge" and payload.attributes.get("state") == "merged":
-            event = MRMerged(
+            event = gitlab_events.MRMerged(
                 project=payload.project_name,
                 user=payload.username,
                 title=payload.title,
@@ -228,7 +239,7 @@ class ConnectorGitlab(Connector):
                 raw_event=payload.raw_payload,
             )
         elif payload.action == "close" and payload.attributes.get("state") == "closed":
-            event = MRClosed(
+            event = gitlab_events.MRClosed(
                 project=payload.project_name,
                 user=payload.username,
                 title=payload.title,
@@ -239,7 +250,7 @@ class ConnectorGitlab(Connector):
                 raw_event=payload.raw_payload,
             )
         else:
-            event = GenericMREvent(
+            event = gitlab_events.GenericMREvent(
                 project=payload.project_name,
                 user=payload.username,
                 title=payload.title,
@@ -263,7 +274,7 @@ class ConnectorGitlab(Connector):
         """
         labels = payload.changes.get("labels", {})
         if payload.action == "opened":
-            event = IssueCreated(
+            event = gitlab_events.GitlabIssueCreated(
                 project=payload.project_name,
                 user=payload.username,
                 title=payload.title,
@@ -274,7 +285,7 @@ class ConnectorGitlab(Connector):
                 raw_event=payload.raw_payload,
             )
         elif payload.action == "close":
-            event = IssueClosed(
+            event = gitlab_events.GitlabIssueClosed(
                 project=payload.project_name,
                 user=payload.username,
                 title=payload.title,
@@ -285,7 +296,7 @@ class ConnectorGitlab(Connector):
                 raw_event=payload.raw_payload,
             )
         elif payload.action == "update" and payload.changes.get("last_edited_at"):
-            event = IssueEdited(
+            event = gitlab_events.GitlabIssueEdited(
                 project=payload.project_name,
                 user=payload.username,
                 title=payload.title,
@@ -298,7 +309,7 @@ class ConnectorGitlab(Connector):
         elif payload.action == "update" and labels:
             updated_labels = labels.get("current", [])
             labels = [label["title"] for label in updated_labels]
-            event = IssueLabeled(
+            event = gitlab_events.GitlabIssueLabeled(
                 project=payload.project_name,
                 user=payload.username,
                 title=payload.title,
@@ -309,7 +320,7 @@ class ConnectorGitlab(Connector):
                 raw_event=payload.raw_payload,
             )
         else:
-            event = GenericIssueEvent(
+            event = gitlab_events.GenericIssueEvent(
                 project=payload.project_name,
                 user=payload.username,
                 title=payload.title,

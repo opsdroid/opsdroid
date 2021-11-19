@@ -1,10 +1,10 @@
-"""Events for the Gitlab Connector."""
+"""events.Events for the Gitlab Connector."""
 from typing import Optional
 
-from opsdroid.events import Event
+from opsdroid import events
 
 
-class GenericGitlabEvent(Event):
+class GenericGitlabEvent(events.Event):
     """Event class that triggers when an unhandled event is sent."""
 
     def __init__(
@@ -25,7 +25,7 @@ class GenericGitlabEvent(Event):
         self.labels = labels
 
 
-class IssueCreated(Event):
+class GitlabIssueCreated(events.Event):
     """Event class that triggers when a new issue is created."""
 
     def __init__(
@@ -46,7 +46,7 @@ class IssueCreated(Event):
         self.labels = labels
 
 
-class IssueClosed(Event):
+class GitlabIssueClosed(events.Event):
     """Event class that triggers when an issue is closed."""
 
     def __init__(
@@ -67,7 +67,7 @@ class IssueClosed(Event):
         self.labels = labels
 
 
-class IssueEdited(Event):
+class GitlabIssueEdited(events.Event):
     """Event class that triggers when an issue is edited."""
 
     def __init__(
@@ -88,7 +88,7 @@ class IssueEdited(Event):
         self.labels = labels
 
 
-class IssueLabeled(Event):
+class GitlabIssueLabeled(events.Event):
     """Event class that triggers when an issue is labeled."""
 
     def __init__(
@@ -109,7 +109,7 @@ class IssueLabeled(Event):
         self.labels = labels
 
 
-class GenericIssueEvent(Event):
+class GenericIssueEvent(events.Event):
     """Event class that triggers when any other issue action happen."""
 
     def __init__(
@@ -130,7 +130,7 @@ class GenericIssueEvent(Event):
         self.labels = labels
 
 
-class MRCreated(Event):
+class MRCreated(events.Event):
     """Event class that triggers when a MR is created."""
 
     def __init__(
@@ -151,7 +151,7 @@ class MRCreated(Event):
         self.labels = labels
 
 
-class MRMerged(Event):
+class MRMerged(events.Event):
     """Event class that triggers when a MR is merged."""
 
     def __init__(
@@ -172,7 +172,7 @@ class MRMerged(Event):
         self.labels = labels
 
 
-class MRClosed(Event):
+class MRClosed(events.Event):
     """Event class that triggers when a MR is closed."""
 
     def __init__(
@@ -193,7 +193,7 @@ class MRClosed(Event):
         self.labels = labels
 
 
-class MRLabelUpdated(Event):
+class MRLabeled(events.Event):
     """Event class that triggers when a MR label is updated."""
 
     def __init__(
@@ -214,7 +214,7 @@ class MRLabelUpdated(Event):
         self.labels = labels
 
 
-class MRApproved(Event):
+class MRApproved(events.Event):
     """Event class that triggers when a MR is approved."""
 
     def __init__(
@@ -235,8 +235,8 @@ class MRApproved(Event):
         self.labels = labels
 
 
-class GenericMREvent(Event):
-    """Event class that triggers when a Generic MR Event happens."""
+class GenericMREvent(events.Event):
+    """Event class that triggers when a Generic MR events.Event happens."""
 
     def __init__(
         self,
