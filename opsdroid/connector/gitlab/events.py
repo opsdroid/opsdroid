@@ -14,6 +14,7 @@ class GenericGitlabEvent(events.Event):
         title: Optional[str],
         description: Optional[str],
         labels: list,
+        url: str,
         *args,
         **kwargs
     ):
@@ -23,6 +24,7 @@ class GenericGitlabEvent(events.Event):
         self.title = title
         self.description = description
         self.labels = labels
+        self.url = url
 
 
 class GitlabIssueCreated(events.Event):
@@ -35,6 +37,7 @@ class GitlabIssueCreated(events.Event):
         title: Optional[str],
         description: Optional[str],
         labels: list,
+        url: str,
         *args,
         **kwargs
     ):
@@ -44,6 +47,7 @@ class GitlabIssueCreated(events.Event):
         self.title = title
         self.description = description
         self.labels = labels
+        self.url = url
 
 
 class GitlabIssueClosed(events.Event):
@@ -56,6 +60,7 @@ class GitlabIssueClosed(events.Event):
         title: Optional[str],
         description: Optional[str],
         labels: list,
+        url: str,
         *args,
         **kwargs
     ):
@@ -65,6 +70,7 @@ class GitlabIssueClosed(events.Event):
         self.title = title
         self.description = description
         self.labels = labels
+        self.url = url
 
 
 class GitlabIssueEdited(events.Event):
@@ -77,6 +83,7 @@ class GitlabIssueEdited(events.Event):
         title: Optional[str],
         description: Optional[str],
         labels: list,
+        url: str,
         *args,
         **kwargs
     ):
@@ -86,6 +93,7 @@ class GitlabIssueEdited(events.Event):
         self.title = title
         self.description = description
         self.labels = labels
+        self.url = url
 
 
 class GitlabIssueLabeled(events.Event):
@@ -98,6 +106,7 @@ class GitlabIssueLabeled(events.Event):
         title: Optional[str],
         description: Optional[str],
         labels: list,
+        url: str,
         *args,
         **kwargs
     ):
@@ -107,6 +116,7 @@ class GitlabIssueLabeled(events.Event):
         self.title = title
         self.description = description
         self.labels = labels
+        self.url = url
 
 
 class GenericIssueEvent(events.Event):
@@ -119,6 +129,7 @@ class GenericIssueEvent(events.Event):
         title: Optional[str],
         description: Optional[str],
         labels: list,
+        url: str,
         *args,
         **kwargs
     ):
@@ -128,6 +139,7 @@ class GenericIssueEvent(events.Event):
         self.title = title
         self.description = description
         self.labels = labels
+        self.url = url
 
 
 class MRCreated(events.Event):
@@ -140,6 +152,7 @@ class MRCreated(events.Event):
         title: Optional[str],
         description: Optional[str],
         labels: list,
+        url: str,
         *args,
         **kwargs
     ):
@@ -149,6 +162,7 @@ class MRCreated(events.Event):
         self.title = title
         self.description = description
         self.labels = labels
+        self.url = url
 
 
 class MRMerged(events.Event):
@@ -161,6 +175,7 @@ class MRMerged(events.Event):
         title: Optional[str],
         description: Optional[str],
         labels: list,
+        url: str,
         *args,
         **kwargs
     ):
@@ -170,6 +185,7 @@ class MRMerged(events.Event):
         self.title = title
         self.description = description
         self.labels = labels
+        self.url = url
 
 
 class MRClosed(events.Event):
@@ -182,6 +198,7 @@ class MRClosed(events.Event):
         title: Optional[str],
         description: Optional[str],
         labels: list,
+        url: str,
         *args,
         **kwargs
     ):
@@ -191,6 +208,7 @@ class MRClosed(events.Event):
         self.title = title
         self.description = description
         self.labels = labels
+        self.url = url
 
 
 class MRLabeled(events.Event):
@@ -203,6 +221,7 @@ class MRLabeled(events.Event):
         title: Optional[str],
         description: Optional[str],
         labels: list,
+        url: str,
         *args,
         **kwargs
     ):
@@ -212,6 +231,7 @@ class MRLabeled(events.Event):
         self.title = title
         self.description = description
         self.labels = labels
+        self.url = url
 
 
 class MRApproved(events.Event):
@@ -224,6 +244,7 @@ class MRApproved(events.Event):
         title: Optional[str],
         description: Optional[str],
         labels: list,
+        url: str,
         *args,
         **kwargs
     ):
@@ -233,6 +254,7 @@ class MRApproved(events.Event):
         self.title = title
         self.description = description
         self.labels = labels
+        self.url = url
 
 
 class GenericMREvent(events.Event):
@@ -245,6 +267,7 @@ class GenericMREvent(events.Event):
         title: Optional[str],
         description: Optional[str],
         labels: list,
+        url: str,
         *args,
         **kwargs
     ):
@@ -254,3 +277,4 @@ class GenericMREvent(events.Event):
         self.title = title
         self.description = description
         self.labels = labels
+        self.url = url

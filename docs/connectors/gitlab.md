@@ -2,7 +2,7 @@
 
 A connector for [GitLab](https://gitlab.com). 
 
-Note that this connector emits Events only, currently, it only supports sending messages back
+Note that this connector emits only upports sending messages back
 to the event (Issue, Merge Request), if you need to create more elaborate workflow, please
 use the [GitLab API](https://docs.gitlab.com/ee/api/) in your skill.
 
@@ -10,6 +10,7 @@ use the [GitLab API](https://docs.gitlab.com/ee/api/) in your skill.
 
 - A GitLab Account
 - A repository setup with a [webhook](https://docs.gitlab.com/ee/user/project/integrations/webhooks.html)
+- A [personal Access token](https://gitlab.com/-/profile/personal_access_tokens) if you want to send messages to GitLab
 
 ## Configuration
 
@@ -18,6 +19,8 @@ connectors:
   gitlab:
     # Optional but recommended
     webhook-token: "my-very-secret-webhook-secret"
+    # Required if you want opsdroid to reply to issues/MRs
+    token: "<personal access token>"
 ```
 
 ## Setup Webhook
@@ -25,7 +28,7 @@ connectors:
 You need to [expose Opsdroid to the internet](../exposing.md), when you have your url, you can go to your repository, click **Settings** and then select **Webhook**, you can then add the url with the `connector/<connector name>` enpoint. For example, assume that you are using `example.com` as your base url and using this connector with the default name, you can use the following url `https://example.com/connector/gitlab` to receive events from your repository.
 
 You can then choose a secret token - this will be your `webhook-token` in the Opsdroid configuration. It's highly recommended that you choose
-a strong token to validate the requests coming into the `https://example/com/connector/gitlab` endpoint.
+a strong token to validate the requests coming into the `https://example.com/connector/gitlab` endpoint.
 
 Finally, you can choose which events you want Gitlab to send you and choose if you want to turn off SSL verification. It's recommended that
 you use SSL at all times.
@@ -184,10 +187,14 @@ Currently, the GitLab connector handles Merge Requests and Issues events, any ot
 
 ## Reference
 
+This dataclass is used internally within the Gitlab connector, but is worth noting a few things here.
+
 ```eval_rst
 .. autoclass:: opsdroid.connector.gitlab.GitlabPayload
     :members:
 ```
+
+This is the Connector reference
 
 ```eval_rst
 .. autoclass:: opsdroid.connector.gitlab.ConnectorGitlab

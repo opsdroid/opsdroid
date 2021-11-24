@@ -176,6 +176,12 @@ connectors:
 #    ssl-verify: false # default: true
 #    connect-timeout: 30 # default: 30
 #
+#  ##GitLab (core)
+#  gitlab:
+#    # Optional but recomended
+#    webhook-token: <your token>
+#    # Required if sending message to gitlab
+#    token: <personal access token>
 #  ## Github (core)
 #  github:
 #    # required

@@ -1,12 +1,16 @@
 import logging
+import asyncio
 from pathlib import Path
 
 import asynctest.mock as amock
-import opsdroid.connector.gitlab.events as gitlab_events
 import pytest
+
+import opsdroid.connector.gitlab.events as gitlab_events
 from opsdroid.connector.gitlab import ConnectorGitlab
 from opsdroid.matchers import match_event
 from opsdroid.testing import call_endpoint, running_opsdroid
+from opsdroid.const import GITLAB_API_ENDPOINT
+from opsdroid.events import Message
 
 
 @pytest.fixture
@@ -107,8 +111,10 @@ async def test_issue_created(opsdroid, connector, mock_api, caplog):
     @match_event(gitlab_events.GitlabIssueCreated)
     async def test_skill(opsdroid, config, event):
         url = "https://gitlab.com/FabioRosado/test-project/-/issues/1"
+        target = f"{GITLAB_API_ENDPOINT}/projects/30456730/issues/1"
         assert event.connector.name == "gitlab"
-        assert event.target == url
+        assert event.url == url
+        assert event.target == target
         assert event.project == "test-project"
         assert event.user == "FabioRosado"
         assert event.title == "New test issue"
@@ -143,7 +149,7 @@ async def test_issue_label_updated(opsdroid, connector, mock_api, caplog):
     async def test_skill(opsdroid, config, event):
         url = "https://gitlab.com/FabioRosado/test-project/-/issues/1"
         assert event.connector.name == "gitlab"
-        assert event.target == url
+        assert event.url == url
         assert event.project == "test-project"
         assert event.user == "FabioRosado"
         assert event.title == "New test issue"
@@ -178,7 +184,7 @@ async def test_issue_labeled(opsdroid, connector, mock_api, caplog):
     async def test_skill(opsdroid, config, event):
         url = "https://gitlab.com/FabioRosado/test-project/-/issues/2"
         assert event.connector.name == "gitlab"
-        assert event.target == url
+        assert event.url == url
         assert event.project == "test-project"
         assert event.user == "FabioRosado"
         assert event.title == "test"
@@ -213,7 +219,7 @@ async def test_issue_edited(opsdroid, connector, mock_api, caplog):
     async def test_skill(opsdroid, config, event):
         url = "https://gitlab.com/FabioRosado/test-project/-/issues/1"
         assert event.connector.name == "gitlab"
-        assert event.target == url
+        assert event.url == url
         assert event.project == "test-project"
         assert event.user == "FabioRosado"
         assert event.title == "New test issue"
@@ -248,7 +254,7 @@ async def test_generic_issue(opsdroid, connector, mock_api, caplog):
     async def test_skill(opsdroid, config, event):
         url = "https://gitlab.com/FabioRosado/test-project/-/issues/1"
         assert event.connector.name == "gitlab"
-        assert event.target == url
+        assert event.url == url
         assert event.project == "test-project"
         assert event.user == "FabioRosado"
         assert event.title == "New test issue"
@@ -283,7 +289,7 @@ async def test_no_token_returns_401(opsdroid, connector, mock_api, caplog):
     async def test_skill(opsdroid, config, event):
         url = "https://gitlab.com/FabioRosado/test-project/-/issues/1"
         assert event.connector.name == "gitlab"
-        assert event.target == url
+        assert event.url == url
         assert event.project == "test-project"
         assert event.user == "FabioRosado"
         assert event.title == "New test issue"
@@ -317,7 +323,7 @@ async def test_issue_closed(opsdroid, connector, mock_api, caplog):
     async def test_skill(opsdroid, config, event):
         url = "https://gitlab.com/FabioRosado/test-project/-/issues/1"
         assert event.connector.name == "gitlab"
-        assert event.target == url
+        assert event.url == url
         assert event.project == "test-project"
         assert event.user == "FabioRosado"
         assert event.title == "New test issue"
@@ -352,7 +358,7 @@ async def test_generic_issue_event(opsdroid, connector, mock_api, caplog):
     async def test_skill(opsdroid, config, event):
         url = "http://example.com/mike/diaspora"
         assert event.connector.name == "gitlab"
-        assert event.target == url
+        assert event.url == url
         assert event.project == "Diaspora"
         assert event.user == "jsmith"
         assert event.title is None
@@ -387,7 +393,7 @@ async def test_bad_json_file(opsdroid, connector, mock_api, caplog):
     async def test_skill(opsdroid, config, event):
         url = "http://example.com/mike/diaspora"
         assert event.connector.name == "gitlab"
-        assert event.target == url
+        assert event.url == url
         assert event.project == "Diaspora"
         assert event.user == "jsmith"
         assert event.title is None
@@ -423,7 +429,7 @@ async def test_mr_label_update_event(opsdroid, connector, mock_api, caplog):
     async def test_skill(opsdroid, config, event):
         url = "https://gitlab.com/FabioRosado/test-project/-/merge_requests/1"
         assert event.connector.name == "gitlab"
-        assert event.target == url
+        assert event.url == url
         assert event.project == "test-project"
         assert event.user == "FabioRosado"
         assert event.title == "Test MR"
@@ -458,7 +464,7 @@ async def test_mr_opened_event(opsdroid, connector, mock_api, caplog):
     async def test_skill(opsdroid, config, event):
         url = "https://gitlab.com/FabioRosado/test-project/-/merge_requests/1"
         assert event.connector.name == "gitlab"
-        assert event.target == url
+        assert event.url == url
         assert event.project == "test-project"
         assert event.user == "FabioRosado"
         assert event.title == "Test MR"
@@ -493,7 +499,7 @@ async def test_mr_merged_event(opsdroid, connector, mock_api, caplog):
     async def test_skill(opsdroid, config, event):
         url = "https://gitlab.com/FabioRosado/test-project/-/merge_requests/1"
         assert event.connector.name == "gitlab"
-        assert event.target == url
+        assert event.url == url
         assert event.project == "test-project"
         assert event.user == "FabioRosado"
         assert event.title == "Test MR"
@@ -528,7 +534,7 @@ async def test_mr_approved_event(opsdroid, connector, mock_api, caplog):
     async def test_skill(opsdroid, config, event):
         url = "https://gitlab.com/FabioRosado/test-project/-/merge_requests/1"
         assert event.connector.name == "gitlab"
-        assert event.target == url
+        assert event.url == url
         assert event.project == "test-project"
         assert event.user == "FabioRosado"
         assert event.title == "Test MR"
@@ -563,7 +569,7 @@ async def test_mr_closed_event(opsdroid, connector, mock_api, caplog):
     async def test_skill(opsdroid, config, event):
         url = "https://gitlab.com/FabioRosado/test-project/-/merge_requests/2"
         assert event.connector.name == "gitlab"
-        assert event.target == url
+        assert event.url == url
         assert event.project == "test-project"
         assert event.user == "FabioRosado"
         assert event.title == 'Revert Merge branch "test" into "main"'
@@ -598,7 +604,7 @@ async def test_mr_generic_event(opsdroid, connector, mock_api, caplog):
     async def test_skill(opsdroid, config, event):
         url = "https://gitlab.com/FabioRosado/test-project/-/merge_requests/2"
         assert event.connector.name == "gitlab"
-        assert event.target == url
+        assert event.url == url
         assert event.project == "test-project"
         assert event.user == "FabioRosado"
         assert event.title == 'Revert Merge branch "test" into "main"'
@@ -623,3 +629,118 @@ async def test_mr_generic_event(opsdroid, connector, mock_api, caplog):
         assert resp.status == 200
         assert "Test skill complete" in caplog.text
         assert "Exception when running skill" not in caplog.text
+
+
+ISSUE_TARGET = "FabioRosado/test-project/-/issues/1"
+
+
+@pytest.mark.asyncio
+async def test_send_message(opsdroid, caplog):
+    caplog.set_level(logging.DEBUG)
+
+    connector = ConnectorGitlab(
+        {"webhook-token": "secret-stuff!", "token": "my-token"},
+        opsdroid=opsdroid,
+    )
+
+    response = amock.Mock()
+    response.status = 201
+
+    with amock.patch(
+        "aiohttp.ClientSession.post", new=amock.CoroutineMock()
+    ) as patched_request:
+        patched_request.return_value = asyncio.Future()
+        patched_request.return_value.set_result(response)
+
+        assert opsdroid.__class__.instances
+
+        test_message = Message(
+            text="This is a test",
+            user="opsdroid",
+            target=ISSUE_TARGET,
+            connector=connector,
+        )
+
+        patched_request.return_value = asyncio.Future()
+        patched_request.return_value.set_result(response)
+
+        result = await connector.send(test_message)
+
+        assert patched_request.called
+        assert "Responding via Gitlab" in caplog.text
+        assert "Message 'This is a test' sent to GitLab" in caplog.text
+        assert result is True
+
+
+@pytest.mark.asyncio
+async def test_send_message_bad_status(opsdroid, caplog):
+    caplog.set_level(logging.DEBUG)
+
+    connector = ConnectorGitlab(
+        {"webhook-token": "secret-stuff!", "token": "my-token"},
+        opsdroid=opsdroid,
+    )
+
+    response = amock.Mock()
+    response.status = 422
+
+    with amock.patch(
+        "aiohttp.ClientSession.post", new=amock.CoroutineMock()
+    ) as patched_request:
+        patched_request.return_value = asyncio.Future()
+        patched_request.return_value.set_result(response)
+
+        assert opsdroid.__class__.instances
+
+        test_message = Message(
+            text="This is a test",
+            user="opsdroid",
+            target=ISSUE_TARGET,
+            connector=connector,
+        )
+
+        patched_request.return_value = asyncio.Future()
+        patched_request.return_value.set_result(response)
+
+        result = await connector.send(test_message)
+
+        assert patched_request.called
+        assert "Responding via Gitlab" in caplog.text
+        assert "Unable to send 'This is a test' to GitLab." in caplog.text
+        assert result is False
+
+
+@pytest.mark.asyncio
+async def test_send_message_no_token(opsdroid, caplog):
+    caplog.set_level(logging.DEBUG)
+
+    connector = ConnectorGitlab(
+        {"webhook-token": "secret-stuff!"},
+        opsdroid=opsdroid,
+    )
+
+    response = amock.Mock()
+
+    with amock.patch(
+        "aiohttp.ClientSession.post", new=amock.CoroutineMock()
+    ) as patched_request:
+        patched_request.return_value = asyncio.Future()
+        patched_request.return_value.set_result(response)
+
+        assert opsdroid.__class__.instances
+
+        test_message = Message(
+            text="This is a test",
+            user="opsdroid",
+            target=ISSUE_TARGET,
+            connector=connector,
+        )
+
+        patched_request.return_value = asyncio.Future()
+        patched_request.return_value.set_result(response)
+
+        result = await connector.send(test_message)
+
+        assert not patched_request.called
+        assert "Unable to reply to GitLab" in caplog.text
+        assert result is False

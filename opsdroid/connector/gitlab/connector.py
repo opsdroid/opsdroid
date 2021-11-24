@@ -102,6 +102,7 @@ class ConnectorGitlab(Connector):
 
     def __init__(self, config: dict, opsdroid: Optional[OpsDroid] = None):
         _LOGGER.debug(_("Starting Gitlab connector."))
+        super().__init__(config, opsdroid=opsdroid)
         self.name = config.get("name", "gitlab")
         self.opsdroid = opsdroid
         self.webhook_token = config.get("webhook-token")
@@ -361,19 +362,12 @@ class ConnectorGitlab(Connector):
         Note that if we don't have a target then we won't return any message.
 
         """
-        _LOGGER.debug(_("Responding via Gitlab"))
-
         if not self.token:
             _LOGGER.error(
                 _("Unable to reply to GitLab, you must specify an account token!")
             )
-        elif not message.target:
-            _LOGGER.error(
-                _(
-                    "Unable to reply to GitLab, the message event doesn't contain a target, but should."
-                )
-            )
         else:
+            _LOGGER.debug(_("Responding via Gitlab"))
             headers = {"PRIVATE-TOKEN": self.token, "Content-Type": "application/json"}
             async with aiohttp.ClientSession(trust_env=True) as session:
                 resp = await session.post(
@@ -391,7 +385,7 @@ class ConnectorGitlab(Connector):
                 else:
                     _LOGGER.error(
                         _(
-                            f"Unable to send {message.text} to GitLab. Received status code: {resp.status}"
+                            f"Unable to send '{message.text}' to GitLab. Received status code: {resp.status}"
                         )
                     )
         return False
