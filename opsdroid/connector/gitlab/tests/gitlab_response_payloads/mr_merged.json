@@ -1,0 +1,156 @@
+{
+    "object_kind": "merge_request",
+    "event_type": "merge_request",
+    "user": {
+        "id": 3612771,
+        "name": "Fabio Rosado",
+        "username": "FabioRosado",
+        "avatar_url": "https://secure.gravatar.com/avatar/c13aab50cd7f21b8c340136ac4ce515a?s=80&d=identicon",
+        "email": "[REDACTED]"
+    },
+    "project": {
+        "id": 30456730,
+        "name": "test-project",
+        "description": "",
+        "web_url": "https://gitlab.com/FabioRosado/test-project",
+        "avatar_url": null,
+        "git_ssh_url": "git@gitlab.com:FabioRosado/test-project.git",
+        "git_http_url": "https://gitlab.com/FabioRosado/test-project.git",
+        "namespace": "Fabio Rosado",
+        "visibility_level": 0,
+        "path_with_namespace": "FabioRosado/test-project",
+        "default_branch": "main",
+        "ci_config_path": "",
+        "homepage": "https://gitlab.com/FabioRosado/test-project",
+        "url": "git@gitlab.com:FabioRosado/test-project.git",
+        "ssh_url": "git@gitlab.com:FabioRosado/test-project.git",
+        "http_url": "https://gitlab.com/FabioRosado/test-project.git"
+    },
+    "object_attributes": {
+        "assignee_id": 3612771,
+        "author_id": 3612771,
+        "created_at": "2021-11-07 18:14:50 UTC",
+        "description": "",
+        "head_pipeline_id": null,
+        "id": 124957728,
+        "iid": 1,
+        "last_edited_at": null,
+        "last_edited_by_id": null,
+        "merge_commit_sha": "5e25ad25ca9133fdfaa5263db83dc4ca3024b589",
+        "merge_error": null,
+        "merge_params": {
+            "force_remove_source_branch": "1"
+        },
+        "merge_status": "can_be_merged",
+        "merge_user_id": null,
+        "merge_when_pipeline_succeeds": false,
+        "milestone_id": null,
+        "source_branch": "test",
+        "source_project_id": 30456730,
+        "state_id": 3,
+        "target_branch": "main",
+        "target_project_id": 30456730,
+        "time_estimate": 0,
+        "title": "Test MR",
+        "updated_at": "2021-11-17 12:53:22 UTC",
+        "updated_by_id": 3612771,
+        "url": "https://gitlab.com/FabioRosado/test-project/-/merge_requests/1",
+        "source": {
+            "id": 30456730,
+            "name": "test-project",
+            "description": "",
+            "web_url": "https://gitlab.com/FabioRosado/test-project",
+            "avatar_url": null,
+            "git_ssh_url": "git@gitlab.com:FabioRosado/test-project.git",
+            "git_http_url": "https://gitlab.com/FabioRosado/test-project.git",
+            "namespace": "Fabio Rosado",
+            "visibility_level": 0,
+            "path_with_namespace": "FabioRosado/test-project",
+            "default_branch": "main",
+            "ci_config_path": "",
+            "homepage": "https://gitlab.com/FabioRosado/test-project",
+            "url": "git@gitlab.com:FabioRosado/test-project.git",
+            "ssh_url": "git@gitlab.com:FabioRosado/test-project.git",
+            "http_url": "https://gitlab.com/FabioRosado/test-project.git"
+        },
+        "target": {
+            "id": 30456730,
+            "name": "test-project",
+            "description": "",
+            "web_url": "https://gitlab.com/FabioRosado/test-project",
+            "avatar_url": null,
+            "git_ssh_url": "git@gitlab.com:FabioRosado/test-project.git",
+            "git_http_url": "https://gitlab.com/FabioRosado/test-project.git",
+            "namespace": "Fabio Rosado",
+            "visibility_level": 0,
+            "path_with_namespace": "FabioRosado/test-project",
+            "default_branch": "main",
+            "ci_config_path": "",
+            "homepage": "https://gitlab.com/FabioRosado/test-project",
+            "url": "git@gitlab.com:FabioRosado/test-project.git",
+            "ssh_url": "git@gitlab.com:FabioRosado/test-project.git",
+            "http_url": "https://gitlab.com/FabioRosado/test-project.git"
+        },
+        "last_commit": {
+            "id": "fcad4dba40a75eb106df49e90dd7eb162ac95589",
+            "message": "Add new commit\n",
+            "title": "Add new commit",
+            "timestamp": "2021-11-07T18:19:26+00:00",
+            "url": "https://gitlab.com/FabioRosado/test-project/-/commit/fcad4dba40a75eb106df49e90dd7eb162ac95589",
+            "author": {
+                "name": "FabioRosado",
+                "email": "fabioglrosado@gmail.com"
+            }
+        },
+        "work_in_progress": false,
+        "total_time_spent": 0,
+        "time_change": 0,
+        "human_total_time_spent": null,
+        "human_time_change": null,
+        "human_time_estimate": null,
+        "assignee_ids": [
+            3612771
+        ],
+        "state": "merged",
+        "action": "merge"
+    },
+    "labels": [
+        {
+            "id": 22478750,
+            "title": "blah",
+            "color": "#ff0000",
+            "project_id": 30456730,
+            "created_at": "2021-11-07 18:17:22 UTC",
+            "updated_at": "2021-11-07 18:17:22 UTC",
+            "template": false,
+            "description": null,
+            "type": "ProjectLabel",
+            "group_id": null
+        }
+    ],
+    "changes": {
+        "state_id": {
+            "previous": 4,
+            "current": 3
+        },
+        "updated_at": {
+            "previous": "2021-11-17 12:53:22 UTC",
+            "current": "2021-11-17 12:53:22 UTC"
+        }
+    },
+    "repository": {
+        "name": "test-project",
+        "url": "git@gitlab.com:FabioRosado/test-project.git",
+        "description": "",
+        "homepage": "https://gitlab.com/FabioRosado/test-project"
+    },
+    "assignees": [
+        {
+            "id": 3612771,
+            "name": "Fabio Rosado",
+            "username": "FabioRosado",
+            "avatar_url": "https://secure.gravatar.com/avatar/c13aab50cd7f21b8c340136ac4ce515a?s=80&d=identicon",
+            "email": "[REDACTED]"
+        }
+    ]
+}

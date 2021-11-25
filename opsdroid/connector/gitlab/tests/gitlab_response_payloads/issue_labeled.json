@@ -1,0 +1,125 @@
+{
+    "object_kind": "issue",
+    "event_type": "issue",
+    "user": {
+        "id": 3612771,
+        "name": "Fabio Rosado",
+        "username": "FabioRosado",
+        "avatar_url": "https://secure.gravatar.com/avatar/c13aab50cd7f21b8c340136ac4ce515a?s=80&d=identicon",
+        "email": "[REDACTED]"
+    },
+    "project": {
+        "id": 30456730,
+        "name": "test-project",
+        "description": "",
+        "web_url": "https://gitlab.com/FabioRosado/test-project",
+        "avatar_url": null,
+        "git_ssh_url": "git@gitlab.com:FabioRosado/test-project.git",
+        "git_http_url": "https://gitlab.com/FabioRosado/test-project.git",
+        "namespace": "Fabio Rosado",
+        "visibility_level": 0,
+        "path_with_namespace": "FabioRosado/test-project",
+        "default_branch": "main",
+        "ci_config_path": "",
+        "homepage": "https://gitlab.com/FabioRosado/test-project",
+        "url": "git@gitlab.com:FabioRosado/test-project.git",
+        "ssh_url": "git@gitlab.com:FabioRosado/test-project.git",
+        "http_url": "https://gitlab.com/FabioRosado/test-project.git"
+    },
+    "object_attributes": {
+        "author_id": 3612771,
+        "closed_at": null,
+        "confidential": false,
+        "created_at": "2021-11-17 13:34:41 UTC",
+        "description": "",
+        "discussion_locked": null,
+        "due_date": null,
+        "id": 97484746,
+        "iid": 2,
+        "last_edited_at": null,
+        "last_edited_by_id": null,
+        "milestone_id": null,
+        "moved_to_id": null,
+        "duplicated_to_id": null,
+        "project_id": 30456730,
+        "relative_position": 1026,
+        "state_id": 1,
+        "time_estimate": 0,
+        "title": "test",
+        "updated_at": "2021-11-17 13:35:43 UTC",
+        "updated_by_id": 3612771,
+        "weight": null,
+        "url": "https://gitlab.com/FabioRosado/test-project/-/issues/2",
+        "total_time_spent": 0,
+        "time_change": 0,
+        "human_total_time_spent": null,
+        "human_time_change": null,
+        "human_time_estimate": null,
+        "assignee_ids": [],
+        "assignee_id": null,
+        "labels": [
+            {
+                "id": 22478750,
+                "title": "blah",
+                "color": "#ff0000",
+                "project_id": 30456730,
+                "created_at": "2021-11-07 18:17:22 UTC",
+                "updated_at": "2021-11-07 18:17:22 UTC",
+                "template": false,
+                "description": null,
+                "type": "ProjectLabel",
+                "group_id": null
+            }
+        ],
+        "state": "opened",
+        "severity": "unknown",
+        "action": "update"
+    },
+    "labels": [
+        {
+            "id": 22478750,
+            "title": "blah",
+            "color": "#ff0000",
+            "project_id": 30456730,
+            "created_at": "2021-11-07 18:17:22 UTC",
+            "updated_at": "2021-11-07 18:17:22 UTC",
+            "template": false,
+            "description": null,
+            "type": "ProjectLabel",
+            "group_id": null
+        }
+    ],
+    "changes": {
+        "updated_at": {
+            "previous": "2021-11-17 13:35:42 UTC",
+            "current": "2021-11-17 13:35:43 UTC"
+        },
+        "updated_by_id": {
+            "previous": null,
+            "current": 3612771
+        },
+        "labels": {
+            "previous": [],
+            "current": [
+                {
+                    "id": 22478750,
+                    "title": "blah",
+                    "color": "#ff0000",
+                    "project_id": 30456730,
+                    "created_at": "2021-11-07 18:17:22 UTC",
+                    "updated_at": "2021-11-07 18:17:22 UTC",
+                    "template": false,
+                    "description": null,
+                    "type": "ProjectLabel",
+                    "group_id": null
+                }
+            ]
+        }
+    },
+    "repository": {
+        "name": "test-project",
+        "url": "git@gitlab.com:FabioRosado/test-project.git",
+        "description": "",
+        "homepage": "https://gitlab.com/FabioRosado/test-project"
+    }
+}
