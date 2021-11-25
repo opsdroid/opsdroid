@@ -65,8 +65,7 @@ class ThankUser(Skill):
     @match_event(GitlabIssueCreated)
     async def say_thank_you(self, event):
         """Send message to issue, thanking user."""
-        gitlab = self.opsdroid.get_connector("gitlab")
-        await gitlab.send(
+        await event.respond(
             Message(
                 text="Thank you for opening this issue, a team member will be with you shortly!",
                 target=event.target
