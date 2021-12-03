@@ -1,17 +1,65 @@
 """Submodule to handle web requests in opsdroid."""
 
 import asyncio
+import dataclasses
 import json
 import logging
 import ssl
+from json.decoder import JSONDecodeError
 
 from aiohttp import web
+from aiohttp.web import HTTPForbidden
+from aiohttp.web_exceptions import HTTPBadRequest
 
 from opsdroid import __version__
+from opsdroid.const import EXCLUDED_CONFIG_KEYS
 from opsdroid.helper import Timeout
 
-
 _LOGGER = logging.getLogger(__name__)
+
+
+@dataclasses.dataclass
+class Payload:
+    change_type: str
+    module_name: str
+    config: dict
+
+    def __post_init__(self):
+        for name, field_type in self.__annotations__.items():
+            provided_arg = self.__dict__[name]
+            if not isinstance(provided_arg, field_type):
+                raise TypeError(
+                    f"The field '{name}' is of type '{type(provided_arg)}', but "
+                    f"should be of type '{field_type}'"
+                )
+
+    @classmethod
+    def from_dict(cls, payload: dict):
+        """Create Payload object from dictionary."""
+        required_keys = ("change_type", "module_name", "config")
+        for key in required_keys:
+            if key not in payload:
+                raise KeyError(
+                    f"Received payload is missing required key: '{key}', "
+                    f"please include all required keys {required_keys} in "
+                    "your payload."
+                )
+
+        change_type = payload["change_type"]
+
+        allowed_change_types = ("connector", "skill", "parser", "config")
+
+        if change_type not in allowed_change_types:
+            raise TypeError(
+                f"The change type '{change_type}' is not a supported type. "
+                f"Please provide one of the allowed types {allowed_change_types}."
+            )
+
+        return cls(
+            change_type=payload["change_type"],
+            module_name=payload["module_name"],
+            config=payload["config"],
+        )
 
 
 class Web:
@@ -29,10 +77,28 @@ class Web:
         self.web_app = web.Application()
         self.runner = web.AppRunner(self.web_app)
         self.site = None
+        self.command_center = self.config.get("command-center", {})
         if not self.config.get("disable_web_index_handler_in_root", False):
             self.web_app.router.add_get("/", self.web_index_handler)
             self.web_app.router.add_get("", self.web_index_handler)
 
+        self.excluded_keys = EXCLUDED_CONFIG_KEYS + self.command_center.get(
+            "excluded-keys", []
+        )
+        self.expected_header = self.command_center.get("token")
+        if self.command_center:
+            self.web_app.router.add_get("/connectors", self.connectors_handler)
+            self.web_app.router.add_get("/connectors/", self.connectors_handler)
+            self.web_app.router.add_patch("/connectors", self.connectors_handler)
+            self.web_app.router.add_patch("/connectors/", self.connectors_handler)
+            self.web_app.router.add_get("/skills", self.skills_handler)
+            self.web_app.router.add_get("/skills/", self.skills_handler)
+            self.web_app.router.add_get("/databases", self.databases_handler)
+            self.web_app.router.add_get("/databases/", self.databases_handler)
+            self.web_app.router.add_get("/config", self.config_handler)
+            self.web_app.router.add_get("/config/", self.config_handler)
+            self.web_app.router.add_get("/parsers", self.parsers_handler)
+            self.web_app.router.add_get("/parsers/", self.parsers_handler)
         self.web_app.router.add_get("/stats", self.web_stats_handler)
         self.web_app.router.add_get("/stats/", self.web_stats_handler)
 
@@ -198,6 +264,10 @@ class Web:
         """
         return self.build_response(200, {"message": "Welcome to the opsdroid API"})
 
+    async def check_request(self, request):
+        if self.expected_header and request.headers.get("AUTHORIZATION") is None:
+            raise HTTPForbidden()
+
     async def web_stats_handler(self, request):
         """Handle stats request.
 
@@ -235,3 +305,129 @@ class Web:
                 },
             },
         )
+
+    def get_module_config(self, module_list: list) -> dict:
+        config = {}
+        for module in module_list:
+            module_config = {
+                key: value
+                for key, value in module.config.items()
+                if key not in self.excluded_keys
+            }
+            config[module.config["name"]] = module_config
+
+        return config
+
+    async def handle_patch(self, request):
+        try:
+            received_payload = await request.json()
+            payload = Payload.from_dict(received_payload)  # noqa: F841
+        except JSONDecodeError:
+            data = await request.read()
+            _LOGGER.error(f"Unable to decode json. Received - {data}")
+            raise HTTPBadRequest()
+        except (TypeError, KeyError) as error:
+            raise HTTPBadRequest(reason=str(error))
+
+        # TODO: Handle different change_types here!
+
+        config = self.opsdroid.config
+        await self.opsdroid.connectors[0].disconnect()
+
+        config["connectors"]["shell"]["enabled"] = False
+        # await self.opsdroid.unload()
+        await self.opsdroid.load(config)
+
+    async def connectors_handler(self, request):
+        """Handle connectors request.
+
+        Args:
+            request: Web request to render opsdroid connectors
+
+        Returns:
+            dict: returns successful status code and dictionary with
+                connectors.
+
+        """
+        await self.check_request(request)
+        payload = self.get_module_config(self.opsdroid.connectors)
+        if request.method == "GET":
+            return self.build_response(200, payload)
+        elif request.method == "PATCH":
+            await self.handle_patch(request)
+            # breakpoint()
+
+    async def skills_handler(self, request):
+        """Handle get skills request.
+
+        Args:
+            request: Web request to render opsdroid connectors
+
+        Returns:
+            dict: returns successful status code and dictionary with
+                connectors.
+
+        """
+
+        payload = {
+            connector.config["name"]: connector.config
+            for connector in self.opsdroid.skills
+        }
+
+        return self.build_response(200, payload)
+
+    async def databases_handler(self, request):
+        """Handle get databases request.
+
+        Args:
+            request: Web request to render opsdroid connectors
+
+        Returns:
+            dict: returns successful status code and dictionary with
+                connectors.
+
+        """
+        await self.check_request(request)
+        payload = {
+            connector.config["name"]: connector.config
+            for connector in self.opsdroid.databases
+        }
+        return self.build_response(200, payload)
+
+    async def config_handler(self, request):
+        """Handle get connectors request.
+
+        Args:
+            request: Web request to render opsdroid connectors
+
+        Returns:
+            dict: returns successful status code and dictionary with
+                connectors.
+
+        """
+        await self.check_request(request)
+        payload = {
+            key: value
+            for key, value in self.opsdroid.config
+            if key not in self.excluded_keys
+        }
+        return self.build_response(200, payload)
+
+    async def parsers_handler(self, request):
+        """Handle get connectors request.
+
+        Args:
+            request: Web request to render opsdroid connectors
+
+        Returns:
+            dict: returns successful status code and dictionary with
+                connectors.
+
+        """
+        await self.check_request(request)
+        payload = {
+            key: value
+            for key, value in self.opsdroid.parsers
+            if key not in self.excluded_keys
+        }
+        return self.build_response(200, payload)

@@ -1,12 +1,11 @@
 """Test the opsdroid web."""
 import ssl
 
+import aiohttp.web
 import asynctest.mock as amock
 import pytest
-
-from opsdroid.cli.start import configure_lang
 from opsdroid import web
-import aiohttp.web
+from opsdroid.cli.start import configure_lang
 
 configure_lang({})
 
@@ -131,3 +130,51 @@ async def test_web_port_in_use(opsdroid, bound_address):
     # windows: Errno 10013 (WSAEACCESS) or 10048 (WSAEADDRINUSE)
     with pytest.raises(OSError):
         await app.start()
+
+
+def test_payload():
+    request_payload = {
+        "change_type": "connector",
+        "module_name": "shell",
+        "config": {"enabled": False},
+    }
+
+    payload_dataclass = web.Payload.from_dict(request_payload)
+
+    assert payload_dataclass.change_type == request_payload["change_type"]
+    assert payload_dataclass.module_name == "shell"
+    assert payload_dataclass.config == request_payload["config"]
+
+
+def test_payload_raises_validation_exceptions():
+    request_payload = {
+        "change_type": "connector",
+        "module_name": 1,
+        "config": {"enabled": False},
+    }
+
+    expected_error_message = (
+        "The field 'module_name' is of type '<class 'int'>', but should "
+        "be of type '<class 'str'>'"
+    )
+
+    with pytest.raises(TypeError, match=expected_error_message):
+        web.Payload.from_dict(request_payload)
+
+    request_payload = {"module_name": "shell"}
+
+    expected_error_message = "Received payload is missing required key: 'change_type',"
+
+    with pytest.raises(KeyError, match=expected_error_message):
+        web.Payload.from_dict(request_payload)
+
+    request_payload = {
+        "change_type": "web",
+        "module_name": "port",
+        "config": {"port": 80},
+    }
+
+    expected_error_message = "The change type 'web' is not a supported type."
+
+    with pytest.raises(TypeError, match=expected_error_message):
+        web.Payload.from_dict(request_payload)
