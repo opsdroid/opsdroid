@@ -1,12 +1,14 @@
 """Submodule to handle web requests in opsdroid."""
 
 import asyncio
+import copy
 import dataclasses
 import json
 import logging
 import ssl
 from json.decoder import JSONDecodeError
 
+import toolz
 from aiohttp import web
 from aiohttp.web import HTTPForbidden
 from aiohttp.web_exceptions import HTTPBadRequest
@@ -306,7 +308,17 @@ class Web:
             },
         )
 
-    def get_module_config(self, module_list: list) -> dict:
+    def get_scrubbed_module_config(self, module_list: list) -> dict:
+        """Get module config without sensitive keys.
+
+        When reading the configuration from modules, there might be some
+        sensitive information such as tokens, password. The configuration
+        might have also pointers used for loading the module.
+
+        This method will remove a list of default keys plus any extra keys
+        that the user might ask to scrub when configuring command center.
+
+        """
         config = {}
         for module in module_list:
             module_config = {
@@ -318,10 +330,45 @@ class Web:
 
         return config
 
+    def update_config(
+        self, provided_config: dict, module_type: str, module_name: str
+    ) -> dict:
+        """Update config from provided config.
+
+        Users will be able to update the whole config or only parts
+        of it - for example when toggling a module on/off all we need
+        to do is set ``enabled: False``.
+
+        This method will handle the update of the configuration by
+        copying the current configuration, look for the ``module_type``
+        and then update the ``module_name`` in the config.
+
+        """
+        config = copy.deepcopy(self.opsdroid.config)
+
+        try:
+            section = config[module_type][module_name]
+            updated_module_config = toolz.merge(
+                config[module_type][module_name], provided_config
+            )
+        except KeyError:
+            raise KeyError(
+                f"Unable to update configuration, couldn't find '{module_type}.{module_name}' "
+                f"in your configuration. Please confirm that '{module_type}.{module_name}' "
+                "exists."
+            )
+
+        _LOGGER.debug(
+            f"Original config: {section} was updated with {updated_module_config}"
+        )
+
+        config[module_type][module_name] = updated_module_config
+        return config
+
     async def handle_patch(self, request):
         try:
             received_payload = await request.json()
-            payload = Payload.from_dict(received_payload)  # noqa: F841
+            payload = Payload.from_dict(received_payload)
         except JSONDecodeError:
             data = await request.read()
             _LOGGER.error(f"Unable to decode json. Received - {data}")
@@ -329,14 +376,35 @@ class Web:
         except (TypeError, KeyError) as error:
             raise HTTPBadRequest(reason=str(error))
 
-        # TODO: Handle different change_types here!
+        if payload.change_type == "connectors":
+            modules_list = self.opsdroid.connectors
+        elif payload.change_type == "skills":
+            modules_list = self.opsdroid.skills
+        else:
+            modules_list = self.opsdroid.parsers
 
-        config = self.opsdroid.config
-        await self.opsdroid.connectors[0].disconnect()
+        for module in modules_list:
+            if module.name == payload.module_name:
+                _LOGGER.info(
+                    f"Found {module.name}, module will be stopped/disconnected."
+                )
+                # TODO: We need to handle skills/parsers here since they
+                # have different ways to disconnect I think?
+                await module.disconnect()
 
-        config["connectors"]["shell"]["enabled"] = False
+        updated_config = self.update_config(
+            provided_config=payload.config,
+            module_type=payload.change_type,
+            module_name=payload.module_name,
+        )
+
+        _LOGGER.debug(
+            f"Configuration updated with user provided changes({payload.config}). "
+            "Loading opsdroid configuration..."
+        )
+        # TODO: Do we want to unload everything first?
         # await self.opsdroid.unload()
-        await self.opsdroid.load(config)
+        await self.opsdroid.load(updated_config)
 
     async def connectors_handler(self, request):
         """Handle connectors request.
@@ -350,12 +418,11 @@ class Web:
 
         """
         await self.check_request(request)
-        payload = self.get_module_config(self.opsdroid.connectors)
+        payload = self.get_scrubbed_module_config(self.opsdroid.connectors)
         if request.method == "GET":
             return self.build_response(200, payload)
         elif request.method == "PATCH":
             await self.handle_patch(request)
-            # breakpoint()
 
     async def skills_handler(self, request):
         """Handle get skills request.

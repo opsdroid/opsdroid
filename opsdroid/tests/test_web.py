@@ -178,3 +178,74 @@ def test_payload_raises_validation_exceptions():
 
     with pytest.raises(TypeError, match=expected_error_message):
         web.Payload.from_dict(request_payload)
+
+
+def test_update_config(opsdroid):
+    opsdroid.config = {"connectors": {"gitlab": {"webhook-token": "my-token"}}}
+    app = web.Web(opsdroid)
+
+    with pytest.raises(KeyError, match="Unable to update configuration"):
+        app.update_config({"token": "123"}, "connectors", "github")
+        app.update_config({"new": "config"}, "parsers", "rasa")
+
+    updated_config = app.update_config({"token": "123"}, "connectors", "gitlab")
+
+    assert "token" in updated_config["connectors"]["gitlab"]
+    assert updated_config["connectors"]["gitlab"] == {
+        "webhook-token": "my-token",
+        "token": "123",
+    }
+
+
+@pytest.mark.asyncio
+async def test_get_scrubbed_module_config(opsdroid):
+    app = web.Web(opsdroid)
+
+    # This is an empty list
+    module_list = opsdroid.connectors
+    scrubbed_config = app.get_scrubbed_module_config(module_list)
+
+    # Since the module_list is empty, we should get an empty dict.
+    assert scrubbed_config == {}
+
+    # Let's load some modules and see if it works
+    config = {"connectors": {"shell": {"token": "123"}}}
+
+    await opsdroid.load(config)
+    connectors_list = opsdroid.connectors
+    scrubbed_modules_config = app.get_scrubbed_module_config(connectors_list)
+    assert "token" not in scrubbed_modules_config["shell"]
+    assert "name" in scrubbed_modules_config["shell"]
+    assert "type" in scrubbed_modules_config["shell"]
+    assert "enabled" in scrubbed_modules_config["shell"]
+
+
+@pytest.mark.asyncio
+async def test_get_scrubbed_module_config_with_user_provided_keys(opsdroid):
+    """
+
+    Let's test that user provided keys are removed as well. Scrubbed logs with only
+    the default keys set, will contain the following keys:
+    ['name', 'module', 'type', 'enabled', 'entrypoint', 'module_path', 'install_path', 'branch']
+
+    """
+    config = {
+        "web": {
+            "command-center": {
+                "enabled": True,
+                "excluded-keys": ["module", "type", "enabled"],
+            }
+        },
+        "connectors": {"shell": {"token": "456"}},
+    }
+
+    await opsdroid.load(config)
+
+    app = web.Web(opsdroid)
+    connectors_list = opsdroid.connectors
+    extra_scrubbed_config = app.get_scrubbed_module_config(connectors_list)
+    assert "module" not in extra_scrubbed_config["shell"]
+    assert "type" not in extra_scrubbed_config["shell"]
+    assert "enabled" not in extra_scrubbed_config["shell"]
+    assert "name" in extra_scrubbed_config["shell"]
+    assert "install_path" in extra_scrubbed_config["shell"]
