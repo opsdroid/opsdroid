@@ -53,3 +53,172 @@ The response includes information on whether a skill was successfully triggered 
   "called_skill": "examplewebhookskill"
 }
 ```
+## Command Center Methods
+
+These endpoints are only available if you have [`command center`](command-center.md) enabled.
+
+## `/connectors` _[GET]_
+
+This method returns a list of all the connectors loaded in opsdroid and their respective configuration (sensitive parameters such as tokens are removed.)
+
+**Example response**
+
+```json
+{
+  "websocket": {
+    "name": "websocket",
+    "module": "",
+    "bot-name": "mybot",
+    "max-connections": 10,
+    "connection-timeout": 10,
+    "type": "connector",
+    "enabled": true,
+    "entrypoint": null,
+    "module_path": "opsdroid.connector.websocket",
+    "install_path": "/Users/fabiorosado/Library/Application Support/opsdroid/opsdroid_modules/connector/websocket", 
+    "branch": "master"
+  }
+}
+```
+
+## `/skills` _[GET]_
+
+This method returns a list of all the skills loaded in opsdroid and their respective configuration (sensitive parameters such as tokens are removed.)
+
+**Example response**
+
+```json
+{
+  "dance": {
+    "name": "dance",
+    "module": "",
+    "type": "skill",
+    "enabled": true,
+    "entrypoint": null,
+    "is_builtin": null,
+    "module_path": "opsdroid_modules.skill.dance",
+    "install_path": "/Users/fabiorosado/Library/Application Support/opsdroid/opsdroid_modules/skill/dance",
+    "branch": "master"
+  },
+  "hello": {
+    "name": "hello",
+    "module": "",
+    "type": "skill",
+    "enabled": true,
+    "entrypoint": null,
+    "is_builtin": null,
+    "module_path": "opsdroid_modules.skill.hello",
+    "install_path": "/Users/fabiorosado/Library/Application Support/opsdroid/opsdroid_modules/skill/hello",
+    "branch": "master"
+  },
+  "loudnoises": {
+    "name": "loudnoises",
+    "module": "",
+    "type": "skill",
+    "enabled": true,
+    "entrypoint": null,
+    "is_builtin": null,
+    "module_path": "opsdroid_modules.skill.loudnoises",
+    "install_path": "/Users/fabiorosado/Library/Application Support/opsdroid/opsdroid_modules/skill/loudnoises",
+    "branch": "master"
+  },
+  "seen": {
+    "name": "seen",
+    "module": "",
+    "type": "skill",
+    "enabled": true,
+    "entrypoint": null,
+    "is_builtin": null,
+    "module_path": "opsdroid_modules.skill.seen",
+    "install_path": "/Users/fabiorosado/Library/Application Support/opsdroid/opsdroid_modules/skill/seen",
+    "branch": "master"
+  }
+}
+```
+## `/databases` _[GET]_
+
+This method returns a list of all the connectors loaded in opsdroid and their respective configuration (sensitive parameters such as tokens are removed.)
+
+**Example response**
+
+```json
+{
+  "websocket": {
+    "name": "websocket",
+    "module": "",
+    "bot-name": "mybot",
+    "max-connections": 10,
+    "connection-timeout": 10,
+    "type": "connector",
+    "enabled": true,
+    "entrypoint": null,
+    "module_path": "opsdroid.connector.websocket",
+    "install_path": "/Users/fabiorosado/Library/Application Support/opsdroid/opsdroid_modules/connector/websocket", 
+    "branch": "master"
+  }
+}
+```
+
+## `/parsers` _[GET]_
+
+This method returns a list of all the connectors loaded in opsdroid and their respective configuration (sensitive parameters such as tokens are removed.)
+
+**Example response**
+
+```json
+{
+  "regex": {
+    "name": "regex",
+    "module": "",
+    "type": "parsers",
+    "enabled": true,
+    "entrypoint": null,
+    "module_path": "opsdroid.parsers.regex",
+    "install_path": "/Users/fabiorosado/Library/Application Support/opsdroid/opsdroid_modules/parsers/regex",
+    "branch": "master"
+  },
+  "crontab": {
+    "name": "crontab",
+    "module": "",
+    "enabled": false,
+    "type": "parsers",
+    "entrypoint": null,
+    "module_path": "opsdroid.parsers.crontab",
+    "install_path": "/Users/fabiorosado/Library/Application Support/opsdroid/opsdroid_modules/parsers/crontab",
+    "branch": "master"
+  }
+}
+```
+
+## `/config` _[GET]_
+
+This method returns the configuration that opsdroid was loaded with. Sensitive configuration parameters will not be shown.
+
+**Example response**
+
+```json
+{
+  "logging": {
+    "level": "debug",
+  },
+  "welcome-message": true,
+  "web": {
+    "command-center": {
+      "enabled": true
+    },
+  },
+  "connectors": {
+    "websocket": {
+      "bot-name": "mybot",
+      "max-connections": 10,
+      "connection-timeout": 10
+    }
+  },
+  "skills": {
+    "dance": {},
+    "hello": {},
+    "loudnoises": {},
+    "seen": {}
+  }
+}
+```

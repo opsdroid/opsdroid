@@ -91,16 +91,22 @@ class Web:
         if self.command_center:
             self.web_app.router.add_get("/connectors", self.connectors_handler)
             self.web_app.router.add_get("/connectors/", self.connectors_handler)
-            self.web_app.router.add_patch("/connectors", self.connectors_handler)
-            self.web_app.router.add_patch("/connectors/", self.connectors_handler)
+            self.web_app.router.add_patch("/connectors", self.handle_patch)
+            self.web_app.router.add_patch("/connectors/", self.handle_patch)
             self.web_app.router.add_get("/skills", self.skills_handler)
             self.web_app.router.add_get("/skills/", self.skills_handler)
+            self.web_app.router.add_patch("/skills", self.handle_patch)
+            self.web_app.router.add_patch("/skills/", self.handle_patch)
             self.web_app.router.add_get("/databases", self.databases_handler)
             self.web_app.router.add_get("/databases/", self.databases_handler)
-            self.web_app.router.add_get("/config", self.config_handler)
-            self.web_app.router.add_get("/config/", self.config_handler)
+            self.web_app.router.add_patch("/databases", self.handle_patch)
+            self.web_app.router.add_patch("/databases/", self.handle_patch)
             self.web_app.router.add_get("/parsers", self.parsers_handler)
             self.web_app.router.add_get("/parsers/", self.parsers_handler)
+            self.web_app.router.add_patch("/parsers", self.handle_patch)
+            self.web_app.router.add_patch("/parsers/", self.handle_patch)
+            self.web_app.router.add_get("/config", self.config_handler)
+            self.web_app.router.add_get("/config/", self.config_handler)
         self.web_app.router.add_get("/stats", self.web_stats_handler)
         self.web_app.router.add_get("/stats/", self.web_stats_handler)
 
@@ -419,10 +425,7 @@ class Web:
         """
         await self.check_request(request)
         payload = self.get_scrubbed_module_config(self.opsdroid.connectors)
-        if request.method == "GET":
-            return self.build_response(200, payload)
-        elif request.method == "PATCH":
-            await self.handle_patch(request)
+        return self.build_response(200, payload)
 
     async def skills_handler(self, request):
         """Handle get skills request.
@@ -473,9 +476,10 @@ class Web:
 
         """
         await self.check_request(request)
+        # TODO: we need to sort the nested dicts!
         payload = {
             key: value
-            for key, value in self.opsdroid.config
+            for key, value in self.opsdroid.config.items()
             if key not in self.excluded_keys
         }
         return self.build_response(200, payload)
@@ -492,9 +496,12 @@ class Web:
 
         """
         await self.check_request(request)
-        payload = {
-            key: value
-            for key, value in self.opsdroid.parsers
-            if key not in self.excluded_keys
-        }
+        payload = {}
+        for parser in self.opsdroid.modules.get("parsers", []):
+            parser_name = parser["config"]["name"]
+            payload[parser_name] = {}
+            for key, value in parser["config"].items():
+                if key not in self.excluded_keys:
+                    payload[parser_name][key] = value
+
         return self.build_response(200, payload)
