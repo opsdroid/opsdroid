@@ -1,4 +1,5 @@
 """Test the opsdroid web."""
+import json
 import ssl
 
 import aiohttp.web
@@ -201,7 +202,7 @@ def test_update_config(opsdroid):
 async def test_get_scrubbed_module_config(opsdroid):
     app = web.Web(opsdroid)
 
-    # This is an empty list
+    # This is an empty list as no modules are currently loaded
     module_list = opsdroid.connectors
     scrubbed_config = app.get_scrubbed_module_config(module_list)
 
@@ -214,6 +215,15 @@ async def test_get_scrubbed_module_config(opsdroid):
     await opsdroid.load(config)
     connectors_list = opsdroid.connectors
     scrubbed_modules_config = app.get_scrubbed_module_config(connectors_list)
+    assert "token" not in scrubbed_modules_config["shell"]
+    assert "name" in scrubbed_modules_config["shell"]
+    assert "type" in scrubbed_modules_config["shell"]
+    assert "enabled" in scrubbed_modules_config["shell"]
+
+    # Let's check that modules obtained from self.opsdroid.modules
+    # also work
+    modules_list = opsdroid.modules.get("connectors")
+    scrubbed_modules_config = app.get_scrubbed_module_config(modules_list)
     assert "token" not in scrubbed_modules_config["shell"]
     assert "name" in scrubbed_modules_config["shell"]
     assert "type" in scrubbed_modules_config["shell"]
@@ -249,3 +259,48 @@ async def test_get_scrubbed_module_config_with_user_provided_keys(opsdroid):
     assert "enabled" not in extra_scrubbed_config["shell"]
     assert "name" in extra_scrubbed_config["shell"]
     assert "install_path" in extra_scrubbed_config["shell"]
+
+
+@pytest.mark.asyncio
+async def test_config_handler(opsdroid):
+    config = {
+        "logging": {"level": "debug"},
+        "welcome-message": True,
+        "web": {
+            "command-center": {"enabled": True},
+            "base-url": "https://0684-2a00-23c7-68c1-b201-f4d3-9342-30a7-21",
+        },
+        "parsers": {"regex": {}, "crontab": {"enabled": False}},
+        "connectors": {
+            "gitlab": {"webhook-token": "secret-token", "token": "my-token"},
+            "websocket": {
+                "bot-name": "mybot",
+                "max-connections": 10,
+                "connection-timeout": 10,
+            },
+        },
+        "databases": {"sqlite": {}},
+        "skills": {
+            "twitch": {"path": "/Users/fabiorosado/Documents/GitHub.tmp/skill-twitch"},
+            "hello": {},
+            "seen": {},
+        },
+    }
+
+    await opsdroid.load(config)
+
+    app = web.Web(opsdroid)
+
+    app.check_request = amock.CoroutineMock()
+
+    response = await app.config_handler(None)
+
+    assert response.status == 200
+    assert response.text
+
+    breakpoint()
+    payload = json.loads(response.text)
+
+    gitlab_config = payload["connectors"]["gitlab"]
+    assert "token" not in gitlab_config
+    assert "webhook-token" not in gitlab_config

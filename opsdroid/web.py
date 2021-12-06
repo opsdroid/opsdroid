@@ -327,12 +327,20 @@ class Web:
         """
         config = {}
         for module in module_list:
-            module_config = {
+            try:
+                module_config = module.config.items()
+                module_name = module.config["name"]
+            # If we are getting module from self.opsdroid.modules
+            # we get a dictionary.
+            except AttributeError:
+                module_config = module["config"].items()
+                module_name = module["config"]["name"]
+            scrubbed_module_config = {
                 key: value
-                for key, value in module.config.items()
+                for key, value in module_config
                 if key not in self.excluded_keys
             }
-            config[module.config["name"]] = module_config
+            config[module_name] = scrubbed_module_config
 
         return config
 
@@ -431,11 +439,11 @@ class Web:
         """Handle get skills request.
 
         Args:
-            request: Web request to render opsdroid connectors
+            request: Web request to render opsdroid skills
 
         Returns:
             dict: returns successful status code and dictionary with
-                connectors.
+                skills with their config scrubbed.
 
         """
 
@@ -450,58 +458,73 @@ class Web:
         """Handle get databases request.
 
         Args:
-            request: Web request to render opsdroid connectors
+            request: Web request to render opsdroid databases
 
         Returns:
             dict: returns successful status code and dictionary with
-                connectors.
+                databases with their config scrubbed.
 
         """
         await self.check_request(request)
-        payload = {
-            connector.config["name"]: connector.config
-            for connector in self.opsdroid.databases
-        }
+        databases_list = self.opsdroid.modules.get("databases", [])
+        payload = self.get_scrubbed_module_config(databases_list)
         return self.build_response(200, payload)
 
     async def config_handler(self, request):
-        """Handle get connectors request.
+        """Handle get config request.
+
+        Opsdroid config has different shapes, sometimes we get
+        a string, other times we get a dictionary. Each section
+        might return a single key and string as value, other times
+        we might return a key and a dict as a value.
+
+        This method is a bunch of for loops so we transverse the
+        config shape, check if the values are in the list of
+        ``self.excluded_keys``, if not we add them to the scrubbed
+        config dictionary, otherwise we keep going.
 
         Args:
-            request: Web request to render opsdroid connectors
+            request: Web request to render opsdroid config
 
         Returns:
             dict: returns successful status code and dictionary with
-                connectors.
+                the scrubbed config.
 
         """
         await self.check_request(request)
-        # TODO: we need to sort the nested dicts!
-        payload = {
-            key: value
-            for key, value in self.opsdroid.config.items()
-            if key not in self.excluded_keys
-        }
-        return self.build_response(200, payload)
+
+        scrubbed_config = {}
+        for section, value in self.opsdroid.config.items():
+            if isinstance(value, dict):
+                scrubbed_config[section] = {}
+                for module, config in value.items():
+                    if isinstance(config, dict):
+                        scrubbed_conf = {
+                            key: value
+                            for key, value in config.items()
+                            if key not in self.excluded_keys
+                        }
+                        scrubbed_config[section][module] = scrubbed_conf
+                    elif config not in self.excluded_keys:
+                        scrubbed_config[section][module] = config
+            elif value not in self.excluded_keys:
+                scrubbed_config[section] = value
+
+        return self.build_response(200, scrubbed_config)
 
     async def parsers_handler(self, request):
-        """Handle get connectors request.
+        """Handle get parsers request.
 
         Args:
-            request: Web request to render opsdroid connectors
+            request: Web request to render opsdroid parsers
 
         Returns:
             dict: returns successful status code and dictionary with
-                connectors.
+                opsdroid parsers with their config scrubbed.
 
         """
         await self.check_request(request)
-        payload = {}
-        for parser in self.opsdroid.modules.get("parsers", []):
-            parser_name = parser["config"]["name"]
-            payload[parser_name] = {}
-            for key, value in parser["config"].items():
-                if key not in self.excluded_keys:
-                    payload[parser_name][key] = value
+        parsers_list = self.opsdroid.modules.get("parsers", [])
+        payload = self.get_scrubbed_module_config(parsers_list)
 
         return self.build_response(200, payload)

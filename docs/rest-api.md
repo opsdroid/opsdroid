@@ -143,17 +143,14 @@ This method returns a list of all the connectors loaded in opsdroid and their re
 
 ```json
 {
-  "websocket": {
-    "name": "websocket",
+  "sqlite": {
+    "name": "sqlite",
     "module": "",
-    "bot-name": "mybot",
-    "max-connections": 10,
-    "connection-timeout": 10,
-    "type": "connector",
+    "type": "database",
     "enabled": true,
     "entrypoint": null,
-    "module_path": "opsdroid.connector.websocket",
-    "install_path": "/Users/fabiorosado/Library/Application Support/opsdroid/opsdroid_modules/connector/websocket", 
+    "module_path": "opsdroid.database.sqlite",
+    "install_path": "/Users/fabiorosado/Library/Application Support/opsdroid/opsdroid_modules/database/sqlite",
     "branch": "master"
   }
 }
