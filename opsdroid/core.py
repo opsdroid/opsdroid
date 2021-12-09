@@ -251,12 +251,13 @@ class OpsDroid:
                 task.cancel()
         _LOGGER.info(_("Stopped pending tasks."))
 
-    async def unload(self, future=None):
+    async def unload(self, future=None, unload_server=True):
         """Stop the event loop."""
         self.skills = []
         self.connectors = []
         self.memory.databases = []
-        self.web_server = None
+        if unload_server:
+            self.web_server = None
         self.modules = {}
 
     async def reload(self):

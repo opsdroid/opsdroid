@@ -57,11 +57,11 @@ The response includes information on whether a skill was successfully triggered 
 
 These endpoints are only available if you have [`command center`](command-center.md) enabled.
 
-## `/connectors` _[GET]_
+## `/connectors` _[GET]_ _[PATCH]_
 
-This method returns a list of all the connectors loaded in opsdroid and their respective configuration (sensitive parameters such as tokens are removed.)
+The GET method returns a list of all the connectors loaded in opsdroid and their respective configuration (sensitive parameters such as tokens are removed.)
 
-**Example response**
+**Example response (GET)**
 
 ```json
 {
@@ -81,11 +81,30 @@ This method returns a list of all the connectors loaded in opsdroid and their re
 }
 ```
 
-## `/skills` _[GET]_
+The PATCH method allows you to update a connector configuration, you can also turn it off/on my setting `enabled` to `False`. Note that in order for the connector to be updated, Opsdroid will disconnect the connector and load all the configuration again.
 
-This method returns a list of all the skills loaded in opsdroid and their respective configuration (sensitive parameters such as tokens are removed.)
+**Example Request(PATCH)**
 
-**Example response**
+```python
+import requests
+
+ requests.patch(
+   "http://localhost:8080/connectors", 
+   json={
+      "change_type": "connectors",
+      "module_name": "shell",
+      "config": {
+          "enabled": False
+        }
+    }
+)
+```
+
+## `/skills` _[GET]_ _[PATCH]_
+
+The GET method returns a list of all the skills loaded in opsdroid and their respective configuration (sensitive parameters such as tokens are removed.)
+
+**Example response (GET)**
 
 ```json
 {
@@ -135,11 +154,31 @@ This method returns a list of all the skills loaded in opsdroid and their respec
   }
 }
 ```
-## `/databases` _[GET]_
+
+The PATCH method allows you to update a skill configuration. You can also turn it off/on my setting `enabled` to `False`. Note that in order for the skill to be updated, Opsdroid will disconnect the connector and load all the configuration again.
+
+**Example Request(PATCH)**
+
+```python
+import requests
+
+ requests.patch(
+   "http://localhost:8080/skills", 
+   json={
+      "change_type": "skills",
+      "module_name": "seen",
+      "config": {
+          "enabled": False
+        }
+    }
+)
+```
+
+## `/databases` _[GET]_ _[PATCH]_
 
 This method returns a list of all the connectors loaded in opsdroid and their respective configuration (sensitive parameters such as tokens are removed.)
 
-**Example response**
+**Example response (GET)**
 
 ```json
 {
@@ -156,11 +195,30 @@ This method returns a list of all the connectors loaded in opsdroid and their re
 }
 ```
 
-## `/parsers` _[GET]_
+The PATCH method allows you to update a database configuration, you can also turn it off/on my setting `enabled` to `False`. Note that in order for the database to be updated, Opsdroid will stop all the modules and load the whole configuration again.
 
-This method returns a list of all the connectors loaded in opsdroid and their respective configuration (sensitive parameters such as tokens are removed.)
+**Example Request(PATCH)**
 
-**Example response**
+```python
+import requests
+
+ requests.patch(
+   "http://localhost:8080/databases", 
+   json={
+      "change_type": "databases",
+      "module_name": "sqlite",
+      "config": {
+          "enabled": False
+        }
+    }
+)
+```
+
+## `/parsers` _[GET]_ _[PATCH]_
+
+The GET method returns a list of all the connectors loaded in opsdroid and their respective configuration (sensitive parameters such as tokens are removed.)
+
+**Example response (GET)**
 
 ```json
 {
@@ -186,6 +244,27 @@ This method returns a list of all the connectors loaded in opsdroid and their re
   }
 }
 ```
+
+The PATCH method allows you to update a parser configuration, you can also turn it off/on my setting `enabled` to `False`. Note that in order for the parser to be updated, Opsdroid will stop all the modules and load the whole configuration again.
+
+**Example Request(PATCH)**
+
+```python
+import requests
+
+requests.patch(
+  "http://localhost:8080/parsers", 
+    json={
+      "change_type": "parsers",
+      "module_name": "crontab",
+      "config": {
+          "enabled": False
+        }
+    }
+  )
+```
+
+
 
 ## `/config` _[GET]_
 

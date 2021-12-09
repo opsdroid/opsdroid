@@ -49,7 +49,7 @@ class Payload:
 
         change_type = payload["change_type"]
 
-        allowed_change_types = ("connector", "skill", "parser", "config")
+        allowed_change_types = ("connectors", "skills", "parsers", "config")
 
         if change_type not in allowed_change_types:
             raise TypeError(
@@ -360,23 +360,24 @@ class Web:
         """
         config = copy.deepcopy(self.opsdroid.config)
 
+        # If module not in config, add it
+        if module_name not in config[module_type]:
+            config[module_type][module_name] = {}
+
         try:
             section = config[module_type][module_name]
             updated_module_config = toolz.merge(
                 config[module_type][module_name], provided_config
             )
-        except KeyError:
-            raise KeyError(
-                f"Unable to update configuration, couldn't find '{module_type}.{module_name}' "
-                f"in your configuration. Please confirm that '{module_type}.{module_name}' "
-                "exists."
+            _LOGGER.debug(
+                f"Original config: {section} was updated with {updated_module_config}"
             )
 
-        _LOGGER.debug(
-            f"Original config: {section} was updated with {updated_module_config}"
-        )
+            config[module_type][module_name] = updated_module_config
+        except Exception as error:
+            _LOGGER.error(f"Unable to update configuration. Reason - {str(error)}")
+            # TODO: Do we want to raise?
 
-        config[module_type][module_name] = updated_module_config
         return config
 
     async def handle_patch(self, request):
@@ -390,22 +391,6 @@ class Web:
         except (TypeError, KeyError) as error:
             raise HTTPBadRequest(reason=str(error))
 
-        if payload.change_type == "connectors":
-            modules_list = self.opsdroid.connectors
-        elif payload.change_type == "skills":
-            modules_list = self.opsdroid.skills
-        else:
-            modules_list = self.opsdroid.parsers
-
-        for module in modules_list:
-            if module.name == payload.module_name:
-                _LOGGER.info(
-                    f"Found {module.name}, module will be stopped/disconnected."
-                )
-                # TODO: We need to handle skills/parsers here since they
-                # have different ways to disconnect I think?
-                await module.disconnect()
-
         updated_config = self.update_config(
             provided_config=payload.config,
             module_type=payload.change_type,
@@ -416,9 +401,19 @@ class Web:
             f"Configuration updated with user provided changes({payload.config}). "
             "Loading opsdroid configuration..."
         )
-        # TODO: Do we want to unload everything first?
-        # await self.opsdroid.unload()
+
+        [
+            await module.disconnect()
+            for module in self.opsdroid.connectors + self.opsdroid.memory.databases[:]
+        ]
+
+        await self.opsdroid.unload(unload_server=False)
         await self.opsdroid.load(updated_config)
+
+        return web.Response(
+            status=204,
+            text=f"The module '{payload.module_name}' in the section '{payload.change_type}' was updated.",
+        )
 
     async def connectors_handler(self, request):
         """Handle connectors request.
@@ -466,7 +461,7 @@ class Web:
 
         """
         await self.check_request(request)
-        databases_list = self.opsdroid.modules.get("databases", [])
+        databases_list = self.opsdroid.memory.databases[:]
         payload = self.get_scrubbed_module_config(databases_list)
         return self.build_response(200, payload)
 
