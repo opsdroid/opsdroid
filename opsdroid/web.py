@@ -22,7 +22,7 @@ _LOGGER = logging.getLogger(__name__)
 
 @dataclasses.dataclass
 class Payload:
-    change_type: str
+    module_type: str
     module_name: str
     config: dict
 
@@ -38,7 +38,7 @@ class Payload:
     @classmethod
     def from_dict(cls, payload: dict):
         """Create Payload object from dictionary."""
-        required_keys = ("change_type", "module_name", "config")
+        required_keys = ("module_type", "module_name", "config")
         for key in required_keys:
             if key not in payload:
                 raise KeyError(
@@ -47,18 +47,18 @@ class Payload:
                     "your payload."
                 )
 
-        change_type = payload["change_type"]
+        module_type = payload["module_type"]
 
-        allowed_change_types = ("connectors", "skills", "parsers", "config")
+        allowed_module_types = ("connectors", "skills", "parsers", "config")
 
-        if change_type not in allowed_change_types:
+        if module_type not in allowed_module_types:
             raise TypeError(
-                f"The change type '{change_type}' is not a supported type. "
-                f"Please provide one of the allowed types {allowed_change_types}."
+                f"The change type '{module_type}' is not a supported type. "
+                f"Please provide one of the allowed types {allowed_module_types}."
             )
 
         return cls(
-            change_type=payload["change_type"],
+            module_type=payload["module_type"],
             module_name=payload["module_name"],
             config=payload["config"],
         )
@@ -393,7 +393,7 @@ class Web:
 
         updated_config = self.update_config(
             provided_config=payload.config,
-            module_type=payload.change_type,
+            module_type=payload.module_type,
             module_name=payload.module_name,
         )
 
@@ -412,7 +412,7 @@ class Web:
 
         return web.Response(
             status=204,
-            text=f"The module '{payload.module_name}' in the section '{payload.change_type}' was updated.",
+            text=f"The module '{payload.module_name}' in the section '{payload.module_type}' was updated.",
         )
 
     async def connectors_handler(self, request):

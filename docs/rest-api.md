@@ -91,7 +91,7 @@ import requests
  requests.patch(
    "http://localhost:8080/connectors", 
    json={
-      "change_type": "connectors",
+      "module_type": "connectors",
       "module_name": "shell",
       "config": {
           "enabled": False
@@ -165,7 +165,7 @@ import requests
  requests.patch(
    "http://localhost:8080/skills", 
    json={
-      "change_type": "skills",
+      "module_type": "skills",
       "module_name": "seen",
       "config": {
           "enabled": False
@@ -205,7 +205,7 @@ import requests
  requests.patch(
    "http://localhost:8080/databases", 
    json={
-      "change_type": "databases",
+      "module_type": "databases",
       "module_name": "sqlite",
       "config": {
           "enabled": False
@@ -255,7 +255,7 @@ import requests
 requests.patch(
   "http://localhost:8080/parsers", 
     json={
-      "change_type": "parsers",
+      "module_type": "parsers",
       "module_name": "crontab",
       "config": {
           "enabled": False
