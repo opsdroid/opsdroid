@@ -319,7 +319,7 @@ class Typing(Event):  # pragma: nocover
         """Create the object."""
         self.timeout = timeout
         self.trigger = trigger
-        super().__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class Reaction(Event):
