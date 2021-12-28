@@ -57,12 +57,17 @@ connectors:
 
 ## End to End Encryption
 
-> **Note** - `mxid` & `password` must be used for E2EE to work
+```note
+mxid & password must be used for E2EE to work
+```
 
-To be able to use E2EE you need to have the 'olm' library installed, this is currently not available through pip, you can find it [here](https://gitlab.matrix.org/matrix-org/olm/), in most linux distributions or by using the opsdroid docker images.
+To be able to use E2EE you need to have the 'olm' library installed, this is currently not available through pip, you can find it [here](https://gitlab.matrix.org/matrix-org/olm/), in most linux distributions or by using the opsdroid Docker images.
+
+```note
+Opsdroid >= v0.24.1 Docker image includes E2EE
+```
+
 Once olm is installed you need to install opsdroid with the ``connector_matrix_e2e`` extra (by running ``pip install opsdroid[connector_matrix_e2e]``, this is not done by default as it required you to have already installed the olm library.
 You also need to set the `enable_encryption: True` configuration option to enable encryption.
 The connector supports interacting with end to end encrypted rooms for which it will create a sqlite database to store the encryption keys into, where this database is kept can be configured with ``store_path``.
 Currently there is no device verification implemented which means messages will be sent regardless of whether encrypted rooms have users with unverified devices.
-
-> **Note** - Opsdroid >= v0.24.1 Docker image includes E2EE
