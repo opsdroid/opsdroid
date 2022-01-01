@@ -34,6 +34,7 @@ RUN apk update \
     && mkdir -p "${DEPS_DIR}" \
     && pip download --use-feature=in-tree-build --prefer-binary -d ${DEPS_DIR} .${EXTRAS} \
     && pip wheel -w ${DEPS_DIR} ${DEPS_DIR}/*.tar.gz \
+    && count=$(ls -1 ${DEPS_DIR}/*.zip 2>/dev/null | wc -l) && if [ $count != 0 ]; then pip wheel -w ${DEPS_DIR} ${DEPS_DIR}/*.zip ; fi \
     && python -m build --wheel --outdir ${DEPS_DIR}
 
 FROM python:3.9.6-alpine3.14 as runtime
