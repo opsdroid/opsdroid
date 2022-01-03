@@ -65,7 +65,9 @@ mxid & password must be used for E2EE to work
 
 To be able to use E2EE you need to have the 'olm' library installed, this is currently not available through pip, you can find it [here](https://gitlab.matrix.org/matrix-org/olm/), in most linux distributions or by using the opsdroid Docker images.
 
-```note
+``eval_rst
+.. note::
+   Opsdroid >= v0.24.1 Docker image includes E2EE
 Opsdroid >= v0.24.1 Docker image includes E2EE
 ```
 
