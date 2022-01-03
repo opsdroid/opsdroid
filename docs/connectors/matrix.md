@@ -57,7 +57,9 @@ connectors:
 
 ## End to End Encryption
 
-```note
+```eval_rst
+.. note::
+   mxid & password must be used for E2EE to work
 mxid & password must be used for E2EE to work
 ```
 
