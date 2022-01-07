@@ -24,7 +24,6 @@ RUN apk update \
     libffi-dev \
     linux-headers \
     musl-dev \
-	netcat \
     olm-dev \
     openssh-client \
     openssl-dev \
