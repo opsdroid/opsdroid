@@ -67,5 +67,5 @@ EXPOSE 8080
 
 # Ensure the service runs as an unprivileged user.
 USER opsdroid
-ENTRYPOINT ["chmod", "+x","/entrypoint.sh","opsdroid"]
+ENTRYPOINT ["opsdroid"]
 CMD ["start"]
