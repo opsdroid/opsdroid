@@ -3,7 +3,7 @@ LABEL maintainer="Jacob Tomlinson <jacob@tomlinson.email>"
 
 WORKDIR /usr/src/app
 
-ARG EXTRAS=[all,connector_matrix_e2e]
+ARG EXTRAS=[all]
 ENV DEPS_DIR=/usr/src/app/deps
 
 # Copy source
