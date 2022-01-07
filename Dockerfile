@@ -3,7 +3,7 @@ LABEL maintainer="Jacob Tomlinson <jacob@tomlinson.email>"
 
 WORKDIR /usr/src/app
 
-ARG EXTRAS=[all]
+ARG EXTRAS=[all,connector_matrix_e2e]
 ENV DEPS_DIR=/usr/src/app/deps
 
 # Copy source
@@ -67,5 +67,5 @@ EXPOSE 8080
 
 # Ensure the service runs as an unprivileged user.
 USER opsdroid
-ENTRYPOINT ["opsdroid"]
+#ENTRYPOINT ["chmod", "+x","/entrypoint.sh","opsdroid"]
 CMD ["start"]
