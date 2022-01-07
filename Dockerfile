@@ -9,6 +9,10 @@ ENV DEPS_DIR=/usr/src/app/deps
 # Copy source
 COPY . .
 
+COPY ./wait-for.sh /
+WORKDIR /
+RUN chmod +x ./wait-for.sh
+
 # Install build tools and libraries to build OpsDroid and its dependencies.
 RUN apk update \
     && apk add \
@@ -20,6 +24,7 @@ RUN apk update \
     libffi-dev \
     linux-headers \
     musl-dev \
+	netcat \
     olm-dev \
     openssh-client \
     openssl-dev \
@@ -63,5 +68,5 @@ EXPOSE 8080
 
 # Ensure the service runs as an unprivileged user.
 USER opsdroid
-#ENTRYPOINT ["chmod", "+x","/entrypoint.sh","opsdroid"]
+ENTRYPOINT ["/bin/sh","-c","chmod", "+x","/entrypoint.sh","opsdroid"]
 CMD ["start"]
