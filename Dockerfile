@@ -9,10 +9,6 @@ ENV DEPS_DIR=/usr/src/app/deps
 # Copy source
 COPY . .
 
-COPY ./wait-for.sh /
-WORKDIR /
-RUN chmod +x ./wait-for.sh
-
 # Install build tools and libraries to build OpsDroid and its dependencies.
 RUN apk update \
     && apk add \
