@@ -10,6 +10,7 @@ import aiohttp
 import arrow
 
 from opsdroid.const import RASANLU_DEFAULT_URL, RASANLU_DEFAULT_MODELS_PATH
+from aiohttp_retry import RetryClient, RandomRetry
 
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = {"url": str, "token": str, "models-path": str, "min-score": float}
@@ -69,9 +70,14 @@ async def _init_model(config):
 async def _get_rasa_nlu_version(config):
     """Get Rasa NLU version data"""
     async with aiohttp.ClientSession(trust_env=True) as session:
+        retry_client = RetryClient(session)
+        retry_options = RandomRetry(attempts=10)
         url = config.get("url", RASANLU_DEFAULT_URL) + "/version"
         try:
-            resp = await session.get(url)
+            resp = await retry_client.get(url, retry_options=retry_options)
+            print(resp.status)
+            await retry_client.close()
+            await session.close()
         except aiohttp.client_exceptions.ClientConnectorError:
             _LOGGER.error(_("Unable to connect to Rasa NLU."))
             return None
@@ -108,6 +114,8 @@ async def _check_rasanlu_compatibility(config):
 async def _load_model(config):
     """Load model from the filesystem of the Rasa NLU environment"""
     async with aiohttp.ClientSession(trust_env=True) as session:
+        retry_client = RetryClient(session)
+        retry_options = RandomRetry(attempts=10)
         headers = {}
         data = {
             "model_file": "{}/{}".format(
@@ -119,7 +127,11 @@ async def _load_model(config):
         if "token" in config:
             url += "?token={}".format(config["token"])
         try:
-            resp = await session.put(url, data=json.dumps(data), headers=headers)
+            resp = await retry_client.put(url, data=json.dumps(data), headers=headers, retry_options=retry_options,
+                                          timeout=300)
+            print(resp.status)
+            await retry_client.close()
+            await session.close()
         except aiohttp.client_exceptions.ClientConnectorError:
             _LOGGER.error(_("Unable to connect to Rasa NLU."))
             return None
@@ -128,18 +140,20 @@ async def _load_model(config):
         else:
             result = await resp.text()
             _LOGGER.error(_("Bad Rasa NLU response - %s."), result)
-
         return result
 
 
 async def _is_model_loaded(config):
     """Check whether the model is loaded in Rasa NLU"""
     async with aiohttp.ClientSession(trust_env=True) as session:
+        retry_client = RetryClient(session)
+        retry_options = RandomRetry(attempts=10)
         url = config.get("url", RASANLU_DEFAULT_URL) + "/status"
         if "token" in config:
             url += "?token={}".format(config["token"])
         try:
-            resp = await session.get(await _build_status_url(config))
+            resp = await retry_client.get(await _build_status_url(config), retry_options=retry_options, timeout=300)
+            await retry_client.close()
         except aiohttp.client_exceptions.ClientConnectorError:
             _LOGGER.error(_("Unable to connect to Rasa NLU."))
             return None
@@ -166,6 +180,10 @@ async def train_rasanlu(config, skills):
     """
 
     async with aiohttp.ClientSession(trust_env=True) as session:
+
+        retry_client = RetryClient(session)
+        retry_options = RandomRetry(attempts=10)
+
         _LOGGER.info(_("Now training the model. This may take a while..."))
 
         url = await _build_training_url(config)
@@ -174,7 +192,10 @@ async def train_rasanlu(config, skills):
 
         try:
             training_start = arrow.now()
-            resp = await session.post(url, data=intents, headers=headers)
+            resp = await retry_client.post(url, data=intents, headers=headers,
+                                           retry_options=retry_options, timeout=300)
+            await retry_client.close()
+            await session.close()
         except aiohttp.client_exceptions.ClientConnectorError:
             _LOGGER.error(_("Unable to connect to Rasa NLU, training failed."))
             return False
@@ -225,13 +246,19 @@ async def train_rasanlu(config, skills):
 async def call_rasanlu(text, config):
     """Call the Rasa NLU api and return the response."""
     async with aiohttp.ClientSession(trust_env=True) as session:
+        retry_client = RetryClient(session)
+        retry_options = RandomRetry(attempts=10)
         headers = {}
         data = {"text": text}
         url = config.get("url", RASANLU_DEFAULT_URL) + "/model/parse"
         if "token" in config:
             url += "?&token={}".format(config["token"])
         try:
-            resp = await session.post(url, data=json.dumps(data), headers=headers)
+            resp = await retry_client.post(url, data=json.dumps(data), headers=headers,
+                                           retry_options=retry_options, timeout=300)
+            print(resp.status)
+            await retry_client.close()
+            await session.close()
         except aiohttp.client_exceptions.ClientConnectorError:
             _LOGGER.error(_("Unable to connect to Rasa NLU."))
             return None
@@ -241,7 +268,6 @@ async def call_rasanlu(text, config):
         else:
             result = await resp.text()
             _LOGGER.error(_("Bad Rasa NLU response - %s."), result)
-
         return result
 
 
