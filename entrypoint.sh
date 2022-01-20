@@ -1,3 +1,5 @@
-#!bin/sh
-
-./wait-for http://rasa:5005 -- echo "The rasa container is up and running! Now starting Opsdroid!"
+#!/bin/sh
+echo "Now waiting for opsdroid to start "
+sleep 60
+echo "Now Starting Opsdroid after 60 seconds"
+opsdroid start -f /configurations/configuration.yaml
