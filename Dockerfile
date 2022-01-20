@@ -61,7 +61,10 @@ RUN apk add --no-cache \
 
 EXPOSE 8080
 
+COPY ./entrypoint.sh /
+RUN chmod +x /entrypoint.sh
+
 # Ensure the service runs as an unprivileged user.
 USER opsdroid
-ENTRYPOINT ["opsdroid"]
+ENTRYPOINT ["sh","-c","/entrypoint.sh"]
 CMD ["start"]
