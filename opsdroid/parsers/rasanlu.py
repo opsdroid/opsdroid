@@ -231,10 +231,13 @@ async def call_rasanlu(text, config):
         headers = {}
         data = {"text": text}
         url = config.get("url", RASANLU_DEFAULT_URL) + "/model/parse"
+        _LOGGER.debug(_(url))
         if "token" in config:
             url += "?&token={}".format(config["token"])
         try:
-            resp = await session.post(url, data=json.dumps(data), headers=headers,timeout=300)
+            _LOGGER.debug(_("Rasa NLU is posting data..."))
+            resp = await session.post(url, data=json.dumps(data), headers=headers,timeout=300000000)
+            print(resp.status)
         except aiohttp.client_exceptions.ClientConnectorError:
             _LOGGER.error(_("Unable to connect to Rasa NLU."))
             return None
@@ -244,13 +247,16 @@ async def call_rasanlu(text, config):
         else:
             result = await resp.text()
             _LOGGER.error(_("Bad Rasa NLU response - %s."), result)
+        _LOGGER.debug(_("Rasa NLU gave a result..."))
         return result
 
 
 async def parse_rasanlu(opsdroid, skills, message, config):
     """Parse a message against all Rasa NLU skills."""
     matched_skills = []
+    _LOGGER.debug(_("The Parser for Rasa NLU has started.."))
     try:
+        _LOGGER.debug(_("Calling Rasa NLU now..."))
         result = await call_rasanlu(message.text, config)
     except aiohttp.ClientOSError:
         _LOGGER.error(_("No response from Rasa NLU, check your network."))
