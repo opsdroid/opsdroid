@@ -523,8 +523,9 @@ class OpsDroid:
             rasanlu = get_parser_config("rasanlu", parsers)
             if rasanlu and rasanlu["enabled"]:
                 _LOGGER.debug(_("Checking Rasa NLU..."))
+                _LOGGER.debug(_("Let's check Rasa NLU..."))
                 ranked_skills += await parse_rasanlu(self, skills, message, rasanlu)
-
+                _LOGGER.debug(_("Rasa NLU parser ran...returning sorted ranked skills"))
         return sorted(ranked_skills, key=lambda k: k["score"], reverse=True)
 
     def get_connector(self, name):
