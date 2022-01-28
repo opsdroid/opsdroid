@@ -27,7 +27,7 @@ from opsdroid.parsers.dialogflow import parse_dialogflow
 from opsdroid.parsers.event_type import parse_event_type
 from opsdroid.parsers.luisai import parse_luisai
 from opsdroid.parsers.parseformat import parse_format
-from opsdroid.parsers.rasanlu import parse_rasanlu, train_rasanlu
+from opsdroid.parsers.rasanlu import parse_rasanlu, train_rasanlu, use_pretrained_model
 from opsdroid.parsers.regex import parse_regex
 from opsdroid.parsers.sapcai import parse_sapcai
 from opsdroid.parsers.watson import parse_watson
@@ -353,6 +353,10 @@ class OpsDroid:
             rasanlu = get_parser_config("rasanlu", parsers)
             if rasanlu and rasanlu["enabled"] and rasanlu.get("train", True):
                 await train_rasanlu(rasanlu, skills)
+            elif rasanlu and rasanlu["enabled"]:
+                await use_pretrained_model(rasanlu)
+            else:
+                raise AssertionError("Pick a valid training mode")
 
     async def setup_connectors(self, connectors):
         """Extract connectors from modules and register them in opsdroid.
