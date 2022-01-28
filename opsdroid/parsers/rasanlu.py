@@ -10,6 +10,8 @@ import aiohttp
 import arrow
 import asyncio
 
+import fnmatch
+
 from opsdroid.const import RASANLU_DEFAULT_URL, RASANLU_DEFAULT_MODELS_PATH
 
 _LOGGER = logging.getLogger(__name__)
@@ -36,6 +38,18 @@ async def _build_training_url(config):
         config.get("url", RASANLU_DEFAULT_URL),
     )
 
+    if "token" in config:
+        url += "?&token={}".format(config["token"])
+
+    return url
+
+
+async def _build_pretrained_model_url(config):
+    """Build the url for training a Rasa NLU model."""
+
+    url = "{}/model/parse".format(
+        config.get("url", RASANLU_DEFAULT_URL),
+    )
     if "token" in config:
         url += "?&token={}".format(config["token"])
 
@@ -150,6 +164,20 @@ async def _is_model_loaded(config):
                 return True
         return False
 
+
+async def use_pretrained_model(config):
+    """Use a Rasa Pre-trained model on the loaded skills"""
+    _LOGGER.info(_("Let's use your Rasa pre-trained model"))
+    _LOGGER.debug(_("Now Checking your Rasa NLU compatibility with OpsDroid"))
+    await _check_rasanlu_compatibility(config)
+    _LOGGER.debug(_("Now Seeing if your Rasa model is loaded properly"))
+    if await _is_model_loaded(config):
+        await _init_model(config)
+        _LOGGER.info(_("Successfully loaded Rasa NLU model."))
+        return True
+    else:
+        _LOGGER.error(_("Failed getting Rasa NLU server status."))
+        return False
 
 async def train_rasanlu(config, skills):
     """Train a Rasa NLU model based on the loaded skills."""
