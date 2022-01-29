@@ -10,8 +10,6 @@ import aiohttp
 import arrow
 import asyncio
 
-import fnmatch
-
 from opsdroid.const import RASANLU_DEFAULT_URL, RASANLU_DEFAULT_MODELS_PATH
 
 _LOGGER = logging.getLogger(__name__)
@@ -69,7 +67,7 @@ async def _init_model(config):
     _LOGGER.info(_("Initialising Rasa NLU model."))
 
     initialisation_start = arrow.now()
-    result = await call_rasanlu("", config)
+    result = await call_rasanlu("hello", config)
 
     if result is None:
         _LOGGER.error(_("Initialisation failed, training failed.."))
