@@ -691,11 +691,6 @@ class TestParserRasaNLU(asynctest.TestCase):
             patched_request.return_value.set_result(result)
             self.assertEqual(await rasanlu.train_rasanlu({}, {}), True)
 
-            patched_request.side_effect = None
-            patched_request.return_value = asyncio.Future()
-            patched_request.return_value.set_result(result)
-            self.assertEqual(await rasanlu.train_rasanlu({}, {}), True)
-
             result.status = 500
             patched_request.side_effect = None
             patched_request.return_value = asyncio.Future()
