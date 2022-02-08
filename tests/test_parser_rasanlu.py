@@ -701,3 +701,11 @@ class TestParserRasaNLU(asynctest.TestCase):
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
             self.assertEqual(await rasanlu.train_rasanlu({}, {}), False)
+
+            config = {
+                "name": "rasanlu",
+                "min-score": 0.3,
+                "token": "12345",
+                "train": False,
+            }
+            self.assertEqual(await rasanlu.train_rasanlu(config, {}), False)

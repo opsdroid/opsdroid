@@ -9,10 +9,20 @@ from hashlib import sha256
 import aiohttp
 import arrow
 
-from opsdroid.const import RASANLU_DEFAULT_URL, RASANLU_DEFAULT_MODELS_PATH
+from opsdroid.const import (
+    RASANLU_DEFAULT_URL,
+    RASANLU_DEFAULT_MODELS_PATH,
+    RASANLU_DEFAULT_TRAIN_MODEL,
+)
 
 _LOGGER = logging.getLogger(__name__)
-CONFIG_SCHEMA = {"url": str, "token": str, "models-path": str, "min-score": float}
+CONFIG_SCHEMA = {
+    "url": str,
+    "token": str,
+    "models-path": str,
+    "min-score": float,
+    "train": bool,
+}
 
 
 async def _get_all_intents(skills):
@@ -152,6 +162,11 @@ async def _is_model_loaded(config):
 
 async def train_rasanlu(config, skills):
     """Train a Rasa NLU model based on the loaded skills."""
+    train = config.get("train", RASANLU_DEFAULT_TRAIN_MODEL)
+    if train is False:
+        _LOGGER.info(_("Skipping Rasa NLU model training as specified in the config."))
+        return False
+
     _LOGGER.info(_("Starting Rasa NLU training."))
     intents = await _get_all_intents(skills)
     if intents is None:
