@@ -9,10 +9,20 @@ from hashlib import sha256
 import aiohttp
 import arrow
 
-from opsdroid.const import RASANLU_DEFAULT_URL, RASANLU_DEFAULT_MODELS_PATH
+from opsdroid.const import (
+    RASANLU_DEFAULT_URL,
+    RASANLU_DEFAULT_MODELS_PATH,
+    RASANLU_DEFAULT_TRAIN_MODEL,
+)
 
 _LOGGER = logging.getLogger(__name__)
-CONFIG_SCHEMA = {"url": str, "token": str, "models-path": str, "min-score": float}
+CONFIG_SCHEMA = {
+    "url": str,
+    "token": str,
+    "models-path": str,
+    "min-score": float,
+    "train": bool,
+}
 
 
 async def _get_all_intents(skills):
@@ -84,7 +94,7 @@ async def _get_rasa_nlu_version(config):
         return result
 
 
-async def _check_rasanlu_compatibility(config):
+async def has_compatible_version_rasanlu(config):
     """Check if Rasa NLU is compatible with the API we implement"""
     _LOGGER.debug(_("Checking Rasa NLU version."))
     json_object = await _get_rasa_nlu_version(config)
@@ -152,13 +162,16 @@ async def _is_model_loaded(config):
 
 async def train_rasanlu(config, skills):
     """Train a Rasa NLU model based on the loaded skills."""
+    train = config.get("train", RASANLU_DEFAULT_TRAIN_MODEL)
+    if train is False:
+        _LOGGER.info(_("Skipping Rasa NLU model training as specified in the config."))
+        return False
+
     _LOGGER.info(_("Starting Rasa NLU training."))
     intents = await _get_all_intents(skills)
     if intents is None:
         _LOGGER.warning(_("No intents found, skipping training."))
         return False
-
-    await _check_rasanlu_compatibility(config)
 
     """
     TODO: think about how to correlate intent with trained model

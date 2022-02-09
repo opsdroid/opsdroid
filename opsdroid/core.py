@@ -27,7 +27,11 @@ from opsdroid.parsers.dialogflow import parse_dialogflow
 from opsdroid.parsers.event_type import parse_event_type
 from opsdroid.parsers.luisai import parse_luisai
 from opsdroid.parsers.parseformat import parse_format
-from opsdroid.parsers.rasanlu import parse_rasanlu, train_rasanlu
+from opsdroid.parsers.rasanlu import (
+    parse_rasanlu,
+    train_rasanlu,
+    has_compatible_version_rasanlu,
+)
 from opsdroid.parsers.regex import parse_regex
 from opsdroid.parsers.sapcai import parse_sapcai
 from opsdroid.parsers.watson import parse_watson
@@ -351,7 +355,12 @@ class OpsDroid:
         if "parsers" in self.modules:
             parsers = self.modules.get("parsers", {})
             rasanlu = get_parser_config("rasanlu", parsers)
-            if rasanlu and rasanlu["enabled"] and rasanlu.get("train", True):
+            if rasanlu and rasanlu["enabled"]:
+                rasa_version_is_compatible = await has_compatible_version_rasanlu(
+                    rasanlu
+                )
+                if rasa_version_is_compatible is False:
+                    self.critical("Rasa version is not compatible", 5)
                 await train_rasanlu(rasanlu, skills)
 
     async def setup_connectors(self, connectors):
