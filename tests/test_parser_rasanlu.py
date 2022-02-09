@@ -475,25 +475,25 @@ class TestParserRasaNLU(asynctest.TestCase):
                 await rasanlu._get_rasa_nlu_version({}), result.text.return_value
             )
 
-    async def test__check_rasanlu_compatibility(self):
+    async def test_has_compatible_version_rasanlu(self):
         with amock.patch.object(rasanlu, "_get_rasa_nlu_version") as mock_crc:
             mock_crc.return_value = {
                 "version": "1.0.0",
                 "minimum_compatible_version": "1.0.0",
             }
-            self.assertEqual(await rasanlu._check_rasanlu_compatibility({}), False)
+            self.assertEqual(await rasanlu.has_compatible_version_rasanlu({}), False)
 
             mock_crc.return_value = {
                 "version": "2.6.2",
                 "minimum_compatible_version": "2.6.0",
             }
-            self.assertEqual(await rasanlu._check_rasanlu_compatibility({}), True)
+            self.assertEqual(await rasanlu.has_compatible_version_rasanlu({}), True)
 
             mock_crc.return_value = {
                 "version": "3.1.2",
                 "minimum_compatible_version": "3.0.0",
             }
-            self.assertEqual(await rasanlu._check_rasanlu_compatibility({}), True)
+            self.assertEqual(await rasanlu.has_compatible_version_rasanlu({}), True)
 
     async def test__load_model(self):
         result = amock.Mock()
@@ -588,7 +588,7 @@ class TestParserRasaNLU(asynctest.TestCase):
         ) as mock_btu, amock.patch.object(
             rasanlu, "_get_intents_fingerprint"
         ) as mock_gif, amock.patch.object(
-            rasanlu, "_check_rasanlu_compatibility"
+            rasanlu, "has_compatible_version_rasanlu"
         ) as mock_crc, amock.patch.object(
             rasanlu, "_load_model"
         ) as mock_lmo, amock.patch.object(
@@ -662,7 +662,7 @@ class TestParserRasaNLU(asynctest.TestCase):
         ) as mock_btu, amock.patch.object(
             rasanlu, "_get_intents_fingerprint"
         ) as mock_gif, amock.patch.object(
-            rasanlu, "_check_rasanlu_compatibility"
+            rasanlu, "has_compatible_version_rasanlu"
         ) as mock_crc, amock.patch.object(
             rasanlu, "_load_model"
         ) as mock_lmo, amock.patch.object(

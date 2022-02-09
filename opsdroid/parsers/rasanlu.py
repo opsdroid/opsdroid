@@ -94,7 +94,7 @@ async def _get_rasa_nlu_version(config):
         return result
 
 
-async def _check_rasanlu_compatibility(config):
+async def has_compatible_version_rasanlu(config):
     """Check if Rasa NLU is compatible with the API we implement"""
     _LOGGER.debug(_("Checking Rasa NLU version."))
     json_object = await _get_rasa_nlu_version(config)
@@ -172,8 +172,6 @@ async def train_rasanlu(config, skills):
     if intents is None:
         _LOGGER.warning(_("No intents found, skipping training."))
         return False
-
-    await _check_rasanlu_compatibility(config)
 
     """
     TODO: think about how to correlate intent with trained model
