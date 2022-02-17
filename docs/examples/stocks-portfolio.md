@@ -1,6 +1,6 @@
 # Stocks Portfolio
 
-We will create a skill that will allow opsdroid to return info of specific stocks. It will also be able to store a portfolio of stocks and return each with the current market price and info of it.
+We will create a skill that will allow the opsdroid to return info on specific stocks. It will also be able to store a portfolio of stocks and return each with the current market price and information about them.
 
 This example will use [YFinace](https://github.com/ranaroussi/yfinance) to get the information of the stocks and [SQLite3](https://www.sqlite.org/index.html) to keep our portfolio when we close the bot.
 
@@ -8,13 +8,13 @@ This example will use [YFinace](https://github.com/ranaroussi/yfinance) to get t
 
 ## Building the Skill
 
-We are now ready to commence building our skill! First, you will need to create a folder for the stocks portfolio skill. Choose a location and name it stocks-portfolio.
+We are now ready to commence building our skills! First, you will need to create a folder for the stock portfolio skill. Choose a location and name it stocks-portfolio.
 
 ```bash
 mkdir /path/to/my/stocks-portfolio
 ```
 
-Inside of the directory we will be making a `configuration.yaml` file which we will be using in the next section to config our skill.
+Inside of the directory, we will be making a `configuration.yaml` file which we will be using in the next section to config our skill.
 
 ### Configuration
 
@@ -57,7 +57,7 @@ c = conn.cursor()
 
 ### Receiving Input
 
-Now we have to collect what the bot will receive, we will be doing this by first creating a class that inherits the Skill class. Inside we will be using the special opsdroid function which is `@match_regex`. This function will send the message, and to collect the input we will be using `(.*)` beside the message, like this `@match_regex(r"Stock: (.*)")`. We will then be accessing it with `message.regex.group(1)`. We can now assign what we receive from the bot. 
+Now we have to collect what the bot will receive and we will be doing this by first creating a class that inherits the Skill class. Inside we will be using the special opsdroid function which is `@match_regex`. This function will send the message, and to collect the input we will be using `(.*)` beside the message, like this `@match_regex(r"Stock: (.*)")`. We will then be accessing it with `message.regex.group(1)`. We can now assign what we received from the bot. 
 
 The `StockSkill` class should look something like this:
 
