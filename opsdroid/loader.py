@@ -3,8 +3,6 @@
 # pylint: disable=too-many-branches
 
 import contextlib
-
-# from distutils.log import error
 import importlib
 import importlib.util
 import json
