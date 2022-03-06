@@ -257,9 +257,6 @@ class Loader:
             bool: True if the requirements.txt installs successfully
 
         """
-
-        error = None
-
         process = None
         command = [
             "pip",
@@ -275,8 +272,6 @@ class Loader:
                 command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
 
-            _, error = process.communicate()
-
         except FileNotFoundError:
             _LOGGER.debug(
                 _("Couldn't find the command 'pip', trying again with command 'pip3'.")
@@ -288,8 +283,6 @@ class Loader:
                 command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
 
-            _, error = process.communicate()
-
         except FileNotFoundError:
             _LOGGER.debug(
                 _("Couldn't find the command 'pip3', install of %s will be skipped."),
@@ -299,9 +292,12 @@ class Loader:
         if not process:
             raise OSError(_("Pip and pip3 not found, exiting..."))
 
-        if error and (not "WARNING" in str(error)):
-            _LOGGER.error("Error importing from module requirements file.")
-            _LOGGER.error(error.decode("utf_8"))
+        message = process.communicate()
+        if len(message) == 2:
+            out, error = message
+            if error and ("WARNING" not in str(error)):
+                _LOGGER.error("Error importing from module requirements file.")
+                _LOGGER.error(error.decode("utf_8"))
 
         Loader._communicate_process(process)
         return True
