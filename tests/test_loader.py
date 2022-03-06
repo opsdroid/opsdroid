@@ -88,11 +88,12 @@ class TestLoader(unittest.TestCase):
         with self.assertLogs(level="ERROR") as cm:
             loader.pip_install_deps(os.getcwd() + "/faulty_requirement.txt")
 
-        os.remove(os.getcwd() + "/faulty_requirement.txt")
         self.assertEqual(
             cm.output[0].strip(),
             "ERROR:opsdroid.loader:Error importing from module requirements file.",
         )
+
+        os.remove(os.getcwd() + "/faulty_requirement.txt")
 
         opsdroid, loader = self.setup()
         with open(os.getcwd() + "/correct_requirement.txt", "w") as f:
@@ -103,6 +104,8 @@ class TestLoader(unittest.TestCase):
                 loader.pip_install_deps(os.getcwd() + "/correct_requirement.txt")
         except AssertionError:
             self.assertTrue(True)
+
+        os.remove(os.getcwd() + "/correct_requirement.txt")
 
     def test_build_module_path(self):
         config = {"type": "test", "name": "test", "is_builtin": False}
