@@ -3,6 +3,8 @@
 # pylint: disable=too-many-branches
 
 import contextlib
+
+# from distutils.log import error
 import importlib
 import importlib.util
 import json
@@ -310,6 +312,31 @@ class Loader:
         else:
             return None
 
+    @staticmethod
+    def git_show(git_url):
+        """Fetch default branch name of the argument repo git_url.
+
+        Args:
+            git_url: The url to the git repository
+
+        """
+
+        subprocess.Popen(["git", "init"]).communicate()
+        process = subprocess.Popen(
+            [f"git remote show {git_url} | sed -n '/HEAD branch/s/.*: //p'"],
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+
+        # Cleans up the returned string from the process
+        (out, _) = process.communicate()
+        out = str(out)[2:]
+        out = out.split("\\n")
+        branch = out[0]
+
+        return branch
+
     def setup_modules_directory(self, config):
         """Create and configure the modules directory.
 
@@ -587,6 +614,8 @@ class Loader:
             git_url = config["repo"]
         else:
             git_url = DEFAULT_GIT_URL + config["type"] + "-" + config["name"] + ".git"
+
+        config["branch"] = self.git_show(git_url)
 
         if any(prefix in git_url for prefix in ["http", "https", "ssh", "git@"]):
             # TODO Test if url or ssh path exists
