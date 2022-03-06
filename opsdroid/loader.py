@@ -327,12 +327,8 @@ class Loader:
             stderr=subprocess.PIPE,
         )
 
-        # Cleans up the returned string from the process
         (out, _) = process.communicate()
-        out = str(out)[2:]
-        out = out.split("\\n")
-        branch = out[0]
-
+        branch = str(out.decode("utf-8"))
         return branch
 
     def setup_modules_directory(self, config):
