@@ -80,6 +80,33 @@ class TestLoader(unittest.TestCase):
                 loader.pip_install_deps("/path/to/some/file.txt")
                 self.assertEqual(error, "Pip and pip3 not found, exiting...")
 
+    def test_faulty_and_correct_installation_of_dependency_file(self):
+        opsdroid, loader = self.setup()
+        with open(os.getcwd() + "/faulty_requirement.txt", "w") as f:
+            f.write('"word2number" = "*"')
+
+        with self.assertLogs(level="ERROR") as cm:
+            loader.pip_install_deps(os.getcwd() + "/faulty_requirement.txt")
+
+        self.assertEqual(
+            cm.output[0].strip(),
+            "ERROR:opsdroid.loader:Error importing from module requirements file.",
+        )
+
+        os.remove(os.getcwd() + "/faulty_requirement.txt")
+
+        opsdroid, loader = self.setup()
+        with open(os.getcwd() + "/correct_requirement.txt", "w") as f:
+            f.write("pillow==9.0.0")
+
+        try:
+            with self.assertLogs(level="ERROR") as cm:
+                loader.pip_install_deps(os.getcwd() + "/correct_requirement.txt")
+        except AssertionError:
+            self.assertTrue(True)
+
+        os.remove(os.getcwd() + "/correct_requirement.txt")
+
     def test_build_module_path(self):
         config = {"type": "test", "name": "test", "is_builtin": False}
         loader = mock.Mock()
@@ -727,3 +754,7 @@ class TestLoader(unittest.TestCase):
                 self.assertRegex(d["env_var"], ENV_VAR_REGEX)
             else:
                 self.assertNotRegex(d["env_var"], ENV_VAR_REGEX)
+
+
+if __name__ == "__main__":
+    unittest.main()
