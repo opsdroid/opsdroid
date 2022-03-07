@@ -1,0 +1,944 @@
+GLOB sdist-make: /home/timjonss/Documents/DD2480/DD2480_Lab4/opsdroid/setup.py
+py37 inst-nodeps: /home/timjonss/Documents/DD2480/DD2480_Lab4/opsdroid/.tox/.tmp/package/2/opsdroid-0.25.0+10.g14b499f.dirty.zip
+py37 installed: opsdroid==0.25.0+10.g14b499f.dirty
+py37 run-test-pre: PYTHONHASHSEED='3516879049'
+py37 run-test: commands[0] | pytest --timeout=30 --cov=opsdroid --cov-report=xml:cov.xml --cov-report term-missing:skip-covered
+WARNING: test command found but not installed in testenv
+  cmd: /home/timjonss/miniconda3/bin/pytest
+  env: /home/timjonss/Documents/DD2480/DD2480_Lab4/opsdroid/.tox/py37
+Maybe you forgot to specify a dependency? See also the allowlist_externals envconfig setting.
+
+DEPRECATION WARNING: this will be an error in tox 4 and above!
+============================= test session starts ==============================
+platform linux -- Python 3.9.7, pytest-7.0.1, pluggy-1.0.0 -- /home/timjonss/miniconda3/bin/python
+cachedir: .tox/py37/.pytest_cache
+rootdir: /home/timjonss/Documents/DD2480/DD2480_Lab4/opsdroid, configfile: setup.cfg, testpaths: opsdroid, tests
+plugins: timeout-2.1.0, asyncio-0.18.2, aiohttp-0.3.0, cov-3.0.0, mock-3.7.0
+timeout: 30.0s
+timeout method: signal
+timeout func_only: False
+asyncio: mode=legacy
+collecting ... collected 727 items
+
+opsdroid/connector/facebook/tests/test_connector_facebook.py::test_init PASSED [  0%]
+opsdroid/connector/facebook/tests/test_connector_facebook.py::test_property PASSED [  0%]
+opsdroid/connector/facebook/tests/test_connector_facebook.py::test_connect PASSED [  0%]
+opsdroid/connector/facebook/tests/test_connector_facebook.py::test_facebook_message_handler PASSED [  0%]
+opsdroid/connector/facebook/tests/test_connector_facebook.py::test_facebook_message_handler_invalid PASSED [  0%]
+opsdroid/connector/facebook/tests/test_connector_facebook.py::test_facebook_challenge_handler PASSED [  0%]
+opsdroid/connector/facebook/tests/test_connector_facebook.py::test_listen PASSED [  0%]
+opsdroid/connector/facebook/tests/test_connector_facebook.py::test_respond PASSED [  1%]
+opsdroid/connector/facebook/tests/test_connector_facebook.py::test_respond_bad_response PASSED [  1%]
+opsdroid/connector/github/tests/test_connector_github.py::test_token_init PASSED [  1%]
+opsdroid/connector/github/tests/test_connector_github.py::test_app_init PASSED [  1%]
+opsdroid/connector/github/tests/test_connector_github.py::test_missing_token_and_app_settings PASSED [  1%]
+opsdroid/connector/github/tests/test_connector_github.py::test_missing_secret PASSED [  1%]
+opsdroid/connector/github/tests/test_connector_github.py::test_token_connect PASSED [  1%]
+opsdroid/connector/github/tests/test_connector_github.py::test_app_connect PASSED [  2%]
+opsdroid/connector/github/tests/test_connector_github.py::test_token_connect_failure PASSED [  2%]
+opsdroid/connector/github/tests/test_connector_github.py::test_installations_connect_failure PASSED [  2%]
+opsdroid/connector/github/tests/test_connector_github.py::test_access_token_connect_failure PASSED [  2%]
+opsdroid/connector/github/tests/test_connector_github.py::test_disconnect PASSED [  2%]
+opsdroid/connector/github/tests/test_connector_github.py::test_listen PASSED [  2%]
+opsdroid/connector/github/tests/test_connector_github.py::test_send PASSED [  2%]
+opsdroid/connector/github/tests/test_connector_github.py::test_send_failure PASSED [  3%]
+opsdroid/connector/github/tests/test_connector_github.py::test_do_not_send_to_self PASSED [  3%]
+opsdroid/connector/github/tests/test_connector_github.py::test_receive_issue_comment PASSED [  3%]
+opsdroid/connector/github/tests/test_connector_github.py::test_pr_review_submitted PASSED [  3%]
+opsdroid/connector/github/tests/test_connector_github.py::test_pr_review_edited PASSED [  3%]
+opsdroid/connector/github/tests/test_connector_github.py::test_pr_review_dismissed PASSED [  3%]
+opsdroid/connector/github/tests/test_connector_github.py::test_pr_review_comment_created PASSED [  3%]
+opsdroid/connector/github/tests/test_connector_github.py::test_pr_review_comment_edited PASSED [  3%]
+opsdroid/connector/github/tests/test_connector_github.py::test_pr_review_comment_deleted PASSED [  4%]
+opsdroid/connector/github/tests/test_connector_github.py::test_receive_pr PASSED [  4%]
+opsdroid/connector/github/tests/test_connector_github.py::test_reopen_pr PASSED [  4%]
+opsdroid/connector/github/tests/test_connector_github.py::test_edit_pr PASSED [  4%]
+opsdroid/connector/github/tests/test_connector_github.py::test_pr_merged PASSED [  4%]
+opsdroid/connector/github/tests/test_connector_github.py::test_close_pr PASSED [  4%]
+opsdroid/connector/github/tests/test_connector_github.py::test_push_commit PASSED [  4%]
+opsdroid/connector/github/tests/test_connector_github.py::test_check_started PASSED [  5%]
+opsdroid/connector/github/tests/test_connector_github.py::test_check_failed PASSED [  5%]
+opsdroid/connector/github/tests/test_connector_github.py::test_check_passed PASSED [  5%]
+opsdroid/connector/github/tests/test_connector_github.py::test_check_completed PASSED [  5%]
+opsdroid/connector/github/tests/test_connector_github.py::test_receive_issue PASSED [  5%]
+opsdroid/connector/github/tests/test_connector_github.py::test_received_issue_close PASSED [  5%]
+opsdroid/connector/github/tests/test_connector_github.py::test_receive_label PASSED [  5%]
+opsdroid/connector/github/tests/test_connector_github.py::test_receive_unlabel PASSED [  6%]
+opsdroid/connector/github/tests/test_connector_github.py::test_receive_status PASSED [  6%]
+opsdroid/connector/github/tests/test_connector_github.py::test_validate_request PASSED [  6%]
+opsdroid/connector/github/tests/test_connector_github.py::test_no_key_in_payload PASSED [  6%]
+opsdroid/connector/github/tests/test_connector_github.py::test_no_event_to_parse PASSED [  6%]
+opsdroid/connector/github/tests/test_connector_github.py::test_invalid_request PASSED [  6%]
+opsdroid/connector/gitlab/tests/test_connector_gitlab.py::test_app_init PASSED [  6%]
+opsdroid/connector/gitlab/tests/test_connector_gitlab.py::test_init PASSED [  7%]
+opsdroid/connector/gitlab/tests/test_connector_gitlab.py::test_optional_config PASSED [  7%]
+opsdroid/connector/gitlab/tests/test_connector_gitlab.py::test_base_url PASSED [  7%]
+opsdroid/connector/gitlab/tests/test_connector_gitlab.py::test_gitlab_webhook_handler_excepion PASSED [  7%]
+opsdroid/connector/gitlab/tests/test_connector_gitlab.py::test_validate_request PASSED [  7%]
+opsdroid/connector/gitlab/tests/test_connector_gitlab.py::test_listen PASSED [  7%]
+opsdroid/connector/gitlab/tests/test_connector_gitlab.py::test_issue_created PASSED [  7%]
+opsdroid/connector/gitlab/tests/test_connector_gitlab.py::test_issue_label_updated PASSED [  7%]
+opsdroid/connector/gitlab/tests/test_connector_gitlab.py::test_issue_labeled PASSED [  8%]
+opsdroid/connector/gitlab/tests/test_connector_gitlab.py::test_issue_edited PASSED [  8%]
+opsdroid/connector/gitlab/tests/test_connector_gitlab.py::test_generic_issue PASSED [  8%]
+opsdroid/connector/gitlab/tests/test_connector_gitlab.py::test_no_token_returns_401 PASSED [  8%]
+opsdroid/connector/gitlab/tests/test_connector_gitlab.py::test_issue_closed PASSED [  8%]
+opsdroid/connector/gitlab/tests/test_connector_gitlab.py::test_generic_issue_event PASSED [  8%]
+opsdroid/connector/gitlab/tests/test_connector_gitlab.py::test_bad_json_file PASSED [  8%]
+opsdroid/connector/gitlab/tests/test_connector_gitlab.py::test_mr_label_update_event PASSED [  9%]
+opsdroid/connector/gitlab/tests/test_connector_gitlab.py::test_mr_opened_event PASSED [  9%]
+opsdroid/connector/gitlab/tests/test_connector_gitlab.py::test_mr_merged_event PASSED [  9%]
+opsdroid/connector/gitlab/tests/test_connector_gitlab.py::test_mr_approved_event PASSED [  9%]
+opsdroid/connector/gitlab/tests/test_connector_gitlab.py::test_mr_closed_event PASSED [  9%]
+opsdroid/connector/gitlab/tests/test_connector_gitlab.py::test_mr_generic_event PASSED [  9%]
+opsdroid/connector/gitlab/tests/test_connector_gitlab.py::test_send_message PASSED [  9%]
+opsdroid/connector/gitlab/tests/test_connector_gitlab.py::test_send_message_bad_status PASSED [ 10%]
+opsdroid/connector/gitlab/tests/test_connector_gitlab.py::test_send_message_no_token PASSED [ 10%]
+opsdroid/connector/gitter/tests/test_connector_gitter.py::test_init PASSED [ 10%]
+opsdroid/connector/gitter/tests/test_connector_gitter.py::test_build_url PASSED [ 10%]
+opsdroid/connector/gitter/tests/test_connector_gitter.py::test_parse_message PASSED [ 10%]
+opsdroid/connector/gitter/tests/test_connector_gitter.py::test_parse_message_key_error PASSED [ 10%]
+opsdroid/connector/gitter/tests/test_connector_gitter.py::test_end_to_end PASSED [ 10%]
+opsdroid/connector/gitter/tests/test_connector_gitter.py::test_send_message_failure PASSED [ 11%]
+opsdroid/connector/gitter/tests/test_connector_gitter.py::test_ignore_bot_message PASSED [ 11%]
+opsdroid/connector/matrix/tests/test_connector_connect.py::test_constructor PASSED [ 11%]
+opsdroid/connector/matrix/tests/test_connector_connect.py::test_connect_access_token PASSED [ 11%]
+opsdroid/connector/matrix/tests/test_connector_connect.py::test_connect_invalid_access_token PASSED [ 11%]
+opsdroid/connector/matrix/tests/test_connector_connect.py::test_connect_login PASSED [ 11%]
+opsdroid/connector/matrix/tests/test_connector_connect.py::test_connect_login_error PASSED [ 11%]
+opsdroid/connector/matrix/tests/test_connector_connect.py::test_connect_join_fail PASSED [ 11%]
+opsdroid/connector/matrix/tests/test_connector_connect.py::test_connect_set_nick_errors PASSED [ 12%]
+opsdroid/connector/matrix/tests/test_connector_connect.py::test_connect_set_nick PASSED [ 12%]
+opsdroid/connector/matrix/tests/test_event_parsing.py::test_receive_message PASSED [ 12%]
+opsdroid/connector/matrix/tests/test_event_parsing.py::test_get_nick_error PASSED [ 12%]
+opsdroid/connector/matrix/tests/test_event_parsing.py::test_invite_with_message PASSED [ 12%]
+opsdroid/connector/slack/tests/test_connector.py::test_connect_events_api PASSED [ 12%]
+opsdroid/connector/slack/tests/test_connector.py::test_connect_socket_mode PASSED [ 12%]
+opsdroid/connector/slack/tests/test_connector.py::test_connect_no_socket_mode_client PASSED [ 13%]
+opsdroid/connector/slack/tests/test_connector.py::test_connect_failure PASSED [ 13%]
+opsdroid/connector/slack/tests/test_connector.py::test_disconnect PASSED [ 13%]
+opsdroid/connector/slack/tests/test_connector.py::test_socket_event_handler PASSED [ 13%]
+opsdroid/connector/slack/tests/test_connector.py::test_lookup_username_user_not_present PASSED [ 13%]
+opsdroid/connector/slack/tests/test_connector.py::test_search_history_messages PASSED [ 13%]
+opsdroid/connector/slack/tests/test_connector.py::test_search_history_messages_limit_more_than_1000 PASSED [ 13%]
+opsdroid/connector/slack/tests/test_connector.py::test_search_history_messages_more_than_one_api_request PASSED [ 14%]
+opsdroid/connector/slack/tests/test_connector.py::test_replace_usernames PASSED [ 14%]
+opsdroid/connector/slack/tests/test_connector.py::test_send_message PASSED [ 14%]
+opsdroid/connector/slack/tests/test_connector.py::test_send_message_inside_thread PASSED [ 14%]
+opsdroid/connector/slack/tests/test_connector.py::test_send_message_inside_thread_is_true PASSED [ 14%]
+opsdroid/connector/slack/tests/test_connector.py::test_edit_message PASSED [ 14%]
+opsdroid/connector/slack/tests/test_connector.py::test_send_blocks PASSED [ 14%]
+opsdroid/connector/slack/tests/test_connector.py::test_edit_blocks PASSED [ 14%]
+opsdroid/connector/slack/tests/test_connector.py::test_send_reaction PASSED [ 15%]
+opsdroid/connector/slack/tests/test_connector.py::test_send_reaction_invalid_name PASSED [ 15%]
+opsdroid/connector/slack/tests/test_connector.py::test_send_reaction_unknown_error PASSED [ 15%]
+opsdroid/connector/slack/tests/test_connector.py::test_send_room_creation PASSED [ 15%]
+opsdroid/connector/slack/tests/test_connector.py::test_send_room_name_set PASSED [ 15%]
+opsdroid/connector/slack/tests/test_connector.py::test_join_room PASSED  [ 15%]
+opsdroid/connector/slack/tests/test_connector.py::test_send_user_invitation PASSED [ 15%]
+opsdroid/connector/slack/tests/test_connector.py::test_send_room_description PASSED [ 16%]
+opsdroid/connector/slack/tests/test_connector.py::test_send_pin_added PASSED [ 16%]
+opsdroid/connector/slack/tests/test_connector.py::test_send_pin_removed PASSED [ 16%]
+opsdroid/connector/slack/tests/test_create_events.py::test_receive_url_verification PASSED [ 16%]
+opsdroid/connector/slack/tests/test_create_events.py::test_receive_event_callback[payload_message.json] PASSED [ 16%]
+opsdroid/connector/slack/tests/test_create_events.py::test_receive_event_callback[payload_message_bot_message.json] PASSED [ 16%]
+opsdroid/connector/slack/tests/test_create_events.py::test_receive_event_callback[payload_message_message_changed.json] PASSED [ 16%]
+opsdroid/connector/slack/tests/test_create_events.py::test_receive_event_callback[payload_message_channel_join.json] PASSED [ 17%]
+opsdroid/connector/slack/tests/test_create_events.py::test_receive_event_callback[payload_channel_created.json] PASSED [ 17%]
+opsdroid/connector/slack/tests/test_create_events.py::test_receive_event_callback[payload_channel_archive.json] PASSED [ 17%]
+opsdroid/connector/slack/tests/test_create_events.py::test_receive_event_callback[payload_channel_unarchive.json] PASSED [ 17%]
+opsdroid/connector/slack/tests/test_create_events.py::test_receive_event_callback[payload_team_join.json] PASSED [ 17%]
+opsdroid/connector/slack/tests/test_create_events.py::test_receive_event_callback[payload_channel_rename.json] PASSED [ 17%]
+opsdroid/connector/slack/tests/test_create_events.py::test_receive_event_callback[payload_pin_added.json] PASSED [ 17%]
+opsdroid/connector/slack/tests/test_create_events.py::test_receive_event_callback[payload_pin_removed.json] PASSED [ 18%]
+opsdroid/connector/slack/tests/test_create_events.py::test_receive_block_action[payload_block_action_button.urlencoded] PASSED [ 18%]
+opsdroid/connector/slack/tests/test_create_events.py::test_receive_block_action[payload_block_action_overflow.urlencoded] PASSED [ 18%]
+opsdroid/connector/slack/tests/test_create_events.py::test_receive_block_action[payload_block_action_static_select.urlencoded] PASSED [ 18%]
+opsdroid/connector/slack/tests/test_create_events.py::test_receive_block_action[payload_block_action_datepicker.urlencoded] PASSED [ 18%]
+opsdroid/connector/slack/tests/test_create_events.py::test_receive_block_action[payload_block_action_multi_static_select.urlencoded] PASSED [ 18%]
+opsdroid/connector/slack/tests/test_create_events.py::test_receive_message_action PASSED [ 18%]
+opsdroid/connector/slack/tests/test_create_events.py::test_receive_slash_command PASSED [ 18%]
+opsdroid/connector/slack/tests/test_create_events.py::test_receive_view_submission PASSED [ 19%]
+opsdroid/connector/slack/tests/test_create_events.py::test_receive_unknown_payload PASSED [ 19%]
+opsdroid/connector/slack/tests/test_create_events.py::test__create_user_name_user_not_found PASSED [ 19%]
+opsdroid/connector/slack/tests/test_create_events.py::test_create_message_user_name_not_found PASSED [ 19%]
+opsdroid/connector/slack/tests/test_create_events.py::test_edit_message_user_name_not_found PASSED [ 19%]
+opsdroid/connector/slack/tests/test_events.py::test_respond_response_url_exists PASSED [ 19%]
+opsdroid/connector/slack/tests/test_events.py::test_respond_response_text_content_type PASSED [ 19%]
+opsdroid/connector/slack/tests/test_events.py::test_respond_event_response_url_does_not_exist PASSED [ 20%]
+opsdroid/connector/slack/tests/test_events.py::test_respond_response_event_not_a_string PASSED [ 20%]
+opsdroid/connector/teams/tests/test_connector_teams.py::test_teams_init PASSED [ 20%]
+opsdroid/connector/teams/tests/test_connector_teams.py::test_connect PASSED [ 20%]
+opsdroid/connector/teams/tests/test_connector_teams.py::test_parse_channel_id PASSED [ 20%]
+opsdroid/connector/teams/tests/test_connector_teams.py::test_ping_pong PASSED [ 20%]
+opsdroid/connector/teams/tests/test_connector_teams.py::test_invalid_calls PASSED [ 20%]
+opsdroid/connector/teams/tests/test_connector_teams.py::test_send_message_to_invalid_target PASSED [ 21%]
+opsdroid/connector/teams/tests/test_connector_teams.py::test_send_message_to_room_not_spoken_in PASSED [ 21%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_init_no_base_url PASSED [ 21%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_init PASSED [ 21%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_get_user_from_channel_with_signature PASSED [ 21%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_get_user_from_channel_without_signature PASSED [ 21%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_get_user_from_forwarded_message PASSED [ 21%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_get_user_from_first_name PASSED [ 22%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_get_user_from_username PASSED [ 22%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_handle_user_permission PASSED [ 22%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_handle_user_id_permission PASSED [ 22%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_handle_user_no_permission PASSED [ 22%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_build_url PASSED [ 22%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_connect PASSED [ 22%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_connect_failure PASSED [ 22%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_respond PASSED [ 23%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_respond_failure PASSED [ 23%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_respond_image PASSED [ 23%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_respond_image_failure PASSED [ 23%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_respond_file PASSED [ 23%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_respond_file_failure PASSED [ 23%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_disconnect_successful PASSED [ 23%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_disconnect_failure PASSED [ 24%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_edited_message_event PASSED [ 24%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_join_group_event PASSED [ 24%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_leave_group_event PASSED [ 24%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_pinned_message_event PASSED [ 24%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_reply_to_message_event PASSED [ 24%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_location_event PASSED [ 24%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_poll_event PASSED [ 25%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_contact_event PASSED [ 25%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_unparseable_event PASSED [ 25%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_channel_post PASSED [ 25%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_parse_user_no_permissions PASSED [ 25%]
+opsdroid/connector/telegram/tests/test_connector_telegram.py::test_parse_user_permissions PASSED [ 25%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_init PASSED [ 25%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_base_url_twitch_config PASSED [ 25%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_base_url_web_config PASSED [ 26%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_validate_request PASSED [ 26%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_get_user_id PASSED [ 26%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_get_user_id_failure PASSED [ 26%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_get_user_id_unauthorized PASSED [ 26%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_save_authentication_data PASSED [ 26%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_request_oauth_token PASSED [ 26%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_request_oauth_token_failure PASSED [ 27%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_refresh_oauth_token PASSED [ 27%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_connect PASSED [ 27%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_connect_no_auth_data PASSED [ 27%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_connect_refresh_token PASSED [ 27%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_send_message PASSED [ 27%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_send_handshake PASSED [ 27%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_connect_websocket PASSED [ 28%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_webhook_follows PASSED [ 28%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_webhook_stream_changed PASSED [ 28%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_webhook_subscribers PASSED [ 28%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_webhook_failure PASSED [ 28%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_ban_user PASSED [ 28%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_create_clip PASSED [ 28%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_create_clip_failure PASSED [ 29%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_remove_message PASSED [ 29%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_send_message_event PASSED [ 29%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_update_stream_title PASSED [ 29%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_update_stream_title_failure PASSED [ 29%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_handle_challenge PASSED [ 29%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_handle_challenge_error PASSED [ 29%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_invalid_post_request_webhook PASSED [ 29%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_stream_ended_event PASSED [ 30%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_followed_event PASSED [ 30%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_user_subscribed PASSED [ 30%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_gift_subscription_event PASSED [ 30%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_subscription_event PASSED [ 30%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_stream_started_event PASSED [ 30%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_disconnect PASSED [ 30%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_get_message_loop PASSED [ 31%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_handle_message_chat_message PASSED [ 31%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_handle_message_join_event PASSED [ 31%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_handle_message_left_event PASSED [ 31%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_handle_message_authentication_failed PASSED [ 31%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_disconnect_websockets PASSED [ 31%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_listen PASSED [ 31%]
+opsdroid/connector/twitch/tests/test_connector_twitch.py::test_listen_reconnect PASSED [ 32%]
+opsdroid/database/mongo/tests/test_mongo.py::test_init[config0] PASSED   [ 32%]
+opsdroid/database/mongo/tests/test_mongo.py::test_connect[config0] PASSED [ 32%]
+opsdroid/database/mongo/tests/test_mongo.py::test_connect[config1] PASSED [ 32%]
+opsdroid/database/mongo/tests/test_mongo.py::test_get[config0] PASSED    [ 32%]
+opsdroid/database/mongo/tests/test_mongo.py::test_get2[config0] PASSED   [ 32%]
+opsdroid/database/mongo/tests/test_mongo.py::test_put[config0] PASSED    [ 32%]
+opsdroid/database/mongo/tests/test_mongo.py::test_put2[config0] PASSED   [ 33%]
+opsdroid/database/mongo/tests/test_mongo.py::test_put3[config0] PASSED   [ 33%]
+opsdroid/database/mongo/tests/test_mongo.py::test_delete[config0] PASSED [ 33%]
+opsdroid/database/redis/tests/test_redis.py::test_init PASSED            [ 33%]
+opsdroid/database/redis/tests/test_redis.py::test_connect PASSED         [ 33%]
+opsdroid/database/redis/tests/test_redis.py::test_connect_failure PASSED [ 33%]
+opsdroid/database/redis/tests/test_redis.py::test_get PASSED             [ 33%]
+opsdroid/database/redis/tests/test_redis.py::test_get_return_none PASSED [ 33%]
+opsdroid/database/redis/tests/test_redis.py::test_put PASSED             [ 34%]
+opsdroid/database/redis/tests/test_redis.py::test_delete PASSED          [ 34%]
+opsdroid/database/redis/tests/test_redis.py::test_disconnect PASSED      [ 34%]
+opsdroid/database/sqlite/tests/test_database_sqlite.py::test_init PASSED [ 34%]
+opsdroid/database/sqlite/tests/test_database_sqlite.py::test_connect PASSED [ 34%]
+opsdroid/database/sqlite/tests/test_database_sqlite.py::test_disconnect PASSED [ 34%]
+opsdroid/database/sqlite/tests/test_database_sqlite.py::test_get_put_and_delete PASSED [ 34%]
+opsdroid/database/sqlite/tests/test_database_sqlite.py::test_deprecated_path PASSED [ 35%]
+opsdroid/database/tests/test_database.py::test_init PASSED               [ 35%]
+opsdroid/database/tests/test_database.py::test_connect PASSED            [ 35%]
+opsdroid/database/tests/test_database.py::test_disconnect PASSED         [ 35%]
+opsdroid/database/tests/test_database.py::test_get PASSED                [ 35%]
+opsdroid/database/tests/test_database.py::test_put PASSED                [ 35%]
+opsdroid/database/tests/test_database.py::test_delete PASSED             [ 35%]
+opsdroid/parsers/tests/test_parser_catchall.py::test_parse_catchall_decorator_parens PASSED [ 36%]
+opsdroid/parsers/tests/test_parser_catchall.py::test_parse_catchall_decorate_no_parens PASSED [ 36%]
+opsdroid/parsers/tests/test_parser_catchall.py::test_parse_catchall_raises PASSED [ 36%]
+opsdroid/parsers/tests/test_parser_catchall.py::test_parse_catchall_not_called PASSED [ 36%]
+opsdroid/parsers/tests/test_parser_catchall.py::test_parse_catchall_messages_only_default PASSED [ 36%]
+opsdroid/parsers/tests/test_parser_catchall.py::test_parse_catchall_messages_only_enabled PASSED [ 36%]
+opsdroid/parsers/tests/test_parser_format.py::test_parse_format_match_condition PASSED [ 36%]
+opsdroid/parsers/tests/test_parser_format.py::test_parse_format_search_condition PASSED [ 37%]
+opsdroid/parsers/tests/test_parser_format.py::test_parse_format_parameters PASSED [ 37%]
+opsdroid/parsers/tests/test_parser_watson.py::test_get_all_entities PASSED [ 37%]
+opsdroid/parsers/tests/test_parser_watson.py::test_get_session_id PASSED [ 37%]
+opsdroid/parsers/tests/test_parser_watson.py::test_call_watson PASSED    [ 37%]
+opsdroid/parsers/tests/test_parser_watson.py::test_call_watson_import_error PASSED [ 37%]
+opsdroid/parsers/tests/test_parser_watson.py::test_parse_watson PASSED   [ 37%]
+opsdroid/parsers/tests/test_parser_watson.py::test_parse_watson_no_intent PASSED [ 37%]
+opsdroid/parsers/tests/test_parser_watson.py::test_parse_watson_no_confidence PASSED [ 38%]
+opsdroid/parsers/tests/test_parser_watson.py::test_parse_watson_low_score PASSED [ 38%]
+opsdroid/parsers/tests/test_parser_watson.py::test_parse_watson_KeyError PASSED [ 38%]
+opsdroid/parsers/tests/test_parser_watson.py::test_parse_watson_APIException PASSED [ 38%]
+opsdroid/skill/tests/test_skill.py::test_init PASSED                     [ 38%]
+opsdroid/skill/tests/test_skill.py::test_init_erroneous_property PASSED  [ 38%]
+opsdroid/skill/tests/test_skill.py::test_matcher_on_instance PASSED      [ 38%]
+opsdroid/skill/tests/test_skill.py::test_matcher_called PASSED           [ 39%]
+opsdroid/testing/tests/test_testing.py::test_external_api_mock_server PASSED [ 39%]
+opsdroid/testing/tests/test_testing.py::test_external_api_mock_server_port_in_use[localhost] PASSED [ 39%]
+opsdroid/testing/tests/test_testing.py::test_call_endpoint PASSED        [ 39%]
+opsdroid/testing/tests/test_testing.py::test_run_unit_test PASSED        [ 39%]
+opsdroid/testing/tests/test_testing.py::test_with_running_opsdroid PASSED [ 39%]
+opsdroid/testing/tests/test_testing.py::test_mock_skill_and_connector PASSED [ 39%]
+opsdroid/testing/tests/test_testing.py::test_mock_api_with_pytest_marks PASSED [ 40%]
+opsdroid/testing/tests/test_testing.py::test_mock_api_obj_with_pytest_marks PASSED [ 40%]
+opsdroid/tests/test_connector.py::TestConnectorBaseClass::test_init PASSED [ 40%]
+opsdroid/tests/test_connector.py::TestConnectorBaseClass::test_property PASSED [ 40%]
+opsdroid/tests/test_connector.py::TestConnectorBaseClass::test_connect PASSED [ 40%]
+opsdroid/tests/test_connector.py::TestConnectorBaseClass::test_listen PASSED [ 40%]
+opsdroid/tests/test_connector.py::TestConnectorBaseClass::test_respond PASSED [ 40%]
+opsdroid/tests/test_connector.py::TestConnectorBaseClass::test_unsupported_event PASSED [ 40%]
+opsdroid/tests/test_connector.py::TestConnectorBaseClass::test_incorrect_event PASSED [ 41%]
+opsdroid/tests/test_connector.py::TestConnectorBaseClass::test_event_subclasses PASSED [ 41%]
+opsdroid/tests/test_connector.py::TestConnectorAsync::test_disconnect PASSED [ 41%]
+opsdroid/tests/test_connector.py::TestConnectorAsync::test_send_incorrect_event PASSED [ 41%]
+opsdroid/tests/test_connector.py::TestConnectorAsync::test_dep_respond PASSED [ 41%]
+opsdroid/tests/test_connector.py::TestConnectorAsync::test_dep_react PASSED [ 41%]
+opsdroid/tests/test_connector.py::TestConnectorAsync::test_deprecated_properties PASSED [ 41%]
+opsdroid/tests/test_core.py::test_signals SKIPPED (need --only-signa...) [ 42%]
+opsdroid/tests/test_helper.py::TestHelper::test_del_rw PASSED            [ 42%]
+opsdroid/tests/test_helper.py::TestHelper::test_file_is_ipython_notebook PASSED [ 42%]
+opsdroid/tests/test_helper.py::TestHelper::test_convert_ipynb_to_script PASSED [ 42%]
+opsdroid/tests/test_helper.py::TestHelper::test_extract_gist_id PASSED   [ 42%]
+opsdroid/tests/test_helper.py::TestHelper::test_opsdroid PASSED          [ 42%]
+opsdroid/tests/test_helper.py::TestHelper::test_convert_dictionary PASSED [ 42%]
+opsdroid/tests/test_helper.py::TestHelper::test_get_config_option PASSED [ 43%]
+opsdroid/tests/test_helper.py::TestHelper::test_get_config_no_option PASSED [ 43%]
+opsdroid/tests/test_helper.py::TestHelper::test_get_config_option_exception PASSED [ 43%]
+opsdroid/tests/test_helper.py::TestJSONEncoder::test_datetime_to_dict PASSED [ 43%]
+opsdroid/tests/test_helper.py::TestJSONDecoder::test_dict_to_datetime PASSED [ 43%]
+opsdroid/tests/test_helper.py::TestJSONDecoder::test_get_parser_config PASSED [ 43%]
+opsdroid/tests/test_helper.py::TestJSONDecoder::test_get_parser_config_none PASSED [ 43%]
+opsdroid/tests/test_logging.py::test_set_logging_level PASSED            [ 44%]
+opsdroid/tests/test_logging.py::test_configure_no_logging PASSED         [ 44%]
+opsdroid/tests/test_logging.py::test_configure_file_logging PASSED       [ 44%]
+opsdroid/tests/test_logging.py::test_configure_file_blacklist PASSED     [ 44%]
+opsdroid/tests/test_logging.py::test_configure_file_logging_directory_not_exists PASSED [ 44%]
+opsdroid/tests/test_logging.py::test_configure_console_logging PASSED    [ 44%]
+opsdroid/tests/test_logging.py::test_configure_console_blacklist PASSED  [ 44%]
+opsdroid/tests/test_logging.py::test_configure_console_whitelist PASSED  [ 44%]
+opsdroid/tests/test_logging.py::test_configure_logging_with_timestamp PASSED [ 45%]
+opsdroid/tests/test_logging.py::test_configure_extended_logging PASSED   [ 45%]
+opsdroid/tests/test_logging.py::test_configure_extended_logging_with_timestamp PASSED [ 45%]
+opsdroid/tests/test_logging.py::test_configure_default_logging PASSED    [ 45%]
+opsdroid/tests/test_logging.py::test_configure_whitelist_and_blacklist PASSED [ 45%]
+opsdroid/tests/test_matchers.py::test_match_regex PASSED                 [ 45%]
+opsdroid/tests/test_matchers.py::test_match_dialogflow PASSED            [ 45%]
+opsdroid/tests/test_matchers.py::test_match_luisai PASSED                [ 46%]
+opsdroid/tests/test_matchers.py::test_match_watson PASSED                [ 46%]
+opsdroid/tests/test_matchers.py::test_match_witai PASSED                 [ 46%]
+opsdroid/tests/test_matchers.py::test_match_rasanu PASSED                [ 46%]
+opsdroid/tests/test_matchers.py::test_match_recastai PASSED              [ 46%]
+opsdroid/tests/test_matchers.py::test_match_crontab PASSED               [ 46%]
+opsdroid/tests/test_matchers.py::test_match_webhook PASSED               [ 46%]
+opsdroid/tests/test_matchers.py::test_match_webhook_response PASSED      [ 47%]
+opsdroid/tests/test_matchers.py::test_match_webhook_response_with_authorization_failure PASSED [ 47%]
+opsdroid/tests/test_matchers.py::test_match_webhook_custom_response PASSED [ 47%]
+opsdroid/tests/test_memory.py::test_memory PASSED                        [ 47%]
+opsdroid/tests/test_memory.py::test_empty_memory PASSED                  [ 47%]
+opsdroid/tests/test_memory.py::test_empty_memory_default PASSED          [ 47%]
+opsdroid/tests/test_memory.py::test_database_callouts PASSED             [ 47%]
+opsdroid/tests/test_web.py::test_web PASSED                              [ 48%]
+opsdroid/tests/test_web.py::test_web_get_port PASSED                     [ 48%]
+opsdroid/tests/test_web.py::test_web_get_host PASSED                     [ 48%]
+opsdroid/tests/test_web.py::test_web_disable_web_index_handler_in_root PASSED [ 48%]
+opsdroid/tests/test_web.py::test_web_get_ssl PASSED                      [ 48%]
+opsdroid/tests/test_web.py::test_web_build_response PASSED               [ 48%]
+opsdroid/tests/test_web.py::test_web_index_handler PASSED                [ 48%]
+opsdroid/tests/test_web.py::test_web_stats_handler PASSED                [ 48%]
+opsdroid/tests/test_web.py::test_web_start PASSED                        [ 49%]
+opsdroid/tests/test_web.py::test_web_stop PASSED                         [ 49%]
+opsdroid/tests/test_web.py::test_web_port_in_use PASSED                  [ 49%]
+tests/test_cli.py::TestCLI::test_check_version_27 PASSED                 [ 49%]
+tests/test_cli.py::TestCLI::test_check_version_34 PASSED                 [ 49%]
+tests/test_cli.py::TestCLI::test_check_version_35 PASSED                 [ 49%]
+tests/test_cli.py::TestCLI::test_check_version_36 PASSED                 [ 49%]
+tests/test_cli.py::TestCLI::test_check_version_37 PASSED                 [ 50%]
+tests/test_cli.py::TestCLI::test_config_build PASSED                     [ 50%]
+tests/test_cli.py::TestCLI::test_config_build_exception PASSED           [ 50%]
+tests/test_cli.py::TestCLI::test_config_build_from_path PASSED           [ 50%]
+tests/test_cli.py::TestCLI::test_config_list_modules PASSED              [ 50%]
+tests/test_cli.py::TestCLI::test_config_validate PASSED                  [ 50%]
+tests/test_cli.py::TestCLI::test_config_validate_from_path PASSED        [ 50%]
+tests/test_cli.py::TestCLI::test_configure_lang PASSED                   [ 51%]
+tests/test_cli.py::TestCLI::test_configure_no_lang PASSED                [ 51%]
+tests/test_cli.py::TestCLI::test_edit_files_config PASSED                [ 51%]
+tests/test_cli.py::TestCLI::test_gen_config PASSED                       [ 51%]
+tests/test_cli.py::TestCLI::test_init_doesnt_run PASSED                  [ 51%]
+tests/test_cli.py::TestCLI::test_init_runs PASSED                        [ 51%]
+tests/test_cli.py::TestCLI::test_main PASSED                             [ 51%]
+tests/test_cli.py::TestCLI::test_print_files_log PASSED                  [ 51%]
+tests/test_cli.py::TestCLI::test_print_files_log_follow PASSED           [ 52%]
+tests/test_cli.py::TestCLI::test_print_version PASSED                    [ 52%]
+tests/test_cli.py::TestCLI::test_start_from_path PASSED                  [ 52%]
+tests/test_cli.py::TestCLI::test_welcome_exception PASSED                [ 52%]
+tests/test_cli.py::TestCLI::test_welcome_message PASSED                  [ 52%]
+tests/test_configuration.py::TestConfiguration::test_create_default_config PASSED [ 52%]
+tests/test_configuration.py::TestConfiguration::test_generate_config_if_none_exist PASSED [ 52%]
+tests/test_configuration.py::TestConfiguration::test_load_bad_config_broken PASSED [ 53%]
+tests/test_configuration.py::TestConfiguration::test_load_broken_config_file PASSED [ 53%]
+tests/test_configuration.py::TestConfiguration::test_load_config_broken PASSED [ 53%]
+tests/test_configuration.py::TestConfiguration::test_load_config_file PASSED [ 53%]
+tests/test_configuration.py::TestConfiguration::test_load_config_file_2 PASSED [ 53%]
+tests/test_configuration.py::TestConfiguration::test_load_config_file_with_env_vars PASSED [ 53%]
+tests/test_configuration.py::TestConfiguration::test_load_config_valid PASSED [ 53%]
+tests/test_configuration.py::TestConfiguration::test_load_config_valid_case_sensitivity PASSED [ 54%]
+tests/test_configuration.py::TestConfiguration::test_load_non_existant_config_file PASSED [ 54%]
+tests/test_configuration.py::TestConfiguration::test_schema PASSED       [ 54%]
+tests/test_configuration.py::TestConfiguration::test_validate_data_type PASSED [ 54%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_make_filter PASSED [ 54%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_exchange_keys PASSED [ 54%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_get_formatted_message_body PASSED [ 54%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_send_edited_message PASSED [ 55%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_respond_retry PASSED [ 55%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_respond_room PASSED [ 55%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_disconnect PASSED [ 55%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_get_roomname PASSED [ 55%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_lookup_target PASSED [ 55%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_respond_image PASSED [ 55%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_respond_mxc PASSED [ 55%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_respond_file PASSED [ 56%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_respond_new_room PASSED [ 56%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_respond_room_address PASSED [ 56%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_respond_join_room PASSED [ 56%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_respond_join_room_error PASSED [ 56%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_respond_user_invite PASSED [ 56%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_respond_room_description PASSED [ 56%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_respond_room_image PASSED [ 57%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_respond_user_role PASSED [ 57%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_send_reaction PASSED [ 57%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_send_reply PASSED [ 57%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_send_reply_id PASSED [ 57%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_alias_already_exists PASSED [ 57%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_user_invite_unknown_error PASSED [ 57%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_already_in_room_warning PASSED [ 58%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_invalid_role PASSED [ 58%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_no_user_id PASSED [ 58%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_m_notice PASSED [ 58%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_construct PASSED [ 58%]
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_send_generic_event PASSED [ 58%]
+tests/test_connector_matrix.py::TestEventCreatorMatrixAsync::test_create_message PASSED [ 58%]
+tests/test_connector_matrix.py::TestEventCreatorMatrixAsync::test_create_file PASSED [ 59%]
+tests/test_connector_matrix.py::TestEventCreatorMatrixAsync::test_create_image PASSED [ 59%]
+tests/test_connector_matrix.py::TestEventCreatorMatrixAsync::test_unsupported_type PASSED [ 59%]
+tests/test_connector_matrix.py::TestEventCreatorMatrixAsync::test_unsupported_message_type PASSED [ 59%]
+tests/test_connector_matrix.py::TestEventCreatorMatrixAsync::test_room_name PASSED [ 59%]
+tests/test_connector_matrix.py::TestEventCreatorMatrixAsync::test_room_description PASSED [ 59%]
+tests/test_connector_matrix.py::TestEventCreatorMatrixAsync::test_edited_message PASSED [ 59%]
+tests/test_connector_matrix.py::TestEventCreatorMatrixAsync::test_reaction PASSED [ 59%]
+tests/test_connector_matrix.py::TestEventCreatorMatrixAsync::test_reply PASSED [ 60%]
+tests/test_connector_matrix.py::TestEventCreatorMatrixAsync::test_create_joinroom PASSED [ 60%]
+tests/test_connector_matrix.py::TestEventCreatorMatrixAsync::test_create_generic PASSED [ 60%]
+tests/test_connector_matrix.py::TestEventCreatorMatrixAsync::test_create_generic_state PASSED [ 60%]
+tests/test_connector_mattermost.py::TestConnectorMattermost::test_init PASSED [ 60%]
+tests/test_connector_mattermost.py::TestConnectorMattermost::test_missing_api_key PASSED [ 60%]
+tests/test_connector_mattermost.py::TestConnectorMattermostAsync::test_connect PASSED [ 60%]
+tests/test_connector_mattermost.py::TestConnectorMattermostAsync::test_disconnect PASSED [ 61%]
+tests/test_connector_mattermost.py::TestConnectorMattermostAsync::test_do_not_process_own_message PASSED [ 61%]
+tests/test_connector_mattermost.py::TestConnectorMattermostAsync::test_listen PASSED [ 61%]
+tests/test_connector_mattermost.py::TestConnectorMattermostAsync::test_process_message PASSED [ 61%]
+tests/test_connector_mattermost.py::TestConnectorMattermostAsync::test_send_message PASSED [ 61%]
+tests/test_connector_rocketchat.py::TestRocketChat::test_init PASSED     [ 61%]
+tests/test_connector_rocketchat.py::TestRocketChat::test_missing_token PASSED [ 61%]
+tests/test_connector_rocketchat.py::TestConnectorRocketChatAsync::test_connect PASSED [ 62%]
+tests/test_connector_rocketchat.py::TestConnectorRocketChatAsync::test_connect_failure PASSED [ 62%]
+tests/test_connector_rocketchat.py::TestConnectorRocketChatAsync::test_disconnect PASSED [ 62%]
+tests/test_connector_rocketchat.py::TestConnectorRocketChatAsync::test_get_message PASSED [ 62%]
+tests/test_connector_rocketchat.py::TestConnectorRocketChatAsync::test_get_message_failure PASSED [ 62%]
+tests/test_connector_rocketchat.py::TestConnectorRocketChatAsync::test_get_messages_loop PASSED [ 62%]
+tests/test_connector_rocketchat.py::TestConnectorRocketChatAsync::test_listen PASSED [ 62%]
+tests/test_connector_rocketchat.py::TestConnectorRocketChatAsync::test_parse_message PASSED [ 62%]
+tests/test_connector_rocketchat.py::TestConnectorRocketChatAsync::test_respond PASSED [ 63%]
+tests/test_connector_rocketchat.py::TestConnectorRocketChatAsync::test_respond_failure PASSED [ 63%]
+tests/test_connector_shell.py::TestConnectorShell::test_clear_prompt PASSED [ 63%]
+tests/test_connector_shell.py::TestConnectorShell::test_draw_prompt PASSED [ 63%]
+tests/test_connector_shell.py::TestConnectorShell::test_init PASSED      [ 63%]
+tests/test_connector_shell.py::TestConnectorShell::test_is_listening PASSED [ 63%]
+tests/test_connector_shell.py::TestConnectorShell::test_is_listening_setter PASSED [ 63%]
+tests/test_connector_shell.py::TestConnectorShellAsync::test_async_input PASSED [ 64%]
+tests/test_connector_shell.py::TestConnectorShellAsync::test_connect PASSED [ 64%]
+tests/test_connector_shell.py::TestConnectorShellAsync::test_disconnect PASSED [ 64%]
+tests/test_connector_shell.py::TestConnectorShellAsync::test_listen PASSED [ 64%]
+tests/test_connector_shell.py::TestConnectorShellAsync::test_parse_message PASSED [ 64%]
+tests/test_connector_shell.py::TestConnectorShellAsync::test_parseloop PASSED [ 64%]
+tests/test_connector_shell.py::TestConnectorShellAsync::test_read_stdin PASSED [ 64%]
+tests/test_connector_shell.py::TestConnectorShellAsync::test_respond PASSED [ 65%]
+tests/test_connector_webexteams.py::TestConnectorCiscoWebexTeams::test_init PASSED [ 65%]
+tests/test_connector_webexteams.py::TestConnectorCiscoWebexTeams::test_missing_api_key PASSED [ 65%]
+tests/test_connector_webexteams.py::TestConnectorCiscoWebexTeams::test_webhook_url_is_valid PASSED [ 65%]
+tests/test_connector_webexteams.py::TestConnectorCiscoSparkAsync::test_clean_up_webhooks PASSED [ 65%]
+tests/test_connector_webexteams.py::TestConnectorCiscoSparkAsync::test_connect PASSED [ 65%]
+tests/test_connector_webexteams.py::TestConnectorCiscoSparkAsync::test_connect_fail_keyerror PASSED [ 65%]
+tests/test_connector_webexteams.py::TestConnectorCiscoSparkAsync::test_get_person PASSED [ 66%]
+tests/test_connector_webexteams.py::TestConnectorCiscoSparkAsync::test_listen PASSED [ 66%]
+tests/test_connector_webexteams.py::TestConnectorCiscoSparkAsync::test_message_handler PASSED [ 66%]
+tests/test_connector_webexteams.py::TestConnectorCiscoSparkAsync::test_respond PASSED [ 66%]
+tests/test_connector_webexteams.py::TestConnectorCiscoSparkAsync::test_set_own_id PASSED [ 66%]
+tests/test_connector_webexteams.py::TestConnectorCiscoSparkAsync::test_subscribe_to_rooms PASSED [ 66%]
+tests/test_connector_websocket.py::TestConnectorWebsocket::test_init PASSED [ 66%]
+tests/test_connector_websocket.py::TestConnectorWebsocket::test_property PASSED [ 66%]
+tests/test_connector_websocket.py::TestConnectorWebsocketAsync::test_connect PASSED [ 67%]
+tests/test_connector_websocket.py::TestConnectorWebsocketAsync::test_disconnect PASSED [ 67%]
+tests/test_connector_websocket.py::TestConnectorWebsocketAsync::test_listen PASSED [ 67%]
+tests/test_connector_websocket.py::TestConnectorWebsocketAsync::test_lookup_username PASSED [ 67%]
+tests/test_connector_websocket.py::TestConnectorWebsocketAsync::test_new_websocket_handler PASSED [ 67%]
+tests/test_connector_websocket.py::TestConnectorWebsocketAsync::test_respond PASSED [ 67%]
+tests/test_connector_websocket.py::TestConnectorWebsocketAsync::test_websocket_handler PASSED [ 67%]
+tests/test_constraints.py::TestConstraints::test_constrain_connectors_constrains PASSED [ 68%]
+tests/test_constraints.py::TestConstraints::test_constrain_connectors_inverted PASSED [ 68%]
+tests/test_constraints.py::TestConstraints::test_constrain_connectors_skips PASSED [ 68%]
+tests/test_constraints.py::TestConstraints::test_constrain_rooms_constrains PASSED [ 68%]
+tests/test_constraints.py::TestConstraints::test_constrain_rooms_inverted PASSED [ 68%]
+tests/test_constraints.py::TestConstraints::test_constrain_rooms_skips PASSED [ 68%]
+tests/test_constraints.py::TestConstraints::test_constrain_users_constrains PASSED [ 68%]
+tests/test_constraints.py::TestConstraints::test_constrain_users_inverted PASSED [ 69%]
+tests/test_constraints.py::TestConstraints::test_constrain_users_skips PASSED [ 69%]
+tests/test_constraints.py::TestConstraints::test_constraint_can_be_called_after_skip PASSED [ 69%]
+tests/test_core.py::TestCore::test_connector_names PASSED                [ 69%]
+tests/test_core.py::TestCore::test_core PASSED                           [ 69%]
+tests/test_core.py::TestCore::test_critical PASSED                       [ 69%]
+tests/test_core.py::TestCore::test_default_connector PASSED              [ 69%]
+tests/test_core.py::TestCore::test_default_target PASSED                 [ 70%]
+tests/test_core.py::TestCore::test_exit PASSED                           [ 70%]
+tests/test_core.py::TestCore::test_is_running PASSED                     [ 70%]
+tests/test_core.py::TestCore::test_load PASSED                           [ 70%]
+tests/test_core.py::TestCore::test_load_modules PASSED                   [ 70%]
+tests/test_core.py::TestCore::test_multiple_opsdroids PASSED             [ 70%]
+tests/test_core.py::TestCore::test_run PASSED                            [ 70%]
+tests/test_core.py::TestCore::test_run_already_running PASSED            [ 70%]
+tests/test_core.py::TestCore::test_run_cancelled PASSED                  [ 71%]
+tests/test_core.py::TestCore::test_setup_modules PASSED                  [ 71%]
+tests/test_core.py::TestCoreAsync::test_get_connector_database PASSED    [ 71%]
+tests/test_core.py::TestCoreAsync::test_get_skill_instance PASSED        [ 71%]
+tests/test_core.py::TestCoreAsync::test_handle_stop_signal PASSED        [ 71%]
+tests/test_core.py::TestCoreAsync::test_no_skills PASSED                 [ 71%]
+tests/test_core.py::TestCoreAsync::test_parse_dialogflow PASSED          [ 71%]
+tests/test_core.py::TestCoreAsync::test_parse_luisai PASSED              [ 72%]
+tests/test_core.py::TestCoreAsync::test_parse_rasanlu PASSED             [ 72%]
+tests/test_core.py::TestCoreAsync::test_parse_regex PASSED               [ 72%]
+tests/test_core.py::TestCoreAsync::test_parse_regex_insensitive PASSED   [ 72%]
+tests/test_core.py::TestCoreAsync::test_parse_regex_method_skill PASSED  [ 72%]
+tests/test_core.py::TestCoreAsync::test_parse_sapcai PASSED              [ 72%]
+tests/test_core.py::TestCoreAsync::test_parse_watson PASSED              [ 72%]
+tests/test_core.py::TestCoreAsync::test_parse_witai PASSED               [ 73%]
+tests/test_core.py::TestCoreAsync::test_reload PASSED                    [ 73%]
+tests/test_core.py::TestCoreAsync::test_send_default_explicit PASSED     [ 73%]
+tests/test_core.py::TestCoreAsync::test_send_default_one PASSED          [ 73%]
+tests/test_core.py::TestCoreAsync::test_send_name PASSED                 [ 73%]
+tests/test_core.py::TestCoreAsync::test_start_connectors PASSED          [ 73%]
+tests/test_core.py::TestCoreAsync::test_start_connectors_not_implemented PASSED [ 73%]
+tests/test_core.py::TestCoreAsync::test_start_databases PASSED           [ 74%]
+tests/test_core.py::TestCoreAsync::test_train_rasanlu PASSED             [ 74%]
+tests/test_core.py::TestCoreAsync::test_unload_and_stop PASSED           [ 74%]
+tests/test_core.py::TestCoreAsync::test_watchdog PASSED                  [ 74%]
+tests/test_core.py::TestCoreAsync::test_watchdog_works PASSED            [ 74%]
+tests/test_database_matrix.py::test_default_config PASSED                [ 74%]
+tests/test_database_matrix.py::test_default_config_enc XFAIL (No enc...) [ 74%]
+tests/test_database_matrix.py::test_put_custom_state_key PASSED          [ 74%]
+tests/test_database_matrix.py::test_put_custom_state_key_enc XFAIL (...) [ 75%]
+tests/test_database_matrix.py::test_single_state_key_false PASSED        [ 75%]
+tests/test_database_matrix.py::test_single_state_key_false_enc XFAIL     [ 75%]
+tests/test_database_matrix.py::test_single_state_key_false_dict PASSED   [ 75%]
+tests/test_database_matrix.py::test_single_state_key_false_dict_enc XFAIL [ 75%]
+tests/test_database_matrix.py::test_single_state_not_a_dict PASSED       [ 75%]
+tests/test_database_matrix.py::test_default_update_same_key PASSED       [ 75%]
+tests/test_database_matrix.py::test_default_update_same_key_enc XFAIL    [ 76%]
+tests/test_database_matrix.py::test_update_same_key_single_state_key PASSED [ 76%]
+tests/test_database_matrix.py::test_update_same_key_single_state_key_enc XFAIL [ 76%]
+tests/test_database_matrix.py::test_default_update_same_key_value PASSED [ 76%]
+tests/test_database_matrix.py::test_default_update_same_key_value_enc PASSED [ 76%]
+tests/test_database_matrix.py::test_default_update_same_key_value_single_state_key PASSED [ 76%]
+tests/test_database_matrix.py::test_default_update_same_key_value_single_state_key_enc PASSED [ 76%]
+tests/test_database_matrix.py::test_default_update_single_state_key PASSED [ 77%]
+tests/test_database_matrix.py::test_default_update_single_state_key_enc XFAIL [ 77%]
+tests/test_database_matrix.py::test_get_single_state_key PASSED          [ 77%]
+tests/test_database_matrix.py::test_get_single_state_key_enc PASSED      [ 77%]
+tests/test_database_matrix.py::test_get PASSED                           [ 77%]
+tests/test_database_matrix.py::test_get_enc PASSED                       [ 77%]
+tests/test_database_matrix.py::test_get_no_key_single_state_key PASSED   [ 77%]
+tests/test_database_matrix.py::test_get_no_key_404 PASSED                [ 77%]
+tests/test_database_matrix.py::test_get_no_key_500 PASSED                [ 78%]
+tests/test_database_matrix.py::test_delete PASSED                        [ 78%]
+tests/test_database_matrix.py::test_delete_single_state_key_false PASSED [ 78%]
+tests/test_database_matrix.py::test_get_empty PASSED                     [ 78%]
+tests/test_database_matrix.py::test_delete_multiple_keys PASSED          [ 78%]
+tests/test_database_matrix.py::test_delete_no_key PASSED                 [ 78%]
+tests/test_database_matrix.py::test_delete_no_key_single_state_key_false PASSED [ 78%]
+tests/test_database_matrix.py::test_connect PASSED                       [ 79%]
+tests/test_database_matrix.py::test_room_switch PASSED                   [ 79%]
+tests/test_database_matrix.py::test_decorator PASSED                     [ 79%]
+tests/test_database_matrix.py::test_decorator_no_db PASSED               [ 79%]
+tests/test_database_matrix.py::test_migrate PASSED                       [ 79%]
+tests/test_database_matrix.py::test_migrate_single_state_key_false PASSED [ 79%]
+tests/test_database_matrix.py::test_errors PASSED                        [ 79%]
+tests/test_events.py::TestEventCreator::test_create_event PASSED         [ 80%]
+tests/test_events.py::TestEvent::test_entities PASSED                    [ 80%]
+tests/test_events.py::TestEvent::test_event PASSED                       [ 80%]
+tests/test_events.py::TestEvent::test_unique_subclasses PASSED           [ 80%]
+tests/test_events.py::TestMessage::test_message PASSED                   [ 80%]
+tests/test_events.py::TestMessage::test_react PASSED                     [ 80%]
+tests/test_events.py::TestMessage::test_response_effects PASSED          [ 80%]
+tests/test_events.py::TestMessage::test_thinking_delay PASSED            [ 81%]
+tests/test_events.py::TestMessage::test_thinking_sleep PASSED            [ 81%]
+tests/test_events.py::TestMessage::test_typing_delay PASSED              [ 81%]
+tests/test_events.py::TestMessage::test_typing_sleep PASSED              [ 81%]
+tests/test_events.py::TestFile::test_error_on_construct PASSED           [ 81%]
+tests/test_events.py::TestFile::test_file PASSED                         [ 81%]
+tests/test_events.py::TestFile::test_repeat_file_bytes PASSED            [ 81%]
+tests/test_events.py::TestImage::test_explicit_mime_type PASSED          [ 81%]
+tests/test_events.py::TestImage::test_image PASSED                       [ 82%]
+tests/test_events.py::TestImage::test_no_mime_type PASSED                [ 82%]
+tests/test_events.py::TestVideo::test_explicit_mime_type PASSED          [ 82%]
+tests/test_events.py::TestVideo::test_no_mime_type PASSED                [ 82%]
+tests/test_events.py::TestVideo::test_video FAILED                       [ 82%]
+tests/test_loader.py::TestLoader::test_build_module_path PASSED          [ 82%]
+tests/test_loader.py::TestLoader::test_check_cache_clear_local_by_default_disabled PASSED [ 82%]
+tests/test_loader.py::TestLoader::test_check_cache_clears_local_by_default PASSED [ 83%]
+tests/test_loader.py::TestLoader::test_check_cache_leaves PASSED         [ 83%]
+tests/test_loader.py::TestLoader::test_check_cache_removes_dir PASSED    [ 83%]
+tests/test_loader.py::TestLoader::test_check_cache_removes_file PASSED   [ 83%]
+tests/test_loader.py::TestLoader::test_env_var_regex PASSED              [ 83%]
+tests/test_loader.py::TestLoader::test_faulty_and_correct_installation_of_dependency_file PASSED [ 83%]
+tests/test_loader.py::TestLoader::test_git_clone PASSED                  [ 83%]
+tests/test_loader.py::TestLoader::test_git_pull PASSED                   [ 84%]
+tests/test_loader.py::TestLoader::test_import_broken_module PASSED       [ 84%]
+tests/test_loader.py::TestLoader::test_import_module PASSED              [ 84%]
+tests/test_loader.py::TestLoader::test_import_module_failure PASSED      [ 84%]
+tests/test_loader.py::TestLoader::test_import_module_from_entrypoint PASSED [ 84%]
+tests/test_loader.py::TestLoader::test_import_module_from_path PASSED    [ 84%]
+tests/test_loader.py::TestLoader::test_import_module_new PASSED          [ 84%]
+tests/test_loader.py::TestLoader::test_install_default_remote_module PASSED [ 85%]
+tests/test_loader.py::TestLoader::test_install_gist_module PASSED        [ 85%]
+tests/test_loader.py::TestLoader::test_install_gist_module_file PASSED   [ 85%]
+tests/test_loader.py::TestLoader::test_install_gist_module_notebook PASSED [ 85%]
+tests/test_loader.py::TestLoader::test_install_local_module_dir PASSED   [ 85%]
+tests/test_loader.py::TestLoader::test_install_local_module_failure PASSED [ 85%]
+tests/test_loader.py::TestLoader::test_install_local_module_file PASSED  [ 85%]
+tests/test_loader.py::TestLoader::test_install_local_module_notebook PASSED [ 85%]
+tests/test_loader.py::TestLoader::test_install_missing_local_module PASSED [ 86%]
+tests/test_loader.py::TestLoader::test_install_specific_local_git_module PASSED [ 86%]
+tests/test_loader.py::TestLoader::test_install_specific_local_path_module PASSED [ 86%]
+tests/test_loader.py::TestLoader::test_install_specific_remote_module PASSED [ 86%]
+tests/test_loader.py::TestLoader::test_install_specific_remote_module_ssl PASSED [ 86%]
+tests/test_loader.py::TestLoader::test_load_config PASSED                [ 86%]
+tests/test_loader.py::TestLoader::test_load_empty_config PASSED          [ 86%]
+tests/test_loader.py::TestLoader::test_load_existing_modules PASSED      [ 87%]
+tests/test_loader.py::TestLoader::test_load_minimal_config_file PASSED   [ 87%]
+tests/test_loader.py::TestLoader::test_load_minimal_config_file_2 PASSED [ 87%]
+tests/test_loader.py::TestLoader::test_load_modules PASSED               [ 87%]
+tests/test_loader.py::TestLoader::test_load_modules_fail PASSED          [ 87%]
+tests/test_loader.py::TestLoader::test_load_modules_not_instance_Mapping PASSED [ 87%]
+tests/test_loader.py::TestLoader::test_load_pre_0_17_config_file PASSED  [ 87%]
+tests/test_loader.py::TestLoader::test_loading_intents PASSED            [ 88%]
+tests/test_loader.py::TestLoader::test_loading_intents_failed PASSED     [ 88%]
+tests/test_loader.py::TestLoader::test_no_dep PASSED                     [ 88%]
+tests/test_loader.py::TestLoader::test_no_pip_install PASSED             [ 88%]
+tests/test_loader.py::TestLoader::test_no_pip_or_pip3_install PASSED     [ 88%]
+tests/test_loader.py::TestLoader::test_no_req_in_install_module_dependencies PASSED [ 88%]
+tests/test_loader.py::TestLoader::test_pip_install_deps PASSED           [ 88%]
+tests/test_loader.py::TestLoader::test_setup_module_bad_config PASSED    [ 88%]
+tests/test_loader.py::TestLoader::test_setup_module_config PASSED        [ 89%]
+tests/test_loader.py::TestLoader::test_update_existing_git_module PASSED [ 89%]
+tests/test_loader.py::TestLoader::test_update_existing_local_module PASSED [ 89%]
+tests/test_message.py::TestMessage::test_depreacted_properties PASSED    [ 89%]
+tests/test_message.py::TestMessage::test_message PASSED                  [ 89%]
+tests/test_parser_always.py::TestParserAlways::test_parse_always_decorate_no_parens PASSED [ 89%]
+tests/test_parser_always.py::TestParserAlways::test_parse_always_decorator_parens PASSED [ 89%]
+tests/test_parser_always.py::TestParserAlways::test_parse_always_raises PASSED [ 90%]
+tests/test_parser_crontab.py::TestParserCrontab::test_parse_crontab PASSED [ 90%]
+tests/test_parser_crontab.py::TestParserCrontab::test_parse_crontab_raises PASSED [ 90%]
+tests/test_parser_crontab.py::TestParserCrontab::test_parse_crontab_timezone PASSED [ 90%]
+tests/test_parser_dialogflow.py::TestParserDialogflow::test_call_dialogflow PASSED [ 90%]
+tests/test_parser_dialogflow.py::TestParserDialogflow::test_call_dialogflow_failure PASSED [ 90%]
+tests/test_parser_dialogflow.py::TestParserDialogflow::test_call_dialogflow_import_failure PASSED [ 90%]
+tests/test_parser_dialogflow.py::TestParserDialogflow::test_parse_dialogflow PASSED [ 91%]
+tests/test_parser_dialogflow.py::TestParserDialogflow::test_parse_dialogflow_failure PASSED [ 91%]
+tests/test_parser_dialogflow.py::TestParserDialogflow::test_parse_dialogflow_low_score PASSED [ 91%]
+tests/test_parser_event_type.py::TestParserEvent::test_parse_event_with_args PASSED [ 91%]
+tests/test_parser_event_type.py::TestParserEvent::test_parse_event_with_args_list PASSED [ 91%]
+tests/test_parser_event_type.py::TestParserEvent::test_parse_event_with_constraint PASSED [ 91%]
+tests/test_parser_event_type.py::TestParserEvent::test_parse_invalid_str PASSED [ 91%]
+tests/test_parser_event_type.py::TestParserEvent::test_parse_message PASSED [ 92%]
+tests/test_parser_event_type.py::TestParserEvent::test_parse_str_event PASSED [ 92%]
+tests/test_parser_luisai.py::TestParserLuisai::test_call_luisai PASSED   [ 92%]
+tests/test_parser_luisai.py::TestParserLuisai::test_parse_luisai PASSED  [ 92%]
+tests/test_parser_luisai.py::TestParserLuisai::test_parse_luisai_failure PASSED [ 92%]
+tests/test_parser_luisai.py::TestParserLuisai::test_parse_luisai_low_score PASSED [ 92%]
+tests/test_parser_luisai.py::TestParserLuisai::test_parse_luisai_nointents PASSED [ 92%]
+tests/test_parser_luisai.py::TestParserLuisai::test_parse_luisai_raise_ClientOSError PASSED [ 92%]
+tests/test_parser_luisai.py::TestParserLuisai::test_parse_luisai_raises PASSED [ 93%]
+tests/test_parser_luisai.py::TestParserLuisai::test_parse_luisai_with_entities PASSED [ 93%]
+tests/test_parser_rasanlu.py::TestParserRasaNLU::test__build_status_url PASSED [ 93%]
+tests/test_parser_rasanlu.py::TestParserRasaNLU::test__build_training_url PASSED [ 93%]
+tests/test_parser_rasanlu.py::TestParserRasaNLU::test__get_all_intents PASSED [ 93%]
+tests/test_parser_rasanlu.py::TestParserRasaNLU::test__get_all_intents_fails PASSED [ 93%]
+tests/test_parser_rasanlu.py::TestParserRasaNLU::test__get_intents_fingerprint PASSED [ 93%]
+tests/test_parser_rasanlu.py::TestParserRasaNLU::test__get_rasa_nlu_version PASSED [ 94%]
+tests/test_parser_rasanlu.py::TestParserRasaNLU::test__init_model PASSED [ 94%]
+tests/test_parser_rasanlu.py::TestParserRasaNLU::test__is_model_loaded PASSED [ 94%]
+tests/test_parser_rasanlu.py::TestParserRasaNLU::test__load_model PASSED [ 94%]
+tests/test_parser_rasanlu.py::TestParserRasaNLU::test_call_rasanlu PASSED [ 94%]
+tests/test_parser_rasanlu.py::TestParserRasaNLU::test_call_rasanlu_bad_response PASSED [ 94%]
+tests/test_parser_rasanlu.py::TestParserRasaNLU::test_call_rasanlu_raises PASSED [ 94%]
+tests/test_parser_rasanlu.py::TestParserRasaNLU::test_has_compatible_version_rasanlu PASSED [ 95%]
+tests/test_parser_rasanlu.py::TestParserRasaNLU::test_parse_rasanlu PASSED [ 95%]
+tests/test_parser_rasanlu.py::TestParserRasaNLU::test_parse_rasanlu_entities PASSED [ 95%]
+tests/test_parser_rasanlu.py::TestParserRasaNLU::test_parse_rasanlu_failure PASSED [ 95%]
+tests/test_parser_rasanlu.py::TestParserRasaNLU::test_parse_rasanlu_low_score PASSED [ 95%]
+tests/test_parser_rasanlu.py::TestParserRasaNLU::test_parse_rasanlu_no_entity PASSED [ 95%]
+tests/test_parser_rasanlu.py::TestParserRasaNLU::test_parse_rasanlu_no_intent PASSED [ 95%]
+tests/test_parser_rasanlu.py::TestParserRasaNLU::test_parse_rasanlu_raise_ClientOSError PASSED [ 96%]
+tests/test_parser_rasanlu.py::TestParserRasaNLU::test_parse_rasanlu_raises PASSED [ 96%]
+tests/test_parser_rasanlu.py::TestParserRasaNLU::test_train_rasanlu_fails PASSED [ 96%]
+tests/test_parser_rasanlu.py::TestParserRasaNLU::test_train_rasanlu_succeeded PASSED [ 96%]
+tests/test_parser_regex.py::TestParserRegex::test_parse_regex PASSED     [ 96%]
+tests/test_parser_regex.py::TestParserRegex::test_parse_regex_identically_named_groups_entities PASSED [ 96%]
+tests/test_parser_regex.py::TestParserRegex::test_parse_regex_matching_condition_fullmatch PASSED [ 96%]
+tests/test_parser_regex.py::TestParserRegex::test_parse_regex_matching_condition_match PASSED [ 96%]
+tests/test_parser_regex.py::TestParserRegex::test_parse_regex_matching_condition_search PASSED [ 97%]
+tests/test_parser_regex.py::TestParserRegex::test_parse_regex_named_groups_entities PASSED [ 97%]
+tests/test_parser_regex.py::TestParserRegex::test_parse_regex_priority_high PASSED [ 97%]
+tests/test_parser_regex.py::TestParserRegex::test_parse_regex_priority_low PASSED [ 97%]
+tests/test_parser_regex.py::TestParserRegex::test_parse_regex_raises PASSED [ 97%]
+tests/test_parser_sapcai.py::TestParserRecastAi::test_call_sapcai PASSED [ 97%]
+tests/test_parser_sapcai.py::TestParserRecastAi::test_parse_sapcai PASSED [ 97%]
+tests/test_parser_sapcai.py::TestParserRecastAi::test_parse_sapcai_failure PASSED [ 98%]
+tests/test_parser_sapcai.py::TestParserRecastAi::test_parse_sapcai_low_score PASSED [ 98%]
+tests/test_parser_sapcai.py::TestParserRecastAi::test_parse_sapcai_no_intent PASSED [ 98%]
+tests/test_parser_sapcai.py::TestParserRecastAi::test_parse_sapcai_raise_ClientOSError PASSED [ 98%]
+tests/test_parser_sapcai.py::TestParserRecastAi::test_parse_sapcai_raises PASSED [ 98%]
+tests/test_parser_sapcai.py::TestParserRecastAi::test_parse_sapcai_with_entities PASSED [ 98%]
+tests/test_parser_witai.py::TestParserWitai::test_call_witai PASSED      [ 98%]
+tests/test_parser_witai.py::TestParserWitai::test_parse_witai PASSED     [ 99%]
+tests/test_parser_witai.py::TestParserWitai::test_parse_witai_entities PASSED [ 99%]
+tests/test_parser_witai.py::TestParserWitai::test_parse_witai_failure PASSED [ 99%]
+tests/test_parser_witai.py::TestParserWitai::test_parse_witai_low_score PASSED [ 99%]
+tests/test_parser_witai.py::TestParserWitai::test_parse_witai_no_entity PASSED [ 99%]
+tests/test_parser_witai.py::TestParserWitai::test_parse_witai_no_intent PASSED [ 99%]
+tests/test_parser_witai.py::TestParserWitai::test_parse_witai_raise_ClientOSError PASSED [ 99%]
+tests/test_parser_witai.py::TestParserWitai::test_parse_witai_raises PASSED [100%]
+
+=================================== FAILURES ===================================
+_____________________________ TestVideo.test_video _____________________________
+
+self = <tests.test_events.TestVideo testMethod=test_video>
+
+    async def test_video(self):
+        opsdroid = amock.CoroutineMock()
+        mock_connector = Connector({}, opsdroid=opsdroid)
+        event = events.Video(
+            self.mkv_bytes,
+            user_id="user_id",
+            user="user",
+            target="default",
+            connector=mock_connector,
+        )
+    
+        self.assertEqual(event.user_id, "user_id")
+        self.assertEqual(event.user, "user")
+        self.assertEqual(event.target, "default")
+        self.assertEqual(await event.get_file_bytes(), self.mkv_bytes)
+        self.assertEqual(await event.get_mimetype(), "video/x-matroska")
+        self.assertEqual(await event.get_bin(), self.vid_bin)
+>       self.assertEqual(await event.get_properties(), self.props)
+E       AssertionError: None != {'index': 0, 'codec_name': 'h264', 'codec[987 chars]00'}}
+
+tests/test_events.py:433: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  opsdroid.events:events.py:450 Video events are not supported unless ffmpeg is installed. Install FFMPEG on your system. Here is the error: 
+WARNING  opsdroid.events:events.py:455 FFmpeg is not installed
+=============================== warnings summary ===============================
+../../../../miniconda3/lib/python3.9/site-packages/pytest_asyncio/plugin.py:191
+  /home/timjonss/miniconda3/lib/python3.9/site-packages/pytest_asyncio/plugin.py:191: DeprecationWarning: The 'asyncio_mode' default value will change to 'strict' in future, please explicitly use 'asyncio_mode=strict' or 'asyncio_mode=auto' in pytest configuration file.
+    config.issue_config_time_warning(LEGACY_MODE, stacklevel=2)
+
+../../../../miniconda3/lib/python3.9/site-packages/pytest_asyncio/plugin.py:226
+  /home/timjonss/miniconda3/lib/python3.9/site-packages/pytest_asyncio/plugin.py:226: DeprecationWarning: '@pytest.fixture' is applied to <fixture mock_api, file=/home/timjonss/Documents/DD2480/DD2480_Lab4/opsdroid/opsdroid/testing/fixtures.py, line=121> in 'legacy' mode, please replace it with '@pytest_asyncio.fixture' as a preparation for switching to 'strict' mode (or use 'auto' mode to seamlessly handle all these fixtures as asyncio-driven).
+    warnings.warn(
+
+../../../../miniconda3/lib/python3.9/site-packages/pytest_asyncio/plugin.py:226
+  /home/timjonss/miniconda3/lib/python3.9/site-packages/pytest_asyncio/plugin.py:226: DeprecationWarning: '@pytest.fixture' is applied to <fixture connector, file=/home/timjonss/Documents/DD2480/DD2480_Lab4/opsdroid/opsdroid/connector/matrix/tests/conftest.py, line=38> in 'legacy' mode, please replace it with '@pytest_asyncio.fixture' as a preparation for switching to 'strict' mode (or use 'auto' mode to seamlessly handle all these fixtures as asyncio-driven).
+    warnings.warn(
+
+../../../../miniconda3/lib/python3.9/site-packages/pytest_asyncio/plugin.py:226
+  /home/timjonss/miniconda3/lib/python3.9/site-packages/pytest_asyncio/plugin.py:226: DeprecationWarning: '@pytest.fixture' is applied to <fixture connector, file=/home/timjonss/Documents/DD2480/DD2480_Lab4/opsdroid/opsdroid/connector/slack/tests/conftest.py, line=13> in 'legacy' mode, please replace it with '@pytest_asyncio.fixture' as a preparation for switching to 'strict' mode (or use 'auto' mode to seamlessly handle all these fixtures as asyncio-driven).
+    warnings.warn(
+
+../../../../miniconda3/lib/python3.9/site-packages/pytest_asyncio/plugin.py:226
+  /home/timjonss/miniconda3/lib/python3.9/site-packages/pytest_asyncio/plugin.py:226: DeprecationWarning: '@pytest.fixture' is applied to <fixture connector_connected, file=/home/timjonss/Documents/DD2480/DD2480_Lab4/opsdroid/opsdroid/connector/matrix/tests/conftest.py, line=65> in 'legacy' mode, please replace it with '@pytest_asyncio.fixture' as a preparation for switching to 'strict' mode (or use 'auto' mode to seamlessly handle all these fixtures as asyncio-driven).
+    warnings.warn(
+
+../../../../miniconda3/lib/python3.9/site-packages/pytest_asyncio/plugin.py:226
+  /home/timjonss/miniconda3/lib/python3.9/site-packages/pytest_asyncio/plugin.py:226: DeprecationWarning: '@pytest.fixture' is applied to <fixture connector, file=/home/timjonss/Documents/DD2480/DD2480_Lab4/opsdroid/opsdroid/connector/github/tests/test_connector_github.py, line=20> in 'legacy' mode, please replace it with '@pytest_asyncio.fixture' as a preparation for switching to 'strict' mode (or use 'auto' mode to seamlessly handle all these fixtures as asyncio-driven).
+    warnings.warn(
+
+../../../../miniconda3/lib/python3.9/site-packages/pytest_asyncio/plugin.py:226
+  /home/timjonss/miniconda3/lib/python3.9/site-packages/pytest_asyncio/plugin.py:226: DeprecationWarning: '@pytest.fixture' is applied to <fixture app_connector, file=/home/timjonss/Documents/DD2480/DD2480_Lab4/opsdroid/opsdroid/connector/github/tests/test_connector_github.py, line=29> in 'legacy' mode, please replace it with '@pytest_asyncio.fixture' as a preparation for switching to 'strict' mode (or use 'auto' mode to seamlessly handle all these fixtures as asyncio-driven).
+    warnings.warn(
+
+../../../../miniconda3/lib/python3.9/site-packages/pytest_asyncio/plugin.py:226
+  /home/timjonss/miniconda3/lib/python3.9/site-packages/pytest_asyncio/plugin.py:226: DeprecationWarning: '@pytest.fixture' is applied to <fixture connector_with_validation, file=/home/timjonss/Documents/DD2480/DD2480_Lab4/opsdroid/opsdroid/connector/github/tests/test_connector_github.py, line=900> in 'legacy' mode, please replace it with '@pytest_asyncio.fixture' as a preparation for switching to 'strict' mode (or use 'auto' mode to seamlessly handle all these fixtures as asyncio-driven).
+    warnings.warn(
+
+../../../../miniconda3/lib/python3.9/site-packages/pytest_asyncio/plugin.py:226
+  /home/timjonss/miniconda3/lib/python3.9/site-packages/pytest_asyncio/plugin.py:226: DeprecationWarning: '@pytest.fixture' is applied to <fixture connector, file=/home/timjonss/Documents/DD2480/DD2480_Lab4/opsdroid/opsdroid/connector/gitlab/tests/test_connector_gitlab.py, line=16> in 'legacy' mode, please replace it with '@pytest_asyncio.fixture' as a preparation for switching to 'strict' mode (or use 'auto' mode to seamlessly handle all these fixtures as asyncio-driven).
+    warnings.warn(
+
+../../../../miniconda3/lib/python3.9/site-packages/pytest_asyncio/plugin.py:226
+  /home/timjonss/miniconda3/lib/python3.9/site-packages/pytest_asyncio/plugin.py:226: DeprecationWarning: '@pytest.fixture' is applied to <fixture connector, file=/home/timjonss/Documents/DD2480/DD2480_Lab4/opsdroid/opsdroid/connector/gitter/tests/test_connector_gitter.py, line=14> in 'legacy' mode, please replace it with '@pytest_asyncio.fixture' as a preparation for switching to 'strict' mode (or use 'auto' mode to seamlessly handle all these fixtures as asyncio-driven).
+    warnings.warn(
+
+../../../../miniconda3/lib/python3.9/site-packages/pytest_asyncio/plugin.py:226
+  /home/timjonss/miniconda3/lib/python3.9/site-packages/pytest_asyncio/plugin.py:226: DeprecationWarning: '@pytest.fixture' is applied to <fixture send_event, file=/home/timjonss/Documents/DD2480/DD2480_Lab4/opsdroid/opsdroid/connector/slack/tests/test_connector.py, line=34> in 'legacy' mode, please replace it with '@pytest_asyncio.fixture' as a preparation for switching to 'strict' mode (or use 'auto' mode to seamlessly handle all these fixtures as asyncio-driven).
+    warnings.warn(
+
+../../../../miniconda3/lib/python3.9/site-packages/pytest_asyncio/plugin.py:226
+  /home/timjonss/miniconda3/lib/python3.9/site-packages/pytest_asyncio/plugin.py:226: DeprecationWarning: '@pytest.fixture' is applied to <fixture connector, file=/home/timjonss/Documents/DD2480/DD2480_Lab4/opsdroid/opsdroid/connector/teams/tests/test_connector_teams.py, line=18> in 'legacy' mode, please replace it with '@pytest_asyncio.fixture' as a preparation for switching to 'strict' mode (or use 'auto' mode to seamlessly handle all these fixtures as asyncio-driven).
+    warnings.warn(
+
+../../../../miniconda3/lib/python3.9/site-packages/pytest_asyncio/plugin.py:226
+  /home/timjonss/miniconda3/lib/python3.9/site-packages/pytest_asyncio/plugin.py:226: DeprecationWarning: '@pytest.fixture' is applied to <fixture session, file=/home/timjonss/Documents/DD2480/DD2480_Lab4/opsdroid/opsdroid/testing/tests/test_testing.py, line=21> in 'legacy' mode, please replace it with '@pytest_asyncio.fixture' as a preparation for switching to 'strict' mode (or use 'auto' mode to seamlessly handle all these fixtures as asyncio-driven).
+    warnings.warn(
+
+opsdroid/message.py:8
+  /home/timjonss/Documents/DD2480/DD2480_Lab4/opsdroid/opsdroid/message.py:8: DeprecationWarning: opsdroid.message.Message is deprecated. Please use opsdroid.events.Message instead.
+    warnings.warn(
+
+opsdroid/connector/github/tests/test_connector_github.py: 58 warnings
+opsdroid/connector/gitlab/tests/test_connector_gitlab.py: 30 warnings
+opsdroid/connector/gitter/tests/test_connector_gitter.py: 5 warnings
+opsdroid/connector/matrix/tests/test_connector_connect.py: 7 warnings
+opsdroid/connector/matrix/tests/test_event_parsing.py: 3 warnings
+opsdroid/connector/slack/tests/test_connector.py: 26 warnings
+opsdroid/connector/slack/tests/test_create_events.py: 45 warnings
+opsdroid/connector/slack/tests/test_events.py: 5 warnings
+opsdroid/connector/teams/tests/test_connector_teams.py: 10 warnings
+opsdroid/testing/tests/test_testing.py: 12 warnings
+tests/test_core.py: 1 warning
+  /home/timjonss/miniconda3/lib/python3.9/asyncio/base_events.py:1460: DeprecationWarning: The loop argument is deprecated since Python 3.8, and scheduled for removal in Python 3.10.
+    infos = await tasks.gather(*fs, loop=self)
+
+opsdroid/connector/github/tests/test_connector_github.py: 58 warnings
+opsdroid/connector/gitlab/tests/test_connector_gitlab.py: 30 warnings
+opsdroid/connector/gitter/tests/test_connector_gitter.py: 5 warnings
+opsdroid/connector/matrix/tests/test_connector_connect.py: 7 warnings
+opsdroid/connector/matrix/tests/test_event_parsing.py: 3 warnings
+opsdroid/connector/slack/tests/test_connector.py: 26 warnings
+opsdroid/connector/slack/tests/test_create_events.py: 45 warnings
+opsdroid/connector/slack/tests/test_events.py: 5 warnings
+opsdroid/connector/teams/tests/test_connector_teams.py: 10 warnings
+opsdroid/testing/tests/test_testing.py: 7 warnings
+tests/test_core.py: 1 warning
+  /home/timjonss/miniconda3/lib/python3.9/asyncio/base_events.py:1518: DeprecationWarning: The loop argument is deprecated since Python 3.8, and scheduled for removal in Python 3.10.
+    await tasks.sleep(0, loop=self)
+
+opsdroid/connector/slack/tests/test_connector.py::test_send_message_inside_thread
+  /home/timjonss/miniconda3/lib/python3.9/site-packages/_pytest/unraisableexception.py:78: PytestUnraisableExceptionWarning: Exception ignored in: <coroutine object AsyncBaseSocketModeClient.process_messages at 0x7f81bcbdc140>
+  
+  Traceback (most recent call last):
+    File "/home/timjonss/miniconda3/lib/python3.9/asyncio/selector_events.py", line 766, in __init__
+      super().__init__(loop, sock, protocol, extra, server)
+  RuntimeError: coroutine ignored GeneratorExit
+  
+    warnings.warn(pytest.PytestUnraisableExceptionWarning(msg))
+
+opsdroid/connector/teams/tests/test_connector_teams.py::test_ping_pong
+opsdroid/connector/teams/tests/test_connector_teams.py::test_ping_pong
+  /home/timjonss/miniconda3/lib/python3.9/site-packages/urllib3/util/retry.py:437: DeprecationWarning: Using 'method_whitelist' with Retry is deprecated and will be removed in v2.0. Use 'allowed_methods' instead
+    warnings.warn(
+
+opsdroid/tests/test_helper.py::TestHelper::test_convert_ipynb_to_script
+tests/test_loader.py::TestLoader::test_install_gist_module_notebook
+tests/test_loader.py::TestLoader::test_install_local_module_notebook
+  /home/timjonss/miniconda3/lib/python3.9/site-packages/nbconvert/filters/strings.py:209: UserWarning: IPython is needed to transform IPython syntax to pure Python. Install ipython if you need this functionality.
+    warnings.warn(
+
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_get_roomname
+  tests/test_connector_matrix.py:427: PytestWarning: The test <Function test_get_roomname> is marked with '@pytest.mark.asyncio' but it is not an async function. Please remove asyncio marker. If the test is not marked explicitly, check for global markers applied via 'pytestmark'.
+    def test_get_roomname(self, connector):
+
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_lookup_target
+  tests/test_connector_matrix.py:443: PytestWarning: The test <Function test_lookup_target> is marked with '@pytest.mark.asyncio' but it is not an async function. Please remove asyncio marker. If the test is not marked explicitly, check for global markers applied via 'pytestmark'.
+    def test_lookup_target(self, connector):
+
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_m_notice
+  tests/test_connector_matrix.py:987: PytestWarning: The test <Function test_m_notice> is marked with '@pytest.mark.asyncio' but it is not an async function. Please remove asyncio marker. If the test is not marked explicitly, check for global markers applied via 'pytestmark'.
+    def test_m_notice(self, connector):
+
+tests/test_connector_matrix.py::TestConnectorMatrixAsync::test_construct
+  tests/test_connector_matrix.py:999: PytestWarning: The test <Function test_construct> is marked with '@pytest.mark.asyncio' but it is not an async function. Please remove asyncio marker. If the test is not marked explicitly, check for global markers applied via 'pytestmark'.
+    def test_construct(self, connector):
+
+tests/test_core.py::TestCoreAsync::test_parse_regex
+  /home/timjonss/miniconda3/lib/python3.9/unittest/mock.py:2105: RuntimeWarning: coroutine 'OpsDroid.start' was never awaited
+    self.name = name
+
+tests/test_message.py::TestMessage::test_depreacted_properties
+  /home/timjonss/Documents/DD2480/DD2480_Lab4/opsdroid/opsdroid/message.py:38: DeprecationWarning: Message.room is deprecated. Use Message.target instead.
+    warnings.warn(
+
+tests/test_parser_dialogflow.py::TestParserDialogflow::test_call_dialogflow
+  /home/timjonss/miniconda3/lib/python3.9/site-packages/dialogflow_v2/__init__.py:53: DeprecationWarning: The package 'dialogflow' has been renamed to 'google-cloud-dialogflow'. 'dialogflow' will no longer be updated. For help upgrading to google-cloud-dialogflow>=2.0.0, see https://github.com/googleapis/python-dialogflow/blob/master/UPGRADING.md. 
+  
+  After October 28, 2021, importing code from the latest release of 'dialogflow' will result in a RuntimeError. If you need to continue to use 'dialogflow' after this date, please pin to a specific version of 'dialogflow' (e.g., dialogflow==1.1.1). If you have questions, please file an issue: https://github.com/googleapis/python-dialogflow/issues.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+
+----------- coverage: platform linux, python 3.9.7-final-0 -----------
+Name                                                              Stmts   Miss  Cover   Missing
+-----------------------------------------------------------------------------------------------
+opsdroid/connector/matrix/connector.py                              337      5    99%   189-190, 260-263, 316
+opsdroid/connector/slack/connector.py                               191      1    99%   252
+opsdroid/connector/slack/create_events.py                           107      1    99%   261
+opsdroid/database/matrix/__init__.py                                135      2    99%   124-129
+opsdroid/events.py                                                  189      2    99%   446-447
+opsdroid/helper.py                                                  108      2    98%   422-423
+opsdroid/parsers/event_type.py                                       32      1    97%   41
+opsdroid/testing/external_api.py                                     93      1    99%   191
+opsdroid/testing/fixtures.py                                         41      1    98%   56
+opsdroid/testing/mockmodules/connectors/mocked/__init__.py           17      1    94%   27
+opsdroid/testing/mockmodules/skills/schema_skill/__init__.py         11     11     0%   3-21
+opsdroid/testing/mockmodules/skills/skill/skilltest/__init__.py       9      1    89%   13
+opsdroid/testing/mockmodules/skills/temp_skill.py                     3      3     0%   3-9
+opsdroid/web.py                                                     108      1    99%   102
+-----------------------------------------------------------------------------------------------
+TOTAL                                                              5094     33    99%
+
+73 files skipped due to complete coverage.
+Coverage XML written to file cov.xml
+
+=========================== short test summary info ============================
+FAILED tests/test_events.py::TestVideo::test_video - AssertionError: None != ...
+====== 1 failed, 718 passed, 1 skipped, 7 xfailed, 426 warnings in 37.50s ======
+ERROR: InvocationError for command /home/timjonss/miniconda3/bin/pytest --timeout=30 --cov=opsdroid --cov-report=xml:cov.xml --cov-report term-missing:skip-covered (exited with code 1)
