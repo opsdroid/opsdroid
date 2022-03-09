@@ -1,4 +1,5 @@
 """A connector for Slack."""
+import asyncio
 import json
 import logging
 import os
@@ -71,6 +72,16 @@ class ConnectorSlack(Connector):
         self.known_users = {}
 
         self._event_creator = SlackEventCreator(self)
+        self._event_queue = asyncio.Queue()
+        self._event_queue_task = None
+
+    async def _queue_worker(self):
+        while True:
+            payload = await self._event_queue.get()
+            try:
+                await self.event_handler(payload)
+            finally:
+                self._event_queue.task_done()
 
     async def connect(self):
         """Connect to the chat service."""
@@ -108,6 +119,10 @@ class ConnectorSlack(Connector):
                 await self.socket_mode_client.connect()
                 _LOGGER.info(_("Connected successfully with socket mode"))
             else:
+                # Create a task for background processing events received by
+                # the web event handler.
+                self._event_queue_task = asyncio.create_task(self._queue_worker())
+
                 self.opsdroid.web_server.web_app.router.add_post(
                     f"/connector/{self.name}",
                     self.web_event_handler,
@@ -119,8 +134,13 @@ class ConnectorSlack(Connector):
             _LOGGER.debug(_("Default room is %s."), self.default_target)
 
     async def disconnect(self):
-        """Disconnect from Slack. Only needed when socket_mode_client is used
-        as the Events API uses the aiohttp server"""
+        """Disconnect from Slack.
+
+        Cancels the event queue worker task and disconnects the
+        socket_mode_client if socket mode was enabled."""
+        if self._event_queue_task:
+            self._event_queue_task.cancel()
+            await asyncio.gather(self._event_queue_task, return_exceptions=True)
 
         if self.socket_mode_client:
             await self.socket_mode_client.disconnect()
@@ -195,7 +215,13 @@ class ConnectorSlack(Connector):
         if payload.get("type") == "url_verification":
             return aiohttp.web.json_response({"challenge": payload["challenge"]})
 
-        await self.event_handler(payload)
+        # Put the event in the queue to process it in the background and
+        # immediately acknowledge the reception by returning status code 200.
+        # Slack will resend events that have not been acknowledged within 3
+        # seconds and we want to avoid that.
+        #
+        # https://api.slack.com/apis/connections/events-api#the-events-api__responding-to-events
+        self._event_queue.put_nowait(payload)
 
         return aiohttp.web.Response(text=json.dumps("Received"), status=200)
 
