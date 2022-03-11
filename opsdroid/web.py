@@ -8,7 +8,6 @@ import logging
 import ssl
 from json.decoder import JSONDecodeError
 
-import toolz
 from aiohttp import web
 from aiohttp.web import HTTPForbidden
 from aiohttp.web_exceptions import HTTPBadRequest
@@ -174,6 +173,8 @@ class Web:
         """Return the base url of the opsdroid web server."""
         if self.config.get("base_url"):
             return self.config.get("base_url")
+        elif self.config.get("base-url"):
+            return self.config.get("base-url")
         protocol = "http" if self.get_ssl_context is None else "https"
         return f"{protocol}://{self.get_host}:{self.get_port}"
 
@@ -360,23 +361,24 @@ class Web:
         """
         config = copy.deepcopy(self.opsdroid.config)
 
+        # If module type not in config add
+        if module_type not in config:
+            config[module_type] = {}
         # If module not in config, add it
         if module_name not in config[module_type]:
             config[module_type][module_name] = {}
 
-        try:
-            section = config[module_type][module_name]
-            updated_module_config = toolz.merge(
-                config[module_type][module_name], provided_config
-            )
-            _LOGGER.debug(
-                f"Original config: {section} was updated with {updated_module_config}"
-            )
+        section = config[module_type][module_name]
+        updated_module_config = {
+            **config[module_type][module_name],
+            **provided_config,
+        }
 
-            config[module_type][module_name] = updated_module_config
-        except Exception as error:
-            _LOGGER.error(f"Unable to update configuration. Reason - {str(error)}")
-            # TODO: Do we want to raise?
+        _LOGGER.debug(
+            f"Original config: {section} was updated with {updated_module_config}"
+        )
+
+        config[module_type][module_name] = updated_module_config
 
         return config
 

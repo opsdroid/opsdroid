@@ -7,6 +7,7 @@ import asynctest.mock as amock
 import pytest
 from opsdroid import web
 from opsdroid.cli.start import configure_lang
+from opsdroid.testing import MINIMAL_CONFIG, call_endpoint, run_unit_test
 
 configure_lang({})
 
@@ -135,21 +136,21 @@ async def test_web_port_in_use(opsdroid, bound_address):
 
 def test_payload():
     request_payload = {
-        "change_type": "connector",
+        "module_type": "connectors",
         "module_name": "shell",
         "config": {"enabled": False},
     }
 
     payload_dataclass = web.Payload.from_dict(request_payload)
 
-    assert payload_dataclass.change_type == request_payload["change_type"]
+    assert payload_dataclass.module_type == request_payload["module_type"]
     assert payload_dataclass.module_name == "shell"
     assert payload_dataclass.config == request_payload["config"]
 
 
 def test_payload_raises_validation_exceptions():
     request_payload = {
-        "change_type": "connector",
+        "module_type": "connectors",
         "module_name": 1,
         "config": {"enabled": False},
     }
@@ -164,13 +165,13 @@ def test_payload_raises_validation_exceptions():
 
     request_payload = {"module_name": "shell"}
 
-    expected_error_message = "Received payload is missing required key: 'change_type',"
+    expected_error_message = "Received payload is missing required key: 'module_type',"
 
     with pytest.raises(KeyError, match=expected_error_message):
         web.Payload.from_dict(request_payload)
 
     request_payload = {
-        "change_type": "web",
+        "module_type": "web",
         "module_name": "port",
         "config": {"port": 80},
     }
@@ -184,10 +185,6 @@ def test_payload_raises_validation_exceptions():
 def test_update_config(opsdroid):
     opsdroid.config = {"connectors": {"gitlab": {"webhook-token": "my-token"}}}
     app = web.Web(opsdroid)
-
-    with pytest.raises(KeyError, match="Unable to update configuration"):
-        app.update_config({"token": "123"}, "connectors", "github")
-        app.update_config({"new": "config"}, "parsers", "rasa")
 
     updated_config = app.update_config({"token": "123"}, "connectors", "gitlab")
 
@@ -298,9 +295,37 @@ async def test_config_handler(opsdroid):
     assert response.status == 200
     assert response.text
 
-    breakpoint()
     payload = json.loads(response.text)
 
     gitlab_config = payload["connectors"]["gitlab"]
     assert "token" not in gitlab_config
     assert "webhook-token" not in gitlab_config
+
+
+async def test_base_url(opsdroid):
+    opsdroid.config["web"] = {"base_url": "localhost"}
+    app = web.Web(opsdroid)
+    assert app.base_url == "localhost"
+
+    opsdroid.config["web"] = {"base-url": "example.com"}
+    app2 = web.Web(opsdroid)
+    assert app2.base_url == "example.com"
+
+
+@pytest.mark.asyncio
+async def test_check_request(opsdroid):
+    MINIMAL_CONFIG["web"] = {"command-center": {"enabled": True, "token": "blah"}}
+
+    assert "command-center" in MINIMAL_CONFIG["web"]
+    await opsdroid.load(config=MINIMAL_CONFIG)
+
+    async def test():
+        resp = await call_endpoint(opsdroid, "/connectors", "GET")
+        assert resp.status == 403
+        return True
+
+    assert await run_unit_test(opsdroid, test)
+
+
+# opsdroid/web.py
+# 88%   366, 369, 386-415, 432-433, 447-452, 465-468, 523-527
