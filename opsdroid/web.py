@@ -389,7 +389,7 @@ class Web:
         except JSONDecodeError:
             data = await request.read()
             _LOGGER.error(f"Unable to decode json. Received - {data}")
-            raise HTTPBadRequest()
+            raise HTTPBadRequest(reason="Unable to decode json.")
         except (TypeError, KeyError) as error:
             raise HTTPBadRequest(reason=str(error))
 
@@ -443,7 +443,6 @@ class Web:
                 skills with their config scrubbed.
 
         """
-
         payload = {
             connector.config["name"]: connector.config
             for connector in self.opsdroid.skills

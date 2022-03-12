@@ -1,11 +1,10 @@
 """A connector for Gitlab."""
 import dataclasses
 import json
-
 import logging
 from typing import Optional
-import aiohttp
 
+import aiohttp
 from aiohttp.web_request import Request
 from aiohttp.web_response import Response
 from opsdroid.connector import Connector, register_event
@@ -25,9 +24,7 @@ from opsdroid.connector.gitlab.events import (
 )
 from opsdroid.const import GITLAB_API_ENDPOINT
 from opsdroid.core import OpsDroid
-from opsdroid.events import Event
-
-from opsdroid.events import Message
+from opsdroid.events import Event, Message
 
 
 @dataclasses.dataclass

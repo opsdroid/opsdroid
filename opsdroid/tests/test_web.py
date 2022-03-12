@@ -12,6 +12,12 @@ from opsdroid.testing import MINIMAL_CONFIG, call_endpoint, run_unit_test
 configure_lang({})
 
 
+@pytest.fixture
+def command_center_config():
+    MINIMAL_CONFIG["web"] = {"command-center": {"enabled": True}}
+    yield MINIMAL_CONFIG
+
+
 async def test_web(opsdroid):
     """Create a web object and check the config."""
     app = web.Web(opsdroid)
@@ -302,6 +308,7 @@ async def test_config_handler(opsdroid):
     assert "webhook-token" not in gitlab_config
 
 
+@pytest.mark.asyncio
 async def test_base_url(opsdroid):
     opsdroid.config["web"] = {"base_url": "localhost"}
     app = web.Web(opsdroid)
@@ -327,5 +334,113 @@ async def test_check_request(opsdroid):
     assert await run_unit_test(opsdroid, test)
 
 
+@pytest.mark.asyncio
+async def test_update_config_live(opsdroid, command_center_config):
+    await opsdroid.load(config=command_center_config)
+
+    async def test():
+        data = {
+            "module_type": "parsers",
+            "module_name": "crontab",
+            "config": {"enabled": True},
+        }
+        headers = {"Content-Type": "application/json"}
+        resp = await call_endpoint(
+            opsdroid, "/connectors", "PATCH", json=data, headers=headers
+        )
+
+        assert resp.status == 204
+        return True
+
+    assert await run_unit_test(opsdroid, test)
+
+
+@pytest.mark.asyncio
+async def test_handle_patch(opsdroid, command_center_config, caplog):
+    await opsdroid.load(config=command_center_config)
+
+    async def test_bad_json():
+        data = {
+            "module_type": "connectors",
+            "module_name": "shell",
+            "config": {"enabled": True},
+        }
+
+        resp = await call_endpoint(opsdroid, "/connectors", "PATCH", data=data)
+        assert "Unable to decode json" in caplog.text
+        assert "Unable to decode json" in resp.reason
+        assert resp.status == 400
+        return True
+
+    assert await run_unit_test(opsdroid, test_bad_json)
+
+    async def test_bad_type():
+        data = {
+            "module_type": "connectors",
+            "module_name": 12,
+            "config": {"enabled": True},
+        }
+
+        resp = await call_endpoint(opsdroid, "/connectors", "PATCH", json=data)
+        assert resp.status == 400
+        assert (
+            "The field 'module_name' is of type '<class 'int'>', but should be of type '<class 'str'>'"
+            in resp.reason
+        )
+        return True
+
+    assert await run_unit_test(opsdroid, test_bad_type)
+
+    async def test_key_error():
+        data = {
+            "module_type": "connectors",
+            "module_name": "shell",
+        }
+
+        resp = await call_endpoint(opsdroid, "/connectors", "PATCH", json=data)
+        assert resp.status == 400
+        assert "Received payload is missing required key: 'config'" in resp.reason
+        return True
+
+    assert await run_unit_test(opsdroid, test_key_error)
+
+
+@pytest.mark.asyncio
+async def test_get_connectors(opsdroid, command_center_config):
+    await opsdroid.load(config=command_center_config)
+
+    async def test():
+        resp = await call_endpoint(opsdroid, "/connectors", "GET")
+        assert resp.status == 200
+        return True
+
+    assert await run_unit_test(opsdroid, test)
+
+
+@pytest.mark.asyncio
+async def test_get_databases(opsdroid, command_center_config):
+    await opsdroid.load(config=command_center_config)
+
+    async def test():
+        resp = await call_endpoint(opsdroid, "/databases", "GET")
+        assert resp.status == 200
+        return True
+
+    assert await run_unit_test(opsdroid, test)
+
+
+@pytest.mark.asyncio
+async def test_get_parsers(opsdroid, command_center_config):
+    await opsdroid.load(config=command_center_config)
+
+    async def test():
+        resp = await call_endpoint(opsdroid, "/parsers", "GET")
+        assert resp.status == 200
+        return True
+
+    assert await run_unit_test(opsdroid, test)
+
+
 # opsdroid/web.py
-# 88%   366, 369, 386-415, 432-433, 447-452, 465-468, 523-527
+# 95%   432-433, 447-452, 465-468, 523-527
+# 94%  390-395, 447-452, 468, 523-527
