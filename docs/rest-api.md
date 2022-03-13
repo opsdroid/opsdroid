@@ -55,7 +55,17 @@ The response includes information on whether a skill was successfully triggered 
 ```
 ## Command Center Methods
 
-These endpoints are only available if you have [`command center`](command-center.md) enabled.
+These endpoints are only available if you have `command center` enabled. To enable command center you can add it to your configuration file.
+
+```yaml
+web:
+  command-center:
+    enabled: True
+    # Optional
+    token: <your chosen token>
+```
+
+It's highly recommended that you choose a strong token if opsdroid is exposed to the internet, otherwise anyone will be able to get or change your opsdroid's configuration.
 
 ## `/connectors` _[GET]_ _[PATCH]_
 
