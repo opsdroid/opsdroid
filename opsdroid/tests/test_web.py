@@ -1,6 +1,8 @@
 """Test the opsdroid web."""
 import json
+import random
 import ssl
+from dataclasses import dataclass
 
 import aiohttp.web
 import asynctest.mock as amock
@@ -14,7 +16,13 @@ configure_lang({})
 
 @pytest.fixture
 def command_center_config():
-    MINIMAL_CONFIG["web"] = {"command-center": {"enabled": True}}
+    MINIMAL_CONFIG["web"] = {
+        "command-center": {"enabled": True},
+        # Need to pass a random port because opsdroid doesn't close
+        # the connection quick enough. Tried to write a cleanup fixture
+        # but didn't seem to work - most likely I was doing it wrong.
+        "port": random.randrange(8000, 9000),
+    }
     yield MINIMAL_CONFIG
 
 
@@ -441,6 +449,29 @@ async def test_get_parsers(opsdroid, command_center_config):
     assert await run_unit_test(opsdroid, test)
 
 
-# opsdroid/web.py
-# 95%   432-433, 447-452, 465-468, 523-527
-# 94%  390-395, 447-452, 468, 523-527
+@pytest.mark.asyncio
+async def test_get_skills(opsdroid, command_center_config):
+    await opsdroid.load(config=command_center_config)
+
+    async def test():
+        resp = await call_endpoint(opsdroid, "/skills", "GET")
+        assert resp.status == 200
+        return True
+
+    assert await run_unit_test(opsdroid, test)
+
+
+@pytest.mark.asyncio
+async def test_get_scrubbed_module_config_funky_module(opsdroid):
+    @dataclass
+    class Module:
+        config: dict
+
+    mock_module = Module(config={"enabled": True, "token": "very-secret-stuff!"})
+
+    app = web.Web(opsdroid)
+
+    scrubbed_config = app.get_scrubbed_module_config(module_list=[mock_module])
+
+    assert "unknown_module" in scrubbed_config
+    assert scrubbed_config == {"unknown_module": {"enabled": True}}

@@ -7,6 +7,7 @@ import json
 import logging
 import ssl
 from json.decoder import JSONDecodeError
+from typing import Optional
 
 from aiohttp import web
 from aiohttp.web import HTTPForbidden
@@ -315,7 +316,7 @@ class Web:
             },
         )
 
-    def get_scrubbed_module_config(self, module_list: list) -> dict:
+    def get_scrubbed_module_config(self, module_list: Optional[list]) -> dict:
         """Get module config without sensitive keys.
 
         When reading the configuration from modules, there might be some
@@ -327,21 +328,27 @@ class Web:
 
         """
         config = {}
-        for module in module_list:
-            try:
-                module_config = module.config.items()
-                module_name = module.config["name"]
-            # If we are getting module from self.opsdroid.modules
-            # we get a dictionary.
-            except AttributeError:
-                module_config = module["config"].items()
-                module_name = module["config"]["name"]
-            scrubbed_module_config = {
-                key: value
-                for key, value in module_config
-                if key not in self.excluded_keys
-            }
-            config[module_name] = scrubbed_module_config
+        if module_list:
+            for module in module_list:
+                try:
+                    module_config = module.config.items()
+                    try:
+                        module_name = module.name
+                    except AttributeError:
+                        # Really modules should always have a name, the inmem database doesn't tho
+                        module_name = module.config.get("name", "unknown_module")
+                # If we are getting module from self.opsdroid.modules
+                # we get a dictionary.
+                except AttributeError:
+                    module_config = module["config"].items()
+                    module_name = module["config"]["name"]
+
+                scrubbed_module_config = {
+                    key: value
+                    for key, value in module_config
+                    if key not in self.excluded_keys
+                }
+                config[module_name] = scrubbed_module_config
 
         return config
 
@@ -520,6 +527,8 @@ class Web:
 
         """
         await self.check_request(request)
+        # For some misterious reason this is returning None even though
+        # self.opsdroid.modules is a dictionary?
         parsers_list = self.opsdroid.modules.get("parsers", [])
         payload = self.get_scrubbed_module_config(parsers_list)
 
