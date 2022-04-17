@@ -1,26 +1,25 @@
 """Utilities for the opsdroid CLI commands."""
 
-import click
 import contextlib
 import gettext
-import os
 import logging
+import os
 import subprocess
 import sys
 import time
 
-from opsdroid.core import OpsDroid
+import click
 from opsdroid.configuration import load_config_file
 from opsdroid.const import (
-    LOCALE_DIR,
-    DEFAULT_LANGUAGE,
-    DEFAULT_CONFIG_PATH,
     DEFAULT_CONFIG_LOCATIONS,
+    DEFAULT_CONFIG_PATH,
+    DEFAULT_LANGUAGE,
+    LOCALE_DIR,
 )
+from opsdroid.core import OpsDroid
 from opsdroid.helper import get_config_option
 from opsdroid.loader import Loader
 from opsdroid.logging import configure_logging
-
 
 _LOGGER = logging.getLogger("opsdroid")
 
@@ -229,7 +228,7 @@ def build_config(ctx, params):
 
         if params["verbose"]:
             config["logging"] = {"level": "debug"}
-            configure_logging(config)
+            configure_logging(config["logging"])
 
         with OpsDroid(config=config) as opsdroid:
 
