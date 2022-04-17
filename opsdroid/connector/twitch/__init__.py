@@ -528,7 +528,7 @@ class ConnectorTwitch(Connector):
                 await self.connect_websocket()
             except ConnectionError as e:
                 _LOGGER.debug(e)
-                await asyncio.sleep(2 ** self.reconnections)
+                await asyncio.sleep(2**self.reconnections)
                 self.reconnections += 1
                 await self.connect_websocket()
 
