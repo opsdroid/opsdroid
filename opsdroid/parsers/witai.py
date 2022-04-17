@@ -68,10 +68,12 @@ async def parse_witai(opsdroid, skills, message, config):
                             message.witai = result
                             for key, entity in result["entities"].items():
                                 if key != "intent":
-                                    witai_entity_value = ''
-                                    if 'value' in entity[0]:
+                                    witai_entity_value = ""
+                                    if "value" in entity[0]:
                                         witai_entity_value = entity[0]["value"]
-                                    elif 'values' in entity[0]:
+                                    elif "values" in entity[0]:
+                                        # we never know which data are important for user,
+                                        # so we return list with all values
                                         witai_entity_value = entity[0]["values"]
 
                                     message.update_entity(
