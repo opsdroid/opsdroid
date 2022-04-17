@@ -57,7 +57,7 @@ RUN apk add --no-cache \
     && pip install --no-cache-dir --no-index -f ${DEPS_DIR} \
     $(find ${DEPS_DIR} -type f -name opsdroid-*-any.whl)${EXTRAS} \
     && rm -rf /tmp/* /var/tmp/* ${DEPS_DIR}/* \
-    && adduser -u 1001 -S -G root opsdroid
+    && adduser -u 1001 -D opsdroid
 
 EXPOSE 8080
 
