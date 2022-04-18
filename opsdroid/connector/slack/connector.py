@@ -8,18 +8,17 @@ import ssl
 
 import aiohttp
 import certifi
+import opsdroid.events
 from emoji import demojize
+from opsdroid.connector import Connector, register_event
+from opsdroid.connector.slack.create_events import SlackEventCreator
+from opsdroid.connector.slack.events import Blocks, EditedBlocks
 from slack_sdk.errors import SlackApiError
 from slack_sdk.socket_mode.aiohttp import SocketModeClient
 from slack_sdk.socket_mode.request import SocketModeRequest
 from slack_sdk.socket_mode.response import SocketModeResponse
 from slack_sdk.web.async_client import AsyncWebClient
 from voluptuous import Required
-
-import opsdroid.events
-from opsdroid.connector import Connector, register_event
-from opsdroid.connector.slack.create_events import SlackEventCreator
-from opsdroid.connector.slack.events import Blocks, EditedBlocks
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -148,6 +147,35 @@ class ConnectorSlack(Connector):
 
     async def listen(self):
         """Listen for and parse new messages."""
+
+    def _generate_base_data(self, event: opsdroid.events.Event) -> dict:
+        """Generate a base data dict to send to the slack API.
+
+        The data dictionary will always contain `channel`, `username`
+        and `icon_emoj` which can be derived from the event or the
+        slack config.
+
+        If we want to send messages in a thread, we need to include
+        thread_ts from the linked event (the message received by opsdroid) and the slack api will know that this new message
+        should be included in a thread and not in the channel.
+
+        """
+        data = {
+            "channel": event.target,
+            "username": self.bot_name,
+            "icon_emoji": self.icon_emoji,
+        }
+
+        if event.linked_event:
+            raw_event = event.linked_event.raw_event
+
+            if isinstance(raw_event, dict) and "thread_ts" in raw_event:
+                if event.linked_event.event_id != raw_event["thread_ts"]:
+                    # Linked Event is inside a thread
+                    data["thread_ts"] = raw_event["thread_ts"]
+            elif self.start_thread:
+                data["thread_ts"] = event.linked_event.event_id
+        return data
 
     async def event_handler(self, payload):
         """Handle different payload types and parse the resulting events"""
@@ -313,22 +341,9 @@ class ConnectorSlack(Connector):
         _LOGGER.debug(
             _("Responding with: '%s' in room  %s."), message.text, message.target
         )
-        data = {
-            "channel": message.target,
-            "text": message.text,
-            "username": self.bot_name,
-            "icon_emoji": self.icon_emoji,
-        }
 
-        if message.linked_event:
-            raw_event = message.linked_event.raw_event
-
-            if isinstance(raw_event, dict) and "thread_ts" in raw_event:
-                if message.linked_event.event_id != raw_event["thread_ts"]:
-                    # Linked Event is inside a thread
-                    data["thread_ts"] = raw_event["thread_ts"]
-            elif self.start_thread:
-                data["thread_ts"] = message.linked_event.event_id
+        data = self._generate_base_data(message)
+        data["text"] = message.text
 
         return await self.slack_web_client.api_call(
             "chat.postMessage",
@@ -361,16 +376,10 @@ class ConnectorSlack(Connector):
         _LOGGER.debug(
             _("Responding with interactive blocks in room %s."), blocks.target
         )
+        data = self._generate_base_data(blocks)
+        data["blocks"] = blocks.blocks
 
-        return await self.slack_web_client.api_call(
-            "chat.postMessage",
-            data={
-                "channel": blocks.target,
-                "username": self.bot_name,
-                "blocks": blocks.blocks,
-                "icon_emoji": self.icon_emoji,
-            },
-        )
+        return await self.slack_web_client.api_call("chat.postMessage", data=data)
 
     @register_event(EditedBlocks)
     async def _edit_blocks(self, blocks):
