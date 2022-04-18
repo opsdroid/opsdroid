@@ -8,17 +8,19 @@ import ssl
 
 import aiohttp
 import certifi
-import opsdroid.events
 from emoji import demojize
-from opsdroid.connector import Connector, register_event
-from opsdroid.connector.slack.create_events import SlackEventCreator
-from opsdroid.connector.slack.events import Blocks, EditedBlocks
+
 from slack_sdk.errors import SlackApiError
 from slack_sdk.socket_mode.aiohttp import SocketModeClient
 from slack_sdk.socket_mode.request import SocketModeRequest
 from slack_sdk.socket_mode.response import SocketModeResponse
 from slack_sdk.web.async_client import AsyncWebClient
 from voluptuous import Required
+
+import opsdroid.events
+from opsdroid.connector import Connector, register_event
+from opsdroid.connector.slack.create_events import SlackEventCreator
+from opsdroid.connector.slack.events import Blocks, EditedBlocks
 
 _LOGGER = logging.getLogger(__name__)
 
