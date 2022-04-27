@@ -1,39 +1,43 @@
 """Core components of OpsDroid."""
 
+import asyncio
+import contextlib
 import copy
+import inspect
 import logging
 import os
 import signal
 import sys
 import weakref
-import asyncio
-import contextlib
-import inspect
-from watchgod import awatch, PythonWatcher
+
+from watchgod import PythonWatcher, awatch
 
 from opsdroid import events
-from opsdroid.const import DEFAULT_CONFIG_LOCATIONS
-from opsdroid.memory import Memory
-from opsdroid.connector import Connector
 from opsdroid.configuration import load_config_file
+from opsdroid.connector import Connector
+from opsdroid.const import DEFAULT_CONFIG_LOCATIONS
 from opsdroid.database import Database, InMemoryDatabase
-from opsdroid.skill import Skill
+from opsdroid.helper import get_parser_config
 from opsdroid.loader import Loader
-from opsdroid.web import Web
+from opsdroid.memory import Memory
 from opsdroid.parsers.always import parse_always
 from opsdroid.parsers.catchall import parse_catchall
-from opsdroid.parsers.event_type import parse_event_type
-from opsdroid.parsers.regex import parse_regex
-from opsdroid.parsers.parseformat import parse_format
-from opsdroid.parsers.dialogflow import parse_dialogflow
-from opsdroid.parsers.luisai import parse_luisai
-from opsdroid.parsers.sapcai import parse_sapcai
-from opsdroid.parsers.witai import parse_witai
-from opsdroid.parsers.watson import parse_watson
-from opsdroid.parsers.rasanlu import parse_rasanlu, train_rasanlu
 from opsdroid.parsers.crontab import parse_crontab
-from opsdroid.helper import get_parser_config
-
+from opsdroid.parsers.dialogflow import parse_dialogflow
+from opsdroid.parsers.event_type import parse_event_type
+from opsdroid.parsers.luisai import parse_luisai
+from opsdroid.parsers.parseformat import parse_format
+from opsdroid.parsers.rasanlu import (
+    parse_rasanlu,
+    train_rasanlu,
+    has_compatible_version_rasanlu,
+)
+from opsdroid.parsers.regex import parse_regex
+from opsdroid.parsers.sapcai import parse_sapcai
+from opsdroid.parsers.watson import parse_watson
+from opsdroid.parsers.witai import parse_witai
+from opsdroid.skill import Skill
+from opsdroid.web import Web
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -184,8 +188,8 @@ class OpsDroid:
         if len(self.skills) == 0:
             self.critical(_("No skills in configuration, at least 1 required"), 1)
 
+        await self.start_databases()
         await self.start_connectors()
-        self.create_task(self.start_databases())
         self.create_task(self.watch_paths())
         self.create_task(parse_crontab(self))
         self.create_task(self.web_server.start())
@@ -352,6 +356,11 @@ class OpsDroid:
             parsers = self.modules.get("parsers", {})
             rasanlu = get_parser_config("rasanlu", parsers)
             if rasanlu and rasanlu["enabled"]:
+                rasa_version_is_compatible = await has_compatible_version_rasanlu(
+                    rasanlu
+                )
+                if rasa_version_is_compatible is False:
+                    self.critical("Rasa version is not compatible", 5)
                 await train_rasanlu(rasanlu, skills)
 
     async def setup_connectors(self, connectors):

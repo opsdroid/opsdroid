@@ -33,6 +33,7 @@ REGEX_PARSE_SCORE_FACTOR = 0.6
 
 RASANLU_DEFAULT_URL = "http://localhost:5000"
 RASANLU_DEFAULT_MODELS_PATH = "models"
+RASANLU_DEFAULT_TRAIN_MODEL = True
 
 LUISAI_DEFAULT_URL = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/"
 
@@ -50,3 +51,4 @@ TWITCH_WEBHOOK_ENDPOINT = "https://api.twitch.tv/helix/webhooks/hub"
 TWITCH_API_ENDPOINT = "https://api.twitch.tv/helix"
 TWITCH_IRC_MESSAGE_REGEX = r"@.*;id=(?P<message_id>.*);m.*user-id=(?P<user_id>.*);user-type=.*:(?P<user>.*?)!.*PRIVMSG[^:]*:(?P<message>.*)"
 TWITCH_JSON = os.path.join(DEFAULT_ROOT_PATH, "twitch.json")
+GITLAB_API_ENDPOINT = "https://gitlab.com/api/v4"

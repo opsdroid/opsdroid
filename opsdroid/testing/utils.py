@@ -3,8 +3,8 @@
 import asyncio
 import json
 import time
-from typing import Any, Awaitable, Dict, List
 from contextlib import asynccontextmanager
+from typing import Any, Awaitable, Dict, List, Union
 
 import aiohttp
 from aiohttp import web
@@ -98,7 +98,7 @@ async def call_endpoint(
     endpoint: str,
     method: str = "GET",
     data_path: str = None,
-    data: Dict = None,
+    data: Union[Dict, str] = None,
     headers: Dict = None,
     **kwargs: Any,
 ) -> web.Response:

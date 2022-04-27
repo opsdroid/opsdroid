@@ -1,0 +1,112 @@
+{
+    "object_kind": "issue",
+    "event_type": "issue",
+    "user": {
+        "id": 3612771,
+        "name": "Fabio Rosado",
+        "username": "FabioRosado",
+        "avatar_url": "https://secure.gravatar.com/avatar/c13aab50cd7f21b8c340136ac4ce515a?s=80&d=identicon",
+        "email": "[REDACTED]"
+    },
+    "project": {
+        "id": 30456730,
+        "name": "test-project",
+        "description": "",
+        "web_url": "https://gitlab.com/FabioRosado/test-project",
+        "avatar_url": null,
+        "git_ssh_url": "git@gitlab.com:FabioRosado/test-project.git",
+        "git_http_url": "https://gitlab.com/FabioRosado/test-project.git",
+        "namespace": "Fabio Rosado",
+        "visibility_level": 0,
+        "path_with_namespace": "FabioRosado/test-project",
+        "default_branch": "main",
+        "ci_config_path": "",
+        "homepage": "https://gitlab.com/FabioRosado/test-project",
+        "url": "git@gitlab.com:FabioRosado/test-project.git",
+        "ssh_url": "git@gitlab.com:FabioRosado/test-project.git",
+        "http_url": "https://gitlab.com/FabioRosado/test-project.git"
+    },
+    "object_attributes": {
+        "author_id": 3612771,
+        "closed_at": null,
+        "confidential": false,
+        "created_at": "2021-11-07 18:10:32 UTC",
+        "description": "This should have been filled",
+        "discussion_locked": null,
+        "due_date": null,
+        "id": 96886238,
+        "iid": 1,
+        "last_edited_at": "2021-11-07 20:17:43 UTC",
+        "last_edited_by_id": 3612771,
+        "milestone_id": null,
+        "moved_to_id": null,
+        "duplicated_to_id": null,
+        "project_id": 30456730,
+        "relative_position": 513,
+        "state_id": 1,
+        "time_estimate": 0,
+        "title": "New test issue",
+        "updated_at": "2021-11-17 13:05:43 UTC",
+        "updated_by_id": 3612771,
+        "weight": null,
+        "url": "https://gitlab.com/FabioRosado/test-project/-/issues/1",
+        "total_time_spent": 0,
+        "time_change": 0,
+        "human_total_time_spent": null,
+        "human_time_change": null,
+        "human_time_estimate": null,
+        "assignee_ids": [],
+        "assignee_id": null,
+        "labels": [
+            {
+                "id": 22478741,
+                "title": "test-label",
+                "color": "#009966",
+                "project_id": 30456730,
+                "created_at": "2021-11-07 18:10:43 UTC",
+                "updated_at": "2021-11-07 18:10:43 UTC",
+                "template": false,
+                "description": null,
+                "type": "ProjectLabel",
+                "group_id": null
+            }
+        ],
+        "state": "opened",
+        "severity": "unknown",
+        "action": "reopen"
+    },
+    "labels": [
+        {
+            "id": 22478741,
+            "title": "test-label",
+            "color": "#009966",
+            "project_id": 30456730,
+            "created_at": "2021-11-07 18:10:43 UTC",
+            "updated_at": "2021-11-07 18:10:43 UTC",
+            "template": false,
+            "description": null,
+            "type": "ProjectLabel",
+            "group_id": null
+        }
+    ],
+    "changes": {
+        "closed_at": {
+            "previous": "2021-11-07 20:20:06 UTC",
+            "current": null
+        },
+        "state_id": {
+            "previous": 2,
+            "current": 1
+        },
+        "updated_at": {
+            "previous": "2021-11-07 20:20:06 UTC",
+            "current": "2021-11-17 13:05:43 UTC"
+        }
+    },
+    "repository": {
+        "name": "test-project",
+        "url": "git@gitlab.com:FabioRosado/test-project.git",
+        "description": "",
+        "homepage": "https://gitlab.com/FabioRosado/test-project"
+    }
+}

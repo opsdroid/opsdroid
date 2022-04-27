@@ -256,7 +256,7 @@ class TestParserWitai(asynctest.TestCase):
             self.assertFalse(mock_skill.called)
             self.assertTrue(mocked_call.called)
 
-    async def test_parse_witai_entities(self):
+    async def test_parse_witai_entities_single_value(self):
         with OpsDroid() as opsdroid:
             opsdroid.config["parsers"] = [
                 {"name": "witai", "token": "test", "min-score": 0.3}
@@ -343,3 +343,96 @@ class TestParserWitai(asynctest.TestCase):
             self.assertEqual(len(skill["message"].entities.keys()), 1)
             self.assertTrue("location" in skill["message"].entities.keys())
             self.assertEqual(skill["message"].entities["location"]["value"], "london")
+
+    async def test_parse_witai_entities_multiple_values(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.config["parsers"] = [
+                {"name": "witai", "token": "test", "min-score": 0.3}
+            ]
+            mock_skill = await self.getMockSkill()
+            opsdroid.skills.append(match_witai("aws_cost")(mock_skill))
+
+            mock_connector = amock.CoroutineMock()
+            message = Message(
+                text="aws cost since december",
+                user="user",
+                target="default",
+                connector=mock_connector,
+            )
+
+            with amock.patch.object(witai, "call_witai") as mocked_call_witai:
+                mocked_call_witai.return_value = {
+                    "_text": "aws cost since december",
+                    "entities": {
+                        "intent": [
+                            {"confidence": 0.99965322126667, "value": "aws_cost"}
+                        ],
+                        "datetime": [
+                            {
+                                "confidence": 0.9995,
+                                "type": "interval",
+                                "from": {
+                                    "grain": "month",
+                                    "value": "2022-12-01T00:00:00.000-08:00",
+                                },
+                                "values": [
+                                    {
+                                        "type": "interval",
+                                        "from": {
+                                            "grain": "month",
+                                            "value": "2022-12-01T00:00:00.000-08:00",
+                                        },
+                                    },
+                                    {
+                                        "type": "interval",
+                                        "from": {
+                                            "grain": "month",
+                                            "value": "2023-12-01T00:00:00.000-08:00",
+                                        },
+                                    },
+                                    {
+                                        "type": "interval",
+                                        "from": {
+                                            "grain": "month",
+                                            "value": "2024-12-01T00:00:00.000-08:00",
+                                        },
+                                    },
+                                ],
+                            }
+                        ],
+                    },
+                    "WARNING": "DEPRECATED",
+                    "msg_id": "051qg0BBGn4O7xZDj",
+                }
+                [skill] = await witai.parse_witai(
+                    opsdroid, opsdroid.skills, message, opsdroid.config["parsers"][0]
+                )
+
+            self.assertEqual(len(skill["message"].entities.keys()), 1)
+            self.assertTrue("datetime" in skill["message"].entities.keys())
+            self.assertEqual(
+                skill["message"].entities["datetime"]["value"],
+                [
+                    {
+                        "type": "interval",
+                        "from": {
+                            "grain": "month",
+                            "value": "2022-12-01T00:00:00.000-08:00",
+                        },
+                    },
+                    {
+                        "type": "interval",
+                        "from": {
+                            "grain": "month",
+                            "value": "2023-12-01T00:00:00.000-08:00",
+                        },
+                    },
+                    {
+                        "type": "interval",
+                        "from": {
+                            "grain": "month",
+                            "value": "2024-12-01T00:00:00.000-08:00",
+                        },
+                    },
+                ],
+            )

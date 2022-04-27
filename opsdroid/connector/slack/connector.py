@@ -1,4 +1,5 @@
 """A connector for Slack."""
+import asyncio
 import json
 import logging
 import os
@@ -8,6 +9,7 @@ import ssl
 import aiohttp
 import certifi
 from emoji import demojize
+
 from slack_sdk.errors import SlackApiError
 from slack_sdk.socket_mode.aiohttp import SocketModeClient
 from slack_sdk.socket_mode.request import SocketModeRequest
@@ -41,7 +43,7 @@ CONFIG_SCHEMA = {
     "bot-name": str,
     "default-room": str,
     "icon-emoji": str,
-    "start_thread": bool,
+    "start-thread": bool,
 }
 
 
@@ -52,12 +54,12 @@ class ConnectorSlack(Connector):
         """Create the connector."""
         super().__init__(config, opsdroid=opsdroid)
         _LOGGER.debug(_("Starting Slack connector."))
-        self.name = "slack"
+        self.name = config.get("name", "slack")
         self.bot_token = config["bot-token"]
         self.bot_name = config.get("bot-name", "opsdroid")
         self.default_target = config.get("default-room", "#general")
         self.icon_emoji = config.get("icon-emoji", ":robot_face:")
-        self.start_thread = config.get("start_thread", False)
+        self.start_thread = config.get("start-thread", False)
         self.socket_mode = config.get("socket-mode", True)
         self.app_token = config.get("app-token")
         self.ssl_context = ssl.create_default_context(cafile=certifi.where())
@@ -77,6 +79,16 @@ class ConnectorSlack(Connector):
         self.known_users = {}
 
         self._event_creator = SlackEventCreator(self)
+        self._event_queue = asyncio.Queue()
+        self._event_queue_task = None
+
+    async def _queue_worker(self):
+        while True:
+            payload = await self._event_queue.get()
+            try:
+                await self.event_handler(payload)
+            finally:
+                self._event_queue.task_done()
 
     async def connect(self):
         """Connect to the chat service."""
@@ -114,8 +126,12 @@ class ConnectorSlack(Connector):
                 await self.socket_mode_client.connect()
                 _LOGGER.info(_("Connected successfully with socket mode"))
             else:
+                # Create a task for background processing events received by
+                # the web event handler.
+                self._event_queue_task = asyncio.create_task(self._queue_worker())
+
                 self.opsdroid.web_server.web_app.router.add_post(
-                    f"/connector/{self.name}".format(),
+                    f"/connector/{self.name}",
                     self.web_event_handler,
                 )
                 _LOGGER.info(_("Connected successfully with events api"))
@@ -125,8 +141,13 @@ class ConnectorSlack(Connector):
             _LOGGER.debug(_("Default room is %s."), self.default_target)
 
     async def disconnect(self):
-        """Disconnect from Slack. Only needed when socket_mode_client is used
-        as the Events API uses the aiohttp server"""
+        """Disconnect from Slack.
+
+        Cancels the event queue worker task and disconnects the
+        socket_mode_client if socket mode was enabled."""
+        if self._event_queue_task:
+            self._event_queue_task.cancel()
+            await asyncio.gather(self._event_queue_task, return_exceptions=True)
 
         if self.socket_mode_client:
             await self.socket_mode_client.disconnect()
@@ -134,6 +155,35 @@ class ConnectorSlack(Connector):
 
     async def listen(self):
         """Listen for and parse new messages."""
+
+    def _generate_base_data(self, event: opsdroid.events.Event) -> dict:
+        """Generate a base data dict to send to the slack API.
+
+        The data dictionary will always contain `channel`, `username`
+        and `icon_emoj` which can be derived from the event or the
+        slack config.
+
+        If we want to send messages in a thread, we need to include
+        thread_ts from the linked event (the message received by opsdroid) and the slack api will know that this new message
+        should be included in a thread and not in the channel.
+
+        """
+        data = {
+            "channel": event.target,
+            "username": self.bot_name,
+            "icon_emoji": self.icon_emoji,
+        }
+
+        if event.linked_event:
+            raw_event = event.linked_event.raw_event
+
+            if isinstance(raw_event, dict) and "thread_ts" in raw_event:
+                if event.linked_event.event_id != raw_event["thread_ts"]:
+                    # Linked Event is inside a thread
+                    data["thread_ts"] = raw_event["thread_ts"]
+            elif self.start_thread:
+                data["thread_ts"] = event.linked_event.event_id
+        return data
 
     async def event_handler(self, payload):
         """Handle different payload types and parse the resulting events"""
@@ -200,7 +250,13 @@ class ConnectorSlack(Connector):
         if payload.get("type") == "url_verification":
             return aiohttp.web.json_response({"challenge": payload["challenge"]})
 
-        await self.event_handler(payload)
+        # Put the event in the queue to process it in the background and
+        # immediately acknowledge the reception by returning status code 200.
+        # Slack will resend events that have not been acknowledged within 3
+        # seconds and we want to avoid that.
+        #
+        # https://api.slack.com/apis/connections/events-api#the-events-api__responding-to-events
+        self._event_queue.put_nowait(payload)
 
         return aiohttp.web.Response(text=json.dumps("Received"), status=200)
 
@@ -292,22 +348,9 @@ class ConnectorSlack(Connector):
         _LOGGER.debug(
             _("Responding with: '%s' in room  %s."), message.text, message.target
         )
-        data = {
-            "channel": message.target,
-            "text": message.text,
-            "username": self.bot_name,
-            "icon_emoji": self.icon_emoji,
-        }
 
-        if message.linked_event:
-            raw_event = message.linked_event.raw_event
-
-            if isinstance(raw_event, dict) and "thread_ts" in raw_event:
-                if message.linked_event.event_id != raw_event["thread_ts"]:
-                    # Linked Event is inside a thread
-                    data["thread_ts"] = raw_event["thread_ts"]
-            elif self.start_thread:
-                data["thread_ts"] = message.linked_event.event_id
+        data = self._generate_base_data(message)
+        data["text"] = message.text
 
         return await self.slack_web_client.api_call(
             "chat.postMessage",
@@ -340,16 +383,10 @@ class ConnectorSlack(Connector):
         _LOGGER.debug(
             _("Responding with interactive blocks in room %s."), blocks.target
         )
+        data = self._generate_base_data(blocks)
+        data["blocks"] = blocks.blocks
 
-        return await self.slack_web_client.api_call(
-            "chat.postMessage",
-            data={
-                "channel": blocks.target,
-                "username": self.bot_name,
-                "blocks": blocks.blocks,
-                "icon_emoji": self.icon_emoji,
-            },
-        )
+        return await self.slack_web_client.api_call("chat.postMessage", data=data)
 
     @register_event(EditedBlocks)
     async def _edit_blocks(self, blocks):
