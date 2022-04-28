@@ -5,6 +5,7 @@ import logging
 import os
 import re
 import ssl
+import urllib.parse
 
 import aiohttp
 import certifi
@@ -145,6 +146,7 @@ class ConnectorSlack(Connector):
 
         Cancels the event queue worker task and disconnects the
         socket_mode_client if socket mode was enabled."""
+
         if self._event_queue_task:
             self._event_queue_task.cancel()
             await asyncio.gather(self._event_queue_task, return_exceptions=True)
@@ -183,6 +185,7 @@ class ConnectorSlack(Connector):
                     data["thread_ts"] = raw_event["thread_ts"]
             elif self.start_thread:
                 data["thread_ts"] = event.linked_event.event_id
+
         return data
 
     async def event_handler(self, payload):
@@ -243,7 +246,19 @@ class ConnectorSlack(Connector):
             if "payload" in req:
                 payload = json.loads(req["payload"])
             else:
-                payload = dict(req)
+                # Some payloads (ie: view_submission) don't come with proper formatting
+                # Convert the request to text, and later attempt to load the json
+
+                if len(req.keys()) == 1:
+                    req = await request.text()
+                    req = urllib.parse.unquote(req)
+
+                    if "payload={" in req:
+                        req = req.replace("payload=", "")
+                        payload = json.loads(req)
+                else:
+                    payload = dict(req)
+
         elif request.content_type == "application/json":
             payload = await request.json()
 
