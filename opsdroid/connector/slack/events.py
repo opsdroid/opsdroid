@@ -152,7 +152,7 @@ class ModalOpen(Modal):
         class ModalSkill(Skill):
             @match_event(SlashCommand, command="/testcommand")
             async def open_modal(self, event):
-                 view = {
+                view = {
                     "type": "modal",
                     "title": {"type": "plain_text", "text": "Modal title"},
                     "blocks": [
@@ -162,10 +162,13 @@ class ModalOpen(Modal):
                             "element": {
                                 "type": "plain_text_input",
                                 "action_id": "input1",
-                                "placeholder": {"type": "plain_text", "text": "Type in here"},
-                                "multiline": false,
+                                "placeholder": {
+                                    "type": "plain_text",
+                                    "text": "Type in here",
+                                },
+                                "multiline": False,
                             },
-                            "optional": false,
+                            "optional": False,
                         },
                     ],
                     "close": {"type": "plain_text", "text": "Cancel"},
@@ -174,7 +177,7 @@ class ModalOpen(Modal):
                     "callback_id": "view_identifier_12",
                 }
                 await self.opsdroid.send(
-                    ModalOpen(view=, trigger_id=event.payload["trigger_id"])
+                    ModalOpen(view=view, trigger_id=event.payload["trigger_id"])
                 )
     """
 
