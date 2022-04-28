@@ -335,11 +335,16 @@ async def test_open_modal(send_event, connector):
 @pytest.mark.asyncio
 @pytest.mark.add_response(*VIEWS_UPDATE)
 async def test_update_modal(send_event, connector):
-    event = ModalUpdate(external_id="123456", view={"key1": "value1", "key2": "value2"})
+    event = ModalUpdate(
+        external_id="123456",
+        view={"key1": "value1", "key2": "value2"},
+        hash_="12345678",
+    )
     payload, response = await send_event(VIEWS_UPDATE, event)
     assert payload == {
         "external_id": "123456",
         "view": '{"key1": "value1", "key2": "value2"}',
+        "hash": "12345678",
     }
     assert response["ok"]
 

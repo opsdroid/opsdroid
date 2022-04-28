@@ -191,9 +191,9 @@ class ModalUpdate(Modal):
         _hash: A string that represents view state to protect against possible race conditions
     """
 
-    def __init__(self, external_id, view, *args, _hash=None, **kwargs):
+    def __init__(self, external_id, view, *args, hash_=None, **kwargs):
         self.external_id = external_id
-        self.hash = _hash
+        self.hash = hash_
         super().__init__(view, *args, **kwargs)
 
 
