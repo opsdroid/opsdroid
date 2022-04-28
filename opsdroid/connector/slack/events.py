@@ -138,8 +138,44 @@ class Modal(events.Event):
 
 class ModalOpen(Modal):
     """Event class to represent a new Modal in Slack.
+
     args:
         trigger_id: trigger to post to a user
+
+    **Basic Usage in a Skill:**
+
+    .. code-block:: python
+
+        from opsdroid.skill import Skill
+        from opsdroid.matchers import match_event
+
+        class ModalSkill(Skill):
+            @match_event(SlashCommand, command="/testcommand")
+            async def open_modal(self, event):
+                 view = {
+                    "type": "modal",
+                    "title": {"type": "plain_text", "text": "Modal title"},
+                    "blocks": [
+                        {
+                            "type": "input",
+                            "label": {"type": "plain_text", "text": "Input label"},
+                            "element": {
+                                "type": "plain_text_input",
+                                "action_id": "input1",
+                                "placeholder": {"type": "plain_text", "text": "Type in here"},
+                                "multiline": false,
+                            },
+                            "optional": false,
+                        },
+                    ],
+                    "close": {"type": "plain_text", "text": "Cancel"},
+                    "submit": {"type": "plain_text", "text": "Save"},
+                    "private_metadata": "Shhhhhhhh",
+                    "callback_id": "view_identifier_12",
+                }
+                await self.opsdroid.send(
+                    ModalOpen(view=, trigger_id=event.payload["trigger_id"])
+                )
     """
 
     def __init__(self, trigger_id, view, *args, **kwargs):
@@ -162,7 +198,7 @@ class ModalUpdate(Modal):
 
 
 class ModalPush(ModalOpen):
-    """Event class to represent a Modal Push in Slack"""
+    """Event class to represent a Modal Push in Slack."""
 
 
 class ViewSubmission(InteractiveAction):
@@ -189,7 +225,7 @@ class SlashCommand(InteractiveAction):
     .. code-block:: python
 
         from opsdroid.skill import Skill
-        from opsdroid.matchers import match_regex
+        from opsdroid.matchers import match_event
 
         class CommandsSkill(Skill):
             @match_event(SlashCommand, command="/testcommand")
