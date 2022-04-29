@@ -27,7 +27,7 @@ class ConnectorMattermost(Connector):
         """Create the connector."""
         super().__init__(config, opsdroid=opsdroid)
         _LOGGER.debug(_("Starting Mattermost connector"))
-        self.name = "mattermost"
+        self.name = config.get("name", "mattermost")
         self.token = config["token"]
         self.url = config["url"]
         self.team_name = config["team-name"]
@@ -39,6 +39,7 @@ class ConnectorMattermost(Connector):
         self.mfa_token = None
         self.debug = False
         self.listening = True
+        self.bot_id = None
 
         self.mm_driver = Driver(
             {
@@ -66,8 +67,7 @@ class ConnectorMattermost(Connector):
             self.bot_id = login_response["id"]
         if "username" in login_response:
             self.bot_name = login_response["username"]
-
-        _LOGGER.info(_("Connected as %s"), self.bot_name)
+            _LOGGER.info(_("Connected as %s"), self.bot_name)
 
         self.mm_driver.websocket = Websocket(
             self.mm_driver.options, self.mm_driver.client.token
@@ -93,15 +93,18 @@ class ConnectorMattermost(Connector):
         if "event" in message and message["event"] == "posted":
             data = message["data"]
             post = json.loads(data["post"])
-            await self.opsdroid.parse(
-                Message(
-                    post["message"],
-                    data["sender_name"],
-                    data["channel_name"],
-                    self,
-                    raw_event=message,
+            # if connected to Mattermost, don't parse our own messages
+            # (https://github.com/opsdroid/opsdroid/issues/1775)
+            if self.bot_id is None or self.bot_id != post["user_id"]:
+                await self.opsdroid.parse(
+                    Message(
+                        text=post["message"],
+                        user=data["sender_name"],
+                        target=data["channel_name"],
+                        connector=self,
+                        raw_event=message,
+                    )
                 )
-            )
 
     @register_event(Message)
     async def send_message(self, message):

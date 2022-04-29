@@ -8,6 +8,7 @@ python:
       extra_requirements:
         - docs
         - connector_telegram
+        - connector_slack
         - database_matrix
         - connector_matrix
 

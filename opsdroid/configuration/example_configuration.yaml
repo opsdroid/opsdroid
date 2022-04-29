@@ -17,8 +17,11 @@
 # logging:
 #   level: info
 #   path: opsdroid.log
+#   rich: false
 #   console: true
 #   extended: false
+#   timestamp: true
+#   formatter: "%(levelname)s: %(message)s"
 #   filter:
 #     whitelist:
 #       - opsdroid.core
@@ -53,6 +56,7 @@ welcome-message: true
 #    project: opsdroid
 #    token: 85769fjoso084jd
 #    min-score: 0.8
+#    train: False # Defaults to True
 #
 #  ## Dialogflow (http://docs.opsdroid.dev/en/stable/skills/matchers/dialogflow.html)
 #  dialogflow:
@@ -98,13 +102,11 @@ welcome-message: true
 #
 ## Connector modules
 connectors:
-
   websocket:
     # optional
     bot-name: "mybot" # default "opsdroid"
     max-connections: 10 # default is 10 users can be connected at once
     connection-timeout: 10 # default 10 seconds before requested socket times out
-  
   # Uncomment the connector(s) that you wish opsdroid to work on
 #
 #  ## Twitter (https://github.com/opsdroid/connector-twitter)
@@ -166,7 +168,7 @@ connectors:
 #  ## Mattermost (core)
 #  mattermost:
 #    # Required
-#    api-token: "zyxw-abdcefghi-12345"
+#    token: "zyxw-abdcefghi-12345"
 #    url: "mattermost.server.com"
 #    team-name: "myteam"
 #    # Optional
@@ -175,6 +177,12 @@ connectors:
 #    ssl-verify: false # default: true
 #    connect-timeout: 30 # default: 30
 #
+#  ##GitLab (core)
+#  gitlab:
+#    # Optional but recomended
+#    webhook-token: <your token>
+#    # Required if sending message to gitlab
+#    token: <personal access token>
 #  ## Github (core)
 #  github:
 #    # required
@@ -200,16 +208,24 @@ connectors:
 #      - user1
 #      - user2
 #
+#  ## Teams (core)
+#  teams:
+#    # Required
+#    app-id: "yourappid"
+#    password: "yourpassword"
+#    # Optional
+#    bot-name: "mybot" # default "opsdroid"
 #  ## Slack (core)
 #  slack:
 #    # required
-#    token: "zyxw-abdcefghi-12345"
+#    bot-token: "zyxw-abdcefghi-12345"
 #    # optional
+#    socket-mode: false # default true
+#    app-token: "xapp-abdcfkje-12345" # socket-mode needs to be true
+#    start-thread: true # default false, if true opsdroid will reply in a thread
 #    bot-name: "mybot" # default "opsdroid"
 #    default-room: "#random" # default "#general"
 #    icon-emoji: ":smile:" # default ":robot_face:"
-#    connect-timeout: 10 # default 10 seconds
-#    chat-as-user: true # default false
 #
 #  ## Rocketchat (core)
 #  rocketchat:
@@ -219,7 +235,7 @@ connectors:
 #    # optional
 #    bot-name: "mybot" # default "opsdroid"
 #    default-room: "random" # default "general"
-#    group: "MyAwesomeGroup" # default to None 
+#    group: "MyAwesomeGroup" # default to None
 #    channel-url: "http://127.0.0.1" # defaults to https://open.rocket.chat
 #    update-interval: 5 # defaults to 1
 #
@@ -228,7 +244,6 @@ connectors:
 #    # optional
 #    bot-name: "mybot" # default "opsdroid"
 #
-
 
 ## Database modules (optional)
 
@@ -257,22 +272,19 @@ connectors:
 #    single_state_key: "dev.opsdroid.database"
 #    should_encrypt: True
 
-
 ## Skill modules
 skills:
-
   ## Dance (https://github.com/opsdroid/skill-dance)
   dance: {}
-  
+
   ## Hello (https://github.com/opsdroid/skill-hello)
   hello: {}
-  
+
   ## Loudnoises (https://github.com/opsdroid/skill-loudnoises)
   loudnoises: {}
-  
+
   ## Seen (https://github.com/opsdroid/skill-seen)
   seen: {}
-  
   # Configurations for other skills uncomment desired skill to activate it.
 #
 #  ## Cloudhealth (https://github.com/opsdroid/skill-cloudhealth)
@@ -385,7 +397,7 @@ skills:
 #  ## Weather (https://github.com/opsdroid/skill-weather)
 #  weather:
 #    # Required
-#    city: London,UK    # For accuracy use {city},{country code}          
+#    city: London,UK    # For accuracy use {city},{country code}
 #    unit: metric       # Choose metric/imperial
 #    api-key: 6fut9e098d8g90g
 #

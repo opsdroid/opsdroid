@@ -2,27 +2,34 @@
 
 ## Configuring opsdroid
 
-In order to enable Rasa NLU skills, you can tell opsdroid where to find your Rasa NLU instance in the parsers section of the opsdroid configuration file. You can set the `url` and `project` parameters which default to `http://localhost:5000` and `opsdroid` respectively.
-
-Projects in Rasa NLU are separate areas for training and storing your intent models. This is useful as you can have multiple instances of opesdroid (or even other applications) sharing one instance of Rasa NLU if you configure them with different project names.
+In order to enable Rasa NLU skills, you can tell opsdroid where to find your Rasa NLU instance in the parsers section of the opsdroid configuration file. You can set the `url` parameter, which defaults to `http://localhost:5000`.
 
 Rasa NLU gives you the option to set a password or `token` which must be provided when interacting with the API. You can optionally set this in the parser config too.
 
 You can also set a `min-score` option to tell opsdroid to ignore any matches which score less than a given number between 0 and 1. The default for this is 0 which will match all messages.
+
+`models-path` is used to load the model in Rasa. It defaults to `models`. If your Rasa instance writes trained models somewhere else, you can set this option to whatever path you need.
+
+`train` is used to make opsdroid train your model on each start. Setting this configuration flag to `False` allows you to use a previously trained
+model.
 
 ```yaml
 
 parsers:
   rasanlu:
     url: http://localhost:5000
-    project: opsdroid
+    models-path: models
     token: 85769fjoso084jd
     min-score: 0.8
+    train: True
 ```
 
-[Rasa NLU](https://github.com/RasaHQ/rasa_nlu) is an open source tool for running your own NLP API for matching strings to [intents](https://rasa.com/docs/rasa/). This is the recommended parser if you have privacy concerns but want the power of a full NLU parsing engine.
+[Rasa NLU](https://github.com/RasaHQ/rasa) is an open source tool for running your own NLP API for matching strings to [intents](https://rasa.com/docs/rasa/). This is the recommended parser if you have privacy concerns but want the power of a full NLU parsing engine.
 
-Rasa NLU is also trained via the API and so opsdroid can do the training for you if you provide an intents [markdown file](https://rasa.com/docs/rasa/nlu/training-data-format/#data-formats) along with your skill. This file must contain headers in the format `## intent:<intent name>` followed by a list of example phrases for that intent. Rasa NLU will then use those examples to build a statistical model for matching new and unseen variations on those sentences.
+Rasa NLU is also trained via the [API](https://rasa.com/docs/rasa/pages/http-api) and so opsdroid can do the training for you if you provide an intents [YAML file](https://rasa.com/docs/rasa/nlu-training-data) along with your skill. This file must contain intents with headers in the format `- intent: <intent name>` followed by a list of example phrases for that intent. Rasa NLU will then use those examples to build a statistical model for matching new and unseen variations on those sentences.
+
+
+> **Note** - Rasa version >= 2.x.x is supported.
 
 ```eval_rst
 .. warning::
@@ -31,6 +38,17 @@ Rasa NLU is also trained via the API and so opsdroid can do the training for you
 
 ```eval_rst
 .. autofunction:: opsdroid.matchers.match_rasanlu
+```
+
+For developing or testing purposes you can run Rasa manually inside a container using:
+
+```
+docker run \
+    --rm -ti \
+    -p 5005:5005 \
+    --name rasa \
+    rasa/rasa:2.6.2-full \
+    run --enable-api --auth-token 85769fjoso084jd -vv
 ```
 
 ## [Example 1](#example1)
@@ -47,27 +65,41 @@ class MySkill(Skill):
         intent is returned by Rasa NLU
         """
         await message.respond("Hello there!")
+
+    @match_rasanlu('bye')
+    async def bye(self, message):
+        """Replies to user when any 'greetings'
+        intent is returned by Rasa NLU
+        """
+        await message.respond("See ya!")
 ```
 
 Intents file (`intents.yml`).
 ```yaml
-language: "en"
-pipeline: "spacy_sklearn"
-data: |
-  ## intent:greetings
-  - Hey
-  - Hello
-  - Hi
-  - Hiya
-  - hey
-  - whats up
-  - wazzup
-  - heya
+version: "2.0"
+
+nlu:
+- intent: greetings
+  examples: |
+    - Hey
+    - Hello
+    - Hi
+    - Hiya
+    - hey
+    - whats up
+    - wazzup
+    - heya
+- intent: bye
+  examples: |
+    - googbye
+    - bye
+    - ciao
+    - see you
 ```
 
 > **Note** - Rasa NLU requires an intent to have at least three training examples in the list. There must also be a minimum of two intents in your file for Rasa to train.
 
-The above skill would be called on any intent which has a name of `'greetings'`.
+The above skill would be called on any intent which has a name of `'greetings'` and `'bye'`.
 
 ## Example 2
 
@@ -85,16 +117,22 @@ class MySkill(Skill):
 
 Intents file (`intents.yml`).
 ```yaml
-language: "en"
-pipeline: "spacy_sklearn"
-data: |
-  ## intent:ask-joke
-  - Tell me a joke
-  - Say something funny
-  - Do you know any jokes?
-  - Tell me something funny
-  - Can you tell jokes?
-  - Do you know jokes?
+version: "2.0"
+
+nlu:
+- intent: greetings
+  examples: |
+    - Hey
+    - Hello
+    - Hi
+- intent: ask-joke
+  examples: |
+    - Tell me a joke
+    - Say something funny
+    - Do you know any jokes?
+    - Tell me something funny
+    - Can you tell jokes?
+    - Do you know jokes?
 ```
 
 The above skill would be called on any intent which has a name of `'ask-joke'`.

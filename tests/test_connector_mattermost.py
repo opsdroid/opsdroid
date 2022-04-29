@@ -153,6 +153,75 @@ class TestConnectorMattermostAsync(asynctest.TestCase):
         await connector.process_message(message)
         self.assertTrue(connector.opsdroid.parse.called)
 
+    async def test_do_not_process_own_message(self):
+        """Test that we do not process our own messages when connected to Mattermost."""
+        connector = ConnectorMattermost(
+            {
+                "token": "abc123",
+                "url": "localhost",
+                "team-name": "opsdroid",
+                "scheme": "http",
+            },
+            opsdroid=OpsDroid(),
+        )
+        opsdroid = amock.CoroutineMock()
+        opsdroid.eventloop = self.loop
+        connector.mm_driver.login = mock.MagicMock()
+        connector.mm_driver.login.return_value = {"id": "1", "username": "opsdroid_bot"}
+        await connector.connect()
+        self.assertEqual("1", connector.bot_id)
+        self.assertEqual("opsdroid_bot", connector.bot_name)
+
+        connector.opsdroid = amock.CoroutineMock()
+        connector.opsdroid.eventloop = self.loop
+        connector.opsdroid.parse = amock.CoroutineMock()
+
+        post = json.dumps(
+            {
+                "id": "wr9wetwc87bgdcx6opkjaxwb7b",
+                "create_at": 1574001673420,
+                "update_at": 1574001673420,
+                "edit_at": 0,
+                "delete_at": 0,
+                "is_pinned": False,
+                "user_id": "1",
+                "channel_id": "hdnm8gbxfp8bmcns7oswmwur4r",
+                "root_id": "",
+                "parent_id": "",
+                "original_id": "",
+                "message": "hello",
+                "type": "",
+                "props": {},
+                "hashtags": "",
+                "pending_post_id": "mrtopue9oigr8poa3bgfq4if4a:1574001673372",
+                "metadata": {},
+            }
+        )
+
+        message = json.dumps(
+            {
+                "event": "posted",
+                "data": {
+                    "channel_display_name": "@daniccan",
+                    "channel_name": "546qd6zsyffcfcafd77a3kdadr__mrtopue9oigr8poa3bgfq4if4a",
+                    "channel_type": "D",
+                    "mentions": '["546qd6zsyffcfcafd77a3kdadr"]',
+                    "post": post,
+                    "sender_name": "@opsdroid_bot",
+                    "team_id": "",
+                },
+                "broadcast": {
+                    "omit_users": "",
+                    "user_id": "",
+                    "channel_id": "hdnm8gbxfp8bmcns7oswmwur4r",
+                    "team_id": "",
+                },
+                "seq": 4,
+            }
+        )
+        await connector.process_message(message)
+        self.assertFalse(connector.opsdroid.parse.called)
+
     async def test_send_message(self):
         connector = ConnectorMattermost(
             {
@@ -170,6 +239,8 @@ class TestConnectorMattermostAsync(asynctest.TestCase):
         )
         connector.mm_driver.posts = mock.Mock()
         connector.mm_driver.posts.create_post = mock.MagicMock()
-        await connector.send(Message("test", "user", "room", connector))
+        await connector.send(
+            Message(text="test", user="user", target="room", connector=connector)
+        )
         self.assertTrue(connector.mm_driver.channels.get_channel_by_name_and_team_name)
         self.assertTrue(connector.mm_driver.posts.create_post.called)

@@ -131,7 +131,7 @@ class TestParserRasaNLU(asynctest.TestCase):
                             "end": 32,
                             "entity": "state",
                             "extractor": "ner_crf",
-                            "confidence": 0.854,
+                            "confidence_entity": 0.854,
                             "start": 25,
                             "value": "running",
                         }
@@ -175,8 +175,32 @@ class TestParserRasaNLU(asynctest.TestCase):
                             "value": "chinese",
                             "entity": "cuisine",
                             "extractor": "CRFEntityExtractor",
-                            "confidence": 0.854,
+                            "confidence_entity": 0.854,
                             "processors": [],
+                        }
+                    ],
+                }
+                [skill] = await rasanlu.parse_rasanlu(
+                    opsdroid, opsdroid.skills, message, opsdroid.config["parsers"][0]
+                )
+
+                self.assertEqual(len(skill["message"].entities.keys()), 1)
+                self.assertTrue("cuisine" in skill["message"].entities.keys())
+                self.assertEqual(
+                    skill["message"].entities["cuisine"]["value"], "chinese"
+                )
+
+            with amock.patch.object(rasanlu, "call_rasanlu") as mocked_call_rasanlu:
+                mocked_call_rasanlu.return_value = {
+                    "text": "show me chinese restaurants",
+                    "intent": {"name": "restaurant_search", "confidence": 0.98343},
+                    "entities": [
+                        {
+                            "start": 8,
+                            "end": 15,
+                            "value": "chinese",
+                            "entity": "cuisine",
+                            "extractor": "RegexEntityExtractor",
                         }
                     ],
                 }
@@ -215,7 +239,7 @@ class TestParserRasaNLU(asynctest.TestCase):
                             "end": 32,
                             "entity": "state",
                             "extractor": "ner_crf",
-                            "confidence": 0.854,
+                            "confidence_entity": 0.854,
                             "start": 25,
                             "value": "running",
                         }
@@ -415,32 +439,24 @@ class TestParserRasaNLU(asynctest.TestCase):
         )
 
     async def test__build_training_url(self):
-        config = {}
-        with self.assertRaises(KeyError):
-            await rasanlu._build_training_url(config)
-
-        config = {"model": "helloworld"}
-        url = await rasanlu._build_training_url(config)
-        self.assertTrue("helloworld" in url)
-
-        config = {"model": "helloworld", "token": "abc123"}
+        config = {"token": "abc123"}
         url = await rasanlu._build_training_url(config)
         self.assertTrue("&token=abc123" in url)
 
         config = {
             "url": "http://example.com",
-            "project": "myproject",
-            "model": "helloworld",
         }
         url = await rasanlu._build_training_url(config)
         self.assertTrue("http://example.com" in url)
-        self.assertTrue("myproject" in url)
-        self.assertTrue("helloworld" in url)
 
     async def test__build_status_url(self):
         config = {"url": "http://example.com"}
         url = await rasanlu._build_status_url(config)
         self.assertTrue("http://example.com" in url)
+
+        config = {"url": "http://example.com", "token": "token123"}
+        url = await rasanlu._build_status_url(config)
+        self.assertTrue("&token=token123" in url)
 
     async def test__init_model(self):
         with amock.patch.object(rasanlu, "call_rasanlu") as mocked_call:
@@ -450,41 +466,135 @@ class TestParserRasaNLU(asynctest.TestCase):
             mocked_call.return_value = None
             self.assertEqual(await rasanlu._init_model({}), False)
 
-    async def test__get_existing_models(self):
+    async def test__get_rasa_nlu_version(self):
+        result = amock.Mock()
+        result.status = 200
+        result.text = amock.CoroutineMock()
+        result.json = amock.CoroutineMock()
+
+        with amock.patch("aiohttp.ClientSession.get") as patched_request:
+            patched_request.side_effect = (
+                aiohttp.client_exceptions.ClientConnectorError("key", amock.Mock())
+            )
+            self.assertEqual(await rasanlu._get_rasa_nlu_version({}), None)
+
+            patched_request.side_effect = None
+            result.content_type = "application/json"
+            result.json.return_value = {
+                "version": "1.0.0",
+                "minimum_compatible_version": "1.0.0",
+            }
+            patched_request.return_value = asyncio.Future()
+            patched_request.return_value.set_result(result)
+            self.assertEqual(
+                await rasanlu._get_rasa_nlu_version({}), result.json.return_value
+            )
+
+            patched_request.side_effect = None
+            result.status = 500
+            result.text.return_value = "Some error happened"
+            patched_request.return_value = asyncio.Future()
+            patched_request.return_value.set_result(result)
+            self.assertEqual(
+                await rasanlu._get_rasa_nlu_version({}), result.text.return_value
+            )
+
+    async def test_has_compatible_version_rasanlu(self):
+        with amock.patch.object(rasanlu, "_get_rasa_nlu_version") as mock_crc:
+            mock_crc.return_value = {
+                "version": "1.0.0",
+                "minimum_compatible_version": "1.0.0",
+            }
+            self.assertEqual(await rasanlu.has_compatible_version_rasanlu({}), False)
+
+            mock_crc.return_value = {
+                "version": "2.6.2",
+                "minimum_compatible_version": "2.6.0",
+            }
+            self.assertEqual(await rasanlu.has_compatible_version_rasanlu({}), True)
+
+            mock_crc.return_value = {
+                "version": "3.1.2",
+                "minimum_compatible_version": "3.0.0",
+            }
+            self.assertEqual(await rasanlu.has_compatible_version_rasanlu({}), True)
+
+    async def test__load_model(self):
+        result = amock.Mock()
+        result.status = 204
+        result.text = amock.CoroutineMock()
+        result.json = amock.CoroutineMock()
+
+        with amock.patch("aiohttp.ClientSession.put") as patched_request:
+            patched_request.side_effect = None
+            result.json.return_value = {}
+            patched_request.return_value = asyncio.Future()
+            patched_request.return_value.set_result(result)
+            self.assertEqual(
+                await rasanlu._load_model({"model_filename": "model.tar.gz"}), {}
+            )
+            self.assertEqual(
+                await rasanlu._load_model(
+                    {"model_filename": "model.tar.gz", "token": "12345"}
+                ),
+                {},
+            )
+
+            result.status = 500
+            result.text.return_value = "some weird error"
+            self.assertEqual(
+                await rasanlu._load_model({"model_filename": "model.tar.gz"}),
+                result.text.return_value,
+            )
+
+            patched_request.side_effect = (
+                aiohttp.client_exceptions.ClientConnectorError("key", amock.Mock())
+            )
+            self.assertEqual(
+                await rasanlu._load_model({"model_filename": "model.tar.gz"}), None
+            )
+
+    async def test__is_model_loaded(self):
         result = amock.Mock()
         result.status = 200
         result.json = amock.CoroutineMock()
-        result.json.return_value = {
-            "available_projects": {
-                "default": {"available_models": ["fallback"], "status": "ready"},
-                "opsdroid": {"available_models": ["hello", "world"], "status": "ready"},
+
+        with amock.patch("aiohttp.ClientSession.get") as patched_request:
+            result.json.return_value = {
+                "fingerprint": {
+                    "config": ["7625d69d93053ac8520a544d0852c626"],
+                    "domain": ["229b51e41876bbcbbbfbeddf79548d5a"],
+                    "messages": ["cf7eda7edcae128a75ee8c95d3bbd680"],
+                    "stories": ["b5facea681fd00bc7ecc6818c70d9639"],
+                    "trained_at": 1556527123.42784,
+                    "version": "2.6.2",
+                },
+                "model_file": "/app/models/model.tar.gz",
+                "num_active_training_jobs": 2,
             }
-        }
-        with amock.patch("aiohttp.ClientSession.get") as patched_request:
+            patched_request.side_effect = None
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
-            models = await rasanlu._get_existing_models({"project": "opsdroid"})
-            self.assertEqual(models, ["hello", "world"])
-
-    async def test__get_existing_models_exception(self):
-
-        with amock.patch("aiohttp.ClientSession.get") as patched_request:
-            patched_request.return_value = asyncio.Future()
-            patched_request.side_effect = ClientOSError()
-            models = await rasanlu._get_existing_models({"project": "opsdroid"})
-            self.assertRaises(ClientOSError)
-            self.assertEqual(models, [])
-
-    async def test__get_existing_models_fails(self):
-        result = amock.Mock()
-        result.status = 404
-        result.json = amock.CoroutineMock()
-        result.json.return_value = {}
-        with amock.patch("aiohttp.ClientSession.get") as patched_request:
-            patched_request.return_value = asyncio.Future()
-            patched_request.return_value.set_result(result)
-            models = await rasanlu._get_existing_models({})
-            self.assertEqual(models, [])
+            self.assertEqual(
+                await rasanlu._is_model_loaded({"model_filename": "model.tar.gz"}), True
+            )
+            self.assertEqual(
+                await rasanlu._is_model_loaded(
+                    {"model_filename": "model.tar.gz", "token": "12345"}
+                ),
+                True,
+            )
+            result.status = 500
+            self.assertEqual(
+                await rasanlu._is_model_loaded({"model_filename": "model.tar.gz"}),
+                False,
+            )
+            patched_request.side_effect = (
+                aiohttp.client_exceptions.ClientConnectorError("key", amock.Mock())
+            )
+            self.assertEqual(
+                await rasanlu._is_model_loaded({"model_filename": "model.tar.gz"}), None
+            )
 
     async def test_train_rasanlu_fails(self):
         result = amock.Mock()
@@ -498,31 +608,27 @@ class TestParserRasaNLU(asynctest.TestCase):
         ) as patched_request, amock.patch.object(
             rasanlu, "_get_all_intents"
         ) as mock_gai, amock.patch.object(
-            rasanlu, "_init_model"
-        ) as mock_im, amock.patch.object(
             rasanlu, "_build_training_url"
         ) as mock_btu, amock.patch.object(
-            rasanlu, "_get_existing_models"
-        ) as mock_gem, amock.patch.object(
             rasanlu, "_get_intents_fingerprint"
-        ) as mock_gif:
+        ) as mock_gif, amock.patch.object(
+            rasanlu, "has_compatible_version_rasanlu"
+        ) as mock_crc, amock.patch.object(
+            rasanlu, "_load_model"
+        ) as mock_lmo, amock.patch.object(
+            rasanlu, "_is_model_loaded"
+        ) as mock_iml:
 
             mock_gai.return_value = None
             self.assertEqual(await rasanlu.train_rasanlu({}, {}), False)
 
-            mock_gai.return_value = "Hello World"
-            mock_gem.return_value = ["abc123"]
-            mock_gif.return_value = "abc123"
-            self.assertEqual(await rasanlu.train_rasanlu({}, {}), True)
-            self.assertTrue(mock_im.called)
-            self.assertFalse(mock_btu.called)
-
-            mock_gem.return_value = []
+            # _build_training_url
             mock_btu.return_value = "http://example.com"
-            patched_request.side_effect = (
-                aiohttp.client_exceptions.ClientConnectorError("key", amock.Mock())
-            )
+
+            # Test if no intents specified
             self.assertEqual(await rasanlu.train_rasanlu({}, {}), False)
+            self.assertFalse(mock_btu.called)
+            self.assertTrue(mock_gai.called)
 
             patched_request.side_effect = None
             patched_request.return_value = asyncio.Future()
@@ -535,49 +641,90 @@ class TestParserRasaNLU(asynctest.TestCase):
             patched_request.return_value.set_result(result)
             self.assertEqual(await rasanlu.train_rasanlu({}, {}), False)
 
+            # Test Rasa client connection error
+            # _get_all_intents
+            mock_gai.return_value = "Hello World"
+            # _get_intents_fingerprint
+            mock_gif.return_value = "abc1234"
+            # _check_rasanlu_compatibility
+            mock_crc.return_value = True
+            patched_request.side_effect = (
+                aiohttp.client_exceptions.ClientConnectorError("key", amock.Mock())
+            )
+            self.assertEqual(await rasanlu.train_rasanlu({}, {}), False)
+            self.assertTrue(mock_btu.called)
+            self.assertFalse(mock_lmo.called)
+
+            # Test if the trained model is not loaded
+            # _load_model
+            mock_lmo.return_value = "{}"
+            # _is_model_loaded
+            mock_iml.return_value = False
+            result.content_type = "application/x-tar"
+            result.content_disposition.type = "attachment"
+            result.content_disposition.filename = "model.tar.gz"
+            result.json.return_value = "Tar file content..."
+            result.status = 200
+            patched_request.side_effect = None
+            self.assertEqual(await rasanlu.train_rasanlu({}, {}), False)
+            self.assertTrue(mock_lmo.called)
+            self.assertTrue(mock_iml.called)
+
     async def test_train_rasanlu_succeeded(self):
         result = amock.Mock()
         result.text = amock.CoroutineMock()
         result.json = amock.CoroutineMock()
         result.status = 200
-        result.json.return_value = {"info": "new model trained: abc1234"}
+        result.json.return_value = {}
 
         with amock.patch(
             "aiohttp.ClientSession.post"
         ) as patched_request, amock.patch.object(
             rasanlu, "_get_all_intents"
         ) as mock_gai, amock.patch.object(
-            rasanlu, "_init_model"
-        ), amock.patch.object(
             rasanlu, "_build_training_url"
         ) as mock_btu, amock.patch.object(
-            rasanlu, "_get_existing_models"
-        ) as mock_gem, amock.patch.object(
             rasanlu, "_get_intents_fingerprint"
-        ) as mock_gif:
+        ) as mock_gif, amock.patch.object(
+            rasanlu, "has_compatible_version_rasanlu"
+        ) as mock_crc, amock.patch.object(
+            rasanlu, "_load_model"
+        ) as mock_lmo, amock.patch.object(
+            rasanlu, "_is_model_loaded"
+        ) as mock_iml:
 
-            mock_gem.return_value = ["abc123"]
+            # _build_training_url
             mock_btu.return_value = "http://example.com"
+            # _get_all_intents
             mock_gai.return_value = "Hello World"
+            # _get_intents_fingerprint
             mock_gif.return_value = "abc1234"
-            result.content_type = "application/json"
+            # _check_rasanlu_compatibility
+            mock_crc.return_value = True
+            # _load_model
+            mock_lmo.return_value = "{}"
+            # _is_model_loaded
+            mock_iml.return_value = True
+            result.content_type = "application/x-tar"
+            result.content_disposition.type = "attachment"
+            result.content_disposition.filename = "model.tar.gz"
+            result.json.return_value = "Tar file content..."
 
             patched_request.side_effect = None
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
             self.assertEqual(await rasanlu.train_rasanlu({}, {}), True)
 
-            result.json.return_value = {}
+            result.status = 500
             patched_request.side_effect = None
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
             self.assertEqual(await rasanlu.train_rasanlu({}, {}), False)
 
-            result.content_type = "application/zip"
-            result.content_disposition.type = "attachment"
-            result.json.return_value = {"info": "new model trained: abc1234"}
-
-            patched_request.side_effect = None
-            patched_request.return_value = asyncio.Future()
-            patched_request.return_value.set_result(result)
-            self.assertEqual(await rasanlu.train_rasanlu({}, {}), True)
+            config = {
+                "name": "rasanlu",
+                "min-score": 0.3,
+                "token": "12345",
+                "train": False,
+            }
+            self.assertEqual(await rasanlu.train_rasanlu(config, {}), False)
