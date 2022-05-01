@@ -38,19 +38,35 @@ connectors:
   slack:
     # required
     bot-token: "xoxb-abdcefghi-12345"
-    # optional
-    socket-mode: true # defaul true. *
-    app-token: "xapp-abdcfkje-12345" # socket-mode needs to be true
-    bot-name: "mybot" # default "opsdroid" **
-    icon-emoji: ":smile:" # default ":robot_face:" **
+    
+    # Optional
+
+    # when socket-mode is true, you need to set also an `app-token` 
+    # more info: https://api.slack.com/authentication/token-types#app
+    socket-mode: true # defaul true. 
+    # socket-mode needs to be set to true to use app-token
+    app-token: "xapp-abdcfkje-12345" 
+
+    # In order for bot-name and/or icon-emoji to work, the `chat:write.customize` 
+    # scope will have to be selected
+    bot-name: "mybot" # default "opsdroid" 
+    icon-emoji: ":smile:" # default ":robot_face:"
+
     default-room: "#random" # default "#general"
-    start-thread: false # default false. if true, opsdroid will start a thread when replying to a message
-    channel_limit: 100 # default 100. ***
+
+    # If set to true opsdroid will start a thread when replying to a message
+    start-thread: false # default false
+
+    # Used to retrieve the conversations details from Slack API
+    # refresh-interval: how often the connector will refresh the channels
+    refresh-interval: 600 # default 600
+    # channel-limit: Maximum channels to return on a single iteration.
+    # if your instance has >1000 channels, consider raising this
+    # (https://api.slack.com/methods/conversations.list#arg_limit)
+    channel-limit: 100 # default 100. ***
 ```
 
-\* when `socket-mode` is true, you need to set also an `app-token` (more info: [app level tokens](https://api.slack.com/authentication/token-types#app))
 
-** In order for `bot-name` and/or `icon-emoji` to work, the `chat:write.customize` scope will have to be selected
 
 \*** [Maximum channels](https://api.slack.com/methods/conversations.list#arg_limit) to return on a single iteration.
 ### Choose the Backend API
