@@ -67,9 +67,6 @@ connectors:
     channel-limit: 100 # default 100. ***
 ```
 
-
-
-\*** [Maximum channels](https://api.slack.com/methods/conversations.list#arg_limit) to return on a single iteration.
 ### Choose the Backend API
 
 You need to choose between two backends. The [Events API](https://api.slack.com/apis/connections/events-api) or [Socket Mode](https://api.slack.com/apis/connections/socket).
