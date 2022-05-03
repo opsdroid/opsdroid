@@ -9,6 +9,7 @@ A connector for [Slack](https://slack.com/).
 - [Usage](#usage)
     - [Basic Skill Example](#basic-skill-example)
     - [Get Messages from History](#get-messages-from-history)
+    - [Find channel by name](#find-channel-by-name)
     - [Rich layouts and blocks](#rich-layouts-and-blocks)
     - [Slash Commands](#slash-commands)
     - [Interactive Actions](#interactive-actions)
@@ -134,13 +135,18 @@ class GreeterSkill(Skill):
         await message.respond("Hi")
 ```
 
-### Get messages from History
+### Get Messages from History
 Sometimes you need to search through the history of a channel. For this you can use the `search_history_messages` method from the slack connector which returns all the messages on a specified range of time.
 
 ```eval_rst
 .. autofunction:: opsdroid.connector.slack.ConnectorSlack.search_history_messages
 ```
+### Find channel by name
+Sometimes you need to find the channel details (ie: id, purpose). For this you can use the `find_channel` method from the slack connector which returns the details of the channel
 
+```eval_rst
+.. autofunction:: opsdroid.connector.slack.ConnectorSlack.find_channel
+```
 
 ## Rich layouts and blocks
 
