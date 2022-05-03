@@ -5,22 +5,22 @@ import logging
 import os
 import re
 import ssl
+import time
 
 import aiohttp
+import arrow
 import certifi
+import opsdroid.events
 from emoji import demojize
-
+from opsdroid.connector import Connector, register_event
+from opsdroid.connector.slack.create_events import SlackEventCreator
+from opsdroid.connector.slack.events import Blocks, EditedBlocks
 from slack_sdk.errors import SlackApiError
 from slack_sdk.socket_mode.aiohttp import SocketModeClient
 from slack_sdk.socket_mode.request import SocketModeRequest
 from slack_sdk.socket_mode.response import SocketModeResponse
 from slack_sdk.web.async_client import AsyncWebClient
 from voluptuous import Required
-
-import opsdroid.events
-from opsdroid.connector import Connector, register_event
-from opsdroid.connector.slack.create_events import SlackEventCreator
-from opsdroid.connector.slack.events import Blocks, EditedBlocks
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -38,6 +38,7 @@ CONFIG_SCHEMA = {
     "default-room": str,
     "icon-emoji": str,
     "start-thread": bool,
+    "refresh-interval": int,
     "channel-limit": int,
 }
 
@@ -57,7 +58,8 @@ class ConnectorSlack(Connector):
         self.start_thread = config.get("start-thread", False)
         self.socket_mode = config.get("socket-mode", True)
         self.app_token = config.get("app-token")
-        self.channel_limit = config.get("channel_limit", 100)
+        self.channel_limit = config.get("channel-limit", 100)
+        self.refresh_interval = config.get("refresh-interval", 600)
         self.ssl_context = ssl.create_default_context(cafile=certifi.where())
         self.slack_web_client = AsyncWebClient(
             token=self.bot_token,
@@ -101,7 +103,7 @@ class ConnectorSlack(Connector):
                 )
             ).data
             self.bot_id = self.user_info["user"]["profile"]["bot_id"]
-            await self.get_channels()
+            self.opsdroid.create_task(self._get_channels())
         except SlackApiError as error:
             _LOGGER.error(
                 _(
@@ -143,6 +145,7 @@ class ConnectorSlack(Connector):
 
         Cancels the event queue worker task and disconnects the
         socket_mode_client if socket mode was enabled."""
+
         if self._event_queue_task:
             self._event_queue_task.cancel()
             await asyncio.gather(self._event_queue_task, return_exceptions=True)
@@ -181,7 +184,30 @@ class ConnectorSlack(Connector):
                     data["thread_ts"] = raw_event["thread_ts"]
             elif self.start_thread:
                 data["thread_ts"] = event.linked_event.event_id
+
         return data
+
+    async def _get_channels(self):
+        """Grab all the channels from the Slack API"""
+
+        while self.opsdroid.eventloop.is_running():
+            _LOGGER.info(_("Updating Channels from Slack API at %s."), time.asctime())
+            channels = await self.slack_web_client.conversations_list(
+                limit=self.channel_limit
+            )
+            cursor = channels["response_metadata"].get("next_cursor")
+
+            while cursor:
+                self.known_channels.update({c["name"]: c for c in channels["channels"]})
+
+                channels = await self.slack_web_client.conversations_list(
+                    cursor=cursor, limit=self.channel_limit
+                )
+                cursor = channels["response_metadata"].get("next_cursor")
+
+            channel_count = len(self.known_channels.keys())
+            _LOGGER.info("Grabbed a total of %s channels from Slack", channel_count)
+            await asyncio.sleep(self.refresh_interval - arrow.now().time().second)
 
     async def event_handler(self, payload):
         """Handle different payload types and parse the resulting events"""
@@ -259,32 +285,35 @@ class ConnectorSlack(Connector):
 
         return aiohttp.web.Response(text=json.dumps("Received"), status=200)
 
-    async def get_channels(self):
-        """Grab all the channels from the Slack API"""
-        channels = await self.slack_web_client.conversations_list(limit=100)
-        cursor = channels["response_metadata"].get("next_cursor")
-        _LOGGER.info("Grabbing channels from Slack API. This might take some time")
-
-        while True:
-            self.known_channels.update({c["name"]: name for c in channels["channels"]})
-
-            if cursor:
-                channels = await self.slack_web_client.conversations_list(
-                    cursor=cursor, limit=self.channel_limit
-                )
-                cursor = channels["response_metadata"].get("next_cursor")
-            else:
-                break
-        channel_count = len(self.known_channels.keys())
-        _LOGGER.info("Grabbed a total of %s channels from Slack", channel_count)
-
     async def find_channel(self, channel_name):
-        """Given a channel name return the channel properties"""
+        """
+        Given a channel name return the channel properties.
+
+        args:
+            channel_name: the name of the channel. ie: general
+
+        returns:
+            dict with channel details
+
+        **Basic Usage Example in a Skill:**
+
+        .. code-block:: python
+
+            from opsdroid.skill import Skill
+            from opsdroid.matchers import match_regex
+
+            class SearchMessagesSkill(Skill):
+                @match_regex(r"find channel")
+                async def find_channel(self, message):
+                    """ """
+                    slack = self.opsdroid.get_connector("slack")
+                    channel = await slack.find_channel(channel_name="general")
+                    await message.respond(str(channel))
+        """
 
         if channel_name in self.known_channels:
             return self.known_channels[channel_name]
-        else:
-            _LOGGER.debug(_("Channel with name %s not found", channel_name))
+        _LOGGER.info(_("Channel with name %s not found"), channel_name)
 
     async def search_history_messages(self, channel, start_time, end_time, limit=100):
         """
@@ -314,7 +343,7 @@ class ConnectorSlack(Connector):
                     messages = await slack.search_history_messages(
                         "CHANEL_ID", start_time="1512085950.000216", end_time="1512104434.000490"
                     )
-                    await message.respond(messages)
+                    await message.respond(str(messages))
         """
         messages = []
         history = await self.slack_web_client.conversations_history(
