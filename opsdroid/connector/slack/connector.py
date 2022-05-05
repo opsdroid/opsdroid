@@ -8,19 +8,17 @@ import ssl
 
 import aiohttp
 import certifi
+import opsdroid.events
 from emoji import demojize
-
+from opsdroid.connector import Connector, register_event
+from opsdroid.connector.slack.create_events import SlackEventCreator
+from opsdroid.connector.slack.events import Blocks, EditedBlocks
 from slack_sdk.errors import SlackApiError
 from slack_sdk.socket_mode.aiohttp import SocketModeClient
 from slack_sdk.socket_mode.request import SocketModeRequest
 from slack_sdk.socket_mode.response import SocketModeResponse
 from slack_sdk.web.async_client import AsyncWebClient
 from voluptuous import Required
-
-import opsdroid.events
-from opsdroid.connector import Connector, register_event
-from opsdroid.connector.slack.create_events import SlackEventCreator
-from opsdroid.connector.slack.events import Blocks, EditedBlocks
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -139,6 +137,7 @@ class ConnectorSlack(Connector):
 
         Cancels the event queue worker task and disconnects the
         socket_mode_client if socket mode was enabled."""
+
         if self._event_queue_task:
             self._event_queue_task.cancel()
             await asyncio.gather(self._event_queue_task, return_exceptions=True)
@@ -177,6 +176,7 @@ class ConnectorSlack(Connector):
                     data["thread_ts"] = raw_event["thread_ts"]
             elif self.start_thread:
                 data["thread_ts"] = event.linked_event.event_id
+
         return data
 
     async def event_handler(self, payload):
@@ -191,21 +191,19 @@ class ConnectorSlack(Connector):
             else:
                 event = await self._event_creator.create_event(payload, None)
 
-        if not event:
-            _LOGGER.error(
-                "Payload: %s is not implemented. Event wont be parsed", payload
+        if event:
+            if isinstance(event, list):
+                for e in event:
+                    _LOGGER.debug(f"Got slack event: {e}")
+                    await self.opsdroid.parse(e)
+
+            if isinstance(event, opsdroid.events.Event):
+                _LOGGER.debug(f"Got slack event: {event}")
+                await self.opsdroid.parse(event)
+        else:
+            _LOGGER.debug(
+                "Event returned empty for payload: %s. Event was not parsed", payload
             )
-
-            return
-
-        if isinstance(event, list):
-            for e in event:
-                _LOGGER.debug(f"Got slack event: {e}")
-                await self.opsdroid.parse(e)
-
-        if isinstance(event, opsdroid.events.Event):
-            _LOGGER.debug(f"Got slack event: {event}")
-            await self.opsdroid.parse(event)
 
     async def socket_event_handler(
         self, client: SocketModeClient, req: SocketModeRequest
