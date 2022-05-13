@@ -1,6 +1,6 @@
 # Contributing
 
-Contributing to the opsdroid ecosystem is strongly encouraged and every little bit counts! We even send [sticker packs](https://medium.com/opsdroid/contributor-sticker-packs-738058ceda59) to our contributors to say thank you! There are so many ways to contribute to opsdroid:
+Contributing to the opsdroid ecosystem is strongly encouraged and every little bit counts! There are so many ways to contribute to opsdroid:
 
   - Write code to [solve issues](https://github.com/opsdroid/opsdroid/issues) in the opsdroid core repository
   - Improve the [documentation](https://github.com/opsdroid/opsdroid/tree/master/docs) to help others get started
