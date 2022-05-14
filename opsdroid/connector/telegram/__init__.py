@@ -305,7 +305,7 @@ class ConnectorTelegram(Connector):
 
         if message.get("reply_to_message"):
             event = Reply(
-                text=emoji.demojize(message["text"]),
+                text=emoji.demojize(message.get("text", "")),
                 user=user,
                 user_id=user_id,
                 event_id=message["message_id"],
@@ -317,7 +317,7 @@ class ConnectorTelegram(Connector):
 
         if message.get("text"):
             event = Message(
-                text=emoji.demojize(message["text"]),
+                text=emoji.demojize(message.get("text", "")),
                 user=user,
                 user_id=user_id,
                 target=message["chat"]["id"],
