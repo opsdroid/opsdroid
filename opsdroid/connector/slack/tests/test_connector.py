@@ -3,11 +3,16 @@ import logging
 
 import asynctest.mock as amock
 import pytest
-from slack_sdk.socket_mode.request import SocketModeRequest
-
 from opsdroid import events
 from opsdroid.connector.slack.connector import SlackApiError
-from opsdroid.connector.slack.events import Blocks, EditedBlocks
+from opsdroid.connector.slack.events import (
+    Blocks,
+    EditedBlocks,
+    ModalOpen,
+    ModalPush,
+    ModalUpdate,
+)
+from slack_sdk.socket_mode.request import SocketModeRequest
 
 from .conftest import get_path
 
@@ -15,6 +20,9 @@ USERS_INFO = ("/users.info", "GET", get_path("method_users.info.json"), 200)
 AUTH_TEST = ("/auth.test", "POST", get_path("method_auth.test.json"), 200)
 CHAT_POST_MESSAGE = ("/chat.postMessage", "POST", {"ok": True}, 200)
 CHAT_UPDATE_MESSAGE = ("/chat.update", "POST", {"ok": True}, 200)
+VIEWS_OPEN = ("/views.open", "POST", {"ok": True}, 200)
+VIEWS_UPDATE = ("/views.update", "POST", {"ok": True}, 200)
+VIEWS_PUSH = ("/views.push", "POST", {"ok": True}, 200)
 REACTIONS_ADD = ("/reactions.add", "POST", {"ok": True}, 200)
 CONVERSATIONS_HISTORY = (
     "/conversations.history",
@@ -308,6 +316,47 @@ async def test_edit_blocks(send_event, connector):
         "channel": "room",
         "blocks": '[{"type": "section", "text": {"type": "mrkdwn", "text": "*Test*"}}]',
         "ts": "1358878749.000002",
+    }
+    assert response["ok"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.add_response(*VIEWS_OPEN)
+async def test_open_modal(send_event, connector):
+    event = ModalOpen(trigger_id="123456", view={"key1": "value1", "key2": "value2"})
+    payload, response = await send_event(VIEWS_OPEN, event)
+    assert payload == {
+        "trigger_id": "123456",
+        "view": '{"key1": "value1", "key2": "value2"}',
+    }
+    assert response["ok"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.add_response(*VIEWS_UPDATE)
+async def test_update_modal(send_event, connector):
+    event = ModalUpdate(
+        external_id="123456",
+        view={"key1": "value1", "key2": "value2"},
+        hash_="12345678",
+    )
+    payload, response = await send_event(VIEWS_UPDATE, event)
+    assert payload == {
+        "external_id": "123456",
+        "view": '{"key1": "value1", "key2": "value2"}',
+        "hash": "12345678",
+    }
+    assert response["ok"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.add_response(*VIEWS_PUSH)
+async def test_push_modal(send_event, connector):
+    event = ModalPush(trigger_id="123456", view={"key1": "value1", "key2": "value2"})
+    payload, response = await send_event(VIEWS_PUSH, event)
+    assert payload == {
+        "trigger_id": "123456",
+        "view": '{"key1": "value1", "key2": "value2"}',
     }
     assert response["ok"]
 

@@ -5,20 +5,32 @@ import logging
 import os
 import re
 import ssl
+import urllib.parse
 
 import aiohttp
 import certifi
-import opsdroid.events
 from emoji import demojize
-from opsdroid.connector import Connector, register_event
-from opsdroid.connector.slack.create_events import SlackEventCreator
-from opsdroid.connector.slack.events import Blocks, EditedBlocks
+
+
 from slack_sdk.errors import SlackApiError
 from slack_sdk.socket_mode.aiohttp import SocketModeClient
 from slack_sdk.socket_mode.request import SocketModeRequest
 from slack_sdk.socket_mode.response import SocketModeResponse
 from slack_sdk.web.async_client import AsyncWebClient
 from voluptuous import Required
+
+
+import opsdroid.events
+from opsdroid.connector import Connector, register_event
+from opsdroid.connector.slack.create_events import SlackEventCreator
+from opsdroid.connector.slack.events import (
+    Blocks,
+    EditedBlocks,
+    ModalOpen,
+    ModalPush,
+    ModalUpdate,
+)
+
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -212,7 +224,6 @@ class ConnectorSlack(Connector):
 
         response = SocketModeResponse(envelope_id=req.envelope_id)
         await client.send_socket_mode_response(response)
-
         payload = req.payload
 
         await self.event_handler(payload)
@@ -236,7 +247,19 @@ class ConnectorSlack(Connector):
             if "payload" in req:
                 payload = json.loads(req["payload"])
             else:
-                payload = dict(req)
+                # Some payloads (ie: view_submission) don't come with proper formatting
+                # Convert the request to text, and later attempt to load the json
+
+                if len(req.keys()) == 1:
+                    req = await request.text()
+                    req = urllib.parse.unquote(req)
+
+                    if "payload={" in req:
+                        req = req.replace("payload=", "")
+                        payload = json.loads(req)
+                else:
+                    payload = dict(req)
+
         elif request.content_type == "application/json":
             payload = await request.json()
 
@@ -398,6 +421,46 @@ class ConnectorSlack(Connector):
         return await self.slack_web_client.api_call(
             "chat.update",
             data=data,
+        )
+
+    @register_event(ModalOpen)
+    async def _open_modal(self, modal):
+        """Respond with opening a Modal.
+
+        https://api.slack.com/methods/views.open
+        """
+        _LOGGER.debug(_("Opening modal with trigger id: %s."), modal.trigger_id)
+
+        return await self.slack_web_client.api_call(
+            "views.open",
+            data={"trigger_id": modal.trigger_id, "view": modal.view},
+        )
+
+    @register_event(ModalUpdate)
+    async def _update_modal(self, modal):
+        """Respond an update to a Modal.
+
+        https://api.slack.com/methods/views.update
+        """
+        _LOGGER.debug(_("Opening modal with trigger id: %s."), modal.external_id)
+        data = {"external_id": modal.external_id, "view": modal.view}
+
+        if modal.hash:
+            data["hash"] = modal.hash
+
+        return await self.slack_web_client.api_call("views.update", data=data)
+
+    @register_event(ModalPush)
+    async def _push_modal(self, modal):
+        """Respond by pushing a view onto the stack of a root view.
+
+        https://api.slack.com/methods/views.push
+        """
+        _LOGGER.debug(_("Pushing modal with trigger id: %s."), modal.trigger_id)
+
+        return await self.slack_web_client.api_call(
+            "views.push",
+            data={"trigger_id": modal.trigger_id, "view": modal.view},
         )
 
     @register_event(opsdroid.events.Reaction)

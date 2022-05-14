@@ -188,7 +188,7 @@ async def test_receive_slash_command(opsdroid, connector, mock_api):
 async def test_receive_view_submission(opsdroid, connector, mock_api):
     await opsdroid.load(config=MINIMAL_CONFIG)
 
-    async def receive_message_action():
+    async def receive_view_submission():
         headers, data = get_webhook_payload(
             "payload_view_submission.urlencoded", "urlencoded"
         )
@@ -203,7 +203,7 @@ async def test_receive_view_submission(opsdroid, connector, mock_api):
 
         return True
 
-    assert await run_unit_test(opsdroid, receive_message_action)
+    assert await run_unit_test(opsdroid, receive_view_submission)
 
 
 @pytest.mark.asyncio
