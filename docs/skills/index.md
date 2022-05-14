@@ -29,7 +29,7 @@ If a message is received and matches the regular expression then the decorated f
    All functions which will be executed should be defined as an `async` function, and calls to functions which may require IO (like a connector or database) should be awaited with the `await` keyword. For more information see [asyncio](https://docs.python.org/3/library/asyncio.html) and [event loops](https://docs.python.org/3/library/asyncio-eventloop.html).
 ```
 
-To configure opsdroid to use your skill you need to add an entry to the `skills` section of your [configuration](../configuration) with the path to your skill file or folder.
+To configure opsdroid to use your skill you need to add an entry to the `skills` section of your [configuration](../configuration.md) with the path to your skill file or folder.
 
 ```yaml
 skills:
@@ -39,7 +39,7 @@ skills:
     # with an __init__.py file in it
 ```
 
-For more information about the various ways you can package skills and other modules and tell opsdroid about them see the [packaging section](../packaging).
+For more information about the various ways you can package skills and other modules and tell opsdroid about them see the [packaging section](../packaging.md).
 
 It is also possible to specify your expected configuration schema by setting the `CONFIG_SCHEMA` constant within your skill. We use the [voluptuous](https://github.com/alecthomas/voluptuous) library for validating configuration.
 
@@ -129,6 +129,6 @@ If you try to access a connector or database which has not been configured these
 
 ## Examples
 
-For examples of the kind of skills you can build in opsdroid see the [examples section](../examples/index). Or continue reading about more of the features you can use to create your skills.
+For examples of the kind of skills you can build in opsdroid see the [examples section](../examples/index.md). Or continue reading about more of the features you can use to create your skills.
 
 _If you need help or if you are unsure about something join our_ [matrix channel](https://app.element.io/#/room/#opsdroid-general:matrix.org) _and ask away! We are more than happy to help you._
