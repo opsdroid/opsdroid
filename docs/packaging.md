@@ -30,8 +30,8 @@ skills:
   - name: hello
 ```
 
-Details on pointing opsdroid to extension modules can be found in the [configuration reference](configuration).
-For more on creating skills, see the [next section](skills/index) of these docs.
+Details on pointing opsdroid to extension modules can be found in the [configuration reference](configuration.md).
+For more on creating skills, see the [next section](skills/index.md) of these docs.
 
 ## Packaged Python extensions
 

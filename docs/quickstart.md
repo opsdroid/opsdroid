@@ -13,7 +13,7 @@ terms used in this document.
 
 ## Installation
 
-As there is support for a wide range of connectors, all with their own set of dependencies, Opsdroid can be installed modularly. See the [installation docs](../installation) for details.
+As there is support for a wide range of connectors, all with their own set of dependencies, Opsdroid can be installed modularly. See the [installation docs](./installation.md) for details.
 
 For now let's install everything.
 
@@ -38,9 +38,9 @@ skills:
   hello: {}
 ```
 
-Here I have configured the [Slack connector module](../connectors/slack) and the included hello skill module. For information on configuring your preferred chat client see the [connector docs](../connectors/index).
+Here I have configured the [Slack connector module](./connectors/slack.md) and the included hello skill module. For information on configuring your preferred chat client see the [connector docs](./connectors/index.md).
 
-You can find the full [configuration reference here](../configuration).
+You can find the full [configuration reference here](./configuration.md).
 
 ## Start opsdroid
 
@@ -82,14 +82,14 @@ class PingSkill(Skill):
 
 In our file we have created a very simple skill. We start by importing the `Skill` base class and the `match_regex` matcher.
 
-Then we create a new skill class with one async method called `ping`. Our method takes one argument which is the [event](../skills/events) that triggered
+Then we create a new skill class with one async method called `ping`. Our method takes one argument which is the [event](./skills/events.md) that triggered
 the skill.
 
 To set our trigger we decorate that method with `match_regex`. This means that every message that comes from Slack will be compared with that [regular expression](https://en.wikipedia.org/wiki/Regular_expression), and if it is a match the method will be called.
 
 We then respond to the event with the string `"pong"`. By sending a string here this will result in the bot sending a message back to Slack.
 
-There are many [event types](../skills/events) which can be matched and responded with, and many more [complex matchers](../skills/matchers/index) for triggering skills.
+There are many [event types](./skills/events.md) which can be matched and responded with, and many more [complex matchers](./skills/matchers/index.md) for triggering skills.
 
 ### Configuration
 
@@ -118,6 +118,6 @@ $ opsdroid start
 
 ## Next steps
 
-Now that you know the basics you should check out the [project overview](../overview) to learn about how Opsdroid works and everything that it offers.
+Now that you know the basics you should check out the [project overview](./overview.md) to learn about how Opsdroid works and everything that it offers.
 
 You can also try Opsdroid in the [Opsdroid Playground](https://playground.opsdroid.dev).
