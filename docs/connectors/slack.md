@@ -138,6 +138,7 @@ Sometimes you need to search through the history of a channel. For this you can 
 ```eval_rst
 .. autofunction:: opsdroid.connector.slack.ConnectorSlack.search_history_messages
 ```
+
 ### Find channel by name
 Sometimes you need to find the channel details (ie: id, purpose). For this you can use the `find_channel` method from the slack connector which returns the details of the channel
 
