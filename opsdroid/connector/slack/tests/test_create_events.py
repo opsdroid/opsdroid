@@ -98,12 +98,99 @@ async def test_events_from_slack(opsdroid, connector, mock_api, payload):
             data=data,
             headers=headers,
         )
-
         assert resp.status == 200
 
         return True
 
     assert await run_unit_test(opsdroid, receive_event, payload)
+
+
+@pytest.mark.asyncio
+@pytest.mark.add_response(*USERS_INFO)
+@pytest.mark.add_response(*AUTH_TEST)
+async def test_receive_message_action(opsdroid, connector, mock_api):
+    await opsdroid.load(config=MINIMAL_CONFIG)
+
+    async def receive_message_action():
+        headers, data = get_webhook_payload(
+            "payload_message_action.urlencoded", "urlencoded"
+        )
+        resp = await call_endpoint(
+            opsdroid,
+            CONNECTOR_ENDPOINT,
+            "POST",
+            data=data,
+            headers=headers,
+        )
+        assert resp.status == 200
+
+        return True
+
+    assert await run_unit_test(opsdroid, receive_message_action)
+
+
+@pytest.mark.asyncio
+@pytest.mark.add_response(*USERS_INFO)
+@pytest.mark.add_response(*AUTH_TEST)
+async def test_receive_slash_command(opsdroid, connector, mock_api):
+    await opsdroid.load(config=MINIMAL_CONFIG)
+
+    async def receive_slash_command():
+        headers, data = get_webhook_payload(
+            "payload_slash_command.urlencoded", "urlencoded"
+        )
+        resp = await call_endpoint(
+            opsdroid,
+            CONNECTOR_ENDPOINT,
+            "POST",
+            data=data,
+            headers=headers,
+        )
+        assert resp.status == 200
+
+        return True
+
+    assert await run_unit_test(opsdroid, receive_slash_command)
+
+
+@pytest.mark.asyncio
+@pytest.mark.add_response(*USERS_INFO)
+@pytest.mark.add_response(*AUTH_TEST)
+async def test_receive_view_submission(opsdroid, connector, mock_api):
+    await opsdroid.load(config=MINIMAL_CONFIG)
+
+    async def receive_view_submission():
+        headers, data = get_webhook_payload(
+            "payload_view_submission.urlencoded", "urlencoded"
+        )
+        resp = await call_endpoint(
+            opsdroid,
+            CONNECTOR_ENDPOINT,
+            "POST",
+            data=data,
+            headers=headers,
+        )
+        assert resp.status == 200
+
+        return True
+
+    assert await run_unit_test(opsdroid, receive_view_submission)
+
+
+@pytest.mark.asyncio
+@pytest.mark.add_response(*USERS_INFO)
+@pytest.mark.add_response(*AUTH_TEST)
+async def test_receive_unknown_payload(opsdroid, connector, mock_api, caplog):
+    await opsdroid.load(config=MINIMAL_CONFIG)
+
+    async def receive_message_action():
+        resp = await call_endpoint(
+            opsdroid,
+            CONNECTOR_ENDPOINT,
+            "POST",
+            data=json.dumps({"type": "another_unknown type"}),
+            headers={"content-type": "application/json"},
+        )
 
 
 @pytest.mark.asyncio

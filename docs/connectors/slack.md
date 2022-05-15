@@ -12,6 +12,7 @@ A connector for [Slack](https://slack.com/).
     - [Find channel by name](#find-channel-by-name)
     - [Rich layouts and blocks](#rich-layouts-and-blocks)
     - [Slash Commands](#slash-commands)
+    - [Modals](#modals)
     - [Interactive Actions](#interactive-actions)
 
 
@@ -228,6 +229,14 @@ class UpdateBlocksSkill(Skill):
 ### Slash Command
 ```eval_rst
 .. autofunction:: opsdroid.connector.slack.events.SlashCommand
+```
+
+## Modals
+[Modals](https://api.slack.com/surfaces/modals/using) provide focused spaces ideal for requesting and collecting data from users, or temporarily displaying dynamic and interactive information. 
+
+### Modal Usage Example
+```eval_rst
+.. autofunction:: opsdroid.connector.slack.events.ModalOpen
 ```
 
 ## Interactive Actions

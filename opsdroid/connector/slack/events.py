@@ -117,6 +117,93 @@ class MessageAction(InteractiveAction):
         super().__init__(payload, *args, **kwargs)
 
 
+class Modal(events.Event):
+    """Base Event class to represent a Modal in Slack.
+
+    Modals are the Slack app equivalent of alert boxes, pop-ups, or dialog boxes.
+    https://api.slack.com/surfaces/modals/using
+
+    args:
+        view: a view payload. this can be a dict or a json encoded string
+    """
+
+    def __init__(self, view, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.view = view
+
+        if isinstance(self.view, dict):
+            self.view = json.dumps(self.view)
+
+
+class ModalOpen(Modal):
+    """Event class to represent a new Modal in Slack.
+
+    args:
+        trigger_id: trigger to post to a user
+
+    **Basic Usage in a Skill:**
+
+    .. code-block:: python
+
+        from opsdroid.skill import Skill
+        from opsdroid.matchers import match_event
+
+        class ModalSkill(Skill):
+            @match_event(SlashCommand, command="/testcommand")
+            async def open_modal(self, event):
+                view = {
+                    "type": "modal",
+                    "title": {"type": "plain_text", "text": "Modal title"},
+                    "blocks": [
+                        {
+                            "type": "input",
+                            "label": {"type": "plain_text", "text": "Input label"},
+                            "element": {
+                                "type": "plain_text_input",
+                                "action_id": "input1",
+                                "placeholder": {
+                                    "type": "plain_text",
+                                    "text": "Type in here",
+                                },
+                                "multiline": False,
+                            },
+                            "optional": False,
+                        },
+                    ],
+                    "close": {"type": "plain_text", "text": "Cancel"},
+                    "submit": {"type": "plain_text", "text": "Save"},
+                    "private_metadata": "Shhhhhhhh",
+                    "callback_id": "view_identifier_12",
+                }
+                await self.opsdroid.send(
+                    ModalOpen(view=view, trigger_id=event.payload["trigger_id"])
+                )
+    """
+
+    def __init__(self, trigger_id, view, *args, **kwargs):
+        super().__init__(view, *args, **kwargs)
+        self.trigger_id = trigger_id
+
+
+class ModalUpdate(Modal):
+    """Event class to represent a Modal Update in Slack
+
+    args:
+        external_id: A unique identifier of the view set by the developer
+        _hash: A string that represents view state to protect against possible race conditions
+    """
+
+    def __init__(self, external_id, view, *args, hash_=None, **kwargs):
+        self.external_id = external_id
+        self.hash = hash_
+        super().__init__(view, *args, **kwargs)
+
+
+class ModalPush(ModalOpen):
+    """Event class to represent a Modal Push in Slack."""
+
+
 class ViewSubmission(InteractiveAction):
     """Event class to represent view_submission in Slack."""
 
@@ -141,7 +228,7 @@ class SlashCommand(InteractiveAction):
     .. code-block:: python
 
         from opsdroid.skill import Skill
-        from opsdroid.matchers import match_regex
+        from opsdroid.matchers import match_event
 
         class CommandsSkill(Skill):
             @match_event(SlashCommand, command="/testcommand")

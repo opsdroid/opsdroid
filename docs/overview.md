@@ -45,7 +45,7 @@ The configuration of opsdroid is done in a [YAML](https://yaml.org/) file called
 
 _Note: if no configuration file is found then opsdroid will use an `example_configuration.yaml` and place it in one of the default locations.`_
 
-Make sure to read the [configuration reference documentation](../configuration.md) for further information about configuring opsdroid.
+Make sure to read the [configuration reference documentation](./configuration.md) for further information about configuring opsdroid.
 
 Using a single YAML file for every configuration of opsdroid ensures we have a single reference for how we expect our bot to behave.
 
