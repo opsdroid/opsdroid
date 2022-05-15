@@ -9,6 +9,7 @@ A connector for [Slack](https://slack.com/).
 - [Usage](#usage)
     - [Basic Skill Example](#basic-skill-example)
     - [Get Messages from History](#get-messages-from-history)
+    - [Find channel by name](#find-channel-by-name)
     - [Rich layouts and blocks](#rich-layouts-and-blocks)
     - [Slash Commands](#slash-commands)
     - [Modals](#modals)
@@ -39,18 +40,33 @@ connectors:
   slack:
     # required
     bot-token: "xoxb-abdcefghi-12345"
-    # optional
-    socket-mode: true # defaul true. *
-    app-token: "xapp-abdcfkje-12345" # socket-mode needs to be true
-    bot-name: "mybot" # default "opsdroid" **
-    icon-emoji: ":smile:" # default ":robot_face:" **
+    
+    # Optional
+
+    # when socket-mode is true, you need to set also an `app-token` 
+    # more info: https://api.slack.com/authentication/token-types#app
+    socket-mode: true # defaul true. 
+    # socket-mode needs to be set to true to use app-token
+    app-token: "xapp-abdcfkje-12345" 
+
+    # In order for bot-name and/or icon-emoji to work, the `chat:write.customize` 
+    # scope will have to be selected
+    bot-name: "mybot" # default "opsdroid" 
+    icon-emoji: ":smile:" # default ":robot_face:"
+
     default-room: "#random" # default "#general"
-    start-thread: false # default false. if true, opsdroid will start a thread when replying to a message
+
+    # If set to true opsdroid will start a thread when replying to a message
+    start-thread: false # default false
+
+    # Used to retrieve the conversations details from Slack API
+    # refresh-interval: how often the connector will refresh the channels
+    refresh-interval: 600 # default 600
+    # channel-limit: Maximum channels to return on a single iteration.
+    # if your instance has >1000 channels, consider raising this
+    # (https://api.slack.com/methods/conversations.list#arg_limit)
+    channel-limit: 100 # default 100. ***
 ```
-
-\* when `socket-mode` is true, you need to set also an `app-token` (more info: [app level tokens](https://api.slack.com/authentication/token-types#app))
-
-** In order for `bot-name` and/or `icon-emoji` to work, the `chat:write.customize` scope will have to be selected
 
 ### Choose the Backend API
 
@@ -117,13 +133,19 @@ class GreeterSkill(Skill):
         await message.respond("Hi")
 ```
 
-### Get messages from History
+### Get Messages from History
 Sometimes you need to search through the history of a channel. For this you can use the `search_history_messages` method from the slack connector which returns all the messages on a specified range of time.
 
 ```eval_rst
 .. autofunction:: opsdroid.connector.slack.ConnectorSlack.search_history_messages
 ```
 
+### Find channel by name
+Sometimes you need to find the channel details (ie: id, purpose). For this you can use the `find_channel` method from the slack connector which returns the details of the channel
+
+```eval_rst
+.. autofunction:: opsdroid.connector.slack.ConnectorSlack.find_channel
+```
 
 ## Rich layouts and blocks
 

@@ -12,6 +12,7 @@ from opsdroid.connector.slack.events import (
     ModalPush,
     ModalUpdate,
 )
+
 from slack_sdk.socket_mode.request import SocketModeRequest
 
 from .conftest import get_path
@@ -28,6 +29,12 @@ CONVERSATIONS_HISTORY = (
     "/conversations.history",
     "GET",
     get_path("method_conversations.history.json"),
+    200,
+)
+CONVERSATIONS_LIST_LAST_PAGE = (
+    "/conversations.list",
+    "GET",
+    get_path("method_conversations.list_last_page.json"),
     200,
 )
 CONVERSATIONS_CREATE = ("/conversations.create", "POST", {"ok": True}, 200)
@@ -186,6 +193,26 @@ async def test_search_history_messages_more_than_one_api_request(connector, mock
     assert mock_api.called("/conversations.history")
     assert len(history) == 4
     assert isinstance(history, list)
+
+
+@pytest.mark.asyncio
+@pytest.mark.add_response(*CONVERSATIONS_LIST_LAST_PAGE)
+async def test_find_channel(connector, mock_api):
+    connector.known_channels = {"general": {"name": "general", "id": "C012AB3CD"}}
+
+    channel = await connector.find_channel("general")
+    assert channel["id"] == "C012AB3CD"
+    assert channel["name"] == "general"
+
+
+@pytest.mark.asyncio
+@pytest.mark.add_response(*CONVERSATIONS_LIST_LAST_PAGE)
+async def test_find_channel_not_found(connector, mock_api, caplog):
+    connector.known_channels = {"general": {"name": "general", "id": "C012AB3CD"}}
+
+    caplog.set_level(logging.INFO)
+    await connector.find_channel("another-channel")
+    assert "Channel with name another-channel not found" in caplog.text
 
 
 @pytest.mark.asyncio
