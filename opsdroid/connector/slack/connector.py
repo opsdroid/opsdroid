@@ -11,7 +11,6 @@ import urllib.parse
 import aiohttp
 import arrow
 import certifi
-import opsdroid.events
 from emoji import demojize
 
 from slack_sdk.errors import SlackApiError
