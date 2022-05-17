@@ -3,7 +3,7 @@ You can help us by reporting new issues or by fixing existing issues.
 
 If you find any part of opsdroid that's acting odd, it would be great if you take the time to create a new issue. That will help us keep opsdroid devoid of any bugs.
 
-We try to tackle issues as fast as possible, but help would be greatly appreciated. To get started, simply follow the [workflow guidelines](#workflow) and developing instructions.
+We try to tackle issues as fast as possible, but help would be greatly appreciated. To get started, simply follow the [workflow guidelines](./workflow.md) and developing instructions.
 
 ## Quick Links:
  - Skill level
