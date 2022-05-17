@@ -87,7 +87,7 @@ class Web:
         self.excluded_keys = EXCLUDED_CONFIG_KEYS + self.command_center.get(
             "excluded-keys", []
         )
-        self.expected_header = self.command_center.get("token")
+        self.authorization_token = self.command_center.get("token")
         if self.command_center:
             self.web_app.router.add_get("/connectors", self.connectors_handler)
             self.web_app.router.add_get("/connectors/", self.connectors_handler)
@@ -181,7 +181,11 @@ class Web:
 
     async def start(self):
         """Start web servers."""
-        _LOGGER.info(_(f"Started web server on {self.base_url}"))
+        if self.command_center and not self.authorization_token:
+            raise ValueError(
+                "Command center is enabled, but no authorization token is set."
+            )
+        _LOGGER.info(_(f"started web server on {self.base_url}"))
         await self.runner.setup()
 
         timeout = Timeout(self.start_timeout, "Timed out starting web server")
@@ -275,7 +279,12 @@ class Web:
         return self.build_response(200, {"message": "Welcome to the opsdroid API"})
 
     async def check_request(self, request):
-        if self.expected_header and request.headers.get("AUTHORIZATION") is None:
+        client_token = request.headers.get("Authorization")
+        if (
+            client_token is None
+            or client_token != f"Basic {self.authorization_token}"
+            or self.authorization_token is None
+        ):
             raise HTTPForbidden()
 
     async def web_stats_handler(self, request):
@@ -286,7 +295,7 @@ class Web:
 
         Returns:
             dict: returns successful status code and dictionary with
-                  stats requested
+                   stats requested
 
         """
         stats = self.opsdroid.stats

@@ -17,6 +17,18 @@ configure_lang({})
 @pytest.fixture
 def command_center_config():
     MINIMAL_CONFIG["web"] = {
+        "command-center": {"enabled": True, "token": "test-token"},
+        # Need to pass a random port because opsdroid doesn't close
+        # the connection quick enough. Tried to write a cleanup fixture
+        # but didn't seem to work - most likely I was doing it wrong.
+        "port": random.randrange(8000, 9000),
+    }
+    yield MINIMAL_CONFIG
+
+
+@pytest.fixture
+def command_center_config_no_token():
+    MINIMAL_CONFIG["web"] = {
         "command-center": {"enabled": True},
         # Need to pass a random port because opsdroid doesn't close
         # the connection quick enough. Tried to write a cleanup fixture
@@ -273,13 +285,12 @@ async def test_get_scrubbed_module_config_with_user_provided_keys(opsdroid):
 
 
 @pytest.mark.asyncio
-async def test_config_handler(opsdroid):
+async def test_config_handler(opsdroid, command_center_config):
     config = {
         "logging": {"level": "debug"},
         "welcome-message": True,
         "web": {
-            "command-center": {"enabled": True},
-            "base-url": "https://0684-2a00-23c7-68c1-b201-f4d3-9342-30a7-21",
+            "command-center": {"enabled": True, "token": "test-token"},
         },
         "parsers": {"regex": {}, "crontab": {"enabled": False}},
         "connectors": {
@@ -291,13 +302,7 @@ async def test_config_handler(opsdroid):
             },
         },
         "databases": {"sqlite": {}},
-        "skills": {
-            "twitch": {"path": "/Users/fabiorosado/Documents/GitHub.tmp/skill-twitch"},
-            "hello": {},
-            "seen": {},
-        },
     }
-
     await opsdroid.load(config)
 
     app = web.Web(opsdroid)
@@ -328,14 +333,75 @@ async def test_base_url(opsdroid):
 
 
 @pytest.mark.asyncio
-async def test_check_request(opsdroid):
+async def test_web_command_center_no_token(opsdroid, command_center_config_no_token):
+    """Check that we get an exception if command centre and no token is provided"""
+    await opsdroid.load(command_center_config_no_token)
+    with pytest.raises(Exception, match="no authorization token"):
+        app = web.Web(opsdroid)
+        await app.start()
+
+
+@pytest.mark.asyncio
+async def test_check_request_no_token_provided(opsdroid, command_center_config):
+    await opsdroid.load(config=command_center_config)
+
+    async def test():
+        resp = await call_endpoint(
+            opsdroid,
+            "/connectors",
+            "GET",
+        )
+        assert resp.status == 403
+        return True
+
+    assert await run_unit_test(opsdroid, test)
+
+
+@pytest.mark.asyncio
+async def test_check_request(opsdroid, command_center_config):
+    await opsdroid.load(config=command_center_config)
+
+    async def test():
+        resp = await call_endpoint(
+            opsdroid,
+            "/connectors",
+            "GET",
+            headers={"Authorization": "Basic test-token"},
+        )
+        assert resp.status == 200
+        return True
+
+    assert await run_unit_test(opsdroid, test)
+
+
+@pytest.mark.asyncio
+async def test_check_request_empty_auth(opsdroid, command_center_config):
+    await opsdroid.load(config=command_center_config)
+
+    async def test():
+        resp = await call_endpoint(
+            opsdroid,
+            "/connectors",
+            "GET",
+            headers={"Authorization": ""},
+        )
+        assert resp.status == 403
+        return True
+
+    assert await run_unit_test(opsdroid, test)
+
+
+@pytest.mark.asyncio
+async def test_check_request_bad_token(opsdroid):
     MINIMAL_CONFIG["web"] = {"command-center": {"enabled": True, "token": "blah"}}
 
     assert "command-center" in MINIMAL_CONFIG["web"]
     await opsdroid.load(config=MINIMAL_CONFIG)
 
     async def test():
-        resp = await call_endpoint(opsdroid, "/connectors", "GET")
+        resp = await call_endpoint(
+            opsdroid, "/connectors", "GET", headers={"Authorization": "Basic 123"}
+        )
         assert resp.status == 403
         return True
 
@@ -352,7 +418,10 @@ async def test_update_config_live(opsdroid, command_center_config):
             "module_name": "crontab",
             "config": {"enabled": True},
         }
-        headers = {"Content-Type": "application/json"}
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": "Basic test-token",
+        }
         resp = await call_endpoint(
             opsdroid, "/connectors", "PATCH", json=data, headers=headers
         )
@@ -374,7 +443,13 @@ async def test_handle_patch(opsdroid, command_center_config, caplog):
             "config": {"enabled": True},
         }
 
-        resp = await call_endpoint(opsdroid, "/connectors", "PATCH", data=data)
+        resp = await call_endpoint(
+            opsdroid,
+            "/connectors",
+            "PATCH",
+            data=data,
+            headers={"Authorization": "Basic test-token"},
+        )
         assert "Unable to decode json" in caplog.text
         assert "Unable to decode json" in resp.reason
         assert resp.status == 400
@@ -389,7 +464,13 @@ async def test_handle_patch(opsdroid, command_center_config, caplog):
             "config": {"enabled": True},
         }
 
-        resp = await call_endpoint(opsdroid, "/connectors", "PATCH", json=data)
+        resp = await call_endpoint(
+            opsdroid,
+            "/connectors",
+            "PATCH",
+            json=data,
+            headers={"Authorization": "Basic test-token"},
+        )
         assert resp.status == 400
         assert (
             "The field 'module_name' is of type '<class 'int'>', but should be of type '<class 'str'>'"
@@ -405,7 +486,13 @@ async def test_handle_patch(opsdroid, command_center_config, caplog):
             "module_name": "shell",
         }
 
-        resp = await call_endpoint(opsdroid, "/connectors", "PATCH", json=data)
+        resp = await call_endpoint(
+            opsdroid,
+            "/connectors",
+            "PATCH",
+            json=data,
+            headers={"Authorization": "Basic test-token"},
+        )
         assert resp.status == 400
         assert "Received payload is missing required key: 'config'" in resp.reason
         return True
@@ -418,7 +505,12 @@ async def test_get_connectors(opsdroid, command_center_config):
     await opsdroid.load(config=command_center_config)
 
     async def test():
-        resp = await call_endpoint(opsdroid, "/connectors", "GET")
+        resp = await call_endpoint(
+            opsdroid,
+            "/connectors",
+            "GET",
+            headers={"Authorization": "Basic test-token"},
+        )
         assert resp.status == 200
         return True
 
@@ -430,7 +522,9 @@ async def test_get_databases(opsdroid, command_center_config):
     await opsdroid.load(config=command_center_config)
 
     async def test():
-        resp = await call_endpoint(opsdroid, "/databases", "GET")
+        resp = await call_endpoint(
+            opsdroid, "/databases", "GET", headers={"Authorization": "Basic test-token"}
+        )
         assert resp.status == 200
         return True
 
@@ -442,7 +536,9 @@ async def test_get_parsers(opsdroid, command_center_config):
     await opsdroid.load(config=command_center_config)
 
     async def test():
-        resp = await call_endpoint(opsdroid, "/parsers", "GET")
+        resp = await call_endpoint(
+            opsdroid, "/parsers", "GET", headers={"Authorization": "Basic test-token"}
+        )
         assert resp.status == 200
         return True
 
@@ -454,7 +550,9 @@ async def test_get_skills(opsdroid, command_center_config):
     await opsdroid.load(config=command_center_config)
 
     async def test():
-        resp = await call_endpoint(opsdroid, "/skills", "GET")
+        resp = await call_endpoint(
+            opsdroid, "/skills", "GET", headers={"Authorization": "Basic test-token"}
+        )
         assert resp.status == 200
         return True
 
