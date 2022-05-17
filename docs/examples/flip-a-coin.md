@@ -51,4 +51,4 @@ skills:
 
 Now save your configuration and reload opsdroid.
 
-For more examples of skills you can build with opsdroid checkout our [examples section](../examples/index).
+For more examples of skills you can build with opsdroid checkout our [examples section](../examples/index.md).
