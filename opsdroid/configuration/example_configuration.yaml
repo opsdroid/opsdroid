@@ -17,8 +17,11 @@
 # logging:
 #   level: info
 #   path: opsdroid.log
+#   rich: false
 #   console: true
 #   extended: false
+#   timestamp: true
+#   formatter: "%(levelname)s: %(message)s"
 #   filter:
 #     whitelist:
 #       - opsdroid.core
@@ -99,13 +102,11 @@ welcome-message: true
 #
 ## Connector modules
 connectors:
-
   websocket:
     # optional
     bot-name: "mybot" # default "opsdroid"
     max-connections: 10 # default is 10 users can be connected at once
     connection-timeout: 10 # default 10 seconds before requested socket times out
-  
   # Uncomment the connector(s) that you wish opsdroid to work on
 #
 #  ## Twitter (https://github.com/opsdroid/connector-twitter)
@@ -234,7 +235,7 @@ connectors:
 #    # optional
 #    bot-name: "mybot" # default "opsdroid"
 #    default-room: "random" # default "general"
-#    group: "MyAwesomeGroup" # default to None 
+#    group: "MyAwesomeGroup" # default to None
 #    channel-url: "http://127.0.0.1" # defaults to https://open.rocket.chat
 #    update-interval: 5 # defaults to 1
 #
@@ -243,7 +244,6 @@ connectors:
 #    # optional
 #    bot-name: "mybot" # default "opsdroid"
 #
-
 
 ## Database modules (optional)
 
@@ -272,22 +272,19 @@ connectors:
 #    single_state_key: "dev.opsdroid.database"
 #    should_encrypt: True
 
-
 ## Skill modules
 skills:
-
   ## Dance (https://github.com/opsdroid/skill-dance)
   dance: {}
-  
+
   ## Hello (https://github.com/opsdroid/skill-hello)
   hello: {}
-  
+
   ## Loudnoises (https://github.com/opsdroid/skill-loudnoises)
   loudnoises: {}
-  
+
   ## Seen (https://github.com/opsdroid/skill-seen)
   seen: {}
-  
   # Configurations for other skills uncomment desired skill to activate it.
 #
 #  ## Cloudhealth (https://github.com/opsdroid/skill-cloudhealth)
@@ -400,7 +397,7 @@ skills:
 #  ## Weather (https://github.com/opsdroid/skill-weather)
 #  weather:
 #    # Required
-#    city: London,UK    # For accuracy use {city},{country code}          
+#    city: London,UK    # For accuracy use {city},{country code}
 #    unit: metric       # Choose metric/imperial
 #    api-key: 6fut9e098d8g90g
 #

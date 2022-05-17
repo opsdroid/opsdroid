@@ -131,7 +131,7 @@ class TestParserRasaNLU(asynctest.TestCase):
                             "end": 32,
                             "entity": "state",
                             "extractor": "ner_crf",
-                            "confidence": 0.854,
+                            "confidence_entity": 0.854,
                             "start": 25,
                             "value": "running",
                         }
@@ -175,8 +175,32 @@ class TestParserRasaNLU(asynctest.TestCase):
                             "value": "chinese",
                             "entity": "cuisine",
                             "extractor": "CRFEntityExtractor",
-                            "confidence": 0.854,
+                            "confidence_entity": 0.854,
                             "processors": [],
+                        }
+                    ],
+                }
+                [skill] = await rasanlu.parse_rasanlu(
+                    opsdroid, opsdroid.skills, message, opsdroid.config["parsers"][0]
+                )
+
+                self.assertEqual(len(skill["message"].entities.keys()), 1)
+                self.assertTrue("cuisine" in skill["message"].entities.keys())
+                self.assertEqual(
+                    skill["message"].entities["cuisine"]["value"], "chinese"
+                )
+
+            with amock.patch.object(rasanlu, "call_rasanlu") as mocked_call_rasanlu:
+                mocked_call_rasanlu.return_value = {
+                    "text": "show me chinese restaurants",
+                    "intent": {"name": "restaurant_search", "confidence": 0.98343},
+                    "entities": [
+                        {
+                            "start": 8,
+                            "end": 15,
+                            "value": "chinese",
+                            "entity": "cuisine",
+                            "extractor": "RegexEntityExtractor",
                         }
                     ],
                 }
@@ -215,7 +239,7 @@ class TestParserRasaNLU(asynctest.TestCase):
                             "end": 32,
                             "entity": "state",
                             "extractor": "ner_crf",
-                            "confidence": 0.854,
+                            "confidence_entity": 0.854,
                             "start": 25,
                             "value": "running",
                         }
@@ -475,25 +499,25 @@ class TestParserRasaNLU(asynctest.TestCase):
                 await rasanlu._get_rasa_nlu_version({}), result.text.return_value
             )
 
-    async def test__check_rasanlu_compatibility(self):
+    async def test_has_compatible_version_rasanlu(self):
         with amock.patch.object(rasanlu, "_get_rasa_nlu_version") as mock_crc:
             mock_crc.return_value = {
                 "version": "1.0.0",
                 "minimum_compatible_version": "1.0.0",
             }
-            self.assertEqual(await rasanlu._check_rasanlu_compatibility({}), False)
+            self.assertEqual(await rasanlu.has_compatible_version_rasanlu({}), False)
 
             mock_crc.return_value = {
                 "version": "2.6.2",
                 "minimum_compatible_version": "2.6.0",
             }
-            self.assertEqual(await rasanlu._check_rasanlu_compatibility({}), True)
+            self.assertEqual(await rasanlu.has_compatible_version_rasanlu({}), True)
 
             mock_crc.return_value = {
                 "version": "3.1.2",
                 "minimum_compatible_version": "3.0.0",
             }
-            self.assertEqual(await rasanlu._check_rasanlu_compatibility({}), True)
+            self.assertEqual(await rasanlu.has_compatible_version_rasanlu({}), True)
 
     async def test__load_model(self):
         result = amock.Mock()
@@ -588,7 +612,7 @@ class TestParserRasaNLU(asynctest.TestCase):
         ) as mock_btu, amock.patch.object(
             rasanlu, "_get_intents_fingerprint"
         ) as mock_gif, amock.patch.object(
-            rasanlu, "_check_rasanlu_compatibility"
+            rasanlu, "has_compatible_version_rasanlu"
         ) as mock_crc, amock.patch.object(
             rasanlu, "_load_model"
         ) as mock_lmo, amock.patch.object(
@@ -662,7 +686,7 @@ class TestParserRasaNLU(asynctest.TestCase):
         ) as mock_btu, amock.patch.object(
             rasanlu, "_get_intents_fingerprint"
         ) as mock_gif, amock.patch.object(
-            rasanlu, "_check_rasanlu_compatibility"
+            rasanlu, "has_compatible_version_rasanlu"
         ) as mock_crc, amock.patch.object(
             rasanlu, "_load_model"
         ) as mock_lmo, amock.patch.object(
@@ -691,13 +715,16 @@ class TestParserRasaNLU(asynctest.TestCase):
             patched_request.return_value.set_result(result)
             self.assertEqual(await rasanlu.train_rasanlu({}, {}), True)
 
-            patched_request.side_effect = None
-            patched_request.return_value = asyncio.Future()
-            patched_request.return_value.set_result(result)
-            self.assertEqual(await rasanlu.train_rasanlu({}, {}), True)
-
             result.status = 500
             patched_request.side_effect = None
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
             self.assertEqual(await rasanlu.train_rasanlu({}, {}), False)
+
+            config = {
+                "name": "rasanlu",
+                "min-score": 0.3,
+                "token": "12345",
+                "train": False,
+            }
+            self.assertEqual(await rasanlu.train_rasanlu(config, {}), False)

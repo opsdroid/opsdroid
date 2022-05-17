@@ -556,11 +556,23 @@ class TestCoreAsync(asynctest.TestCase):
                 self.assertEqual(1, len(opsdroid.memory.databases))
 
     async def test_train_rasanlu(self):
-        with OpsDroid() as opsdroid:
+        with OpsDroid() as opsdroid, amock.patch(
+            "opsdroid.parsers.rasanlu._get_rasa_nlu_version"
+        ) as mock_crc:
             opsdroid.modules = {
                 "parsers": [{"config": {"name": "rasanlu", "enabled": True}}]
             }
-            with amock.patch("opsdroid.parsers.rasanlu.train_rasanlu"):
+            mock_crc.return_value = {
+                "version": "2.0.0",
+                "minimum_compatible_version": "2.0.0",
+            }
+            await opsdroid.train_parsers({})
+
+            mock_crc.return_value = {
+                "version": "1.0.0",
+                "minimum_compatible_version": "1.0.0",
+            }
+            with self.assertRaises(SystemExit):
                 await opsdroid.train_parsers({})
 
     async def test_watchdog_works(self):

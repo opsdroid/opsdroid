@@ -3,18 +3,18 @@
 
 import gettext
 import logging
-import click
 
+import click
 from opsdroid.cli.utils import (
     check_dependencies,
     configure_lang,
-    welcome_message,
     path_option,
+    welcome_message,
 )
-from opsdroid.core import OpsDroid
 from opsdroid.configuration import load_config_file
-from opsdroid.logging import configure_logging
 from opsdroid.const import DEFAULT_CONFIG_LOCATIONS
+from opsdroid.core import OpsDroid
+from opsdroid.logging import configure_logging
 
 gettext.install("opsdroid")
 _LOGGER = logging.getLogger("opsdroid")
@@ -36,7 +36,7 @@ def start(path):
     config = load_config_file(config_path)
 
     configure_lang(config)
-    configure_logging(config)
+    configure_logging(config.get("logging", {}))
     welcome_message(config)
 
     with OpsDroid(config=config, config_path=config_path) as opsdroid:
