@@ -61,11 +61,11 @@ These endpoints are only available if you have `command center` enabled. To enab
 web:
   command-center:
     enabled: True
-    # Optional
+    # Required
     token: <your chosen token>
 ```
 
-It's highly recommended that you choose a strong token if opsdroid is exposed to the internet, otherwise anyone will be able to get or change your opsdroid's configuration.
+You must provide a token which will be used to validate requests hitting the command center endppoints. It's highly recommended that you choose a strong token if opsdroid is exposed to the internet.
 
 ## `/connectors` _[GET]_ _[PATCH]_
 
@@ -91,7 +91,7 @@ The GET method returns a list of all the connectors loaded in opsdroid and their
 }
 ```
 
-The PATCH method allows you to update a connector configuration, you can also turn it off/on my setting `enabled` to `False`. Note that in order for the connector to be updated, Opsdroid will disconnect the connector and load all the configuration again.
+The PATCH method allows you to update a connector configuration, you can also turn it off/on my setting `enabled` to `false`. Note that in order for the connector to be updated, Opsdroid will disconnect the connector and load all the configuration again.
 
 **Example Request(PATCH)**
 
@@ -104,7 +104,7 @@ import requests
       "module_type": "connectors",
       "module_name": "shell",
       "config": {
-          "enabled": False
+          "enabled": false
         }
     }
 )
@@ -165,7 +165,7 @@ The GET method returns a list of all the skills loaded in opsdroid and their res
 }
 ```
 
-The PATCH method allows you to update a skill configuration. You can also turn it off/on my setting `enabled` to `False`. Note that in order for the skill to be updated, Opsdroid will disconnect the connector and load all the configuration again.
+The PATCH method allows you to update a skill configuration. You can also turn it off/on my setting `enabled` to `false`. Note that in order for the skill to be updated, Opsdroid will disconnect the connector and load all the configuration again.
 
 **Example Request(PATCH)**
 
@@ -178,7 +178,7 @@ import requests
       "module_type": "skills",
       "module_name": "seen",
       "config": {
-          "enabled": False
+          "enabled": false
         }
     }
 )
@@ -205,7 +205,7 @@ This method returns a list of all the connectors loaded in opsdroid and their re
 }
 ```
 
-The PATCH method allows you to update a database configuration, you can also turn it off/on my setting `enabled` to `False`. Note that in order for the database to be updated, Opsdroid will stop all the modules and load the whole configuration again.
+The PATCH method allows you to update a database configuration, you can also turn it off/on my setting `enabled` to `false`. Note that in order for the database to be updated, Opsdroid will stop all the modules and load the whole configuration again.
 
 **Example Request(PATCH)**
 
@@ -218,7 +218,7 @@ import requests
       "module_type": "databases",
       "module_name": "sqlite",
       "config": {
-          "enabled": False
+          "enabled": false
         }
     }
 )
@@ -255,7 +255,7 @@ The GET method returns a list of all the connectors loaded in opsdroid and their
 }
 ```
 
-The PATCH method allows you to update a parser configuration, you can also turn it off/on my setting `enabled` to `False`. Note that in order for the parser to be updated, Opsdroid will stop all the modules and load the whole configuration again.
+The PATCH method allows you to update a parser configuration, you can also turn it off/on my setting `enabled` to `false`. Note that in order for the parser to be updated, Opsdroid will stop all the modules and load the whole configuration again.
 
 **Example Request(PATCH)**
 
@@ -268,7 +268,7 @@ requests.patch(
       "module_type": "parsers",
       "module_name": "crontab",
       "config": {
-          "enabled": False
+          "enabled": false
         }
     }
   )
