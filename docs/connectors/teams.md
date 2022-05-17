@@ -21,7 +21,7 @@ A connector for [Microsoft Teams](https://www.microsoft.com/en-gb/microsoft-365/
 ![Creating bot user](https://i.imgur.com/uTg4dOL.png)
 
 * Enter the URL of your bot followed by the `/connector/teams` endpoint and generate a new password.
-  * Your but must be exposed to the internet to work. See the [exposing page](https://docs.opsdroid.dev/en/latest/exposing.html) for details. Teams recommends using `ngrok`.
+  * Your but must be exposed to the internet to work. See the [exposing page](../exposing.md) for details. Teams recommends using `ngrok`.
 
 ![Bot URL and password](https://i.imgur.com/a93glAU.png)
 
