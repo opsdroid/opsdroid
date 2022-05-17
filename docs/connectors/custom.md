@@ -22,7 +22,7 @@ connect is a method which connects to a specific chat service
 
 ### Handling Events
 
-Opsdroid supports different types of events, which can both be sent and received via connectors, for more information on the different types of events see the [events documentation](../skills/events).
+Opsdroid supports different types of events, which can both be sent and received via connectors, for more information on the different types of events see the [events documentation](../skills/events.md).
 
 
 Connectors can implement support for sending different types of events using the `opsdroid.connector.register_event` decorator.
@@ -93,5 +93,5 @@ class MyConnector(Connector):
 ```
 
 ---
-You might also be interested in reading the [configuration reference - Connector Modules](../configuration.html#connector-modules) in the documentation.
+You might also be interested in reading the [configuration reference - Connector Modules](../configuration.md#connector-modules) in the documentation.
 *If you need help or if you are unsure about something join our* [matrix channel](https://app.element.io/#/room/#opsdroid-general:matrix.org) *and ask away! We are more than happy to help you.*
