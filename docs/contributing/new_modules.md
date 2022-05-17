@@ -3,7 +3,7 @@ Opsdroid is an open source chatbot framework. It is designed to be extendable, s
 
  If you love a particular platform and wish to use opsdroid with it or if you want opsdroid to interact with something in a certain way, you can create your own modules and extend the functionality of opsdroid.
 
- If you don't know where to start, make sure to check the overview and read the [documentation](http://opsdroid.readthedocs.io/en/latest/?badge=latest).  Remember that you can also ask for help in our [matrix channel](https://app.element.io/#/room/#opsdroid-general:matrix.org)
+ If you don't know where to start, make sure to check the overview and read the [documentation](https://docs.opsdroid.dev/en/stable/index.html).  Remember that you can also ask for help in our [matrix channel](https://app.element.io/#/room/#opsdroid-general:matrix.org)
 
 ## Creating Consistent Logging Messages
 

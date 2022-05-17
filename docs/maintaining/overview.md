@@ -14,7 +14,6 @@ A maintainer should be polite and respectful towards every member of the communi
 - **Other important things**
   - Jacob, the creator of opsdroid, is the one to cut releases for now
   - If in doubt about a PR please mention @opsdroid/maintainers and ask for a review
-  - New contributors get [stickers](https://medium.com/opsdroid/stickers-for-contributors-a0a1f9c30ec1)! Get them to send their address through DM to [@opsdroid](https://twitter.com/opsdroid) twitter account if you merge their PR.
 
 ## Reviewing and Merging Pull Requests
 As a maintainer one of the tasks that you have to take on will be reviewing pull requests and merge them if it meets the criteria.
