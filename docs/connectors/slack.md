@@ -117,7 +117,7 @@ _Note: If opsdroid failed to join the room you can always invite him by clicking
 
 You can also interact with opsdroid through direct message (make sure to be subscribed to the `message.im` event). To do so, just click on opsdroid's name and type interact like with any other user
 
-Below is an example of a simple skill you can use to create your opsdroid. Checkout [Skill](..//skills/index.md) for more info
+Below is an example of a simple skill you can use to create your opsdroid. Checkout [Skill](../skills/index.md) for more info
 
 ### Basic Skill Example
 ```python
