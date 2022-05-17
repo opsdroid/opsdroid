@@ -117,7 +117,7 @@ _Note: If opsdroid failed to join the room you can always invite him by clicking
 
 You can also interact with opsdroid through direct message (make sure to be subscribed to the `message.im` event). To do so, just click on opsdroid's name and type interact like with any other user
 
-Below is an example of a simple skill you can use to create your opsdroid. Checkout [Skill](https://docs.opsdroid.dev/en/stable/skills) for more info
+Below is an example of a simple skill you can use to create your opsdroid. Checkout [Skill](..//skills/index.md) for more info
 
 ### Basic Skill Example
 ```python
@@ -313,7 +313,7 @@ class InteractionsSkill(Skill):
 
 ## Matching events in Interactive Actions
 
-In the [block_actions](https://docs.opsdroid.dev/en/stable/connectors/slack.html#block-actions) example above, you can also match on `action_id` and/or `block_id` in addition to `value` for `match_event` like any of these:
+In the [block_actions](./slack.md#user-content-block_actions) example above, you can also match on `action_id` and/or `block_id` in addition to `value` for `match_event` like any of these:
 
 ```python
     @match_event(BlockActions, action_id="text1234")
