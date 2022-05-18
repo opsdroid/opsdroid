@@ -55,7 +55,7 @@ The response includes information on whether a skill was successfully triggered 
 ```
 ## Command Center Methods
 
-These endpoints are only available if you have `command center` enabled. To enable command center you can add it to your configuration file.
+These endpoints are only available if you have `command center` enabled. To enable the command center you can add it to your configuration file.
 
 ```yaml
 web:
@@ -65,7 +65,7 @@ web:
     token: <your chosen token>
 ```
 
-You must provide a token which will be used to validate requests hitting the command center endppoints. It's highly recommended that you choose a strong token if opsdroid is exposed to the internet.
+You must provide a token used to validate requests hitting the command center endpoints. It's highly recommended that you choose a strong token if opsdroid is exposed to the internet.
 
 ## `/connectors` _[GET]_ _[PATCH]_
 
@@ -91,7 +91,7 @@ The GET method returns a list of all the connectors loaded in opsdroid and their
 }
 ```
 
-The PATCH method allows you to update a connector configuration, you can also turn it off/on my setting `enabled` to `false`. Note that in order for the connector to be updated, Opsdroid will disconnect the connector and load all the configuration again.
+The PATCH method allows you to update a connector configuration. You can also turn it off/on by setting `enabled` to `false`. Note that for the connector to be updated, Opsdroid will disconnect the connector and load all the configurations again.
 
 **Example Request(PATCH)**
 
@@ -165,7 +165,7 @@ The GET method returns a list of all the skills loaded in opsdroid and their res
 }
 ```
 
-The PATCH method allows you to update a skill configuration. You can also turn it off/on my setting `enabled` to `false`. Note that in order for the skill to be updated, Opsdroid will disconnect the connector and load all the configuration again.
+The PATCH method allows you to update a skill configuration. You can also turn it off/on by setting `enabled` to `false`. Note that for the skill to be updated, Opsdroid will disconnect the connector and load all the configurations again.
 
 **Example Request(PATCH)**
 
@@ -205,7 +205,7 @@ This method returns a list of all the connectors loaded in opsdroid and their re
 }
 ```
 
-The PATCH method allows you to update a database configuration, you can also turn it off/on my setting `enabled` to `false`. Note that in order for the database to be updated, Opsdroid will stop all the modules and load the whole configuration again.
+The PATCH method allows you to update a database configuration. You can also turn it off/on by setting `enabled` to `false`. Note that Opsdroid will stop all the modules and load the whole configuration for the database to be updated.
 
 **Example Request(PATCH)**
 
@@ -255,7 +255,7 @@ The GET method returns a list of all the connectors loaded in opsdroid and their
 }
 ```
 
-The PATCH method allows you to update a parser configuration, you can also turn it off/on my setting `enabled` to `false`. Note that in order for the parser to be updated, Opsdroid will stop all the modules and load the whole configuration again.
+The PATCH method allows you to update a parser configuration. You can also turn it off/on by setting `enabled` to `false`. Note that for the parser to be updated, Opsdroid will stop all the modules and load the whole configuration again.
 
 **Example Request(PATCH)**
 
@@ -272,39 +272,4 @@ requests.patch(
         }
     }
   )
-```
-
-
-
-## `/config` _[GET]_
-
-This method returns the configuration that opsdroid was loaded with. Sensitive configuration parameters will not be shown.
-
-**Example response**
-
-```json
-{
-  "logging": {
-    "level": "debug",
-  },
-  "welcome-message": true,
-  "web": {
-    "command-center": {
-      "enabled": true
-    },
-  },
-  "connectors": {
-    "websocket": {
-      "bot-name": "mybot",
-      "max-connections": 10,
-      "connection-timeout": 10
-    }
-  },
-  "skills": {
-    "dance": {},
-    "hello": {},
-    "loudnoises": {},
-    "seen": {}
-  }
-}
 ```
