@@ -129,11 +129,16 @@ def configure_logging(config):
         file_handler.setFormatter(formatter)
         rootlogger.addHandler(file_handler)
 
-    # If we are running in a non-interactive shell then use simple logging
-    # If config value is specified then it always overrides this
-    if config.get("console") or (config.get("console") is None and not sys.stdout.isatty()):
+    # If we are running in a non-interactive shell (without a tty)
+    # then use simple logging instead of rich logging
+    # Config value always overrides
+    if config.get("console") is True:
         handler = logging.StreamHandler()
         handler.setFormatter(formatter)
+    else:
+        if config.get("console") is None and not sys.stdout.isatty():
+            handler = logging.StreamHandler()
+            handler.setFormatter(formatter)
 
     # If we still don't have the handler, we are assuming that
     # the user wants to switch off logging, let's log only
