@@ -1,7 +1,7 @@
 """Class for Filter logs and logging logic."""
 
 import logging
-import os
+import os,sys
 from logging.handlers import RotatingFileHandler
 
 from rich.logging import RichHandler
@@ -129,7 +129,9 @@ def configure_logging(config):
         file_handler.setFormatter(formatter)
         rootlogger.addHandler(file_handler)
 
-    if config.get("console"):
+    # If we are running in a non-interactive shell then use simple logging
+    # If config value is specified then it always overrides this
+    if config.get("console") or (config.get("console") is None and not sys.stdout.isatty()):
         handler = logging.StreamHandler()
         handler.setFormatter(formatter)
 
