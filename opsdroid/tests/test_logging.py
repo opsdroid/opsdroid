@@ -2,6 +2,7 @@
 import logging
 import os
 import re
+import sys
 import tempfile
 
 import opsdroid.logging as opsdroid
@@ -166,11 +167,21 @@ def test_configure_default_logging(capsys):
     assert len(rootlogger.handlers), 2
     assert isinstance(rootlogger.handlers[0], logging.handlers.RotatingFileHandler)
     assert rootlogger.handlers[0].level == logging.INFO
-    assert isinstance(rootlogger.handlers[1], RichHandler)
+    # If running in a non-interactive console the StreamingHandler will be used
+    if not sys.stdout.isatty():
+        assert isinstance(rootlogger.handlers[1], logging.StreamHandler)
+    # If running in an interactive console the RichHandler will be used
+    if sys.stdout.isatty():
+        assert isinstance(rootlogger.handlers[1], RichHandler)
     assert rootlogger.handlers[1].level == logging.INFO
 
     captured = capsys.readouterr()
-    assert "Started opsdroid" in captured.out
+    # StreamingHandler writes to stderr
+    if not sys.stdout.isatty():
+        assert "Started opsdroid" in captured.err
+    # RichHandler writes to stdout
+    if sys.stdout.isatty():
+        assert "Started opsdroid" in captured.out
 
 
 def test_configure_logging_formatter(capsys):
