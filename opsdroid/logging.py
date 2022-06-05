@@ -132,11 +132,13 @@ def configure_logging(config):
     # If we are running in a non-interactive shell (without a tty)
     # then use simple logging instead of rich logging
     # Config value always overrides
+    running_in_non_interactive_shell = False;
     if config.get("console") is True:
         handler = logging.StreamHandler()
         handler.setFormatter(formatter)
     else:
         if config.get("console") is None and not sys.stdout.isatty():
+            running_in_non_interactive_shell = True
             handler = logging.StreamHandler()
             handler.setFormatter(formatter)
 
@@ -156,6 +158,8 @@ def configure_logging(config):
 
     _LOGGER.info("=" * 40)
     _LOGGER.info(_("Started opsdroid %s."), __version__)
+    if running_in_non_interactive_shell:
+        _LOGGER.warning("Running in non-interactive shell - falling back to simple logging. You can override this using 'logging.config: false'")
 
 
 def get_logging_level(logging_level):
