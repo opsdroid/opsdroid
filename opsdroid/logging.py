@@ -1,7 +1,8 @@
 """Class for Filter logs and logging logic."""
 
 import logging
-import os,sys
+import os
+import sys
 from logging.handlers import RotatingFileHandler
 
 from rich.logging import RichHandler
@@ -132,7 +133,7 @@ def configure_logging(config):
     # If we are running in a non-interactive shell (without a tty)
     # then use simple logging instead of rich logging
     # Config value always overrides
-    running_in_non_interactive_shell = False;
+    running_in_non_interactive_shell = False
     if config.get("console") is True:
         handler = logging.StreamHandler()
         handler.setFormatter(formatter)
@@ -159,7 +160,9 @@ def configure_logging(config):
     _LOGGER.info("=" * 40)
     _LOGGER.info(_("Started opsdroid %s."), __version__)
     if running_in_non_interactive_shell:
-        _LOGGER.warning("Running in non-interactive shell - falling back to simple logging. You can override this using 'logging.config: false'")
+        _LOGGER.warning(
+            "Running in non-interactive shell - falling back to simple logging. You can override this using 'logging.config: false'"
+        )
 
 
 def get_logging_level(logging_level):
