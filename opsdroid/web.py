@@ -88,7 +88,7 @@ class Web:
             "excluded-keys", []
         )
         self.authorization_token = self.command_center.get("token")
-        if self.command_center:
+        if self.command_center and self.command_center.get("enabled"):
             self.web_app.router.add_get("/connectors", self.connectors_handler)
             self.web_app.router.add_get("/connectors/", self.connectors_handler)
             self.web_app.router.add_patch("/connectors", self.handle_patch)
@@ -282,7 +282,7 @@ class Web:
         client_token = request.headers.get("Authorization")
         if (
             client_token is None
-            or client_token != f"Basic {self.authorization_token}"
+            or client_token != self.authorization_token
             or self.authorization_token is None
         ):
             raise HTTPForbidden()
@@ -459,6 +459,7 @@ class Web:
                 skills with their config scrubbed.
 
         """
+        await self.check_request(request)
         payload = {
             connector.config["name"]: connector.config
             for connector in self.opsdroid.skills
