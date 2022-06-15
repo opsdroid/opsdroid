@@ -366,7 +366,7 @@ async def test_check_request(opsdroid, command_center_config):
             opsdroid,
             "/connectors",
             "GET",
-            headers={"Authorization": "Basic test-token"},
+            headers={"Authorization": "test-token"},
         )
         assert resp.status == 200
         return True
@@ -420,7 +420,7 @@ async def test_update_config_live(opsdroid, command_center_config):
         }
         headers = {
             "Content-Type": "application/json",
-            "Authorization": "Basic test-token",
+            "Authorization": "test-token",
         }
         resp = await call_endpoint(
             opsdroid, "/connectors", "PATCH", json=data, headers=headers
@@ -448,7 +448,7 @@ async def test_handle_patch(opsdroid, command_center_config, caplog):
             "/connectors",
             "PATCH",
             data=data,
-            headers={"Authorization": "Basic test-token"},
+            headers={"Authorization": "test-token"},
         )
         assert "Unable to decode json" in caplog.text
         assert "Unable to decode json" in resp.reason
@@ -469,7 +469,7 @@ async def test_handle_patch(opsdroid, command_center_config, caplog):
             "/connectors",
             "PATCH",
             json=data,
-            headers={"Authorization": "Basic test-token"},
+            headers={"Authorization": "test-token"},
         )
         assert resp.status == 400
         assert (
@@ -491,7 +491,7 @@ async def test_handle_patch(opsdroid, command_center_config, caplog):
             "/connectors",
             "PATCH",
             json=data,
-            headers={"Authorization": "Basic test-token"},
+            headers={"Authorization": "test-token"},
         )
         assert resp.status == 400
         assert "Received payload is missing required key: 'config'" in resp.reason
@@ -509,7 +509,7 @@ async def test_get_connectors(opsdroid, command_center_config):
             opsdroid,
             "/connectors",
             "GET",
-            headers={"Authorization": "Basic test-token"},
+            headers={"Authorization": "test-token"},
         )
         assert resp.status == 200
         return True
@@ -523,7 +523,7 @@ async def test_get_databases(opsdroid, command_center_config):
 
     async def test():
         resp = await call_endpoint(
-            opsdroid, "/databases", "GET", headers={"Authorization": "Basic test-token"}
+            opsdroid, "/databases", "GET", headers={"Authorization": "test-token"}
         )
         assert resp.status == 200
         return True
@@ -537,7 +537,7 @@ async def test_get_parsers(opsdroid, command_center_config):
 
     async def test():
         resp = await call_endpoint(
-            opsdroid, "/parsers", "GET", headers={"Authorization": "Basic test-token"}
+            opsdroid, "/parsers", "GET", headers={"Authorization": "test-token"}
         )
         assert resp.status == 200
         return True
@@ -551,7 +551,7 @@ async def test_get_skills(opsdroid, command_center_config):
 
     async def test():
         resp = await call_endpoint(
-            opsdroid, "/skills", "GET", headers={"Authorization": "Basic test-token"}
+            opsdroid, "/skills", "GET", headers={"Authorization": "test-token"}
         )
         assert resp.status == 200
         return True
