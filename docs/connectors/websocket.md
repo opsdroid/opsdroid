@@ -11,6 +11,7 @@ connectors:
     bot-name: "mybot" # default "opsdroid"
     max-connections: 10 # default is 10 users can be connected at once
     connection-timeout: 10 # default 10 seconds before requested socket times out
+    token: "secret-token" # Used to validate request before assigning socket
 ```
 
 ## Usage
@@ -29,5 +30,24 @@ Response
 }
 ```
 
+If you provided a `token` in your configuration, opsdroid will check if the token provided in the configuration exists in the request header and if it matches, if it doesn't opsdroid will return a `403` Forbidden error.
+
 #### `[WEBSOCKET] http://host:port/connector/websocket/{socket}`
 The websocket end point to connect to. Messages are sent and received as text broadcasts in the socket.
+
+You can send a single string to be parsed by opsdroid, but you can also send a json string payload containing the keys `message`, `user` and `socket`. These keys will then be passed to the `Message` event.
+
+For example:
+
+```python
+import json
+payload = json.dumps({"message": "hello, world", "user": "BobTheBuilder", "socket": "123"})
+
+websocket_connection.send_str(payload)
+```
+
+This payload will create a `Message` event with the following attributes:
+
+```python
+message = Message(text="hello, world", user="BobTheBuilder", target="123")
+```
