@@ -46,6 +46,9 @@ welcome-message: true
 #     cert: /path/to/cert.pem
 #     key: /path/to/key.pem
 #   webhook-token: "aabbccddee"
+#   command-center:
+#     enabled: true
+#     token: secret-stuff
 
 ## Parsers
 # parsers:
