@@ -134,20 +134,21 @@ def configure_logging(config):
     # then use simple logging instead of rich logging
     # Config value always overrides
     running_in_non_interactive_shell = False
+    console = config.get("test_logging_console", sys.stderr)
     if config.get("console") is True:
-        handler = logging.StreamHandler()
+        handler = logging.StreamHandler(stream=console)
         handler.setFormatter(formatter)
     else:
-        if config.get("console") is None and not sys.stdout.isatty():
+        if config.get("console") is None and not console.isatty():
             running_in_non_interactive_shell = True
-            handler = logging.StreamHandler()
+            handler = logging.StreamHandler(stream=console)
             handler.setFormatter(formatter)
 
     # If we still don't have the handler, we are assuming that
     # the user wants to switch off logging, let's log only
     # Critical errors
     if not handler:
-        handler = logging.StreamHandler()
+        handler = logging.StreamHandler(stream=console)
         handler.setFormatter(formatter)
         log_level = get_logging_level("critical")
 
