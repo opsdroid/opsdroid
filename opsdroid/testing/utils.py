@@ -167,7 +167,20 @@ async def call_endpoint(
             if data_path is None and data is None:
                 raise RuntimeError("Either data or data_path must be set")
             async with session.post(
-                f"{base_url}{endpoint}", data=data, headers=headers, **kwargs
+                f"{base_url}{endpoint}",
+                data=data,
+                headers=headers,
+                **kwargs,
+            ) as resp:
+                return resp
+        elif method.upper() == "PATCH":
+            if data_path is None and data is None and kwargs.get("json") is None:
+                raise RuntimeError("Either data,data_path or json must be set")
+            async with session.patch(
+                f"{base_url}{endpoint}",
+                data=data,
+                headers=headers,
+                **kwargs,
             ) as resp:
                 return resp
         else:

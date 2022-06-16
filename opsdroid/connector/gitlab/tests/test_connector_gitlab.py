@@ -1,22 +1,20 @@
-import logging
 import asyncio
+import logging
 from pathlib import Path
 
 import asynctest.mock as amock
-import pytest
-
 import opsdroid.connector.gitlab.events as gitlab_events
+import pytest
 from opsdroid.connector.gitlab import ConnectorGitlab
-from opsdroid.matchers import match_event
-from opsdroid.testing import call_endpoint, running_opsdroid
 from opsdroid.const import GITLAB_API_ENDPOINT
 from opsdroid.events import Message
+from opsdroid.matchers import match_event
+from opsdroid.testing import call_endpoint, running_opsdroid
 
 
 @pytest.fixture
 async def connector(opsdroid, mock_api_obj):
     opsdroid.config["connectors"] = {"gitlab": {"webhook-token": "secret-stuff!"}}
-    opsdroid.config["web"] = {"base-url": mock_api_obj.base_url}
 
     await opsdroid.load()
     return opsdroid.get_connector("gitlab")

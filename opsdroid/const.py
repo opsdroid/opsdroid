@@ -1,6 +1,8 @@
 """Constants used by OpsDroid."""
 import os
-from appdirs import user_log_dir, user_config_dir, user_data_dir
+
+from appdirs import user_config_dir, user_data_dir, user_log_dir
+
 import opsdroid
 from opsdroid import __version__  # noqa # pylint: disable=unused-import
 
@@ -52,3 +54,18 @@ TWITCH_API_ENDPOINT = "https://api.twitch.tv/helix"
 TWITCH_IRC_MESSAGE_REGEX = r"@.*;id=(?P<message_id>.*);m.*user-id=(?P<user_id>.*);user-type=.*:(?P<user>.*?)!.*PRIVMSG[^:]*:(?P<message>.*)"
 TWITCH_JSON = os.path.join(DEFAULT_ROOT_PATH, "twitch.json")
 GITLAB_API_ENDPOINT = "https://gitlab.com/api/v4"
+EXCLUDED_CONFIG_KEYS = [
+    "loader",
+    "submodule_search_locations",
+    "is_builtin",
+    "password",
+    "token",
+    "appkey",
+    "consumer_secret",
+    "oauth_token_secret",
+    "client-secret",
+    "verify-token",
+    "page-access-token",
+    "webhook-token",
+    "app-token",
+]
