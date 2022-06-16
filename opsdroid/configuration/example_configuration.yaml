@@ -18,7 +18,7 @@
 #   level: info
 #   path: opsdroid.log
 #   rich: false
-#   console: true
+#   console: false
 #   extended: false
 #   timestamp: true
 #   formatter: "%(levelname)s: %(message)s"

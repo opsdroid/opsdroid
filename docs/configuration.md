@@ -194,6 +194,17 @@ When using rich logging, opsdroid will use the [RichHandler](https://rich.readth
 - set `timestamp: false` to disable timestamps
 - set `extended: false` to disable log location
 
+##### Automatic fallback
+
+Opsdroid will fall back to simple console logging when running in a non-interactive shell (example: Docker container).
+
+If this is the case then you will see the following message in the log upon Opsdroid start:
+```
+WARNING opsdroid.logging Running in non-interactive shell - falling back to simple logging. You can override this using 'logging.config: false'
+```
+
+Specifying `logging.console` in the configuration will override this.
+
 #### Optional logging arguments
 
 You can pass optional arguments to the logging configuration to extend the opsdroid logging.

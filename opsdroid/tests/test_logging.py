@@ -2,12 +2,16 @@
 import logging
 import os
 import re
+import sys
 import tempfile
+
+import rich.logging
 
 import opsdroid.logging as opsdroid
 import pytest
 from opsdroid.cli.start import configure_lang
 from rich.logging import RichHandler
+from io import StringIO
 
 configure_lang({})
 
@@ -166,11 +170,64 @@ def test_configure_default_logging(capsys):
     assert len(rootlogger.handlers), 2
     assert isinstance(rootlogger.handlers[0], logging.handlers.RotatingFileHandler)
     assert rootlogger.handlers[0].level == logging.INFO
-    assert isinstance(rootlogger.handlers[1], RichHandler)
+    # If running in a non-interactive console the StreamingHandler will be used
+    if not sys.stdout.isatty():
+        assert isinstance(rootlogger.handlers[1], logging.StreamHandler)
+    # If running in an interactive console the RichHandler will be used
+    if sys.stdout.isatty():
+        assert isinstance(rootlogger.handlers[1], RichHandler)
     assert rootlogger.handlers[1].level == logging.INFO
 
     captured = capsys.readouterr()
-    assert "Started opsdroid" in captured.out
+    # StreamingHandler writes to stderr
+    if not sys.stdout.isatty():
+        assert "Started opsdroid" in captured.err
+        # Check if we log a warning message
+        assert "falling back to simple logging" in captured.err
+    # RichHandler writes to stdout
+    if sys.stdout.isatty():
+        assert "Started opsdroid" in captured.out
+        # Check if we log a warning message
+        assert "falling back to simple logging" in captured.out
+
+
+def test_configure_logging_config_override(capsys):
+    # Test overriding the logging via config
+    config = {"console": True}
+    opsdroid.configure_logging(config)
+    rootlogger = logging.getLogger()
+    # Check that we have the correct logging handler
+    assert isinstance(rootlogger.handlers[1], logging.StreamHandler)
+    captured = capsys.readouterr()
+    # If overriding the console from the config the warning message should not be displayed
+    assert "falling back to simple logging" not in captured.err
+
+    config = {"console": False}
+    opsdroid.configure_logging(config)
+    rootlogger = logging.getLogger()
+    # Check that we have the correct logging handler
+    assert isinstance(rootlogger.handlers[1], RichHandler)
+    captured = capsys.readouterr()
+    assert "falling back to simple logging" not in captured.err
+
+
+def test_configure_logging_fallback_interactive(mocker):
+    # Testing interactive shell
+    stdout_mock = mocker.patch("sys.stdout")
+    stdout_mock.isatty.return_value = "istty"
+    config = {"test_logging_console": stdout_mock}
+    opsdroid.configure_logging(config)
+    rootlogger = logging.getLogger()
+    assert isinstance(rootlogger.handlers[1], rich.logging.RichHandler)
+
+
+def test_configure_logging_fallback_non_interactive():
+    # Testing non-interactive shell using StringIO
+    # Create a fake object to simulate a non-interactive console
+    config = {"test_logging_console": StringIO()}
+    opsdroid.configure_logging(config)
+    rootlogger = logging.getLogger()
+    assert isinstance(rootlogger.handlers[1].stream, StringIO)
 
 
 def test_configure_logging_formatter(capsys):
