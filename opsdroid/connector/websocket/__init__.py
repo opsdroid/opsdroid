@@ -164,7 +164,7 @@ class ConnectorWebsocket(Connector):
         if self.authorization_token and (
             client_token is None or client_token != self.authorization_token
         ):
-            raise aiohttp.web.HTTPForbidden()
+            raise aiohttp.web.HTTPUnauthorized()
         return True
 
     async def listen(self):

@@ -5,7 +5,7 @@ import json
 
 import asynctest
 import asynctest.mock as amock
-from aiohttp.web import HTTPForbidden
+from aiohttp.web import HTTPUnauthorized
 
 from opsdroid.cli.start import configure_lang
 from opsdroid.connector.websocket import ConnectorWebsocket, WebsocketMessage
@@ -201,7 +201,7 @@ async def test_validate_request():
     request = amock.CoroutineMock()
     request.headers = {}
 
-    with pytest.raises(HTTPForbidden):
+    with pytest.raises(HTTPUnauthorized):
         await connector.validate_request(request)
 
 
@@ -210,7 +210,7 @@ async def test_new_websocket_handler_no_token():
     config = {"token": "secret"}
     connector = ConnectorWebsocket(config, opsdroid=OpsDroid())
 
-    with pytest.raises(HTTPForbidden):
+    with pytest.raises(HTTPUnauthorized):
         request = amock.CoroutineMock()
         request.headers = {}
         await connector.new_websocket_handler(request)
