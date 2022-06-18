@@ -9,10 +9,47 @@ import aiohttp.web
 from aiohttp import WSCloseCode
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
+import dataclasses
+from typing import Optional
 
 _LOGGER = logging.getLogger(__name__)
 HEADERS = {"Access-Control-Allow-Origin": "*"}
 CONFIG_SCHEMA = {"bot-name": str, "max-connections": int, "connection-timeout": int}
+
+
+@dataclasses.dataclass
+class WebsocketMessage:
+    """A message received from a websocket connection."""
+
+    message: str
+    user: Optional[str]
+    socket: Optional[str]
+
+    @classmethod
+    def parse_payload(cls, payload: str):
+        """Parse the payload of a websocket message.
+
+        We will try to parse the payload as a json string.
+        If that fails, we will use the default values which are:
+
+        message: str
+        user: None
+        socket: None
+
+        """
+        try:
+            data = json.loads(payload)
+            return cls(
+                message=data.get("message"),
+                user=data.get("user"),
+                socket=data.get("socket"),
+            )
+        except json.JSONDecodeError:
+            return cls(
+                message=payload,
+                user=None,
+                socket=None,
+            )
 
 
 class ConnectorWebsocket(Connector):
@@ -29,6 +66,7 @@ class ConnectorWebsocket(Connector):
         self.active_connections = {}
         self.available_connections = []
         self.bot_name = self.config.get("bot-name", "opsdroid")
+        self.authorization_token = self.config.get("token")
 
     async def connect(self):
         """Connect to the chat service."""
@@ -53,6 +91,7 @@ class ConnectorWebsocket(Connector):
 
     async def new_websocket_handler(self, request):
         """Handle for aiohttp creating websocket connections."""
+        await self.validate_request(request)
         if (
             len(self.active_connections) + len(self.available_connections)
             < self.max_connections
@@ -95,7 +134,13 @@ class ConnectorWebsocket(Connector):
         self.active_connections[socket] = websocket
         async for msg in websocket:
             if msg.type == aiohttp.WSMsgType.TEXT:
-                message = Message(text=msg.data, user=None, target=None, connector=self)
+                payload = WebsocketMessage.parse_payload(msg.data)
+                message = Message(
+                    text=payload.message,
+                    user=payload.user,
+                    target=payload.socket,
+                    connector=self,
+                )
                 await self.opsdroid.parse(message)
             elif msg.type == aiohttp.WSMsgType.ERROR:
                 _LOGGER.error(
@@ -108,6 +153,20 @@ class ConnectorWebsocket(Connector):
 
         return websocket
 
+    async def validate_request(self, request):
+        """Validate the request by looking at headers and the connector token.
+
+        If the token does not exist in the header, but exists in the configuration,
+        then we will simply return a Forbidden error.
+
+        """
+        client_token = request.headers.get("Authorization")
+        if self.authorization_token and (
+            client_token is None or client_token != self.authorization_token
+        ):
+            raise aiohttp.web.HTTPUnauthorized()
+        return True
+
     async def listen(self):
         """Listen for and parse new messages.
 
@@ -117,7 +176,7 @@ class ConnectorWebsocket(Connector):
         """
 
     @register_event(Message)
-    async def send_message(self, message):
+    async def send_message(self, message: Message):
         """Respond with a message."""
         try:
             if message.target is None:
