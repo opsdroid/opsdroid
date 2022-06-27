@@ -58,6 +58,7 @@ def path(ctx):
     click.echo(DEFAULT_CONFIG_PATH)
     ctx.exit(0)
 
+
 @config.command()
 @click.pass_context
 def edit(ctx):
