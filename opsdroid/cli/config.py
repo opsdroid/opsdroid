@@ -9,7 +9,7 @@ from opsdroid.cli.utils import (
     path_option,
     validate_config,
 )
-from opsdroid.const import EXAMPLE_CONFIG_FILE
+from opsdroid.const import EXAMPLE_CONFIG_FILE, DEFAULT_CONFIG_PATH
 
 
 @click.group()
@@ -42,6 +42,21 @@ def gen(ctx):
         click.echo(conf.read())
     ctx.exit(0)
 
+
+@config.command()
+@click.pass_context
+def path(ctx):
+    """Print the path to the default config file.
+
+    Args:
+        ctx (:obj:`click.Context`): The current click cli context.
+
+    Returns:
+        int: the exit code. Always returns 0 in this case.
+
+    """
+    click.echo(DEFAULT_CONFIG_PATH)
+    ctx.exit(0)
 
 @config.command()
 @click.pass_context
