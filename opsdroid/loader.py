@@ -14,23 +14,22 @@ import sys
 import tempfile
 import urllib.request
 from collections.abc import Mapping
-from pkg_resources import iter_entry_points
 
-from opsdroid.helper import (
-    file_is_ipython_notebook,
-    convert_ipynb_to_script,
-    extract_gist_id,
-)
+from pkg_resources import iter_entry_points
 
 from opsdroid.configuration import validate_configuration
 from opsdroid.const import (
     DEFAULT_GIT_URL,
-    MODULES_DIRECTORY,
-    DEFAULT_MODULES_PATH,
     DEFAULT_MODULE_BRANCH,
     DEFAULT_MODULE_DEPS_PATH,
+    DEFAULT_MODULES_PATH,
+    MODULES_DIRECTORY,
 )
-
+from opsdroid.helper import (
+    convert_ipynb_to_script,
+    extract_gist_id,
+    file_is_ipython_notebook,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -415,12 +414,12 @@ class Loader:
             config.update(modules.get(module))
 
         config["type"] = modules_type
-        config["enabled"] = True
+        if config.get("enabled") is not False:
+            config["enabled"] = True
         config["entrypoint"] = entry_points.get(config["name"], None)
         config["is_builtin"] = self.is_builtin_module(config)
         config["module_path"] = self.build_module_import_path(config)
         config["install_path"] = self.build_module_install_path(config)
-
         if "branch" not in config:
             config["branch"] = DEFAULT_MODULE_BRANCH
 

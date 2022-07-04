@@ -1,11 +1,9 @@
-import pytest
-
 import os
 
 import aiohttp
-
-from opsdroid.events import Message
+import pytest
 from opsdroid.cli.start import configure_lang
+from opsdroid.events import Message
 from opsdroid.testing import (
     MINIMAL_CONFIG,
     ExternalAPIMockServer,
@@ -13,7 +11,6 @@ from opsdroid.testing import (
     run_unit_test,
     running_opsdroid,
 )
-
 
 configure_lang({})
 
@@ -99,6 +96,9 @@ async def test_call_endpoint(opsdroid):
 
         with pytest.raises(TypeError):
             await call_endpoint(opsdroid, "/stats", "NOSUCHMETHOD")
+
+        with pytest.raises(RuntimeError):
+            await call_endpoint(opsdroid, "/stats", "PATCH")
 
         return True
 

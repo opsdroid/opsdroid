@@ -46,6 +46,9 @@ welcome-message: true
 #     cert: /path/to/cert.pem
 #     key: /path/to/key.pem
 #   webhook-token: "aabbccddee"
+#   command-center:
+#     enabled: true
+#     token: secret-stuff
 
 ## Parsers
 # parsers:
@@ -107,6 +110,8 @@ connectors:
     bot-name: "mybot" # default "opsdroid"
     max-connections: 10 # default is 10 users can be connected at once
     connection-timeout: 10 # default 10 seconds before requested socket times out
+    # Optional but recommended 
+    # token: "secret-token" # Used to validate request before assigning socket
   # Uncomment the connector(s) that you wish opsdroid to work on
 #
 #  ## Twitter (https://github.com/opsdroid/connector-twitter)
