@@ -9,18 +9,18 @@
 For configuration, opsdroid uses a single YAML file named `configuration.yaml`. When you run opsdroid it will look for the file in the following places in order:
 
 - Local `./configuration.yaml`
--  The default user data location:
-    * Mac: `~/Library/Application Support/opsdroid`
-    * Linux: `~/.local/share/opsdroid`
-    * Windows: `C:\Documents and Settings\<User>\Application Data\Local Settings\opsdroid\opsdroid` or
-                `C:\Documents and Settings\<User>\Application Data\opsdroid\opsdroid`
-- System `/etc/opsdroid/configuration.yaml` (*nix only)
+- The default user data location:
+  - Mac: `~/Library/Application Support/opsdroid`
+  - Linux: `~/.local/share/opsdroid`
+  - Windows: `C:\Documents and Settings\<User>\Application Data\Local Settings\opsdroid\opsdroid` or
+    `C:\Documents and Settings\<User>\Application Data\opsdroid\opsdroid`
+- System `/etc/opsdroid/configuration.yaml` (\*nix only)
 
 _Note: If no file named `configuration.yaml` can be found on one of these folders, one will be created for you taken from the [example configuration file](https://github.com/opsdroid/opsdroid/blob/master/opsdroid/configuration/example_configuration.yaml)_
 
 Suppose you are using one of the default locations. In that case, you can run the command `opsdroid config edit` to open the configuration with your favourite editor (taken from the environment variable `EDITOR`) or the default editor vim.
 
-The opsdroid project itself is very simple and requires modules to give it functionality. You must specify the connector, skill, and database* modules you wish to use in your configuration file and any options they may require.
+The opsdroid project itself is very simple and requires modules to give it functionality. You must specify the connector, skill, and database\* modules you wish to use in your configuration file and any options they may require.
 
 **Connectors** are modules for connecting opsdroid to your specific chat service.
 
@@ -87,7 +87,6 @@ _Config options of the connectors themselves differ between connectors, see the 
 
 ```yaml
 connectors:
-
   slack:
     token: "mysecretslacktoken"
 
@@ -152,6 +151,20 @@ If set to true, then a welcome message is printed in the log at startup. It defa
 welcome-message: true
 ```
 
+### Send generic error message
+
+By default opsdroid will send a generic error message when an exception occurrs while running a skill:
+
+```
+Whoops there has been an error. Check the logs for details.
+```
+
+This is a catch all exception and ideally you should catch exceptions in your skill. Although, you may disable this behaviour by setting `send-error-message` to false. Opsdroid will still log the exception normally.
+
+```yaml
+send-error-message: true
+```
+
 ### Logging
 
 Configure logging in opsdroid. If you don't have logging settings configured, opsdroid will use rich logging.
@@ -170,7 +183,7 @@ The default locations for the logs are:
 - Linux: `/home/<User>/.cache/opsdroid/log`
 - Windows: `C:\Users\<User>\AppData\Local\opsdroid\Logs\`
 
-If you are using one of the default paths for your log, you can run the command `opsdroid logs` to print the logs into the terminal. 
+If you are using one of the default paths for your log, you can run the command `opsdroid logs` to print the logs into the terminal.
 
 ```yaml
 logging:
@@ -199,6 +212,7 @@ When using rich logging, opsdroid will use the [RichHandler](https://rich.readth
 Opsdroid will fall back to simple console logging when running in a non-interactive shell (example: Docker container).
 
 If this is the case then you will see the following message in the log upon Opsdroid start:
+
 ```
 WARNING opsdroid.logging Running in non-interactive shell - falling back to simple logging. You can override this using 'logging.config: false'
 ```
@@ -219,11 +233,11 @@ logging:
   timestamp: true
 ```
 
-*example:*
+_example:_
 
 ```shell
-2020-12-02 10:39:51,255 INFO opsdroid.logging: ========================================                                 
-2020-12-02 10:39:51,255 INFO opsdroid.logging: Started opsdroid v0.19.0+66.g8b839bc.dirty.                             
+2020-12-02 10:39:51,255 INFO opsdroid.logging: ========================================
+2020-12-02 10:39:51,255 INFO opsdroid.logging: Started opsdroid v0.19.0+66.g8b839bc.dirty.
 2020-12-02 10:39:51,255 INFO opsdroid: ========================================
 ```
 
@@ -251,7 +265,7 @@ logging:
   extended: true
 ```
 
-*example:*
+_example:_
 
 ```shell
 INFO opsdroid.logging.configure_logging(): ========================================
@@ -273,7 +287,7 @@ logging:
       - "opsdroid.logging"
 ```
 
-*example:*
+_example:_
 
 ```shell
 DEBUG opsdroid.core: Loaded 5 skills
@@ -297,7 +311,7 @@ logging:
       - "aiosqlite"
 ```
 
-*example:*
+_example:_
 
 ```shell
 INFO opsdroid.logging: ========================================
@@ -363,7 +377,7 @@ INFO opsdroid.web: Started web server on http://0.0.0.0:8080
 
 ##### Logs formatter
 
-You can create your formatter string to pass to the logs. This option will give you more flexibility and get logs in your prefered format. Note that this option only works if you set `console: true` since rich logging will have its own 
+You can create your formatter string to pass to the logs. This option will give you more flexibility and get logs in your prefered format. Note that this option only works if you set `console: true` since rich logging will have its own
 formatter.
 
 ```yaml
@@ -416,7 +430,7 @@ parsers:
   regex:
     enabled: true
 
-# NLU parser
+  # NLU parser
   rasanlu:
     url: http://localhost:5000
     project: opsdroid
@@ -450,7 +464,7 @@ Configure the timezone.
 This timezone will be used in crontab skills if the timezone has not been set as a kwarg in the crontab decorator. All [timezone names](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) from the [tz database](https://www.iana.org/time-zones) are valid here.
 
 ```yaml
-timezone: 'Europe/London'
+timezone: "Europe/London"
 ```
 
 ### Language
@@ -473,7 +487,7 @@ By default, opsdroid will start a web server on port `8080` (or `8443` if SSL de
 
 ```yaml
 web:
-  host: '0.0.0.0'
+  host: "0.0.0.0"
   port: 8080
   ssl:
     cert: /path/to/cert.pem
@@ -536,24 +550,24 @@ Notebooks are also supported.
 
 ```yaml
 skills:
- ping:
-   gist: https://gist.github.com/jacobtomlinson/6dd35e0f62d6b779d3d0d140f338d3e5
+  ping:
+    gist: https://gist.github.com/jacobtomlinson/6dd35e0f62d6b779d3d0d140f338d3e5
 ```
 
 Or you can specify the Gist ID without the full URL.
 
 ```yaml
 skills:
- ping:
-   gist: 6dd35e0f62d6b779d3d0d140f338d3e5
+  ping:
+    gist: 6dd35e0f62d6b779d3d0d140f338d3e5
 ```
 
 You can also directly specify the module name to import, which skips all of the opsdroid module generation.
 
 ```yaml
 skills:
- ping:
-   module: 'module.to.import'
+  ping:
+    module: "module.to.import"
 ```
 
 ### Disable Caching
@@ -645,7 +659,7 @@ Since version 0.17.0 came out we have migrated to a new configuration layout. We
 
 ### What changed
 
-We have dropped the pattern `- name:  <module name>`  and replaced it with the pattern `<module name>: {}` or `<module name>:` followed by a blank line underneath.
+We have dropped the pattern `- name: <module name>` and replaced it with the pattern `<module name>: {}` or `<module name>:` followed by a blank line underneath.
 
 This change makes sure we stop using lists containing dictionaries that carry the configuration for each module. In the new layout, we replace lists with a dictionary that uses the name of a module for a key and the additional configuration parameters inside a dictionary as a key.
 

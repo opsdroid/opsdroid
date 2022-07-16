@@ -85,6 +85,7 @@ class OpsDroid:
         self.stored_path = []
         self.reload_paths = []
         self.tasks = []
+        breakpoint()
 
     def __enter__(self):
         """Add self to existing instances."""
@@ -477,11 +478,11 @@ class OpsDroid:
             _LOGGER.exception(
                 _("Exception when running skill '%s'."), str(config["name"])
             )
-            if event:
+            if event and self.config.get("send-error-message", True):
                 await event.respond(
                     events.Message(_("Whoops there has been an error."))
                 )
-                await event.respond(events.Message(_("Check the log for details.")))
+                await event.respond(events.Message(_("Check the logs for details.")))
 
     async def get_ranked_skills(self, skills, message):
         """Take a message and return a ranked list of matching skills.
