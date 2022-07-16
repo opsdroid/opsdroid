@@ -85,7 +85,6 @@ class OpsDroid:
         self.stored_path = []
         self.reload_paths = []
         self.tasks = []
-        breakpoint()
 
     def __enter__(self):
         """Add self to existing instances."""
