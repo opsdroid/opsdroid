@@ -12,12 +12,30 @@ from typing import Optional
 from aiohttp import web
 from aiohttp.web import HTTPForbidden
 from aiohttp.web_exceptions import HTTPBadRequest
+from aiohttp_middlewares.cors import cors_middleware, DEFAULT_ALLOW_HEADERS
 
 from opsdroid import __version__
 from opsdroid.const import EXCLUDED_CONFIG_KEYS
 from opsdroid.helper import Timeout
 
 _LOGGER = logging.getLogger(__name__)
+
+DEFAULT_HEADERS = list(
+    DEFAULT_ALLOW_HEADERS
+    + (
+        "Host",
+        "Content-Type",
+        "Origin",
+        "Content-Length",
+        "Connection",
+        "Accept",
+        "User-Agent",
+        "Referer",
+        "Accept-Language",
+        "Accept-Encoding",
+        "Authorization",
+    )
+)
 
 
 @dataclasses.dataclass
@@ -76,7 +94,16 @@ class Web:
             self.config = self.opsdroid.config["web"]
         except KeyError:
             self.config = {}
-        self.web_app = web.Application()
+        self.cors = self.config.get("cors", {})
+        self.web_app = web.Application(
+            middlewares=[
+                cors_middleware(
+                    allow_all=self.cors.get("allow-all", True),
+                    origins=self.cors.get("origins", ["*"]),
+                    allow_headers=DEFAULT_HEADERS + self.cors.get("allow-headers", []),
+                )
+            ]
+        )
         self.runner = web.AppRunner(self.web_app)
         self.site = None
         self.command_center = self.config.get("command-center", {})
