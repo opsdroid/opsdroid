@@ -11,16 +11,8 @@ import urllib.parse
 import aiohttp
 import arrow
 import certifi
-from emoji import demojize
-
-from slack_sdk.errors import SlackApiError
-from slack_sdk.socket_mode.aiohttp import SocketModeClient
-from slack_sdk.socket_mode.request import SocketModeRequest
-from slack_sdk.socket_mode.response import SocketModeResponse
-from slack_sdk.web.async_client import AsyncWebClient
-from voluptuous import Required
-
 import opsdroid.events
+from emoji import demojize
 from opsdroid.connector import Connector, register_event
 from opsdroid.connector.slack.create_events import SlackEventCreator
 from opsdroid.connector.slack.events import (
@@ -30,7 +22,12 @@ from opsdroid.connector.slack.events import (
     ModalPush,
     ModalUpdate,
 )
-
+from slack_sdk.errors import SlackApiError
+from slack_sdk.socket_mode.aiohttp import SocketModeClient
+from slack_sdk.socket_mode.request import SocketModeRequest
+from slack_sdk.socket_mode.response import SocketModeResponse
+from slack_sdk.web.async_client import AsyncWebClient
+from voluptuous import Required
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -197,23 +194,30 @@ class ConnectorSlack(Connector):
 
         return data
 
+    async def _retrieve_channels_from_slack(self, **kwargs):
+        """Retrieve channels from the slack API
+        args:
+            **kwargs any argument taken by https://api.slack.com/methods/conversations.list
+
+        returns:
+            string if a next cursor exists, otherwise None
+        """
+        channels = await self.slack_web_client.conversations_list(**kwargs)
+        self.known_channels.update({c["name"]: c for c in channels["channels"]})
+
+        return channels["response_metadata"].get("next_cursor")
+
     async def _get_channels(self):
         """Grab all the channels from the Slack API"""
 
         while self.opsdroid.eventloop.is_running():
             _LOGGER.info(_("Updating Channels from Slack API at %s."), time.asctime())
-            channels = await self.slack_web_client.conversations_list(
-                limit=self.channel_limit
-            )
-            cursor = channels["response_metadata"].get("next_cursor")
+            cursor = await self._retrieve_channels_from_slack(limit=self.channel_limit)
 
             while cursor:
-                self.known_channels.update({c["name"]: c for c in channels["channels"]})
-
-                channels = await self.slack_web_client.conversations_list(
+                cursor = await self._retrieve_channels_from_slack(
                     cursor=cursor, limit=self.channel_limit
                 )
-                cursor = channels["response_metadata"].get("next_cursor")
 
             channel_count = len(self.known_channels.keys())
             _LOGGER.info("Grabbed a total of %s channels from Slack", channel_count)
