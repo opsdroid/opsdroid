@@ -12,7 +12,6 @@ from opsdroid.connector.slack.events import (
     ModalPush,
     ModalUpdate,
 )
-
 from slack_sdk.socket_mode.request import SocketModeRequest
 
 from .conftest import get_path
@@ -85,6 +84,7 @@ async def test_connect_socket_mode(opsdroid, mock_api_obj, mock_api):
     connector.socket_mode_client.connect = amock.CoroutineMock()
     await connector.connect()
     assert connector.socket_mode_client.connect.called
+    await connector.disconnect()
 
 
 @pytest.mark.asyncio
@@ -99,12 +99,14 @@ async def test_connect_no_socket_mode_client(opsdroid, mock_api_obj, mock_api, c
     connector.slack_web_client.base_url = mock_api_obj.base_url
     await connector.connect()
     assert "RTM support has been dropped" in caplog.text
+    await connector.disconnect()
 
 
 @pytest.mark.asyncio
 async def test_connect_failure(connector, mock_api, caplog):
     await connector.connect()
     assert "The Slack Connector will not be available" in caplog.text
+    await connector.disconnect()
 
 
 @pytest.mark.asyncio
@@ -114,6 +116,7 @@ async def test_disconnect(opsdroid, mock_api_obj, mock_api):
     }
     await opsdroid.load()
     connector = opsdroid.get_connector("slack")
+    await connector.disconnect()
     connector.socket_mode_client.disconnect = amock.CoroutineMock()
     connector.socket_mode_client.close = amock.CoroutineMock()
     await connector.disconnect()
@@ -134,6 +137,7 @@ async def test_socket_event_handler(opsdroid, mock_api_obj, mock_api):
     connector.socket_mode_client.send_socket_mode_response = amock.CoroutineMock()
     await connector.socket_event_handler(connector.socket_mode_client, request)
     assert connector.socket_mode_client.send_socket_mode_response.called
+    await connector.disconnect()
 
 
 @pytest.mark.asyncio
