@@ -194,30 +194,25 @@ class ConnectorSlack(Connector):
 
         return data
 
-    async def _retrieve_channels_from_slack(self, **kwargs):
-        """Retrieve channels from the slack API
-        args:
-            **kwargs any argument taken by https://api.slack.com/methods/conversations.list
-
-        returns:
-            string if a next cursor exists, otherwise None
-        """
-        channels = await self.slack_web_client.conversations_list(**kwargs)
-        self.known_channels.update({c["name"]: c for c in channels["channels"]})
-
-        return channels["response_metadata"].get("next_cursor")
-
     async def _get_channels(self):
-        """Grab all the channels from the Slack API"""
+        """Grab all the channels from the Slack API. This method runs while opsdroid
+        is running at every refresh_interval.
+        """
 
         while self.opsdroid.eventloop.is_running():
             _LOGGER.info(_("Updating Channels from Slack API at %s."), time.asctime())
-            cursor = await self._retrieve_channels_from_slack(limit=self.channel_limit)
 
-            while cursor:
-                cursor = await self._retrieve_channels_from_slack(
+            cursor = None
+
+            while True:
+                channels = await self.slack_web_client.conversations_list(
                     cursor=cursor, limit=self.channel_limit
                 )
+                self.known_channels.update({c["name"]: c for c in channels["channels"]})
+                cursor = channels["response_metadata"].get("next_cursor")
+
+                if not cursor:
+                    break
 
             channel_count = len(self.known_channels.keys())
             _LOGGER.info("Grabbed a total of %s channels from Slack", channel_count)
