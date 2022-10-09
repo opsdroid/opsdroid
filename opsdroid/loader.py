@@ -91,8 +91,11 @@ class Loader:
             config["module_path"] + "." + config["name"],
             config["module_path"],
         ]
+
         for namespace in namespaces:
             try:
+                if not namespace:
+                    continue
                 module_spec = importlib.util.find_spec(namespace)
                 if module_spec:
                     break
