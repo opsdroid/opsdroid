@@ -91,12 +91,18 @@ class Loader:
             config["module_path"] + "." + config["name"],
             config["module_path"],
         ]
+
         for namespace in namespaces:
             try:
                 module_spec = importlib.util.find_spec(namespace)
                 if module_spec:
                     break
-            except (ImportError, AttributeError):
+            except (ImportError, AttributeError, ValueError) as e:
+                _LOGGER.debug(
+                    _(
+                        f"Unable to import {namespace} from {namespaces} - Reason: {str(e)}"
+                    )
+                )
                 continue
 
         if module_spec:
