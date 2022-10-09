@@ -598,8 +598,7 @@ class TestCoreAsync(asynctest.TestCase):
         with TemporaryDirectory() as directory:
             await asyncio.gather(watch_dirs([directory]), modify_dir(directory))
 
-    # TODO: Test fails on mac only, needs investigating
-    @pytest.mark.xfail()
+    @pytest.mark.xfail(reason="Test seems to fail on Mac tests - should investigate")
     async def test_watchdog(self):
         skill_path = "opsdroid/testing/mockmodules/skills/skill/skilltest"
         example_config = {
