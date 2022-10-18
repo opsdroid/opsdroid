@@ -1,13 +1,13 @@
-# Making a release
+# MAKING A RELEASE:
 
-Occasionally the maintainers of the opsdroid project make a release, and
+Occasionally the maintainers of the [opsdroid](https://opsdroid.dev/) project make a release, and
 distribute it.  This document is the procedure they follow to do that.
 
 ## Background
 
 When releasing, there are a couple of release artifacts which are built and distributed.
 
-Currently opsdroid builds:
+Currently used *Popular* opsdroid builds are:
 
 - A Python distribution on [pypi](https://pypi.org/project/opsdroid/)
 - A Python distribution on [Conda Forge](https://github.com/conda-forge/opsdroid-feedstock)
@@ -15,16 +15,16 @@ Currently opsdroid builds:
 
 The building and distributing is automated by Travis CI and run when a [release is created](https://help.github.com/articles/creating-releases/) on GitHub.
 
-## Creating a release
+## CREATING A RELEASE:
 
-### Testing
+### TESTING:
 
 Before creating the release do some final local testing:
 
 - Checkout master and run the `tox` suite locally.
-- Run opsdroid and do some manual testing to ensure there are no glaring issues.
+- Run opsdroid and do some manual testing to ensure that, there are no glaring issues.
 
-### Decide the next version number
+### DECIDING THE UPCOMING VERSION NUMBER:
 
 As opsdroid follows [SemVer 2.0](http://semver.org/) (`major.minor.patch`) the version number increase will depend on what has changed since the previous release.
 
@@ -34,17 +34,17 @@ As opsdroid follows [SemVer 2.0](http://semver.org/) (`major.minor.patch`) the v
 
 Keep a note of what the new version will be as it will be needed later.
 
-### Generate release text
+### GENERATE RELEASE TEXT:
 
 We use [Release Drafter](https://github.com/marketplace/actions/release-drafter) to automatically draft our next release using GitHub Releases.
 
 Release Drafter will create a draft release with the release notes automatically populated based on the titles of each PR that has been merged since the last release and grouped together using the labels `enhancement`, `bug` and `documentation`.
 
-You need to review these notes to ensure all PRs have suitable titles and have been grouped successfully. If there are any issues then edit the release and manually make corrections.
+You need to review these notes to ensure all PRs have suitable titles and the same have been grouped successfully. If there are any issues then edit the release and manually make corrections.
 
 Release Drafter also assumes the next release will be a minor version change, if this is not the case then update the release title and tag to match the version number you decided on earlier.
 
-### Publish the release
+### PUBLISH THE RELEASE
 
 Once you are happy with the release notes click "Publish release" on the draft.
 
