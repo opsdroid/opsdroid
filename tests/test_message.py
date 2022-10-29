@@ -1,4 +1,5 @@
 import pytest
+import warnings
 
 from opsdroid.core import OpsDroid
 from opsdroid.message import Message
@@ -13,7 +14,7 @@ def opsdroid():
         yield opsdroid
 
 @pytest.mark.asyncio
-async def test_message(opsdroid, message):
+async def test_message(opsdroid):
         with OpsDroid() as opsdroid:
             mock_connector = Connector({}, opsdroid=opsdroid)
             raw_message = {
@@ -40,7 +41,7 @@ async def test_message(opsdroid, message):
                 await message.respond("Goodbye world")
 
 @pytest.fixture
-def test_depreacted_properties(message):
+def test_depreacted_properties():
         message = Message(text="hello", user="user", room="", connector="")
 
         message.target = "spam"
