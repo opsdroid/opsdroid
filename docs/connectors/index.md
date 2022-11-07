@@ -10,6 +10,7 @@ Connectors are modules which connect opsdroid to an external event source. This 
    gitlab
    github
    gitter
+   mastodon
    mattermost
    matrix
    rocketchat
