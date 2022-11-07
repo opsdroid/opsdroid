@@ -61,7 +61,7 @@ class ConnectorGitHub(Connector):
             private_key = open(self.private_key_file, "rt").read()
             installation_access_token = jwt.encode(
                 payload, private_key, algorithm="RS256"
-            ).decode("utf-8")
+            )
             headers = {"Authorization": f"Bearer {installation_access_token}"}
 
             async with aiohttp.ClientSession(

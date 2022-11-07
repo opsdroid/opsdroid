@@ -6,7 +6,6 @@ import logging
 
 import click
 from opsdroid.cli.utils import (
-    check_dependencies,
     configure_lang,
     path_option,
     welcome_message,
@@ -30,7 +29,6 @@ def start(path):
     configuration.
 
     """
-    check_dependencies()
 
     config_path = [path] if path else DEFAULT_CONFIG_LOCATIONS
     config = load_config_file(config_path)
