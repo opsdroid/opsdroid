@@ -5,7 +5,6 @@ import gettext
 import logging
 import os
 import subprocess
-import sys
 import time
 
 import click
@@ -104,19 +103,6 @@ def configure_lang(config):
     if lang_code != DEFAULT_LANGUAGE:
         lang = gettext.translation("opsdroid", LOCALE_DIR, (lang_code,), fallback=True)
         lang.install()
-
-
-def check_dependencies():
-    """Check for system dependencies required by opsdroid.
-
-    Returns:
-        int: the exit code. Returns 1 if the Python version installed is
-        below 3.7.
-
-    """
-    if sys.version_info.major < 3 or sys.version_info.minor < 7:
-        logging.critical(_("Whoops! opsdroid requires python 3.7 or above."))
-        sys.exit(1)
 
 
 def welcome_message(config):
@@ -222,7 +208,6 @@ def build_config(ctx, params):
     path = params.get("path")
 
     with contextlib.suppress(Exception):
-        check_dependencies()
 
         config = load_config_file([path] if path else DEFAULT_CONFIG_LOCATIONS)
 
