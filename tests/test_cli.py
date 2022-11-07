@@ -1,7 +1,6 @@
 import unittest
 import unittest.mock as mock
 import os
-import sys
 import shutil
 import tempfile
 import gettext
@@ -71,53 +70,6 @@ class TestCLI(unittest.TestCase):
 
         response = welcome_message(config)
         self.assertIsNone(response)
-
-    def test_check_version_27(self):
-        with mock.patch.object(sys, "version_info") as version_info:
-            version_info.major = 2
-            version_info.minor = 7
-            with self.assertRaises(SystemExit):
-                from opsdroid.cli.utils import check_dependencies
-
-                check_dependencies()
-
-    def test_check_version_34(self):
-        with mock.patch.object(sys, "version_info") as version_info:
-            version_info.major = 3
-            version_info.minor = 4
-            with self.assertRaises(SystemExit):
-                from opsdroid.cli.utils import check_dependencies
-
-                check_dependencies()
-
-    def test_check_version_35(self):
-        with mock.patch.object(sys, "version_info") as version_info:
-            version_info.major = 3
-            version_info.minor = 5
-            with self.assertRaises(SystemExit):
-                from opsdroid.cli.utils import check_dependencies
-
-                check_dependencies()
-
-    def test_check_version_36(self):
-        with mock.patch.object(sys, "version_info") as version_info:
-            version_info.major = 3
-            version_info.minor = 6
-            with self.assertRaises(SystemExit):
-                from opsdroid.cli.utils import check_dependencies
-
-                check_dependencies()
-
-    def test_check_version_37(self):
-        with mock.patch.object(sys, "version_info") as version_info:
-            version_info.major = 3
-            version_info.minor = 7
-            try:
-                from opsdroid.cli.start import check_dependencies
-
-                check_dependencies()
-            except SystemExit:
-                self.fail("check_dependencies() exited unexpectedly!")
 
     def test_gen_config(self):
         with mock.patch.object(click, "echo") as click_echo, mock.patch(
