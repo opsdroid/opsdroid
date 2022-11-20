@@ -161,9 +161,10 @@ class OpsDroid:
 
     async def handle_stop_signal(self):
         """Handle signals."""
-        self._running = False
+        _LOGGER.debug("handle stop signals")
         await self.stop()
         await self.unload()
+        self._running = False
 
     def run(self):
         """Start the event loop."""
