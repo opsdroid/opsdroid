@@ -74,16 +74,17 @@ class TestConfiguration(unittest.TestCase):
         self.assertIsNotNone(config)
 
     def test_load_config_file_with_env_vars(self):
-        os.environ["ENVVAR"] = "opsdroid"
+        ENVAR_VALUE = "opsdroid"
+        os.environ["ENVVAR"] = ENVAR_VALUE
         config = load_config_file(
             [os.path.abspath("tests/configs/minimal_with_envs.yaml")]
         )
-        assert config["connectors"]["shell"]["bot-name"] == os.environ["ENVVAR"]
+        assert config["connectors"]["shell"]["bot-name"] == ENVAR_VALUE
 
         config = load_config_file(
             [os.path.abspath("tests/configs/minimal_with_envs.json")]
         )
-        assert config["connectors"]["shell"]["bot-name"] == os.environ["ENVVAR"]
+        assert config["connectors"]["shell"]["bot-name"] == ENVAR_VALUE
 
     def test_create_default_config(self):
         test_config_path = os.path.join(
