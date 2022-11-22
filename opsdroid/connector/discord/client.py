@@ -2,29 +2,12 @@ import logging
 _LOGGER = logging.getLogger(__name__)
 import discord
 
-def pr(mes):
-    with open("D:\Documents\Ecole\\02IMTAtlantique\IDL\debug.txt", "a") as f:
-        f.write(mes + "\n")
-
-
-class DiscordNoThread():
-    def __init__(self, token, handle_message_func):
-        self.handle_message_func = handle_message_func
-        self.client = DiscordClient(self.handle_message_func)
-        self.token = token
-    
-    async def start(self):
-        await self.client.start(self.token)
-
-    async def close(self):
-        pr("closing")
-        self.client.close()
-
 
 class DiscordClient(discord.Client):
 
     def __init__(self, handle_message_func):
-        super().__init__(intents=discord.Intents.default())
+        intents = discord.Intents(messages=True, message_content=True)
+        super().__init__(intents=intents)
         self.handle_message_func = handle_message_func
         discord.utils.setup_logging(
                 level=_LOGGER.level,
