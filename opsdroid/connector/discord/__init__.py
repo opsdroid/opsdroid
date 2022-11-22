@@ -1,6 +1,6 @@
 """A connector for Discord."""
 import logging
-from .client import DiscordNoThread
+from .client import DiscordClient
 
 from voluptuous import Required
 
@@ -23,7 +23,7 @@ class ConnectorDiscord(Connector):
         self.name = config.get("name", "discord")
         self.bot_name = config.get("bot-name", "opsdroid")
         self.token = config["token"]
-        self.client = DiscordNoThread(self.token, self.handle_message)
+        self.client = DiscordClient(self.handle_message)
         self.bot_id = None
     
     async def handle_message(self, text,user,user_id,target,msg):
@@ -32,7 +32,7 @@ class ConnectorDiscord(Connector):
         await self.opsdroid.parse(event)
     
     async def connect(self):
-        await self.client.start()
+        await self.client.start(self.token)
 
     async def listen(self):
         """Listen handled by webhooks."""
