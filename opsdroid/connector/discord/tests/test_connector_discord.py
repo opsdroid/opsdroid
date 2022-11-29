@@ -8,6 +8,8 @@ from opsdroid.connector.discord.client import DiscordClient
 # The mock bot will send messages to the opsdroid bot in order to test the bot.
 # We assume that the discord library is already tested and reliable.
 
+test_token = ""
+
 
 class TestConnector(ConnectorDiscord):
     def __init__(self, config, opsdroid=None):
