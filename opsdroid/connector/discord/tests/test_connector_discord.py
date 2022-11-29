@@ -34,7 +34,7 @@ class Test(asynctest.TestCase):
 
         connector = asynctest.Mock(ConnectorDiscord({"token": test_token}, opsdroid))
         connector.connect()
-        connector.client.start.   
+        connector.client.start.assert_called()   
     async def test_discord_handle_message(self,opsdroid):
         """Test the new discord message handler."""
 
