@@ -22,7 +22,7 @@ class ConnectorDiscord(Connector):
         _LOGGER.debug("Starting Discord Connector.")
         self.name = config.get("name", "discord")
         self.bot_name = config.get("bot-name", "opsdroid")
-        self.token = config["token"]
+        self.token = config.get("token")
         self.client = DiscordClient(self.handle_message)
         self.bot_id = None
     
