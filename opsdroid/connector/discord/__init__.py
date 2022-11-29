@@ -54,10 +54,6 @@ class ConnectorDiscord(Connector):
         await message.target.send(message.text)
 
     async def disconnect(self):
-        _LOGGER.debug(_("disconnecting"))
-        pr("disconnecting")
-        # _LOGGER.debug(_("disconnecting"))
+        _LOGGER.debug(_("Discord Client disconnecting"))
         self.client.close()
-        pr("disconnecting done")
-        self.client.join()
-        # for now, the thread is terminated
+
