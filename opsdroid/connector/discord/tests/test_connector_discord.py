@@ -1,7 +1,6 @@
 # import logging
 import pytest
-import asynctest.mock as amock
-
+import asynctest
 import asyncio
 
 from opsdroid.connector.discord import ConnectorDiscord
@@ -17,54 +16,31 @@ from opsdroid.connector.discord import ConnectorDiscord
 mock_token = "MTA0NzEwMDk1MTYwNzExNTgxNg.G3EhiS.MK2r2dORN5ScI9q4TQ2Ikz9v8Ns7tq7mSw_4uE"
 test_token = "MTA0NzEwNTM5ODQ1NDM3NDQ4MA.GtMN0U.VnQneacG6dWpKr4fM0f0s0tdujqQsJRkX0B5f8"
 
-
-def test_init(opsdroid):
-    connector = ConnectorDiscord({}, opsdroid)
-    assert connector.default_target is None
-    assert connector.name == "discord"
-    assert connector.bot_name == "opsdroid"
-    config = {"name":"toto",
-              "bot-name":"bot",
-              "token":test_token}
-    connector = ConnectorDiscord(config,opsdroid)
-    assert connector.name == "toto"
-    assert connector.bot_name == "bot"
-    assert connector.token == test_token
+class Test(asynctest.TestCase):
+    def test_init(self,opsdroid=None):
+        connector =asynctest.Mock(ConnectorDiscord({}, opsdroid))
+        self.assertIsNone(connector.default_target)
+        self.assertEqual(connector.name, "discord")
+        self.assertEqual(connector.bot_name, "opsdroid")
+        config = {"name":"toto",
+                    "bot-name":"bot",
+                    "token":test_token}
+        connector = asynctest.Mock(ConnectorDiscord(config,opsdroid))
+        self.assertEqual(connector.name, "toto")
+        self.assertEqual(connector.bot_name, "bot")
+        self.assertEqual(connector.token,test_token)
     
+    async def test_connect(self,opsdroid=None):
+
+        connector = asynctest.Mock(ConnectorDiscord({"token": test_token}, opsdroid))
+        connector.connect()
+        connector.client.start.   
+    async def test_discord_handle_message(self,opsdroid):
+        """Test the new discord message handler."""
+
     
 
 @pytest.mark.asyncio
-async def test_connect(opsdroid):
-
-    connector = ConnectorDiscord({"token": test_token}, opsdroid)
-    opsdroid.web_server = amock.CoroutineMock()
-    opsdroid.web_server.web_app = amock.CoroutineMock()
-    opsdroid.web_server.web_app.router = amock.CoroutineMock()
-    opsdroid.web_server.web_app.router.add_get = amock.CoroutineMock()
-    opsdroid.web_server.web_app.router.add_post = amock.CoroutineMock()
-
-    await connector.connect()
-
-    assert opsdroid.web_server.web_app.router.add_get.called
-    assert opsdroid.web_server.web_app.router.add_post.called
-
-
-@pytest.mark.asyncio
-async def test_discord_message_handler(opsdroid):
-    """Test the new discord message handler."""
-    import aiohttp
-
-    connector = ConnectorDiscord({}, opsdroid=opsdroid)
-
-    mock_request = amock.CoroutineMock()
-
-    connector.opsdroid = opsdroid
-    connector.opsdroid.parse = amock.CoroutineMock()
-
-    response = await connector.discord_message_handler(mock_request)
-    assert connector.opsdroid.parse.called
-    assert isinstance(response, aiohttp.web.Response)
-    assert response.status == 200
 
 
 @pytest.mark.asyncio
