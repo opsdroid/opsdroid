@@ -33,6 +33,9 @@ class ConnectorDiscord(Connector):
         self.bot_id = None
     
     async def rename(self):
+        """
+        Rename the bot if bot-name changed
+        """
         if self.bot_name != self.client.user.name :
             await self.client.user.edit(username=self.bot_name)
 
@@ -52,6 +55,7 @@ class ConnectorDiscord(Connector):
         await self.opsdroid.parse(event)
 
     async def connect(self):
+        """Connect to the discord gateway to get messages sent to the bot"""
         await self.client.start(self.token)
 
     async def listen(self):
@@ -66,6 +70,7 @@ class ConnectorDiscord(Connector):
         await message.target.send(message.text)
 
     async def disconnect(self):
+        """Disconnect from the client (so the bot appears offline)"""
         _LOGGER.debug(_("Discord Client disconnecting"))
         self.client.close()
 
