@@ -35,9 +35,7 @@ class ConnectorDiscord(Connector):
             connector=self,
             raw_event=msg,
         )
-        _LOGGER.info(
-            "-----------------------------------------------" + user + " said " + text
-        )
+        _LOGGER.info(user + " said " + text)
         await self.opsdroid.parse(event)
 
     async def connect(self):
