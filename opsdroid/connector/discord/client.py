@@ -15,10 +15,7 @@ class DiscordClient(discord.Client):
             )
     
     async def on_ready(self):
-        print('Logged in as')
-        print(self.user.name)
-        print(self.user.id)
-        print('------')
+        _LOGGER.debug('Logged in as'+self.user.name+self.user.id)
 
     async def on_message(self, message):
         # we do not want the bot to reply to itself
