@@ -60,6 +60,7 @@ class ConnectorSlack(Connector):
         self.name = config.get("name", "slack")
         self.bot_token = config["bot-token"]
         self.bot_name = config.get("bot-name", "opsdroid")
+        self.response_type = config.get("response-type", "in-channel")
         self.default_target = config.get("default-room", "#general")
         self.icon_emoji = config.get("icon-emoji", ":robot_face:")
         self.start_thread = config.get("start-thread", False)
@@ -421,14 +422,20 @@ class ConnectorSlack(Connector):
         _LOGGER.debug(
             _("Responding with: '%s' in room  %s."), message.text, message.target
         )
+        _LOGGER.debug(_("Responding with entire message: '%s'."), message)
 
         data = self._generate_base_data(message)
         data["text"] = message.text
 
-        return await self.slack_web_client.api_call(
-            "chat.postMessage",
-            data=data,
-        )
+        if self.response_type == "in_channel":
+            return await self.slack_web_client.api_call(
+                "chat.postMessage",
+                data=data,
+            )
+        elif self.response_type == "ephemeral":
+            data["user"] = message.user_id
+            _LOGGER.debug(_("Responding to: '%s'."), data["user"])
+            return await self.slack_web_client.api_call("chat.postEphemeral", data=data)
 
     @register_event(opsdroid.events.EditedMessage)
     async def _edit_message(self, message):
