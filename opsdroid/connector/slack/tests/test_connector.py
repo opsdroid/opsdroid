@@ -19,6 +19,7 @@ from .conftest import get_path
 USERS_INFO = ("/users.info", "GET", get_path("method_users.info.json"), 200)
 AUTH_TEST = ("/auth.test", "POST", get_path("method_auth.test.json"), 200)
 CHAT_POST_MESSAGE = ("/chat.postMessage", "POST", {"ok": True}, 200)
+CHAT_POST_EPHEMERAL = ("/chat.postEphemeral", "POST", {"ok": True}, 200)
 CHAT_UPDATE_MESSAGE = ("/chat.update", "POST", {"ok": True}, 200)
 VIEWS_OPEN = ("/views.open", "POST", {"ok": True}, 200)
 VIEWS_UPDATE = ("/views.update", "POST", {"ok": True}, 200)
@@ -236,6 +237,28 @@ async def test_send_message(send_event, connector):
         "channel": "room",
         "text": "test",
         "username": "opsdroid",
+        "icon_emoji": ":robot_face:",
+    }
+    assert response["ok"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.add_response(*CHAT_POST_EPHEMERAL)
+async def test_send_ephemeral(send_event, connector):
+    connector.response_type = "ephemeral"
+    event = events.Message(
+        text="Hey TEST USER",
+        user="Test User",
+        user_id="U01NK1K9L68",
+        target="room",
+        connector=connector,
+    )
+    payload, response = await send_event(CHAT_POST_EPHEMERAL, event)
+    assert payload == {
+        "channel": "room",
+        "text": "Hey TEST USER",
+        "username": "opsdroid",
+        "user": "U01NK1K9L68",
         "icon_emoji": ":robot_face:",
     }
     assert response["ok"]
