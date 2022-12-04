@@ -427,7 +427,7 @@ class ConnectorSlack(Connector):
         data = self._generate_base_data(message)
         data["text"] = message.text
 
-        if self.response_type == "in_channel":
+        if self.response_type == "in-channel":
             return await self.slack_web_client.api_call(
                 "chat.postMessage",
                 data=data,
