@@ -11,7 +11,7 @@ from opsdroid.connector.discord.client import DiscordClient
 # We assume that the discord library is already tested and reliable.
 
 # Fill in with a token of a discord bot
-test_token = "MTAzMjI4NzExNzg5MzcwMTY2Mg.G-Pt71.N2454bDuDw1JkUKMpzhTWpRko7ZlWvThqqTn7M"
+test_token = ""
 
 
 class TestConnector(ConnectorDiscord):
