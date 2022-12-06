@@ -214,6 +214,57 @@ class TestParserRasaNLU(asynctest.TestCase):
                     skill["message"].entities["cuisine"]["value"], "chinese"
                 )
 
+    async def test_parse_rasanlu_multiple_entities_with_same_name(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.config["parsers"] = [
+                {"name": "rasanlu", "token": "test", "min-score": 0.3}
+            ]
+            mock_skill = await self.getMockSkill()
+            opsdroid.skills.append(match_rasanlu("knowledge")(mock_skill))
+
+        mock_connector = amock.CoroutineMock()
+        message = Message(
+            text="i want to travel from Berlin to San Fransisco",
+            user="user",
+            target="default",
+            connector=mock_connector,
+        )
+        with amock.patch.object(rasanlu, "call_rasanlu") as mocked_call_rasanlu:
+            mocked_call_rasanlu.return_value = {
+                "text": "i want to travel from Berlin to San Fransisco",
+                "intent": {"name": "knowledge", "confidence": 0.9999788999557495},
+                "entities": [
+                    {
+                        "entity": "city",
+                        "start": 22,
+                        "end": 28,
+                        "confidence_entity": 0.9633104801177979,
+                        "role": "departure",
+                        "confidence_role": 0.9610307812690735,
+                        "value": "Berlin",
+                        "extractor": "DIETClassifier"
+                    },
+                    {
+                        "entity": "city",
+                        "start": 32,
+                        "end": 45,
+                        "confidence_entity": 0.7566294074058533,
+                        "role": "destination",
+                        "confidence_role": 0.8198645114898682,
+                        "value": "San Fransisco",
+                        "extractor": "DIETClassifier"
+                    }
+                ],
+                "text_tokens": [[0, 1], [2, 6], [7, 9], [10, 16], [17, 21], [22, 28], [29, 31], [32, 35], [36, 45]]
+            }
+
+            [skill] = await rasanlu.parse_rasanlu(
+                opsdroid, opsdroid.skills, message, opsdroid.config["parsers"][0]
+            )
+
+            print(skill["message"].entities.keys())
+            self.assertEqual(len(skill["message"].entities.keys()), 2)
+
     async def test_parse_rasanlu_raises(self):
         with OpsDroid() as opsdroid:
             opsdroid.config["parsers"] = [
