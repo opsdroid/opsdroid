@@ -262,8 +262,11 @@ class TestParserRasaNLU(asynctest.TestCase):
                 opsdroid, opsdroid.skills, message, opsdroid.config["parsers"][0]
             )
 
-            print(skill["message"].entities.keys())
             self.assertEqual(len(skill["message"].entities.keys()), 2)
+            self.assertTrue("city_departure" in skill["message"].entities.keys())
+            self.assertTrue("city_destination" in skill["message"].entities.keys())
+            self.assertEqual(skill["message"].entities["city_departure"]["value"], "Berlin")
+            self.assertEqual(skill["message"].entities["city_destination"]["value"], "San Fransisco")
 
     async def test_parse_rasanlu_raises(self):
         with OpsDroid() as opsdroid:

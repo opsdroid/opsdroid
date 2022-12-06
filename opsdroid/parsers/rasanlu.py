@@ -289,15 +289,18 @@ async def parse_rasanlu(opsdroid, skills, message, config):
                     if matcher["rasanlu_intent"] == result["intent"]["name"]:
                         message.rasanlu = result
                         for entity in result["entities"]:
+                            entity_name = entity["entity"]
+                            if "role" in entity:
+                                entity_name = entity["entity"]+"_"+entity["role"]
                             if "confidence_entity" in entity:
                                 message.update_entity(
-                                    entity["entity"],
+                                    entity_name,
                                     entity["value"],
                                     entity["confidence_entity"],
                                 )
                             elif "extractor" in entity:
                                 message.update_entity(
-                                    entity["entity"],
+                                    entity_name,
                                     entity["value"],
                                     entity["extractor"],
                                 )
