@@ -205,14 +205,23 @@ class ConnectorSlack(Connector):
             cursor = None
 
             while True:
-                channels = await self.slack_web_client.conversations_list(
-                    cursor=cursor, limit=self.channel_limit
-                )
-                self.known_channels.update({c["name"]: c for c in channels["channels"]})
-                cursor = channels["response_metadata"].get("next_cursor")
+                try:
+                    channels = await self.slack_web_client.conversations_list(
+                        cursor=cursor, limit=self.channel_limit
+                    )
+                    self.known_channels.update({c["name"]: c for c in channels["channels"]})
+                    cursor = channels["response_metadata"].get("next_cursor")
 
-                if not cursor:
-                    break
+                    if not cursor:
+                        break
+                except SlackApiError as error:
+                    if "ratelimited" in str(error):
+                        wait_time = float(error.response.headers["Retry-After"])
+                        _LOGGER.warning(_(f"Rate limiting threshold reached. Retrying after {wait_time} seconds."))
+                        await asyncio.sleep(wait_time)
+                        continue
+                    else:
+                        raise
 
             channel_count = len(self.known_channels.keys())
             _LOGGER.info("Grabbed a total of %s channels from Slack", channel_count)
@@ -245,7 +254,7 @@ class ConnectorSlack(Connector):
             )
 
     async def socket_event_handler(
-        self, client: SocketModeClient, req: SocketModeRequest
+            self, client: SocketModeClient, req: SocketModeRequest
     ):
         payload = {}
 
