@@ -24,3 +24,46 @@ connectors:
     # optional
     bot-name: "mybot" # default "opsdroid"
 ```
+
+
+## Events Available
+
+The Discord connector contains 3 events that you can access on your skills. It is possible to either send or receive these events.
+
+```eval_rst
+.. autoclass:: opsdroid.events.Message
+    :members:
+```
+
+```eval_rst
+.. autoclass:: opsdroid.events.File
+    :members:
+```
+
+```eval_rst
+.. autoclass:: opsdroid.events.Image
+    :members:
+```
+
+
+## Skill examples
+
+```python
+from opsdroid.skill import Skill
+from opsdroid.matchers import match_regex
+from opsdroid.events import File, Image
+
+class MySkill(Skill):
+
+    @match_regex('file')
+    async def file(self, message):
+        with open('opsdroid.txt', 'rb') as f:
+            file = File(file_bytes=f.read(), name="opsdroid.txt")
+        await message.respond(file)
+    
+    @match_regex('image')
+    async def image(self, message):
+        with open('opsdroid.png', 'rb') as f:
+            img = Image(file_bytes=f.read(), name="opsdroid.png")
+        await message.respond(img)
+```
