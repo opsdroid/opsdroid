@@ -46,19 +46,21 @@ class ConnectorDiscord(Connector):
         """
         Handle messages received from discord gateway. For now, it can be text message, file or an image
         """
-        event = Message(text=message.content, user=message.author.name, user_id=message.author.id, target=message.channel, connector=self, raw_event=message)
+        event = Message(text=message.content, user=message.author.name, user_id=message.author.id, target=message.channel, connector=self)
+        _LOGGER.info(message.__repr__)
         _LOGGER.info(message.author.name + " said " + message.content)
         await self.opsdroid.parse(event)
     
     async def handle_image(self, message:discordMessage, img_nb:int):
         image = message.attachments[img_nb]
-        event = Image(url=image.url, name=image.filename ,user=message.author.name, user_id=message.author.id, target=message.channel, connector=self,raw_event=message, event_id=img_nb)
+        event = Image(url=image.url, name=image.filename ,user=message.author.name, user_id=message.author.id, target=message.channel, connector=self)
         _LOGGER.info(message.author.name+" sent the image at "+image.url)
         await self.opsdroid.parse(event)
 
     async def handle_file(self, message:discordMessage, file_nb:int):
         file = message.attachments[file_nb]
-        event = File(url=file.url, name=file.filename, user=message.author.name, user_id=message.author.id, target=message.channel, connector=self,raw_event=message, event_id=file_nb)
+        message
+        event = File(url=file.url, name=file.filename, user=message.author.name, user_id=message.author.id, target=message.channel, connector=self)
         _LOGGER.info(message.author.name+" sent the file at "+file.url)
         await self.opsdroid.parse(event)
     
