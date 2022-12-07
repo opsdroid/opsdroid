@@ -81,8 +81,9 @@ class InteractiveAction(events.Event):
                                             "delete_original": False,
                                             "response_type": "in_channel",
                                         }
-                    if 'thread_ts' in self.payload['message']:
-                        response_data["thread_ts"] = self.payload["message"]["thread_ts"]
+                    if 'message' in self.payload:
+                        if 'thread_ts' in self.payload['message']:
+                            response_data["thread_ts"] = self.payload["message"]["thread_ts"]
                     response = await session.post(
                         self.payload["response_url"],
                         data=json.dumps(
