@@ -217,7 +217,7 @@ class ConnectorSlack(Connector):
                 except SlackApiError as error:
                     if "ratelimited" in str(error):
                         wait_time = float(error.response.headers["Retry-After"])
-                        _LOGGER.warning(_(f"Rate limiting threshold reached. Retrying after {wait_time} seconds."))
+                        _LOGGER.warning(_(f"Rate limit threshold reached. Retrying after {wait_time} seconds."))
                         await asyncio.sleep(wait_time)
                         continue
                     else:
