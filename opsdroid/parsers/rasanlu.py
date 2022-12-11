@@ -158,7 +158,7 @@ async def _is_model_loaded(config):
             return None
         if resp.status == 200:
             result = await resp.json()
-            if result["model_file"].find(config["model_filename"]):
+            if config["model_filename"] in result["model_file"]:
                 return True
         return False
 
