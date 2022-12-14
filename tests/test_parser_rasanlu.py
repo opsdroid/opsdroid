@@ -574,12 +574,11 @@ class TestParserRasaNLU(asynctest.TestCase):
             self.assertEqual(await rasanlu.has_compatible_version_rasanlu({}), True)
 
     async def test__load_model(self):
-        result = amock.Mock()
-        result.status = 204
-        result.text = amock.CoroutineMock()
-        result.json = amock.CoroutineMock()
-
         with amock.patch("aiohttp.ClientSession.put") as patched_request:
+            result = amock.Mock()
+            result.status = 204
+            result.text = amock.CoroutineMock()
+            result.json = amock.CoroutineMock()
             patched_request.side_effect = None
             result.json.return_value = {}
             patched_request.return_value = asyncio.Future()
@@ -606,6 +605,24 @@ class TestParserRasaNLU(asynctest.TestCase):
             )
             self.assertEqual(
                 await rasanlu._load_model({"model_filename": "model.tar.gz"}), None
+            )
+
+        with amock.patch("aiohttp.ClientSession.put") as patched_request:
+            result = amock.Mock()
+            result.status = 204
+            result.content = aiohttp.streams.EmptyStreamReader()
+            result.reason = "No Content"
+            result.text = amock.CoroutineMock(
+                side_effect=aiohttp.ContentTypeError(None, None)
+            )
+            result.json = amock.CoroutineMock(
+                side_effect=aiohttp.ContentTypeError(None, None)
+            )
+            patched_request.return_value = asyncio.Future()
+            patched_request.return_value.set_result(result)
+            patched_request.side_effect = None
+            self.assertEqual(
+                await rasanlu._load_model({"model_filename": "model.tar.gz"}), {}
             )
 
     async def test__is_model_loaded(self):

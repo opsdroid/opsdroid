@@ -134,7 +134,10 @@ async def _load_model(config):
             _LOGGER.error(_("Unable to connect to Rasa NLU."))
             return None
         if resp.status == 204:
-            result = await resp.json()
+            try:
+                result = await resp.json()
+            except aiohttp.client_exceptions.ContentTypeError:
+                return {}
         else:
             result = await resp.text()
             _LOGGER.error(_("Bad Rasa NLU response - %s."), result)
@@ -155,7 +158,7 @@ async def _is_model_loaded(config):
             return None
         if resp.status == 200:
             result = await resp.json()
-            if result["model_file"].find(config["model_filename"]):
+            if config["model_filename"] in result["model_file"]:
                 return True
         return False
 
