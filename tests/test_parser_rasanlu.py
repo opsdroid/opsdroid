@@ -242,7 +242,7 @@ class TestParserRasaNLU(asynctest.TestCase):
                         "role": "departure",
                         "confidence_role": 0.9610307812690735,
                         "value": "Berlin",
-                        "extractor": "DIETClassifier"
+                        "extractor": "DIETClassifier",
                     },
                     {
                         "entity": "city",
@@ -252,10 +252,20 @@ class TestParserRasaNLU(asynctest.TestCase):
                         "role": "destination",
                         "confidence_role": 0.8198645114898682,
                         "value": "San Fransisco",
-                        "extractor": "DIETClassifier"
-                    }
+                        "extractor": "DIETClassifier",
+                    },
                 ],
-                "text_tokens": [[0, 1], [2, 6], [7, 9], [10, 16], [17, 21], [22, 28], [29, 31], [32, 35], [36, 45]]
+                "text_tokens": [
+                    [0, 1],
+                    [2, 6],
+                    [7, 9],
+                    [10, 16],
+                    [17, 21],
+                    [22, 28],
+                    [29, 31],
+                    [32, 35],
+                    [36, 45],
+                ],
             }
 
             [skill] = await rasanlu.parse_rasanlu(
@@ -265,8 +275,12 @@ class TestParserRasaNLU(asynctest.TestCase):
             self.assertEqual(len(skill["message"].entities.keys()), 2)
             self.assertTrue("city_departure" in skill["message"].entities.keys())
             self.assertTrue("city_destination" in skill["message"].entities.keys())
-            self.assertEqual(skill["message"].entities["city_departure"]["value"], "Berlin")
-            self.assertEqual(skill["message"].entities["city_destination"]["value"], "San Fransisco")
+            self.assertEqual(
+                skill["message"].entities["city_departure"]["value"], "Berlin"
+            )
+            self.assertEqual(
+                skill["message"].entities["city_destination"]["value"], "San Fransisco"
+            )
 
     async def test_parse_rasanlu_raises(self):
         with OpsDroid() as opsdroid:

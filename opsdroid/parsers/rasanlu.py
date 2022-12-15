@@ -294,7 +294,7 @@ async def parse_rasanlu(opsdroid, skills, message, config):
                         for entity in result["entities"]:
                             entity_name = entity["entity"]
                             if "role" in entity:
-                                entity_name = entity["entity"]+"_"+entity["role"]
+                                entity_name = entity["entity"] + "_" + entity["role"]
                             if "confidence_entity" in entity:
                                 message.update_entity(
                                     entity_name,
