@@ -411,8 +411,8 @@ class TestParserRasaNLU(asynctest.TestCase):
         skills[1] = {"intents": None}
         skills[2] = {"intents": "World"}
         intents = await rasanlu._get_all_intents(skills)
-        self.assertEqual(type(intents), type(b""))
-        self.assertEqual(intents, b"Hello\n\nWorld")
+        self.assertEqual(type(intents), type(""))
+        self.assertEqual(intents, "Hello\n\nWorld")
 
     async def test__get_all_intents_fails(self):
         skills = []
