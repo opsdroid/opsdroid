@@ -30,7 +30,7 @@ from opsdroid.parsers.parseformat import parse_format
 from opsdroid.parsers.rasanlu import (
     parse_rasanlu,
     train_rasanlu,
-    has_compatible_version_rasanlu,
+    rasa_usable,
 )
 from opsdroid.parsers.regex import parse_regex
 from opsdroid.parsers.sapcai import parse_sapcai
@@ -357,12 +357,9 @@ class OpsDroid:
             parsers = self.modules.get("parsers", {})
             rasanlu = get_parser_config("rasanlu", parsers)
             if rasanlu and rasanlu["enabled"]:
-                rasa_version_is_compatible = await has_compatible_version_rasanlu(
-                    rasanlu
-                )
-                if rasa_version_is_compatible is False:
+                if await rasa_usable(rasanlu) is False:
                     self.critical(
-                        "Cannot connect to Rasa or the Rasa version is not compatible",
+                        "Cannot connect to Rasa or the Rasa version is not compatible.",
                         5,
                     )
                 await train_rasanlu(rasanlu, skills)

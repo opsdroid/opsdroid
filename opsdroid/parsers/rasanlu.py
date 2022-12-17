@@ -94,8 +94,8 @@ async def _get_rasa_nlu_version(config):
         return result
 
 
-async def has_compatible_version_rasanlu(config):
-    """Check if Rasa NLU is compatible with the API we implement"""
+async def rasa_usable(config):
+    """Check if can connect to Rasa NLU and the version is compatible with the API we implement"""
     _LOGGER.debug(_("Checking Rasa NLU version."))
     json_object = await _get_rasa_nlu_version(config)
     if json_object is None:
