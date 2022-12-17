@@ -45,7 +45,7 @@ For developing or testing purposes you can run Rasa manually inside a container 
 ```
 docker run \
     --rm -ti \
-    -p 5005:5005 \
+    -p 5000:5005 \
     --name rasa \
     rasa/rasa:2.6.2-full \
     run --enable-api --auth-token 85769fjoso084jd -vv
