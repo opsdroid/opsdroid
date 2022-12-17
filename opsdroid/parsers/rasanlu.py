@@ -98,6 +98,8 @@ async def has_compatible_version_rasanlu(config):
     """Check if Rasa NLU is compatible with the API we implement"""
     _LOGGER.debug(_("Checking Rasa NLU version."))
     json_object = await _get_rasa_nlu_version(config)
+    if json_object is None:
+        return False
     version = json_object["version"]
     minimum_compatible_version = json_object["minimum_compatible_version"]
     # Make sure we don't run against a 1.x.x Rasa NLU because it has a different API

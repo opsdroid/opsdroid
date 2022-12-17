@@ -519,6 +519,9 @@ class TestParserRasaNLU(asynctest.TestCase):
             }
             self.assertEqual(await rasanlu.has_compatible_version_rasanlu({}), True)
 
+            mock_crc.return_value = None
+            self.assertEqual(await rasanlu.has_compatible_version_rasanlu({}), False)
+
     async def test__load_model(self):
         with amock.patch("aiohttp.ClientSession.put") as patched_request:
             result = amock.Mock()

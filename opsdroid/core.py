@@ -361,7 +361,10 @@ class OpsDroid:
                     rasanlu
                 )
                 if rasa_version_is_compatible is False:
-                    self.critical("Rasa version is not compatible", 5)
+                    self.critical(
+                        "Cannot connect to Rasa or the Rasa version is not compatible",
+                        5,
+                    )
                 await train_rasanlu(rasanlu, skills)
 
     async def setup_connectors(self, connectors):
