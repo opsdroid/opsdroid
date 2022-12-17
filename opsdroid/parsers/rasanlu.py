@@ -31,7 +31,7 @@ async def _get_all_intents(skills):
     if not intents:
         return None
     intents = "\n\n".join(intents)
-    return unicodedata.normalize("NFKD", intents).encode("ascii")
+    return unicodedata.normalize("NFKD", intents)
 
 
 async def _get_intents_fingerprint(intents):
