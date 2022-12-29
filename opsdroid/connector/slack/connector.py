@@ -211,9 +211,11 @@ class ConnectorSlack(Connector):
                     )
                     self.known_channels.update({c["name"]: c for c in channels["channels"]})
                     cursor = channels["response_metadata"].get("next_cursor")
-
                     if not cursor:
                         break
+                    channel_count = len(self.known_channels.keys())
+                    _LOGGER.info("Grabbed a total of %s channels from Slack", channel_count)
+                    await asyncio.sleep(self.refresh_interval - arrow.now().time().second)
                 except SlackApiError as error:
                     if "ratelimited" in str(error):
                         wait_time = float(error.response.headers["Retry-After"])
@@ -222,10 +224,6 @@ class ConnectorSlack(Connector):
                         continue
                     else:
                         raise
-
-            channel_count = len(self.known_channels.keys())
-            _LOGGER.info("Grabbed a total of %s channels from Slack", channel_count)
-            await asyncio.sleep(self.refresh_interval - arrow.now().time().second)
 
     async def event_handler(self, payload):
         """Handle different payload types and parse the resulting events"""
