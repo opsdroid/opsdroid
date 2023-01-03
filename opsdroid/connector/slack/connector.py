@@ -224,7 +224,7 @@ class ConnectorSlack(Connector):
                     )
                 except SlackApiError as error:
                     if "ratelimited" in str(error):
-                        wait_time = float(error.response.headers["Retry-After"])
+                        wait_time = float(error.response.headers.get("Retry-After", 30)
                         _LOGGER.warning(
                             _(
                                 f"Rate limit threshold reached. Retrying after {wait_time} seconds."
