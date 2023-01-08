@@ -4,7 +4,9 @@ import logging
 import asynctest.mock as amock
 import pytest
 from opsdroid import events
-from opsdroid.connector.slack.connector import SlackApiError
+
+from slack_sdk.web.slack_response import SlackResponse
+from slack_sdk.errors import SlackApiError
 from opsdroid.connector.slack.events import (
     Blocks,
     EditedBlocks,
@@ -165,10 +167,77 @@ async def test_search_history_messages(connector, mock_api):
 
 
 @pytest.mark.asyncio
+@pytest.mark.add_response(
+    "/conversations.history", "GET", {"ok": True, "messages": []}, 200
+)
+async def test_search_history_messages_empty(connector, mock_api):
+    # This test is mostly to cover the `if no messages, break from loop logic`.
+    history = await connector.search_history_messages(
+        "C01N639ECTY", "1512085930.000000", "1512085980.000000"
+    )
+    assert mock_api.called("/conversations.history")
+
+    assert isinstance(history, list)
+    assert len(history) == 0
+
+
+@pytest.mark.asyncio
 @pytest.mark.add_response(*CONVERSATIONS_HISTORY)
 async def test_search_history_messages_limit_more_than_1000(
     connector, mock_api, caplog
 ):
+    caplog.set_level(logging.INFO)
+    await connector.search_history_messages(
+        "C01N639ECTY", "1512085930.000000", "1512085980.000000", 1001
+    )
+    assert mock_api.called("/conversations.history")
+    assert "This might take some time" in caplog.text
+
+
+@pytest.mark.asyncio
+async def test__get_channels_rate_limit(
+    connector,
+    caplog,
+):
+    mocked_response = SlackResponse(
+        client=None,
+        http_verb="GET",
+        req_args={},
+        api_url="/conversations.history",
+        status_code=429,
+        headers={"Retry-After": 0.1},
+        data={"ok": False, "error": "ratelimited"},
+    )
+
+    mocked_conversations_list = amock.CoroutineMock()
+    mocked_conversations_list.side_effect = SlackApiError(
+        message="Rate limit threshold reached.",
+        response=mocked_response,
+    )
+
+    connector.slack_web_client.conversations_list = mocked_conversations_list
+    await connector._get_channels()
+
+    assert "Rate limit threshold reached." in caplog.text
+
+
+@pytest.mark.asyncio
+async def test__get_channels_exception_raises(
+    connector,
+):
+    mocked_conversations_list = amock.CoroutineMock()
+    mocked_conversations_list.side_effect = SlackApiError(message="Error", response="?")
+    connector.slack_web_client.conversations_list = mocked_conversations_list
+
+    with pytest.raises(SlackApiError):
+        await connector._get_channels()
+
+
+@pytest.mark.asyncio
+@pytest.mark.add_response(
+    "/conversations.history", "GET", {"ok": True, "messages": []}, 200
+)
+async def test__get_channels_no_channels(connector, mock_api, caplog):
     caplog.set_level(logging.INFO)
     await connector.search_history_messages(
         "C01N639ECTY", "1512085930.000000", "1512085980.000000", 1001
