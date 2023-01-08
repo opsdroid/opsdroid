@@ -177,7 +177,7 @@ The example skill will print the following .
 ```eval_rst
 .. warning::
    When using Rasa roles the entity name is used multiple times (for departure and for destination).
-   To be able to provided it via `message.entities` Opsdroid rasanlu matcher will create a new name `city` with both roles `departure` and `destination` appended (with `_`).
+   To be able to provide it via `message.entities` Opsdroid rasanlu matcher will create a new name `city` with both roles `departure` and `destination` appended (with `_`).
 
    So the entities will be stored in `message.entities` with keys `city_departure` and `city_destination`.
 ```
