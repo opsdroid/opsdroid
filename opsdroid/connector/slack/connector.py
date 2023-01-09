@@ -198,13 +198,15 @@ class ConnectorSlack(Connector):
         """Grab all the channels from the Slack API. This method runs while opsdroid
         is running at every refresh_interval.
         """
-
+        # By default, slack api asks us to wait 30 seconds if we hit the rate limit.
+        # We will retry 5 (2.5 mins) times before giving up.
+        max_retries = 5
         while self.opsdroid.eventloop.is_running():
             _LOGGER.info(_("Updating Channels from Slack API at %s."), time.asctime())
 
             cursor = None
 
-            while True:
+            while max_retries:
                 try:
                     channels = await self.slack_web_client.conversations_list(
                         cursor=cursor, limit=self.channel_limit
@@ -212,7 +214,7 @@ class ConnectorSlack(Connector):
                     self.known_channels.update(
                         {c["name"]: c for c in channels["channels"]}
                     )
-                    cursor = channels["response_metadata"].get("next_cursor")
+                    cursor = channels.get("response_metadata", {}).get("next_cursor")
                     if not cursor:
                         break
                     channel_count = len(self.known_channels.keys())
@@ -224,16 +226,20 @@ class ConnectorSlack(Connector):
                     )
                 except SlackApiError as error:
                     if "ratelimited" in str(error):
-                        wait_time = float(error.response.headers.get("Retry-After", 30)
+                        wait_time = float(error.response.headers.get("Retry-After", 30))
                         _LOGGER.warning(
                             _(
                                 f"Rate limit threshold reached. Retrying after {wait_time} seconds."
                             )
                         )
                         await asyncio.sleep(wait_time)
+                        max_retries -= 1
                         continue
                     else:
                         raise
+            # If we reach here, let's break from the loop
+            # (works for both cases: cursor is None or max_retries is 0)
+            break
 
     async def event_handler(self, payload):
         """Handle different payload types and parse the resulting events"""
