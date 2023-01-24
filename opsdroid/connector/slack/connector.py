@@ -82,6 +82,7 @@ class ConnectorSlack(Connector):
         self.user_info = None
         self.bot_id = None
         self.known_users = {}
+        self.known_bots = {}
         self.known_channels = {}
 
         self._event_creator = SlackEventCreator(self)
@@ -406,19 +407,28 @@ class ConnectorSlack(Connector):
 
         return messages
 
-    async def lookup_username(self, userid):
+    async def lookup_username(self, userid, is_bot=False):
         """Lookup a username and cache it."""
-
         if userid in self.known_users:
-            user_info = self.known_users[userid]
+            return self.known_users[userid]
+        elif userid in self.known_bots:
+            return self.known_bots[userid]
         else:
-            response = await self.slack_web_client.users_info(user=userid)
-            user_info = response.data["user"]
-
-            if isinstance(user_info, dict):
-                self.known_users[userid] = user_info
-
-        return user_info
+            response = (
+                await self.slack_web_client.users_info(user=userid)
+                if not is_bot
+                else await self.slack_web_client.bots_info(bot=userid)
+            )
+            if "user" in response.data:
+                user_info = response.data["user"]
+                if isinstance(user_info, dict):
+                    self.known_users[userid] = user_info
+                return user_info
+            elif "bot" in response.data:
+                bot_info = response.data["bot"]
+                if isinstance(bot_info, dict):
+                    self.known_bots[userid] = bot_info
+                return bot_info
 
     async def replace_usernames(self, message):
         """Replace User ID with username in message text."""
