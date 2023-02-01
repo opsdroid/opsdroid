@@ -82,6 +82,7 @@ class ConnectorSlack(Connector):
         self.user_info = None
         self.bot_id = None
         self.known_users = {}
+        self.known_bots = {}
         self.known_channels = {}
 
         self._event_creator = SlackEventCreator(self)
@@ -198,25 +199,48 @@ class ConnectorSlack(Connector):
         """Grab all the channels from the Slack API. This method runs while opsdroid
         is running at every refresh_interval.
         """
-
+        # By default, slack api asks us to wait 30 seconds if we hit the rate limit.
+        # We will retry 5 (2.5 mins) times before giving up.
+        max_retries = 5
         while self.opsdroid.eventloop.is_running():
             _LOGGER.info(_("Updating Channels from Slack API at %s."), time.asctime())
 
             cursor = None
 
-            while True:
-                channels = await self.slack_web_client.conversations_list(
-                    cursor=cursor, limit=self.channel_limit
-                )
-                self.known_channels.update({c["name"]: c for c in channels["channels"]})
-                cursor = channels["response_metadata"].get("next_cursor")
-
-                if not cursor:
-                    break
-
-            channel_count = len(self.known_channels.keys())
-            _LOGGER.info("Grabbed a total of %s channels from Slack", channel_count)
-            await asyncio.sleep(self.refresh_interval - arrow.now().time().second)
+            while max_retries:
+                try:
+                    channels = await self.slack_web_client.conversations_list(
+                        cursor=cursor, limit=self.channel_limit
+                    )
+                    self.known_channels.update(
+                        {c["name"]: c for c in channels["channels"]}
+                    )
+                    cursor = channels.get("response_metadata", {}).get("next_cursor")
+                    if not cursor:
+                        break
+                    channel_count = len(self.known_channels.keys())
+                    _LOGGER.info(
+                        "Grabbed a total of %s channels from Slack", channel_count
+                    )
+                    await asyncio.sleep(
+                        self.refresh_interval - arrow.now().time().second
+                    )
+                except SlackApiError as error:
+                    if "ratelimited" in str(error):
+                        wait_time = float(error.response.headers.get("Retry-After", 30))
+                        _LOGGER.warning(
+                            _(
+                                f"Rate limit threshold reached. Retrying after {wait_time} seconds."
+                            )
+                        )
+                        await asyncio.sleep(wait_time)
+                        max_retries -= 1
+                        continue
+                    else:
+                        raise
+            # If we reach here, let's break from the loop
+            # (works for both cases: cursor is None or max_retries is 0)
+            break
 
     async def event_handler(self, payload):
         """Handle different payload types and parse the resulting events"""
@@ -389,19 +413,28 @@ class ConnectorSlack(Connector):
 
         return messages
 
-    async def lookup_username(self, userid):
+    async def lookup_username(self, userid, is_bot=False):
         """Lookup a username and cache it."""
-
         if userid in self.known_users:
-            user_info = self.known_users[userid]
+            return self.known_users[userid]
+        elif userid in self.known_bots:
+            return self.known_bots[userid]
         else:
-            response = await self.slack_web_client.users_info(user=userid)
-            user_info = response.data["user"]
-
-            if isinstance(user_info, dict):
-                self.known_users[userid] = user_info
-
-        return user_info
+            response = (
+                await self.slack_web_client.users_info(user=userid)
+                if not is_bot
+                else await self.slack_web_client.bots_info(bot=userid)
+            )
+            if "user" in response.data:
+                user_info = response.data["user"]
+                if isinstance(user_info, dict):
+                    self.known_users[userid] = user_info
+                return user_info
+            elif "bot" in response.data:
+                bot_info = response.data["bot"]
+                if isinstance(bot_info, dict):
+                    self.known_bots[userid] = bot_info
+                return bot_info
 
     async def replace_usernames(self, message):
         """Replace User ID with username in message text."""
