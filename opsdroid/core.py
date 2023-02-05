@@ -147,7 +147,9 @@ class OpsDroid:
             context (String): Describes the exception encountered.
 
         """
-        warnings.warn("ERROR: Unhandled exception in opsdroid, exiting...", stacklevel=2)
+        warnings.warn(
+            "ERROR: Unhandled exception in opsdroid, exiting...", stacklevel=2
+        )
         if "future" in context:
             try:  # pragma: nocover
                 context["future"].result()
