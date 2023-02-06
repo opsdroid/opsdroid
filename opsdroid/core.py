@@ -8,6 +8,7 @@ import logging
 import os
 import signal
 import sys
+import warnings
 import weakref
 
 from watchgod import PythonWatcher, awatch
@@ -146,14 +147,16 @@ class OpsDroid:
             context (String): Describes the exception encountered.
 
         """
-        print("ERROR: Unhandled exception in opsdroid, exiting...")
+        warnings.warn(
+            "ERROR: Unhandled exception in opsdroid, exiting...", stacklevel=2
+        )
         if "future" in context:
             try:  # pragma: nocover
                 context["future"].result()
             # pylint: disable=broad-except
-            except Exception:  # pragma: nocover
-                print("Caught exception")
-        print(context)
+            except Exception as e:  # pragma: nocover
+                warnings.warn("Caught exception", stacklevel=2, source=e)
+        warnings.warn(context, stacklevel=2)
 
     def is_running(self):
         """Check whether opsdroid is running."""
