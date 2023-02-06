@@ -17,7 +17,7 @@ from opsdroid import events
     },
 )
 @pytest.mark.asyncio
-async def test_receive_message(opsdroid, connector_connected, mock_api):
+async def test_leave_room(opsdroid, connector_connected, mock_api):
     await opsdroid.send(
         events.LeaveRoom(target="#test:localhost", connector=connector_connected)
     )
