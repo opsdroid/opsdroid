@@ -193,6 +193,8 @@ class ConnectorMatrix(Connector):
             encryption_enabled=self._allow_encryption,
             pickle_key="",
             store_name="opsdroid.db" if self._allow_encryption else "",
+            request_timeout = 60,
+            max_timeouts = 1,
         )
         self.connection = nio.AsyncClient(
             self.homeserver,
@@ -216,9 +218,14 @@ class ConnectorMatrix(Connector):
             self.connection.user_id = self.mxid
 
         elif self.mxid is not None and self.password is not None:
-            login_response = await self.connection.login(
+            try:
+                login_response = await self.connection.login(
                 password=self.password, device_name=self.device_name
-            )
+                )
+            except:
+                _LOGGER.error ("connexion error")
+                self.connection_failed = True
+                return
             if isinstance(login_response, nio.LoginError):
                 _LOGGER.error(
                     f"Error while connecting: {login_response.message} (status code {login_response.status_code})"
@@ -325,6 +332,8 @@ class ConnectorMatrix(Connector):
 
     async def listen(self):  # pragma: no cover
         """Listen for new messages from the chat service."""
+        if(self.connection_failed is True):
+            return
         while True:  # pylint: disable=R1702
             response = await self.connection.sync(
                 timeout=int(60 * 1e3),  # 1m in ms
