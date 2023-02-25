@@ -222,7 +222,7 @@ class ConnectorMatrix(Connector):
                 login_response = await self.connection.login(
                     password=self.password, device_name=self.device_name
                 )
-            except:
+            except Exception:
                 _LOGGER.error("connexion error")
                 self.connection_failed = True
                 return
@@ -332,9 +332,7 @@ class ConnectorMatrix(Connector):
 
     async def listen(self):  # pragma: no cover
         """Listen for new messages from the chat service."""
-        if self.connection_failed is True:
-            return
-        while True:  # pylint: disable=R1702
+        while not self.connection_failed:  # pylint: disable=R1702
             response = await self.connection.sync(
                 timeout=int(60 * 1e3),  # 1m in ms
                 sync_filter=self.filter_id,
