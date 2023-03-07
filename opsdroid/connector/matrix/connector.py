@@ -223,7 +223,7 @@ class ConnectorMatrix(Connector):
                     password=self.password, device_name=self.device_name
                 )
             except Exception:
-                _LOGGER.error("connexion error")
+                _LOGGER.error("Logging into matrix homeserver failed.")
                 self.connection_failed = True
                 return
             if isinstance(login_response, nio.LoginError):
