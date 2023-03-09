@@ -218,6 +218,7 @@ class ConnectorMatrix(Connector):
             self.connection.user_id = self.mxid
 
         elif self.mxid is not None and self.password is not None:
+            self.connection_failed = False
             try:
                 login_response = await self.connection.login(
                     password=self.password, device_name=self.device_name
@@ -278,7 +279,7 @@ class ConnectorMatrix(Connector):
             if isinstance(display_name, nio.ErrorResponse):
                 _LOGGER.warning(
                     f"Error fetching current display_name: {display_name.message} (status code {display_name.status_code})"
-                )
+                )  self.connection_failed = True
                 display_name = None
             else:
                 display_name = display_name.displayname
