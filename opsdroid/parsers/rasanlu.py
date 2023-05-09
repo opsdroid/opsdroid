@@ -31,7 +31,7 @@ async def _get_all_intents(skills):
     if not intents:
         return None
     intents = "\n\n".join(intents)
-    return unicodedata.normalize("NFKD", intents).encode("ascii")
+    return unicodedata.normalize("NFKD", intents)
 
 
 async def _get_intents_fingerprint(intents):
@@ -94,10 +94,12 @@ async def _get_rasa_nlu_version(config):
         return result
 
 
-async def has_compatible_version_rasanlu(config):
-    """Check if Rasa NLU is compatible with the API we implement"""
+async def rasa_usable(config):
+    """Check if can connect to Rasa NLU and the version is compatible with the API we implement"""
     _LOGGER.debug(_("Checking Rasa NLU version."))
     json_object = await _get_rasa_nlu_version(config)
+    if json_object is None:
+        return False
     version = json_object["version"]
     minimum_compatible_version = json_object["minimum_compatible_version"]
     # Make sure we don't run against a 1.x.x Rasa NLU because it has a different API
@@ -134,7 +136,10 @@ async def _load_model(config):
             _LOGGER.error(_("Unable to connect to Rasa NLU."))
             return None
         if resp.status == 204:
-            result = await resp.json()
+            try:
+                result = await resp.json()
+            except aiohttp.client_exceptions.ContentTypeError:
+                return {}
         else:
             result = await resp.text()
             _LOGGER.error(_("Bad Rasa NLU response - %s."), result)
@@ -155,7 +160,7 @@ async def _is_model_loaded(config):
             return None
         if resp.status == 200:
             result = await resp.json()
-            if result["model_file"].find(config["model_filename"]):
+            if config["model_filename"] in result["model_file"]:
                 return True
         return False
 
@@ -289,15 +294,18 @@ async def parse_rasanlu(opsdroid, skills, message, config):
                     if matcher["rasanlu_intent"] == result["intent"]["name"]:
                         message.rasanlu = result
                         for entity in result["entities"]:
+                            entity_name = entity["entity"]
+                            if "role" in entity:
+                                entity_name = entity["entity"] + "_" + entity["role"]
                             if "confidence_entity" in entity:
                                 message.update_entity(
-                                    entity["entity"],
+                                    entity_name,
                                     entity["value"],
                                     entity["confidence_entity"],
                                 )
                             elif "extractor" in entity:
                                 message.update_entity(
-                                    entity["entity"],
+                                    entity_name,
                                     entity["value"],
                                     entity["extractor"],
                                 )

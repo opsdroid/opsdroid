@@ -1,4 +1,4 @@
-FROM python:3.9.6-alpine3.14 as builder
+FROM python:3.9.16-alpine3.16 as builder
 LABEL maintainer="Jacob Tomlinson <jacob@tomlinson.email>"
 
 WORKDIR /usr/src/app

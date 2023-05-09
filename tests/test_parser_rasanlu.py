@@ -214,6 +214,74 @@ class TestParserRasaNLU(asynctest.TestCase):
                     skill["message"].entities["cuisine"]["value"], "chinese"
                 )
 
+    async def test_parse_rasanlu_multiple_entities_with_same_name(self):
+        with OpsDroid() as opsdroid:
+            opsdroid.config["parsers"] = [
+                {"name": "rasanlu", "token": "test", "min-score": 0.3}
+            ]
+            mock_skill = await self.getMockSkill()
+            opsdroid.skills.append(match_rasanlu("knowledge")(mock_skill))
+
+        mock_connector = amock.CoroutineMock()
+        message = Message(
+            text="i want to travel from Berlin to San Fransisco",
+            user="user",
+            target="default",
+            connector=mock_connector,
+        )
+        with amock.patch.object(rasanlu, "call_rasanlu") as mocked_call_rasanlu:
+            mocked_call_rasanlu.return_value = {
+                "text": "i want to travel from Berlin to San Fransisco",
+                "intent": {"name": "knowledge", "confidence": 0.9999788999557495},
+                "entities": [
+                    {
+                        "entity": "city",
+                        "start": 22,
+                        "end": 28,
+                        "confidence_entity": 0.9633104801177979,
+                        "role": "departure",
+                        "confidence_role": 0.9610307812690735,
+                        "value": "Berlin",
+                        "extractor": "DIETClassifier",
+                    },
+                    {
+                        "entity": "city",
+                        "start": 32,
+                        "end": 45,
+                        "confidence_entity": 0.7566294074058533,
+                        "role": "destination",
+                        "confidence_role": 0.8198645114898682,
+                        "value": "San Fransisco",
+                        "extractor": "DIETClassifier",
+                    },
+                ],
+                "text_tokens": [
+                    [0, 1],
+                    [2, 6],
+                    [7, 9],
+                    [10, 16],
+                    [17, 21],
+                    [22, 28],
+                    [29, 31],
+                    [32, 35],
+                    [36, 45],
+                ],
+            }
+
+            [skill] = await rasanlu.parse_rasanlu(
+                opsdroid, opsdroid.skills, message, opsdroid.config["parsers"][0]
+            )
+
+            self.assertEqual(len(skill["message"].entities.keys()), 2)
+            self.assertTrue("city_departure" in skill["message"].entities.keys())
+            self.assertTrue("city_destination" in skill["message"].entities.keys())
+            self.assertEqual(
+                skill["message"].entities["city_departure"]["value"], "Berlin"
+            )
+            self.assertEqual(
+                skill["message"].entities["city_destination"]["value"], "San Fransisco"
+            )
+
     async def test_parse_rasanlu_raises(self):
         with OpsDroid() as opsdroid:
             opsdroid.config["parsers"] = [
@@ -411,8 +479,8 @@ class TestParserRasaNLU(asynctest.TestCase):
         skills[1] = {"intents": None}
         skills[2] = {"intents": "World"}
         intents = await rasanlu._get_all_intents(skills)
-        self.assertEqual(type(intents), type(b""))
-        self.assertEqual(intents, b"Hello\n\nWorld")
+        self.assertEqual(type(intents), type(""))
+        self.assertEqual(intents, "Hello\n\nWorld")
 
     async def test__get_all_intents_fails(self):
         skills = []
@@ -499,33 +567,35 @@ class TestParserRasaNLU(asynctest.TestCase):
                 await rasanlu._get_rasa_nlu_version({}), result.text.return_value
             )
 
-    async def test_has_compatible_version_rasanlu(self):
+    async def test_rasa_usable(self):
         with amock.patch.object(rasanlu, "_get_rasa_nlu_version") as mock_crc:
             mock_crc.return_value = {
                 "version": "1.0.0",
                 "minimum_compatible_version": "1.0.0",
             }
-            self.assertEqual(await rasanlu.has_compatible_version_rasanlu({}), False)
+            self.assertEqual(await rasanlu.rasa_usable({}), False)
 
             mock_crc.return_value = {
                 "version": "2.6.2",
                 "minimum_compatible_version": "2.6.0",
             }
-            self.assertEqual(await rasanlu.has_compatible_version_rasanlu({}), True)
+            self.assertEqual(await rasanlu.rasa_usable({}), True)
 
             mock_crc.return_value = {
                 "version": "3.1.2",
                 "minimum_compatible_version": "3.0.0",
             }
-            self.assertEqual(await rasanlu.has_compatible_version_rasanlu({}), True)
+            self.assertEqual(await rasanlu.rasa_usable({}), True)
+
+            mock_crc.return_value = None
+            self.assertEqual(await rasanlu.rasa_usable({}), False)
 
     async def test__load_model(self):
-        result = amock.Mock()
-        result.status = 204
-        result.text = amock.CoroutineMock()
-        result.json = amock.CoroutineMock()
-
         with amock.patch("aiohttp.ClientSession.put") as patched_request:
+            result = amock.Mock()
+            result.status = 204
+            result.text = amock.CoroutineMock()
+            result.json = amock.CoroutineMock()
             patched_request.side_effect = None
             result.json.return_value = {}
             patched_request.return_value = asyncio.Future()
@@ -552,6 +622,24 @@ class TestParserRasaNLU(asynctest.TestCase):
             )
             self.assertEqual(
                 await rasanlu._load_model({"model_filename": "model.tar.gz"}), None
+            )
+
+        with amock.patch("aiohttp.ClientSession.put") as patched_request:
+            result = amock.Mock()
+            result.status = 204
+            result.content = aiohttp.streams.EmptyStreamReader()
+            result.reason = "No Content"
+            result.text = amock.CoroutineMock(
+                side_effect=aiohttp.ContentTypeError(None, None)
+            )
+            result.json = amock.CoroutineMock(
+                side_effect=aiohttp.ContentTypeError(None, None)
+            )
+            patched_request.return_value = asyncio.Future()
+            patched_request.return_value.set_result(result)
+            patched_request.side_effect = None
+            self.assertEqual(
+                await rasanlu._load_model({"model_filename": "model.tar.gz"}), {}
             )
 
     async def test__is_model_loaded(self):
@@ -612,7 +700,7 @@ class TestParserRasaNLU(asynctest.TestCase):
         ) as mock_btu, amock.patch.object(
             rasanlu, "_get_intents_fingerprint"
         ) as mock_gif, amock.patch.object(
-            rasanlu, "has_compatible_version_rasanlu"
+            rasanlu, "rasa_usable"
         ) as mock_crc, amock.patch.object(
             rasanlu, "_load_model"
         ) as mock_lmo, amock.patch.object(
@@ -686,7 +774,7 @@ class TestParserRasaNLU(asynctest.TestCase):
         ) as mock_btu, amock.patch.object(
             rasanlu, "_get_intents_fingerprint"
         ) as mock_gif, amock.patch.object(
-            rasanlu, "has_compatible_version_rasanlu"
+            rasanlu, "rasa_usable"
         ) as mock_crc, amock.patch.object(
             rasanlu, "_load_model"
         ) as mock_lmo, amock.patch.object(

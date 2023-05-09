@@ -8,6 +8,7 @@ import logging
 import os
 import signal
 import sys
+import warnings
 import weakref
 
 from watchgod import PythonWatcher, awatch
@@ -30,7 +31,7 @@ from opsdroid.parsers.parseformat import parse_format
 from opsdroid.parsers.rasanlu import (
     parse_rasanlu,
     train_rasanlu,
-    has_compatible_version_rasanlu,
+    rasa_usable,
 )
 from opsdroid.parsers.regex import parse_regex
 from opsdroid.parsers.sapcai import parse_sapcai
@@ -146,14 +147,16 @@ class OpsDroid:
             context (String): Describes the exception encountered.
 
         """
-        print("ERROR: Unhandled exception in opsdroid, exiting...")
+        warnings.warn(
+            "ERROR: Unhandled exception in opsdroid, exiting...", stacklevel=2
+        )
         if "future" in context:
             try:  # pragma: nocover
                 context["future"].result()
             # pylint: disable=broad-except
-            except Exception:  # pragma: nocover
-                print("Caught exception")
-        print(context)
+            except Exception as e:  # pragma: nocover
+                warnings.warn("Caught exception", stacklevel=2, source=e)
+        warnings.warn(context, stacklevel=2)
 
     def is_running(self):
         """Check whether opsdroid is running."""
@@ -357,11 +360,11 @@ class OpsDroid:
             parsers = self.modules.get("parsers", {})
             rasanlu = get_parser_config("rasanlu", parsers)
             if rasanlu and rasanlu["enabled"]:
-                rasa_version_is_compatible = await has_compatible_version_rasanlu(
-                    rasanlu
-                )
-                if rasa_version_is_compatible is False:
-                    self.critical("Rasa version is not compatible", 5)
+                if await rasa_usable(rasanlu) is False:
+                    self.critical(
+                        "Cannot connect to Rasa or the Rasa version is not compatible.",
+                        5,
+                    )
                 await train_rasanlu(rasanlu, skills)
 
     async def setup_connectors(self, connectors):

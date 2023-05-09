@@ -75,16 +75,20 @@ class InteractiveAction(events.Event):
             if "response_url" in self.payload:
                 async with aiohttp.ClientSession() as session:
                     headers = {"Content-Type": "application/json"}
+                    response_data = {
+                        "text": response_event,
+                        "replace_original": False,
+                        "delete_original": False,
+                        "response_type": "in_channel",
+                    }
+                    if "message" in self.payload and self.connector.start_thread:
+                        if "thread_ts" in self.payload["message"]:
+                            response_data["thread_ts"] = self.payload["message"][
+                                "thread_ts"
+                            ]
                     response = await session.post(
                         self.payload["response_url"],
-                        data=json.dumps(
-                            {
-                                "text": response_event,
-                                "replace_original": False,
-                                "delete_original": False,
-                                "response_type": "in_channel",
-                            }
-                        ),
+                        data=json.dumps(response_data),
                         headers=headers,
                         ssl=self.ssl_context,
                     )

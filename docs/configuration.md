@@ -590,7 +590,7 @@ Set `no-dep` to true to skip the installation of dependencies on every start of 
 skills:
   myawesomeskill:
     no-cache: true
-    no-deps: true
+    no-dep: true
 ```
 
 _Note: This might be useful when developing a skill and already have the dependencies installed._

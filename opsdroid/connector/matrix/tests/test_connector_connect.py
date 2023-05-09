@@ -22,6 +22,7 @@ async def test_connect_access_token(
     assert isinstance(connector, ConnectorMatrix)
     assert connector.access_token == "token"
     await connector.connect()
+    await connector.disconnect()
 
     assert mock_api.called("/_matrix/client/r0/account/whoami")
     assert (
@@ -47,6 +48,7 @@ async def test_connect_invalid_access_token(caplog, opsdroid, connector, mock_ap
     assert isinstance(connector, ConnectorMatrix)
     assert connector.access_token == "token"
     await connector.connect()
+    await connector.disconnect()
 
     assert mock_api.called("/_matrix/client/r0/account/whoami")
 
@@ -75,6 +77,7 @@ async def test_connect_login(
 ):
     assert isinstance(connector, ConnectorMatrix)
     await connector.connect()
+    await connector.disconnect()
 
     assert mock_api.called("/_matrix/client/r0/login")
     assert (
@@ -97,6 +100,7 @@ async def test_connect_login(
 async def test_connect_login_error(caplog, opsdroid, connector, mock_api):
     assert isinstance(connector, ConnectorMatrix)
     await connector.connect()
+    await connector.disconnect()
 
     assert mock_api.called("/_matrix/client/r0/login")
 
@@ -126,6 +130,7 @@ async def test_connect_join_fail(
     assert isinstance(connector, ConnectorMatrix)
     assert connector.access_token == "token"
     await connector.connect()
+    await connector.disconnect()
 
     assert caplog.record_tuples == [
         (
@@ -156,6 +161,7 @@ async def test_connect_set_nick_errors(
     caplog,
 ):
     await connector.connect()
+    await connector.disconnect()
 
     assert caplog.record_tuples == [
         (
@@ -194,6 +200,8 @@ async def test_connect_set_nick(
     mock_api,
 ):
     await connector.connect()
+    await connector.disconnect()
+
     assert mock_api.called(
         "/_matrix/client/r0/profile/@opsdroid:localhost/displayname", "GET"
     )
