@@ -550,7 +550,7 @@ class UnpinMessage(Event):
 class DeleteMessage(Event):
     """Event to represent deleting a message or other event."""
 
-    def __init__(self, reason, *args, **kwargs):
+    def __init__(self, reason=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.reason = reason
 
