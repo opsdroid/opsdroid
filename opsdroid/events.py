@@ -284,6 +284,9 @@ class Message(Event):
 
         return await super().respond(response)
 
+    async def remove(self, reason):
+        return await super().respond(DeleteMessage(reason, linked_event=self))
+
 
 class EditedMessage(Message):
     """A  `opsdroid.events.Message` which has been edited.
@@ -546,6 +549,10 @@ class UnpinMessage(Event):
 
 class DeleteMessage(Event):
     """Event to represent deleting a message or other event."""
+
+    def __init__(self, reason, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.reason = reason
 
 
 class BanUser(Event):
