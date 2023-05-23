@@ -284,7 +284,7 @@ class Message(Event):
 
         return await super().respond(response)
 
-    async def remove(self, reason):
+    async def remove(self, reason=None):
         return await super().respond(DeleteMessage(reason, linked_event=self))
 
 
