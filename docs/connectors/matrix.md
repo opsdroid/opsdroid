@@ -45,6 +45,7 @@ connectors:
       'main': '#matrix:matrix.org'
       'other': '#element-web:matrix.org'
     # Optional
+    access_token: "the access token"  # directly provide the access token, if provided mxid and password are not required, but homeserver is.
     homeserver: "https://matrix.org"
     nick: "Botty McBotface"  # The nick will be set on startup
     room_specific_nicks: False  # Look up room specific nicknames of senders (expensive in large rooms)
@@ -64,7 +65,7 @@ connectors:
 
 To be able to use E2EE you need to have the 'olm' library installed, this is currently not available through pip, you can find it [here](https://gitlab.matrix.org/matrix-org/olm/), in most linux distributions or by using the opsdroid Docker images.
 
-``eval_rst
+```eval_rst
 .. note::
     Opsdroid >= v0.24.1 Docker image includes E2EE
 ```
