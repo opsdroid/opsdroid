@@ -1,5 +1,5 @@
-import asynctest
-import asynctest.mock as amock
+import unittest
+import unittest.mock as amock
 
 from opsdroid.cli.start import configure_lang
 from opsdroid.core import OpsDroid
@@ -8,7 +8,7 @@ from opsdroid.events import Message
 from opsdroid.parsers.regex import parse_regex
 
 
-class TestParserRegex(asynctest.TestCase):
+class TestParserRegex(unittest.TestCase):
     """Test the opsdroid regex parser."""
 
     async def setup(self):
@@ -33,7 +33,7 @@ class TestParserRegex(asynctest.TestCase):
             mock_skill = await self.getMockSkill()
             opsdroid.skills.append(match_regex(r"(.*)")(mock_skill))
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message("Hello world", "user", "default", mock_connector)
 
             skills = await parse_regex(opsdroid, opsdroid.skills, message)
@@ -49,7 +49,7 @@ class TestParserRegex(asynctest.TestCase):
             mock_skill_low = await self.getMockSkill()
             opsdroid.skills.append(match_regex(regex, score_factor=0.6)(mock_skill_low))
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message("Hello world", "user", "default", mock_connector)
 
             skills = await opsdroid.get_ranked_skills(opsdroid.skills, message)
@@ -62,7 +62,7 @@ class TestParserRegex(asynctest.TestCase):
             mock_skill_high = await self.getMockSkill()
             opsdroid.skills.append(match_regex(regex, score_factor=1)(mock_skill_high))
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message("Hello world", "user", "default", mock_connector)
 
             skills = await opsdroid.get_ranked_skills(opsdroid.skills, message)
@@ -76,7 +76,7 @@ class TestParserRegex(asynctest.TestCase):
             self.assertEqual(len(opsdroid.skills), 1)
 
             mock_connector = amock.MagicMock()
-            mock_connector.send = amock.CoroutineMock()
+            mock_connector.send = amock.AsyncMock()
             message = Message("Hello world", "user", "default", mock_connector)
 
             skills = await parse_regex(opsdroid, opsdroid.skills, message)
@@ -93,7 +93,7 @@ class TestParserRegex(asynctest.TestCase):
                 )
             )
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message("Hello world", "user", "default", mock_connector)
 
             skills = await opsdroid.get_ranked_skills(opsdroid.skills, message)
@@ -110,7 +110,7 @@ class TestParserRegex(asynctest.TestCase):
                 )
             )
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message("Hello world", "user", "default", mock_connector)
 
             skills = await opsdroid.get_ranked_skills(opsdroid.skills, message)
@@ -127,7 +127,7 @@ class TestParserRegex(asynctest.TestCase):
                 )
             )
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message("Hello world", "user", "default", mock_connector)
 
             skills = await opsdroid.get_ranked_skills(opsdroid.skills, message)
@@ -140,7 +140,7 @@ class TestParserRegex(asynctest.TestCase):
             mock_skill_named_groups = await self.getMockSkill()
             opsdroid.skills.append(match_regex(regex)(mock_skill_named_groups))
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message("Hello opsdroid", "user", "default", mock_connector)
 
             [skill] = await opsdroid.get_ranked_skills(opsdroid.skills, message)
@@ -156,7 +156,7 @@ class TestParserRegex(asynctest.TestCase):
             mock_skill_named_groups = await self.getMockSkill()
             opsdroid.skills.append(match_regex(regex)(mock_skill_named_groups))
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message("Hello opsdroid", "user", "default", mock_connector)
 
             [skill] = await opsdroid.get_ranked_skills(opsdroid.skills, message)

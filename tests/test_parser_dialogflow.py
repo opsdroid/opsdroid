@@ -1,7 +1,7 @@
 import os
 import asyncio
-import asynctest
-import asynctest.mock as amock
+import unittest
+import unittest.mock as amock
 
 from types import SimpleNamespace
 
@@ -23,7 +23,7 @@ class NestedNamespace(SimpleNamespace):
                 self.__setattr__(key, value)
 
 
-class TestParserDialogflow(asynctest.TestCase):
+class TestParserDialogflow(unittest.TestCase):
     """Test the opsdroid Dialogflow parser."""
 
     async def setup(self):
@@ -46,13 +46,13 @@ class TestParserDialogflow(asynctest.TestCase):
     async def test_call_dialogflow(self):
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "path/test.json"
         config = {"name": "dialogflow", "project-id": "test"}
-        opsdroid = amock.CoroutineMock()
+        opsdroid = amock.AsyncMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
         message = Message(
             text="Hello", user="user", target="default", connector=mock_connector
         )
         result = amock.Mock()
-        result.json = amock.CoroutineMock()
+        result.json = amock.AsyncMock()
         result.json.return_value = {
             "query_result": {
                 "query_text": "what is up",
@@ -86,7 +86,7 @@ class TestParserDialogflow(asynctest.TestCase):
 
     async def test_call_dialogflow_failure(self):
         config = {"name": "dialogflow"}
-        opsdroid = amock.CoroutineMock()
+        opsdroid = amock.AsyncMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
         message = Message(
             text="Hello", user="user", target="default", connector=mock_connector
@@ -141,7 +141,7 @@ class TestParserDialogflow(asynctest.TestCase):
                 match_dialogflow_action("smalltalk.greetings.whatsup")(mock_skill)
             )
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 text="I want some good French food",
                 user="user",
@@ -171,7 +171,7 @@ class TestParserDialogflow(asynctest.TestCase):
                 match_dialogflow_action("smalltalk.greetings.whatsup")(mock_skill)
             )
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 text="Hello", user="user", target="default", connector=mock_connector
             )
@@ -210,10 +210,10 @@ class TestParserDialogflow(asynctest.TestCase):
             opsdroid.config["parsers"] = [
                 {"name": "dialogflow", "project-id": "test", "min-score": 0.8}
             ]
-            mock_skill = amock.CoroutineMock()
+            mock_skill = amock.AsyncMock()
             match_dialogflow_action("myaction")(mock_skill)
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 text="Hello", user="user", target="default", connector=mock_connector
             )

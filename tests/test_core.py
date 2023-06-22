@@ -2,8 +2,9 @@ import os
 import asyncio
 import unittest
 import unittest.mock as mock
+import unittest.mock as amock
 import asynctest
-import asynctest.mock as amock
+
 import importlib
 import time
 import pytest
@@ -198,7 +199,7 @@ class TestCore(unittest.TestCase):
             assert "spam_1" in names
 
 
-class TestCoreAsync(asynctest.TestCase):
+class TestCoreAsync(unittest.TestCase):
     """Test the async methods of the opsdroid core class."""
 
     async def setUp(self):

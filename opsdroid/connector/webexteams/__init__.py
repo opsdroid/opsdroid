@@ -42,7 +42,6 @@ class ConnectorWebexTeams(Connector):
                 },
             )
         except KeyError:
-
             _LOGGER.error(_("Must set access-token for WebEx Teams Connector."))
 
             return

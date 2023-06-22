@@ -1,6 +1,6 @@
 import pytest
 
-import asynctest.mock as amock
+import unittest.mock as amock
 
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message, Reaction

@@ -2,10 +2,10 @@
 import logging
 from pathlib import Path
 
-import asynctest.mock as amock
+import unittest.mock as amock
 import opsdroid.connector.github.events as github_event
 import pytest
-from asynctest.mock import CoroutineMock
+from unittest.mock import AsyncMock
 from opsdroid.connector.github import ConnectorGitHub
 from opsdroid.events import Message
 from opsdroid.matchers import match_event
@@ -814,7 +814,7 @@ async def test_receive_unlabel(opsdroid, connector, mock_api, caplog):
 async def test_receive_status(opsdroid, connector, mock_api):
     """Test a PR create event creates a message and parses it."""
 
-    test_skill = match_event(Message)(CoroutineMock())
+    test_skill = match_event(Message)(AsyncMock())
     opsdroid.register_skill(test_skill, config={"name": "test"})
 
     async with running_opsdroid(opsdroid):
@@ -833,12 +833,12 @@ async def test_receive_status(opsdroid, connector, mock_api):
 async def test_validate_request(opsdroid):
     connector_config = {"secret": "client-secret", "token": "test"}
     connector = ConnectorGitHub(connector_config, opsdroid=opsdroid)
-    request = amock.CoroutineMock()
+    request = amock.AsyncMock()
     request.headers = {
         "X-Hub-Signature-256": "sha256=fcfa24b327e3467f1586cc1ace043c016cabfe9c15dabc0020aca45440338be9"
     }
 
-    request.read = amock.CoroutineMock()
+    request.read = amock.AsyncMock()
     request.read.return_value = b'{"test": "test"}'
 
     validation = await connector.validate_request(request, "test")

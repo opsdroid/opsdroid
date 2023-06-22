@@ -4,8 +4,7 @@ import io
 import contextlib
 import asyncio
 import unittest
-import asynctest
-import asynctest.mock as amock
+import unittest.mock as amock
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector.shell import ConnectorShell
@@ -59,7 +58,7 @@ class TestConnectorShell(unittest.TestCase):
             self.assertEqual(prompt, "\r \r")
 
 
-class TestConnectorShellAsync(asynctest.TestCase):
+class TestConnectorShellAsync(unittest.TestCase):
     """Test the async methods of the opsdroid shell connector class."""
 
     def setUp(self):
@@ -78,7 +77,7 @@ class TestConnectorShellAsync(asynctest.TestCase):
                 with contextlib.suppress(NotImplementedError):
                     await self.connector.read_stdin()
         else:
-            self.connector.loop.connect_read_pipe = amock.CoroutineMock()
+            self.connector.loop.connect_read_pipe = amock.AsyncMock()
             self.connector.reader = None
             self.assertIsNone(self.connector.reader)
             result = await self.connector.read_stdin()
@@ -104,7 +103,7 @@ class TestConnectorShellAsync(asynctest.TestCase):
         f = asyncio.Future()
         f.set_result(b"hi\n")
 
-        with asynctest.patch("asyncio.streams.StreamReader.readline") as mocked_line:
+        with unittest.patch("asyncio.streams.StreamReader.readline") as mocked_line:
             mocked_line.return_value = f
             connector.reader = asyncio.streams.StreamReader
             returned = await connector.async_input()
@@ -129,13 +128,13 @@ class TestConnectorShellAsync(asynctest.TestCase):
     async def test_parseloop(self):
         connector = ConnectorShell({}, opsdroid=OpsDroid())
 
-        connector.draw_prompt = amock.CoroutineMock()
+        connector.draw_prompt = amock.AsyncMock()
         connector.draw_prompt.return_value = "opsdroid> "
-        connector.async_input = amock.CoroutineMock()
+        connector.async_input = amock.AsyncMock()
         connector.async_input.return_value = "hello"
 
-        connector.opsdroid = amock.CoroutineMock()
-        connector.opsdroid.parse = amock.CoroutineMock()
+        connector.opsdroid = amock.AsyncMock()
+        connector.opsdroid.parse = amock.AsyncMock()
 
         await connector.parseloop()
         self.assertTrue(connector.opsdroid.parse.called)

@@ -1,5 +1,5 @@
 import pytest
-import asynctest.mock as amock
+import unittest.mock as amock
 
 import asyncio
 
@@ -22,11 +22,11 @@ def test_property(opsdroid):
 async def test_connect(opsdroid):
     """Test the connect method adds the handlers."""
     connector = ConnectorFacebook({}, opsdroid=opsdroid)
-    opsdroid.web_server = amock.CoroutineMock()
-    opsdroid.web_server.web_app = amock.CoroutineMock()
-    opsdroid.web_server.web_app.router = amock.CoroutineMock()
-    opsdroid.web_server.web_app.router.add_get = amock.CoroutineMock()
-    opsdroid.web_server.web_app.router.add_post = amock.CoroutineMock()
+    opsdroid.web_server = amock.AsyncMock()
+    opsdroid.web_server.web_app = amock.AsyncMock()
+    opsdroid.web_server.web_app.router = amock.AsyncMock()
+    opsdroid.web_server.web_app.router.add_get = amock.AsyncMock()
+    opsdroid.web_server.web_app.router.add_post = amock.AsyncMock()
 
     await connector.connect()
 
@@ -50,12 +50,12 @@ async def test_facebook_message_handler(opsdroid):
             }
         ],
     }
-    mock_request = amock.CoroutineMock()
-    mock_request.json = amock.CoroutineMock()
+    mock_request = amock.AsyncMock()
+    mock_request.json = amock.AsyncMock()
     mock_request.json.return_value = req_ob
 
     connector.opsdroid = opsdroid
-    connector.opsdroid.parse = amock.CoroutineMock()
+    connector.opsdroid.parse = amock.AsyncMock()
 
     response = await connector.facebook_message_handler(mock_request)
     assert connector.opsdroid.parse.called
@@ -73,12 +73,12 @@ async def test_facebook_message_handler_invalid(opsdroid, caplog):
         "object": "page",
         "entry": [{"messaging": [{"message": {"text": "Hello"}, "sender": {}}]}],
     }
-    mock_request = amock.CoroutineMock()
-    mock_request.json = amock.CoroutineMock()
+    mock_request = amock.AsyncMock()
+    mock_request.json = amock.AsyncMock()
     mock_request.json.return_value = req_ob
 
     connector.opsdroid = opsdroid
-    connector.opsdroid.parse = amock.CoroutineMock()
+    connector.opsdroid.parse = amock.AsyncMock()
 
     response = await connector.facebook_message_handler(mock_request)
     assert not connector.opsdroid.parse.called
@@ -128,7 +128,7 @@ async def test_respond(opsdroid):
     post_response.status = 200
 
     with amock.patch(
-        "aiohttp.ClientSession.post", new=amock.CoroutineMock()
+        "aiohttp.ClientSession.post", new=amock.AsyncMock()
     ) as patched_request:
         assert opsdroid.__class__.instances
         connector = ConnectorFacebook({}, opsdroid=opsdroid)
@@ -147,11 +147,11 @@ async def test_respond_bad_response(opsdroid):
     """Test that responding sends a message and get bad response."""
     post_response = amock.Mock()
     post_response.status = 401
-    post_response.text = amock.CoroutineMock()
+    post_response.text = amock.AsyncMock()
     post_response.text.return_value = "Error"
 
     with amock.patch(
-        "aiohttp.ClientSession.post", new=amock.CoroutineMock()
+        "aiohttp.ClientSession.post", new=amock.AsyncMock()
     ) as patched_request:
         assert opsdroid.__class__.instances
         connector = ConnectorFacebook({}, opsdroid=opsdroid)

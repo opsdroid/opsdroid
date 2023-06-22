@@ -2,8 +2,7 @@
 import asyncio
 
 import unittest
-import asynctest
-import asynctest.mock as amock
+import unittest.mock as amock
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector.webexteams import ConnectorWebexTeams
@@ -34,7 +33,7 @@ class TestConnectorCiscoWebexTeams(unittest.TestCase):
             ConnectorWebexTeams()
 
 
-class TestConnectorCiscoSparkAsync(asynctest.TestCase):
+class TestConnectorCiscoSparkAsync(unittest.TestCase):
     """Test the async methods of the opsdroid webex teams connector class."""
 
     async def setUp(self):
@@ -43,13 +42,13 @@ class TestConnectorCiscoSparkAsync(asynctest.TestCase):
     async def test_connect(self):
         connector = ConnectorWebexTeams({"token": "abc123"}, opsdroid=OpsDroid())
 
-        opsdroid = amock.CoroutineMock()
+        opsdroid = amock.AsyncMock()
         opsdroid.eventloop = self.loop
-        connector.clean_up_webhooks = amock.CoroutineMock()
-        connector.subscribe_to_rooms = amock.CoroutineMock()
-        connector.set_own_id = amock.CoroutineMock()
+        connector.clean_up_webhooks = amock.AsyncMock()
+        connector.subscribe_to_rooms = amock.AsyncMock()
+        connector.set_own_id = amock.AsyncMock()
 
-        with amock.patch("websockets.connect", new=amock.CoroutineMock()):
+        with amock.patch("websockets.connect", new=amock.AsyncMock()):
             await connector.connect()
 
         self.assertTrue(connector.clean_up_webhooks.called)
@@ -60,9 +59,9 @@ class TestConnectorCiscoSparkAsync(asynctest.TestCase):
         connector = ConnectorWebexTeams({"token": "abc123"})
         connector.opsdroid = OpsDroid()
         connector.bot_spark_id = "spark123"
-        connector.api = amock.CoroutineMock()
+        connector.api = amock.AsyncMock()
         request = amock.Mock()
-        request.json = amock.CoroutineMock()
+        request.json = amock.AsyncMock()
         request.json.return_value = {
             "data": {"id": "3vABZrQgDzfcz7LZi", "personId": "21ABZrQgDzfcz7Lsi"}
         }
@@ -72,8 +71,8 @@ class TestConnectorCiscoSparkAsync(asynctest.TestCase):
         message.roomId = "90ABCrWgrzfcz7LZi"
         message.roomType = "general"
         connector.api.messages.get.return_value = message
-        connector.get_person = amock.CoroutineMock()
-        person = amock.CoroutineMock()
+        connector.get_person = amock.AsyncMock()
+        person = amock.AsyncMock()
         person.displayName = "Himanshu"
         connector.get_person.return_value = person
 
@@ -84,17 +83,17 @@ class TestConnectorCiscoSparkAsync(asynctest.TestCase):
         self.assertTrue(connector.api.messages.get.called)
         self.assertTrue(connector.get_person.called)
 
-        connector.opsdroid = amock.CoroutineMock()
-        connector.opsdroid.parse = amock.CoroutineMock()
+        connector.opsdroid = amock.AsyncMock()
+        connector.opsdroid.parse = amock.AsyncMock()
         connector.opsdroid.parse.side_effect = KeyError
         await connector.webexteams_message_handler(request)
         self.assertLogs("_LOGGER", "error")
 
     async def test_connect_fail_keyerror(self):
         connector = ConnectorWebexTeams({}, opsdroid=OpsDroid())
-        connector.clean_up_webhooks = amock.CoroutineMock()
-        connector.subscribe_to_rooms = amock.CoroutineMock()
-        connector.set_own_id = amock.CoroutineMock()
+        connector.clean_up_webhooks = amock.AsyncMock()
+        connector.subscribe_to_rooms = amock.AsyncMock()
+        connector.set_own_id = amock.AsyncMock()
         await connector.connect()
         self.assertLogs("_LOGGER", "error")
 
@@ -111,8 +110,8 @@ class TestConnectorCiscoSparkAsync(asynctest.TestCase):
 
     async def test_respond(self):
         connector = ConnectorWebexTeams({"token": "abc123"})
-        connector.api = amock.CoroutineMock()
-        connector.api.messages.create = amock.CoroutineMock()
+        connector.api = amock.AsyncMock()
+        connector.api.messages.create = amock.AsyncMock()
         message = Message(
             text="Hello",
             user="opsdroid",
@@ -124,9 +123,9 @@ class TestConnectorCiscoSparkAsync(asynctest.TestCase):
 
     async def test_get_person(self):
         connector = ConnectorWebexTeams({"token": "abc123"})
-        connector.api = amock.CoroutineMock()
-        connector.api.messages.create = amock.CoroutineMock()
-        connector.api.people.get = amock.CoroutineMock()
+        connector.api = amock.AsyncMock()
+        connector.api.messages.create = amock.AsyncMock()
+        connector.api.people.get = amock.AsyncMock()
         connector.api.people.get.return_value = "Himanshu"
         self.assertEqual(len(connector.people), 0)
         await connector.get_person("3vABZrQgDzfcz7LZi")
@@ -136,19 +135,19 @@ class TestConnectorCiscoSparkAsync(asynctest.TestCase):
         connector = ConnectorWebexTeams(
             {"token": "abc123", "webhook-url": "http://127.0.0.1"}
         )
-        connector.api = amock.CoroutineMock()
-        connector.opsdroid = amock.CoroutineMock()
-        connector.opsdroid.web_server.web_app.router.add_post = amock.CoroutineMock()
-        connector.api.webhooks.create = amock.CoroutineMock()
+        connector.api = amock.AsyncMock()
+        connector.opsdroid = amock.AsyncMock()
+        connector.opsdroid.web_server.web_app.router.add_post = amock.AsyncMock()
+        connector.api.webhooks.create = amock.AsyncMock()
         await connector.subscribe_to_rooms()
         self.assertTrue(connector.api.webhooks.create.called)
         self.assertTrue(connector.opsdroid.web_server.web_app.router.add_post.called)
 
     async def test_clean_up_webhooks(self):
         connector = ConnectorWebexTeams({"token": "abc123"})
-        connector.api = amock.CoroutineMock()
-        x = amock.CoroutineMock()
-        x.id = amock.CoroutineMock()
+        connector.api = amock.AsyncMock()
+        x = amock.AsyncMock()
+        x.id = amock.AsyncMock()
         connector.api.webhooks.list = amock.Mock()
         connector.api.webhooks.list.return_value = [x, x]
         connector.api.webhooks.delete = amock.Mock()
@@ -158,7 +157,7 @@ class TestConnectorCiscoSparkAsync(asynctest.TestCase):
 
     async def test_set_own_id(self):
         connector = ConnectorWebexTeams({"token": "abc123"})
-        connector.api = amock.CoroutineMock()
-        connector.api.people.me().id = "3vABZrQgDzfcz7LZi"
+        connector.api = amock.AsyncMock()
+        connector.api.people.me.return_value.id = "3vABZrQgDzfcz7LZi"
         await connector.set_own_id()
         self.assertTrue(connector.bot_webex_id, "3vABZrQgDzfcz7LZi")

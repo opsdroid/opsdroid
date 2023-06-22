@@ -1,6 +1,6 @@
 """A mocked connector module."""
 
-import asynctest.mock as amock
+import unittest.mock as amock
 
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
@@ -12,13 +12,13 @@ class ConnectorTest(Connector):
     def __init__(self, config, opsdroid=None):
         """Start the class."""
         self.name = "mocked"
-        self.connect = amock.CoroutineMock()
-        self.listen = amock.CoroutineMock()
-        self.respond = amock.CoroutineMock()
-        self.send = amock.CoroutineMock()
-        self.disconnect = amock.CoroutineMock()
-        self.opsdroid = amock.CoroutineMock()
-        self.send_message = register_event(Message)(amock.CoroutineMock())
+        self.connect = amock.AsyncMock()
+        self.listen = amock.AsyncMock()
+        self.respond = amock.AsyncMock()
+        self.send = amock.AsyncMock()
+        self.disconnect = amock.AsyncMock()
+        self.opsdroid = amock.AsyncMock()
+        self.send_message = register_event(Message)(amock.AsyncMock())
         super().__init__(config, opsdroid)
 
     @register_event(Message)

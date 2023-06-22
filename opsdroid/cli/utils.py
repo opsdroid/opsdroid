@@ -167,7 +167,6 @@ def list_all_modules(ctx, path):
     for module_type, module in config.items():
         if module_type in ("connectors", "databases", "parsers", "skills"):
             for name, options in module.items():
-
                 mode = get_config_option(
                     ["repo", "path", "gist"], options, True, "module"
                 )
@@ -208,7 +207,6 @@ def build_config(ctx, params):
     path = params.get("path")
 
     with contextlib.suppress(Exception):
-
         config = load_config_file([path] if path else DEFAULT_CONFIG_LOCATIONS)
 
         if params["verbose"]:
@@ -216,7 +214,6 @@ def build_config(ctx, params):
             configure_logging(config["logging"])
 
         with OpsDroid(config=config) as opsdroid:
-
             opsdroid.loader.load_modules_from_config(config)
 
             click.echo(click.style("SUCCESS:", bg="green", bold=True), nl=False)

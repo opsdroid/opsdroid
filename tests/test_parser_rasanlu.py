@@ -1,6 +1,6 @@
 import asyncio
-import asynctest
-import asynctest.mock as amock
+import unittest
+import unittest.mock as amock
 
 import aiohttp
 from aiohttp import ClientOSError
@@ -13,7 +13,7 @@ from opsdroid.parsers import rasanlu
 from opsdroid.connector import Connector
 
 
-class TestParserRasaNLU(asynctest.TestCase):
+class TestParserRasaNLU(unittest.TestCase):
     """Test the opsdroid Rasa NLU parser."""
 
     async def setup(self):
@@ -34,7 +34,7 @@ class TestParserRasaNLU(asynctest.TestCase):
         return mockedskill
 
     async def test_call_rasanlu(self):
-        opsdroid = amock.CoroutineMock()
+        opsdroid = amock.AsyncMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
         message = Message(
             text="how's the weather outside",
@@ -45,7 +45,7 @@ class TestParserRasaNLU(asynctest.TestCase):
         config = {"name": "rasanlu", "min-score": 0.3, "token": "12345"}
         result = amock.Mock()
         result.status = 200
-        result.json = amock.CoroutineMock()
+        result.json = amock.AsyncMock()
         result.json.return_value = {
             "entities": [
                 {
@@ -71,7 +71,7 @@ class TestParserRasaNLU(asynctest.TestCase):
             self.assertTrue(patched_request.called)
 
     async def test_call_rasanlu_bad_response(self):
-        opsdroid = amock.CoroutineMock()
+        opsdroid = amock.AsyncMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
         message = Message(
             text="how's the weather outside",
@@ -82,7 +82,7 @@ class TestParserRasaNLU(asynctest.TestCase):
         config = {"name": "rasanlu", "token": "test", "min-score": 0.3}
         result = amock.Mock()
         result.status = 403
-        result.text = amock.CoroutineMock()
+        result.text = amock.AsyncMock()
         result.text.return_value = "unauthorized"
         with amock.patch("aiohttp.ClientSession.post") as patched_request:
             patched_request.return_value = asyncio.Future()
@@ -92,7 +92,7 @@ class TestParserRasaNLU(asynctest.TestCase):
             self.assertEqual(response, result.text.return_value)
 
     async def test_call_rasanlu_raises(self):
-        opsdroid = amock.CoroutineMock()
+        opsdroid = amock.AsyncMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
         message = Message(
             text="how's the weather outside",
@@ -103,7 +103,7 @@ class TestParserRasaNLU(asynctest.TestCase):
         config = {"name": "rasanlu", "token": "test", "min-score": 0.3}
         result = amock.Mock()
         result.status = 403
-        result.text = amock.CoroutineMock()
+        result.text = amock.AsyncMock()
         result.text.return_value = "unauthorized"
         with amock.patch("aiohttp.ClientSession.post") as patched_request:
             patched_request.side_effect = (
@@ -119,7 +119,7 @@ class TestParserRasaNLU(asynctest.TestCase):
             mock_skill = await self.getMockSkill()
             opsdroid.skills.append(match_rasanlu("get_weather")(mock_skill))
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 "how's the weather outside", "user", "default", mock_connector
             )
@@ -156,7 +156,7 @@ class TestParserRasaNLU(asynctest.TestCase):
             mock_skill = await self.getMockSkill()
             opsdroid.skills.append(match_rasanlu("restaurant_search")(mock_skill))
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 text="show me chinese restaurants",
                 user="user",
@@ -222,7 +222,7 @@ class TestParserRasaNLU(asynctest.TestCase):
             mock_skill = await self.getMockSkill()
             opsdroid.skills.append(match_rasanlu("knowledge")(mock_skill))
 
-        mock_connector = amock.CoroutineMock()
+        mock_connector = amock.AsyncMock()
         message = Message(
             text="i want to travel from Berlin to San Fransisco",
             user="user",
@@ -292,7 +292,7 @@ class TestParserRasaNLU(asynctest.TestCase):
             opsdroid.skills.append(match_rasanlu("get_weather")(mock_skill))
 
             mock_connector = amock.MagicMock()
-            mock_connector.send = amock.CoroutineMock()
+            mock_connector.send = amock.AsyncMock()
             message = Message(
                 text="how's the weather outside",
                 user="user",
@@ -332,10 +332,10 @@ class TestParserRasaNLU(asynctest.TestCase):
             opsdroid.config["parsers"] = [
                 {"name": "rasanlu", "token": "test", "min-score": 0.3}
             ]
-            mock_skill = amock.CoroutineMock()
+            mock_skill = amock.AsyncMock()
             match_rasanlu("get_weather")(mock_skill)
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 text="how's the weather outside",
                 user="user",
@@ -355,10 +355,10 @@ class TestParserRasaNLU(asynctest.TestCase):
             opsdroid.config["parsers"] = [
                 {"name": "rasanlu", "token": "test", "min-score": 0.3}
             ]
-            mock_skill = amock.CoroutineMock()
+            mock_skill = amock.AsyncMock()
             match_rasanlu("get_weather")(mock_skill)
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 text="how's the weather outside",
                 user="user",
@@ -394,10 +394,10 @@ class TestParserRasaNLU(asynctest.TestCase):
     async def test_parse_rasanlu_no_entity(self):
         with OpsDroid() as opsdroid:
             opsdroid.config["parsers"] = [{"name": "rasanlu", "token": "test"}]
-            mock_skill = amock.CoroutineMock()
+            mock_skill = amock.AsyncMock()
             match_rasanlu("get_weather")(mock_skill)
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 text="hi", user="user", target="default", connector=mock_connector
             )
@@ -420,10 +420,10 @@ class TestParserRasaNLU(asynctest.TestCase):
             opsdroid.config["parsers"] = [
                 {"name": "rasanlu", "token": "test", "min-score": 0.3}
             ]
-            mock_skill = amock.CoroutineMock()
+            mock_skill = amock.AsyncMock()
             match_rasanlu("get_weather")(mock_skill)
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 text="how's the weather outside",
                 user="user",
@@ -449,10 +449,10 @@ class TestParserRasaNLU(asynctest.TestCase):
             opsdroid.config["parsers"] = [
                 {"name": "rasanlu", "token": "test", "min-score": 0.3}
             ]
-            mock_skill = amock.CoroutineMock()
+            mock_skill = amock.AsyncMock()
             match_rasanlu("get_weather")(mock_skill)
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 text="how's the weather outside",
                 user="user",
@@ -537,8 +537,8 @@ class TestParserRasaNLU(asynctest.TestCase):
     async def test__get_rasa_nlu_version(self):
         result = amock.Mock()
         result.status = 200
-        result.text = amock.CoroutineMock()
-        result.json = amock.CoroutineMock()
+        result.text = amock.AsyncMock()
+        result.json = amock.AsyncMock()
 
         with amock.patch("aiohttp.ClientSession.get") as patched_request:
             patched_request.side_effect = (
@@ -594,8 +594,8 @@ class TestParserRasaNLU(asynctest.TestCase):
         with amock.patch("aiohttp.ClientSession.put") as patched_request:
             result = amock.Mock()
             result.status = 204
-            result.text = amock.CoroutineMock()
-            result.json = amock.CoroutineMock()
+            result.text = amock.AsyncMock()
+            result.json = amock.AsyncMock()
             patched_request.side_effect = None
             result.json.return_value = {}
             patched_request.return_value = asyncio.Future()
@@ -629,10 +629,10 @@ class TestParserRasaNLU(asynctest.TestCase):
             result.status = 204
             result.content = aiohttp.streams.EmptyStreamReader()
             result.reason = "No Content"
-            result.text = amock.CoroutineMock(
+            result.text = amock.AsyncMock(
                 side_effect=aiohttp.ContentTypeError(None, None)
             )
-            result.json = amock.CoroutineMock(
+            result.json = amock.AsyncMock(
                 side_effect=aiohttp.ContentTypeError(None, None)
             )
             patched_request.return_value = asyncio.Future()
@@ -645,7 +645,7 @@ class TestParserRasaNLU(asynctest.TestCase):
     async def test__is_model_loaded(self):
         result = amock.Mock()
         result.status = 200
-        result.json = amock.CoroutineMock()
+        result.json = amock.AsyncMock()
 
         with amock.patch("aiohttp.ClientSession.get") as patched_request:
             result.json.return_value = {
@@ -687,8 +687,8 @@ class TestParserRasaNLU(asynctest.TestCase):
     async def test_train_rasanlu_fails(self):
         result = amock.Mock()
         result.status = 404
-        result.text = amock.CoroutineMock()
-        result.json = amock.CoroutineMock()
+        result.text = amock.AsyncMock()
+        result.json = amock.AsyncMock()
         result.json.return_value = {"info": "new model trained: abc123"}
 
         with amock.patch(
@@ -706,7 +706,6 @@ class TestParserRasaNLU(asynctest.TestCase):
         ) as mock_lmo, amock.patch.object(
             rasanlu, "_is_model_loaded"
         ) as mock_iml:
-
             mock_gai.return_value = None
             self.assertEqual(await rasanlu.train_rasanlu({}, {}), False)
 
@@ -760,8 +759,8 @@ class TestParserRasaNLU(asynctest.TestCase):
 
     async def test_train_rasanlu_succeeded(self):
         result = amock.Mock()
-        result.text = amock.CoroutineMock()
-        result.json = amock.CoroutineMock()
+        result.text = amock.AsyncMock()
+        result.json = amock.AsyncMock()
         result.status = 200
         result.json.return_value = {}
 
@@ -780,7 +779,6 @@ class TestParserRasaNLU(asynctest.TestCase):
         ) as mock_lmo, amock.patch.object(
             rasanlu, "_is_model_loaded"
         ) as mock_iml:
-
             # _build_training_url
             mock_btu.return_value = "http://example.com"
             # _get_all_intents
