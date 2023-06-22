@@ -1,6 +1,6 @@
 import asyncio
-import asynctest
-import asynctest.mock as amock
+import unittest
+import unittest.mock as amock
 
 from aiohttp import ClientOSError
 
@@ -12,7 +12,7 @@ from opsdroid.parsers import witai
 from opsdroid.connector import Connector
 
 
-class TestParserWitai(asynctest.TestCase):
+class TestParserWitai(unittest.TestCase):
     """Test the opsdroid wit.ai parser."""
 
     async def setup(self):
@@ -33,7 +33,7 @@ class TestParserWitai(asynctest.TestCase):
         return mockedskill
 
     async def test_call_witai(self):
-        opsdroid = amock.CoroutineMock()
+        opsdroid = amock.AsyncMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
         message = Message(
             text="how's the weather outside",
@@ -43,7 +43,7 @@ class TestParserWitai(asynctest.TestCase):
         )
         config = {"name": "witai", "token": "test", "min-score": 0.3}
         result = amock.Mock()
-        result.json = amock.CoroutineMock()
+        result.json = amock.AsyncMock()
         result.json.return_value = {
             "msg_id": "0fI07qSgCwM79NEjs",
             "_text": "how's the weather outside",
@@ -65,7 +65,7 @@ class TestParserWitai(asynctest.TestCase):
             mock_skill = await self.getMockSkill()
             opsdroid.skills.append(match_witai("get_weather")(mock_skill))
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 text="how's the weather outside",
                 user="user",
@@ -98,7 +98,7 @@ class TestParserWitai(asynctest.TestCase):
             opsdroid.skills.append(match_witai("get_weather")(mock_skill))
 
             mock_connector = amock.MagicMock()
-            mock_connector.send = amock.CoroutineMock()
+            mock_connector.send = amock.AsyncMock()
             message = Message(
                 text="how's the weather outside",
                 user="user",
@@ -129,10 +129,10 @@ class TestParserWitai(asynctest.TestCase):
             opsdroid.config["parsers"] = [
                 {"name": "witai", "token": "test", "min-score": 0.3}
             ]
-            mock_skill = amock.CoroutineMock()
+            mock_skill = amock.AsyncMock()
             match_witai("get_weather")(mock_skill)
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 text="how's the weather outside",
                 user="user",
@@ -155,10 +155,10 @@ class TestParserWitai(asynctest.TestCase):
             opsdroid.config["parsers"] = [
                 {"name": "witai", "token": "test", "min-score": 0.3}
             ]
-            mock_skill = amock.CoroutineMock()
+            mock_skill = amock.AsyncMock()
             match_witai("get_weather")(mock_skill)
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 text="how's the weather outside",
                 user="user",
@@ -185,10 +185,10 @@ class TestParserWitai(asynctest.TestCase):
     async def test_parse_witai_no_entity(self):
         with OpsDroid() as opsdroid:
             opsdroid.config["parsers"] = [{"name": "witai", "token": "test"}]
-            mock_skill = amock.CoroutineMock()
+            mock_skill = amock.AsyncMock()
             match_witai("get_weather")(mock_skill)
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message("hi", "user", "default", mock_connector)
 
             with amock.patch.object(witai, "call_witai") as mocked_call_witai:
@@ -208,10 +208,10 @@ class TestParserWitai(asynctest.TestCase):
             opsdroid.config["parsers"] = [
                 {"name": "witai", "token": "test", "min-score": 0.3}
             ]
-            mock_skill = amock.CoroutineMock()
+            mock_skill = amock.AsyncMock()
             match_witai("get_weather")(mock_skill)
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 text="how's the weather outside",
                 user="user",
@@ -236,10 +236,10 @@ class TestParserWitai(asynctest.TestCase):
             opsdroid.config["parsers"] = [
                 {"name": "witai", "token": "test", "min-score": 0.3}
             ]
-            mock_skill = amock.CoroutineMock()
+            mock_skill = amock.AsyncMock()
             match_witai("get_weather")(mock_skill)
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 text="how's the weather outside",
                 user="user",
@@ -264,7 +264,7 @@ class TestParserWitai(asynctest.TestCase):
             mock_skill = await self.getMockSkill()
             opsdroid.skills.append(match_witai("get_weather")(mock_skill))
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 text="what is the weather in london",
                 user="user",
@@ -352,7 +352,7 @@ class TestParserWitai(asynctest.TestCase):
             mock_skill = await self.getMockSkill()
             opsdroid.skills.append(match_witai("aws_cost")(mock_skill))
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 text="aws cost since december",
                 user="user",

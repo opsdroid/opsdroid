@@ -4,8 +4,7 @@ import json
 
 import unittest
 import unittest.mock as mock
-import asynctest
-import asynctest.mock as amock
+import unittest.mock as amock
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector.mattermost import ConnectorMattermost
@@ -35,7 +34,7 @@ class TestConnectorMattermost(unittest.TestCase):
             ConnectorMattermost({}, opsdroid=OpsDroid())
 
 
-class TestConnectorMattermostAsync(asynctest.TestCase):
+class TestConnectorMattermostAsync(unittest.TestCase):
     """Test the async methods of the opsdroid Mattermost connector class."""
 
     async def setUp(self):

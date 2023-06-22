@@ -4,7 +4,7 @@ from copy import deepcopy
 
 import aiohttp
 
-import asynctest.mock as amock
+import unittest.mock as amock
 
 import nio
 import pytest
@@ -217,10 +217,9 @@ class TestConnectorMatrixAsync:
 
     async def test_make_filter(self, connector):
         with amock.patch(api_string.format("send")) as patched_filter:
-
             connect_response = amock.Mock()
             connect_response.status = 200
-            connect_response.json = amock.CoroutineMock()
+            connect_response.json = amock.AsyncMock()
             connect_response.json.return_value = {"filter_id": 10}
 
             connector.connection.token = "abc"
@@ -236,7 +235,6 @@ class TestConnectorMatrixAsync:
             assert patched_filter.called
 
     async def test_exchange_keys(self, mocker, connector):
-
         connector.room_ids = {"main": "!aroomid:localhost"}
 
         patched_send_to_device = mocker.patch(
@@ -400,7 +398,6 @@ class TestConnectorMatrixAsync:
     async def test_respond_room(self, connector):
         message = await self._get_message(connector)
         with amock.patch(api_string.format("room_send")) as patched_send:
-
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result(None)
 
@@ -543,7 +540,6 @@ class TestConnectorMatrixAsync:
         with amock.patch(api_string.format("room_send")) as patched_send, amock.patch(
             "opsdroid.events.Image.get_file_bytes"
         ) as patched_bytes:
-
             patched_bytes.return_value = asyncio.Future()
             patched_bytes.return_value.set_result(gif_bytes)
 
@@ -639,7 +635,6 @@ class TestConnectorMatrixAsync:
         with amock.patch(api_string.format("room_create")) as patched_send, amock.patch(
             api_string.format("room_put_state")
         ) as patched_name:
-
             patched_name.return_value = asyncio.Future()
             patched_name.return_value.set_result(
                 nio.RoomPutStateResponse(
@@ -689,7 +684,6 @@ class TestConnectorMatrixAsync:
         ) as patched_get_room_id, amock.patch(
             api_string.format("join")
         ) as patched_send:
-
             patched_get_room_id.return_value = asyncio.Future()
             patched_get_room_id.return_value.set_result(
                 nio.RoomResolveAliasResponse(
@@ -709,7 +703,6 @@ class TestConnectorMatrixAsync:
         ) as patched_get_room_id, amock.patch(
             api_string.format("join")
         ) as patched_send:
-
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result({})
 
@@ -798,7 +791,6 @@ class TestConnectorMatrixAsync:
             ),
         ]
         for event, pl in role_events:
-
             with OpsDroid() as opsdroid, amock.patch(
                 api_string.format("room_put_state")
             ) as patched_send:
@@ -899,7 +891,6 @@ class TestConnectorMatrixAsync:
                 )
 
     async def test_alias_already_exists(self, caplog, connector):
-
         with amock.patch(api_string.format("room_put_state")) as patched_alias:
             patched_alias.return_value = asyncio.Future()
             patched_alias.return_value.set_result(
@@ -938,7 +929,6 @@ class TestConnectorMatrixAsync:
 
     async def test_user_invite_unknown_error(self, caplog, connector):
         with amock.patch(api_string.format("room_invite")) as patched_invite:
-
             patched_invite.return_value = asyncio.Future()
             patched_invite.return_value.set_result(
                 nio.RoomInviteError(
@@ -956,7 +946,6 @@ class TestConnectorMatrixAsync:
 
     async def test_already_in_room_warning(self, caplog, connector):
         with amock.patch(api_string.format("room_invite")) as patched_invite:
-
             patched_invite.return_value = asyncio.Future()
             patched_invite.return_value.set_result(
                 nio.RoomInviteError(

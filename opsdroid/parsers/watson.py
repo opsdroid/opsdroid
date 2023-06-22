@@ -143,7 +143,6 @@ async def parse_watson(opsdroid, skills, message, config):
         if result:
             for skill in skills:
                 for matcher in skill.matchers:
-
                     if "watson_intent" in matcher:
                         if (
                             matcher["watson_intent"]

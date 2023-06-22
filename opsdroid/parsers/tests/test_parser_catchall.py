@@ -2,7 +2,7 @@
 
 import logging
 
-import asynctest.mock as amock
+import unittest.mock as amock
 import pytest
 from opsdroid.cli.start import configure_lang
 from opsdroid.core import OpsDroid
@@ -35,9 +35,9 @@ async def test_parse_catchall_decorator_parens():
     with OpsDroid() as opsdroid:
         mock_skill = await getMockSkill()
         opsdroid.skills.append(match_catchall()(mock_skill))
-        opsdroid.run_skill = amock.CoroutineMock()
+        opsdroid.run_skill = amock.AsyncMock()
 
-        mock_connector = amock.CoroutineMock()
+        mock_connector = amock.AsyncMock()
         message = Message(
             text="Hello world",
             user="user",
@@ -54,9 +54,9 @@ async def test_parse_catchall_decorate_no_parens():
     with OpsDroid() as opsdroid:
         mock_skill = await getMockSkill()
         opsdroid.skills.append(match_catchall(mock_skill))
-        opsdroid.run_skill = amock.CoroutineMock()
+        opsdroid.run_skill = amock.AsyncMock()
 
-        mock_connector = amock.CoroutineMock()
+        mock_connector = amock.AsyncMock()
         message = Message(
             text="Hello world",
             user="user",
@@ -78,7 +78,7 @@ async def test_parse_catchall_raises(caplog):
         assert len(opsdroid.skills) == 1
 
         mock_connector = amock.MagicMock()
-        mock_connector.send = amock.CoroutineMock()
+        mock_connector.send = amock.AsyncMock()
         message = Message(
             text="Hello world",
             user="user",
@@ -93,12 +93,12 @@ async def test_parse_catchall_raises(caplog):
 async def test_parse_catchall_not_called():
     with OpsDroid() as opsdroid:
         mock_skill = await getMockSkill()
-        catchall_skill = amock.CoroutineMock()
+        catchall_skill = amock.AsyncMock()
         opsdroid.skills.append(match_always()(mock_skill))
         opsdroid.skills.append(match_catchall()(catchall_skill))
-        opsdroid.run_skill = amock.CoroutineMock()
+        opsdroid.run_skill = amock.AsyncMock()
 
-        mock_connector = amock.CoroutineMock()
+        mock_connector = amock.AsyncMock()
         message = Message(
             text="Hello world",
             user="user",
@@ -116,7 +116,7 @@ async def test_parse_catchall_messages_only_default():
         catchall_skill = await getMockSkill()
         event = OpsdroidStarted()
         opsdroid.skills.append(match_catchall()(catchall_skill))
-        opsdroid.run_skill = amock.CoroutineMock()
+        opsdroid.run_skill = amock.AsyncMock()
 
         await parse_catchall(opsdroid, event)
 
@@ -128,9 +128,9 @@ async def test_parse_catchall_messages_only_enabled():
         catchall_skill = await getMockSkill()
         event = OpsdroidStarted()
         opsdroid.skills.append(match_catchall(messages_only=True)(catchall_skill))
-        opsdroid.run_skill = amock.CoroutineMock()
+        opsdroid.run_skill = amock.AsyncMock()
 
-        mock_connector = amock.CoroutineMock()
+        mock_connector = amock.AsyncMock()
         message = Message(
             text="Hello world",
             user="user",

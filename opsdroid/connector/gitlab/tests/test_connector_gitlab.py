@@ -2,7 +2,7 @@ import asyncio
 import logging
 from pathlib import Path
 
-import asynctest.mock as amock
+import unittest.mock as amock
 import opsdroid.connector.gitlab.events as gitlab_events
 import pytest
 from opsdroid.connector.gitlab import ConnectorGitlab
@@ -68,7 +68,7 @@ def test_base_url(opsdroid):
 async def test_gitlab_webhook_handler_excepion(caplog):
     caplog.set_level(logging.DEBUG)
     connector = ConnectorGitlab({"name": "gitlab"})
-    mocked_request = amock.CoroutineMock()
+    mocked_request = amock.AsyncMock()
     mocked_request.json.side_effect = Exception()
 
     resp = await connector.gitlab_webhook_handler(mocked_request)
@@ -82,14 +82,14 @@ async def test_validate_request(opsdroid):
     config = {"webhook-token": "secret-stuff"}
     connector = ConnectorGitlab(config, opsdroid)
 
-    request = amock.CoroutineMock()
+    request = amock.AsyncMock()
     request.headers = {"X-Gitlab-Token": "secret-stuff"}
 
     is_valid = await connector.validate_request(request)
 
     assert is_valid
 
-    fake_request = amock.CoroutineMock()
+    fake_request = amock.AsyncMock()
     request.headers = {}
 
     is_valid = await connector.validate_request(fake_request)
@@ -645,7 +645,7 @@ async def test_send_message(opsdroid, caplog):
     response.status = 201
 
     with amock.patch(
-        "aiohttp.ClientSession.post", new=amock.CoroutineMock()
+        "aiohttp.ClientSession.post", new=amock.AsyncMock()
     ) as patched_request:
         patched_request.return_value = asyncio.Future()
         patched_request.return_value.set_result(response)
@@ -683,7 +683,7 @@ async def test_send_message_bad_status(opsdroid, caplog):
     response.status = 422
 
     with amock.patch(
-        "aiohttp.ClientSession.post", new=amock.CoroutineMock()
+        "aiohttp.ClientSession.post", new=amock.AsyncMock()
     ) as patched_request:
         patched_request.return_value = asyncio.Future()
         patched_request.return_value.set_result(response)
@@ -720,7 +720,7 @@ async def test_send_message_no_token(opsdroid, caplog):
     response = amock.Mock()
 
     with amock.patch(
-        "aiohttp.ClientSession.post", new=amock.CoroutineMock()
+        "aiohttp.ClientSession.post", new=amock.AsyncMock()
     ) as patched_request:
         patched_request.return_value = asyncio.Future()
         patched_request.return_value.set_result(response)

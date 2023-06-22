@@ -1,5 +1,5 @@
-import asynctest
-import asynctest.mock as mock
+import unittest
+import unittest.mock as mock
 
 from opsdroid.cli.start import configure_lang
 from opsdroid.core import OpsDroid
@@ -8,7 +8,7 @@ from opsdroid.matchers import match_regex
 from opsdroid import constraints
 
 
-class TestConstraints(asynctest.TestCase):
+class TestConstraints(unittest.TestCase):
     """Test the opsdroid constraint decorators."""
 
     async def setUp(self):

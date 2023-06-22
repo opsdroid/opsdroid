@@ -1,6 +1,6 @@
 import asyncio
-import asynctest
-import asynctest.mock as amock
+import unittest
+import unittest.mock as amock
 
 from aiohttp import ClientOSError
 
@@ -12,7 +12,7 @@ from opsdroid.parsers import luisai
 from opsdroid.connector import Connector
 
 
-class TestParserLuisai(asynctest.TestCase):
+class TestParserLuisai(unittest.TestCase):
     """Test the opsdroid luis.ai parser."""
 
     async def setup(self):
@@ -33,7 +33,7 @@ class TestParserLuisai(asynctest.TestCase):
         return mockedskill
 
     async def test_call_luisai(self):
-        opsdroid = amock.CoroutineMock()
+        opsdroid = amock.AsyncMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
         message = Message(
             text="schedule meeting",
@@ -43,7 +43,7 @@ class TestParserLuisai(asynctest.TestCase):
         )
         config = {"name": "luisai", "appid": "test", "appkey": "test", "verbose": True}
         result = amock.Mock()
-        result.json = amock.CoroutineMock()
+        result.json = amock.AsyncMock()
         result.json.return_value = {
             "query": "schedule meeting",
             "topScoringIntent": {"intent": "Calendar.Add", "score": 0.900492251},
@@ -65,7 +65,7 @@ class TestParserLuisai(asynctest.TestCase):
             mock_skill.config = {"name": "greetings"}
             opsdroid.skills.append(match_luisai_intent("Calendar.Add")(mock_skill))
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 text="schedule meeting",
                 user="user",
@@ -97,7 +97,7 @@ class TestParserLuisai(asynctest.TestCase):
             mock_skill.config = {"name": "greetings"}
             opsdroid.skills.append(match_luisai_intent("Calendar.Add")(mock_skill))
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 text="schedule meeting",
                 user="user",
@@ -129,7 +129,7 @@ class TestParserLuisai(asynctest.TestCase):
             opsdroid.skills.append(match_luisai_intent("Calendar.Add")(mock_skill))
 
             mock_connector = amock.MagicMock()
-            mock_connector.send = amock.CoroutineMock()
+            mock_connector.send = amock.AsyncMock()
             message = Message(
                 text="schedule meeting",
                 user="user",
@@ -160,10 +160,10 @@ class TestParserLuisai(asynctest.TestCase):
             opsdroid.config["parsers"] = [
                 {"name": "luisai", "appid": "test", "appkey": "test", "verbose": True}
             ]
-            mock_skill = amock.CoroutineMock()
+            mock_skill = amock.AsyncMock()
             match_luisai_intent("Calendar.Add")(mock_skill)
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 text="schedule meeting",
                 user="user",
@@ -189,10 +189,10 @@ class TestParserLuisai(asynctest.TestCase):
                     "min-score": 0.95,
                 }
             ]
-            mock_skill = amock.CoroutineMock()
+            mock_skill = amock.AsyncMock()
             match_luisai_intent("Calendar.Add")(mock_skill)
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 text="schedule meeting",
                 user="user",
@@ -227,10 +227,10 @@ class TestParserLuisai(asynctest.TestCase):
                     "min-score": 0.95,
                 }
             ]
-            mock_skill = amock.CoroutineMock()
+            mock_skill = amock.AsyncMock()
             match_luisai_intent("Calendar.Add")(mock_skill)
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 text="schedule meeting",
                 user="user",
@@ -256,7 +256,7 @@ class TestParserLuisai(asynctest.TestCase):
             mock_skill.config = {"name": "weather"}
             opsdroid.skills.append(match_luisai_intent("weatherLocation")(mock_skill))
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 text="whats the weather in london",
                 user="user",

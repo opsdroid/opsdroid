@@ -1,5 +1,5 @@
 """Test the opsdroid skill."""
-from asynctest.mock import Mock
+from unittest.mock import Mock
 
 from opsdroid.cli.start import configure_lang
 from opsdroid.matchers import match_regex

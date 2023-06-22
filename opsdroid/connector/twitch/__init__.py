@@ -181,7 +181,6 @@ class ConnectorTwitch(Connector):
 
         """
         async with aiohttp.ClientSession() as session:
-
             params = {
                 "client_id": self.client_id,
                 "client_secret": self.client_secret,
@@ -212,7 +211,6 @@ class ConnectorTwitch(Connector):
         refresh_token = self.get_authorization_data()
 
         async with aiohttp.ClientSession() as session:
-
             params = {
                 "client_id": self.client_id,
                 "client_secret": self.client_secret,
@@ -325,7 +323,6 @@ class ConnectorTwitch(Connector):
         headers = {"Client-ID": self.client_id, "Authorization": f"Bearer {self.token}"}
 
         async with aiohttp.ClientSession() as session:
-
             payload = {
                 "hub.callback": f"{self.base_url}/connector/{self.name}",
                 "hub.mode": mode,
@@ -595,7 +592,6 @@ class ConnectorTwitch(Connector):
             )
 
         if chat_message:
-
             text_message = Message(
                 text=chat_message.group("message").rstrip(),
                 user=chat_message.group("user"),

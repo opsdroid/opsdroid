@@ -214,7 +214,6 @@ class TestCLI(unittest.TestCase):
         with mock.patch.object(click, "echo") as click_echo, mock.patch(
             "opsdroid.configuration.load_config_file"
         ), mock.patch("opsdroid.loader") as mock_load:
-
             mock_load.load_modules_from_config.side_effect = Exception()
             runner = CliRunner()
             from opsdroid.cli.config import build

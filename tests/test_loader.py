@@ -235,7 +235,6 @@ class TestLoader(unittest.TestCase):
         self.assertIsInstance(module, ModuleType)
 
     def test_import_module_from_entrypoint(self):
-
         config = {}
         config["module_path"] = ""
         config["name"] = "myep"

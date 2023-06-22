@@ -1,5 +1,5 @@
-import asynctest
-import asynctest.mock as amock
+import unittest
+import unittest.mock as amock
 
 from opsdroid.cli.start import configure_lang
 from opsdroid.core import OpsDroid
@@ -7,7 +7,7 @@ from opsdroid.matchers import match_crontab
 from opsdroid.parsers.crontab import parse_crontab
 
 
-class TestParserCrontab(asynctest.TestCase):
+class TestParserCrontab(unittest.TestCase):
     """Test the opsdroid crontab parser."""
 
     not_first_run_flag = True
@@ -40,7 +40,7 @@ class TestParserCrontab(asynctest.TestCase):
         with OpsDroid() as opsdroid:
             self.not_first_run_flag = True
             opsdroid.eventloop.is_running = self.true_once
-            opsdroid.run_skill = amock.CoroutineMock()
+            opsdroid.run_skill = amock.AsyncMock()
             with amock.patch("asyncio.sleep"):
                 mock_skill = await self.getMockSkill()
                 mock_skill.config = {"name": "greetings"}
@@ -53,7 +53,7 @@ class TestParserCrontab(asynctest.TestCase):
         with OpsDroid() as opsdroid:
             self.not_first_run_flag = True
             opsdroid.eventloop.is_running = self.true_once
-            opsdroid.run_skill = amock.CoroutineMock()
+            opsdroid.run_skill = amock.AsyncMock()
             with amock.patch("asyncio.sleep"):
                 mock_skill = await self.getMockSkill()
                 mock_skill.config = {"name": "greetings"}
