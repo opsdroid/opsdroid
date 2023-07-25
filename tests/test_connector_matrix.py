@@ -500,7 +500,6 @@ class TestConnectorMatrixAsync:
             "!test:localhost"
         ]
         patched_upload.return_value = [nio.UploadResponse("mxc://aurl"), file_dict]
-        
 
         await connector.send(image)
 
