@@ -5,7 +5,6 @@ from setuptools.command.sdist import sdist
 from setuptools.command.develop import develop
 from setuptools.config import read_configuration
 from itertools import chain
-import versioneer
 
 
 class Develop(develop):
@@ -59,8 +58,5 @@ extras["common"] = list(
 
 setup(
     extras_require=extras,
-    version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(
-        {"sdist": Sdist, "build_py": BuildPy, "develop": Develop}
-    ),
+    cmdclass={"sdist": Sdist, "build_py": BuildPy, "develop": Develop},
 )
