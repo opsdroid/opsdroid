@@ -26,7 +26,9 @@ async def match_regex(text, opts):
     elif opts["matching_condition"].lower() == "fullmatch":
         matched_regex = regex.fullmatch(opts["expression"], text, is_case_sensitive())
     elif opts["matching_condition"].lower() == "findall":
-        matched_regex = regex.finditer(opts["expression"], text, is_case_sensitive())
+        matched_regex = list(
+            regex.finditer(opts["expression"], text, is_case_sensitive())
+        )
     else:
         matched_regex = regex.match(opts["expression"], text, is_case_sensitive())
     return matched_regex
