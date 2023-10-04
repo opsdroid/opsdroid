@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ["3.8", "3.9", "3.10"]
     steps:
       - uses: actions/checkout@v2
@@ -21,13 +21,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install libolm
-        if: runner.os != 'Windows'
+        if: runner.os == 'macos'
         run: |
-          if [ $RUNNER_OS = Linux ]; then
-              sudo apt install libolm3 libolm-dev -y
-          else
-              brew install libolm
-          fi
+            brew install libolm
       - name: Install ffmpeg on Ubuntu
         if: runner.os != 'Windows'
         run: |
