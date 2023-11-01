@@ -30,3 +30,20 @@ There are also some utilities for mocking our and running tests specific to opsd
 ```eval_rst
 .. autofunction:: opsdroid.testing.call_endpoint
 ```
+## pytest Writing
+
+```eval_rst
+.. autofunction:: opsdroid.conftest
+```
+
+Example of unnitest transferred to pytest:
+
+```eval_rst
+.. autofunction:: opsdroid.tests.test_connector_matrix
+```
+
+Example of unnitest that needs to be transferred to pytest:
+
+```eval_rst
+.. autofunction:: opsdroid.test.test_cli
+```
