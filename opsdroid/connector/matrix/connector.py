@@ -687,3 +687,10 @@ class ConnectorMatrix(Connector):
             event.content,
             ignore_unverified_devices=self._ignore_unverified,
         )
+
+    @register_event(events.DeleteMessage)
+    @ensure_room_id_and_send
+    async def _remove_messsage(self, event):
+        return await self.connection.room_redact(
+            event.target, event.linked_event.event_id, event.reason
+        )
