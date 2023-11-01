@@ -181,6 +181,17 @@ class ConnectorWebsocket(Connector):
         try:
             if message.target is None:
                 message.target = next(iter(self.active_connections))
+                #message.target = next(iter(self.active_connections))
+                open_connections = [conn for conn in self.active_connections.values() if not conn.closed]
+                if open_connections:
+                    message.target = open_connections[0]
+                else:
+                    # Handle the case where no open connections are available
+                    message.target = None  # or raise an appropriate exception
+                    # When a connection is closed, remove it from active_connections
+                if connection in self.active_connections:
+                    del self.active_connections[connection]
+                message.target = next(iter(self.active_connections))
             _LOGGER.debug(
                 _("Responding with: '%s' in target %s"), message.text, message.target
             )
