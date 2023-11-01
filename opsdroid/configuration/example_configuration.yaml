@@ -256,6 +256,13 @@ connectors:
 #    # optional
 #    bot-name: "mybot" # default "opsdroid"
 #
+#  ## Discord (core)
+#  discord:
+#    # required
+#    token: "myBotToken"
+#    # optional
+#    bot-name: "mybot" # default "opsdroid"
+#
 
 ## Database modules (optional)
 
