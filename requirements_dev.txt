@@ -1,4 +1,4 @@
 PyGithub==1.52
 Jinja2==2.11.3
-Pygments==2.7.4
+Pygments==2.15.0
 pillow==9.0.1
