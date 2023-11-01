@@ -613,6 +613,11 @@ class ConnectorMatrix(Connector):
     async def _send_join_room(self, join_event):
         return await self.connection.join(join_event.target)
 
+    @register_event(events.LeaveRoom)
+    @ensure_room_id_and_send
+    async def _send_leave_room(self, leave_event):
+        return await self.connection.room_leave(leave_event.target)
+
     @register_event(events.UserInvite)
     @ensure_room_id_and_send
     async def _send_user_invitation(self, invite_event):
