@@ -110,7 +110,7 @@ async def test_web_build_response(opsdroid):
     app = web.Web(opsdroid)
     response = {"test": "test"}
     resp = app.build_response(200, response)
-    assert type(resp) == aiohttp.web.Response
+    assert type(resp) is aiohttp.web.Response
 
 
 async def test_web_index_handler(opsdroid):

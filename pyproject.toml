@@ -1,0 +1,6 @@
+[build-system]
+requires = ["setuptools>=60", "setuptools_scm>=8.0", "wheel", "babel"]
+build-backend = 'setuptools.build_meta'
+
+[tool.setuptools_scm]
+version_file = "opsdroid/_version.py"

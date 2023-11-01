@@ -109,3 +109,4 @@ Pipfile
 Pipfile.lock
 .icloud
 *.swp
+opsdroid/_version.py
