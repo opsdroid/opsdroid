@@ -3,8 +3,10 @@ import logging
 from collections import defaultdict
 
 from opsdroid import events
+from nio import RoomContextError
 
 from . import events as matrix_events
+from .exceptions import MatrixException
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -31,6 +33,8 @@ class MatrixEventCreator(events.EventCreator):
     async def create_event_from_eventid(self, eventid, roomid):
         """Return an ``Event`` based on an event id in a room."""
         room_context = await self.connector.connection.room_context(roomid, eventid, 1)
+        if isinstance(room_context, RoomContextError):
+            raise MatrixException(room_context)
         event_json = room_context.event.source
         return await self.create_event(event_json, roomid)
 
