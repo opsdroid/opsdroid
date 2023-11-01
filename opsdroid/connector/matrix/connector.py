@@ -193,6 +193,8 @@ class ConnectorMatrix(Connector):
             encryption_enabled=self._allow_encryption,
             pickle_key="",
             store_name="opsdroid.db" if self._allow_encryption else "",
+            request_timeout=60,
+            max_timeouts=1,
         )
         self.connection = nio.AsyncClient(
             self.homeserver,
@@ -216,9 +218,15 @@ class ConnectorMatrix(Connector):
             self.connection.user_id = self.mxid
 
         elif self.mxid is not None and self.password is not None:
-            login_response = await self.connection.login(
-                password=self.password, device_name=self.device_name
-            )
+            self.connection_failed = False
+            try:
+                login_response = await self.connection.login(
+                    password=self.password, device_name=self.device_name
+                )
+            except Exception:
+                _LOGGER.error("Logging into matrix homeserver failed.")
+                self.connection_failed = True
+                return
             if isinstance(login_response, nio.LoginError):
                 _LOGGER.error(
                     f"Error while connecting: {login_response.message} (status code {login_response.status_code})"
@@ -271,7 +279,7 @@ class ConnectorMatrix(Connector):
             if isinstance(display_name, nio.ErrorResponse):
                 _LOGGER.warning(
                     f"Error fetching current display_name: {display_name.message} (status code {display_name.status_code})"
-                )
+                )  self.connection_failed = True
                 display_name = None
             else:
                 display_name = display_name.displayname
@@ -325,7 +333,7 @@ class ConnectorMatrix(Connector):
 
     async def listen(self):  # pragma: no cover
         """Listen for new messages from the chat service."""
-        while True:  # pylint: disable=R1702
+        while not self.connection_failed:  # pylint: disable=R1702
             response = await self.connection.sync(
                 timeout=int(60 * 1e3),  # 1m in ms
                 sync_filter=self.filter_id,
