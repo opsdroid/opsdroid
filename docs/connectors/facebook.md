@@ -14,6 +14,7 @@ Follow the steps to get access token :
  - Once the app is created, go to app’s Settings, and under PRODUCTS, click Add Product. Select Messenger, and choose to Set up the messenger product.
  - Generate a `page-access-token` for the page you created to start using Facebook APIs
  - Create a webhook pointing to `http(s)://your-bot-url.com:port/connector/facebook`
+ - Subscribe to all events for the webhook except for message_echoes to avoid an error like `{"error":{"message":"(#100) No matching user found","type":"OAuthException"...`
  - Randomly generate a `verify-token` and add that to the webhook
 
 ## Configuration
