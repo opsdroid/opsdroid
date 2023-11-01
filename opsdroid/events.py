@@ -157,7 +157,7 @@ class Event(metaclass=EventMetaClass):
 
         return result
 
-    def update_entity(self, name, value, confidence=None):
+    def update_entity(self, name, value, confidence=None, append=False):
         """Add or update an entitiy.
 
         Adds or updates an entitiy entry for an event.
@@ -166,9 +166,27 @@ class Event(metaclass=EventMetaClass):
             name (string): Name of entity
             value (string): Value of entity
             confidence (float, optional): Confidence that entity is correct
+            append (bool, optional): Append the entity to a list with exisitng
+            entities of the same name. If False will replace the previous
+            entity.
 
         """
-        self.entities[name] = {"value": value, "confidence": confidence}
+        entity_dict = {"value": value, "confidence": confidence}
+        # Handle multiple matches:
+        if name in self.entities and append:
+            if isinstance(self.entities[name], dict):
+                new_entity = [self.entities[name], entity_dict]
+            elif isinstance(self.entities[name], list):
+                new_entity = self.entities[name] + [entity_dict]
+            else:
+                # We would only end up here if someone else has modified entities
+                raise ValueError(
+                    "Can't append a second entity to an existing entity"
+                    f" of type {type(self.entities[name])} with the same name."
+                )  # pragma: no cover
+        else:
+            new_entity = entity_dict
+        self.entities[name] = new_entity
 
     def get_entity(self, name):
         """Get the value of an entity by name.

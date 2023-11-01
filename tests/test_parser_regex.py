@@ -164,3 +164,27 @@ class TestParserRegex(asynctest.TestCase):
             self.assertEqual(len(parsed_message.entities.keys()), 1)
             self.assertTrue("name" in parsed_message.entities.keys())
             self.assertEqual(parsed_message.entities["name"]["value"], "opsdroid")
+
+    async def test_parse_regex_findall(self):
+        with OpsDroid() as opsdroid:
+            regex = r"Hello (?P<name>\w+)|Hi (?P<name>\w+)"
+
+            mock_skill_named_groups = await self.getMockSkill()
+            opsdroid.skills.append(
+                match_regex(regex, matching_condition="findall")(
+                    mock_skill_named_groups
+                )
+            )
+
+            mock_connector = amock.CoroutineMock()
+            message = Message(
+                "Hi opsdroid, Hello world", "user", "default", mock_connector
+            )
+
+            [skill] = await opsdroid.get_ranked_skills(opsdroid.skills, message)
+            parsed_message = skill["message"]
+            self.assertEqual(len(parsed_message.entities.keys()), 1)
+            self.assertEqual(len(parsed_message.entities["name"]), 2)
+            self.assertTrue("name" in parsed_message.entities.keys())
+            self.assertEqual(parsed_message.entities["name"][0]["value"], "opsdroid")
+            self.assertEqual(parsed_message.entities["name"][1]["value"], "world")
