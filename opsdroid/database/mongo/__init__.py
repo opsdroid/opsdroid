@@ -90,6 +90,10 @@ class DatabaseMongo(Database):
         response = await self.database[self.collection].find_one(
             {"$query": {"key": key}, "$orderby": {"$natural": -1}}
         )
+
+        if not response:
+            return None
+
         if response.keys() == {"_id", "key", "value"}:
             response = response["value"]
         return response
