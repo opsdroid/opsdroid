@@ -41,6 +41,8 @@ class Loader:
         """Create object with opsdroid instance."""
         self.opsdroid = opsdroid
         self.modules_directory = None
+        self.readonly_dependencies = False
+        self.dependency_path = None
         self.current_import_config = None
         _LOGGER.debug(_("Loaded loader."))
 
@@ -251,7 +253,7 @@ class Loader:
         Loader._communicate_process(process)
 
     @staticmethod
-    def pip_install_deps(requirements_path):
+    def pip_install_deps(requirements_path, target):
         """Pip install a requirements.txt file and wait for finish.
 
         Args:
@@ -266,7 +268,7 @@ class Loader:
         command = [
             "pip",
             "install",
-            "--target={}".format(DEFAULT_MODULE_DEPS_PATH),
+            "--target={}".format(target),
             "--ignore-installed",
             "-r",
             requirements_path,
@@ -335,6 +337,21 @@ class Loader:
         if not os.path.isdir(self.modules_directory):
             os.makedirs(self.modules_directory)
 
+    def setup_modules_dependency_directory(self, config):
+        """Create and configure the modules' dependency directory.
+
+        Args:
+            self: instance method
+            config: dict of fields from configuration.yaml
+        """
+        self.dependency_path = config.get("dependency-path", DEFAULT_MODULE_DEPS_PATH)
+        sys.path.append(self.dependency_path)
+
+        if not os.path.isdir(self.dependency_path):
+            os.makedirs(self.dependency_path, exist_ok=True)
+
+        self.readonly_dependencies = config.get("readonly-dependencies", False)
+
     def load_modules_from_config(self, config):
         """Load all module types based on config.
 
@@ -350,6 +367,7 @@ class Loader:
         _LOGGER.debug(_("Loading modules from config..."))
 
         self.setup_modules_directory(config)
+        self.setup_modules_dependency_directory(config)
 
         connectors, databases, parsers, skills = None, None, None, None
 
@@ -445,10 +463,6 @@ class Loader:
         """
         _LOGGER.debug(_("Loading %s modules..."), modules_type)
         loaded_modules = list()
-
-        if not os.path.isdir(DEFAULT_MODULE_DEPS_PATH):
-            os.makedirs(DEFAULT_MODULE_DEPS_PATH)
-        sys.path.append(DEFAULT_MODULE_DEPS_PATH)
 
         # entry point group naming scheme: opsdroid_ + module type plural,
         # eg. "opsdroid_databases"
@@ -571,9 +585,18 @@ class Loader:
             )
             return None
 
+        if self.readonly_dependencies:
+            _LOGGER.debug(
+                _(
+                    "'readonly-dependencies' set in configuration, assuming dependencies already present."
+                )
+            )
+            return None
+
         if os.path.isfile(os.path.join(config["install_path"], "requirements.txt")):
             self.pip_install_deps(
-                os.path.join(config["install_path"], "requirements.txt")
+                os.path.join(config["install_path"], "requirements.txt"),
+                self.dependency_path
             )
             return True
 
