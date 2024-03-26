@@ -45,6 +45,7 @@ CONVERSATIONS_INVITE = ("/conversations.invite", "POST", {"ok": True}, 200)
 CONVERSATIONS_SET_TOPIC = ("/conversations.setTopic", "POST", {"ok": True}, 200)
 PINS_ADD = ("/pins.add", "POST", {"ok": True}, 200)
 PINS_REMOVE = ("/pins.remove", "POST", {"ok": True}, 200)
+FILES_UPLOAD = ("/files.upload", "POST", {"ok": True}, 200)
 
 
 @pytest.fixture
@@ -590,4 +591,19 @@ async def test_send_pin_removed(send_event, connector):
 
     payload, response = await send_event(PINS_REMOVE, event)
     assert payload == {"channel": "room", "timestamp": "1582838099.000600"}
+    assert response["ok"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.add(*FILES_UPLOAD)
+async def test_send_file_upload(send_event, connector):
+    file = events.File(
+        file_bytes=f"my long string".encode("utf-8"),
+        mimetype="text",
+        name="mysnippet.txt",
+        target="room"
+    )
+
+    payload, response = await send_event(FILES_UPLOAD, file)
+    assert payload == {"channels": "room", "filename": "mysnippet.txt", "filetype": "text", "content": f"my long string".encode("utf-8")}
     assert response["ok"]
