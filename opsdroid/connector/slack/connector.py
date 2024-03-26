@@ -635,3 +635,15 @@ class ConnectorSlack(Connector):
                 "timestamp": unpin_event.linked_event.event_id,
             },
         )
+
+    @register_event(opsdroid.events.File)
+    async def _send_file(self, file_event):
+        return await self.slack_web_client.api_call(
+            "files.upload",
+            data={
+                "channels": file_event.target,
+                "content": await file_event.get_file_bytes(),
+                "filetype": await file_event.get_mimetype(),
+                "filename": file_event.name,
+            },
+        )
