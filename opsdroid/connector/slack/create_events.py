@@ -100,7 +100,7 @@ class SlackEventCreator(events.EventCreator):
         return events.EditedMessage(
             text,
             user=user_name,
-            user_id=event["message"]["username"],
+            user_id=event["message"].get("user", event["message"]["username"]),
             target=event["channel"],
             connector=self.connector,
             event_id=event["ts"],
