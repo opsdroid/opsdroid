@@ -591,7 +591,6 @@ async def test_send_pin_removed(send_event, connector):
     event = events.UnpinMessage(target="room", linked_event=message)
 
     payload, response = await send_event(PINS_REMOVE, event)
-    breakpoint()
     assert payload == {"channel": "room", "timestamp": "1582838099.000600"}
     assert response["ok"]
 
