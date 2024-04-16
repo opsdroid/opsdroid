@@ -595,7 +595,7 @@ async def test_send_pin_removed(send_event, connector):
 
 
 @pytest.mark.asyncio
-@pytest.mark.add(*FILES_UPLOAD)
+@pytest.mark.add_response(*FILES_UPLOAD)
 async def test_send_file_upload(send_event, connector):
     file = events.File(
         file_bytes=f"my long string".encode("utf-8"),
