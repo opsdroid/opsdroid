@@ -1,6 +1,7 @@
 """Test receive events that come from the Slack API.
 Depending on payload different methods from create_events module will be tested
 """
+
 import json
 
 import pytest

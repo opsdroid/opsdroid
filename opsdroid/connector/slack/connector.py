@@ -1,4 +1,5 @@
 """A connector for Slack."""
+
 import asyncio
 import json
 import logging
@@ -7,6 +8,7 @@ import re
 import ssl
 import time
 import urllib.parse
+from io import BytesIO
 
 import aiohttp
 import arrow
@@ -638,12 +640,9 @@ class ConnectorSlack(Connector):
 
     @register_event(opsdroid.events.File)
     async def _send_file(self, file_event):
-        return await self.slack_web_client.api_call(
-            "files.upload",
-            data={
-                "channels": file_event.target,
-                "content": await file_event.get_file_bytes(),
-                "filetype": await file_event.get_mimetype(),
-                "filename": file_event.name,
-            },
+        return await self.slack_web_client.files_upload_v2(
+            channel=file_event.target,
+            content=BytesIO(await file_event.get_file_bytes()),
+            filetype=await file_event.get_mimetype(),
+            filename=file_event.name(),
         )
