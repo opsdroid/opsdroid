@@ -642,6 +642,5 @@ class ConnectorSlack(Connector):
         return await self.slack_web_client.files_upload_v2(
             channel=file_event.target,
             content=await file_event.get_file_bytes(),
-            filetype=await file_event.get_mimetype(),
             filename=file_event.name,
         )
