@@ -644,5 +644,5 @@ class ConnectorSlack(Connector):
             channel=file_event.target,
             content=BytesIO(await file_event.get_file_bytes()),
             filetype=await file_event.get_mimetype(),
-            filename=file_event.name(),
+            filename=file_event.name,
         )
