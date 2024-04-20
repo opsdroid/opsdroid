@@ -51,7 +51,6 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
         RocketChat({})
         self.assertLogs("_LOGGER", "error")
 
-
     async def test_connect(self):
         connect_response = amock.Mock()
         connect_response.status = 200

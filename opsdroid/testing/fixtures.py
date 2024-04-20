@@ -14,7 +14,15 @@ from opsdroid.connector import Connector
 
 from .external_api import ExternalAPIMockServer
 
-__all__ = ["mock_api_obj", "bound_address", "get_connector", "opsdroid", "mock_api", "anyio_backend", "event_loop"]
+__all__ = [
+    "mock_api_obj",
+    "bound_address",
+    "get_connector",
+    "opsdroid",
+    "mock_api",
+    "anyio_backend",
+    "event_loop",
+]
 
 
 @pytest.fixture
@@ -25,7 +33,7 @@ def anyio_backend():
 @pytest.fixture
 async def event_loop():
     async with anyio.create_task_group():
-        yield anyio.get_current_task().locals['event_loop']
+        yield anyio.get_current_task().locals["event_loop"]
 
 
 @pytest.fixture(scope="session")
