@@ -116,7 +116,7 @@ async def test_web_build_response(opsdroid):
     app = web.Web(opsdroid)
     response = {"test": "test"}
     resp = app.build_response(200, response)
-    assert type(resp) == aiohttp.web.Response
+    assert isinstance(resp, aiohttp.web.Response)
 
 
 @pytest.mark.anyio
@@ -124,7 +124,7 @@ async def test_web_index_handler(opsdroid):
     """Check the index handler."""
     opsdroid.config["web"] = {}
     app = web.Web(opsdroid)
-    assert type(await app.web_index_handler(None)) == aiohttp.web.Response
+    isinstance(await app.web_index_handler(None), aiohttp.web.Response)
 
 
 @pytest.mark.anyio
@@ -132,7 +132,7 @@ async def test_web_stats_handler(opsdroid):
     """Check the stats handler."""
     opsdroid.config["web"] = {}
     app = web.Web(opsdroid)
-    assert type(await app.web_stats_handler(None)) == aiohttp.web.Response
+    assert isinstance(await app.web_stats_handler(None), aiohttp.web.Response)
 
 
 @pytest.mark.anyio
