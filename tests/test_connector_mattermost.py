@@ -1,10 +1,7 @@
 """Tests for the ConnectorMattermost class."""
-import asyncio
-import anyio
 import json
 
 import pytest
-import unittest
 import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock

@@ -1,6 +1,5 @@
 """Tests for the RocketChat class."""
 import asyncio
-import unittest
 import contextlib
 import asynctest
 import asynctest.mock as amock
