@@ -23,6 +23,11 @@ connector_config = {
 }
 
 
+@pytest.fixture
+def anyio_backend():
+    return "asyncio"
+
+
 def test_init(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
     assert connector.default_target == "test"
