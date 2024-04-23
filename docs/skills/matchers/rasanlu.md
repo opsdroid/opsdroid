@@ -48,7 +48,7 @@ docker run \
     rasa/rasa:2.6.2-full \
     run --enable-api --auth-token 85769fjoso084jd -vv
 ```
-(example1)=
+(rasanexample1)=
 ## [Example 1]
 
 Skill file (`__init__.py`).

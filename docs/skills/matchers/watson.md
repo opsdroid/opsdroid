@@ -29,7 +29,7 @@ In this example we have a Watson assistant set up with the default Customer Care
 
 ```{autofunction} opsdroid.matchers.match_watson
 ```
-(example1)=
+(watexample1)=
 ### [Example 1]
 
 ```python

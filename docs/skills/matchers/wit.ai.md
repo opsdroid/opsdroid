@@ -19,7 +19,7 @@ parsers:
 
 ```{autofunction} opsdroid.matchers.match_witai
 ```
-(example1)=
+(weatherexample1)=
 ## [Example 1]
 
 ```python
@@ -41,7 +41,7 @@ class MySkill(Skill):
 
 The above skill would be called on any intent which has a name of `'get_weather'`.
 
-#### Usage example
+### Usage example
 
 > user: what's the weather like in London
 >
@@ -123,4 +123,4 @@ The example skill will print the following on the message "What's the weather li
 ```
 
 Since Wit.ai can recognise locations, you can use this values on your skills to return different things.
-On our weather skill([example 1](#example1)) we changed the city param to get the temperature related to any city passed on the message.
+On our weather skill([example 1](#weatherexample1)) we changed the city param to get the temperature related to any city passed on the message.

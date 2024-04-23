@@ -3,7 +3,7 @@
 A connector for [Slack](https://slack.com/).
 
 - [Requirements](#requirements)
-- [Configuration](#configuration)
+- [Configuration](#slack-configuration)
     - [Choose the backend API](#choose-the-backend-api)
     - [Subscribe to events](#subscribe-to-events)
 - [Usage](#usage)
@@ -33,7 +33,7 @@ We have dropped support for the RTM API. Now the Slack Connector supports the [e
 * Navigate to "OAuth Tokens & Redirect URLs" and click the "Install to Workspace" button.
 * Take note of the "Bot User OAuth Access Token" as this will be the `bot-token` you need for your configuration (the bot-token will start with `xoxb-`).
 
-(configuration)=
+(slack-configuration)=
 ## Configuration
 
 ```yaml

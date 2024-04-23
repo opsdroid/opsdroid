@@ -45,7 +45,7 @@ The `match_sapcai` decorator takes one parameter (the name of the intent to matc
 
 ```{autofunction} opsdroid.matchers.match_sapcai
 ```
-(example1)=
+(sapexample1)=
 ### [Example 1]
 
 ```python

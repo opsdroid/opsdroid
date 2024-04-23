@@ -1,4 +1,4 @@
-## Documentation
+# Documentation
 More documentation is always appreciated and it's something that you can contribute to from the GitHub web interface.  This might be a great start point if you are new to Open Source and GitHub!
 
 Things that we need help with:
@@ -10,7 +10,7 @@ Things that we need help with:
  - Blog posts, articles, etc
  - Any issue marked with the [documentation tag](https://github.com/opsdroid/opsdroid/issues?q=is:issue+is:open+label:documentation)
 
-### Building the docs
+## Building the docs
 
 Opsdroid's documentation is built using [Sphinx](http://www.sphinx-doc.org/en/master/) with the [Recommonmark](https://github.com/readthedocs/recommonmark) and [Napoleon](https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html) plugins and is hosted on [readthedocs](https://readthedocs.org/).
 
@@ -24,7 +24,7 @@ $ cd docs/_build && python -m http.server
 Serving HTTP on 0.0.0.0 port 8000 (http://localhost:8000/) ...
 ```
 
-### Writing documentation
+## Writing documentation
 
 All documentation should be written in [Basic English](https://en.wikipedia.org/wiki/Basic_English) where possible. We should try to keep words, phrases and grammar as simple as possible to make the project as accessible as possible.
 

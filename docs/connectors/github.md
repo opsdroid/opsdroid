@@ -54,7 +54,7 @@ _*Note:* You should add a secure secret when setting up your webhook, this will 
 
 ## Configuration
 
-#### Github app
+### Github app
 
 ```yaml
 connectors:
@@ -65,7 +65,7 @@ connectors:
     secret: <webhook secret>
 ```
 
-#### Webhook method
+### Webhook method
 
 ```yaml
 connectors:
