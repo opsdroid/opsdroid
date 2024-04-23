@@ -17,11 +17,10 @@ parsers:
 
 [wit.ai](https://wit.ai) is an NLP API for matching strings to [intents](https://wit.ai/docs/recipes#categorize-the-user-intent). Intents are created on the wit.ai website.
 
-```eval_rst
-.. autofunction:: opsdroid.matchers.match_witai
+```{autofunction} opsdroid.matchers.match_witai
 ```
-
-## [Example 1](#example1)
+(example1)=
+## [Example 1]
 
 ```python
 from opsdroid.skill import Skill

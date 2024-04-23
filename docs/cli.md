@@ -8,8 +8,7 @@ $ opsdroid start
 
 ## Reference
 
-```eval_rst
-.. click:: opsdroid.cli:cli
-   :prog: opsdroid
-   :show-nested:
+```{click} opsdroid.cli:cli
+:prog: opsdroid
+:show-nested:
 ```

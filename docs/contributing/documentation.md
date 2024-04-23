@@ -31,35 +31,31 @@ All documentation should be written in [Basic English](https://en.wikipedia.org/
 [Markdown](https://en.wikipedia.org/wiki/Markdown) is our preferred markup language, although [reStructuredText](http://docutils.sourceforge.net/rst.html) (rst) is also supported. You may also embed portions of rst within your markdown documentation with the following syntax:
 
 ~~~
-```eval_rst
-.. warning::
-   This is a warning admonition from rst within a markdown document.
-   Useful because markdown doesn't have warnings.
+```{warning}
+This is a warning admonition from rst within a markdown document.
+Useful because markdown doesn't have warnings.
 ```
 ~~~
 
 Renders as:
 
 
-```eval_rst
-.. warning::
-   This is a warning admonition from rst within a markdown document.
-   Useful because markdown doesn't have warnings.
+```{warning}
+This is a warning admonition from rst within a markdown document.
+Useful because markdown doesn't have warnings.
 ```
 
 You can also use [Sphinx autodoc directives](http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html) to embed docstrings from the opsdroid module within your markdown documentation too.
 
 ~~~
-```eval_rst
-.. autofunction:: opsdroid.matchers.match_event
+```{autofunction} opsdroid.matchers.match_event
 ```
 ~~~
 
 Renders as:
 
-```eval_rst
-.. autofunction:: opsdroid.matchers.match_event
-   :noindex:
+```{autofunction} opsdroid.matchers.match_event
+:noindex:
 ```
 
 It is preferable to keep as much documentation within docstrings in the opsdroid codebase as possible and to include it in the documentation website using autodoc.

@@ -4,9 +4,6 @@
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-from recommonmark.parser import CommonMarkParser
-from recommonmark.transform import AutoStructify
-
 # -- Path setup --------------------------------------------------------------
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -37,6 +34,25 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx_click.ext",
     "sphinx_autodoc_typehints",
+    "myst_parser",
+]
+
+myst_enable_extensions = [
+    "amsmath",
+    "attrs_inline",
+    "attrs_block",
+    "colon_fence",
+    "deflist",
+    "dollarmath",
+    "fieldlist",
+    "html_admonition",
+    "html_image",
+    "linkify",
+    "replacements",
+    "smartquotes",
+    "strikethrough",
+    "substitution",
+    "tasklist",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -73,21 +89,3 @@ html_theme_options = {
 }
 
 autodoc_mock_imports = ["jwt", "motor"]
-
-# -- Recommonmark ------------------------------------------------------------
-
-github_doc_root = "https://github.com/readthedocs/recommonmark/tree/master/docs"
-
-
-def setup(app):
-    app.add_config_value(
-        "recommonmark_config",
-        {
-            "url_resolver": lambda url: github_doc_root + url,
-            "auto_toc_tree_section": "Contents",
-        },
-        True,
-    )
-    app.add_transform(AutoStructify)
-    app.add_source_suffix(".md", "markdown")
-    app.add_source_parser(CommonMarkParser)

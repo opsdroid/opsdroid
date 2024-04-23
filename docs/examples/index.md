@@ -6,12 +6,11 @@ Each example assumes you have installed, configured and run Opsdroid for the fir
 
 You can also find detailed information on how skills are structured in the [opsdroid documentation](../skills/index.md).
 
-```eval_rst
-.. toctree::
-   :maxdepth: 1
+```{toctree}
+:maxdepth: 1
 
-   how-are-you
-   weather
-   flip-a-coin
-   stocks-portfolio
+how-are-you
+weather
+flip-a-coin
+stocks-portfolio
 ```

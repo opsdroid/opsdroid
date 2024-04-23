@@ -36,47 +36,43 @@ Help support opsdroid in one click by pressing [![Tweet](https://img.shields.io/
 
 ## Documentation
 
-```eval_rst
-.. toctree::
-   :maxdepth: 2
+```{toctree}
+:maxdepth: 2
 
-   quickstart
-   overview
-   installation
-   skills/index
-   connectors/index
-   databases/index
+quickstart
+overview
+installation
+skills/index
+connectors/index
+databases/index
 ```
 
-```eval_rst
-.. toctree::
-   :maxdepth: 2
-   :caption: References
+```{toctree}
+:maxdepth: 2
+:caption: References
 
-   configuration
-   cli
-   rest-api
+configuration
+cli
+rest-api
 ```
 
-```eval_rst
-.. toctree::
-   :maxdepth: 2
-   :caption: User guides
+```{toctree}
+:maxdepth: 2
+:caption: User guides
 
-   examples/index
-   exposing
-   packaging
-   testing
+examples/index
+exposing
+packaging
+testing
 ```
 
-```eval_rst
-.. toctree::
-   :maxdepth: 2
-   :caption: Project
+```{toctree}
+:maxdepth: 2
+:caption: Project
 
-   contributing/index
-   maintaining/index
-   why
+contributing/index
+maintaining/index
+why
 ```
 
 ---
