@@ -1,16 +1,18 @@
 version: 2
 
-python:
-  version: 3.8
-  install:
-    - method: pip
-      path: .
-      extra_requirements:
-        - docs
-        - connector_telegram
-        - connector_slack
-        - database_matrix
-        - connector_matrix
+build:
+  os: ubuntu-20.04
+  python:
+    version: 3.8
+    install:
+      - method: pip
+        path: .
+        extra_requirements:
+          - docs
+          - connector_telegram
+          - connector_slack
+          - database_matrix
+          - connector_matrix
 
 sphinx:
   configuration: docs/conf.py
