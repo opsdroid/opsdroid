@@ -23,11 +23,6 @@ connector_config = {
 }
 
 
-@pytest.fixture
-def anyio_backend():
-    return "asyncio"
-
-
 def test_init(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
     assert connector.default_target == "test"
@@ -895,7 +890,11 @@ async def test_disconnect_websockets(opsdroid):
 
     connector.websocket = web.WebSocketResponse()
 
-    resp = await connector.disconnect_websockets()
+    with amock.patch(
+        "aiohttp.web_ws.WebSocketResponse.close", new=amock.CoroutineMock()
+    ) as mocked_response_close:
+        mocked_response_close.side_effect = True
+        resp = await connector.disconnect_websockets()
 
     assert not connector.websocket
     assert not connector.is_live
