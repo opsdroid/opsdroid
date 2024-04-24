@@ -639,9 +639,10 @@ class ConnectorSlack(Connector):
 
     @register_event(opsdroid.events.File)
     async def _send_file(self, file_event):
+        raw_event = file_event.raw_event
         thread_ts = (
-            file_event.get("thread_ts", None)
-            if self.config.get("start-thread", False)
+            raw_event.get("thread_ts", None)
+            if self.config.get("start-thread", False) and isinstance(raw_event, dict)
             else None
         )
         return await self.slack_web_client.files_upload_v2(

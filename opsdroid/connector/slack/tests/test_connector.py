@@ -593,26 +593,3 @@ async def test_send_pin_removed(send_event, connector):
     payload, response = await send_event(PINS_REMOVE, event)
     assert payload == {"channel": "room", "timestamp": "1582838099.000600"}
     assert response["ok"]
-
-
-@pytest.mark.anyio
-# @pytest.mark.add_response(*FILES_UPLOAD)
-async def test_send_file_upload(send_event, connector):
-    # TODO How to test files_upload_v2?
-    assert True
-    # shh_linter = "quiet"
-    # file = events.File(
-    #     file_bytes=f"my long {shh_linter} string".encode("utf-8"),
-    #     mimetype="text",
-    #     name="mysnippet.txt",
-    #     target="room",
-    # )
-
-    # payload, response = await send_event(FILES_UPLOAD, file)
-    # assert payload == {
-    #     "channel": "room",
-    #     "filename": "mysnippet.txt",
-    #     "filetype": "text",
-    #     "content": f"my long {shh_linter} string".encode("utf-8"),
-    # }.items()
-    # assert response["ok"]
