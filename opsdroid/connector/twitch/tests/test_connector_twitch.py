@@ -893,7 +893,7 @@ async def test_disconnect_websockets(opsdroid):
     with amock.patch(
         "aiohttp.web_ws.WebSocketResponse.close", new=amock.CoroutineMock()
     ) as mocked_response_close:
-        mocked_response_close.side_effect = True
+        mocked_response_close.side_effect = [True]
         resp = await connector.disconnect_websockets()
 
     assert not connector.websocket
