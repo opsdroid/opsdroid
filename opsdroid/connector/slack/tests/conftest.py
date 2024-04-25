@@ -1,4 +1,5 @@
 """Fixtures and functions for slack testsuite."""
+
 from pathlib import Path
 
 import pytest

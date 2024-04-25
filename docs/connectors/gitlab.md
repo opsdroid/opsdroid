@@ -1,6 +1,6 @@
 # GitLab
 
-A connector for [GitLab](https://gitlab.com). 
+A connector for [GitLab](https://gitlab.com).
 
 Note that this connector emits only upports sending messages back
 to the event (Issue, Merge Request), if you need to create more elaborate workflow, please
@@ -61,7 +61,7 @@ class ThankUser(Skill):
     def __init__(self, opsdroid, config, *args, **kwargs):
         super().__init__(opsdroid, config, *args, **kwargs)
         self.opsdroid = opsdroid
-    
+
     @match_event(GitlabIssueCreated)
     async def say_thank_you(self, event):
         """Send message to issue, thanking user."""
@@ -104,7 +104,7 @@ class AlertTeam(Skill):
     def __init__(self, opsdroid, config, *args, **kwargs):
         super().__init__(opsdroid, config, *args, **kwargs)
         self.opsdroid = opsdroid
-    
+
     @match_event(MRLabeled)
     async def mr_labeled(self, event):
         """Send message slack if MR was labeled as code-review."""
@@ -117,85 +117,71 @@ class AlertTeam(Skill):
             )
 ```
 
-This skill will trigger every time an MR gets labeled with something but only sends the message to the 
+This skill will trigger every time an MR gets labeled with something but only sends the message to the
 Slack channel `#code-reviews` when the MR is labeled with the  `code-review` label.
 
 ## Events Available
 
 Currently, the GitLab connector handles Merge Requests and Issues events, any other event such as pipeline events, for example, will be retured as `GenericGitlabEvent`.
 
-```eval_rst
-.. autoclass:: opsdroid.connector.gitlab.events.GenericGitlabEvent
-    :members:
+```{autoclass} opsdroid.connector.gitlab.events.GenericGitlabEvent
+:members:
 ```
 
-```eval_rst
-.. autoclass:: opsdroid.connector.gitlab.events.GitlabIssueCreated
-    :members:
+```{autoclass} opsdroid.connector.gitlab.events.GitlabIssueCreated
+:members:
 ```
 
-```eval_rst
-.. autoclass:: opsdroid.connector.gitlab.events.GitlabIssueClosed
-    :members:
+```{autoclass} opsdroid.connector.gitlab.events.GitlabIssueClosed
+:members:
 ```
 
-```eval_rst
-.. autoclass:: opsdroid.connector.gitlab.events.GitlabIssueEdited
-    :members:
+```{autoclass} opsdroid.connector.gitlab.events.GitlabIssueEdited
+:members:
 ```
 
-```eval_rst
-.. autoclass:: opsdroid.connector.gitlab.events.GitlabIssueLabeled
-    :members:
+```{autoclass} opsdroid.connector.gitlab.events.GitlabIssueLabeled
+:members:
 ```
 
-```eval_rst
-.. autoclass:: opsdroid.connector.gitlab.events.GenericIssueEvent
-    :members:
+```{autoclass} opsdroid.connector.gitlab.events.GenericIssueEvent
+:members:
 ```
 
-```eval_rst
-.. autoclass:: opsdroid.connector.gitlab.events.MRCreated
-    :members:
+```{autoclass} opsdroid.connector.gitlab.events.MRCreated
+:members:
 ```
 
-```eval_rst
-.. autoclass:: opsdroid.connector.gitlab.events.MRMerged
-    :members:
+```{autoclass} opsdroid.connector.gitlab.events.MRMerged
+:members:
 ```
 
-```eval_rst
-.. autoclass:: opsdroid.connector.gitlab.events.MRClosed
-    :members:
+```{autoclass} opsdroid.connector.gitlab.events.MRClosed
+:members:
 ```
 
-```eval_rst
-.. autoclass:: opsdroid.connector.gitlab.events.MRLabeled
-    :members:
+```{autoclass} opsdroid.connector.gitlab.events.MRLabeled
+:members:
 ```
 
-```eval_rst
-.. autoclass:: opsdroid.connector.gitlab.events.MRApproved
-    :members:
+```{autoclass} opsdroid.connector.gitlab.events.MRApproved
+:members:
 ```
 
-```eval_rst
-.. autoclass:: opsdroid.connector.gitlab.events.GenericMREvent
-    :members:
+```{autoclass} opsdroid.connector.gitlab.events.GenericMREvent
+:members:
 ```
 
 ## Reference
 
 This dataclass is used internally within the Gitlab connector, but is worth noting a few things here.
 
-```eval_rst
-.. autoclass:: opsdroid.connector.gitlab.GitlabPayload
-    :members:
+```{autoclass} opsdroid.connector.gitlab.GitlabPayload
+:members:
 ```
 
 This is the Connector reference
 
-```eval_rst
-.. autoclass:: opsdroid.connector.gitlab.ConnectorGitlab
-    :members:
+```{autoclass} opsdroid.connector.gitlab.ConnectorGitlab
+:members:
 ```

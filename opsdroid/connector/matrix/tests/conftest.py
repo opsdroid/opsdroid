@@ -12,6 +12,11 @@ from opsdroid.connector.matrix import ConnectorMatrix
 
 
 @pytest.fixture
+def anyio_backend():
+    return "asyncio"
+
+
+@pytest.fixture
 def default_config(mock_api_obj):
     return {"homeserver": mock_api_obj.base_url, "rooms": {"main": "#test:localhost"}}
 

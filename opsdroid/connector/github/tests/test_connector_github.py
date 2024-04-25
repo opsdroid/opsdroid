@@ -81,7 +81,7 @@ def test_missing_secret(caplog):
 
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_token_connect(connector, mock_api):
     await connector.connect()
 
@@ -105,7 +105,7 @@ async def test_token_connect(connector, mock_api):
     get_response_path("access_token.json"),
     status=200,
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_app_connect(app_connector, mock_api):
     await app_connector.connect()
 
@@ -123,7 +123,7 @@ async def test_app_connect(app_connector, mock_api):
 @pytest.mark.add_response(
     "/user", "GET", get_response_path("bad_credentials.json"), status=401
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_token_connect_failure(connector, mock_api, caplog):
     await connector.connect()
     assert "Bad credentials" in caplog.text
@@ -132,7 +132,7 @@ async def test_token_connect_failure(connector, mock_api, caplog):
 @pytest.mark.add_response(
     "/app/installations", "GET", get_response_path("bad_credentials.json"), status=401
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_installations_connect_failure(app_connector, mock_api, caplog):
     await app_connector.connect()
     assert "Bad credentials" in caplog.text
@@ -147,18 +147,18 @@ async def test_installations_connect_failure(app_connector, mock_api, caplog):
     get_response_path("bad_credentials.json"),
     status=401,
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_access_token_connect_failure(app_connector, mock_api, caplog):
     await app_connector.connect()
     assert "Bad credentials" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_disconnect(connector):
     assert await connector.disconnect() is None
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_listen(connector):
     """Test the listen method.
 
@@ -171,7 +171,7 @@ async def test_listen(connector):
 
 
 @pytest.mark.add_response(COMMENTS_URI, "POST", None, status=201)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_send(opsdroid, connector, mock_api):
     await opsdroid.send(
         Message(
@@ -184,7 +184,7 @@ async def test_send(opsdroid, connector, mock_api):
 @pytest.mark.add_response(
     COMMENTS_URI, "POST", get_response_path("send_failure.json"), status=400
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_send_failure(opsdroid, connector, mock_api, caplog):
     await opsdroid.send(
         Message(
@@ -196,7 +196,7 @@ async def test_send_failure(opsdroid, connector, mock_api, caplog):
 
 
 @pytest.mark.add_response(COMMENTS_URI, "POST", status=201)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_do_not_send_to_self(opsdroid, connector, mock_api):
     connector.github_username = "opsdroid-bot"
 
@@ -209,7 +209,7 @@ async def test_do_not_send_to_self(opsdroid, connector, mock_api):
 
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_receive_issue_comment(opsdroid, connector, mock_api, caplog):
     """Test a comment create event creates a message and parses it."""
     caplog.set_level(logging.INFO)
@@ -242,7 +242,7 @@ async def test_receive_issue_comment(opsdroid, connector, mock_api, caplog):
 
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_pr_review_submitted(opsdroid, connector, mock_api, caplog):
     """Test submitting a PR review."""
     caplog.set_level(logging.INFO)
@@ -269,7 +269,7 @@ async def test_pr_review_submitted(opsdroid, connector, mock_api, caplog):
 
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_pr_review_edited(opsdroid, connector, mock_api, caplog):
     """Test editing a PR review."""
     caplog.set_level(logging.INFO)
@@ -297,7 +297,7 @@ async def test_pr_review_edited(opsdroid, connector, mock_api, caplog):
 
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_pr_review_dismissed(opsdroid, connector, mock_api, caplog):
     """Test dismissing a PR review."""
     caplog.set_level(logging.INFO)
@@ -325,7 +325,7 @@ async def test_pr_review_dismissed(opsdroid, connector, mock_api, caplog):
 
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_pr_review_comment_created(opsdroid, connector, mock_api, caplog):
     """Test creating a PR review comment."""
     caplog.set_level(logging.INFO)
@@ -352,7 +352,7 @@ async def test_pr_review_comment_created(opsdroid, connector, mock_api, caplog):
 
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_pr_review_comment_edited(opsdroid, connector, mock_api, caplog):
     """Test editing a PR review comment."""
     caplog.set_level(logging.INFO)
@@ -380,7 +380,7 @@ async def test_pr_review_comment_edited(opsdroid, connector, mock_api, caplog):
 
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_pr_review_comment_deleted(opsdroid, connector, mock_api, caplog):
     """Test deleting a PR review comment."""
     caplog.set_level(logging.INFO)
@@ -408,7 +408,7 @@ async def test_pr_review_comment_deleted(opsdroid, connector, mock_api, caplog):
 
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_receive_pr(opsdroid, connector, mock_api, caplog):
     """Test a PR create event creates a message and parses it."""
     caplog.set_level(logging.INFO)
@@ -436,7 +436,7 @@ async def test_receive_pr(opsdroid, connector, mock_api, caplog):
 
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_reopen_pr(opsdroid, connector, mock_api, caplog):
     """Test a PR reopen event creates a message and parses it."""
     caplog.set_level(logging.INFO)
@@ -465,7 +465,7 @@ async def test_reopen_pr(opsdroid, connector, mock_api, caplog):
 
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_edit_pr(opsdroid, connector, mock_api, caplog):
     """Test a PR reopen event creates a message and parses it."""
     caplog.set_level(logging.INFO)
@@ -497,7 +497,7 @@ async def test_edit_pr(opsdroid, connector, mock_api, caplog):
 
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_pr_merged(opsdroid, connector, mock_api, caplog):
     """Test a PR merge event creates an event and parses it."""
     caplog.set_level(logging.INFO)
@@ -527,7 +527,7 @@ async def test_pr_merged(opsdroid, connector, mock_api, caplog):
 
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_close_pr(opsdroid, connector, mock_api, caplog):
     """Test a PR close event creates an event and parses it."""
     caplog.set_level(logging.INFO)
@@ -556,7 +556,7 @@ async def test_close_pr(opsdroid, connector, mock_api, caplog):
 
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_push_commit(opsdroid, connector, mock_api, caplog):
     """Test that pushing a commit creates an event and parses it."""
     caplog.set_level(logging.INFO)
@@ -584,7 +584,7 @@ async def test_push_commit(opsdroid, connector, mock_api, caplog):
 
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_check_started(opsdroid, connector, mock_api, caplog):
     """Test a check started event creates an event and parses it."""
     caplog.set_level(logging.INFO)
@@ -613,7 +613,7 @@ async def test_check_started(opsdroid, connector, mock_api, caplog):
 
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_check_failed(opsdroid, connector, mock_api, caplog):
     """Test a check failed event creates an event and parses it."""
     caplog.set_level(logging.INFO)
@@ -642,7 +642,7 @@ async def test_check_failed(opsdroid, connector, mock_api, caplog):
 
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_check_passed(opsdroid, connector, mock_api, caplog):
     """Test a check passed event creates an event and parses it."""
     caplog.set_level(logging.INFO)
@@ -671,7 +671,7 @@ async def test_check_passed(opsdroid, connector, mock_api, caplog):
 
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_check_completed(opsdroid, connector, mock_api, caplog):
     """Test a check completed event creates an event and parses it."""
     caplog.set_level(logging.INFO)
@@ -700,7 +700,7 @@ async def test_check_completed(opsdroid, connector, mock_api, caplog):
 
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_receive_issue(opsdroid, connector, mock_api, caplog):
     """Test a issue create event creates a message and parses it."""
     caplog.set_level(logging.INFO)
@@ -727,7 +727,7 @@ async def test_receive_issue(opsdroid, connector, mock_api, caplog):
 
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_received_issue_close(opsdroid, connector, mock_api, caplog):
     """Test a issue close event creates an event and parses it."""
     caplog.set_level(logging.INFO)
@@ -756,7 +756,7 @@ async def test_received_issue_close(opsdroid, connector, mock_api, caplog):
 
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_receive_label(opsdroid, connector, mock_api, caplog):
     """Test a receive label event creates a message and parses it."""
     caplog.set_level(logging.INFO)
@@ -783,7 +783,7 @@ async def test_receive_label(opsdroid, connector, mock_api, caplog):
 
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_receive_unlabel(opsdroid, connector, mock_api, caplog):
     """Test a unlabel event creates a message and parses it."""
     caplog.set_level(logging.INFO)
@@ -810,7 +810,7 @@ async def test_receive_unlabel(opsdroid, connector, mock_api, caplog):
 
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_receive_status(opsdroid, connector, mock_api):
     """Test a PR create event creates a message and parses it."""
 
@@ -829,7 +829,7 @@ async def test_receive_status(opsdroid, connector, mock_api):
     assert not test_skill.called
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_validate_request(opsdroid):
     connector_config = {"secret": "client-secret", "token": "test"}
     connector = ConnectorGitHub(connector_config, opsdroid=opsdroid)
@@ -847,7 +847,7 @@ async def test_validate_request(opsdroid):
 
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_no_key_in_payload(opsdroid, connector, mock_api, caplog):
     """Test if payload doesn't contain 'action' key."""
 
@@ -872,7 +872,7 @@ async def test_no_key_in_payload(opsdroid, connector, mock_api, caplog):
 
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_no_event_to_parse(opsdroid, connector, mock_api, caplog):
     """Test a payload that github doesn't know how to parse."""
 
@@ -911,7 +911,7 @@ async def connector_with_validation(opsdroid, mock_api_obj):
 
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_invalid_request(opsdroid, connector_with_validation, mock_api, caplog):
     """Test a payload with an invalid request."""
 
