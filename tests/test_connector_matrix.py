@@ -1,5 +1,6 @@
 """Tests for the ConnectorMatrix class."""
 import asyncio
+import anyio
 import logging
 from copy import deepcopy
 
@@ -16,26 +17,34 @@ from opsdroid.core import OpsDroid
 
 api_string = "nio.AsyncClient.{}"
 
+pytestmark = pytest.mark.anyio
+
 
 @pytest.fixture
-def connector():
+def anyio_backend():
+    return "asyncio"
+
+
+@pytest.fixture
+async def connector():
     """Initiate a basic connector setup for testing on"""
-    connector = ConnectorMatrix(
-        {
-            "rooms": {"main": "#test:localhost"},
-            "mxid": "@opsdroid:localhost",
-            "password": "hello",
-            "homeserver": "http://localhost:8008",
-            "enable_encryption": True,
-        }
-    )
-    api = nio.AsyncClient("https://notaurl.com", None)
-    connector.connection = api
+    async with anyio.create_task_group():
+        connector = ConnectorMatrix(
+            {
+                "rooms": {"main": "#test:localhost"},
+                "mxid": "@opsdroid:localhost",
+                "password": "hello",
+                "homeserver": "http://localhost:8008",
+                "enable_encryption": True,
+            }
+        )
+        api = nio.AsyncClient("https://notaurl.com", None)
+        connector.connection = api
 
-    return connector
+        return connector
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 class TestConnectorMatrixAsync:
     """Test the async methods of the opsdroid Matrix connector class."""
 
@@ -1000,7 +1009,7 @@ class TestConnectorMatrixAsync:
                 )
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 class TestEventCreatorMatrixAsync:
     """Basic setting up for tests"""
 

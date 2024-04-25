@@ -39,6 +39,5 @@ async with opsdroid.get_database("mongo").memory_in_colection("new_collection") 
    ...
 ```
 
-```eval_rst
-.. automethod:: opsdroid.database.mongo.DatabaseMongo.memory_in_collection
+```{automethod} opsdroid.database.mongo.DatabaseMongo.memory_in_collection
 ```

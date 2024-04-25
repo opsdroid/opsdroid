@@ -7,13 +7,33 @@ import socket
 from typing import Tuple
 
 import pytest
+import anyio
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector import Connector
 
 from .external_api import ExternalAPIMockServer
 
-__all__ = ["mock_api_obj", "bound_address", "get_connector", "opsdroid", "mock_api"]
+__all__ = [
+    "mock_api_obj",
+    "bound_address",
+    "get_connector",
+    "opsdroid",
+    "mock_api",
+    "anyio_backend",
+    "event_loop",
+]
+
+
+@pytest.fixture
+def anyio_backend():
+    return "asyncio"
+
+
+@pytest.fixture
+async def event_loop():
+    async with anyio.create_task_group():
+        yield anyio.get_current_task().locals["event_loop"]
 
 
 @pytest.fixture(scope="session")
@@ -65,14 +85,15 @@ def bound_address(request) -> Tuple[str, int]:
 
 
 @pytest.fixture
-def opsdroid() -> OpsDroid:
+async def opsdroid() -> OpsDroid:
     """Fixture with a plain instance of opsdroid.
 
     Will yield an instance of :class:`opsdroid.core.OpsDroid` which hasn't been loaded.
 
     """
-    with OpsDroid(config={}) as opsdroid:
-        yield opsdroid
+    async with anyio.create_task_group():
+        with OpsDroid(config={}) as opsdroid:
+            yield opsdroid
 
 
 @pytest.fixture
@@ -148,5 +169,6 @@ async def mock_api(mock_api_obj) -> ExternalAPIMockServer:
                     assert mock_api.called("/test2")
 
     """
-    async with mock_api_obj.running() as mock_api:
-        yield mock_api
+    async with anyio.create_task_group():
+        async with mock_api_obj.running() as mock_api:
+            yield mock_api

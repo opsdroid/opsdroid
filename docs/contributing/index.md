@@ -15,16 +15,15 @@ Contributing to the opsdroid ecosystem is strongly encouraged and every little b
 
 Check out the following guides for specific contribution suggestions.
 
-```eval_rst
-.. toctree::
-   :maxdepth: 2
+```{toctree}
+:maxdepth: 2
 
-   workflow
-   issues
-   documentation
-   localization
-   new_modules
-   testing
+workflow
+issues
+documentation
+localization
+new_modules
+testing
 
 ```
 
