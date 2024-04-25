@@ -77,7 +77,7 @@ class ConnectorFacebook(Connector):
                             user=fb_msg["sender"]["id"],
                             user_id=fb_msg["sender"]["id"],
                             target=fb_msg["sender"]["id"],
-                            connector=self
+                            connector=self,
                         )
                         await self.opsdroid.parse(message)
                     except KeyError as error:
