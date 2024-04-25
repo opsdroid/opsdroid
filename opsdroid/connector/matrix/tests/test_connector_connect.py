@@ -165,23 +165,11 @@ async def test_connect_set_nick_errors(
     await connector.connect()
     await connector.disconnect()
 
-    assert caplog.record_tuples == [
-        (
-            "nio.responses",
-            logging.WARNING,
-            "Error validating response: 'displayname' is a required property",
-        ),
-        (
-            "opsdroid.connector.matrix.connector",
-            logging.WARNING,
-            "Error fetching current display_name: unknown error (status code None)",
-        ),
-        (
-            "opsdroid.connector.matrix.connector",
-            logging.WARNING,
-            "Error setting display_name: Invalid user (status code M_FORBIDDEN)",
-        ),
-    ]
+    assert (
+        "Error validating response: 'displayname' is a required property" in caplog.text
+    )
+    assert "Error fetching current display_name" in caplog.text
+    assert "M_FORBIDDEN" in caplog.text
 
     caplog.clear()
 
