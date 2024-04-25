@@ -17,6 +17,7 @@ from voluptuous import Inclusive, Required
 from . import events as matrixevents
 from .create_events import MatrixEventCreator
 from .html_cleaner import clean
+from .exceptions import MatrixException
 
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = {
@@ -34,13 +35,6 @@ CONFIG_SCHEMA = {
 }
 
 __all__ = ["ConnectorMatrix"]
-
-
-class MatrixException(Exception):
-    """Wrap a matrix-nio Error in an Exception so it can raised."""
-
-    def __init__(self, nio_error):
-        self.nio_error = nio_error
 
 
 def ensure_room_id_and_send(func):
