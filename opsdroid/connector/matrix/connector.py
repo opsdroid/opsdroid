@@ -510,7 +510,10 @@ class ConnectorMatrix(Connector):
             mimetype = await file_event.get_mimetype()
 
             response = await self.connection.upload(
-                lambda x, y: upload_file, content_type=mimetype, encrypt=encrypt_file
+                lambda x, y: upload_file,
+                content_type=mimetype,
+                encrypt=encrypt_file,
+                filesize=len(upload_file),
             )
 
             response, file_dict = response
