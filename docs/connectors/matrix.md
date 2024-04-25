@@ -45,6 +45,7 @@ connectors:
       'main': '#matrix:matrix.org'
       'other': '#element-web:matrix.org'
     # Optional
+    access_token: "the access token"  # directly provide the access token, if provided mxid and password are not required, but homeserver is.
     homeserver: "https://matrix.org"
     nick: "Botty McBotface"  # The nick will be set on startup
     room_specific_nicks: False  # Look up room specific nicknames of senders (expensive in large rooms)
@@ -57,16 +58,14 @@ connectors:
 
 ## End to End Encryption
 
-```eval_rst
-.. note::
-    mxid & password must be used for E2EE to work
+```{note}
+mxid & password must be used for E2EE to work
 ```
 
 To be able to use E2EE you need to have the 'olm' library installed, this is currently not available through pip, you can find it [here](https://gitlab.matrix.org/matrix-org/olm/), in most linux distributions or by using the opsdroid Docker images.
 
-``eval_rst
-.. note::
-    Opsdroid >= v0.24.1 Docker image includes E2EE
+```{note}
+Opsdroid >= v0.24.1 Docker image includes E2EE
 ```
 
 Once olm is installed you need to install opsdroid with the ``connector_matrix_e2e`` extra (by running ``pip install opsdroid[connector_matrix_e2e]``, this is not done by default as it required you to have already installed the olm library.

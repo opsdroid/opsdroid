@@ -1,7 +1,6 @@
 # Installation
 
-```eval_rst
-.. contents::
+```{contents}
 ```
 
 ## Quickstart
@@ -115,7 +114,7 @@ services:
     configs:
       -  source: opsdroid_conf
          target: /home/opsdroid/.config/opsdroid/configuration.yaml
-    deploy:
+         deploy:
       restart_policy:
         condition: any
         delay: 10s

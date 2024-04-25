@@ -10,7 +10,7 @@ from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
 
 _LOGGER = logging.getLogger(__name__)
-_FACEBOOK_SEND_URL = "https://graph.facebook.com/v2.6/me/messages" "?access_token={}"
+_FACEBOOK_SEND_URL = "https://graph.facebook.com/v16.0/me/messages" "?access_token={}"
 CONFIG_SCHEMA = {
     Required("verify-token"): str,
     Required("page-access-token"): str,
@@ -73,10 +73,11 @@ class ConnectorFacebook(Connector):
                     _LOGGER.debug(fb_msg)
                     try:
                         message = Message(
-                            fb_msg["sender"]["id"],
-                            fb_msg["sender"]["id"],
-                            self,
-                            fb_msg["message"]["text"],
+                            text=fb_msg["message"]["text"],
+                            user=fb_msg["sender"]["id"],
+                            user_id=fb_msg["sender"]["id"],
+                            target=fb_msg["sender"]["id"],
+                            connector=self,
                         )
                         await self.opsdroid.parse(message)
                     except KeyError as error:

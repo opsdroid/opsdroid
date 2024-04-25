@@ -17,6 +17,7 @@ from voluptuous import Inclusive, Required
 from . import events as matrixevents
 from .create_events import MatrixEventCreator
 from .html_cleaner import clean
+from .exceptions import MatrixException
 
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = {
@@ -34,13 +35,6 @@ CONFIG_SCHEMA = {
 }
 
 __all__ = ["ConnectorMatrix"]
-
-
-class MatrixException(Exception):
-    """Wrap a matrix-nio Error in an Exception so it can raised."""
-
-    def __init__(self, nio_error):
-        self.nio_error = nio_error
 
 
 def ensure_room_id_and_send(func):
@@ -102,7 +96,7 @@ class ConnectorMatrix(Connector):
             )  # pragma: no cover
         self.send_m_notice = config.get("send_m_notice", False)
         self.session = None
-        self.filter_id = None
+        self.filter_id: str | None = None
         self.connection = None
         self.device_name = config.get("device_name", "opsdroid")
         self.device_id = config.get("device_id", "opsdroid")
@@ -160,7 +154,7 @@ class ConnectorMatrix(Connector):
         resp = await api.send(method="post", path=path, data=fjson, headers=headers)
 
         resp_json = await resp.json()
-        return int(resp_json["filter_id"])
+        return resp_json["filter_id"]
 
     async def exchange_keys(self, initial_sync=False):
         """Send to-device messages and perform key exchange operations."""
@@ -612,6 +606,11 @@ class ConnectorMatrix(Connector):
     @ensure_room_id_and_send
     async def _send_join_room(self, join_event):
         return await self.connection.join(join_event.target)
+
+    @register_event(events.LeaveRoom)
+    @ensure_room_id_and_send
+    async def _send_leave_room(self, leave_event):
+        return await self.connection.room_leave(leave_event.target)
 
     @register_event(events.UserInvite)
     @ensure_room_id_and_send

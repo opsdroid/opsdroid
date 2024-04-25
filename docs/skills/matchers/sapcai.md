@@ -43,11 +43,10 @@ Let's have a look at how you can use this parser and the `match_sapcai` decorato
 
 The `match_sapcai` decorator takes one parameter (the name of the intent to match), any skill (function or class method) decorated with this matcher, will trigger that skill.
 
-```eval_rst
-.. autofunction:: opsdroid.matchers.match_sapcai
+```{autofunction} opsdroid.matchers.match_sapcai
 ```
-
-### [Example 1](#example1)
+(sapexample1)=
+### [Example 1]
 
 ```python
 from opsdroid.skill import Skill
@@ -116,7 +115,7 @@ The example skill will print the following on the message "how are you?".
         "uuid": "cab86e23-caaf-4131-9b83-a564887203da",
         "source": "how are you?",
         "intents": [
-          {
+        {
             "slug": "ask-feeling",
             "confidence": 0.99
            }
