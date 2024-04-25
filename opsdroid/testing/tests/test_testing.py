@@ -21,7 +21,7 @@ async def session():
         yield session
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_external_api_mock_server(session):
     mock_api = ExternalAPIMockServer()
     mock_api.add_response("/test", "GET", None, 200)
@@ -61,7 +61,7 @@ async def test_external_api_mock_server(session):
 
 
 @pytest.mark.parametrize("bound_address", ["localhost"], indirect=True)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_external_api_mock_server_port_in_use(bound_address, session):
     """Check retry/timeout handling when the port is in use."""
     mock_api = ExternalAPIMockServer()
@@ -77,7 +77,7 @@ async def test_external_api_mock_server_port_in_use(bound_address, session):
             await session.get(f"{mock_api.base_url}/test")
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_call_endpoint(opsdroid):
     await opsdroid.load(config=MINIMAL_CONFIG)
 
@@ -105,7 +105,7 @@ async def test_call_endpoint(opsdroid):
     assert await run_unit_test(opsdroid, test)
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_run_unit_test(opsdroid):
     await opsdroid.load(config=MINIMAL_CONFIG)
 
@@ -119,7 +119,7 @@ async def test_run_unit_test(opsdroid):
     await run_unit_test(opsdroid, test)
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_with_running_opsdroid(opsdroid):
     await opsdroid.load(config=MINIMAL_CONFIG)
 
@@ -129,7 +129,7 @@ async def test_with_running_opsdroid(opsdroid):
         assert opsdroid.is_running()
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_mock_skill_and_connector(opsdroid):
     await opsdroid.load(config=MINIMAL_CONFIG)
     skill = opsdroid.get_skill_instance(opsdroid.skills[0])
@@ -143,7 +143,7 @@ async def test_mock_skill_and_connector(opsdroid):
 
 @pytest.mark.add_response("/test", "GET")
 @pytest.mark.add_response("/test2", "GET", status=500)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_mock_api_with_pytest_marks(mock_api, session):
     async with session.get(f"{mock_api.base_url}/test") as resp:
         assert resp.status == 200
@@ -156,7 +156,7 @@ async def test_mock_api_with_pytest_marks(mock_api, session):
 
 @pytest.mark.add_response("/test", "GET")
 @pytest.mark.add_response("/test2", "GET", status=500)
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_mock_api_obj_with_pytest_marks(mock_api_obj, session):
     async with mock_api_obj.running():
         async with session.get(f"{mock_api_obj.base_url}/test") as resp:

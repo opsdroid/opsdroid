@@ -1,6 +1,7 @@
 """Test receive events that come from the Slack API.
 Depending on payload different methods from create_events module will be tested
 """
+
 import json
 
 import pytest
@@ -43,7 +44,7 @@ CONVERSATIONS_LIST_FIRST_PAGE = (
 )
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 @pytest.mark.parametrize(
     "payload",
     [
@@ -105,21 +106,21 @@ async def test_events_from_slack(opsdroid, connector, mock_api, payload):
     assert await run_unit_test(opsdroid, receive_event, payload)
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test__create_user_name_user_not_found(connector, mock_api):
     event_creator = SlackEventCreator(connector=connector)
     user_name = await event_creator._get_user_name({})
     assert not user_name
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_create_message_user_name_not_found(connector, mock_api):
     event_creator = SlackEventCreator(connector=connector)
     message = await event_creator.create_message({}, None)
     assert not message
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_edit_message_user_name_not_found(connector, mock_api):
     event_creator = SlackEventCreator(connector=connector)
     message = await event_creator.edit_message({"message": {}}, None)

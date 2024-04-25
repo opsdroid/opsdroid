@@ -19,7 +19,7 @@ databases:
 
 In its default configuration the database will put events into the room named "main" in the connector configuration.
 
-   
+
 An example of all the configuration options, with their default values is:
 
 ```yaml
@@ -45,8 +45,7 @@ with db.memory_in_room(new_room):
    ...
 ```
 
-```eval_rst
-.. automethod:: opsdroid.database.matrix.DatabaseMatrix.memory_in_room
+```{automethod} opsdroid.database.matrix.DatabaseMatrix.memory_in_room
 ```
 
 There is also a decorator for skill functions to use the memory of the room where the event was received from.
@@ -59,8 +58,7 @@ async def skill_func(opsdroid, config, message):
 	...
 ```
 
-```eval_rst
-.. autofunction:: opsdroid.database.matrix.memory_in_event_room
+```{autofunction} opsdroid.database.matrix.memory_in_event_room
 ```
 
 ## How it Works

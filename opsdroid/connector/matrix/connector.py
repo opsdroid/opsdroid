@@ -102,7 +102,7 @@ class ConnectorMatrix(Connector):
             )  # pragma: no cover
         self.send_m_notice = config.get("send_m_notice", False)
         self.session = None
-        self.filter_id = None
+        self.filter_id: str | None = None
         self.connection = None
         self.device_name = config.get("device_name", "opsdroid")
         self.device_id = config.get("device_id", "opsdroid")
@@ -160,7 +160,7 @@ class ConnectorMatrix(Connector):
         resp = await api.send(method="post", path=path, data=fjson, headers=headers)
 
         resp_json = await resp.json()
-        return int(resp_json["filter_id"])
+        return resp_json["filter_id"]
 
     async def exchange_keys(self, initial_sync=False):
         """Send to-device messages and perform key exchange operations."""
@@ -612,6 +612,11 @@ class ConnectorMatrix(Connector):
     @ensure_room_id_and_send
     async def _send_join_room(self, join_event):
         return await self.connection.join(join_event.target)
+
+    @register_event(events.LeaveRoom)
+    @ensure_room_id_and_send
+    async def _send_leave_room(self, leave_event):
+        return await self.connection.room_leave(leave_event.target)
 
     @register_event(events.UserInvite)
     @ensure_room_id_and_send

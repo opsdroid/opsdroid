@@ -18,7 +18,7 @@ def test_property(opsdroid):
     assert connector.name == "facebook"
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect(opsdroid):
     """Test the connect method adds the handlers."""
     connector = ConnectorFacebook({}, opsdroid=opsdroid)
@@ -34,7 +34,7 @@ async def test_connect(opsdroid):
     assert opsdroid.web_server.web_app.router.add_post.called
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_facebook_message_handler(opsdroid):
     """Test the new facebook message handler."""
     import aiohttp
@@ -63,7 +63,7 @@ async def test_facebook_message_handler(opsdroid):
     assert response.status == 200
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_facebook_message_handler_invalid(opsdroid, caplog):
     """Test the new facebook message handler for invalid message."""
     import aiohttp
@@ -87,7 +87,7 @@ async def test_facebook_message_handler_invalid(opsdroid, caplog):
     assert response.status == 200
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_facebook_challenge_handler(opsdroid):
     """Test the facebook challenge handler."""
     import aiohttp
@@ -113,7 +113,7 @@ async def test_facebook_challenge_handler(opsdroid):
     assert response.status == 403
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_listen(opsdroid):
     """Test that listen does nothing."""
     connector = ConnectorFacebook({}, opsdroid=opsdroid)
@@ -121,7 +121,7 @@ async def test_listen(opsdroid):
     assert True  # Listen should not block and return immediately
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_respond(opsdroid):
     """Test that responding sends a message."""
     post_response = amock.Mock()
@@ -142,7 +142,7 @@ async def test_respond(opsdroid):
         assert patched_request.called
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_respond_bad_response(opsdroid):
     """Test that responding sends a message and get bad response."""
     post_response = amock.Mock()

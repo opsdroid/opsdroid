@@ -187,7 +187,7 @@ class Web:
         """
         try:
             ssl_config = self.config["ssl"]
-            sslcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+            sslcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
             sslcontext.load_cert_chain(ssl_config["cert"], ssl_config["key"])
             return sslcontext
         except FileNotFoundError:

@@ -27,7 +27,7 @@ def test_init(caplog):
     assert "Loaded Redis database" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect(mocker, caplog):
     caplog.set_level(logging.DEBUG)
     database = RedisDatabase({})
@@ -41,7 +41,7 @@ async def test_connect(mocker, caplog):
     assert "Connected to Redis database" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect_failure(mocker, caplog):
     caplog.set_level(logging.DEBUG)
     database = RedisDatabase({})
@@ -54,7 +54,7 @@ async def test_connect_failure(mocker, caplog):
     assert "Unable to connect to Redis database" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_get(mocker, caplog):
     caplog.set_level(logging.DEBUG)
     database = RedisDatabase({})
@@ -71,7 +71,7 @@ async def test_get(mocker, caplog):
     assert "Getting" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_get_return_none(mocker, caplog):
     caplog.set_level(logging.DEBUG)
     database = RedisDatabase({})
@@ -85,7 +85,7 @@ async def test_get_return_none(mocker, caplog):
     assert "Getting" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_put(mocker, caplog):
     caplog.set_level(logging.DEBUG)
     database = RedisDatabase({})
@@ -101,7 +101,7 @@ async def test_put(mocker, caplog):
     assert "Putting" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_delete(mocker, caplog):
     caplog.set_level(logging.DEBUG)
     database = RedisDatabase({})
@@ -115,7 +115,7 @@ async def test_delete(mocker, caplog):
     assert "Deleting" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_disconnect(mocker):
     database = RedisDatabase({})
     database.client = mocker.Mock()
