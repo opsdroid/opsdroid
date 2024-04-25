@@ -19,7 +19,7 @@ async def getMockSkill():
     return mockedskill
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_get_all_entities():
     entities = [
         {
@@ -63,7 +63,7 @@ async def test_get_all_entities():
     }
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_get_session_id():
     config = {
         "name": "watson",
@@ -84,7 +84,7 @@ async def test_get_session_id():
     assert "session-id" in config
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_call_watson(opsdroid, caplog, mocker):
     opsdroid = amock.CoroutineMock()
     mock_connector = Connector({}, opsdroid=opsdroid)
@@ -132,7 +132,7 @@ async def test_call_watson(opsdroid, caplog, mocker):
         assert caplog
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_call_watson_import_error(opsdroid, caplog, mocker):
     opsdroid = amock.CoroutineMock()
     mock_connector = Connector({}, opsdroid=opsdroid)
@@ -159,7 +159,7 @@ async def test_call_watson_import_error(opsdroid, caplog, mocker):
         assert caplog
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_parse_watson(opsdroid):
     opsdroid.config["parsers"] = [
         {
@@ -204,7 +204,7 @@ async def test_parse_watson(opsdroid):
         assert mock_skill == skills[0]["skill"]
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_parse_watson_no_intent(opsdroid, caplog):
     opsdroid.config["parsers"] = [
         {
@@ -237,7 +237,7 @@ async def test_parse_watson_no_intent(opsdroid, caplog):
         assert "No intent found" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_parse_watson_no_confidence(opsdroid, caplog):
     opsdroid.config["parsers"] = [
         {
@@ -268,7 +268,7 @@ async def test_parse_watson_no_confidence(opsdroid, caplog):
         assert skills[0]["score"] == 0.0
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_parse_watson_low_score(opsdroid, caplog):
     opsdroid.config["parsers"] = [
         {
@@ -314,7 +314,7 @@ async def test_parse_watson_low_score(opsdroid, caplog):
         assert caplog
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_parse_watson_KeyError(opsdroid, caplog):
     opsdroid.config["parsers"] = [
         {
@@ -342,7 +342,7 @@ async def test_parse_watson_KeyError(opsdroid, caplog):
         assert "Error" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_parse_watson_APIException(opsdroid, caplog):
     opsdroid.config["parsers"] = [
         {
