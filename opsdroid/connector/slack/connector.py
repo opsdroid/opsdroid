@@ -445,7 +445,7 @@ class ConnectorSlack(Connector):
             user_info = await self.lookup_username(userid)
             message = message.replace(
                 "<@{userid}>".format(userid=userid),
-                "@{username}".format(username=user_info["name"])
+                "@{username}".format(username=user_info["name"]),
             )
 
         return message
