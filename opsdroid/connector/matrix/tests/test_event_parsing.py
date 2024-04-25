@@ -30,7 +30,7 @@ def assert_event_properties(event, **kwargs):
 @pytest.mark.matrix_connector_config(
     {"access_token": "hello", "rooms": {"main": "#test:localhost"}}
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_receive_message(opsdroid, connector_connected, mock_api, caplog):
     events = await events_from_sync(
         [
@@ -62,7 +62,7 @@ async def test_receive_message(opsdroid, connector_connected, mock_api, caplog):
 @pytest.mark.matrix_connector_config(
     {"access_token": "hello", "rooms": {"main": "#test:localhost"}}
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_get_nick_error(opsdroid, connector_connected, mock_api, caplog):
     events = await events_from_sync(
         [
@@ -98,7 +98,7 @@ async def test_get_nick_error(opsdroid, connector_connected, mock_api, caplog):
 @pytest.mark.matrix_connector_config(
     {"access_token": "hello", "rooms": {"main": "#test:localhost"}}
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_invite_with_message(opsdroid, connector_connected, mock_api, caplog):
     events = [
         message_factory("Hello", "m.text", "@test:localhost"),

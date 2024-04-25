@@ -11,7 +11,7 @@ def memory():
     return mem
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_memory(memory):
     data = "Hello world!"
     await memory.put("test", data)
@@ -20,17 +20,17 @@ async def test_memory(memory):
     assert await memory.get("test") is None
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_empty_memory(memory):
     assert await memory.get("test") is None
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_empty_memory_default(memory):
     assert await memory.get("test", "wibble") == "wibble"
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_database_callouts(mocker, memory):
     memory.databases = [mocker.AsyncMock()]
     data = "Hello world!"

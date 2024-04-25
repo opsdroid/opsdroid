@@ -10,7 +10,7 @@ def test_constructor(opsdroid, default_config):
 
 
 @pytest.mark.matrix_connector_config("token_config")
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect_access_token(
     opsdroid,
     connector,
@@ -43,7 +43,7 @@ async def test_connect_access_token(
     {"errcode": "M_UNKNOWN_TOKEN", "error": "Invalid macaroon passed."},
     status=401,
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect_invalid_access_token(caplog, opsdroid, connector, mock_api):
     assert isinstance(connector, ConnectorMatrix)
     assert connector.access_token == "token"
@@ -68,7 +68,7 @@ async def test_connect_invalid_access_token(caplog, opsdroid, connector, mock_ap
         "device_id": "GHTYAJCE",
     },
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect_login(
     opsdroid,
     connector,
@@ -98,7 +98,7 @@ async def test_connect_login(
     {"errcode": "M_FORBIDDEN", "error": "Invalid password"},
     status=403,
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect_login_error(caplog, opsdroid, connector, mock_api):
     assert isinstance(connector, ConnectorMatrix)
     await connector.connect()
@@ -122,7 +122,7 @@ async def test_connect_login_error(caplog, opsdroid, connector, mock_api):
     {"errcode": "M_FORBIDDEN", "error": "You are not invited to this room."},
     status=403,
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect_join_fail(
     opsdroid,
     connector,
@@ -154,7 +154,7 @@ async def test_connect_join_fail(
     {"errcode": "M_FORBIDDEN", "error": "Invalid user"},
     status=403,
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect_set_nick_errors(
     opsdroid,
     connector,
@@ -200,7 +200,7 @@ async def test_connect_set_nick_errors(
     "GET",
     {"displayname": "Wibble"},
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect_set_nick(
     opsdroid,
     connector,

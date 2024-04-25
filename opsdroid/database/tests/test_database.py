@@ -11,14 +11,14 @@ def test_init():
     assert database.config["example_item"] == "test"
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect():
     database = Database({})
     with pytest.raises(NotImplementedError):
         await database.connect()
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_disconnect():
     database = Database({})
     try:
@@ -27,21 +27,21 @@ async def test_disconnect():
         pytest.fail("disconnect() raised NotImplementedError unexpectedly!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_get():
     database = Database({})
     with pytest.raises(NotImplementedError):
         await database.get("test")
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_put():
     database = Database({})
     with pytest.raises(NotImplementedError):
         await database.put("test", {})
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_delete():
     database = Database({})
     with pytest.raises(NotImplementedError):

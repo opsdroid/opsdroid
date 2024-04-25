@@ -1,4 +1,5 @@
 """A helper module to create opsdroid events from Slack events."""
+
 import logging
 from collections import defaultdict
 

@@ -36,7 +36,7 @@ def test_init(database):
     assert database.config["collection"] == "test_collection"
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 @pytest.mark.parametrize(
     "config",
     [
@@ -62,13 +62,13 @@ async def test_connect(database):
         pass
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 @pytest.mark.parametrize("config", [{"collection": "test_collection"}])
 async def test_get(mocked_database):
     await mocked_database.get("test_key")
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 @pytest.mark.parametrize("config", [{"collection": "test_collection"}])
 async def test_get2(mocker, mocked_connect_database):
     collections = {
@@ -82,25 +82,25 @@ async def test_get2(mocker, mocked_connect_database):
         assert new_db.collection == "new_collection"
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 @pytest.mark.parametrize("config", [{"collection": "test_collection"}])
 async def test_put(mocked_database):
     await mocked_database.put("test_key", {"key": "value"})
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 @pytest.mark.parametrize("config", [{"collection": "test_collection"}])
 async def test_put2(mocked_database):
     await mocked_database.put("test_key", {})
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 @pytest.mark.parametrize("config", [{"collection": "test_collection"}])
 async def test_put3(mocked_database):
     await mocked_database.put("test_key", "test_value")
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 @pytest.mark.parametrize("config", [{"collection": "test_collection"}])
 async def test_delete(mocked_database):
     await mocked_database.delete("test_key")
