@@ -10,7 +10,7 @@ As a part of this migration tests can be found in one of two places, old unittes
 
 As well as core pytest, opsdroid is making use of a few different pytest plugins:
 
--   [pytest-asyncio](https://github.com/pytest-dev/pytest-asyncio) for writing and running coroutines as tests. 
+-   [pytest-asyncio](https://github.com/pytest-dev/pytest-asyncio) for writing and running coroutines as tests.
     Coroutines should be decorated with `@pytest.mark.asyncio`.
 -   [pytest-mock](https://github.com/pytest-dev/pytest-mock/) for proving a convenient interface to mocking parts of the code.
     This package is configured to use the external [mock](https://pypi.org/project/mock/) package, so all versions of Python can use the latest features.
@@ -47,12 +47,10 @@ The `mocker` fixture is provided by pytest-mock, and provides convenient access 
 
 ## opsdroid test helpers
 
-```eval_rst
-.. automodule:: opsdroid.testing
-
+```{automodule} opsdroid.testing
+```
 pytest Fixtures
 ###############
-
-.. autofunction:: opsdroid.testing.opsdroid
-   :noindex:
+```{autofunction} opsdroid.testing.opsdroid
+:noindex:
 ```

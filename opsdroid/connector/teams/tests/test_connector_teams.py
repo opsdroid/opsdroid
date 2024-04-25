@@ -32,14 +32,14 @@ def test_teams_init():
     assert connector.name == "teams"
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect(connector, mock_api):
     await connector.connect()
 
     assert connector.service_endpoints == {}
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_parse_channel_id(connector, mock_api):
     valid_ids = [
         "https://teams.microsoft.com/l/channel/abc123",
@@ -49,7 +49,7 @@ async def test_parse_channel_id(connector, mock_api):
         assert connector.parse_channel_id(id) == "abc123"
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 @vcr.use_cassette(
     "opsdroid/connector/teams/tests/test_ping_pong.yaml",
     record_mode="once",
@@ -95,7 +95,7 @@ async def test_ping_pong(opsdroid, connector, mock_api, mock_api_obj, caplog):
                 assert "ping called" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_invalid_calls(opsdroid, connector, mock_api, mock_api_obj, caplog):
     caplog.set_level(logging.INFO)
 
@@ -129,7 +129,7 @@ async def test_invalid_calls(opsdroid, connector, mock_api, mock_api_obj, caplog
             assert "Recieved invalid activity" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_send_message_to_invalid_target(
     opsdroid, connector, mock_api, mock_api_obj, caplog
 ):
@@ -146,7 +146,7 @@ async def test_send_message_to_invalid_target(
         assert "not a valid place to send a message" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_send_message_to_room_not_spoken_in(
     opsdroid, connector, mock_api, mock_api_obj, caplog
 ):

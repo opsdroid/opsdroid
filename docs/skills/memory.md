@@ -36,7 +36,7 @@ class RememberSkill(Skill):
     async def remind_me(self, message):
         information = await self.opsdroid.memory.get("remember_this")
         await message.respond(information)
-        
+
     @match_regex(r'forget it')
     async def forget_it(self, message):
         await self.opsdroid.memory.delete("remember_this")
@@ -50,7 +50,6 @@ The second retrieves and prints out that text when the user says "remind me".
 The third deletes what is remembered in the database when the user says "forget it".
 ## Reference
 
-```eval_rst
-.. autoclass:: opsdroid.memory.Memory
-    :members:
+```{autoclass} opsdroid.memory.Memory
+:members:
 ```
