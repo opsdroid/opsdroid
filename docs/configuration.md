@@ -1,7 +1,6 @@
 # Configuration
 
-```eval_rst
-.. contents::
+```{contents}
 ```
 
 ## Config file
@@ -74,11 +73,10 @@ Opsdroid comes with some built-in connectors out of the box. A connector is a mo
 
 The built-in connectors are:
 
-```eval_rst
-.. toctree::
-   :maxdepth: 2
+```{toctree}
+:maxdepth: 2
 
-   connectors/index
+connectors/index
 ```
 
 _Note: More connectors will be added as built-in connectors into the opsdroid core over time._
@@ -122,11 +120,10 @@ Skills can store data in opsdroid's "memory", this is a dictionary which can be 
 
 The built-in databases are:
 
-```eval_rst
-.. toctree::
-   :maxdepth: 2
+```{toctree}
+:maxdepth: 2
 
-   databases/index
+databases/index
 ```
 
 _Config options of the databases themselves differ between databases. See the database documentation for details._
@@ -493,7 +490,7 @@ web:
     allow-headers:
       - X-Token
 ```
-
+(module-options)=
 ## Module options
 
 ### Install Location

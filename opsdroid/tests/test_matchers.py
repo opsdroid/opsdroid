@@ -28,7 +28,7 @@ async def get_mock_web_skill():
     return mocked_web_skill
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_match_regex(opsdroid):
     regex = r"(.*)"
     decorator = matchers.match_regex(regex)
@@ -38,7 +38,7 @@ async def test_match_regex(opsdroid):
     assert asyncio.iscoroutinefunction(opsdroid.skills[0])
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_match_dialogflow(opsdroid):
     action = "myaction"
     decorator = matchers.match_dialogflow_action(action)
@@ -55,7 +55,7 @@ async def test_match_dialogflow(opsdroid):
     assert asyncio.iscoroutinefunction(opsdroid.skills[1])
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_match_luisai(opsdroid):
     intent = "myIntent"
     decorator = matchers.match_luisai_intent(intent)
@@ -65,7 +65,7 @@ async def test_match_luisai(opsdroid):
     assert asyncio.iscoroutinefunction(opsdroid.skills[0]) is True
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_match_watson(opsdroid):
     intent = "myIntent"
     decorator = matchers.match_watson(intent)
@@ -75,7 +75,7 @@ async def test_match_watson(opsdroid):
     assert asyncio.iscoroutinefunction(opsdroid.skills[0]) is True
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_match_witai(opsdroid):
     intent = "myIntent"
     decorator = matchers.match_witai(intent)
@@ -85,7 +85,7 @@ async def test_match_witai(opsdroid):
     assert asyncio.iscoroutinefunction(opsdroid.skills[0]) is True
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_match_rasanu(opsdroid):
     intent = "myIntent"
     decorator = matchers.match_rasanlu(intent)
@@ -95,7 +95,7 @@ async def test_match_rasanu(opsdroid):
     assert asyncio.iscoroutinefunction(opsdroid.skills[0])
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_match_recastai(opsdroid, caplog):
     intent = "myIntent"
     decorator = matchers.match_recastai(intent)
@@ -105,7 +105,7 @@ async def test_match_recastai(opsdroid, caplog):
     assert asyncio.iscoroutinefunction(opsdroid.skills[0])
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_match_crontab(opsdroid):
     crontab = "* * * * *"
     decorator = matchers.match_crontab(crontab)
@@ -115,7 +115,7 @@ async def test_match_crontab(opsdroid):
     assert asyncio.iscoroutinefunction(opsdroid.skills[0])
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_match_webhook(opsdroid, mocker):
     opsdroid.loader.current_import_config = {"name": "testhook"}
     opsdroid.web_server = Web(opsdroid)
@@ -131,7 +131,7 @@ async def test_match_webhook(opsdroid, mocker):
     assert opsdroid.web_server.web_app.router.add_post.call_count == 2
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_match_webhook_response(opsdroid, mocker):
     opsdroid.loader.current_import_config = {"name": "testhook"}
     opsdroid.web_server = Web(opsdroid)
@@ -147,7 +147,7 @@ async def test_match_webhook_response(opsdroid, mocker):
     assert isinstance(webhookresponse, aiohttp.web.Response)
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_match_webhook_response_with_authorization_failure(opsdroid, mocker):
     opsdroid.loader.current_import_config = {"name": "testhook"}
     opsdroid.config["web"] = {"webhook-token": "aabbccddeeff"}
@@ -168,7 +168,7 @@ async def test_match_webhook_response_with_authorization_failure(opsdroid, mocke
     assert isinstance(webhookresponse, aiohttp.web.Response)
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_match_webhook_custom_response(opsdroid, mocker):
     opsdroid.loader.current_import_config = {"name": "testhook"}
     opsdroid.web_server = Web(opsdroid)
