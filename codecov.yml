@@ -2,3 +2,11 @@ ignore:
   - "opsdroid/_version.py"
   - "*/tests/*"
   - "opsdroid/testing/mockmodules/skills/broken_skill.py"
+
+coverage:
+  status:
+    project:
+      default:
+        target: 90
+        threshold: 1%
+    patch: off
