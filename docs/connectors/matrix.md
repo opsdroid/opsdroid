@@ -57,16 +57,14 @@ connectors:
 
 ## End to End Encryption
 
-```eval_rst
-.. note::
-    mxid & password must be used for E2EE to work
+```{note}
+mxid & password must be used for E2EE to work
 ```
 
 To be able to use E2EE you need to have the 'olm' library installed, this is currently not available through pip, you can find it [here](https://gitlab.matrix.org/matrix-org/olm/), in most linux distributions or by using the opsdroid Docker images.
 
-``eval_rst
-.. note::
-    Opsdroid >= v0.24.1 Docker image includes E2EE
+``{note}
+Opsdroid >= v0.24.1 Docker image includes E2EE
 ```
 
 Once olm is installed you need to install opsdroid with the ``connector_matrix_e2e`` extra (by running ``pip install opsdroid[connector_matrix_e2e]``, this is not done by default as it required you to have already installed the olm library.

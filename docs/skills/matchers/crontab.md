@@ -2,8 +2,7 @@
 
 The crontab matcher takes a [cron timing](https://en.wikipedia.org/wiki/Cron). It allows you to schedule skills to be called on an interval instead of being triggered by events.
 
-```eval_rst
-.. autofunction:: opsdroid.matchers.match_crontab
+```{autofunction} opsdroid.matchers.match_crontab
 ```
 
 ## Example
