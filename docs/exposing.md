@@ -11,10 +11,9 @@ Alternatively you can tunnel traffic to Opsdroid through a variety of services. 
 Most connectors will read the `web.base-url` config option and configure things for you, but this is not always the case.
 For some connectors you may need to configure the URL of your bot yourself. See your specific connector's docs for info.
 
-```eval_rst
-.. note::
-    As this page documents third-party tools and sevices it may become out of date. If you notice any errors or omissions please
-    consider `raising a Pull Request <https://github.com/opsdroid/opsdroid/edit/master/docs/exposing.md>`_.
+```{note}
+As this page documents third-party tools and sevices it may become out of date. If you notice any errors or omissions please
+consider `raising a Pull Request <https://github.com/opsdroid/opsdroid/edit/master/docs/exposing.md>`_.
 ```
 
 ## Ngrok
@@ -68,10 +67,9 @@ web:
   base-url: https://NGROK_URL.ngrok.io  # Whatever your https URL is in the ngrok output
 ```
 
-```eval_rst
-.. warning::
-    If you use a free Ngrok account the URL will be randomised every time your start Ngrok and you will need
-    to update your Opsdroid config and restart.
+```{warning}
+If you use a free Ngrok account the URL will be randomised every time your start Ngrok and you will need
+to update your Opsdroid config and restart.
 ```
 
 ### Run Opsdroid
@@ -199,10 +197,9 @@ web:
   base-url: https://LOCALTUNNEL_URL.loca.lt
 ```
 
-```eval_rst
-.. warning::
-    Without the ``--subdomain`` flag the URL will be randomised every time your start lt and you will need
-    to update your Opsdroid config and restart.
+```{warning}
+Without the ``--subdomain`` flag the URL will be randomised every time your start lt and you will need
+to update your Opsdroid config and restart.
 ```
 
 ### Run Opsdroid
@@ -274,10 +271,9 @@ web:
   base-url: https://LOCALHOST_RUN_URL.localhost.run
 ```
 
-```eval_rst
-.. warning::
-    Unless you subscribe for custom domains the subdomain will be randomised each time you connect and
-    you will need to update your Opsdroid config and restart.
+```{warning}
+Unless you subscribe for custom domains the subdomain will be randomised each time you connect and
+you will need to update your Opsdroid config and restart.
 ```
 
 ### Run Opsdroid
@@ -376,10 +372,9 @@ web:
   base-url: http://DROPLET_IP
 ```
 
-```eval_rst
-.. warning::
-    Only HTTP traffic has been configured here. For secure HTTPS you will need to use a reverse proxy on the exit-node and configure
-    something like LetsEncrypt. See this `tutorial using Caddy <https://blog.alexellis.io/https-inlets-local-endpoints/>`_.
+```{warning}
+Only HTTP traffic has been configured here. For secure HTTPS you will need to use a reverse proxy on the exit-node and configure
+something like LetsEncrypt. See this `tutorial using Caddy <https://blog.alexellis.io/https-inlets-local-endpoints/>`_.
 ```
 
 ### Run Opsdroid

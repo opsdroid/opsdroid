@@ -2,8 +2,7 @@
 
 The webhook matcher allows you to trigger the skill by calling a specific URL endpoint.
 
-```eval_rst
-.. autofunction:: opsdroid.matchers.match_webhook
+```{autofunction} opsdroid.matchers.match_webhook
 ```
 
 ## Example

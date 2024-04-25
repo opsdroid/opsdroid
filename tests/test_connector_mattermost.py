@@ -1,8 +1,7 @@
 """Tests for the ConnectorMattermost class."""
-import asyncio
 import json
 
-import unittest
+import pytest
 import unittest.mock as mock
 import asynctest
 import asynctest.mock as amock
@@ -13,26 +12,7 @@ from opsdroid.cli.start import configure_lang
 from opsdroid.events import Message
 
 
-class TestConnectorMattermost(unittest.TestCase):
-    """Test the opsdroid Mattermost connector class."""
-
-    def setUp(self):
-        self.loop = asyncio.new_event_loop()
-        configure_lang({})
-
-    def test_init(self):
-        """Test that the connector is initialised properly."""
-        connector = ConnectorMattermost(
-            {"token": "abc123", "url": "localhost", "team-name": "opsdroid"},
-            opsdroid=OpsDroid(),
-        )
-        self.assertEqual("mattermost", connector.name)
-        self.assertEqual(30, connector.timeout)
-
-    def test_missing_api_key(self):
-        """Test that creating without an API key raises an error."""
-        with self.assertRaises(KeyError):
-            ConnectorMattermost({}, opsdroid=OpsDroid())
+pytestmark = pytest.mark.anyio
 
 
 class TestConnectorMattermostAsync(asynctest.TestCase):
@@ -40,6 +20,11 @@ class TestConnectorMattermostAsync(asynctest.TestCase):
 
     async def setUp(self):
         configure_lang({})
+
+    async def test_missing_api_key(self):
+        """Test that creating without an API key raises an error."""
+        with self.assertRaises(KeyError):
+            ConnectorMattermost({}, opsdroid=OpsDroid())
 
     async def test_connect(self):
         connector = ConnectorMattermost(
@@ -58,6 +43,8 @@ class TestConnectorMattermostAsync(asynctest.TestCase):
         await connector.connect()
         self.assertEqual("1", connector.bot_id)
         self.assertEqual("opsdroid_bot", connector.bot_name)
+        self.assertEqual("mattermost", connector.name)
+        self.assertEqual(30, connector.timeout)
 
     async def test_disconnect(self):
         connector = ConnectorMattermost(

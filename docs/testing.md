@@ -8,25 +8,20 @@ There are also some utilities for mocking our and running tests specific to opsd
 
 ## Fixtures
 
-```eval_rst
-.. autofunction:: opsdroid.testing.opsdroid
+```{autofunction} opsdroid.testing.opsdroid
 ```
 
-```eval_rst
-.. autofunction:: opsdroid.testing.mock_api
+```{autofunction} opsdroid.testing.mock_api
 ```
 
 ## Utilities
 
-```eval_rst
-.. autoclass:: opsdroid.testing.ExternalAPIMockServer
-   :members:
+```{autoclass} opsdroid.testing.ExternalAPIMockServer
+:members:
 ```
 
-```eval_rst
-.. autofunction:: opsdroid.testing.run_unit_test
+```{autofunction} opsdroid.testing.run_unit_test
 ```
 
-```eval_rst
-.. autofunction:: opsdroid.testing.call_endpoint
+```{autofunction} opsdroid.testing.call_endpoint
 ```

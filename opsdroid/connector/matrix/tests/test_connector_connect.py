@@ -1,6 +1,6 @@
-import pytest
 import logging
 
+import pytest
 from opsdroid.connector.matrix import ConnectorMatrix
 
 
@@ -10,7 +10,7 @@ def test_constructor(opsdroid, default_config):
 
 
 @pytest.mark.matrix_connector_config("token_config")
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect_access_token(
     opsdroid,
     connector,
@@ -22,6 +22,7 @@ async def test_connect_access_token(
     assert isinstance(connector, ConnectorMatrix)
     assert connector.access_token == "token"
     await connector.connect()
+    await connector.disconnect()
 
     assert mock_api.called("/_matrix/client/r0/account/whoami")
     assert (
@@ -42,16 +43,18 @@ async def test_connect_access_token(
     {"errcode": "M_UNKNOWN_TOKEN", "error": "Invalid macaroon passed."},
     status=401,
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect_invalid_access_token(caplog, opsdroid, connector, mock_api):
     assert isinstance(connector, ConnectorMatrix)
     assert connector.access_token == "token"
     await connector.connect()
+    await connector.disconnect()
 
     assert mock_api.called("/_matrix/client/r0/account/whoami")
 
-    assert "Invalid macaroon passed." in caplog.records[0].message
-    assert "M_UNKNOWN_TOKEN" in caplog.records[0].message
+    assert "Error validating response: 'user_id'" in caplog.records[0].message
+    assert "Invalid macaroon passed." in caplog.records[1].message
+    assert "M_UNKNOWN_TOKEN" in caplog.records[1].message
 
 
 @pytest.mark.matrix_connector_config("login_config")
@@ -64,7 +67,7 @@ async def test_connect_invalid_access_token(caplog, opsdroid, connector, mock_ap
         "device_id": "GHTYAJCE",
     },
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect_login(
     opsdroid,
     connector,
@@ -75,6 +78,7 @@ async def test_connect_login(
 ):
     assert isinstance(connector, ConnectorMatrix)
     await connector.connect()
+    await connector.disconnect()
 
     assert mock_api.called("/_matrix/client/r0/login")
     assert (
@@ -93,15 +97,17 @@ async def test_connect_login(
     {"errcode": "M_FORBIDDEN", "error": "Invalid password"},
     status=403,
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect_login_error(caplog, opsdroid, connector, mock_api):
     assert isinstance(connector, ConnectorMatrix)
     await connector.connect()
+    await connector.disconnect()
 
     assert mock_api.called("/_matrix/client/r0/login")
 
-    assert "Invalid password" in caplog.records[0].message
-    assert "M_FORBIDDEN" in caplog.records[0].message
+    assert "Error validating response: 'user_id'" in caplog.records[0].message
+    assert "Invalid password" in caplog.records[1].message
+    assert "M_FORBIDDEN" in caplog.records[1].message
 
 
 @pytest.mark.matrix_connector_config("token_config")
@@ -114,7 +120,7 @@ async def test_connect_login_error(caplog, opsdroid, connector, mock_api):
     {"errcode": "M_FORBIDDEN", "error": "You are not invited to this room."},
     status=403,
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect_join_fail(
     opsdroid,
     connector,
@@ -126,6 +132,7 @@ async def test_connect_join_fail(
     assert isinstance(connector, ConnectorMatrix)
     assert connector.access_token == "token"
     await connector.connect()
+    await connector.disconnect()
 
     assert caplog.record_tuples == [
         (
@@ -145,7 +152,7 @@ async def test_connect_join_fail(
     {"errcode": "M_FORBIDDEN", "error": "Invalid user"},
     status=403,
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect_set_nick_errors(
     opsdroid,
     connector,
@@ -156,8 +163,14 @@ async def test_connect_set_nick_errors(
     caplog,
 ):
     await connector.connect()
+    await connector.disconnect()
 
     assert caplog.record_tuples == [
+        (
+            "nio.responses",
+            logging.WARNING,
+            "Error validating response: 'displayname' is a required property",
+        ),
         (
             "opsdroid.connector.matrix.connector",
             logging.WARNING,
@@ -184,7 +197,7 @@ async def test_connect_set_nick_errors(
     "GET",
     {"displayname": "Wibble"},
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect_set_nick(
     opsdroid,
     connector,
@@ -194,6 +207,8 @@ async def test_connect_set_nick(
     mock_api,
 ):
     await connector.connect()
+    await connector.disconnect()
+
     assert mock_api.called(
         "/_matrix/client/r0/profile/@opsdroid:localhost/displayname", "GET"
     )
