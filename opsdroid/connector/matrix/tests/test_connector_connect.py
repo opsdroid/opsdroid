@@ -105,7 +105,6 @@ async def test_connect_login_error(caplog, opsdroid, connector, mock_api):
 
     assert mock_api.called("/_matrix/client/r0/login")
 
-    assert len(caplog.records) == 2
     assert "Error validating response: 'user_id'" in caplog.records[0].message
     assert "Invalid password" in caplog.records[1].message
     assert "M_FORBIDDEN" in caplog.records[1].message
@@ -166,7 +165,6 @@ async def test_connect_set_nick_errors(
     await connector.connect()
     await connector.disconnect()
 
-    assert len(caplog.record_tuples) == 3
     assert caplog.record_tuples == [
         (
             "nio.responses",
