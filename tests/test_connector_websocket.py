@@ -1,6 +1,7 @@
 import pytest
 import json
 
+import unittest
 import unittest.mock as amock
 from aiohttp.web import HTTPUnauthorized
 
