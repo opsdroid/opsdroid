@@ -41,7 +41,7 @@ class TestConfiguration(unittest.TestCase):
             "connectors": {"websocket": {}},
             "skills": {"test": {"path": skill_path}},
         }
-        with OpsDroid(config=example_config) as opsdroid:
+        with OpsDroid(config=example_config, loopless=True) as opsdroid:
             opsdroid.sync_load()
             assert opsdroid.skills
             assert len(opsdroid.skills) == 1

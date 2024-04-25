@@ -1,19 +1,19 @@
-## Creating a custom database
+# Creating a custom database
 
 Database classes are used to persist key/value pairs in a database. Values can be a complex object such as an array or a dictionary.
 
 The class has three mandatory methods, `connect`, `put` and `get`.
 
-#### connect
+## connect
 *connect* should initialise a connection to a database and store that connection object as a property of the database module instance.
 
-#### put
+## put
 *put* stores an object for a given key.
 
-#### get
+## get
 *get* returns an object for a given key. The object which is returned should be equivalent to the object which was stored.
 
-#### delete
+## delete
 *delete* deletes an object for a given key.
 
 ```python

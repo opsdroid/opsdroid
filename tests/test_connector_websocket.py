@@ -1,5 +1,3 @@
-import asyncio
-import unittest
 import pytest
 import json
 
@@ -11,22 +9,12 @@ from opsdroid.connector.websocket import ConnectorWebsocket, WebsocketMessage
 from opsdroid.core import OpsDroid
 from opsdroid.events import Message
 
+pytestmark = pytest.mark.anyio
 
-class TestConnectorWebsocket(unittest.TestCase):
-    """Test the opsdroid Websocket connector class."""
 
-    def setUp(self):
-        self.loop = asyncio.new_event_loop()
-        configure_lang({})
-
-    def test_init(self):
-        connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
-        self.assertEqual(None, connector.default_target)
-        self.assertEqual("websocket", connector.name)
-
-    def test_property(self):
-        connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
-        self.assertEqual("websocket", connector.name)
+@pytest.fixture
+def anyio_backend():
+    return "asyncio"
 
 
 class TestConnectorWebsocketAsync(unittest.TestCase):
@@ -34,6 +22,15 @@ class TestConnectorWebsocketAsync(unittest.TestCase):
 
     async def setUp(self):
         configure_lang({})
+
+    async def test_init(self):
+        connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
+        self.assertEqual(None, connector.default_target)
+        self.assertEqual("websocket", connector.name)
+
+    async def test_property(self):
+        connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
+        self.assertEqual("websocket", connector.name)
 
     async def test_connect(self):
         """Test the connect method adds the handlers."""
@@ -186,7 +183,7 @@ def test_ConnectorMessage_dataclass():
     assert text_message.socket is None
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_validate_request():
     config = {"token": "secret"}
     connector = ConnectorWebsocket(config, opsdroid=OpsDroid())
@@ -204,7 +201,7 @@ async def test_validate_request():
         await connector.validate_request(request)
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_new_websocket_handler_no_token():
     config = {"token": "secret"}
     connector = ConnectorWebsocket(config, opsdroid=OpsDroid())

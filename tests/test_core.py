@@ -3,7 +3,6 @@ import asyncio
 import unittest
 import unittest.mock as mock
 import unittest.mock as amock
-import asynctest
 
 import importlib
 import time
@@ -114,7 +113,7 @@ class TestCore(unittest.TestCase):
             self.assertFalse(opsdroid.eventloop.run_until_complete.called)
             self.assertFalse(mock_sysexit.called)
 
-    @asynctest.patch("opsdroid.core.parse_crontab")
+    @amock.patch("opsdroid.core.parse_crontab")
     def test_load(self, mocked_parse_crontab):
         with OpsDroid() as opsdroid:
             mockconfig = {

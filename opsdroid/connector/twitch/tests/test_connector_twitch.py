@@ -62,7 +62,7 @@ def test_base_url_web_config(opsdroid):
     assert connector.base_url == "http://my-awesome-url"
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_validate_request(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
     request = amock.AsyncMock()
@@ -78,7 +78,7 @@ async def test_validate_request(opsdroid):
     assert validation
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_get_user_id(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
     get_response = amock.Mock()
@@ -97,7 +97,7 @@ async def test_get_user_id(opsdroid):
         assert response == "test-bot"
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_get_user_id_failure(opsdroid, caplog):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
     get_response = amock.Mock()
@@ -115,7 +115,7 @@ async def test_get_user_id_failure(opsdroid, caplog):
         assert "Unable to receive broadcaster id - Error" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_get_user_id_unauthorized(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
     get_response = amock.Mock()
@@ -145,7 +145,7 @@ def test_save_authentication_data(opsdroid, tmpdir):
     assert details == {"access_token": "token123", "refresh_token": "refresh_token123"}
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_request_oauth_token(opsdroid, tmpdir):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
     connector.auth_file = AUTH_FILE
@@ -173,7 +173,7 @@ async def test_request_oauth_token(opsdroid, tmpdir):
         assert connector.save_authentication_data.called
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_request_oauth_token_failure(opsdroid, caplog):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
 
@@ -198,7 +198,7 @@ async def test_request_oauth_token_failure(opsdroid, caplog):
         assert "Parameter redirect_uri does not match registered URI" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_refresh_oauth_token(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
     connector.auth_file = AUTH_FILE
@@ -226,7 +226,7 @@ async def test_refresh_oauth_token(opsdroid):
         assert connector.save_authentication_data.called
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect(opsdroid, caplog, tmpdir):
     caplog.set_level(logging.INFO)
 
@@ -254,7 +254,7 @@ async def test_connect(opsdroid, caplog, tmpdir):
         assert "Found previous authorization data" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect_no_auth_data(opsdroid, caplog, tmpdir):
     caplog.set_level(logging.INFO)
     get_response = amock.Mock()
@@ -285,7 +285,7 @@ async def test_connect_no_auth_data(opsdroid, caplog, tmpdir):
         assert connector.webhook.called
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect_refresh_token(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
     connector.auth_file = AUTH_FILE
@@ -303,7 +303,7 @@ async def test_connect_refresh_token(opsdroid):
         assert connector.refresh_token.called
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_send_message(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
 
@@ -315,7 +315,7 @@ async def test_send_message(opsdroid):
     assert connector.websocket.send_str.called
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_send_handshake(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
 
@@ -327,7 +327,7 @@ async def test_send_handshake(opsdroid):
     assert connector.websocket.send_str.called
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect_websocket(opsdroid, caplog):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
     caplog.set_level(logging.INFO)
@@ -346,7 +346,7 @@ async def test_connect_websocket(opsdroid, caplog):
         assert connector.get_messages_loop.called
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_webhook_follows(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
 
@@ -365,7 +365,7 @@ async def test_webhook_follows(opsdroid):
         assert mocked_session.called
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_webhook_stream_changed(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
 
@@ -384,7 +384,7 @@ async def test_webhook_stream_changed(opsdroid):
         assert mocked_session.called
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_webhook_subscribers(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
 
@@ -403,7 +403,7 @@ async def test_webhook_subscribers(opsdroid):
         assert mocked_session.called
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_webhook_failure(opsdroid, caplog):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
 
@@ -424,7 +424,7 @@ async def test_webhook_failure(opsdroid, caplog):
         assert "Error:" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_ban_user(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
@@ -438,7 +438,7 @@ async def test_ban_user(opsdroid, caplog):
     assert "bot_mc_spam_bot" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_create_clip(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
@@ -475,7 +475,7 @@ async def test_create_clip(opsdroid, caplog):
         assert "broadcaster123" in clip_event.id
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_create_clip_failure(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
@@ -505,7 +505,7 @@ async def test_create_clip_failure(opsdroid, caplog):
         assert "Failed to create Twitch clip" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_remove_message(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
@@ -527,7 +527,7 @@ async def test_remove_message(opsdroid, caplog):
     assert "messageid123" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_send_message_event(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
@@ -541,7 +541,7 @@ async def test_send_message_event(opsdroid, caplog):
     assert "Hello world!" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_update_stream_title(opsdroid, caplog):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
 
@@ -564,7 +564,7 @@ async def test_update_stream_title(opsdroid, caplog):
         assert "Test title!" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_update_stream_title_failure(opsdroid, caplog):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
 
@@ -587,7 +587,7 @@ async def test_update_stream_title_failure(opsdroid, caplog):
         assert "Failed to update Twitch channel title" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_handle_challenge(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
 
@@ -601,7 +601,7 @@ async def test_handle_challenge(opsdroid, caplog):
     assert "testchallenge123" in resp.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_handle_challenge_error(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
 
@@ -615,7 +615,7 @@ async def test_handle_challenge_error(opsdroid, caplog):
     assert resp.status == 500
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_invalid_post_request_webhook(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
     connector.validate_request = amock.AsyncMock(return_value=False)
@@ -630,7 +630,7 @@ async def test_invalid_post_request_webhook(opsdroid):
     assert resp.status == 401
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_stream_ended_event(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
     connector.validate_request = amock.AsyncMock(return_value=True)
@@ -649,7 +649,7 @@ async def test_stream_ended_event(opsdroid):
     assert twitch_event.StreamEnded.called
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_followed_event(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
@@ -679,7 +679,7 @@ def test_user_subscribed():
     assert "Hello!" in event.message
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_gift_subscription_event(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
@@ -709,7 +709,7 @@ async def test_gift_subscription_event(opsdroid, caplog):
     assert twitch_event.UserSubscribed.called
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_subscription_event(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
@@ -738,7 +738,7 @@ async def test_subscription_event(opsdroid, caplog):
     assert twitch_event.UserSubscribed.called
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_stream_started_event(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
@@ -775,7 +775,7 @@ async def test_stream_started_event(opsdroid, caplog):
     assert "just now" in stream_start_event.started_at
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_disconnect(opsdroid):
     connector_config["always-listening"] = True
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
@@ -790,7 +790,7 @@ async def test_disconnect(opsdroid):
     assert connector.webhook.called
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_get_message_loop(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
 
@@ -814,7 +814,7 @@ async def test_get_message_loop(opsdroid):
         assert connector._handle_message.called
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_handle_message_chat_message(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
     message = "@badge-info=;badges=;client-nonce=jiwej12;color=;display-name=user;emotes=;flags=0-81:;id=jdias-9212;mod=0;room-id=123;subscriber=0;tmi-sent-ts=1592943868712;turbo=0;user-id=123;user-type= :user!user@user.tmi.twitch.tv PRIVMSG #channel :Hello world!"
@@ -829,7 +829,7 @@ async def test_handle_message_chat_message(opsdroid, caplog):
     assert opsdroid.parse.called
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_handle_message_join_event(opsdroid):
     message = ":user!user@user.tmi.twitch.tv JOIN #channel"
 
@@ -845,7 +845,7 @@ async def test_handle_message_join_event(opsdroid):
     assert "username" in join_event.user
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_handle_message_left_event(opsdroid):
     message = ":user!user@user.tmi.twitch.tv PART #channel"
 
@@ -860,7 +860,7 @@ async def test_handle_message_left_event(opsdroid):
     assert "username" in left_event.user
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_handle_message_authentication_failed(opsdroid):
     message = ":tmi.twitch.tv NOTICE * :Login authentication failed"
 
@@ -874,20 +874,24 @@ async def test_handle_message_authentication_failed(opsdroid):
         assert connector.refresh_token.called
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_disconnect_websockets(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
 
     connector.websocket = web.WebSocketResponse()
 
-    resp = await connector.disconnect_websockets()
+    with amock.patch(
+        "aiohttp.web_ws.WebSocketResponse.close", new=amock.CoroutineMock()
+    ) as mocked_response_close:
+        mocked_response_close.side_effect = [True]
+        resp = await connector.disconnect_websockets()
 
     assert not connector.websocket
     assert not connector.is_live
     assert not resp
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_listen(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
 
@@ -900,7 +904,7 @@ async def test_listen(opsdroid):
             await connector.listen()
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_listen_reconnect(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)

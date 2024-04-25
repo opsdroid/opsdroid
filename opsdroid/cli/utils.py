@@ -79,7 +79,8 @@ def validate_config(ctx, path):
         int: the exit code. Always returns 0 in this case.
 
     """
-    with OpsDroid() as opsdroid:
+    # We're just loading stuff, avoid loop initialization
+    with OpsDroid(loopless=True) as opsdroid:
         loader = Loader(opsdroid)
 
         config = load_config_file([path] if path else DEFAULT_CONFIG_LOCATIONS)

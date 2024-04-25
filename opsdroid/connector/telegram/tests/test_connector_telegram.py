@@ -247,7 +247,7 @@ def test_build_url(opsdroid):
     assert url == "https://api.telegram.org/bottest:token/getUpdates"
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect(opsdroid):
     opsdroid.config["web"] = {"base-url": "https://test.com"}
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
@@ -273,7 +273,7 @@ async def test_connect(opsdroid):
         assert mocked_build_url.called
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect_failure(opsdroid, caplog):
     caplog.set_level(logging.ERROR)
 
@@ -303,7 +303,7 @@ async def test_connect_failure(opsdroid, caplog):
         assert "Error when connecting to Telegram" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_respond(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
 
@@ -340,7 +340,7 @@ async def test_respond(opsdroid, caplog):
         assert "Successfully responded" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_respond_failure(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
 
@@ -377,7 +377,7 @@ async def test_respond_failure(opsdroid, caplog):
         assert "Unable to respond" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_respond_image(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
 
@@ -408,7 +408,7 @@ async def test_respond_image(opsdroid, caplog):
         assert "Sent" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_respond_image_failure(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
 
@@ -439,7 +439,7 @@ async def test_respond_image_failure(opsdroid, caplog):
         assert "Unable to send image" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_respond_file(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
 
@@ -467,6 +467,7 @@ async def test_respond_file(opsdroid, caplog):
         assert "Sent" in caplog.text
 
 
+@pytest.mark.anyio
 async def test_respond_file_failure(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
 
@@ -494,6 +495,7 @@ async def test_respond_file_failure(opsdroid, caplog):
         assert "Unable to send file" in caplog.text
 
 
+@pytest.mark.anyio
 async def test_disconnect_successful(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
 
@@ -518,6 +520,7 @@ async def test_disconnect_successful(opsdroid, caplog):
         assert "Telegram webhook deleted" in caplog.text
 
 
+@pytest.mark.anyio
 async def test_disconnect_failure(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
 
@@ -542,7 +545,7 @@ async def test_disconnect_failure(opsdroid, caplog):
         assert "Unable to delete webhook" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_edited_message_event(opsdroid):
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
@@ -583,7 +586,7 @@ async def test_edited_message_event(opsdroid):
     assert edited_message.user_id == 6399348
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_join_group_event(opsdroid):
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
@@ -623,7 +626,7 @@ async def test_join_group_event(opsdroid):
     assert join_message.user_id == 6399348
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_leave_group_event(opsdroid):
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
@@ -663,7 +666,7 @@ async def test_leave_group_event(opsdroid):
     assert left_message.user_id == 6399348
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_pinned_message_event(opsdroid):
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
@@ -703,7 +706,7 @@ async def test_pinned_message_event(opsdroid):
     assert pinned_message.user_id == 6399348
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_reply_to_message_event(opsdroid):
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
@@ -764,7 +767,7 @@ async def test_reply_to_message_event(opsdroid):
     assert reply_message.target == 63948
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_location_event(opsdroid):
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
@@ -802,7 +805,7 @@ async def test_location_event(opsdroid):
     assert event_location.longitude == -5.230604
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_poll_event(opsdroid):
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
@@ -858,7 +861,7 @@ async def test_poll_event(opsdroid):
     assert poll_event.total_votes == 1
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_contact_event(opsdroid):
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
@@ -883,7 +886,7 @@ async def test_contact_event(opsdroid):
     assert contact_event.phone_number == 123456
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_unparseable_event(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
 
@@ -927,7 +930,7 @@ async def test_unparseable_event(opsdroid, caplog):
     assert event is None
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_channel_post(opsdroid):
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
@@ -949,7 +952,7 @@ async def test_channel_post(opsdroid):
     assert message.text == "dance"
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_parse_user_no_permissions(opsdroid):
     mock_request = amock.AsyncMock()
     mock_request.json = amock.AsyncMock()
@@ -979,7 +982,7 @@ async def test_parse_user_no_permissions(opsdroid):
         assert mocked_send_message.called
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_parse_user_permissions(opsdroid):
     mock_request = amock.AsyncMock()
     mock_request.json = amock.AsyncMock()
