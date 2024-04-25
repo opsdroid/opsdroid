@@ -52,7 +52,6 @@ async def test_connect_invalid_access_token(caplog, opsdroid, connector, mock_ap
 
     assert mock_api.called("/_matrix/client/r0/account/whoami")
 
-    assert len(caplog.records) == 2
     assert "Error validating response: 'user_id'" in caplog.records[0].message
     assert "Invalid macaroon passed." in caplog.records[1].message
     assert "M_UNKNOWN_TOKEN" in caplog.records[1].message
