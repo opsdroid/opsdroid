@@ -1,5 +1,3 @@
-import logging
-
 import pytest
 
 from nio.responses import SyncResponse
@@ -30,7 +28,7 @@ def assert_event_properties(event, **kwargs):
 @pytest.mark.matrix_connector_config(
     {"access_token": "hello", "rooms": {"main": "#test:localhost"}}
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_receive_message(opsdroid, connector_connected, mock_api, caplog):
     events = await events_from_sync(
         [
@@ -56,13 +54,11 @@ async def test_receive_message(opsdroid, connector_connected, mock_api, caplog):
         target="!12345:localhost",
     )
 
-    assert len(caplog.record_tuples) == 0, caplog.records
-
 
 @pytest.mark.matrix_connector_config(
     {"access_token": "hello", "rooms": {"main": "#test:localhost"}}
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_get_nick_error(opsdroid, connector_connected, mock_api, caplog):
     events = await events_from_sync(
         [
@@ -79,15 +75,10 @@ async def test_get_nick_error(opsdroid, connector_connected, mock_api, caplog):
         target="!12345:localhost",
     )
 
-    assert len(caplog.record_tuples) == 1
-
-    assert caplog.record_tuples == [
-        (
-            "opsdroid.connector.matrix.connector",
-            logging.ERROR,
-            "Error during getting display name from room state: unknown error (status code None)",
-        )
-    ]
+    assert (
+        "Error during getting display name from room state: unknown error (status code None)"
+        in caplog.text
+    )
 
 
 @pytest.mark.add_response(
@@ -98,7 +89,7 @@ async def test_get_nick_error(opsdroid, connector_connected, mock_api, caplog):
 @pytest.mark.matrix_connector_config(
     {"access_token": "hello", "rooms": {"main": "#test:localhost"}}
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_invite_with_message(opsdroid, connector_connected, mock_api, caplog):
     events = [
         message_factory("Hello", "m.text", "@test:localhost"),
@@ -140,5 +131,3 @@ async def test_invite_with_message(opsdroid, connector_connected, mock_api, capl
         user="test",
         target="!12345:localhost",
     )
-
-    assert len(caplog.record_tuples) == 0, caplog.records

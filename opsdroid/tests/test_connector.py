@@ -1,6 +1,7 @@
 import pytest
 
 import asynctest.mock as amock
+import anyio
 
 from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message, Reaction
@@ -19,21 +20,22 @@ class TestConnectorBaseClass:
         connector = get_connector(config={"name": "shell"})
         assert connector.configuration.get("name") == "shell"
 
-    def test_connect(self, event_loop, get_connector):
+    def test_connect(self, get_connector):
         with pytest.raises(NotImplementedError):
-            event_loop.run_until_complete(get_connector().connect())
+            # event_loop.run_until_complete(get_connector().connect())
+            anyio.run(get_connector().connect)
 
-    def test_listen(self, event_loop, get_connector):
+    def test_listen(self, get_connector):
         with pytest.raises(NotImplementedError):
-            event_loop.run_until_complete(get_connector().listen())
+            anyio.run(get_connector().listen)
 
-    def test_respond(self, event_loop, get_connector):
+    def test_respond(self, get_connector):
         with pytest.raises(TypeError):
-            event_loop.run_until_complete(get_connector().send(Message("")))
+            anyio.run(get_connector().send, Message(""))
 
-    def test_unsupported_event(self, event_loop, get_connector):
+    def test_unsupported_event(self, get_connector):
         with pytest.raises(TypeError):
-            event_loop.run_until_complete(get_connector().send(Reaction("emoji")))
+            anyio.run(get_connector().send, Reaction("emoji"))
 
     def test_incorrect_event(self):
         class NotAnEvent:
@@ -63,18 +65,18 @@ class TestConnectorBaseClass:
 class TestConnectorAsync:
     """Test the async methods of the opsdroid connector base class."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_disconnect(self, get_connector):
         res = await get_connector().disconnect()
         assert res is None
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_send_incorrect_event(self):
         connector = Connector({"name": "shell"})
         with pytest.raises(TypeError):
             await connector.send(object())
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_dep_respond(self, recwarn):
         connector = Connector({"name": "shell"})
         with amock.patch("opsdroid.connector.Connector.send") as patched_send:
@@ -85,7 +87,7 @@ class TestConnectorAsync:
 
             assert patched_send.call_count == 1
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_dep_react(self, get_connector, recwarn):
         connector = get_connector({"name": "shell"})
 
@@ -97,7 +99,7 @@ class TestConnectorAsync:
 
             assert patched_respond.call_count == 1
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_deprecated_properties(self, get_connector, recwarn):
         connector = get_connector({"name": "shell"})
 

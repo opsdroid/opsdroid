@@ -6,8 +6,7 @@ This matcher catches everything - messages and events, if you want to catch only
 
 It is useful for displaying a help message to the user to show available commands that the bot replies to, for example:
 
-```eval_rst
-.. autofunction:: opsdroid.matchers.match_catchall
+```{autofunction} opsdroid.matchers.match_catchall
 ```
 
 ## Example

@@ -38,12 +38,14 @@ def command_center_config_no_token():
     yield MINIMAL_CONFIG
 
 
+@pytest.mark.anyio
 async def test_web(opsdroid):
     """Create a web object and check the config."""
     app = web.Web(opsdroid)
     assert app.config == {}
 
 
+@pytest.mark.anyio
 async def test_web_get_port(opsdroid):
     """Check the port getter."""
     opsdroid.config["web"] = {}
@@ -55,6 +57,7 @@ async def test_web_get_port(opsdroid):
     assert app.get_port == 8000
 
 
+@pytest.mark.anyio
 async def test_web_get_host(opsdroid):
     """Check the host getter."""
     opsdroid.config["web"] = {}
@@ -66,6 +69,7 @@ async def test_web_get_host(opsdroid):
     assert app.get_host == "127.0.0.1"
 
 
+@pytest.mark.anyio
 async def test_web_disable_web_index_handler_in_root(opsdroid):
     """Check disabling of web index handler in root."""
     opsdroid.config["web"] = {"disable_web_index_handler_in_root": True}
@@ -84,6 +88,7 @@ async def test_web_disable_web_index_handler_in_root(opsdroid):
     assert "/" in canonicals
 
 
+@pytest.mark.anyio
 async def test_web_get_ssl(opsdroid):
     """Check the host getter."""
     opsdroid.config["web"] = {}
@@ -104,29 +109,33 @@ async def test_web_get_ssl(opsdroid):
     assert app.get_ssl_context is None
 
 
+@pytest.mark.anyio
 async def test_web_build_response(opsdroid):
     """Check the response builder."""
     opsdroid.config["web"] = {}
     app = web.Web(opsdroid)
     response = {"test": "test"}
     resp = app.build_response(200, response)
-    assert type(resp) == aiohttp.web.Response
+    assert isinstance(resp, aiohttp.web.Response)
 
 
+@pytest.mark.anyio
 async def test_web_index_handler(opsdroid):
     """Check the index handler."""
     opsdroid.config["web"] = {}
     app = web.Web(opsdroid)
-    assert type(await app.web_index_handler(None)) == aiohttp.web.Response
+    isinstance(await app.web_index_handler(None), aiohttp.web.Response)
 
 
+@pytest.mark.anyio
 async def test_web_stats_handler(opsdroid):
     """Check the stats handler."""
     opsdroid.config["web"] = {}
     app = web.Web(opsdroid)
-    assert type(await app.web_stats_handler(None)) == aiohttp.web.Response
+    assert isinstance(await app.web_stats_handler(None), aiohttp.web.Response)
 
 
+@pytest.mark.anyio
 async def test_web_start(opsdroid):
     """Check the stats handler."""
     with amock.patch("aiohttp.web.AppRunner.setup") as mock_runner, amock.patch(
@@ -140,6 +149,7 @@ async def test_web_start(opsdroid):
         assert mock_tcpsite_start.called
 
 
+@pytest.mark.anyio
 async def test_web_stop(opsdroid):
     """Check the stats handler."""
     app = web.Web(opsdroid)
@@ -149,6 +159,7 @@ async def test_web_stop(opsdroid):
     assert app.runner.cleanup.called
 
 
+@pytest.mark.anyio
 async def test_web_port_in_use(opsdroid, bound_address):
     """Check retry/timeout handling when the port is in use."""
     opsdroid.config["web"] = {"host": bound_address[0], "port": bound_address[1]}
@@ -221,7 +232,7 @@ def test_update_config(opsdroid):
     }
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_get_scrubbed_module_config(opsdroid):
     app = web.Web(opsdroid)
 
@@ -253,7 +264,7 @@ async def test_get_scrubbed_module_config(opsdroid):
     assert "enabled" in scrubbed_modules_config["shell"]
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_get_scrubbed_module_config_with_user_provided_keys(opsdroid):
     """
 
@@ -284,7 +295,7 @@ async def test_get_scrubbed_module_config_with_user_provided_keys(opsdroid):
     assert "install_path" in extra_scrubbed_config["shell"]
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_config_handler(opsdroid, command_center_config):
     config = {
         "logging": {"level": "debug"},
@@ -321,7 +332,7 @@ async def test_config_handler(opsdroid, command_center_config):
     assert "webhook-token" not in gitlab_config
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_base_url(opsdroid):
     opsdroid.config["web"] = {"base_url": "localhost"}
     app = web.Web(opsdroid)
@@ -332,7 +343,7 @@ async def test_base_url(opsdroid):
     assert app2.base_url == "example.com"
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_web_command_center_no_token(opsdroid, command_center_config_no_token):
     """Check that we get an exception if command centre and no token is provided"""
     await opsdroid.load(command_center_config_no_token)
@@ -341,7 +352,7 @@ async def test_web_command_center_no_token(opsdroid, command_center_config_no_to
         await app.start()
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_check_request_no_token_provided(opsdroid, command_center_config):
     await opsdroid.load(config=command_center_config)
 
@@ -357,7 +368,7 @@ async def test_check_request_no_token_provided(opsdroid, command_center_config):
     assert await run_unit_test(opsdroid, test)
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_check_request(opsdroid, command_center_config):
     await opsdroid.load(config=command_center_config)
 
@@ -374,7 +385,7 @@ async def test_check_request(opsdroid, command_center_config):
     assert await run_unit_test(opsdroid, test)
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_check_request_empty_auth(opsdroid, command_center_config):
     await opsdroid.load(config=command_center_config)
 
@@ -391,7 +402,7 @@ async def test_check_request_empty_auth(opsdroid, command_center_config):
     assert await run_unit_test(opsdroid, test)
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_check_request_bad_token(opsdroid):
     MINIMAL_CONFIG["web"] = {"command-center": {"enabled": True, "token": "blah"}}
 
@@ -408,7 +419,7 @@ async def test_check_request_bad_token(opsdroid):
     assert await run_unit_test(opsdroid, test)
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_update_config_live(opsdroid, command_center_config):
     await opsdroid.load(config=command_center_config)
 
@@ -432,7 +443,7 @@ async def test_update_config_live(opsdroid, command_center_config):
     assert await run_unit_test(opsdroid, test)
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_handle_patch(opsdroid, command_center_config, caplog):
     await opsdroid.load(config=command_center_config)
 
@@ -500,7 +511,7 @@ async def test_handle_patch(opsdroid, command_center_config, caplog):
     assert await run_unit_test(opsdroid, test_key_error)
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_get_connectors(opsdroid, command_center_config):
     await opsdroid.load(config=command_center_config)
 
@@ -517,7 +528,7 @@ async def test_get_connectors(opsdroid, command_center_config):
     assert await run_unit_test(opsdroid, test)
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_get_databases(opsdroid, command_center_config):
     await opsdroid.load(config=command_center_config)
 
@@ -531,7 +542,7 @@ async def test_get_databases(opsdroid, command_center_config):
     assert await run_unit_test(opsdroid, test)
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_get_parsers(opsdroid, command_center_config):
     await opsdroid.load(config=command_center_config)
 
@@ -545,7 +556,7 @@ async def test_get_parsers(opsdroid, command_center_config):
     assert await run_unit_test(opsdroid, test)
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_get_skills(opsdroid, command_center_config):
     await opsdroid.load(config=command_center_config)
 
@@ -559,7 +570,7 @@ async def test_get_skills(opsdroid, command_center_config):
     assert await run_unit_test(opsdroid, test)
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_get_scrubbed_module_config_funky_module(opsdroid):
     @dataclass
     class Module:

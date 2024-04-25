@@ -20,7 +20,7 @@ This connector is for use when developing applications which will send messages 
 
 To connect to the websocket connector you must first request a room and then connect to it via websockets.
 
-#### `[POST] http://host:port/connector/websocket`
+### `[POST] http://host:port/connector/websocket`
 Request a new websocket id. This method is used for rate limiting. If too many users are connected this message will return a `429` error code until some users disconnect or time out.
 
 Response
@@ -32,7 +32,7 @@ Response
 
 If you provided a `token` in your configuration, opsdroid will check if the token provided in the configuration exists in the request header and if it matches, if it doesn't opsdroid will return a `403` Forbidden error.
 
-#### `[WEBSOCKET] http://host:port/connector/websocket/{socket}`
+### `[WEBSOCKET] http://host:port/connector/websocket/{socket}`
 The websocket end point to connect to. Messages are sent and received as text broadcasts in the socket.
 
 You can send a single string to be parsed by opsdroid, but you can also send a json string payload containing the keys `message`, `user` and `socket`. These keys will then be passed to the `Message` event.

@@ -27,11 +27,10 @@ If you want to use Watson in a different language you will have to create differ
 
 In this example we have a Watson assistant set up with the default Customer Care Sample Skill - this will show you how you can get entities and replies from the assistant and include them with opsdroid.
 
-```eval_rst
-.. autofunction:: opsdroid.matchers.match_watson
+```{autofunction} opsdroid.matchers.match_watson
 ```
-
-### [Example 1](#example1)
+(watexample1)=
+### [Example 1]
 
 ```python
 from opsdroid.skill import Skill
@@ -90,8 +89,8 @@ This is the JSON response that opsdroid will get from this text:
         "confidence": 1,
         "metadata": {"calendar_type": "GREGORIAN", "timezone": "GMT"}}]}}
 ```
-
-### [Example 2](#example2)
+(example2)=
+### [Example 2]
 
 ```python
 from opsdroid.skill import Skill

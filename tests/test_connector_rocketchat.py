@@ -1,6 +1,5 @@
 """Tests for the RocketChat class."""
 import asyncio
-import unittest
 import contextlib
 import asynctest
 import asynctest.mock as amock
@@ -9,34 +8,6 @@ from opsdroid.core import OpsDroid
 from opsdroid.connector.rocketchat import RocketChat
 from opsdroid.events import Message
 from opsdroid.cli.start import configure_lang
-
-
-class TestRocketChat(unittest.TestCase):
-    """Test the opsdroid RocketChat connector class."""
-
-    def setUp(self):
-        self.loop = asyncio.new_event_loop()
-        configure_lang({})
-
-    def test_init(self):
-        """Test that the connector is initialised properly."""
-        connector = RocketChat(
-            {
-                "name": "rocket.chat",
-                "token": "test",
-                "user-id": "userID",
-                "update-interval": 0.1,
-            },
-            opsdroid=OpsDroid(),
-        )
-        self.assertEqual("general", connector.default_target)
-        self.assertEqual("rocket.chat", connector.name)
-
-    def test_missing_token(self):
-        """Test that attempt to connect without info raises an error."""
-
-        RocketChat({})
-        self.assertLogs("_LOGGER", "error")
 
 
 class TestConnectorRocketChatAsync(asynctest.TestCase):
@@ -58,6 +29,26 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
 
         with amock.patch("aiohttp.ClientSession") as mocked_session:
             self.connector.session = mocked_session
+
+    async def test_init(self):
+        """Test that the connector is initialised properly."""
+        connector = RocketChat(
+            {
+                "name": "rocket.chat",
+                "token": "test",
+                "user-id": "userID",
+                "update-interval": 0.1,
+            },
+            opsdroid=OpsDroid(),
+        )
+        self.assertEqual("general", connector.default_target)
+        self.assertEqual("rocket.chat", connector.name)
+
+    def test_missing_token(self):
+        """Test that attempt to connect without info raises an error."""
+
+        RocketChat({})
+        self.assertLogs("_LOGGER", "error")
 
     async def test_connect(self):
         connect_response = amock.Mock()
