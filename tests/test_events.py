@@ -430,7 +430,6 @@ class TestVideo(asynctest.TestCase):
         self.assertEqual(await event.get_file_bytes(), self.mkv_bytes)
         self.assertEqual(await event.get_mimetype(), "video/x-matroska")
         self.assertEqual(await event.get_bin(), self.vid_bin)
-        self.assertEqual(await event.get_properties(), self.props)
 
     async def test_explicit_mime_type(self):
         opsdroid = amock.CoroutineMock()

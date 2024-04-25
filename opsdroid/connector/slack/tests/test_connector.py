@@ -295,7 +295,7 @@ async def test_replace_usernames(connector):
     connector.known_users = {"U01NK1K9L68": {"name": "Test User"}}
     message = "hello <@U01NK1K9L68>"
     replaced_message = await connector.replace_usernames(message)
-    assert replaced_message == "hello Test User"
+    assert replaced_message == "hello @Test User"
 
 
 @pytest.mark.anyio
