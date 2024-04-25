@@ -1,6 +1,7 @@
 """Core components of OpsDroid."""
 
 import asyncio
+import anyio
 import contextlib
 import copy
 import inspect
@@ -51,14 +52,14 @@ class OpsDroid:
 
     instances = []
 
-    def __init__(self, config=None, config_path=None):
+    def __init__(self, config=None, config_path=None, loopless=False):
         """Start opsdroid."""
         self.bot_name = "opsdroid"
         self._running = False
         self.sys_status = 0
         self.connectors = []
-        self.eventloop = asyncio.get_event_loop()
-        if os.name != "nt":
+        self.eventloop = asyncio.get_event_loop() if not loopless else None
+        if os.name != "nt" and not loopless:
             for sig in (signal.SIGINT, signal.SIGTERM):
                 self.eventloop.add_signal_handler(
                     sig, lambda: asyncio.ensure_future(self.handle_stop_signal())
@@ -66,7 +67,7 @@ class OpsDroid:
             self.eventloop.add_signal_handler(
                 signal.SIGHUP, lambda: asyncio.ensure_future(self.reload())
             )
-        self.eventloop.set_exception_handler(self.handle_async_exception)
+            self.eventloop.set_exception_handler(self.handle_async_exception)
         self.skills = []
         self.memory = Memory()
         self.modules = {}
@@ -219,7 +220,8 @@ class OpsDroid:
 
     def sync_load(self):
         """Run the load modules method synchronously."""
-        self.eventloop.run_until_complete(self.load())
+        # self.eventloop.run_until_complete(self.load())
+        anyio.run(self.load)
 
     async def load(self, config=None):
         """Load modules."""
@@ -229,10 +231,10 @@ class OpsDroid:
         _LOGGER.debug(_("Loaded %i skills."), len(self.modules["skills"] or []))
         self.web_server = Web(self)
         self.setup_skills(self.modules["skills"])
-        await self.setup_databases(self.modules["databases"])
-        await self.setup_connectors(self.modules["connectors"])
+        await self.setup_databases(self.modules["databases"] or {})
+        await self.setup_connectors(self.modules["connectors"] or {})
         self.web_server.setup_webhooks(self.skills)
-        await self.train_parsers(self.modules["skills"])
+        await self.train_parsers(self.modules["skills"] or {})
 
     async def stop(self):
         """Stop all tasks running in opsdroid."""

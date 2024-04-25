@@ -134,51 +134,42 @@ Unfortunately, we are unable to parse any of these formats, the reason for that 
 
 The Telegram Connector contains a few events that you can access on your skills. These events were created to allow you to use these messages types on your custom made skills.
 
-```eval_rst
-.. autoclass:: opsdroid.connector.telegram.events.Poll
+```{autoclass} opsdroid.connector.telegram.events.Poll
+:members:
+```
+
+```{autoclass} opsdroid.connector.telegram.events.Contact
+:members:
+```
+
+```{autoclass} opsdroid.connector.telegram.events.Location
+:members:
+```
+
+```{autoclass} opsdroid.events.JoinGroup
+:members:
+```
+
+```{autoclass} opsdroid.events.LeaveGroup
     :members:
 ```
 
-```eval_rst
-.. autoclass:: opsdroid.connector.telegram.events.Contact
+```{autoclass} opsdroid.events.PinMessage
+:members:
+```
+
+```{autoclass} opsdroid.events.Reply
     :members:
 ```
 
-```eval_rst
-.. autoclass:: opsdroid.connector.telegram.events.Location
-    :members:
-```
-
-```eval_rst
-.. autoclass:: opsdroid.events.JoinGroup
-    :members:
-```
-
-```eval_rst
-.. autoclass:: opsdroid.events.LeaveGroup
-    :members:
-```
-
-```eval_rst
-.. autoclass:: opsdroid.events.PinMessage
-    :members:
-```
-
-```eval_rst
-.. autoclass:: opsdroid.events.Reply
-    :members:
-```
-
-```eval_rst
-.. autoclass:: opsdroid.events.EditedMessage
-    :members:
+```{autoclass} opsdroid.events.EditedMessage
+:members:
 ```
 
 
 ## Reference
 
-```eval_rst
-.. autoclass:: opsdroid.connector.telegram.ConnectorTelegram
- :members:
+```{autoclass} opsdroid.connector.telegram.ConnectorTelegram
+:members:
 ```
 

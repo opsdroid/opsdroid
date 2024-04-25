@@ -31,9 +31,9 @@ You need to create a [Twitch App](https://dev.twitch.tv/console/apps) to use the
 
 ## Getting OAuth code
 
-Twitch OAuth has two steps, first you need to make a `GET` request to a specific URL to obtain a `code`. After you've received the code, you need to make a `POST` request to the same URL and Twitch will send you an `access_token` and `refresh_token`. 
+Twitch OAuth has two steps, first you need to make a `GET` request to a specific URL to obtain a `code`. After you've received the code, you need to make a `POST` request to the same URL and Twitch will send you an `access_token` and `refresh_token`.
 
-After a certain period, the `access_token` will expire and you have to make a new request with your `refresh_token` to re-authenticate yourself. 
+After a certain period, the `access_token` will expire and you have to make a new request with your `refresh_token` to re-authenticate yourself.
 
 _NOTE: The Twitch Connector will handle token expiration and re-authentication for you._
 
@@ -76,63 +76,52 @@ The Twitch Connector contains 10 events that you can use on your custom made ski
 
 These events are triggered by opsdroid whenever something happens on twitch.
 
-```eval_rst
-.. autoclass:: opsdroid.events.JoinRoom
-    :members:
+```{autoclass} opsdroid.events.JoinRoom
+:members:
 ```
 
-```eval_rst
-.. autoclass:: opsdroid.events.LeaveRoom
-    :members:
+```{autoclass} opsdroid.events.LeaveRoom
+:members:
 ```
 
-```eval_rst
-.. autoclass:: opsdroid.connector.twitch.events.UserFollowed
-    :members:
+```{autoclass} opsdroid.connector.twitch.events.UserFollowed
+:members:
 ```
 
-```eval_rst
-.. autoclass:: opsdroid.connector.twitch.events.UserSubscribed
-    :members:
+```{autoclass} opsdroid.connector.twitch.events.UserSubscribed
+:members:
 ```
 
-```eval_rst
-.. autoclass:: opsdroid.connector.twitch.events.UserGiftedSubscription
-    :members:
+```{autoclass} opsdroid.connector.twitch.events.UserGiftedSubscription
+:members:
 ```
 
-```eval_rst
-.. autoclass:: opsdroid.connector.twitch.events.StreamStarted
-    :members:
+```{autoclass} opsdroid.connector.twitch.events.StreamStarted
+:members:
 ```
 
-```eval_rst
-.. autoclass:: opsdroid.connector.twitch.events.StreamEnded
-    :members:
+```{autoclass} opsdroid.connector.twitch.events.StreamEnded
+:members:
 ```
 
 #### Manual Events
 
 These events will have to be triggered by you with an opsdroid skill.
 
-```eval_rst
-.. autoclass:: opsdroid.connector.twitch.events.UpdateTitle
-    :members:
+```{autoclass} opsdroid.connector.twitch.events.UpdateTitle
+:members:
 ```
 
-```eval_rst
-.. autoclass:: opsdroid.connector.twitch.events.CreateClip
-    :members:
+```{autoclass} opsdroid.connector.twitch.events.CreateClip
+:members:
 ```
 
-```eval_rst
-.. autoclass:: opsdroid.events.DeleteMessage
-    :members:
+```{autoclass} opsdroid.events.DeleteMessage
+:members:
 ```
 
-```eval_rst
-.. autoclass:: opsdroid.events.BanUser
-    :members:
+```{autoclass} opsdroid.events.BanUser
+:members:
 ```
 
 ## Examples
@@ -211,7 +200,7 @@ class TwitchSkill(Skill):
 
 ### UpdateTitle event
 
-You need to be careful on how you set this skill, you should have a list of users that are allowed to change your broadcast title otherwise it can be abused while you are streaming. 
+You need to be careful on how you set this skill, you should have a list of users that are allowed to change your broadcast title otherwise it can be abused while you are streaming.
 
 ```python
 from opsdroid.skill import Skill
@@ -238,7 +227,7 @@ You could also add a `whitelisted` config param to your skill and then read the 
 ```yaml
 skills:
   - twitch:
-    whitelisted: 
+    whitelisted:
       - your_username_on_twitch
       - your_username_on_another_connector
 ```
@@ -265,7 +254,6 @@ class TwitchSkill(Skill):
 
 ## Reference
 
-```eval_rst
-.. autoclass:: opsdroid.connector.twitch.ConnectorTwitch
- :members:
+```{autoclass} opsdroid.connector.twitch.ConnectorTwitch
+:members:
 ```

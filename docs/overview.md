@@ -89,7 +89,6 @@ In the above example connector, we have an infinite loop which is repeatedly che
 
 But with asyncio every time we hit an `await` statement the event loop adds the function call to a queue, and it may not be at the top of the queue. So it might then switch its attention to a different function call that has been waiting. This enables multiple code paths to execute concurrently and take it in turns to have the Python interpreter's attention.
 
-```eval_rst
-.. warning::
-   Everything you write for opsdroid should respect asyncio, use async/await and not block the thread.
+```{warning}
+Everything you write for opsdroid should respect asyncio, use async/await and not block the thread.
 ```
