@@ -24,7 +24,7 @@ def test_init():
     assert database.conn_args == {"isolation_level": None}
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect():
     """Test database connection.
 
@@ -48,7 +48,7 @@ async def test_connect():
         assert client == "Connection"
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_disconnect():
     """Test of database disconnection.
 
@@ -68,7 +68,7 @@ async def test_disconnect():
         pass
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_get_put_and_delete():
     """Test get, put and delete functions of database
 
@@ -98,7 +98,7 @@ async def test_get_put_and_delete():
         assert client == "Connection"
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_deprecated_path(caplog):
     database = DatabaseSqlite({"file": "sqlite.db"})
     assert database.db_file == "sqlite.db"

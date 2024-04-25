@@ -12,6 +12,11 @@ from opsdroid.cli.start import configure_lang  # noqa
 
 
 @pytest.fixture
+def anyio_backend():
+    return "asyncio"
+
+
+@pytest.fixture
 def patched_send(mocker):
     return mocker.patch("nio.AsyncClient._send")
 
@@ -22,7 +27,7 @@ def patched_uuid(mocker):
 
 
 @pytest.fixture
-def opsdroid_matrix(mocker):
+async def opsdroid_matrix(mocker):
     connector = ConnectorMatrix(
         {
             "rooms": {"main": "#test:localhost"},
@@ -80,7 +85,7 @@ def matrix_call(method, path, content=None):
         )
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_default_config(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse({}, "", "", "")
     patched_send.return_value.transport_response = AsyncMock()
@@ -105,7 +110,7 @@ async def test_default_config(patched_send, opsdroid_matrix):
     )
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 @pytest.mark.xfail(
     not nio.crypto.ENCRYPTION_ENABLED, reason="No encryption deps installed for matrix"
 )
@@ -146,7 +151,7 @@ async def test_default_config_enc(patched_send, opsdroid_matrix, patched_uuid):
     )
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_put_custom_state_key(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse({}, "", "", "")
     patched_send.return_value.transport_response = AsyncMock()
@@ -174,7 +179,7 @@ async def test_put_custom_state_key(patched_send, opsdroid_matrix):
     )
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 @pytest.mark.xfail(
     not nio.crypto.ENCRYPTION_ENABLED, reason="No encryption deps installed for matrix"
 )
@@ -215,7 +220,7 @@ async def test_put_custom_state_key_enc(patched_send, opsdroid_matrix, patched_u
     )
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_single_state_key_false(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse({}, "", "", "")
     patched_send.return_value.transport_response = AsyncMock()
@@ -242,7 +247,7 @@ async def test_single_state_key_false(patched_send, opsdroid_matrix):
     )
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 @pytest.mark.xfail(
     not nio.crypto.ENCRYPTION_ENABLED, reason="No encryption deps installed for matrix"
 )
@@ -283,7 +288,7 @@ async def test_single_state_key_false_enc(patched_send, opsdroid_matrix, patched
     )
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_single_state_key_false_dict(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse({}, "", "", "")
     patched_send.return_value.transport_response = AsyncMock()
@@ -310,7 +315,7 @@ async def test_single_state_key_false_dict(patched_send, opsdroid_matrix):
     )
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 @pytest.mark.xfail(
     not nio.crypto.ENCRYPTION_ENABLED, reason="No encryption deps installed for matrix"
 )
@@ -353,7 +358,7 @@ async def test_single_state_key_false_dict_enc(
     )
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_single_state_not_a_dict(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse({}, "", "", "")
     patched_send.return_value.transport_response = AsyncMock()
@@ -381,7 +386,7 @@ async def test_single_state_not_a_dict(patched_send, opsdroid_matrix):
     )
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_default_update_same_key(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"twim": {"hello": "world"}}, "", "", ""
@@ -409,7 +414,7 @@ async def test_default_update_same_key(patched_send, opsdroid_matrix):
     )
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 @pytest.mark.xfail(
     not nio.crypto.ENCRYPTION_ENABLED, reason="No encryption deps installed for matrix"
 )
@@ -464,7 +469,7 @@ async def test_default_update_same_key_enc(patched_send, opsdroid_matrix, patche
     )
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_update_same_key_single_state_key(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"twim": {"hello": "world"}}, "", "", ""
@@ -492,7 +497,7 @@ async def test_update_same_key_single_state_key(patched_send, opsdroid_matrix):
     )
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 @pytest.mark.xfail(
     not nio.crypto.ENCRYPTION_ENABLED, reason="No encryption deps installed for matrix"
 )
@@ -549,7 +554,7 @@ async def test_update_same_key_single_state_key_enc(
     )
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_default_update_same_key_value(patched_send, opsdroid_matrix, caplog):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"twim": {"hello": "world"}}, "", "", ""
@@ -577,7 +582,7 @@ async def test_default_update_same_key_value(patched_send, opsdroid_matrix, capl
 
 
 # This will pass even without enc since we dont get to the part in put where that's relevant
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_default_update_same_key_value_enc(
     patched_send, opsdroid_matrix, patched_uuid, caplog
 ):
@@ -623,7 +628,7 @@ async def test_default_update_same_key_value_enc(
     ]
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_default_update_same_key_value_single_state_key(
     patched_send, opsdroid_matrix, caplog
 ):
@@ -653,7 +658,7 @@ async def test_default_update_same_key_value_single_state_key(
 
 
 # This will pass even without enc since we dont get to the part in put where that's relevant
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_default_update_same_key_value_single_state_key_enc(
     patched_send, opsdroid_matrix, patched_uuid, caplog
 ):
@@ -699,7 +704,7 @@ async def test_default_update_same_key_value_single_state_key_enc(
     ]
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_default_update_single_state_key(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"twim": "hello"}, "", "", ""
@@ -727,7 +732,7 @@ async def test_default_update_single_state_key(patched_send, opsdroid_matrix):
     )
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 @pytest.mark.xfail(
     not nio.crypto.ENCRYPTION_ENABLED, reason="No encryption deps installed for matrix"
 )
@@ -768,7 +773,7 @@ async def test_default_update_single_state_key_enc(
     )
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_get_single_state_key(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"twim": "hello", "wibble": "wobble"}, "", "", ""
@@ -789,7 +794,7 @@ async def test_get_single_state_key(patched_send, opsdroid_matrix):
     assert data == "hello"
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_get_single_state_key_enc(patched_send, opsdroid_matrix):
     def side_effect(resp, *args, **kwargs):
         if resp is nio.RoomGetStateEventResponse:
@@ -833,7 +838,7 @@ async def test_get_single_state_key_enc(patched_send, opsdroid_matrix):
     assert data == "hello"
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_get(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"twim": "world"}, "", "", ""
@@ -856,7 +861,7 @@ async def test_get(patched_send, opsdroid_matrix):
     assert data == "world"
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_get_enc(patched_send, opsdroid_matrix):
     def side_effect(resp, *args, **kwargs):
         if resp is nio.RoomGetStateEventResponse:
@@ -897,7 +902,7 @@ async def test_get_enc(patched_send, opsdroid_matrix):
     assert data == "world"
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_get_no_key_single_state_key(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"wibble": "wobble"}, "", "", ""
@@ -913,7 +918,7 @@ async def test_get_no_key_single_state_key(patched_send, opsdroid_matrix):
     assert data is None
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_get_no_key_404(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventError({"errcode": "M_NOTFOUND"})
     patched_send.return_value.transport_response = AsyncMock()
@@ -928,7 +933,7 @@ async def test_get_no_key_404(patched_send, opsdroid_matrix):
     assert data is None
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_get_no_key_500(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventError({"code": 500})
 
@@ -941,7 +946,7 @@ async def test_get_no_key_500(patched_send, opsdroid_matrix):
         await db.get("twim")
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_delete(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"twim": "hello"}, "", "", ""
@@ -968,7 +973,7 @@ async def test_delete(patched_send, opsdroid_matrix):
     assert data == "hello"
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_delete_single_state_key_false(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"twim": "hello"}, "", "", ""
@@ -995,7 +1000,7 @@ async def test_delete_single_state_key_false(patched_send, opsdroid_matrix):
     assert data == "hello"
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_get_empty(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse({}, "", "", "")
 
@@ -1005,7 +1010,7 @@ async def test_get_empty(patched_send, opsdroid_matrix):
     assert await db.get("test") is None
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_delete_multiple_keys(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"hello": "world", "twim": "hello", "pill": "red"}, "", "", ""
@@ -1032,7 +1037,7 @@ async def test_delete_multiple_keys(patched_send, opsdroid_matrix):
     assert data == ["world", "hello"]
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_delete_no_key(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"twim": "hello"}, "", "", ""
@@ -1045,7 +1050,7 @@ async def test_delete_no_key(patched_send, opsdroid_matrix):
     assert data is None
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_delete_no_key_single_state_key_false(
     patched_send, opsdroid_matrix, caplog
 ):
@@ -1065,14 +1070,14 @@ async def test_delete_no_key_single_state_key_false(
     ] == [rec.message for rec in caplog.records]
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect(patched_send, opsdroid_matrix):
     db = DatabaseMatrix({"should_encrypt": False}, opsdroid=opsdroid_matrix)
 
     await db.connect()
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_room_switch(patched_send, opsdroid_matrix):
     patched_send.return_value = nio.RoomGetStateEventResponse(
         {"hello": "world"}, "", "", ""
@@ -1095,7 +1100,7 @@ async def test_room_switch(patched_send, opsdroid_matrix):
     assert data == "world"
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_decorator(opsdroid_matrix):
 
     db = DatabaseMatrix({"should_encrypt": False}, opsdroid=opsdroid_matrix)
@@ -1113,7 +1118,7 @@ async def test_decorator(opsdroid_matrix):
     assert ret_room == "!notanotherroom"
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_decorator_no_db(opsdroid_matrix):
     @memory_in_event_room
     async def skill_func(opsdroid, config, message):
@@ -1127,7 +1132,7 @@ async def test_decorator_no_db(opsdroid_matrix):
     assert ret_db is None
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_migrate(patched_send, opsdroid_matrix, mocker, caplog, patched_uuid):
     def side_effect(resp, *args, **kwargs):
         if resp is nio.RoomGetStateResponse:
@@ -1178,7 +1183,7 @@ async def test_migrate(patched_send, opsdroid_matrix, mocker, caplog, patched_uu
 
 
 # @pytest.mark.skip("intermittent failures")
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_migrate_single_state_key_false(
     patched_send, opsdroid_matrix, mocker, caplog, patched_uuid
 ):
@@ -1232,7 +1237,7 @@ async def test_migrate_single_state_key_false(
     )
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_errors(patched_send, opsdroid_matrix, mocker, caplog, patched_uuid):
     def side_effect(resp, *args, **kwargs):
         if resp is nio.RoomGetStateEventResponse:

@@ -8,6 +8,7 @@ All contributors to the project, including maintainers, contribute using the fol
  * Tests and test coverage will be checked automatically
  * A project maintainer will review and merge the pull request
 
+(developing)=
 # Developing
 
 ```shell

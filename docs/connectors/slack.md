@@ -3,7 +3,7 @@
 A connector for [Slack](https://slack.com/).
 
 - [Requirements](#requirements)
-- [Configuration](#configuration)
+- [Configuration](#slack-configuration)
     - [Choose the backend API](#choose-the-backend-api)
     - [Subscribe to events](#subscribe-to-events)
 - [Usage](#usage)
@@ -14,6 +14,7 @@ A connector for [Slack](https://slack.com/).
     - [Slash Commands](#slash-commands)
     - [Modals](#modals)
     - [Interactive Actions](#interactive-actions)
+    - [Matching Events in Interactive Actions](#matching-events-in-interactive-actions)
 
 
 ## ⚠️ **Breaking Changes introduced in opsdroid 0.22.0**
@@ -22,17 +23,17 @@ We have dropped support for the RTM API. Now the Slack Connector supports the [e
 
 ### Migrating away from RTM
 * Follow Requirements and Configuration steps and choose the *Socket Mode* Backend.
-
+(requirements)=
 ## Requirements
 
 * A Slack account
 * Create a [new Slack App](https://api.slack.com/apps) give it a name and select the workspace you would like it in.
 * Select "Bots" option inside the "Add features and functionality" tab
 * Click "Review Scopes to Add". "Under Scopes" --> "Bot Token Scopes select" `users:read` **and** `chat:write` or `chat:write.customize` (Note that you are required to select at least one scope to install the app)
-* Navigate to "OAuth Tokens & Redirect URLs" and click the "Install to Workspace" button. 
+* Navigate to "OAuth Tokens & Redirect URLs" and click the "Install to Workspace" button.
 * Take note of the "Bot User OAuth Access Token" as this will be the `bot-token` you need for your configuration (the bot-token will start with `xoxb-`).
 
-
+(slack-configuration)=
 ## Configuration
 
 ```yaml
@@ -40,18 +41,18 @@ connectors:
   slack:
     # required
     bot-token: "xoxb-abdcefghi-12345"
-    
+
     # Optional
 
-    # when socket-mode is true, you need to set also an `app-token` 
+    # when socket-mode is true, you need to set also an `app-token`
     # more info: https://api.slack.com/authentication/token-types#app
-    socket-mode: true # defaul true. 
+    socket-mode: true # defaul true.
     # socket-mode needs to be set to true to use app-token
-    app-token: "xapp-abdcfkje-12345" 
+    app-token: "xapp-abdcfkje-12345"
 
-    # In order for bot-name and/or icon-emoji to work, the `chat:write.customize` 
+    # In order for bot-name and/or icon-emoji to work, the `chat:write.customize`
     # scope will have to be selected
-    bot-name: "mybot" # default "opsdroid" 
+    bot-name: "mybot" # default "opsdroid"
     icon-emoji: ":smile:" # default ":robot_face:"
 
     default-room: "#random" # default "#general"
@@ -67,17 +68,16 @@ connectors:
     # (https://api.slack.com/methods/conversations.list#arg_limit)
     channel-limit: 100 # default 100. ***
 ```
-
+(choose-the-backend-api)=
 ### Choose the Backend API
 
 You need to choose between two backends. The [Events API](https://api.slack.com/apis/connections/events-api) or [Socket Mode](https://api.slack.com/apis/connections/socket).
 
 If you are unsure which one is the best for you, [Slack Faq](https://api.slack.com/faq#events_api) provide differences between those two.
 
-```eval_rst
-.. note::
-  You should follow the instructions for the Event API first when configuring your slack connector, even if you are planning
-  on using slack in Socket Mode.
+```{note}
+You should follow the instructions for the Event API first when configuring your slack connector, even if you are planning
+on using slack in Socket Mode.
 ```
 
 
@@ -100,13 +100,13 @@ If you are unsure which one is the best for you, [Slack Faq](https://api.slack.c
 * Copy your new token add add it to your Opsdroid configuration file as your `app-token`. (the `app-token` will start with `xapp-abcdef-1233`)
 
 
-
+(subscribe-to-events)=
 ### Subscribe to events
-You will need to subscribe to events in your new Slack App, so Opsdroid can receive those events. 
+You will need to subscribe to events in your new Slack App, so Opsdroid can receive those events.
 You need to subscribe to events regardless of the backend: **Socket Mode** or **Events API**
 * Under "Subscribe to bot events" choose the events you want to subscribe for. You need at least one, `message.channels` will allow you to receive events everytime a message is posted into a channel. The following events are also supported by opsdroid: `message.im`, `channel_archive`, `channel_unarchive`, `channel_created`, `channel_rename`, `pin_added`, `pin_removed` and `team_join`.
 * Don't forget to save your changes in the slack app.
- 
+(usage)=
 ## Usage
 The connector itself won't allow opsdroid to do much. It will connect to Slack and be active on the `default-room`
 but you will still need some skill to have opsdroid react to an input.
@@ -118,7 +118,7 @@ _Note: If opsdroid failed to join the room you can always invite him by clicking
 You can also interact with opsdroid through direct message (make sure to be subscribed to the `message.im` event). To do so, just click on opsdroid's name and type interact like with any other user
 
 Below is an example of a simple skill you can use to create your opsdroid. Checkout [Skill](../skills/index.md) for more info
-
+(basic-skill-example)=
 ### Basic Skill Example
 ```python
 from opsdroid.skill import Skill
@@ -132,21 +132,19 @@ class GreeterSkill(Skill):
         """Respond Hi"""
         await message.respond("Hi")
 ```
-
+(get-messages-from-history)=
 ### Get Messages from History
 Sometimes you need to search through the history of a channel. For this you can use the `search_history_messages` method from the slack connector which returns all the messages on a specified range of time.
 
-```eval_rst
-.. autofunction:: opsdroid.connector.slack.ConnectorSlack.search_history_messages
+```{autofunction} opsdroid.connector.slack.ConnectorSlack.search_history_messages
 ```
-
+(find-channel-by-name)=
 ### Find channel by name
 Sometimes you need to find the channel details (ie: id, purpose). For this you can use the `find_channel` method from the slack connector which returns the details of the channel
 
-```eval_rst
-.. autofunction:: opsdroid.connector.slack.ConnectorSlack.find_channel
+```{autofunction} opsdroid.connector.slack.ConnectorSlack.find_channel
 ```
-
+(rich-layouts-and-blocks)=
 ## Rich layouts and blocks
 
 Slack has support for [rich layouts](https://api.slack.com/messaging/composing/layouts) using a concept they call [blocks](https://api.slack.com/reference/messaging/blocks). Blocks are JSON objects which describe a rich element, and a list of them can be passed instead of a message to produce rich content.
@@ -215,7 +213,7 @@ class UpdateBlocksSkill(Skill):
 	blocks = ["the blocks datastructure"]
         await self.opsdroid.send(EditedBlocks(blocks, linked_event=1605646357.261200, target="channel_id"))
 ```
-
+(slash-commands)=
 ## Slash Commands
 [Slash Commands](https://api.slack.com/interactivity/slash-commands) allow users to invoke opsdroid by typing a string into the message composer box.
 
@@ -227,18 +225,16 @@ class UpdateBlocksSkill(Skill):
     - *Example:* `https://slackbot.example.com/connector/slack`
 
 ### Slash Command
-```eval_rst
-.. autofunction:: opsdroid.connector.slack.events.SlashCommand
+```{autofunction} opsdroid.connector.slack.events.SlashCommand
 ```
-
+(modals)=
 ## Modals
-[Modals](https://api.slack.com/surfaces/modals/using) provide focused spaces ideal for requesting and collecting data from users, or temporarily displaying dynamic and interactive information. 
+[Modals](https://api.slack.com/surfaces/modals/using) provide focused spaces ideal for requesting and collecting data from users, or temporarily displaying dynamic and interactive information.
 
 ### Modal Usage Example
-```eval_rst
-.. autofunction:: opsdroid.connector.slack.events.ModalOpen
+```{autofunction} opsdroid.connector.slack.events.ModalOpen
 ```
-
+(interactive-actions)=
 ## Interactive Actions
 
 Slack apps can use [interactive features](https://api.slack.com/interactivity) to achieve much more than just one-way communication. Apps can implement a number of interaction entry points that allow users to intentionally invoke a response from the app.
@@ -255,6 +251,7 @@ For example, when you click a button in a rich Slack message or use a message ac
 - Save the HTTPS URL of your bot's slack interactivity endpoint (`/connector/slack`).
     - *Example:* `https://slackbot.example.com/connector/slack`
 
+(block_actions)=
 ### [block_actions](https://api.slack.com/reference/interaction-payloads/block-actions)
 
 ```python
@@ -310,10 +307,10 @@ class InteractionsSkill(Skill):
     async def slack_interactions(self, event):
         await self.opsdroid.send(Message("View Closed interactivity has been triggered."))
 ```
-
+(matching-events-in-interactive-actions)=
 ## Matching events in Interactive Actions
 
-In the [block_actions](./slack.md#user-content-block_actions) example above, you can also match on `action_id` and/or `block_id` in addition to `value` for `match_event` like any of these:
+In the [block_actions](#block_actions) example above, you can also match on `action_id` and/or `block_id` in addition to `value` for `match_event` like any of these:
 
 ```python
     @match_event(BlockActions, action_id="text1234")

@@ -39,13 +39,14 @@ def test_init():
     assert connector.name == "gitter"
 
 
+@pytest.mark.anyio
 async def test_build_url(connector):
     assert "test/api/test-id/chatMessages?access_token=token" == connector.build_url(
         "test/api", "test-id", "chatMessages", access_token="token"
     )
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_parse_message(connector):
     message = await connector.parse_message(
         b'{"text":"hello", "fromUser":{"username":"testUSer", "id": "123"}}'
@@ -53,7 +54,7 @@ async def test_parse_message(connector):
     assert isinstance(message, Message)
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_parse_message_key_error(connector, caplog):
     await connector.parse_message(b'{"text":"hello"}')
     assert "Unable to parse message" in caplog.text
@@ -74,7 +75,7 @@ async def test_parse_message_key_error(connector, caplog):
     get_response_path("gitter_send_message.json"),
     status=200,
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_end_to_end(connector, opsdroid, mock_api, caplog):
     """Connect, recieve a message, trigger a skill and respond.
 
@@ -119,7 +120,7 @@ async def test_end_to_end(connector, opsdroid, mock_api, caplog):
     get_response_path("gitter_send_message.json"),
     status=400,
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_send_message_failure(connector, mock_api, caplog):
     caplog.set_level(logging.INFO)
     await connector.connect()
@@ -138,7 +139,7 @@ async def test_send_message_failure(connector, mock_api, caplog):
     get_response_path("gitter_bot_message.json"),
     status=200,
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_ignore_bot_message(connector, opsdroid, mock_api, caplog):
     """Ignore messages from self.
 

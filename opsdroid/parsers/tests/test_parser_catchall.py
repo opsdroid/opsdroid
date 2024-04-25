@@ -10,7 +10,7 @@ from opsdroid.events import Message, OpsdroidStarted
 from opsdroid.matchers import match_always, match_catchall
 from opsdroid.parsers.catchall import parse_catchall
 
-pytestmark = pytest.mark.asyncio
+pytestmark = pytest.mark.anyio
 
 configure_lang({})
 
