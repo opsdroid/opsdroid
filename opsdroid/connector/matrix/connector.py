@@ -195,7 +195,7 @@ class ConnectorMatrix(Connector):
             config=config,
             store_path=self.store_path if self._allow_encryption else "",
             device_id=self.device_id,
-            proxy=os.environ.get('HTTPS_PROXY'),
+            proxy=os.environ.get("HTTPS_PROXY"),
         )
 
         if self.access_token is not None:
