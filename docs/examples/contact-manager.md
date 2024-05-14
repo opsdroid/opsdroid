@@ -92,20 +92,21 @@ Now we will be making a function which will be responsible for inserting the con
 class Contact(Skill):
  @match_regex(r"Add contact: (\d+), (.+), (.+), (\S+@\S+)") #phoneNumber, name, surname, email
  async def addContact(self, message):
-    phoneNumber = message.regex.group(1)  # Extract the phoneNumber
-    name = message.regex.group(2) 
-    surname = message.regex.group(3) 
-    email =  message.regex.group(4) 
-    c.execute("SELECT * FROM contacts WHERE phoneNumber = ?", (phoneNumber,))
-    existing_contact = c.fetchone()
-    if existing_contact:
-     await message.respond(f"Contact already exists!")
-    else:
-      c.execute("INSERT INTO contacts (phoneNumber, name, surname, email) VALUES (?, ?, ?, ?)", (phoneNumber, name, surname, email))
-      conn.commit()
-    await message.respond(f"Contact with Phone Number {phoneNumber} added to the Contact Book!")
+  phoneNumber = message.regex.group(1)  # Extract the phoneNumber
+  name = message.regex.group(2) 
+  surname = message.regex.group(3) 
+  email =  message.regex.group(4) 
+  c.execute("SELECT * FROM contacts WHERE phoneNumber = ?", (phoneNumber,))
+  existing_contact = c.fetchone()
+  if existing_contact:
+    await message.respond(f"Contact already exists!")
+  else:
+    c.execute("INSERT INTO contacts (phoneNumber, name, surname, email) VALUES (?, ?, ?, ?)", (phoneNumber, name, surname, email))
+    conn.commit()
+  await message.respond(f"Contact with Phone Number {phoneNumber} added to the Contact Book!")
 ```
-We prevent duplicating one contact into the database by executing this:
+**We prevent duplicating one contact into the database by executing this:**
+
 ```python
 c.execute("SELECT * FROM contacts WHERE phoneNumber = ?", (phoneNumber,)) 
 existing_contact = c.fetchone()
@@ -115,16 +116,16 @@ existing_contact = c.fetchone()
 This part involves listing the contacts that have been added to the database. We will be doing this by getting the data from the database the same as how we did for the adding to the database which is `c.execute("SELECT * FROM contacts")`. With the data we can use a for loop to go through all the things in the database. It should look something like this:
 
 ```python
-@match_regex(r"Show contacts")     
+ @match_regex(r"Show contacts")     
  async def showContacts(self, message):
   c.execute("SELECT * FROM contacts")
   rows = c.fetchall()
   if len(rows) == 0:
     await message.respond('No Contacts added, Please Use Command "Add contact: PhoneNumber, Name, Surname, Email"')
   else: 
-     for row in rows:
-        phoneNumber, name, surname, email = row
-        await message.respond(f'Phone Number: {phoneNumber}, Name: {name}, Surname: {surname} and Email: {email}')
+    for row in rows:
+      phoneNumber, name, surname, email = row
+      await message.respond(f'Phone Number: {phoneNumber}, Name: {name}, Surname: {surname} and Email: {email}')
 ```
 
 However we have a problem, if the user asks to `Show Contacts` without anything in the database it will return an error. We can fix this by checking if the len of rows in the database is equal to 0: `if len(rows) == 0:`.
@@ -155,8 +156,7 @@ Deleting the data involves removing a contact's phone number along with their na
   await message.respond(f'Contact {phoneNumber} deleted successfully!')
 ```
 
-
-Now you can have a contact book, all in one, in Opsdroid. Congratulations! Good luck with your opsdroid journey! Here is what the final code should look like:
+**Now you can have a contact book, all in one, in Opsdroid. Congratulations! Good luck with your opsdroid journey! Here is what the final code should look like:**
 
 ```python
 import sqlite3
