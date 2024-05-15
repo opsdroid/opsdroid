@@ -220,8 +220,8 @@ class OpsDroid:
 
     def sync_load(self):
         """Run the load modules method synchronously."""
-        # self.eventloop.run_until_complete(self.load())
-        anyio.run(self.load)
+        self.eventloop.run_until_complete(self.load())
+        # anyio.run(self.load)
 
     async def load(self, config=None):
         """Load modules."""
