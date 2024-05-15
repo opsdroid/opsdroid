@@ -109,8 +109,8 @@ class Contact(Skill):
 **We prevent duplicating one contact into the database by executing this:**
 
 ```python
-c.execute("SELECT * FROM contacts WHERE phoneNumber = ?", (phoneNumber,)) 
-existing_contact = c.fetchone()
+    c.execute("SELECT * FROM contacts WHERE phoneNumber = ?", (phoneNumber,)) 
+    existing_contact = c.fetchone()
 ```
 ### Getting The Data
 
