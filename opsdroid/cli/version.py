@@ -1,6 +1,6 @@
 """The version subcommand for opsdroid cli."""
 
-import click
+import asyncclick as click
 
 from opsdroid import __version__
 

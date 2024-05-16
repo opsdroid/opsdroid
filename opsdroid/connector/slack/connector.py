@@ -203,7 +203,8 @@ class ConnectorSlack(Connector):
         # By default, slack api asks us to wait 30 seconds if we hit the rate limit.
         # We will retry 5 (2.5 mins) times before giving up.
         max_retries = 5
-        while self.opsdroid.eventloop.is_running():
+        _LOGGER.info("IS OPDROID RUNNING? %s", self.opsdroid.is_running())
+        while self.opsdroid.is_running():
             _LOGGER.info(_("Updating Channels from Slack API at %s."), time.asctime())
 
             cursor = None
