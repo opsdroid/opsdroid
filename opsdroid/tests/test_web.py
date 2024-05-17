@@ -5,7 +5,7 @@ import ssl
 from dataclasses import dataclass
 
 import aiohttp.web
-import asynctest.mock as amock
+import unittest.mock as amock
 import pytest
 from opsdroid import web
 from opsdroid.cli.start import configure_lang
@@ -153,8 +153,8 @@ async def test_web_start(opsdroid):
 async def test_web_stop(opsdroid):
     """Check the stats handler."""
     app = web.Web(opsdroid)
-    app.runner = amock.CoroutineMock()
-    app.runner.cleanup = amock.CoroutineMock()
+    app.runner = amock.AsyncMock()
+    app.runner.cleanup = amock.AsyncMock()
     await app.stop()
     assert app.runner.cleanup.called
 
@@ -318,7 +318,7 @@ async def test_config_handler(opsdroid, command_center_config):
 
     app = web.Web(opsdroid)
 
-    app.check_request = amock.CoroutineMock()
+    app.check_request = amock.AsyncMock()
 
     response = await app.config_handler(None)
 

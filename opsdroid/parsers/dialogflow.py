@@ -110,7 +110,6 @@ async def parse_dialogflow(opsdroid, skills, message, config):
                             matcher.get("dialogflow_intent")
                             == result.query_result.intent.display_name
                         ):
-
                             message.dialogflow = result.query_result
 
                             _LOGGER.debug(

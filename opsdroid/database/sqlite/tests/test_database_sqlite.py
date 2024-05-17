@@ -1,6 +1,6 @@
 """Tests for DatabaseSqlite"""
 import pytest
-import asynctest.mock as amock
+import unittest.mock as amock
 
 import asyncio
 
@@ -33,7 +33,7 @@ async def test_connect():
 
     """
     database = DatabaseSqlite({"path": "sqlite.db"})
-    opsdroid = amock.CoroutineMock()
+    opsdroid = amock.AsyncMock()
     opsdroid.eventloop = asyncio.new_event_loop()
 
     try:
@@ -56,7 +56,7 @@ async def test_disconnect():
 
     """
     database = DatabaseSqlite({"path": "sqlite.db"})
-    opsdroid = amock.CoroutineMock()
+    opsdroid = amock.AsyncMock()
     opsdroid.eventloop = asyncio.new_event_loop()
 
     try:
@@ -79,7 +79,7 @@ async def test_get_put_and_delete():
 
     """
     database = DatabaseSqlite({"path": "sqlite.db"})
-    opsdroid = amock.CoroutineMock()
+    opsdroid = amock.AsyncMock()
     opsdroid.eventloop = asyncio.new_event_loop()
 
     try:

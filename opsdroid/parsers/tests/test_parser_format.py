@@ -1,5 +1,6 @@
 """Test the opsdroid parse_format parser."""
-import asynctest.mock as amock
+
+import unittest.mock as amock
 import pytest
 
 from opsdroid.cli.start import configure_lang
@@ -21,11 +22,10 @@ async def getMockSkill():
 
 
 async def test_parse_format_match_condition(opsdroid):
-
     mock_skill = await getMockSkill()
     opsdroid.skills.append(match_parse("Hello")(mock_skill))
 
-    mock_connector = amock.CoroutineMock()
+    mock_connector = amock.AsyncMock()
 
     message = Message("Hello world", "user", "default", mock_connector)
     skills = await parse_format(opsdroid, opsdroid.skills, message)
@@ -40,13 +40,12 @@ async def test_parse_format_match_condition(opsdroid):
 
 
 async def test_parse_format_search_condition(opsdroid):
-
     mock_skill = await getMockSkill()
     opsdroid.skills.append(
         match_parse("Hello", matching_condition="search")(mock_skill)
     )
 
-    mock_connector = amock.CoroutineMock()
+    mock_connector = amock.AsyncMock()
 
     message = Message("Hello", "user", "default", mock_connector)
     skills = await parse_format(opsdroid, opsdroid.skills, message)
@@ -58,13 +57,12 @@ async def test_parse_format_search_condition(opsdroid):
 
 
 async def test_parse_format_parameters(opsdroid):
-
     mock_skill = await getMockSkill()
     opsdroid.skills.append(
         match_parse("say {text} {num:d} times", case_sensitive=False)(mock_skill)
     )
 
-    mock_connector = amock.CoroutineMock()
+    mock_connector = amock.AsyncMock()
     message = Message("Say hello 42 times", "user", "default", mock_connector)
 
     skills = await parse_format(opsdroid, opsdroid.skills, message)

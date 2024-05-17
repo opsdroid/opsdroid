@@ -57,7 +57,9 @@ def ensure_room_id_and_send(func):
                     f"Error resolving room id for {event.target}: {response.message} (status code {response.status_code})"
                 )
             else:
-                event.target = response.room_id
+                event.target = (
+                    response.room_id if hasattr(response, "room_id") else None
+                )
 
         try:
             return_val = await func(self, event)

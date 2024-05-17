@@ -2,7 +2,7 @@
 
 import logging
 
-import asynctest.mock as amock
+import unittest.mock as amock
 import pytest
 from opsdroid import events
 
@@ -85,7 +85,7 @@ async def test_connect_socket_mode(opsdroid, mock_api_obj, mock_api):
     await opsdroid.load()
     connector = opsdroid.get_connector("slack")
     connector.slack_web_client.base_url = mock_api_obj.base_url
-    connector.socket_mode_client.connect = amock.CoroutineMock()
+    connector.socket_mode_client.connect = amock.AsyncMock()
     await connector.connect()
     assert connector.socket_mode_client.connect.called
     await connector.disconnect()
@@ -121,8 +121,8 @@ async def test_disconnect(opsdroid, mock_api_obj, mock_api):
     await opsdroid.load()
     connector = opsdroid.get_connector("slack")
     await connector.disconnect()
-    connector.socket_mode_client.disconnect = amock.CoroutineMock()
-    connector.socket_mode_client.close = amock.CoroutineMock()
+    connector.socket_mode_client.disconnect = amock.AsyncMock()
+    connector.socket_mode_client.close = amock.AsyncMock()
     await connector.disconnect()
     assert connector.socket_mode_client.disconnect.called
     assert connector.socket_mode_client.close.called
@@ -138,7 +138,7 @@ async def test_socket_event_handler(opsdroid, mock_api_obj, mock_api):
     request = SocketModeRequest(
         type="mock", envelope_id="random-sring", payload={"type": "random_payload"}
     )
-    connector.socket_mode_client.send_socket_mode_response = amock.CoroutineMock()
+    connector.socket_mode_client.send_socket_mode_response = amock.AsyncMock()
     await connector.socket_event_handler(connector.socket_mode_client, request)
     assert connector.socket_mode_client.send_socket_mode_response.called
     await connector.disconnect()
@@ -211,7 +211,7 @@ async def test__get_channels_rate_limit(
         data={"ok": False, "error": "ratelimited"},
     )
 
-    mocked_conversations_list = amock.CoroutineMock()
+    mocked_conversations_list = amock.AsyncMock()
     mocked_conversations_list.side_effect = SlackApiError(
         message="Rate limit threshold reached.",
         response=mocked_response,
@@ -227,7 +227,7 @@ async def test__get_channels_rate_limit(
 async def test__get_channels_exception_raises(
     connector,
 ):
-    mocked_conversations_list = amock.CoroutineMock()
+    mocked_conversations_list = amock.AsyncMock()
     mocked_conversations_list.side_effect = SlackApiError(message="Error", response="?")
     connector.slack_web_client.conversations_list = mocked_conversations_list
 

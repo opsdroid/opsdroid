@@ -1,11 +1,12 @@
 """Tests for the ConnectorMatrix class."""
+
 import asyncio
 import anyio
 import logging
 from copy import deepcopy
 
 import aiohttp
-import asynctest.mock as amock
+import unittest.mock as amock
 import nio
 import opsdroid.connector.matrix.events as matrix_events
 import pytest
@@ -229,7 +230,7 @@ class TestConnectorMatrixAsync:
         with amock.patch(api_string.format("send")) as patched_filter:
             connect_response = amock.Mock()
             connect_response.status = 200
-            connect_response.json = amock.CoroutineMock()
+            connect_response.json = amock.AsyncMock()
             connect_response.json.return_value = {"filter_id": 10}
 
             connector.connection.token = "abc"

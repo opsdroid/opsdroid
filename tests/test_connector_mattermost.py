@@ -1,10 +1,11 @@
 """Tests for the ConnectorMattermost class."""
+
 import json
 
 import pytest
+import unittest
 import unittest.mock as mock
-import asynctest
-import asynctest.mock as amock
+import unittest.mock as amock
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector.mattermost import ConnectorMattermost
@@ -15,7 +16,7 @@ from opsdroid.events import Message
 pytestmark = pytest.mark.anyio
 
 
-class TestConnectorMattermostAsync(asynctest.TestCase):
+class TestConnectorMattermostAsync(unittest.TestCase):
     """Test the async methods of the opsdroid Mattermost connector class."""
 
     async def setUp(self):
@@ -36,7 +37,7 @@ class TestConnectorMattermostAsync(asynctest.TestCase):
             },
             opsdroid=OpsDroid(),
         )
-        opsdroid = amock.CoroutineMock()
+        opsdroid = amock.AsyncMock()
         opsdroid.eventloop = self.loop
         connector.mm_driver.login = mock.MagicMock()
         connector.mm_driver.login.return_value = {"id": "1", "username": "opsdroid_bot"}
@@ -56,7 +57,7 @@ class TestConnectorMattermostAsync(asynctest.TestCase):
             },
             opsdroid=OpsDroid(),
         )
-        opsdroid = amock.CoroutineMock()
+        opsdroid = amock.AsyncMock()
         opsdroid.eventloop = self.loop
         connector.mm_driver.login = mock.MagicMock()
         connector.mm_driver.login.return_value = {"id": "1", "username": "opsdroid_bot"}
@@ -77,7 +78,7 @@ class TestConnectorMattermostAsync(asynctest.TestCase):
             opsdroid=OpsDroid(),
         )
         connector.mm_driver.websocket = mock.Mock()
-        connector.mm_driver.websocket.connect = amock.CoroutineMock()
+        connector.mm_driver.websocket.connect = amock.AsyncMock()
         await connector.listen()
 
     async def test_process_message(self):
@@ -91,8 +92,8 @@ class TestConnectorMattermostAsync(asynctest.TestCase):
             },
             opsdroid=OpsDroid(),
         )
-        connector.opsdroid = amock.CoroutineMock()
-        connector.opsdroid.parse = amock.CoroutineMock()
+        connector.opsdroid = amock.AsyncMock()
+        connector.opsdroid.parse = amock.AsyncMock()
 
         post = json.dumps(
             {
@@ -151,7 +152,7 @@ class TestConnectorMattermostAsync(asynctest.TestCase):
             },
             opsdroid=OpsDroid(),
         )
-        opsdroid = amock.CoroutineMock()
+        opsdroid = amock.AsyncMock()
         opsdroid.eventloop = self.loop
         connector.mm_driver.login = mock.MagicMock()
         connector.mm_driver.login.return_value = {"id": "1", "username": "opsdroid_bot"}
@@ -159,9 +160,9 @@ class TestConnectorMattermostAsync(asynctest.TestCase):
         self.assertEqual("1", connector.bot_id)
         self.assertEqual("opsdroid_bot", connector.bot_name)
 
-        connector.opsdroid = amock.CoroutineMock()
+        connector.opsdroid = amock.AsyncMock()
         connector.opsdroid.eventloop = self.loop
-        connector.opsdroid.parse = amock.CoroutineMock()
+        connector.opsdroid.parse = amock.AsyncMock()
 
         post = json.dumps(
             {

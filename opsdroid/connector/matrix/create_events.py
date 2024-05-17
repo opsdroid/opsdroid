@@ -123,7 +123,6 @@ class MatrixEventCreator(events.EventCreator):
         return events.Message(**kwargs)
 
     async def _file_kwargs(self, event, roomid):
-
         if "url" in event["content"]:
             url = event["content"]["url"]
         else:

@@ -1,4 +1,4 @@
-import asynctest.mock as amock
+import unittest.mock as amock
 import pytest
 
 from opsdroid.matchers import match_watson
@@ -86,7 +86,7 @@ async def test_get_session_id():
 
 @pytest.mark.anyio
 async def test_call_watson(opsdroid, caplog, mocker):
-    opsdroid = amock.CoroutineMock()
+    opsdroid = amock.AsyncMock()
     mock_connector = Connector({}, opsdroid=opsdroid)
     message = Message("Hello", "user", "default", mock_connector)
     config = {
@@ -98,7 +98,7 @@ async def test_call_watson(opsdroid, caplog, mocker):
         "session-id": "12ndior2kld",
     }
     result = amock.Mock()
-    result.json = amock.CoroutineMock()
+    result.json = amock.AsyncMock()
     result.json.return_value = {
         "output": {
             "generic": [{"response_type": "text", "text": "Hey hows it going?"}],
@@ -120,7 +120,6 @@ async def test_call_watson(opsdroid, caplog, mocker):
         }
     }
     with amock.patch.object(watson, "get_session_id"):
-
         mocker.patch.object(ibm_cloud_sdk_core.authenticators, "IAMAuthenticator")
         mocked_service = mocker.patch.object(ibm_watson, "AssistantV2")
 
@@ -134,7 +133,7 @@ async def test_call_watson(opsdroid, caplog, mocker):
 
 @pytest.mark.anyio
 async def test_call_watson_import_error(opsdroid, caplog, mocker):
-    opsdroid = amock.CoroutineMock()
+    opsdroid = amock.AsyncMock()
     mock_connector = Connector({}, opsdroid=opsdroid)
     message = Message("Hello", "user", "default", mock_connector)
     config = {
@@ -174,7 +173,7 @@ async def test_parse_watson(opsdroid):
     mock_skill = await getMockSkill()
     opsdroid.skills.append(match_watson("hello")(mock_skill))
 
-    mock_connector = amock.CoroutineMock()
+    mock_connector = amock.AsyncMock()
     message = Message("hi", "user", "default", mock_connector)
 
     with amock.patch.object(watson, "call_watson") as mocked_call_watson:
@@ -219,7 +218,7 @@ async def test_parse_watson_no_intent(opsdroid, caplog):
     mock_skill = await getMockSkill()
     opsdroid.skills.append(match_watson("hello")(mock_skill))
 
-    mock_connector = amock.CoroutineMock()
+    mock_connector = amock.AsyncMock()
     message = Message("how's the weather outside", "user", "default", mock_connector)
 
     with amock.patch.object(watson, "call_watson") as mocked_call_watson:
@@ -251,7 +250,7 @@ async def test_parse_watson_no_confidence(opsdroid, caplog):
     mock_skill = await getMockSkill()
     opsdroid.skills.append(match_watson("hello")(mock_skill))
 
-    mock_connector = amock.CoroutineMock()
+    mock_connector = amock.AsyncMock()
     message = Message("hi", "user", "default", mock_connector)
 
     with amock.patch.object(watson, "call_watson") as mocked_call_watson:
@@ -283,7 +282,7 @@ async def test_parse_watson_low_score(opsdroid, caplog):
     mock_skill = await getMockSkill()
     opsdroid.skills.append(match_watson("hello")(mock_skill))
 
-    mock_connector = amock.CoroutineMock()
+    mock_connector = amock.AsyncMock()
     message = Message("hi", "user", "default", mock_connector)
 
     with amock.patch.object(watson, "call_watson") as mocked_call_watson:
@@ -329,7 +328,7 @@ async def test_parse_watson_KeyError(opsdroid, caplog):
     mock_skill = await getMockSkill()
     opsdroid.skills.append(match_watson("hello")(mock_skill))
 
-    mock_connector = amock.CoroutineMock()
+    mock_connector = amock.AsyncMock()
     message = Message("hi", "user", "default", mock_connector)
 
     with amock.patch.object(watson, "call_watson") as mocked_call_watson:
@@ -357,7 +356,7 @@ async def test_parse_watson_APIException(opsdroid, caplog):
     mock_skill = await getMockSkill()
     opsdroid.skills.append(match_watson("hello")(mock_skill))
 
-    mock_connector = amock.CoroutineMock()
+    mock_connector = amock.AsyncMock()
     message = Message("hi", "user", "default", mock_connector)
 
     with amock.patch.object(watson, "call_watson") as mocked_call_watson:

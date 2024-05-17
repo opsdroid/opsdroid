@@ -1,6 +1,6 @@
 import pytest
 
-import asynctest.mock as amock
+import unittest.mock as amock
 import anyio
 
 from opsdroid.connector import Connector, register_event

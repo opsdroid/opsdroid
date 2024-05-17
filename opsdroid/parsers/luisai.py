@@ -53,7 +53,6 @@ async def parse_luisai(opsdroid, skills, message, config):
             return matched_skills
 
         if result:
-
             # if there is an error (eg. 404 error)
             # luis.ai responds with a status code
             with contextlib.suppress(KeyError):

@@ -92,11 +92,18 @@ class ConnectorSlack(Connector):
 
     async def _queue_worker(self):
         while True:
-            payload = await self._event_queue.get()
             try:
+                payload = await self._event_queue.get()
+
                 await self.event_handler(payload)
+            except RuntimeError:
+                _LOGGER.info("RuntimeError: Event loop is closed")
             finally:
-                self._event_queue.task_done()
+                try:
+                    self._event_queue.task_done()
+                except ValueError as e:
+                    _LOGGER.error("ValueError in task_done(): %s", str(e))
+                    break  # Exit the loop when ValueError occurs
 
     async def connect(self):
         """Connect to the chat service."""
@@ -122,7 +129,6 @@ class ConnectorSlack(Connector):
                 error,
             )
         else:
-
             if self.socket_mode:
                 if not self.socket_mode_client:
                     _LOGGER.error(_(_USE_BOT_TOKEN_MSG))
@@ -203,45 +209,66 @@ class ConnectorSlack(Connector):
         # By default, slack api asks us to wait 30 seconds if we hit the rate limit.
         # We will retry 5 (2.5 mins) times before giving up.
         max_retries = 5
-        while self.opsdroid.eventloop.is_running():
-            _LOGGER.info(_("Updating Channels from Slack API at %s."), time.asctime())
-
-            cursor = None
-
-            while max_retries:
-                try:
-                    channels = await self.slack_web_client.conversations_list(
-                        cursor=cursor, limit=self.channel_limit
-                    )
-                    self.known_channels.update(
-                        {c["name"]: c for c in channels["channels"]}
-                    )
-                    cursor = channels.get("response_metadata", {}).get("next_cursor")
-                    if not cursor:
-                        break
-                    channel_count = len(self.known_channels.keys())
+        try:
+            while (
+                True
+            ):  # change this from checking event loop inside to an infinite loop
+                if not self.opsdroid.eventloop.is_running():
                     _LOGGER.info(
-                        "Grabbed a total of %s channels from Slack", channel_count
+                        "Event loop stopped, stopping _get_channels coroutine."
                     )
-                    await asyncio.sleep(
-                        self.refresh_interval - arrow.now().time().second
+                    break
+                else:
+                    _LOGGER.info(
+                        _("Updating Channels from Slack API at %s."), time.asctime()
                     )
-                except SlackApiError as error:
-                    if "ratelimited" in str(error):
-                        wait_time = float(error.response.headers.get("Retry-After", 30))
-                        _LOGGER.warning(
-                            _(
-                                f"Rate limit threshold reached. Retrying after {wait_time} seconds."
+
+                    cursor = None
+
+                    while max_retries:
+                        try:
+                            channels = await self.slack_web_client.conversations_list(
+                                cursor=cursor, limit=self.channel_limit
                             )
-                        )
-                        await asyncio.sleep(wait_time)
-                        max_retries -= 1
-                        continue
-                    else:
-                        raise
-            # If we reach here, let's break from the loop
-            # (works for both cases: cursor is None or max_retries is 0)
-            break
+                            self.known_channels.update(
+                                {c["name"]: c for c in channels["channels"]}
+                            )
+                            cursor = channels.get("response_metadata", {}).get(
+                                "next_cursor"
+                            )
+                            if not cursor:
+                                break
+                            channel_count = len(self.known_channels.keys())
+                            _LOGGER.info(
+                                "Grabbed a total of %s channels from Slack",
+                                channel_count,
+                            )
+                            await asyncio.sleep(
+                                self.refresh_interval - arrow.now().time().second
+                            )
+                        except SlackApiError as error:
+                            if "ratelimited" in str(error):
+                                wait_time = float(
+                                    error.response.headers.get("Retry-After", 30)
+                                )
+                                _LOGGER.warning(
+                                    _(
+                                        f"Rate limit threshold reached. Retrying after {wait_time} seconds."
+                                    )
+                                )
+                                await asyncio.sleep(wait_time)
+                                max_retries -= 1
+                                continue
+                            else:
+                                raise
+
+                # If we reach here, let's break from the loop
+                # (works for both cases: cursor is None or max_retries is 0)
+                break
+        except (asyncio.CancelledError, GeneratorExit):
+            _LOGGER.info("Coroutine _get_channels was stopped.")
+        except (RuntimeError):
+            _LOGGER.info("RuntimeError: coroutine ignored GeneratorExit")
 
     async def event_handler(self, payload):
         """Handle different payload types and parse the resulting events"""

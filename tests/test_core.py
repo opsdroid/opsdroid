@@ -2,8 +2,8 @@ import os
 import asyncio
 import unittest
 import unittest.mock as mock
-import asynctest
-import asynctest.mock as amock
+import unittest.mock as amock
+
 import importlib
 import time
 import pytest
@@ -113,7 +113,7 @@ class TestCore(unittest.TestCase):
             self.assertFalse(opsdroid.eventloop.run_until_complete.called)
             self.assertFalse(mock_sysexit.called)
 
-    @asynctest.patch("opsdroid.core.parse_crontab")
+    @amock.patch("opsdroid.core.parse_crontab")
     def test_load(self, mocked_parse_crontab):
         with OpsDroid() as opsdroid:
             mockconfig = {
@@ -126,9 +126,9 @@ class TestCore(unittest.TestCase):
             opsdroid.loader.load_modules_from_config = mock.Mock(
                 return_value=mockconfig
             )
-            opsdroid.setup_databases = amock.CoroutineMock()
+            opsdroid.setup_databases = amock.AsyncMock()
             opsdroid.setup_skills = mock.Mock()
-            opsdroid.setup_connectors = amock.CoroutineMock()
+            opsdroid.setup_connectors = amock.AsyncMock()
 
             opsdroid.eventloop.run_until_complete(opsdroid.load())
 
@@ -198,7 +198,7 @@ class TestCore(unittest.TestCase):
             assert "spam_1" in names
 
 
-class TestCoreAsync(asynctest.TestCase):
+class TestCoreAsync(unittest.TestCase):
     """Test the async methods of the opsdroid core class."""
 
     async def setUp(self):
@@ -222,8 +222,8 @@ class TestCoreAsync(asynctest.TestCase):
         with OpsDroid() as opsdroid:
             opsdroid._running = True
             self.assertTrue(opsdroid.is_running())
-            opsdroid.stop = amock.CoroutineMock()
-            opsdroid.unload = amock.CoroutineMock()
+            opsdroid.stop = amock.AsyncMock()
+            opsdroid.unload = amock.AsyncMock()
             await opsdroid.handle_stop_signal()
             self.assertFalse(opsdroid.is_running())
             self.assertTrue(opsdroid.stop.called)
@@ -232,18 +232,18 @@ class TestCoreAsync(asynctest.TestCase):
     async def test_unload_and_stop(self):
         with OpsDroid() as opsdroid:
             mock_connector = Connector({}, opsdroid=opsdroid)
-            mock_connector.disconnect = amock.CoroutineMock()
+            mock_connector.disconnect = amock.AsyncMock()
             opsdroid.connectors = [mock_connector]
 
             mock_database = Database({})
-            mock_database.disconnect = amock.CoroutineMock()
+            mock_database.disconnect = amock.AsyncMock()
             opsdroid.memory.databases = [mock_database]
 
             mock_skill = amock.Mock(config={"name": "mockskill"})
             opsdroid.skills = [mock_skill]
 
             opsdroid.web_server = Web(opsdroid)
-            opsdroid.web_server.stop = amock.CoroutineMock()
+            opsdroid.web_server.stop = amock.AsyncMock()
             mock_web_server = opsdroid.web_server
 
             async def task():
@@ -265,10 +265,10 @@ class TestCoreAsync(asynctest.TestCase):
 
     async def test_reload(self):
         with OpsDroid() as opsdroid:
-            opsdroid.start = amock.CoroutineMock()
-            opsdroid.stop = amock.CoroutineMock()
-            opsdroid.load = amock.CoroutineMock()
-            opsdroid.unload = amock.CoroutineMock()
+            opsdroid.start = amock.AsyncMock()
+            opsdroid.stop = amock.AsyncMock()
+            opsdroid.load = amock.AsyncMock()
+            opsdroid.unload = amock.AsyncMock()
             await opsdroid.reload()
             self.assertTrue(opsdroid.load.called)
             self.assertTrue(opsdroid.unload.called)
@@ -279,7 +279,7 @@ class TestCoreAsync(asynctest.TestCase):
         with OpsDroid() as opsdroid:
             regex = r"Hello .*"
             mock_connector = Connector({}, opsdroid=opsdroid)
-            mock_connector.send = amock.CoroutineMock()
+            mock_connector.send = amock.AsyncMock()
             skill = await self.getMockSkill()
             opsdroid.skills.append(match_regex(regex)(skill))
             message = Message(
@@ -295,7 +295,7 @@ class TestCoreAsync(asynctest.TestCase):
         with OpsDroid() as opsdroid:
             regex = r"Hello .*"
             mock_connector = Connector({}, opsdroid=opsdroid)
-            mock_connector.send = amock.CoroutineMock()
+            mock_connector.send = amock.AsyncMock()
             skill = await self.getMockMethodSkill()
             opsdroid.skills.append(match_regex(regex)(skill))
             message = Message(
@@ -311,7 +311,7 @@ class TestCoreAsync(asynctest.TestCase):
         with OpsDroid() as opsdroid:
             regex = r"Hello .*"
             mock_connector = Connector({}, opsdroid=opsdroid)
-            mock_connector.send = amock.CoroutineMock()
+            mock_connector.send = amock.AsyncMock()
             skill = await self.getMockSkill()
             opsdroid.skills.append(match_regex(regex, case_sensitive=False)(skill))
             message = Message(
@@ -339,7 +339,7 @@ class TestCoreAsync(asynctest.TestCase):
             }
 
             dialogflow_action = "smalltalk.greetings.whatsup"
-            skill = amock.CoroutineMock()
+            skill = amock.AsyncMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
             match_dialogflow_action(dialogflow_action)(skill)
             message = Message(
@@ -363,7 +363,7 @@ class TestCoreAsync(asynctest.TestCase):
                 "parsers": [{"config": {"name": "luisai", "enabled": True}}]
             }
             luisai_intent = ""
-            skill = amock.CoroutineMock()
+            skill = amock.AsyncMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
             match_luisai_intent(luisai_intent)(skill)
             message = Message(
@@ -384,7 +384,7 @@ class TestCoreAsync(asynctest.TestCase):
                 ]
             }
             rasanlu_intent = ""
-            skill = amock.CoroutineMock()
+            skill = amock.AsyncMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
             match_rasanlu(rasanlu_intent)(skill)
             message = Message(
@@ -400,7 +400,7 @@ class TestCoreAsync(asynctest.TestCase):
                 "parsers": [{"config": {"name": "sapcai", "enabled": True}}]
             }
             sapcai_intent = ""
-            skill = amock.CoroutineMock()
+            skill = amock.AsyncMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
             match_sapcai(sapcai_intent)(skill)
             message = Message(
@@ -416,7 +416,7 @@ class TestCoreAsync(asynctest.TestCase):
                 "parsers": [{"config": {"name": "watson", "enabled": True}}]
             }
             watson_intent = ""
-            skill = amock.CoroutineMock()
+            skill = amock.AsyncMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
             match_watson(watson_intent)(skill)
             message = Message("Hello world", "user", "default", mock_connector)
@@ -430,7 +430,7 @@ class TestCoreAsync(asynctest.TestCase):
                 "parsers": [{"config": {"name": "witai", "enabled": True}}]
             }
             witai_intent = ""
-            skill = amock.CoroutineMock()
+            skill = amock.AsyncMock()
             mock_connector = Connector({}, opsdroid=opsdroid)
             match_witai(witai_intent)(skill)
             message = Message(
@@ -632,7 +632,7 @@ class TestCoreAsync(asynctest.TestCase):
             return True
 
         with OpsDroid(config=example_config) as opsdroid:
-            opsdroid.reload = amock.CoroutineMock()
+            opsdroid.reload = amock.AsyncMock()
             await opsdroid.load()
 
             assert await run_unit_test(opsdroid, modify_dir, opsdroid, skill_path)

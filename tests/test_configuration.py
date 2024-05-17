@@ -64,7 +64,6 @@ class TestConfiguration(unittest.TestCase):
         self.assertIsNotNone(config)
 
     def test_load_config_broken(self):
-
         with self.assertRaises(SystemExit) as cm:
             _ = load_config_file([os.path.abspath("tests/configs/full_broken.yaml")])
         self.assertEqual(cm.exception.code, 1)

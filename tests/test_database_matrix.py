@@ -1102,7 +1102,6 @@ async def test_room_switch(patched_send, opsdroid_matrix):
 
 @pytest.mark.anyio
 async def test_decorator(opsdroid_matrix):
-
     db = DatabaseMatrix({"should_encrypt": False}, opsdroid=opsdroid_matrix)
     opsdroid_matrix.memory.databases.append(db)
 

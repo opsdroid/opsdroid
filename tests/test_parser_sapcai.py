@@ -1,6 +1,6 @@
 import asyncio
-import asynctest
-import asynctest.mock as amock
+import unittest
+import unittest.mock as amock
 
 from aiohttp import ClientOSError
 
@@ -12,7 +12,7 @@ from opsdroid.parsers import sapcai
 from opsdroid.connector import Connector
 
 
-class TestParserRecastAi(asynctest.TestCase):
+class TestParserRecastAi(unittest.TestCase):
     """Test the opsdroid sapcai parser."""
 
     async def setup(self):
@@ -33,14 +33,14 @@ class TestParserRecastAi(asynctest.TestCase):
         return mockedskill
 
     async def test_call_sapcai(self):
-        opsdroid = amock.CoroutineMock()
+        opsdroid = amock.AsyncMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
         message = Message(
             text="Hello", user="user", target="default", connector=mock_connector
         )
         config = {"name": "recastai", "token": "test"}
         result = amock.Mock()
-        result.json = amock.CoroutineMock()
+        result.json = amock.AsyncMock()
         result.json.return_value = {
             "results": {
                 "uuid": "f482bddd-a9d7-41ae-aae3-6e64ad3f02dc",
@@ -71,7 +71,7 @@ class TestParserRecastAi(asynctest.TestCase):
             mock_skill.config = {"name": "greetings"}
             opsdroid.skills.append(match_sapcai("greetings")(mock_skill))
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 text="Hello", user="user", target="default", connector=mock_connector
             )
@@ -106,7 +106,7 @@ class TestParserRecastAi(asynctest.TestCase):
             opsdroid.skills.append(match_sapcai("greetings")(mock_skill))
 
             mock_connector = amock.MagicMock()
-            mock_connector.send = amock.CoroutineMock()
+            mock_connector.send = amock.AsyncMock()
             message = Message(
                 text="Hello", user="user", target="default", connector=mock_connector
             )
@@ -144,7 +144,7 @@ class TestParserRecastAi(asynctest.TestCase):
             mock_skill.config = {"name": "greetings"}
             opsdroid.skills.append(match_sapcai("greetings")(mock_skill))
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 text="", user="user", target="default", connector=mock_connector
             )
@@ -166,7 +166,7 @@ class TestParserRecastAi(asynctest.TestCase):
             mock_skill.config = {"name": "greetings"}
             opsdroid.skills.append(match_sapcai("greetings")(mock_skill))
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 text="kdjiruetosakdg",
                 user="user",
@@ -207,7 +207,7 @@ class TestParserRecastAi(asynctest.TestCase):
             mock_skill.config = {"name": "greetings"}
             opsdroid.skills.append(match_sapcai("intent")(mock_skill))
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 text="Hello", user="user", target="default", connector=mock_connector
             )
@@ -240,7 +240,7 @@ class TestParserRecastAi(asynctest.TestCase):
             mock_skill.config = {"name": "greetings"}
             opsdroid.skills.append(match_sapcai("greetings")(mock_skill))
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 text="Hello", user="user", target="default", connector=mock_connector
             )
@@ -260,7 +260,7 @@ class TestParserRecastAi(asynctest.TestCase):
             mock_skill.config = {"name": "greetings"}
             opsdroid.skills.append(match_sapcai("weather")(mock_skill))
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = amock.AsyncMock()
             message = Message(
                 text="whats the weather in london",
                 user="user",
