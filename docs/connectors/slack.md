@@ -74,6 +74,8 @@ connectors:
 
 You need to choose between two backends. The [Events API](https://api.slack.com/apis/connections/events-api) or [Socket Mode](https://api.slack.com/apis/connections/socket).
 
+> **_NOTE:_** While it is not mandatory to configure the Event API before using Slack in Socket Mode, we recommend setting up the Event API for its full feature set.
+
 If you are unsure which one is the best for you, [Slack Faq](https://api.slack.com/faq#events_api) provide differences between those two.
 
 
