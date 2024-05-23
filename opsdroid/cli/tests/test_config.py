@@ -1,4 +1,4 @@
-from click.testing import CliRunner
+from asyncclick.testing import CliRunner
 
 from opsdroid.cli.config import path
 from opsdroid.const import DEFAULT_CONFIG_PATH

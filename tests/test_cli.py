@@ -6,8 +6,8 @@ import tempfile
 import gettext
 import contextlib
 
-import click
-from click.testing import CliRunner
+import asyncclick as click
+from asyncclick.testing import CliRunner
 
 import opsdroid.__main__
 import opsdroid.cli
