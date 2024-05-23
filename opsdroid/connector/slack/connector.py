@@ -1,6 +1,5 @@
 """A connector for Slack."""
-
-import asyncio
+import anyio
 import json
 import logging
 import os
@@ -75,7 +74,7 @@ class ConnectorSlack(Connector):
             proxy=os.environ.get("HTTPS_PROXY"),
         )
         self.socket_mode_client = (
-            SocketModeClient(self.app_token, web_client=self.slack_web_client)
+            SocketModeClient(self.app_token, web_client=self.slack_web_client, auto_reconnect_enabled=False, trace_enabled=True)
             if self.app_token
             else None
         )
@@ -87,21 +86,20 @@ class ConnectorSlack(Connector):
         self.known_channels = {}
 
         self._event_creator = SlackEventCreator(self)
-        self._event_queue = asyncio.Queue()
-        self._event_queue_task = None
+        # Replace asyncio.Queue with anyio.create_memory_object_stream
+        self._send_channel, self._receive_channel = anyio.create_memory_object_stream(max_buffer_size=1024)  # 0 for unbounded
+        # self._event_queue = asyncio.Queue()
+        self._event_cancel_scope = None
 
-    async def _queue_worker(self):
+    async def _queue_worker(self, cancel_scope):
+        self._event_cancel_scope = cancel_scope
         while True:
-            payload = await self._event_queue.get()
-            try:
-                await self.event_handler(payload)
-            finally:
-                self._event_queue.task_done()
+            payload = await self._receive_channel.receive()
+            await self.event_handler(payload)
 
-    async def connect(self):
+    async def connect(self, task_status=anyio.TASK_STATUS_IGNORED):
         """Connect to the chat service."""
         _LOGGER.info(_("Connecting to Slack."))
-
         try:
             self.auth_info = (await self.slack_web_client.api_call("auth.test")).data
             self.user_info = (
@@ -112,7 +110,7 @@ class ConnectorSlack(Connector):
                 )
             ).data
             self.bot_id = self.user_info["user"]["profile"]["bot_id"]
-            self.opsdroid.create_task(self._get_channels())
+            self.opsdroid.taskgroup.start_soon(self._get_channels)
         except SlackApiError as error:
             _LOGGER.error(
                 _(
@@ -121,23 +119,26 @@ class ConnectorSlack(Connector):
                 ),
                 error,
             )
+            self.connected = False
         else:
 
             if self.socket_mode:
                 if not self.socket_mode_client:
                     _LOGGER.error(_(_USE_BOT_TOKEN_MSG))
                     _LOGGER.error(_("The Slack Connector will not be available."))
-
+                    self.connected = False
                     return
                 self.socket_mode_client.socket_mode_request_listeners.append(
                     self.socket_event_handler
                 )
+
                 await self.socket_mode_client.connect()
                 _LOGGER.info(_("Connected successfully with socket mode"))
             else:
                 # Create a task for background processing events received by
                 # the web event handler.
-                self._event_queue_task = asyncio.create_task(self._queue_worker())
+                with anyio.CancelScope() as cancel_scope:
+                    self.opsdroid.taskgroup.start_soon(self._queue_worker, cancel_scope)
 
                 self.opsdroid.web_server.web_app.router.add_post(
                     f"/connector/{self.name}",
@@ -145,6 +146,7 @@ class ConnectorSlack(Connector):
                 )
                 _LOGGER.info(_("Connected successfully with events api"))
 
+            task_status.started()
             _LOGGER.debug(_("Connected as %s."), self.bot_name)
             _LOGGER.debug(_("Using icon %s."), self.icon_emoji)
             _LOGGER.debug(_("Default room is %s."), self.default_target)
@@ -155,16 +157,23 @@ class ConnectorSlack(Connector):
         Cancels the event queue worker task and disconnects the
         socket_mode_client if socket mode was enabled."""
 
-        if self._event_queue_task:
-            self._event_queue_task.cancel()
-            await asyncio.gather(self._event_queue_task, return_exceptions=True)
-
+        if self._event_cancel_scope:
+            self._event_cancel_scope.cancel()
+            try:
+                self.connected = False
+            except anyio.get_cancelled_exc_class() as error:
+                _LOGGER.error(_("Error during Slack Disconnect"))
+                self.connected = False
+                raise error
         if self.socket_mode_client:
+            _LOGGER.debug("AM I DISONNECTING???")
             await self.socket_mode_client.disconnect()
             await self.socket_mode_client.close()
+            self.connected = False
 
     async def listen(self):
         """Listen for and parse new messages."""
+        _LOGGER.info("I LISTEN?")
 
     def _generate_base_data(self, event: opsdroid.events.Event) -> dict:
         """Generate a base data dict to send to the slack API.
@@ -224,10 +233,11 @@ class ConnectorSlack(Connector):
                     _LOGGER.info(
                         "Grabbed a total of %s channels from Slack", channel_count
                     )
-                    await asyncio.sleep(
+                    await anyio.sleep(
                         self.refresh_interval - arrow.now().time().second
                     )
                 except SlackApiError as error:
+                    _LOGGER.error("Something bad happened")
                     if "ratelimited" in str(error):
                         wait_time = float(error.response.headers.get("Retry-After", 30))
                         _LOGGER.warning(
@@ -235,11 +245,11 @@ class ConnectorSlack(Connector):
                                 f"Rate limit threshold reached. Retrying after {wait_time} seconds."
                             )
                         )
-                        await asyncio.sleep(wait_time)
+                        await anyio.sleep(wait_time)
                         max_retries -= 1
                         continue
                     else:
-                        raise
+                        raise error
             # If we reach here, let's break from the loop
             # (works for both cases: cursor is None or max_retries is 0)
             break
@@ -325,7 +335,8 @@ class ConnectorSlack(Connector):
         # seconds and we want to avoid that.
         #
         # https://api.slack.com/apis/connections/events-api#the-events-api__responding-to-events
-        self._event_queue.put_nowait(payload)
+        # self._event_queue.put_nowait(payload)
+        self._send_channel.send_nowait(payload)
 
         return aiohttp.web.Response(text=json.dumps("Received"), status=200)
 

@@ -22,9 +22,7 @@ def get_opsdroid():
 
     """
     from opsdroid.core import OpsDroid
-
-    if len(OpsDroid.instances) == 1:
-        return OpsDroid.instances[0]
+    return OpsDroid.get_instance()
 
 
 def del_rw(action, name, exc):

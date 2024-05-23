@@ -577,14 +577,15 @@ class TestCoreAsync(asynctest.TestCase):
                 await opsdroid.train_parsers({})
 
     async def test_watchdog_works(self):
-        from watchgod import awatch, PythonWatcher
+        from watchfiles import awatch
+        from watchfiles.filters import PythonFilter
         from tempfile import TemporaryDirectory
         import os.path
         import asyncio
 
         async def watch_dirs(directories):
             async def watch_dir(directory):
-                async for changes in awatch(directory, watcher_cls=PythonWatcher):
+                async for changes in awatch(directory, watch_filter=PythonFilter):
                     assert changes
                     break
 

@@ -44,12 +44,12 @@ async def start(path):
 async def async_start(config, config_path):
     # Create a task group
     async with anyio.create_task_group() as task_group:
-        opsdroid = OpsDroid(config=config, config_path=config_path, taskgroup=task_group)
-        await start_droid(opsdroid)
-        task_group.start_soon(handle_signals(opsdroid))
+        with OpsDroid(config=config, config_path=config_path, taskgroup=task_group) as opsdroid:
+            task_group.start_soon(signal_handler, opsdroid, task_group.cancel_scope)
+            task_group.start_soon(start_droid, opsdroid)
 
 
-async def handle_signals(opsdroid):
+async def handle_signals(opsdroid, task_status=anyio.TASK_STATUS_IGNORED):
     """Handle signals."""
     async with anyio.open_signal_receiver(signal.SIGTERM, signal.SIGHUP) as signals:
         async for signum in signals:
@@ -57,14 +57,25 @@ async def handle_signals(opsdroid):
                 await opsdroid.stop()
             elif signum == signal.SIGHUP:
                 await opsdroid.reload()
+        task_status.started()
+
+async def signal_handler(opsdroid, scope):
+    with anyio.open_signal_receiver(signal.SIGTERM, signal.SIGHUP) as signals:
+        async for signum in signals:
+            if signum == signal.SIGTERM:
+                await opsdroid.stop()
+                scope.cancel()
+            elif signum == signal.SIGHUP:
+                await opsdroid.reload()
+            return
 
 
 async def start_droid(opsdroid):
     """Encapsulate the Opsdroid run to be callable by anyio.run()"""
     try:
-        opsdroid.run()
-    except Exception:
+        await opsdroid.new_run()
+    except Exception as e:
         _LOGGER.exception(
             _("Something bad happened running OpsDroid")
         )
-
+        raise e

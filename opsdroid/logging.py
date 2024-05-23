@@ -195,4 +195,4 @@ def get_logging_level(logging_level):
     if logging_level == "debug":
         return logging.DEBUG
 
-    return logging.INFO
+    return logging.DEBUG

@@ -228,11 +228,15 @@ class Web:
                     ssl_context=self.get_ssl_context,
                 )
                 await self.site.start()
+                _LOGGER.info(_("Breaking after Start"))
                 break
             except OSError as e:
                 await asyncio.sleep(0.1)
                 timeout.set_exception(e)
                 await self.site.stop()
+        # I guess we just wait to be killed?
+        while True:
+            await asyncio.sleep(0.1)
 
     async def stop(self):
         """Stop the web server."""
