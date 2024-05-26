@@ -13,4 +13,5 @@ how-are-you
 weather
 flip-a-coin
 stocks-portfolio
+contact-manager
 ```
