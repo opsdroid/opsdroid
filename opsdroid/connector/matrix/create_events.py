@@ -1,9 +1,8 @@
 """A helper module to create opsdroid events from matrix events."""
 import logging
 from collections import defaultdict
-
+from nio.responses import RoomContextError
 from opsdroid import events
-from nio import RoomContextError
 
 from . import events as matrix_events
 from .exceptions import MatrixException

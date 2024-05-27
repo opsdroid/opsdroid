@@ -1,6 +1,6 @@
 """The config subcommand for opsdroid cli."""
 
-import click
+import asyncclick as click
 
 from opsdroid.cli.utils import (
     build_config,

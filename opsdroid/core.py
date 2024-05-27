@@ -2,6 +2,7 @@
 
 import asyncio
 import anyio
+from anyio.abc import TaskStatus
 import contextlib
 import copy
 import inspect
@@ -12,7 +13,8 @@ import sys
 import warnings
 import weakref
 
-from watchgod import PythonWatcher, awatch
+from watchfiles import awatch
+from watchfiles.filters import PythonFilter
 
 from opsdroid import events
 from opsdroid.configuration import load_config_file
@@ -51,23 +53,17 @@ class OpsDroid:
     # All are reasonable in this case.
 
     instances = []
+    _instance = None
 
-    def __init__(self, config=None, config_path=None, loopless=False):
+    def __init__(self, config=None, config_path=None, taskgroup=None):
         """Start opsdroid."""
+        if OpsDroid._instance is not None:
+            raise RuntimeError("OpsDroid is already running")
         self.bot_name = "opsdroid"
         self._running = False
         self.sys_status = 0
         self.connectors = []
-        self.eventloop = asyncio.get_event_loop() if not loopless else None
-        if os.name != "nt" and not loopless:
-            for sig in (signal.SIGINT, signal.SIGTERM):
-                self.eventloop.add_signal_handler(
-                    sig, lambda: asyncio.ensure_future(self.handle_stop_signal())
-                )
-            self.eventloop.add_signal_handler(
-                signal.SIGHUP, lambda: asyncio.ensure_future(self.reload())
-            )
-            self.eventloop.set_exception_handler(self.handle_async_exception)
+        self.taskgroup = taskgroup
         self.skills = []
         self.memory = Memory()
         self.modules = {}
@@ -87,6 +83,7 @@ class OpsDroid:
         self.stored_path = []
         self.reload_paths = []
         self.tasks = []
+        OpsDroid._instance = weakref.proxy(self)
 
     def __enter__(self):
         """Add self to existing instances."""
@@ -101,7 +98,17 @@ class OpsDroid:
         """Remove self from existing instances."""
         sys.path = self.stored_path
         self.__class__.instances = []
-        asyncio.set_event_loop(asyncio.new_event_loop())
+
+    @classmethod
+    def get_instance(cls):
+        if cls._instance is None:
+            raise RuntimeError("OpsDroid is not running")
+        return cls._instance
+
+
+    async def set_exception_handler(self, handler):
+        loop = await anyio.get_running_loop()
+        loop.set_exception_handler(handler)
 
     @property
     def default_connector(self):
@@ -169,38 +176,52 @@ class OpsDroid:
         await self.stop()
         await self.unload()
 
-    def run(self):
-        """Start the event loop."""
-        self.sync_load()
+    async def new_run(self):
+        """start up async things with task groups"""
         if not self.is_running():
             _LOGGER.info(_("Opsdroid is now running, press ctrl+c to exit."))
             self._running = True
-            while self.is_running():
-                with contextlib.suppress(asyncio.CancelledError):
-                    self.eventloop.run_until_complete(self.start())
-
-            self.eventloop.stop()
-            self.eventloop.close()
-
+            await self.load()
+            try:
+                _LOGGER.info(_("Opsdroid Startup Procedures"))
+                started = await self.taskgroup.start(self.start)
+                while started:
+                    await anyio.sleep(1)
+            except anyio.get_cancelled_exc_class() as error:
+                raise error
             _LOGGER.info(_("Bye!"))
             self.exit()
         else:
             _LOGGER.error(_("Oops! Opsdroid is already running."))
 
-    async def start(self):
+    def run(self):
+        """Start up async things with task groups"""
+        if not self.is_running():
+            _LOGGER.info(_("Opsdroid is now running, press ctrl+c to exit."))
+            self._running = True
+            self.sync_load()
+            while self.is_running():
+                try:
+                    self.taskgroup.start(self.start)
+                except anyio.get_cancelled_exc_class() as e:
+                    raise e
+            _LOGGER.info(_("Bye!"))
+            self.exit()
+        else:
+            _LOGGER.error(_("Oops! Opsdroid is already running."))
+
+    async def start(self, task_status=anyio.TASK_STATUS_IGNORED):
         """Create tasks and then run all created tasks concurrently."""
         if len(self.skills) == 0:
             self.critical(_("No skills in configuration, at least 1 required"), 1)
 
         await self.start_databases()
         await self.start_connectors()
-        self.create_task(self.watch_paths())
-        self.create_task(parse_crontab(self))
-        self.create_task(self.web_server.start())
-
-        self.create_task(self.parse(events.OpsdroidStarted()))
-
-        await self._run_tasks()
+        self.taskgroup.start_soon(self.parse, events.OpsdroidStarted())
+        self.taskgroup.start_soon(self.watch_paths)
+        self.taskgroup.start_soon(parse_crontab, self)
+        await self.web_server.start()
+        task_status.started(True)
 
     async def _run_tasks(self):
         """
@@ -210,18 +231,23 @@ class OpsDroid:
         creating any of the tasks.
         """
         self._running = True
-        with contextlib.suppress(asyncio.CancelledError):
-            await asyncio.gather(*self.tasks)
+        for task in self.tasks:
+            try:
+                self.taskgroup.start_soon(task)
+            except anyio.get_cancelled_exc_class() as error:
+                raise error
+        # with contextlib.suppress(asyncio.CancelledError):
+            # await asyncio.gather(*self.tasks)
         self._running = False
 
     def create_task(self, task):
         """Create an async task and add it to the list of tasks."""
-        self.tasks.append(self.eventloop.create_task(task))
+        self.tasks.append(self.taskgroup.start_soon(task))
 
     def sync_load(self):
         """Run the load modules method synchronously."""
-        # self.eventloop.run_until_complete(self.load())
-        anyio.run(self.load)
+        self.taskgroup.start_soon(self.load)
+        # anyio.run(self.load)
 
     async def load(self, config=None):
         """Load modules."""
@@ -256,7 +282,7 @@ class OpsDroid:
 
         _LOGGER.info(_("Stopping pending tasks..."))
         for task in self.tasks:
-            if not task.done() and task is not asyncio.current_task():
+            if not task.done() and task is not anyio.get_current_task():
                 task.cancel()
         _LOGGER.info(_("Stopped pending tasks."))
 
@@ -337,7 +363,7 @@ class OpsDroid:
         """
 
         async def watch_and_reload(opsdroid, path):
-            async for _ in awatch(path, watcher_cls=PythonWatcher):
+            async for _ in awatch(path, watch_filter=PythonFilter):
                 await opsdroid.reload()
 
         if self.config.get("autoreload", False):
@@ -347,9 +373,8 @@ class OpsDroid:
                     "Warning autoreload is an experimental feature."
                 )
             )
-            await asyncio.gather(
-                *[watch_and_reload(self, path) for path in self.reload_paths]
-            )
+            for path in self.reload_paths:
+                await self.taskgroup.start_soon(watch_and_reload, self, path)
 
     async def train_parsers(self, skills):
         """Train the parsers.
@@ -396,9 +421,23 @@ class OpsDroid:
         spawns all that can be loaded, and keeps them open (listening).
 
         """
-        await asyncio.gather(*[connector.connect() for connector in self.connectors])
+        # await asyncio.gather(*[connector.connect() for connector in self.connectors])
+        # for connector in self.connectors:
+        #     _LOGGER.debug(_(f"Creating connector listen task for {connector}"))
+        #     self.create_task(connector.listen())
+        await self.connect_and_listen()
+
+    async def connect_and_listen(self):
+        # Connect all connectors concurrently
+        await self.connect_all_connectors(self.taskgroup)
+
+        # Start listening on all connectors concurrently
         for connector in self.connectors:
-            self.create_task(connector.listen())
+            self.taskgroup.start_soon(connector.listen)
+
+    async def connect_all_connectors(self, task_group):
+        for connector in self.connectors:
+            await task_group.start(connector.connect)
 
     # pylint: disable=W0640
     @property
@@ -453,9 +492,11 @@ class OpsDroid:
         in the argument, connects and starts them.
 
         """
-        await asyncio.gather(
-            *[database.connect() for database in self.memory.databases]
-        )
+        # await asyncio.gather(
+            # *[database.connect() for database in self.memory.databases]
+        # )
+        for database in self.memory.databases:
+            self.taskgroup.start_soon(database.connect)
 
     async def run_skill(self, skill, config, event):
         """Execute a skill.
@@ -627,34 +668,26 @@ class OpsDroid:
         Args:
             event (String): The string to parsed against all available skills.
 
-        Returns:
-            tasks (list): Task that tells the skill which best matches the parsed event.
-
         """
         self.stats["messages_parsed"] = self.stats["messages_parsed"] + 1
-        tasks = []
-        tasks.append(self.eventloop.create_task(parse_always(self, event)))
-        tasks.append(self.eventloop.create_task(parse_event_type(self, event)))
+        self.taskgroup.start_soon(parse_always, self, event)
+        self.taskgroup.start_soon(parse_event_type, self, event)
+        ranked_start = False
         if isinstance(event, events.Message):
             _LOGGER.debug(_("Parsing input: %s."), event)
 
             unconstrained_skills = await self._constrain_skills(self.skills, event)
             ranked_skills = await self.get_ranked_skills(unconstrained_skills, event)
             if ranked_skills:
-                tasks.append(
-                    self.eventloop.create_task(
-                        self.run_skill(
-                            ranked_skills[0]["skill"],
-                            ranked_skills[0]["config"],
-                            ranked_skills[0]["message"],
-                        )
-                    )
+                self.taskgroup.start_soon(
+                    self.run_skill,
+                    ranked_skills[0]["skill"],
+                    ranked_skills[0]["config"],
+                    ranked_skills[0]["message"],
                 )
-        if len(tasks) == 2:  # no other skills ran other than 2 default ones
-            tasks.append(self.eventloop.create_task(parse_catchall(self, event)))
-        await asyncio.gather(*tasks)
-
-        return tasks
+                ranked_start = True
+        if not ranked_start:  # no other skills ran other than 2 default ones
+            self.taskgroup.start_soon(parse_catchall, self, event)
 
     async def send(self, event):
         """Send an event.

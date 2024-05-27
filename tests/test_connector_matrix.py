@@ -15,7 +15,7 @@ from opsdroid.connector.matrix.connector import ConnectorMatrix, MatrixException
 from opsdroid.connector.matrix.create_events import MatrixEventCreator
 from opsdroid.core import OpsDroid
 
-api_string = "nio.AsyncClient.{}"
+api_string = "nio.client.AsyncClient.{}"
 
 pytestmark = pytest.mark.anyio
 
@@ -38,7 +38,7 @@ async def connector():
                 "enable_encryption": True,
             }
         )
-        api = nio.AsyncClient("https://notaurl.com", None)
+        api = nio.client.AsyncClient("https://notaurl.com", None)
         connector.connection = api
 
         return connector
@@ -51,17 +51,17 @@ class TestConnectorMatrixAsync:
     @property
     def sync_return(self):
         """Define some mock json to return from the sync method"""
-        rooms = nio.Rooms(
+        rooms = nio.responses.Rooms(
             invite={},
             join={
-                "!aroomid:localhost": nio.RoomInfo(
+                "!aroomid:localhost": nio.responses.RoomInfo(
                     account_data={"events": []},
                     ephemeral={"events": []},
                     state={"events": []},
                     summary={},
-                    timeline=nio.Timeline(
+                    timeline=nio.responses.Timeline(
                         events=[
-                            nio.RoomMessageText(
+                            nio.responses.RoomMessageText(
                                 source={
                                     "content": {
                                         "body": "LOUD NOISES",
@@ -86,7 +86,7 @@ class TestConnectorMatrixAsync:
             leave={},
         )
 
-        return nio.SyncResponse(
+        return nio.responses.SyncResponse(
             next_batch="s801873745",
             rooms=rooms,
             device_key_count={"signed_curve25519": 50},
@@ -98,17 +98,17 @@ class TestConnectorMatrixAsync:
     @property
     def sync_return_join(self):
         """Define some mock json to return from the sync method"""
-        rooms = nio.Rooms(
+        rooms = nio.responses.Rooms(
             invite={},
             join={
-                "!aroomid:localhost": nio.RoomInfo(
+                "!aroomid:localhost": nio.responses.RoomInfo(
                     account_data={"events": []},
                     ephemeral={"events": []},
                     state={"events": []},
                     summary={},
-                    timeline=nio.Timeline(
+                    timeline=nio.responses.Timeline(
                         events=[
-                            nio.RoomMemberEvent(
+                            nio.events.room_events.RoomMemberEvent(
                                 source={
                                     "origin_server_ts": 1591876480893,
                                     "sender": "@user:matrix.org",
@@ -134,7 +134,7 @@ class TestConnectorMatrixAsync:
             leave={},
         )
 
-        return nio.SyncResponse(
+        return nio.responses.SyncResponse(
             next_batch="s801873745",
             rooms=rooms,
             device_key_count={"signed_curve25519": 50},
@@ -145,11 +145,11 @@ class TestConnectorMatrixAsync:
 
     @property
     def sync_invite(self):
-        rooms = nio.Rooms(
+        rooms = nio.responses.Rooms(
             invite={
-                "!AWtmOvkBPTCSPbdaHn:localhost": nio.InviteInfo(
+                "!AWtmOvkBPTCSPbdaHn:localhost": nio.responses.InviteInfo(
                     invite_state=[
-                        nio.InviteNameEvent(
+                        nio.events.invite_events.InviteNameEvent(
                             source={
                                 "type": "m.room.name",
                                 "state_key": "",
@@ -159,7 +159,7 @@ class TestConnectorMatrixAsync:
                             sender="@neo:matrix.org",
                             name="Someroomname",
                         ),
-                        nio.InviteMemberEvent(
+                        nio.events.invite_events.InviteMemberEvent(
                             source={
                                 "type": "m.room.member",
                                 "state_key": "@neo:matrix.org",
@@ -176,7 +176,7 @@ class TestConnectorMatrixAsync:
                             },
                             prev_content=None,
                         ),
-                        nio.InviteMemberEvent(
+                        nio.events.invite_events.InviteMemberEvent(
                             source={
                                 "type": "m.room.member",
                                 "sender": "@neo:matrix.org",
@@ -203,7 +203,7 @@ class TestConnectorMatrixAsync:
             leave={},
         )
 
-        return nio.SyncResponse(
+        return nio.responses.SyncResponse(
             next_batch="s110_1482_2_21_3_1_1_39_1",
             rooms=rooms,
             device_key_count={},
@@ -473,7 +473,7 @@ class TestConnectorMatrixAsync:
 
         patched_upload = mocker.patch(
             api_string.format("upload"),
-            return_value=[nio.UploadResponse("mxc://aurl"), None],
+            return_value=[nio.responses.UploadResponse("mxc://aurl"), None],
         )
 
         await connector.send(image)
@@ -508,7 +508,7 @@ class TestConnectorMatrixAsync:
         connector.connection.store.load_encrypted_rooms.return_value = [
             "!test:localhost"
         ]
-        patched_upload.return_value = [nio.UploadResponse("mxc://aurl"), file_dict]
+        patched_upload.return_value = [nio.responses.UploadResponse("mxc://aurl"), file_dict]
 
         await connector.send(image)
 
@@ -528,7 +528,7 @@ class TestConnectorMatrixAsync:
         error_code = 400
         connector.connection.store.load_encrypted_rooms.return_value = []
         patched_upload.return_value = [
-            nio.UploadError(message=error_message, status_code=error_code),
+            nio.responses.UploadError(message=error_message, status_code=error_code),
             None,
         ]
 
@@ -583,7 +583,7 @@ class TestConnectorMatrixAsync:
         connector.connection.store.load_encrypted_rooms.return_value = []
 
         patched_upload = mocker.patch(api_string.format("upload"))
-        patched_upload.return_value = [nio.UploadResponse("mxc://aurl"), None]
+        patched_upload.return_value = [nio.responses.UploadResponse("mxc://aurl"), None]
 
         await connector.send(file_event)
 
@@ -617,7 +617,7 @@ class TestConnectorMatrixAsync:
         connector.connection.store.load_encrypted_rooms.return_value = [
             "!test:localhost"
         ]
-        patched_upload.return_value = [nio.UploadResponse("mxc://aurl"), file_dict]
+        patched_upload.return_value = [nio.responses.UploadResponse("mxc://aurl"), file_dict]
 
         await connector.send(file_event)
 
@@ -640,7 +640,7 @@ class TestConnectorMatrixAsync:
         ) as patched_name:
             patched_name.return_value = asyncio.Future()
             patched_name.return_value.set_result(
-                nio.RoomPutStateResponse(
+                nio.responses.RoomPutStateResponse(
                     room_id="!test:localhost",
                     event_id="$tibhPrUV0GJbb3-7Iad_LuYzTnB2vcdf4wBbHNXkQMc",
                 )
@@ -648,7 +648,7 @@ class TestConnectorMatrixAsync:
 
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result(
-                nio.RoomCreateResponse(room_id="!test:localhost")
+                nio.responses.RoomCreateResponse(room_id="!test:localhost")
             )
 
             resp = await connector.send(event)
@@ -661,7 +661,7 @@ class TestConnectorMatrixAsync:
             error_code = 400
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result(
-                nio.RoomCreateError(message=error_message, status_code=error_code)
+                nio.responses.RoomCreateError(message=error_message, status_code=error_code)
             )
             caplog.clear()
             resp = await connector.send(event)
@@ -689,7 +689,7 @@ class TestConnectorMatrixAsync:
         ) as patched_send:
             patched_get_room_id.return_value = asyncio.Future()
             patched_get_room_id.return_value.set_result(
-                nio.RoomResolveAliasResponse(
+                nio.responses.RoomResolveAliasResponse(
                     room_alias="aroom", room_id="!aroomid:localhost", servers=[]
                 )
             )
@@ -714,7 +714,7 @@ class TestConnectorMatrixAsync:
             error_code = 400
             patched_get_room_id.return_value = asyncio.Future()
             patched_get_room_id.return_value.set_result(
-                nio.RoomResolveAliasError(message=error_message, status_code=error_code)
+                nio.responses.RoomResolveAliasError(message=error_message, status_code=error_code)
             )
             caplog.clear()
             await connector.send(event)
@@ -805,7 +805,7 @@ class TestConnectorMatrixAsync:
 
                     patched_power_levels.return_value = asyncio.Future()
                     patched_power_levels.return_value.set_result(
-                        nio.RoomGetStateEventResponse(
+                        nio.responses.RoomGetStateEventResponse(
                             room_id="!test:localhost",
                             state_key="",
                             event_type="m.room.power_levels",
@@ -898,7 +898,7 @@ class TestConnectorMatrixAsync:
         with amock.patch(api_string.format("room_put_state")) as patched_alias:
             patched_alias.return_value = asyncio.Future()
             patched_alias.return_value.set_result(
-                nio.RoomPutStateResponse(event_id="some_id", room_id="!test:localhost")
+                nio.responses.RoomPutStateResponse(event_id="some_id", room_id="!test:localhost")
             )
 
             resp = await connector._send_room_address(
@@ -912,7 +912,7 @@ class TestConnectorMatrixAsync:
             error_code = 400
             patched_alias.return_value = asyncio.Future()
             patched_alias.return_value.set_result(
-                nio.RoomPutStateError(message=error_message, status_code=error_code)
+                nio.responses.RoomPutStateError(message=error_message, status_code=error_code)
             )
             with pytest.raises(MatrixException):
                 resp = await connector._send_room_address(
@@ -922,7 +922,7 @@ class TestConnectorMatrixAsync:
             error_code = 409
             patched_alias.return_value = asyncio.Future()
             patched_alias.return_value.set_result(
-                nio.RoomPutStateError(message=error_message, status_code=error_code)
+                nio.responses.RoomPutStateError(message=error_message, status_code=error_code)
             )
             resp = await connector._send_room_address(
                 events.RoomAddress(target="!test:localhost", address="hello")
@@ -935,7 +935,7 @@ class TestConnectorMatrixAsync:
         with amock.patch(api_string.format("room_invite")) as patched_invite:
             patched_invite.return_value = asyncio.Future()
             patched_invite.return_value.set_result(
-                nio.RoomInviteError(
+                nio.responses.RoomInviteError(
                     message="@neo.matrix.org is already in the room", status_code=400
                 )
             )
@@ -951,7 +951,7 @@ class TestConnectorMatrixAsync:
     async def test_already_in_room_warning(self, caplog, connector):
         with amock.patch(api_string.format("room_invite")) as patched_invite:
             caplog.set_level(logging.INFO)
-            patched_invite.return_value = nio.RoomInviteError(
+            patched_invite.return_value = nio.responses.RoomInviteError(
                 message="@neo.matrix.org is already in the room", status_code=403
             )
             await connector._send_user_invitation(
@@ -1364,8 +1364,8 @@ class TestEventCreatorMatrixAsync:
         with amock.patch(api_string.format("room_context")) as patched_send:
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result(
-                nio.RoomContextResponse(
-                    event=nio.Event(source=self.message_json),
+                nio.responses.RoomContextResponse(
+                    event=nio.events.room_events.Event(source=self.message_json),
                     room_id="",
                     start="",
                     end="",
@@ -1390,8 +1390,8 @@ class TestEventCreatorMatrixAsync:
         with amock.patch(api_string.format("room_context")) as patched_send:
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result(
-                nio.RoomContextResponse(
-                    event=nio.Event(source=self.message_json),
+                nio.responses.RoomContextResponse(
+                    event=nio.events.room_events.Event(source=self.message_json),
                     room_id="",
                     start="",
                     end="",
@@ -1416,8 +1416,8 @@ class TestEventCreatorMatrixAsync:
         with amock.patch(api_string.format("room_context")) as patched_send:
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result(
-                nio.RoomContextResponse(
-                    event=nio.Event(source=self.message_json),
+                nio.responses.RoomContextResponse(
+                    event=nio.events.room_events.Event(source=self.message_json),
                     room_id="",
                     start="",
                     end="",
@@ -1442,8 +1442,8 @@ class TestEventCreatorMatrixAsync:
         with amock.patch(api_string.format("room_context")) as patched_send:
             patched_send.return_value = asyncio.Future()
             patched_send.return_value.set_result(
-                nio.RoomContextResponse(
-                    event=nio.Event(source=self.message_json),
+                nio.responses.RoomContextResponse(
+                    event=nio.events.room_events.Event(source=self.message_json),
                     room_id="",
                     start="",
                     end="",

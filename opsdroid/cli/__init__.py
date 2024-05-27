@@ -1,6 +1,6 @@
 """Command line manager for opsdroid."""
 
-import click
+import asyncclick as click
 
 from opsdroid.cli.config import config
 from opsdroid.cli.logs import logs

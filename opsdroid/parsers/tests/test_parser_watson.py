@@ -1,4 +1,5 @@
 import asynctest.mock as amock
+import unittest.mock as mock
 import pytest
 
 from opsdroid.matchers import match_watson
@@ -73,7 +74,7 @@ async def test_get_session_id():
         "assistant-id": "test",
     }
     result = amock.Mock()
-    service = amock.MagicMock()
+    service = mock.AsyncMock()
 
     result.return_value = {"session_id": "test123"}
 

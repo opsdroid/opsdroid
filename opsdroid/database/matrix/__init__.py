@@ -4,7 +4,7 @@ import logging
 from contextlib import contextmanager
 from wrapt import decorator
 
-from nio import RoomGetStateError, RoomGetStateEventError, RoomGetEventError
+from nio.responses import RoomGetStateError, RoomGetStateEventError, RoomGetEventError
 from opsdroid.database import Database
 from opsdroid.helper import get_opsdroid
 from opsdroid.connector.matrix.events import MatrixStateEvent, GenericMatrixRoomEvent

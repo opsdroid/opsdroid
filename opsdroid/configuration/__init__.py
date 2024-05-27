@@ -7,6 +7,7 @@ import re
 import logging
 import tempfile
 import yaml
+import anyio
 
 from opsdroid.const import DEFAULT_CONFIG_PATH, ENV_VAR_REGEX, EXAMPLE_CONFIG_FILE
 from opsdroid.configuration.validation import (
@@ -18,6 +19,30 @@ from opsdroid.helper import update_pre_0_17_config_format
 
 
 _LOGGER = logging.getLogger(__name__)
+
+async def new_create_default_config(config_path):
+    """Create a default config file based on the example config file asynchronously.
+
+    If we can't find any configuration.yaml, we will pull the whole
+    example_configuration.yaml and use this file as the configuration.
+
+    Args:
+        config_path: String containing the path to configuration.yaml
+            default install location
+
+    Returns:
+        str: path to configuration.yaml default install location
+
+    """
+    async def create_config():
+        _LOGGER.info("Creating %s.", config_path)
+        config_dir, _ = os.path.split(config_path)
+        if not os.path.isdir(config_dir):
+            os.makedirs(config_dir)
+        shutil.copyfile(EXAMPLE_CONFIG_FILE, config_path)
+        return config_path
+
+    return await anyio.to_thread.run_sync(create_config)
 
 
 def create_default_config(config_path):
@@ -39,6 +64,40 @@ def create_default_config(config_path):
     if not os.path.isdir(config_dir):
         os.makedirs(config_dir)
     shutil.copyfile(EXAMPLE_CONFIG_FILE, config_path)
+    return config_path
+
+
+async def new_get_config_path(config_paths):
+    """Get the path to configuration.yaml asynchronously.
+
+    Opsdroid configuration.yaml can be located in different paths.
+    With this function, we will go through all of the possible paths and
+    return the correct path.
+
+    If we don't have any configuration.yaml we will just create one using
+    the example configuration file.
+
+    Args:
+        config_paths: List containing all the possible config paths.
+
+    Returns:
+        str: Path to the configuration file.
+
+    """
+    async def check_paths(paths):
+        for possible_path in paths:
+            if not os.path.isfile(possible_path):
+                _LOGGER.debug("Config file %s not found.", possible_path)
+            else:
+                return possible_path
+        return None
+
+    config_path = await check_paths(config_paths)
+
+    if not config_path:
+        _LOGGER.info("No configuration files found. Creating %s", DEFAULT_CONFIG_PATH)
+        config_path = await create_default_config(DEFAULT_CONFIG_PATH)
+
     return config_path
 
 
@@ -135,3 +194,66 @@ def load_config_file(config_paths):
     except TypeError as error:
         _LOGGER.critical(error)
         sys.exit(1)
+
+
+async def new_load_config_file(config_paths):
+    """Load a yaml config file from path asynchronously.
+
+    We get a path for the configuration file and then use the yaml
+    library to load this file - the configuration will be shown as a
+    dict.  Here we also add constructors to our yaml loader and handle
+    different exceptions that could be raised when trying to load or
+    validate the file.
+
+    Args:
+        config_paths: List of paths to configuration.yaml files
+
+    Returns:
+        dict: Dict containing config fields
+
+    """
+    async def load_config():
+        config_path = await new_get_config_path(config_paths)
+        env_var_pattern = re.compile(ENV_VAR_REGEX)
+
+        def envvar_constructor(loader, node):
+            """Yaml parser for env vars."""
+            return os.path.expandvars(node.value)
+
+        yaml.SafeLoader.add_implicit_resolver("!envvar", env_var_pattern, None)
+        yaml.SafeLoader.add_constructor("!envvar", envvar_constructor)
+
+        try:
+            with open(config_path, "r") as stream:
+                _LOGGER.info("Loaded config from %s.", config_path)
+
+                data = yaml.load(stream, Loader=yaml.SafeLoader)
+
+                # Resolvers do not run correctly on JSON so if the config is a JSON
+                # file dump it to a temporary file as YAML and read it back in again.
+                if config_path.endswith(".json"):
+                    with tempfile.NamedTemporaryFile("r+") as tmp:
+                        yaml.dump(data, tmp, allow_unicode=True)
+                        tmp.seek(0)
+                        data = yaml.load(tmp, Loader=yaml.SafeLoader)
+
+                validate_data_type(data)
+
+                configuration = update_pre_0_17_config_format(data)
+                configuration = validate_configuration(configuration, BASE_SCHEMA)
+
+                return configuration
+
+        except yaml.YAMLError as error:
+            _LOGGER.critical(error)
+            sys.exit(1)
+
+        except FileNotFoundError as error:
+            _LOGGER.critical(error)
+            sys.exit(1)
+
+        except TypeError as error:
+            _LOGGER.critical(error)
+            sys.exit(1)
+
+    return await load_config()

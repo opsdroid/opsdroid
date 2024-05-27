@@ -134,7 +134,8 @@ class Event(metaclass=EventMetaClass):
         This implies no link between the event we are responding with and this
         event.
         """
-        opsdroid = get_opsdroid()
+        # opsdroid = get_opsdroid()
+        opsdroid = self.connector.opsdroid
 
         # Inherit the user, target and event from the event we are responding
         # to if they are not explicitly provided by this Event

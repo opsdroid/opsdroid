@@ -1,6 +1,7 @@
 import asyncio
 import asynctest
 import asynctest.mock as amock
+import unittest.mock as mock
 
 import aiohttp
 from aiohttp import ClientOSError
@@ -291,7 +292,7 @@ class TestParserRasaNLU(asynctest.TestCase):
             mock_skill.config = {"name": "mocked-skill"}
             opsdroid.skills.append(match_rasanlu("get_weather")(mock_skill))
 
-            mock_connector = amock.MagicMock()
+            mock_connector = mock.AsyncMock()
             mock_connector.send = amock.CoroutineMock()
             message = Message(
                 text="how's the weather outside",

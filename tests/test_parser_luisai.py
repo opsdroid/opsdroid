@@ -1,6 +1,7 @@
 import asyncio
 import asynctest
 import asynctest.mock as amock
+from unittest.mock import AsyncMock
 
 from aiohttp import ClientOSError
 
@@ -128,7 +129,7 @@ class TestParserLuisai(asynctest.TestCase):
             mock_skill.config = {"name": "greetings"}
             opsdroid.skills.append(match_luisai_intent("Calendar.Add")(mock_skill))
 
-            mock_connector = amock.MagicMock()
+            mock_connector = AsyncMock()
             mock_connector.send = amock.CoroutineMock()
             message = Message(
                 text="schedule meeting",
