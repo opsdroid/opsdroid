@@ -1,6 +1,7 @@
 import asyncio
 import asynctest
 import asynctest.mock as amock
+import unittest.mock as mock
 
 from aiohttp import ClientOSError
 
@@ -105,7 +106,7 @@ class TestParserRecastAi(asynctest.TestCase):
             mock_skill.config = {"name": "mocked-skill"}
             opsdroid.skills.append(match_sapcai("greetings")(mock_skill))
 
-            mock_connector = amock.MagicMock()
+            mock_connector = mock.AsyncMock()
             mock_connector.send = amock.CoroutineMock()
             message = Message(
                 text="Hello", user="user", target="default", connector=mock_connector

@@ -2,7 +2,7 @@
 import pytest
 import asynctest.mock as amock
 
-import asyncio
+import anyio
 
 from opsdroid.database.sqlite import DatabaseSqlite
 from opsdroid.cli.start import configure_lang
@@ -34,7 +34,7 @@ async def test_connect():
     """
     database = DatabaseSqlite({"path": "sqlite.db"})
     opsdroid = amock.CoroutineMock()
-    opsdroid.eventloop = asyncio.new_event_loop()
+    opsdroid.taskgroup = anyio.create_task_group()
 
     try:
         await database.connect()
@@ -57,7 +57,7 @@ async def test_disconnect():
     """
     database = DatabaseSqlite({"path": "sqlite.db"})
     opsdroid = amock.CoroutineMock()
-    opsdroid.eventloop = asyncio.new_event_loop()
+    opsdroid.taskgroup = anyio.create_task_group()
 
     try:
         await database.connect()
@@ -80,7 +80,7 @@ async def test_get_put_and_delete():
     """
     database = DatabaseSqlite({"path": "sqlite.db"})
     opsdroid = amock.CoroutineMock()
-    opsdroid.eventloop = asyncio.new_event_loop()
+    opsdroid.taskgroup = anyio.create_task_group()
 
     try:
         await database.connect()

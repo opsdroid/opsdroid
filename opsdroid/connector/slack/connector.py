@@ -166,14 +166,13 @@ class ConnectorSlack(Connector):
                 self.connected = False
                 raise error
         if self.socket_mode_client:
-            _LOGGER.debug("AM I DISONNECTING???")
             await self.socket_mode_client.disconnect()
             await self.socket_mode_client.close()
             self.connected = False
 
+    # TODO is this still necessary?
     async def listen(self):
         """Listen for and parse new messages."""
-        _LOGGER.info("I LISTEN?")
 
     def _generate_base_data(self, event: opsdroid.events.Event) -> dict:
         """Generate a base data dict to send to the slack API.
@@ -212,7 +211,6 @@ class ConnectorSlack(Connector):
         # By default, slack api asks us to wait 30 seconds if we hit the rate limit.
         # We will retry 5 (2.5 mins) times before giving up.
         max_retries = 5
-        _LOGGER.info("IS OPDROID RUNNING? %s", self.opsdroid.is_running())
         while self.opsdroid.is_running():
             _LOGGER.info(_("Updating Channels from Slack API at %s."), time.asctime())
 
@@ -237,7 +235,6 @@ class ConnectorSlack(Connector):
                         self.refresh_interval - arrow.now().time().second
                     )
                 except SlackApiError as error:
-                    _LOGGER.error("Something bad happened")
                     if "ratelimited" in str(error):
                         wait_time = float(error.response.headers.get("Retry-After", 30))
                         _LOGGER.warning(

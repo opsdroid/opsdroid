@@ -1,5 +1,6 @@
 import asynctest
 import asynctest.mock as amock
+from unittest.mock import AsyncMock
 
 from opsdroid.cli.start import configure_lang
 from opsdroid.core import OpsDroid
@@ -75,7 +76,7 @@ class TestParserRegex(asynctest.TestCase):
 
             self.assertEqual(len(opsdroid.skills), 1)
 
-            mock_connector = amock.MagicMock()
+            mock_connector = AsyncMock()
             mock_connector.send = amock.CoroutineMock()
             message = Message("Hello world", "user", "default", mock_connector)
 

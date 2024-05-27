@@ -44,7 +44,6 @@ class TestConnectorCiscoSparkAsync(asynctest.TestCase):
         connector = ConnectorWebexTeams({"token": "abc123"}, opsdroid=OpsDroid())
 
         opsdroid = amock.CoroutineMock()
-        opsdroid.eventloop = self.loop
         connector.clean_up_webhooks = amock.CoroutineMock()
         connector.subscribe_to_rooms = amock.CoroutineMock()
         connector.set_own_id = amock.CoroutineMock()

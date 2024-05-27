@@ -1,8 +1,7 @@
 """Test the opsdroid matcher decorators."""
-
+import inspect
 import pytest
 
-import asyncio
 import aiohttp.web
 
 from aiohttp.test_utils import make_mocked_request
@@ -35,7 +34,7 @@ async def test_match_regex(opsdroid):
     opsdroid.skills.append(decorator(await get_mock_skill()))
     assert len(opsdroid.skills) == 1
     assert opsdroid.skills[0].matchers[0]["regex"]["expression"] == regex
-    assert asyncio.iscoroutinefunction(opsdroid.skills[0])
+    assert inspect.iscoroutinefunction(opsdroid.skills[0])
 
 
 @pytest.mark.anyio
@@ -46,13 +45,13 @@ async def test_match_dialogflow(opsdroid):
     assert len(opsdroid.skills) == 1
     assert opsdroid.skills[0].matchers[0]["dialogflow_action"] == action
 
-    assert asyncio.iscoroutinefunction(opsdroid.skills[0])
+    assert inspect.iscoroutinefunction(opsdroid.skills[0])
     intent = "myIntent"
     decorator = matchers.match_dialogflow_intent(intent)
     opsdroid.skills.append(decorator(await get_mock_skill()))
     assert len(opsdroid.skills) == 2
     assert opsdroid.skills[1].matchers[0]["dialogflow_intent"] == intent
-    assert asyncio.iscoroutinefunction(opsdroid.skills[1])
+    assert inspect.iscoroutinefunction(opsdroid.skills[1])
 
 
 @pytest.mark.anyio
@@ -62,7 +61,7 @@ async def test_match_luisai(opsdroid):
     opsdroid.skills.append(decorator(await get_mock_skill()))
     assert len(opsdroid.skills) == 1
     assert opsdroid.skills[0].matchers[0]["luisai_intent"] == intent
-    assert asyncio.iscoroutinefunction(opsdroid.skills[0]) is True
+    assert inspect.iscoroutinefunction(opsdroid.skills[0]) is True
 
 
 @pytest.mark.anyio
@@ -72,7 +71,7 @@ async def test_match_watson(opsdroid):
     opsdroid.skills.append(decorator(await get_mock_skill()))
     assert len(opsdroid.skills) == 1
     assert opsdroid.skills[0].matchers[0]["watson_intent"] == intent
-    assert asyncio.iscoroutinefunction(opsdroid.skills[0]) is True
+    assert inspect.iscoroutinefunction(opsdroid.skills[0]) is True
 
 
 @pytest.mark.anyio
@@ -82,7 +81,7 @@ async def test_match_witai(opsdroid):
     opsdroid.skills.append(decorator(await get_mock_skill()))
     assert len(opsdroid.skills) == 1
     assert opsdroid.skills[0].matchers[0]["witai_intent"] == intent
-    assert asyncio.iscoroutinefunction(opsdroid.skills[0]) is True
+    assert inspect.iscoroutinefunction(opsdroid.skills[0]) is True
 
 
 @pytest.mark.anyio
@@ -92,7 +91,7 @@ async def test_match_rasanu(opsdroid):
     opsdroid.skills.append(decorator(await get_mock_skill()))
     assert len(opsdroid.skills) == 1
     assert opsdroid.skills[0].matchers[0]["rasanlu_intent"] == intent
-    assert asyncio.iscoroutinefunction(opsdroid.skills[0])
+    assert inspect.iscoroutinefunction(opsdroid.skills[0])
 
 
 @pytest.mark.anyio
@@ -102,7 +101,7 @@ async def test_match_recastai(opsdroid, caplog):
     opsdroid.skills.append(decorator(await get_mock_skill()))
     assert len(opsdroid.skills) == 1
     assert opsdroid.skills[0].matchers[0]["sapcai_intent"] == intent
-    assert asyncio.iscoroutinefunction(opsdroid.skills[0])
+    assert inspect.iscoroutinefunction(opsdroid.skills[0])
 
 
 @pytest.mark.anyio
@@ -112,14 +111,14 @@ async def test_match_crontab(opsdroid):
     opsdroid.skills.append(decorator(await get_mock_skill()))
     assert len(opsdroid.skills) == 1
     assert opsdroid.skills[0].matchers[0]["crontab"] == crontab
-    assert asyncio.iscoroutinefunction(opsdroid.skills[0])
+    assert inspect.iscoroutinefunction(opsdroid.skills[0])
 
 
 @pytest.mark.anyio
 async def test_match_webhook(opsdroid, mocker):
     opsdroid.loader.current_import_config = {"name": "testhook"}
     opsdroid.web_server = Web(opsdroid)
-    opsdroid.web_server.web_app = mocker.MagicMock()
+    opsdroid.web_server.web_app = mocker.AsyncMock()
     webhook = "test"
     decorator = matchers.match_webhook(webhook)
     opsdroid.skills.append(decorator(await get_mock_skill()))
@@ -127,7 +126,7 @@ async def test_match_webhook(opsdroid, mocker):
     opsdroid.web_server.setup_webhooks(opsdroid.skills)
     assert len(opsdroid.skills) == 1
     assert opsdroid.skills[0].matchers[0]["webhook"] == webhook
-    assert asyncio.iscoroutinefunction(opsdroid.skills[0])
+    assert inspect.iscoroutinefunction(opsdroid.skills[0])
     assert opsdroid.web_server.web_app.router.add_post.call_count == 2
 
 
@@ -135,7 +134,7 @@ async def test_match_webhook(opsdroid, mocker):
 async def test_match_webhook_response(opsdroid, mocker):
     opsdroid.loader.current_import_config = {"name": "testhook"}
     opsdroid.web_server = Web(opsdroid)
-    opsdroid.web_server.web_app = mocker.MagicMock()
+    opsdroid.web_server.web_app = mocker.AsyncMock()
     webhook = "test"
     decorator = matchers.match_webhook(webhook)
     opsdroid.skills.append(decorator(await get_mock_skill()))
@@ -152,7 +151,7 @@ async def test_match_webhook_response_with_authorization_failure(opsdroid, mocke
     opsdroid.loader.current_import_config = {"name": "testhook"}
     opsdroid.config["web"] = {"webhook-token": "aabbccddeeff"}
     opsdroid.web_server = Web(opsdroid)
-    opsdroid.web_server.web_app = mocker.MagicMock()
+    opsdroid.web_server.web_app = mocker.AsyncMock()
     webhook = "test"
     decorator = matchers.match_webhook(webhook)
     opsdroid.skills.append(decorator(await get_mock_skill()))
@@ -172,7 +171,7 @@ async def test_match_webhook_response_with_authorization_failure(opsdroid, mocke
 async def test_match_webhook_custom_response(opsdroid, mocker):
     opsdroid.loader.current_import_config = {"name": "testhook"}
     opsdroid.web_server = Web(opsdroid)
-    opsdroid.web_server.web_app = mocker.MagicMock()
+    opsdroid.web_server.web_app = mocker.AsyncMock()
     webhook = "test"
     decorator = matchers.match_webhook(webhook)
     opsdroid.skills.append(decorator(await get_mock_web_skill()))

@@ -39,9 +39,8 @@ class TestParserCrontab(asynctest.TestCase):
     async def test_parse_crontab(self):
         with OpsDroid() as opsdroid:
             self.not_first_run_flag = True
-            opsdroid.eventloop.is_running = self.true_once
             opsdroid.run_skill = amock.CoroutineMock()
-            with amock.patch("asyncio.sleep"):
+            with amock.patch("anyio.sleep"):
                 mock_skill = await self.getMockSkill()
                 mock_skill.config = {"name": "greetings"}
                 opsdroid.skills.append(match_crontab("* * * * *")(mock_skill))
@@ -52,9 +51,8 @@ class TestParserCrontab(asynctest.TestCase):
     async def test_parse_crontab_timezone(self):
         with OpsDroid() as opsdroid:
             self.not_first_run_flag = True
-            opsdroid.eventloop.is_running = self.true_once
             opsdroid.run_skill = amock.CoroutineMock()
-            with amock.patch("asyncio.sleep"):
+            with amock.patch("anyio.sleep"):
                 mock_skill = await self.getMockSkill()
                 mock_skill.config = {"name": "greetings"}
                 opsdroid.skills.append(
@@ -67,8 +65,7 @@ class TestParserCrontab(asynctest.TestCase):
     async def test_parse_crontab_raises(self):
         with OpsDroid() as opsdroid:
             self.not_first_run_flag = True
-            opsdroid.eventloop.is_running = self.true_once
-            with amock.patch("asyncio.sleep"):
+            with amock.patch("anyio.sleep"):
                 mock_skill = await self.getRaisingMockSkill()
                 mock_skill.config = {"name": "greetings"}
                 opsdroid.skills.append(match_crontab("* * * * *")(mock_skill))

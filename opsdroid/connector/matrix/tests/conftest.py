@@ -63,7 +63,7 @@ async def connector(opsdroid, request, mock_api_obj, mocker):
     conn = ConnectorMatrix(config, opsdroid=opsdroid)
     conn.connection = mocker.MagicMock()
     yield conn
-    if isinstance(conn.connection, nio.AsyncClient):
+    if isinstance(conn.connection, nio.client.AsyncClient):
         await conn.disconnect()
 
 

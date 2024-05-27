@@ -181,7 +181,6 @@ class OpsDroid:
         if not self.is_running():
             _LOGGER.info(_("Opsdroid is now running, press ctrl+c to exit."))
             self._running = True
-            # self.sync_load()
             await self.load()
             try:
                 _LOGGER.info(_("Opsdroid Startup Procedures"))
@@ -219,12 +218,10 @@ class OpsDroid:
         await self.start_databases()
         await self.start_connectors()
         self.taskgroup.start_soon(self.parse, events.OpsdroidStarted())
-        task_status.started(True)
-        # Just continue until we get a termination signal?
-        # self.create_task(self.watch_paths())
-        # self.create_task(parse_crontab(self))
+        self.taskgroup.start_soon(self.watch_paths)
+        self.taskgroup.start_soon(parse_crontab, self)
         await self.web_server.start()
-        # await self._run_tasks()
+        task_status.started(True)
 
     async def _run_tasks(self):
         """
