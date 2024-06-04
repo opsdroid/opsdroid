@@ -76,7 +76,8 @@ You need to choose between two backends. The [Events API](https://api.slack.com/
 
 If you are unsure which one is the best for you, [Slack Faq](https://api.slack.com/faq#events_api) provide differences between those two.
 
-```{note}
+```eval_rst
+.. note::
 While it is not mandatory to configure the Event API before using Slack in Socket Mode, we recommend
 setting up the Event API for its full feature set.
 ```
