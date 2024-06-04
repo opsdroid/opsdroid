@@ -27,9 +27,9 @@ We have dropped support for the RTM API. Now the Slack Connector supports the [e
 ## Requirements
 
 * A Slack account
-* Create a [new Slack App](https://api.slack.com/apps) --> From scratch and give it a name and select the workspace you would like it in.
+* Create a [new Slack App](https://api.slack.com/apps) --> "From scratch" and give it a name and select the workspace you would like it in.
 * Inside the "Add features and functionality" tab select "Bots" option 
-* Click "Review Scopes to Add". Under "Scopes" --> "Bot Token Scopes" select "Add an OAuth Scope" and choose `users:read` **and** `chat:write` (+`chat:write.customize`if you want to send messages as @your_slack_app with a customized username and avatar)
+* Click "Review Scopes to Add". Under "Scopes" --> "Bot Token Scopes" select "Add an OAuth Scope" and choose `users:read` **and** `chat:write` (+`chat:write.customize` if you want to send messages as @your_slack_app with a customized username and avatar)
 
   >Note that you are required to select at least one scope to install the app
 * Navigate to "OAuth Tokens for your Workspace" and click the "Install to Workspace" button. 
@@ -77,10 +77,10 @@ You need to choose between two backends. The [Events API](https://api.slack.com/
 
 If you are unsure which one is the best for you, [Slack Faq](https://api.slack.com/faq#events_api) provide differences between those two.
 
-```eval_rst 
+```eval_rst
 .. note::
-You should follow the instructions for the Event API first when configuring your slack connector, even if you are planning
-on using slack in Socket Mode.
+While it is not mandatory to configure the Event API before using Slack in Socket Mode, we recommend
+setting up the Event API for its full feature set.
 ```
 
 **1. Events API**

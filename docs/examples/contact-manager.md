@@ -117,16 +117,16 @@ class Contact(Skill):
 This part involves listing the contacts that have been added to the database. We will be doing this by getting the data from the database the same as how we did for the adding to the database which is `c.execute("SELECT * FROM contacts")`. With the data we can use a for loop to go through all the things in the database. It should look something like this:
 
 ```python
-    @match_regex(r"Show contacts")     
-    async def showContacts(self, message):
-        c.execute("SELECT * FROM contacts")
-        rows = c.fetchall()
-        if len(rows) == 0:
-            await message.respond('No Contacts added, Please Use Command "Add contact: PhoneNumber, Name, Surname, Email"')
-        else: 
-            for row in rows:
-                phoneNumber, name, surname, email = row
-                await message.respond(f'Phone Number: {phoneNumber}, Name: {name}, Surname: {surname} and Email: {email}')
+@match_regex(r"Show contacts")     
+ async def showContacts(self, message):
+  c.execute("SELECT * FROM contacts")
+  rows = c.fetchall()
+  if len(rows) == 0:
+    await message.respond('No Contacts added, Please Use Command "Add contact: PhoneNumber, Name, Surname, Email"')
+  else: 
+     for row in rows:
+        phoneNumber, name, surname, email = row
+        await message.respond(f'Phone Number: {phoneNumber}, Name: {name}, Surname: {surname} and Email: {email}')
 ```
 
 However we have a problem, if the user asks to `Show Contacts` without anything in the database it will return an error. We can fix this by checking if the len of rows in the database is equal to 0: `if len(rows) == 0:`.
