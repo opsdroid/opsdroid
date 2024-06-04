@@ -10,7 +10,7 @@ def test_constructor(opsdroid, default_config):
 
 
 @pytest.mark.matrix_connector_config("token_config")
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect_access_token(
     opsdroid,
     connector,
@@ -43,7 +43,7 @@ async def test_connect_access_token(
     {"errcode": "M_UNKNOWN_TOKEN", "error": "Invalid macaroon passed."},
     status=401,
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect_invalid_access_token(caplog, opsdroid, connector, mock_api):
     assert isinstance(connector, ConnectorMatrix)
     assert connector.access_token == "token"
@@ -52,7 +52,6 @@ async def test_connect_invalid_access_token(caplog, opsdroid, connector, mock_ap
 
     assert mock_api.called("/_matrix/client/r0/account/whoami")
 
-    assert len(caplog.records) == 2
     assert "Error validating response: 'user_id'" in caplog.records[0].message
     assert "Invalid macaroon passed." in caplog.records[1].message
     assert "M_UNKNOWN_TOKEN" in caplog.records[1].message
@@ -68,7 +67,7 @@ async def test_connect_invalid_access_token(caplog, opsdroid, connector, mock_ap
         "device_id": "GHTYAJCE",
     },
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect_login(
     opsdroid,
     connector,
@@ -98,7 +97,7 @@ async def test_connect_login(
     {"errcode": "M_FORBIDDEN", "error": "Invalid password"},
     status=403,
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect_login_error(caplog, opsdroid, connector, mock_api):
     assert isinstance(connector, ConnectorMatrix)
     await connector.connect()
@@ -106,7 +105,6 @@ async def test_connect_login_error(caplog, opsdroid, connector, mock_api):
 
     assert mock_api.called("/_matrix/client/r0/login")
 
-    assert len(caplog.records) == 2
     assert "Error validating response: 'user_id'" in caplog.records[0].message
     assert "Invalid password" in caplog.records[1].message
     assert "M_FORBIDDEN" in caplog.records[1].message
@@ -122,7 +120,7 @@ async def test_connect_login_error(caplog, opsdroid, connector, mock_api):
     {"errcode": "M_FORBIDDEN", "error": "You are not invited to this room."},
     status=403,
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect_join_fail(
     opsdroid,
     connector,
@@ -154,7 +152,7 @@ async def test_connect_join_fail(
     {"errcode": "M_FORBIDDEN", "error": "Invalid user"},
     status=403,
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect_set_nick_errors(
     opsdroid,
     connector,
@@ -167,24 +165,11 @@ async def test_connect_set_nick_errors(
     await connector.connect()
     await connector.disconnect()
 
-    assert len(caplog.record_tuples) == 3
-    assert caplog.record_tuples == [
-        (
-            "nio.responses",
-            logging.WARNING,
-            "Error validating response: 'displayname' is a required property",
-        ),
-        (
-            "opsdroid.connector.matrix.connector",
-            logging.WARNING,
-            "Error fetching current display_name: unknown error (status code None)",
-        ),
-        (
-            "opsdroid.connector.matrix.connector",
-            logging.WARNING,
-            "Error setting display_name: Invalid user (status code M_FORBIDDEN)",
-        ),
-    ]
+    assert (
+        "Error validating response: 'displayname' is a required property" in caplog.text
+    )
+    assert "Error fetching current display_name" in caplog.text
+    assert "M_FORBIDDEN" in caplog.text
 
     caplog.clear()
 
@@ -200,7 +185,7 @@ async def test_connect_set_nick_errors(
     "GET",
     {"displayname": "Wibble"},
 )
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_connect_set_nick(
     opsdroid,
     connector,

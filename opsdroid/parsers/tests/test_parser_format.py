@@ -1,11 +1,13 @@
 """Test the opsdroid parse_format parser."""
 import asynctest.mock as amock
+import pytest
 
 from opsdroid.cli.start import configure_lang
 from opsdroid.matchers import match_parse
 from opsdroid.events import Message
 from opsdroid.parsers.parseformat import parse_format
 
+pytestmark = pytest.mark.anyio
 
 configure_lang({})
 

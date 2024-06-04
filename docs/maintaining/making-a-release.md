@@ -28,7 +28,7 @@ Before creating the release do some final local testing:
 
 As opsdroid follows [SemVer 2.0](http://semver.org/) (`major.minor.patch`) the version number increase will depend on what has changed since the previous release.
 
-- If the release includes only bug fixes then only the `patch` will be incremented. (See [Backports](#Backports) section for making patches)
+- If the release includes only bug fixes then only the `patch` will be incremented.
 - If the release includes new features then the `minor` will be incremented and the `patch` will be reverted to `0`.
 - If the release includes changes which break backward compatibility then the `major` will be incremented with the `minor` and `patch` being reverted to `0`. However this only applies once opsdroid is above `v1.0.0`.
 

@@ -1,4 +1,5 @@
 """A helper module to create opsdroid events from Slack events."""
+
 import logging
 from collections import defaultdict
 
@@ -100,7 +101,7 @@ class SlackEventCreator(events.EventCreator):
         return events.EditedMessage(
             text,
             user=user_name,
-            user_id=event["message"]["user"],
+            user_id=event["message"].get("user", event["message"]["username"]),
             target=event["channel"],
             connector=self.connector,
             event_id=event["ts"],
