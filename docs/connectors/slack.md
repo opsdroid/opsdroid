@@ -27,10 +27,12 @@ We have dropped support for the RTM API. Now the Slack Connector supports the [e
 ## Requirements
 
 * A Slack account
-* Create a [new Slack App](https://api.slack.com/apps) give it a name and select the workspace you would like it in.
-* Select "Bots" option inside the "Add features and functionality" tab
-* Click "Review Scopes to Add". "Under Scopes" --> "Bot Token Scopes select" `users:read` **and** `chat:write` or `chat:write.customize` (Note that you are required to select at least one scope to install the app)
-* Navigate to "OAuth Tokens & Redirect URLs" and click the "Install to Workspace" button.
+* Create a [new Slack App](https://api.slack.com/apps) --> "From scratch" and give it a name and select the workspace you would like it in.
+* Inside the "Add features and functionality" tab select "Bots" option 
+* Click "Review Scopes to Add". Under "Scopes" --> "Bot Token Scopes" select "Add an OAuth Scope" and choose `users:read` **and** `chat:write` (+`chat:write.customize` if you want to send messages as @your_slack_app with a customized username and avatar)
+
+  >Note that you are required to select at least one scope to install the app
+* Navigate to "OAuth Tokens for your Workspace" and click the "Install to Workspace" button. 
 * Take note of the "Bot User OAuth Access Token" as this will be the `bot-token` you need for your configuration (the bot-token will start with `xoxb-`).
 
 (slack-configuration)=
@@ -75,14 +77,12 @@ You need to choose between two backends. The [Events API](https://api.slack.com/
 
 If you are unsure which one is the best for you, [Slack Faq](https://api.slack.com/faq#events_api) provide differences between those two.
 
-```{note}
-You should follow the instructions for the Event API first when configuring your slack connector, even if you are planning
-on using slack in Socket Mode.
+```eval_rst .. note::
+While it is not mandatory to configure the Event API before using Slack in Socket Mode, we recommend
+setting up the Event API for its full feature set.
 ```
 
-
-
-**Events API**
+**1. Events API**
 
 * Make sure to set `socket-mode` to `false` in your Opsdroid configuration.
 * You will need an **endpoint** which exposes your Opsdroid to the **internet**. [Exposing Opsdroid via tunnels](https://docs.opsdroid.dev/en/latest/exposing.html) might help out.
@@ -91,27 +91,26 @@ on using slack in Socket Mode.
 * On the left column go to "Event Subscriptions" and set the "Enable Events" toggle to enabled.
 * Under "Request URL" add the `/connector/slack` uri to your endpoint: https://slackbot.example.com/connector/slack. Note that you will have to have your Opsdroid instance running so Slack can verify the endpoint.
 
-**Socket Mode**
-
- Mode. The reason for this is that the Request URL verification step is needed and is only available via the *Events API*.
+**2. Socket Mode**
 * Go to your [Slack App](https://api.slack.com/apps)
-* On the left column go to "Socket Mode" and set the "Enable Socket Mode" toggle to enabled.
+* On the left column go to "Socket Mode", set the "Enable Socket Mode" toggle to enabled and give your token a name.
+* Copy your token add add it to your Opsdroid configuration file as your `app-token`. (the `app-token` will start with `xapp-abcdef-1233`)
 * Make sure to set `socket-mode` to `true` in your Opsdroid configuration.
-* Copy your new token add add it to your Opsdroid configuration file as your `app-token`. (the `app-token` will start with `xapp-abcdef-1233`)
 
 
 (subscribe-to-events)=
 ### Subscribe to events
 You will need to subscribe to events in your new Slack App, so Opsdroid can receive those events.
 You need to subscribe to events regardless of the backend: **Socket Mode** or **Events API**
+* On the left column go to "Event Subscriptions" and set the "Enable Events" toggle to enabled.
 * Under "Subscribe to bot events" choose the events you want to subscribe for. You need at least one, `message.channels` will allow you to receive events everytime a message is posted into a channel. The following events are also supported by opsdroid: `message.im`, `channel_archive`, `channel_unarchive`, `channel_created`, `channel_rename`, `pin_added`, `pin_removed` and `team_join`.
-* Don't forget to save your changes in the slack app.
-(usage)=
+* Don't forget to save your changes in the slack app and reinstall your app.
+(usage)= 
 ## Usage
 The connector itself won't allow opsdroid to do much. It will connect to Slack and be active on the `default-room`
 but you will still need some skill to have opsdroid react to an input.
 
-Luckily, opsdroid comes with few skills out of the box as well. So once you run opsdroid you will see that it joined either the room that you set up on `default-room` parameter in the configuration or it will be in the `#general` room.
+Luckily, opsdroid comes with few skills out of the box as well.([dance()](https://github.com/opsdroid/skill-dance), [hello()](https://github.com/opsdroid/skill-hello), [loudnoises()](https://github.com/opsdroid/skill-loudnoises), [seen()](https://github.com/opsdroid/skill-seen)) So once you run opsdroid on your CLI you will see that it joined either the room that you set up on `default-room` parameter in the configuration or it will be in the `#general` room.
 
 _Note: If opsdroid failed to join the room you can always invite him by clicking "Channel Details" -> "Add Apps"_
 

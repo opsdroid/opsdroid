@@ -91,20 +91,20 @@ Now we will be making a function which will be responsible for inserting the con
 ```python
 class Contact(Skill):
 
-   @match_regex(r"Add contact: (\d+), (.+), (.+), (\S+@\S+)") #phoneNumber, name, surname, email
-   async def addContact(self, message):
-       phoneNumber = message.regex.group(1)  # Extract the phoneNumber
-       name = message.regex.group(2) 
-       surname = message.regex.group(3) 
-       email =  message.regex.group(4) 
-       c.execute("SELECT * FROM contacts WHERE phoneNumber = ?", (phoneNumber,))
-       existing_contact = c.fetchone()
-       if existing_contact:
-           await message.respond(f"Contact already exists!")
-       else:
-           c.execute("INSERT INTO contacts (phoneNumber, name, surname, email) VALUES (?, ?, ?, ?)", (phoneNumber, name, surname, email))
-           conn.commit()
-           await message.respond(f"Contact with Phone Number {phoneNumber} added to the Contact Book!")
+    @match_regex(r"Add contact: (\d+), (.+), (.+), (\S+@\S+)") #phoneNumber, name, surname, email
+    async def addContact(self, message):
+        phoneNumber = message.regex.group(1)  # Extract the phoneNumber
+        name = message.regex.group(2) 
+        surname = message.regex.group(3) 
+        email =  message.regex.group(4) 
+        c.execute("SELECT * FROM contacts WHERE phoneNumber = ?", (phoneNumber,))
+        existing_contact = c.fetchone()
+        if existing_contact:
+            await message.respond(f"Contact already exists!")
+        else:
+            c.execute("INSERT INTO contacts (phoneNumber, name, surname, email) VALUES (?, ?, ?, ?)", (phoneNumber, name, surname, email))
+            conn.commit()
+            await message.respond(f"Contact with Phone Number {phoneNumber} added to the Contact Book!")
 ```
 **We prevent duplicating one contact into the database by executing this:**
 
