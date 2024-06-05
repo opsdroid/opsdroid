@@ -106,7 +106,7 @@ You need to subscribe to events regardless of the backend: **Socket Mode** or **
 * On the left column go to "Event Subscriptions" and set the "Enable Events" toggle to enabled.
 * Under "Subscribe to bot events" choose the events you want to subscribe for. You need at least one, `message.channels` will allow you to receive events everytime a message is posted into a channel. The following events are also supported by opsdroid: `message.im`, `channel_archive`, `channel_unarchive`, `channel_created`, `channel_rename`, `pin_added`, `pin_removed` and `team_join`.
 * Don't forget to save your changes in the slack app and reinstall your app.
- 
+(usage)= 
 ## Usage
 The connector itself won't allow opsdroid to do much. It will connect to Slack and be active on the `default-room`
 but you will still need some skill to have opsdroid react to an input.
