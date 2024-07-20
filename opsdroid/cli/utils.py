@@ -6,6 +6,7 @@ import logging
 import os
 import subprocess
 import time
+import platform
 
 import click
 from opsdroid.configuration import load_config_file
@@ -43,7 +44,10 @@ def edit_config(ctx, path):
 
     """
     file = path or DEFAULT_CONFIG_PATH
-    editor = os.environ.get("EDITOR", "vi")
+    if platform.system() == "Windows":
+        editor = os.environ.get("EDITOR", "notepad.exe")
+    else:
+        editor = os.environ.get("EDITOR", "vi")
 
     if editor == "vi":
         click.echo(
