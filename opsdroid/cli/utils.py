@@ -44,7 +44,9 @@ def edit_config(ctx, path):
 
     """
     file = path or DEFAULT_CONFIG_PATH
-    editor = os.environ.get("EDITOR", "notepad.exe" if platform.system() == "Windows" else "vi")
+    editor = os.environ.get(
+        "EDITOR", "notepad.exe" if platform.system() == "Windows" else "vi"
+    )
 
     if editor == "vi":
         click.echo(
