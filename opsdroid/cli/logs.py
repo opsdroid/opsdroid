@@ -1,6 +1,6 @@
 """The logs subcommand for opsdroid cli."""
 
-import click
+import asyncclick as click
 import tailer
 from opsdroid.const import DEFAULT_LOG_FILENAME
 

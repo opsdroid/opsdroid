@@ -1,6 +1,7 @@
 import asyncio
 import asynctest
 import asynctest.mock as amock
+import unittest.mock as mock
 
 from aiohttp import ClientOSError
 
@@ -97,7 +98,7 @@ class TestParserWitai(asynctest.TestCase):
             mock_skill.config = {"name": "mocked-skill"}
             opsdroid.skills.append(match_witai("get_weather")(mock_skill))
 
-            mock_connector = amock.MagicMock()
+            mock_connector = mock.AsyncMock()
             mock_connector.send = amock.CoroutineMock()
             message = Message(
                 text="how's the weather outside",

@@ -1,5 +1,5 @@
 """A connector for Twitch."""
-import asyncio
+import anyio
 import hashlib
 import hmac
 import json
@@ -63,7 +63,6 @@ class ConnectorTwitch(Connector):
         # TODO: Allow usage of SSL connection
         self.server = "ws://irc-ws.chat.twitch.tv"
         self.port = "80"
-        self.loop = asyncio.get_event_loop()
         self.reconnections = 0
         self.auth_file = TWITCH_JSON
         try:
@@ -528,7 +527,7 @@ class ConnectorTwitch(Connector):
                 await self.connect_websocket()
             except ConnectionError as e:
                 _LOGGER.debug(e)
-                await asyncio.sleep(2**self.reconnections)
+                await anyio.sleep(2**self.reconnections)
                 self.reconnections += 1
                 await self.connect_websocket()
 
@@ -751,7 +750,7 @@ class ConnectorTwitch(Connector):
         close_method = getattr(self.websocket, "close", None)
 
         if callable(close_method):
-            asyncio.ensure_future(close_method(), loop=self.loop)
+            self.opsdroid.taskgroup.start_soon(close_method)
 
         self.websocket = None
 

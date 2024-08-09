@@ -1,6 +1,6 @@
 """A helper function for parsing and executing crontab skills."""
 import time
-import asyncio
+import anyio
 import logging
 
 import arrow
@@ -12,8 +12,8 @@ _LOGGER = logging.getLogger(__name__)
 
 async def parse_crontab(opsdroid):
     """Parse all crontab skills against the current time."""
-    while opsdroid.eventloop.is_running():
-        await asyncio.sleep(60 - arrow.now().time().second)
+    while opsdroid.is_running():
+        await anyio.sleep(60 - arrow.now().time().second)
         _LOGGER.debug(_("Running crontab skills at %s."), time.asctime())
         for skill in opsdroid.skills:
             for matcher in skill.matchers:

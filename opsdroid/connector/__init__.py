@@ -101,6 +101,7 @@ class Connector:
         self.config = config
         self.default_target = None
         self.opsdroid = opsdroid
+        self.connected = False
 
     @property
     def configuration(self):

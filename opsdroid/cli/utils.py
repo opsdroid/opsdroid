@@ -8,7 +8,7 @@ import subprocess
 import time
 import platform
 
-import click
+import asyncclick as click
 from opsdroid.configuration import load_config_file
 from opsdroid.const import (
     DEFAULT_CONFIG_LOCATIONS,
