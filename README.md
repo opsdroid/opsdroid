@@ -35,8 +35,85 @@ An open source chatbot framework written in Python. It is designed to be extenda
 This framework is designed to take events from chat services and other sources and execute Python functions (skills) based on their contents. Those functions can be anything you like, from simple conversational responses to running complex tasks. The true power of this project is to act as a glue library to bring the multitude of natural language APIs, chat services and third-party APIs together.
 
 See [our full documentation](https://docs.opsdroid.dev) to get started.
+## Quick Start
 
-### Contributors
+### Installation
+
+Install Opsdroid with all dependencies:
+
+```bash
+pip install opsdroid[all]
+```
+
+For more specific installations, refer to the [installation docs](https://docs.opsdroid.dev/en/stable/installation/).
+
+### Configuration
+
+Opsdroid uses a YAML file for configuration. Create or edit the config file:
+
+```bash
+opsdroid config edit
+```
+
+Minimal configuration example:
+
+```yaml
+connectors:
+  slack:
+    token: "YOUR_SLACK_API_TOKEN"
+
+skills:
+  hello: {}
+```
+
+### Running Opsdroid
+
+Start Opsdroid with:
+
+```bash
+opsdroid start
+```
+
+## Key Concepts
+
+- **Connector**: A module that connects Opsdroid to a chat service (e.g., Slack).
+- **Skill**: Functions or classes that define bot behaviors triggered by specific events.
+- **Matcher**: A trigger for skills, such as a specific phrase in the chat.
+
+## Creating a Custom Skill
+
+1. Create a new Python file (e.g., `myskill.py`):
+
+```python
+from opsdroid.skill import Skill
+from opsdroid.matchers import match_regex
+
+class PingSkill(Skill):
+    @match_regex(r"ping")
+    async def ping(self, event):
+        await event.respond("pong")
+```
+
+2. Add the skill to your configuration:
+
+```yaml
+skills:
+  hello: {}
+  ping:
+    path: ~/opsdroid/myskill.py
+```
+
+## Next Steps
+
+- Explore the [project overview](https://docs.opsdroid.dev/en/stable/overview.html) to learn more about Opsdroid's features.
+- Try Opsdroid in the [Opsdroid Playground](https://playground.opsdroid.dev/).
+- Check out the [documentation](https://docs.opsdroid.dev/) for detailed information on skills, connectors, and databases.
+
+## Contributing
+
+Contributions to Opsdroid are welcome! Please refer to the [contributing guidelines](https://docs.opsdroid.dev/en/stable/contributing/) for more information.
+
+## Contributors
 
 This project exists thanks to all the people who contribute. [[Contribute](https://docs.opsdroid.dev/en/stable/contributing/)].
 <a href="https://github.com/opsdroid/opsdroid/graphs/contributors"><img src="https://opencollective.com/opsdroid/contributors.svg?width=890" /></a>
