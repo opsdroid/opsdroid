@@ -3,6 +3,8 @@ import logging
 import pytest
 from opsdroid.connector.matrix import ConnectorMatrix
 
+from unittest.mock import AsyncMock
+
 
 def test_constructor(opsdroid, default_config):
     connector = ConnectorMatrix(default_config, opsdroid)
@@ -203,3 +205,62 @@ async def test_connect_set_nick(
     assert mock_api.called(
         "/_matrix/client/r0/profile/@opsdroid:localhost/displayname", "PUT"
     )
+
+
+@pytest.mark.matrix_connector_config("token_config")
+@pytest.mark.add_response(
+    "/_matrix/client/v3/joined_rooms",
+    "GET",
+    {"joined_rooms": ["!room1:matrix.org", "!room2:matrix.org"]},
+)
+@pytest.mark.anyio
+async def test_get_joined_rooms_success(
+    connector,
+    mock_api,
+):
+    """Test that get_joined_rooms successfully returns a list of joined rooms."""
+
+    connector.connection.joined_rooms = AsyncMock(
+        return_value={"joined_rooms": ["!room1:matrix.org", "!room2:matrix.org"]}
+    )
+
+    rooms = await connector.get_joined_rooms()
+
+    assert rooms == ["!room1:matrix.org", "!room2:matrix.org"]
+
+
+@pytest.mark.matrix_connector_config("token_config")
+@pytest.mark.add_response(
+    "/_matrix/client/v3/joined_rooms",
+    "GET",
+    {"errcode": "M_FORBIDDEN", "error": "Unauthorized request"},
+    status=403,
+)
+@pytest.mark.anyio
+async def test_get_joined_rooms_failure(caplog, connector, mock_api):
+    """Test that get_joined_rooms returns an empty list on failure and logs an error."""
+
+    connector.connection.joined_rooms = AsyncMock(return_value={})
+
+    with caplog.at_level(logging.ERROR):
+        rooms = await connector.get_joined_rooms()
+
+    assert rooms == []
+    assert "Unauthorized request" in caplog.text
+
+
+@pytest.mark.matrix_connector_config("token_config")
+@pytest.mark.add_response(
+    "/_matrix/client/v3/joined_rooms",
+    "GET",
+    {},
+)
+@pytest.mark.anyio
+async def test_get_joined_rooms_unexpected_response(connector, mock_api):
+    """Test that get_joined_rooms handles an unexpected response format gracefully."""
+
+    connector.connection.joined_rooms = AsyncMock(return_value={})
+
+    rooms = await connector.get_joined_rooms()
+
+    assert rooms == []

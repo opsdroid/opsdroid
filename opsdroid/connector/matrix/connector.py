@@ -691,3 +691,15 @@ class ConnectorMatrix(Connector):
             event.content,
             ignore_unverified_devices=self._ignore_unverified,
         )
+
+    async def get_joined_rooms(self, encrypted_only=False):
+        """Return a list of the joined rooms room IDs."""
+        response = await self.connection.joined_rooms()
+
+        # Check if the response is an error
+        if isinstance(response, nio.ErrorResponse):
+            self._LOGGER.error(f"Failed to fetch joined rooms: {response.message}")
+            return []
+
+        # If the response is valid, return the joined rooms from the response
+        return response.get("joined_rooms", [])
