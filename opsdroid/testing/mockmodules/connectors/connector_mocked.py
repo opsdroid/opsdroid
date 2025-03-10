@@ -1,6 +1,6 @@
 """A mocked connector module."""
 
-import asynctest.mock as amock
+from unittest.mock import AsyncMock
 
 from opsdroid.connector import Connector
 
@@ -10,8 +10,8 @@ class ConnectorTest(Connector):
 
     def __init__(self, config, opsdroid=None):
         """Start the class."""
-        self.connect = amock.CoroutineMock()
-        self.listen = amock.CoroutineMock()
-        self.respond = amock.CoroutineMock()
-        self.disconnect = amock.CoroutineMock()
-        self.opsdroid = amock.CoroutineMock()
+        self.connect = AsyncMock()
+        self.listen = AsyncMock()
+        self.respond = AsyncMock()
+        self.disconnect = AsyncMock()
+        self.opsdroid = AsyncMock()

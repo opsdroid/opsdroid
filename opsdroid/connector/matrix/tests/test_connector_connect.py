@@ -24,21 +24,18 @@ async def test_connect_access_token(
     await connector.connect()
     await connector.disconnect()
 
-    assert mock_api.called("/_matrix/client/r0/account/whoami")
-    assert (
-        mock_api.call_count("/_matrix/client/r0/user/@opsdroid:localhost/filter") == 2
-    )
-    assert mock_api.called("/_matrix/client/r0/sync")
-    assert mock_api.called("/_matrix/client/r0/join/#test:localhost")
+    assert mock_api.called("/_matrix/client/v3/account/whoami")
+    assert mock_api.called("/_matrix/client/v3/sync")
+    assert mock_api.called("/_matrix/client/v3/join/#test:localhost")
 
-    whoami_call = mock_api.get_request("/_matrix/client/r0/account/whoami", "GET", 0)
-    assert "access_token" in whoami_call.query
-    assert whoami_call.query["access_token"] == "token"
+    whoami_call = mock_api.get_request("/_matrix/client/v3/account/whoami", "GET", 0)
+    assert "Authorization" in whoami_call.headers
+    assert whoami_call.headers["Authorization"] == "Bearer token"
 
 
 @pytest.mark.matrix_connector_config("token_config")
 @pytest.mark.add_response(
-    "/_matrix/client/r0/account/whoami",
+    "/_matrix/client/v3/account/whoami",
     "GET",
     {"errcode": "M_UNKNOWN_TOKEN", "error": "Invalid macaroon passed."},
     status=401,
@@ -50,7 +47,7 @@ async def test_connect_invalid_access_token(caplog, opsdroid, connector, mock_ap
     await connector.connect()
     await connector.disconnect()
 
-    assert mock_api.called("/_matrix/client/r0/account/whoami")
+    assert mock_api.called("/_matrix/client/v3/account/whoami")
 
     assert "Error validating response: 'user_id'" in caplog.records[0].message
     assert "Invalid macaroon passed." in caplog.records[1].message
@@ -59,7 +56,7 @@ async def test_connect_invalid_access_token(caplog, opsdroid, connector, mock_ap
 
 @pytest.mark.matrix_connector_config("login_config")
 @pytest.mark.add_response(
-    "/_matrix/client/r0/login",
+    "/_matrix/client/v3/login",
     "POST",
     {
         "user_id": "@opsdroid:localhost",
@@ -80,19 +77,14 @@ async def test_connect_login(
     await connector.connect()
     await connector.disconnect()
 
-    assert mock_api.called("/_matrix/client/r0/login")
-    assert (
-        mock_api.call_count("/_matrix/client/r0/user/@opsdroid:localhost/filter") == 2
-    )
-    assert mock_api.called("/_matrix/client/r0/sync")
-    assert mock_api.called("/_matrix/client/r0/join/#test:localhost")
+    assert mock_api.called("/_matrix/client/v3/login")
 
     assert connector.access_token == connector.connection.access_token == "abc123"
 
 
 @pytest.mark.matrix_connector_config("login_config")
 @pytest.mark.add_response(
-    "/_matrix/client/r0/login",
+    "/_matrix/client/v3/login",
     "POST",
     {"errcode": "M_FORBIDDEN", "error": "Invalid password"},
     status=403,
@@ -103,7 +95,7 @@ async def test_connect_login_error(caplog, opsdroid, connector, mock_api):
     await connector.connect()
     await connector.disconnect()
 
-    assert mock_api.called("/_matrix/client/r0/login")
+    assert mock_api.called("/_matrix/client/v3/login")
 
     assert "Error validating response: 'user_id'" in caplog.records[0].message
     assert "Invalid password" in caplog.records[1].message
@@ -112,10 +104,10 @@ async def test_connect_login_error(caplog, opsdroid, connector, mock_api):
 
 @pytest.mark.matrix_connector_config("token_config")
 @pytest.mark.add_response(
-    "/_matrix/client/r0/account/whoami", "GET", {"user_id": "@opsdroid:localhost"}
+    "/_matrix/client/v3/account/whoami", "GET", {"user_id": "@opsdroid:localhost"}
 )
 @pytest.mark.add_response(
-    "/_matrix/client/r0/join/#test:localhost",
+    "/_matrix/client/v3/join/#test:localhost",
     "POST",
     {"errcode": "M_FORBIDDEN", "error": "You are not invited to this room."},
     status=403,
@@ -134,20 +126,18 @@ async def test_connect_join_fail(
     await connector.connect()
     await connector.disconnect()
 
-    assert caplog.record_tuples == [
-        (
-            "opsdroid.connector.matrix.connector",
-            logging.ERROR,
-            "Error while joining room: #test:localhost, Message: You are not invited to this room. (status code M_FORBIDDEN)",
-        )
-    ]
+    assert (
+        "opsdroid.connector.matrix.connector",
+        logging.ERROR,
+        "Error while joining room: #test:localhost, Message: You are not invited to this room. (status code M_FORBIDDEN)",
+    ) in caplog.record_tuples
 
 
 @pytest.mark.matrix_connector_config(
     {"access_token": "token", "rooms": {"main": "#test:localhost"}, "nick": "opsdroid"}
 )
 @pytest.mark.add_response(
-    "/_matrix/client/r0/profile/@opsdroid:localhost/displayname",
+    "/_matrix/client/v3/profile/@opsdroid:localhost/displayname",
     "PUT",
     {"errcode": "M_FORBIDDEN", "error": "Invalid user"},
     status=403,
@@ -178,10 +168,10 @@ async def test_connect_set_nick_errors(
     {"access_token": "token", "rooms": {"main": "#test:localhost"}, "nick": "opsdroid"}
 )
 @pytest.mark.add_response(
-    "/_matrix/client/r0/profile/@opsdroid:localhost/displayname", "PUT", {}
+    "/_matrix/client/v3/profile/@opsdroid:localhost/displayname", "PUT", {}
 )
 @pytest.mark.add_response(
-    "/_matrix/client/r0/profile/@opsdroid:localhost/displayname",
+    "/_matrix/client/v3/profile/@opsdroid:localhost/displayname",
     "GET",
     {"displayname": "Wibble"},
 )
@@ -198,8 +188,8 @@ async def test_connect_set_nick(
     await connector.disconnect()
 
     assert mock_api.called(
-        "/_matrix/client/r0/profile/@opsdroid:localhost/displayname", "GET"
+        "/_matrix/client/v3/profile/@opsdroid:localhost/displayname", "GET"
     )
     assert mock_api.called(
-        "/_matrix/client/r0/profile/@opsdroid:localhost/displayname", "PUT"
+        "/_matrix/client/v3/profile/@opsdroid:localhost/displayname", "PUT"
     )

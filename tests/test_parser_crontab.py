@@ -1,5 +1,5 @@
-import asynctest
-import asynctest.mock as amock
+from unittest import TestCase
+from unittest.mock import AsyncMock, patch
 
 from opsdroid.cli.start import configure_lang
 from opsdroid.core import OpsDroid
@@ -7,7 +7,7 @@ from opsdroid.matchers import match_crontab
 from opsdroid.parsers.crontab import parse_crontab
 
 
-class TestParserCrontab(asynctest.TestCase):
+class TestParserCrontab(TestCase):
     """Test the opsdroid crontab parser."""
 
     not_first_run_flag = True
@@ -40,8 +40,8 @@ class TestParserCrontab(asynctest.TestCase):
         with OpsDroid() as opsdroid:
             self.not_first_run_flag = True
             opsdroid.eventloop.is_running = self.true_once
-            opsdroid.run_skill = amock.CoroutineMock()
-            with amock.patch("asyncio.sleep"):
+            opsdroid.run_skill = AsyncMock()
+            with patch("asyncio.sleep"):
                 mock_skill = await self.getMockSkill()
                 mock_skill.config = {"name": "greetings"}
                 opsdroid.skills.append(match_crontab("* * * * *")(mock_skill))
@@ -53,8 +53,8 @@ class TestParserCrontab(asynctest.TestCase):
         with OpsDroid() as opsdroid:
             self.not_first_run_flag = True
             opsdroid.eventloop.is_running = self.true_once
-            opsdroid.run_skill = amock.CoroutineMock()
-            with amock.patch("asyncio.sleep"):
+            opsdroid.run_skill = AsyncMock()
+            with patch("asyncio.sleep"):
                 mock_skill = await self.getMockSkill()
                 mock_skill.config = {"name": "greetings"}
                 opsdroid.skills.append(
@@ -68,7 +68,7 @@ class TestParserCrontab(asynctest.TestCase):
         with OpsDroid() as opsdroid:
             self.not_first_run_flag = True
             opsdroid.eventloop.is_running = self.true_once
-            with amock.patch("asyncio.sleep"):
+            with patch("asyncio.sleep"):
                 mock_skill = await self.getRaisingMockSkill()
                 mock_skill.config = {"name": "greetings"}
                 opsdroid.skills.append(match_crontab("* * * * *")(mock_skill))

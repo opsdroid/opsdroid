@@ -3,9 +3,8 @@ import os
 import io
 import contextlib
 import asyncio
-import unittest
-import asynctest
-import asynctest.mock as amock
+from unittest import TestCase
+from unittest.mock import AsyncMock, MagicMock, PropertyMock, patch
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector.shell import ConnectorShell
@@ -13,7 +12,7 @@ from opsdroid.message import Message
 from opsdroid.cli.start import configure_lang
 
 
-class TestConnectorShell(unittest.TestCase):
+class TestConnectorShell(TestCase):
     """Test the opsdroid shell connector class."""
 
     def setUp(self):
@@ -59,7 +58,7 @@ class TestConnectorShell(unittest.TestCase):
             self.assertEqual(prompt, "\r \r")
 
 
-class TestConnectorShellAsync(asynctest.TestCase):
+class TestConnectorShellAsync(TestCase):
     """Test the async methods of the opsdroid shell connector class."""
 
     def setUp(self):
@@ -67,18 +66,18 @@ class TestConnectorShellAsync(asynctest.TestCase):
         self.connector = ConnectorShell({"name": "shell", "bot-name": "opsdroid"})
 
     async def test_read_stdin(self):
-        with amock.patch(
+        with patch(
             "opsdroid.connector.shell.ConnectorShell.read_stdin"
         ) as mocked_read_stdin:
             await self.connector.read_stdin()
             self.assertTrue(mocked_read_stdin.called)
 
         if os.name == "nt":
-            with amock.patch("asyncio.events.AbstractEventLoop.connect_read_pipe"):
+            with patch("asyncio.events.AbstractEventLoop.connect_read_pipe"):
                 with contextlib.suppress(NotImplementedError):
                     await self.connector.read_stdin()
         else:
-            self.connector.loop.connect_read_pipe = amock.CoroutineMock()
+            self.connector.loop.connect_read_pipe = AsyncMock()
             self.connector.reader = None
             self.assertIsNone(self.connector.reader)
             result = await self.connector.read_stdin()
@@ -89,11 +88,11 @@ class TestConnectorShellAsync(asynctest.TestCase):
         await connector.connect()
         self.assertTrue(connector.connect)
 
-        with amock.patch("platform.system", amock.MagicMock(return_value="Windows")):
+        with patch("platform.system", MagicMock(return_value="Windows")):
             await connector.connect()
             self.assertTrue(connector.connect)
 
-    @amock.patch("opsdroid.connector.shell.ConnectorShell.read_stdin")
+    @patch("opsdroid.connector.shell.ConnectorShell.read_stdin")
     async def test_async_input(self, mocked_read):
         mocked_read.readline.return_value.side_effect = "hi"
         with contextlib.suppress(AttributeError, TypeError):
@@ -104,7 +103,7 @@ class TestConnectorShellAsync(asynctest.TestCase):
         f = asyncio.Future()
         f.set_result(b"hi\n")
 
-        with asynctest.patch("asyncio.streams.StreamReader.readline") as mocked_line:
+        with patch("asyncio.streams.StreamReader.readline") as mocked_line:
             mocked_line.return_value = f
             connector.reader = asyncio.streams.StreamReader
             returned = await connector.async_input()
@@ -113,14 +112,12 @@ class TestConnectorShellAsync(asynctest.TestCase):
     async def test_parse_message(self):
         connector = ConnectorShell({}, opsdroid=OpsDroid())
 
-        with amock.patch(
-            "opsdroid.connector.shell.ConnectorShell.parseloop"
-        ) as mockedloop:
+        with patch("opsdroid.connector.shell.ConnectorShell.parseloop") as mockedloop:
             self.assertTrue(connector.listening)
             connector.listening = True
-            with amock.patch(
+            with patch(
                 "opsdroid.connector.shell.ConnectorShell.is_listening",
-                new_callable=amock.PropertyMock,
+                new_callable=PropertyMock,
                 side_effect=[True, False],
             ):
                 await connector._parse_message()
@@ -129,13 +126,13 @@ class TestConnectorShellAsync(asynctest.TestCase):
     async def test_parseloop(self):
         connector = ConnectorShell({}, opsdroid=OpsDroid())
 
-        connector.draw_prompt = amock.CoroutineMock()
+        connector.draw_prompt = AsyncMock()
         connector.draw_prompt.return_value = "opsdroid> "
-        connector.async_input = amock.CoroutineMock()
+        connector.async_input = AsyncMock()
         connector.async_input.return_value = "hello"
 
-        connector.opsdroid = amock.CoroutineMock()
-        connector.opsdroid.parse = amock.CoroutineMock()
+        connector.opsdroid = AsyncMock()
+        connector.opsdroid.parse = AsyncMock()
 
         await connector.parseloop()
         self.assertTrue(connector.opsdroid.parse.called)
@@ -143,7 +140,7 @@ class TestConnectorShellAsync(asynctest.TestCase):
     async def test_listen(self):
         connector = ConnectorShell({}, opsdroid=OpsDroid())
         connector.listening = False
-        with amock.patch("asyncio.events.AbstractEventLoop.create_task"), amock.patch(
+        with patch("asyncio.events.AbstractEventLoop.create_task"), patch(
             "asyncio.locks.Event.wait"
         ):
             await connector.listen()
