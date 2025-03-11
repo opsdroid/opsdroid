@@ -1,4 +1,4 @@
-import asynctest
+from unittest import TestCase
 
 from opsdroid.core import OpsDroid
 from opsdroid.message import Message
@@ -6,7 +6,7 @@ from opsdroid.connector import Connector
 from opsdroid.cli.start import configure_lang
 
 
-class TestMessage(asynctest.TestCase):
+class TestMessage(TestCase):
     """Test the old opsdroid message class."""
 
     async def setup(self):
