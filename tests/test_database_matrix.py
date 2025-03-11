@@ -99,11 +99,11 @@ async def test_default_config(patched_send, opsdroid_matrix):
         [
             matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/",
             ),
             matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/",
                 {"twim": {"hello": "world"}},
             ),
         ]
@@ -134,16 +134,16 @@ async def test_default_config_enc(patched_send, opsdroid_matrix, patched_uuid):
         [
             matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/",
             ),
             matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/send/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/send/dev.opsdroid.database/",
                 {"twim": {"hello": "world"}},
             ),
             matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/",
                 {"twim": {"encrypted_val": "enceventid"}},
             ),
         ],
@@ -168,11 +168,11 @@ async def test_put_custom_state_key(patched_send, opsdroid_matrix):
         [
             matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/wibble",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/wibble",
             ),
             matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/wibble",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/wibble",
                 {"twim": {"hello": "world"}},
             ),
         ]
@@ -203,16 +203,16 @@ async def test_put_custom_state_key_enc(patched_send, opsdroid_matrix, patched_u
         [
             matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/wibble",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/wibble",
             ),
             matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/send/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/send/dev.opsdroid.database/",
                 {"twim": {"hello": "world"}},
             ),
             matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/wibble",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/wibble",
                 {"twim": {"encrypted_val": "enceventid"}},
             ),
         ],
@@ -236,11 +236,11 @@ async def test_single_state_key_false(patched_send, opsdroid_matrix):
         [
             matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/hello",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/hello",
             ),
             matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/hello",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/hello",
                 {"hello": "world"},
             ),
         ]
@@ -271,16 +271,16 @@ async def test_single_state_key_false_enc(patched_send, opsdroid_matrix, patched
         [
             matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/hello",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/hello",
             ),
             matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/send/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/send/dev.opsdroid.database/",
                 {"hello": "world"},
             ),
             matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/hello",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/hello",
                 {"hello": {"encrypted_val": "enceventid"}},
             ),
         ],
@@ -304,11 +304,11 @@ async def test_single_state_key_false_dict(patched_send, opsdroid_matrix):
         [
             matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
             ),
             matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
                 {"twim": {"hello": "world", "twim": "hello"}},
             ),
         ]
@@ -341,16 +341,16 @@ async def test_single_state_key_false_dict_enc(
         [
             matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
             ),
             matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/send/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/send/dev.opsdroid.database/",
                 {"twim": {"hello": "world", "twim": "hello"}},
             ),
             matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
                 {"twim": {"encrypted_val": "enceventid"}},
             ),
         ],
@@ -375,11 +375,11 @@ async def test_single_state_not_a_dict(patched_send, opsdroid_matrix):
         [
             matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/",
             ),
             matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/",
                 {"twim": value},
             ),
         ]
@@ -403,11 +403,11 @@ async def test_default_update_same_key(patched_send, opsdroid_matrix):
         [
             matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
             ),
             matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
                 {"twim": {"hello": "bob"}},
             ),
         ]
@@ -451,17 +451,17 @@ async def test_default_update_same_key_enc(patched_send, opsdroid_matrix, patche
         [
             matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
             ),
-            matrix_call("GET", "/_matrix/client/r0/rooms/%21notaroomid/event/"),
+            matrix_call("GET", "/_matrix/client/v3/rooms/%21notaroomid/event/"),
             matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/send/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/send/dev.opsdroid.database/",
                 {"twim": {"hello": "bob"}},
             ),
             matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
                 {"twim": {"encrypted_val": "enceventid"}},
             ),
         ],
@@ -486,11 +486,11 @@ async def test_update_same_key_single_state_key(patched_send, opsdroid_matrix):
         [
             matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/",
             ),
             matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/",
                 {"twim": {"hello": "bob"}},
             ),
         ]
@@ -536,17 +536,17 @@ async def test_update_same_key_single_state_key_enc(
         [
             matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/",
             ),
-            matrix_call("GET", "/_matrix/client/r0/rooms/%21notaroomid/event/"),
+            matrix_call("GET", "/_matrix/client/v3/rooms/%21notaroomid/event/"),
             matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/send/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/send/dev.opsdroid.database/",
                 {"twim": {"hello": "bob"}},
             ),
             matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/",
                 {"twim": {"encrypted_val": "enceventid"}},
             ),
         ],
@@ -571,7 +571,7 @@ async def test_default_update_same_key_value(patched_send, opsdroid_matrix, capl
         [
             matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
             )
         ]
     )
@@ -617,9 +617,9 @@ async def test_default_update_same_key_value_enc(
         [
             matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
             ),
-            matrix_call("GET", "/_matrix/client/r0/rooms/%21notaroomid/event/"),
+            matrix_call("GET", "/_matrix/client/v3/rooms/%21notaroomid/event/"),
         ]
     )
 
@@ -647,7 +647,7 @@ async def test_default_update_same_key_value_single_state_key(
         [
             matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/",
             )
         ]
     )
@@ -693,9 +693,9 @@ async def test_default_update_same_key_value_single_state_key_enc(
         [
             matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/",
             ),
-            matrix_call("GET", "/_matrix/client/r0/rooms/%21notaroomid/event/"),
+            matrix_call("GET", "/_matrix/client/v3/rooms/%21notaroomid/event/"),
         ]
     )
 
@@ -721,11 +721,11 @@ async def test_default_update_single_state_key(patched_send, opsdroid_matrix):
         [
             matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/",
             ),
             matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/",
                 {"twim": "hello", "pill": "red"},
             ),
         ]
@@ -756,16 +756,16 @@ async def test_default_update_single_state_key_enc(
         [
             matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/",
             ),
             matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/send/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/send/dev.opsdroid.database/",
                 {"pill": "red"},
             ),
             matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/",
                 {"twim": "hello", "pill": {"encrypted_val": "enceventid"}},
             ),
         ],
@@ -787,7 +787,7 @@ async def test_get_single_state_key(patched_send, opsdroid_matrix):
     patched_send.assert_called_once_with(
         nio.RoomGetStateEventResponse,
         "GET",
-        "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database?access_token=arbitrarytoken",
+        "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database?access_token=arbitrarytoken",
         response_data=("dev.opsdroid.database", "", "!notaroomid"),
     )
 
@@ -829,9 +829,9 @@ async def test_get_single_state_key_enc(patched_send, opsdroid_matrix):
         [
             matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/",
             ),
-            matrix_call("GET", "/_matrix/client/r0/rooms/%21notaroomid/event/"),
+            matrix_call("GET", "/_matrix/client/v3/rooms/%21notaroomid/event/"),
         ]
     )
 
@@ -854,7 +854,7 @@ async def test_get(patched_send, opsdroid_matrix):
     patched_send.assert_called_once_with(
         nio.RoomGetStateEventResponse,
         "GET",
-        "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim?access_token=arbitrarytoken",
+        "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/twim?access_token=arbitrarytoken",
         response_data=("dev.opsdroid.database", "twim", "!notaroomid"),
     )
 
@@ -893,9 +893,9 @@ async def test_get_enc(patched_send, opsdroid_matrix):
         [
             matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
             ),
-            matrix_call("GET", "/_matrix/client/r0/rooms/%21notaroomid/event/"),
+            matrix_call("GET", "/_matrix/client/v3/rooms/%21notaroomid/event/"),
         ]
     )
 
@@ -960,11 +960,11 @@ async def test_delete(patched_send, opsdroid_matrix):
         [
             matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/",
             ),
             matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/",
                 {},
             ),
         ]
@@ -987,11 +987,11 @@ async def test_delete_single_state_key_false(patched_send, opsdroid_matrix):
         [
             matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
             ),
             matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
                 {},
             ),
         ]
@@ -1024,11 +1024,11 @@ async def test_delete_multiple_keys(patched_send, opsdroid_matrix):
         [
             matrix_call(
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/",
             ),
             matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/",
                 {"pill": "red"},
             ),
         ]
@@ -1092,7 +1092,7 @@ async def test_room_switch(patched_send, opsdroid_matrix):
     patched_send.assert_called_once_with(
         nio.RoomGetStateEventResponse,
         "GET",
-        "/_matrix/client/r0/rooms/%21notanotherroom/state/dev.opsdroid.database?access_token=arbitrarytoken",
+        "/_matrix/client/v3/rooms/%21notanotherroom/state/dev.opsdroid.database?access_token=arbitrarytoken",
         response_data=("dev.opsdroid.database", "", "!notanotherroom"),
     )
 
@@ -1163,18 +1163,18 @@ async def test_migrate(patched_send, opsdroid_matrix, mocker, caplog, patched_uu
             call(
                 nio.RoomGetStateResponse,
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state?access_token=arbitrarytoken",
+                "/_matrix/client/v3/rooms/%21notaroomid/state?access_token=arbitrarytoken",
                 response_data=("!notaroomid",),
             ),
             matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/",
                 {"hello": "world"},
             ),
             call(
                 nio.RoomRedactResponse,
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/redact/roomeventid/bigrandomuuid?access_token=arbitrarytoken",
+                "/_matrix/client/v3/rooms/%21notaroomid/redact/roomeventid/bigrandomuuid?access_token=arbitrarytoken",
                 "{}",
                 response_data=("!notaroomid",),
             ),
@@ -1218,18 +1218,18 @@ async def test_migrate_single_state_key_false(
             call(
                 nio.RoomGetStateResponse,
                 "GET",
-                "/_matrix/client/r0/rooms/%21notaroomid/state?access_token=arbitrarytoken",
+                "/_matrix/client/v3/rooms/%21notaroomid/state?access_token=arbitrarytoken",
                 response_data=("!notaroomid",),
             ),
             matrix_call(
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
+                "/_matrix/client/v3/rooms/%21notaroomid/state/dev.opsdroid.database/twim",
                 {"twim": {"hello": "world"}},
             ),
             call(
                 nio.RoomRedactResponse,
                 "PUT",
-                "/_matrix/client/r0/rooms/%21notaroomid/redact/roomeventid/bigrandomuuid?access_token=arbitrarytoken",
+                "/_matrix/client/v3/rooms/%21notaroomid/redact/roomeventid/bigrandomuuid?access_token=arbitrarytoken",
                 "{}",
                 response_data=("!notaroomid",),
             ),

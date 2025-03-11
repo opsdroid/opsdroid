@@ -1,5 +1,5 @@
 """Test the opsdroid skill."""
-from asynctest.mock import Mock
+from unittest.mock import Mock
 
 from opsdroid.cli.start import configure_lang
 from opsdroid.matchers import match_regex
@@ -49,4 +49,4 @@ def test_matcher_called():
     message = Mock()
     skill.hello_skill(message)
 
-    assert message.respond.called_once
+    message.respond.assert_called_once()

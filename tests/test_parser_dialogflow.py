@@ -1,7 +1,7 @@
 import os
 import asyncio
-import asynctest
-import asynctest.mock as amock
+from unittest import TestCase
+from unittest.mock import AsyncMock, Mock, patch
 
 from types import SimpleNamespace
 
@@ -23,7 +23,7 @@ class NestedNamespace(SimpleNamespace):
                 self.__setattr__(key, value)
 
 
-class TestParserDialogflow(asynctest.TestCase):
+class TestParserDialogflow(TestCase):
     """Test the opsdroid Dialogflow parser."""
 
     async def setup(self):
@@ -46,13 +46,13 @@ class TestParserDialogflow(asynctest.TestCase):
     async def test_call_dialogflow(self):
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "path/test.json"
         config = {"name": "dialogflow", "project-id": "test"}
-        opsdroid = amock.CoroutineMock()
+        opsdroid = AsyncMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
         message = Message(
             text="Hello", user="user", target="default", connector=mock_connector
         )
-        result = amock.Mock()
-        result.json = amock.CoroutineMock()
+        result = Mock()
+        result.json = AsyncMock()
         result.json.return_value = {
             "query_result": {
                 "query_text": "what is up",
@@ -68,11 +68,9 @@ class TestParserDialogflow(asynctest.TestCase):
                 "language_code": "en",
             }
         }
-        with amock.patch("dialogflow.SessionsClient") as patched_request, amock.patch(
+        with patch("dialogflow.SessionsClient") as patched_request, patch(
             "dialogflow.types.TextInput"
-        ) as mocked_input, amock.patch(
-            "dialogflow.types.QueryInput"
-        ) as mocked_response:
+        ) as mocked_input, patch("dialogflow.types.QueryInput") as mocked_response:
             patched_request.session_path.return_value = (
                 "projects/test/agent/sessions/opsdroid"
             )
@@ -86,7 +84,7 @@ class TestParserDialogflow(asynctest.TestCase):
 
     async def test_call_dialogflow_failure(self):
         config = {"name": "dialogflow"}
-        opsdroid = amock.CoroutineMock()
+        opsdroid = AsyncMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
         message = Message(
             text="Hello", user="user", target="default", connector=mock_connector
@@ -96,9 +94,9 @@ class TestParserDialogflow(asynctest.TestCase):
             self.assertLogs("_LOGGER", "error")
 
     async def test_call_dialogflow_import_failure(self):
-        with OpsDroid() as opsdroid, amock.patch(
+        with OpsDroid() as opsdroid, patch(
             "dialogflow.SessionsClient"
-        ) as patched_request, amock.patch.object(dialogflow, "parse_dialogflow"):
+        ) as patched_request, patch.object(dialogflow, "parse_dialogflow"):
             config = {"name": "dialogflow", "project-id": "test"}
             mock_connector = Connector({}, opsdroid=opsdroid)
             message = Message(
@@ -141,7 +139,7 @@ class TestParserDialogflow(asynctest.TestCase):
                 match_dialogflow_action("smalltalk.greetings.whatsup")(mock_skill)
             )
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = AsyncMock()
             message = Message(
                 text="I want some good French food",
                 user="user",
@@ -149,9 +147,7 @@ class TestParserDialogflow(asynctest.TestCase):
                 connector=mock_connector,
             )
 
-            with amock.patch.object(
-                dialogflow, "call_dialogflow"
-            ) as mocked_call_dialogflow:
+            with patch.object(dialogflow, "call_dialogflow") as mocked_call_dialogflow:
                 mocked_call_dialogflow.return_value = dialogflow_response
 
                 skills = await dialogflow.parse_dialogflow(
@@ -171,14 +167,12 @@ class TestParserDialogflow(asynctest.TestCase):
                 match_dialogflow_action("smalltalk.greetings.whatsup")(mock_skill)
             )
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = AsyncMock()
             message = Message(
                 text="Hello", user="user", target="default", connector=mock_connector
             )
 
-            with amock.patch.object(
-                dialogflow, "call_dialogflow"
-            ) as mocked_call_dialogflow:
+            with patch.object(dialogflow, "call_dialogflow") as mocked_call_dialogflow:
                 mocked_call_dialogflow.side_effect = Exception()
 
                 skills = await dialogflow.parse_dialogflow(
@@ -210,17 +204,15 @@ class TestParserDialogflow(asynctest.TestCase):
             opsdroid.config["parsers"] = [
                 {"name": "dialogflow", "project-id": "test", "min-score": 0.8}
             ]
-            mock_skill = amock.CoroutineMock()
+            mock_skill = AsyncMock()
             match_dialogflow_action("myaction")(mock_skill)
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = AsyncMock()
             message = Message(
                 text="Hello", user="user", target="default", connector=mock_connector
             )
 
-            with amock.patch.object(
-                dialogflow, "call_dialogflow"
-            ) as mocked_call_dialogflow:
+            with patch.object(dialogflow, "call_dialogflow") as mocked_call_dialogflow:
                 mocked_call_dialogflow.return_value = dialogflow_response
                 await dialogflow.parse_dialogflow(
                     opsdroid, opsdroid.skills, message, opsdroid.config["parsers"][0]

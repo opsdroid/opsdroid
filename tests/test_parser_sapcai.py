@@ -1,6 +1,6 @@
 import asyncio
-import asynctest
-import asynctest.mock as amock
+from unittest import TestCase
+from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 from aiohttp import ClientOSError
 
@@ -12,7 +12,7 @@ from opsdroid.parsers import sapcai
 from opsdroid.connector import Connector
 
 
-class TestParserRecastAi(asynctest.TestCase):
+class TestParserRecastAi(TestCase):
     """Test the opsdroid sapcai parser."""
 
     async def setup(self):
@@ -33,14 +33,14 @@ class TestParserRecastAi(asynctest.TestCase):
         return mockedskill
 
     async def test_call_sapcai(self):
-        opsdroid = amock.CoroutineMock()
+        opsdroid = AsyncMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
         message = Message(
             text="Hello", user="user", target="default", connector=mock_connector
         )
         config = {"name": "recastai", "token": "test"}
-        result = amock.Mock()
-        result.json = amock.CoroutineMock()
+        result = Mock()
+        result.json = AsyncMock()
         result.json.return_value = {
             "results": {
                 "uuid": "f482bddd-a9d7-41ae-aae3-6e64ad3f02dc",
@@ -58,7 +58,7 @@ class TestParserRecastAi(asynctest.TestCase):
             }
         }
 
-        with amock.patch("aiohttp.ClientSession.post") as patched_request:
+        with patch("aiohttp.ClientSession.post") as patched_request:
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
             await sapcai.call_sapcai(message, config)
@@ -71,12 +71,12 @@ class TestParserRecastAi(asynctest.TestCase):
             mock_skill.config = {"name": "greetings"}
             opsdroid.skills.append(match_sapcai("greetings")(mock_skill))
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = AsyncMock()
             message = Message(
                 text="Hello", user="user", target="default", connector=mock_connector
             )
 
-            with amock.patch.object(sapcai, "call_sapcai") as mocked_call_sapcai:
+            with patch.object(sapcai, "call_sapcai") as mocked_call_sapcai:
                 mocked_call_sapcai.return_value = {
                     "results": {
                         "uuid": "f482bddd-a9d7-41ae-aae3-6e64ad3f02dc",
@@ -105,13 +105,13 @@ class TestParserRecastAi(asynctest.TestCase):
             mock_skill.config = {"name": "mocked-skill"}
             opsdroid.skills.append(match_sapcai("greetings")(mock_skill))
 
-            mock_connector = amock.MagicMock()
-            mock_connector.send = amock.CoroutineMock()
+            mock_connector = MagicMock()
+            mock_connector.send = AsyncMock()
             message = Message(
                 text="Hello", user="user", target="default", connector=mock_connector
             )
 
-            with amock.patch.object(sapcai, "call_sapcai") as mocked_call_sapcai:
+            with patch.object(sapcai, "call_sapcai") as mocked_call_sapcai:
                 mocked_call_sapcai.return_value = {
                     "results": {
                         "uuid": "f482bddd-a9d7-41ae-aae3-6e64ad3f02dc",
@@ -144,12 +144,12 @@ class TestParserRecastAi(asynctest.TestCase):
             mock_skill.config = {"name": "greetings"}
             opsdroid.skills.append(match_sapcai("greetings")(mock_skill))
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = AsyncMock()
             message = Message(
                 text="", user="user", target="default", connector=mock_connector
             )
 
-            with amock.patch.object(sapcai, "call_sapcai") as mocked_call_sapcai:
+            with patch.object(sapcai, "call_sapcai") as mocked_call_sapcai:
                 mocked_call_sapcai.return_value = {
                     "results": None,
                     "message": "Text is empty",
@@ -166,7 +166,7 @@ class TestParserRecastAi(asynctest.TestCase):
             mock_skill.config = {"name": "greetings"}
             opsdroid.skills.append(match_sapcai("greetings")(mock_skill))
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = AsyncMock()
             message = Message(
                 text="kdjiruetosakdg",
                 user="user",
@@ -174,7 +174,7 @@ class TestParserRecastAi(asynctest.TestCase):
                 connector=mock_connector,
             )
 
-            with amock.patch.object(sapcai, "call_sapcai") as mocked_call_sapcai:
+            with patch.object(sapcai, "call_sapcai") as mocked_call_sapcai:
                 mocked_call_sapcai.return_value = {
                     "results": {
                         "uuid": "e4b365be-815b-4e40-99c3-7a25583b4892",
@@ -207,12 +207,12 @@ class TestParserRecastAi(asynctest.TestCase):
             mock_skill.config = {"name": "greetings"}
             opsdroid.skills.append(match_sapcai("intent")(mock_skill))
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = AsyncMock()
             message = Message(
                 text="Hello", user="user", target="default", connector=mock_connector
             )
 
-            with amock.patch.object(sapcai, "call_sapcai") as mocked_call_sapcai:
+            with patch.object(sapcai, "call_sapcai") as mocked_call_sapcai:
                 mocked_call_sapcai.return_value = {
                     "results": {
                         "uuid": "f482bddd-a9d7-41ae-aae3-6e64ad3f02dc",
@@ -240,12 +240,12 @@ class TestParserRecastAi(asynctest.TestCase):
             mock_skill.config = {"name": "greetings"}
             opsdroid.skills.append(match_sapcai("greetings")(mock_skill))
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = AsyncMock()
             message = Message(
                 text="Hello", user="user", target="default", connector=mock_connector
             )
 
-            with amock.patch.object(sapcai, "call_sapcai") as mocked_call:
+            with patch.object(sapcai, "call_sapcai") as mocked_call:
                 mocked_call.side_effect = ClientOSError()
                 await sapcai.parse_sapcai(
                     opsdroid, opsdroid.skills, message, opsdroid.config["parsers"][0]
@@ -260,7 +260,7 @@ class TestParserRecastAi(asynctest.TestCase):
             mock_skill.config = {"name": "greetings"}
             opsdroid.skills.append(match_sapcai("weather")(mock_skill))
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = AsyncMock()
             message = Message(
                 text="whats the weather in london",
                 user="user",
@@ -268,7 +268,7 @@ class TestParserRecastAi(asynctest.TestCase):
                 connector=mock_connector,
             )
 
-            with amock.patch.object(sapcai, "call_sapcai") as mocked_call_sapcai:
+            with patch.object(sapcai, "call_sapcai") as mocked_call_sapcai:
                 mocked_call_sapcai.return_value = {
                     "results": {
                         "uuid": "f058ad85-d089-40e1-a910-a76990d36180",

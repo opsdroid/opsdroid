@@ -8,13 +8,22 @@ In addition to this we will also endeavour to support new minor versions of Pyth
 
 ## Support table
 
-
 | Version | Release Date   | Start Support | End Support   | Status              |
 |---------|----------------|---------------|---------------|---------------------|
-| 3.5.0   | September 2015 | March 2016    | March 2019    | No longer supported |
-| 3.6.0   | December 2016  | June 2017     | June 2020     | No longer supported |
-| 3.7.0   | June 2018      | December 2018 | December 2021 | No longer supported |
-| 3.8.0   | October 2019   | April 2020    | April 2023    | Supported           |
-| 3.9.0   | October 2020   | January 2021  | April 2024    | Supported           |
+|  3.11   | 2022-10-24     | March 2025    | April 2026    | Supported           |
+|  3.12   | 2023-10-02     | March 2025    | April 2027    | Supported           |
+|  3.13   | 2024-10-07     | March 2025    | April 2028    | Supported           |
 
-_If you think this table may be out of date please help by raising a [Pull Request](https://github.com/opsdroid/opsdroid/edit/master/docs/project/supported-python-versions.md) to fix it._
+_If you think this table may be out of date please help by raising a [Pull Request](https://github.com/opsdroid/opsdroid/edit/main/docs/maintaining/supported-python-versions.md) to fix it._
+
+## Python version upgrades
+
+Developers who wish to update the supported Python versions need to keep the following files in sync:
+- https://github.com/opsdroid/opsdroid/blob/main/.github/workflows/ci.yml#L16
+- https://github.com/opsdroid/opsdroid/blob/main/.github/workflows/ci.yml#L63
+- https://github.com/opsdroid/opsdroid/blob/main/tox.ini#L7-L9
+- https://github.com/opsdroid/opsdroid/blob/main/tox.ini#L49
+- https://github.com/opsdroid/opsdroid/blob/main/Dockerfile#L1
+- https://github.com/opsdroid/opsdroid/blob/main/.readthedocs.yml#L6
+- https://github.com/opsdroid/opsdroid/blob/main/setup.cfg#L41
+- and of course this documentation page
