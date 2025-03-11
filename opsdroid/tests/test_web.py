@@ -5,7 +5,7 @@ import ssl
 from dataclasses import dataclass
 
 import aiohttp.web
-import asynctest.mock as amock
+from unittest.mock import AsyncMock, patch
 import pytest
 from opsdroid import web
 from opsdroid.cli.start import configure_lang
@@ -138,9 +138,9 @@ async def test_web_stats_handler(opsdroid):
 @pytest.mark.anyio
 async def test_web_start(opsdroid):
     """Check the stats handler."""
-    with amock.patch("aiohttp.web.AppRunner.setup") as mock_runner, amock.patch(
+    with patch("aiohttp.web.AppRunner.setup") as mock_runner, patch(
         "aiohttp.web.TCPSite.__init__"
-    ) as mock_tcpsite, amock.patch("aiohttp.web.TCPSite.start") as mock_tcpsite_start:
+    ) as mock_tcpsite, patch("aiohttp.web.TCPSite.start") as mock_tcpsite_start:
         mock_tcpsite.return_value = None
         app = web.Web(opsdroid)
         await app.start()
@@ -153,8 +153,8 @@ async def test_web_start(opsdroid):
 async def test_web_stop(opsdroid):
     """Check the stats handler."""
     app = web.Web(opsdroid)
-    app.runner = amock.CoroutineMock()
-    app.runner.cleanup = amock.CoroutineMock()
+    app.runner = AsyncMock()
+    app.runner.cleanup = AsyncMock()
     await app.stop()
     assert app.runner.cleanup.called
 
@@ -219,7 +219,8 @@ def test_payload_raises_validation_exceptions():
         web.Payload.from_dict(request_payload)
 
 
-def test_update_config(opsdroid):
+@pytest.mark.anyio
+async def test_update_config(opsdroid):
     opsdroid.config = {"connectors": {"gitlab": {"webhook-token": "my-token"}}}
     app = web.Web(opsdroid)
 
@@ -318,7 +319,7 @@ async def test_config_handler(opsdroid, command_center_config):
 
     app = web.Web(opsdroid)
 
-    app.check_request = amock.CoroutineMock()
+    app.check_request = AsyncMock()
 
     response = await app.config_handler(None)
 

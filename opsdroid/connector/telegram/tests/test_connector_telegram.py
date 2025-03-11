@@ -1,7 +1,6 @@
 import logging
-import asyncio
 import pytest
-import asynctest.mock as amock
+from unittest.mock import AsyncMock, Mock, patch
 
 
 from opsdroid.connector.telegram import ConnectorTelegram
@@ -15,7 +14,8 @@ connector_config = {
 }
 
 
-def test_init_no_base_url(opsdroid, caplog):
+@pytest.mark.anyio
+async def test_init_no_base_url(opsdroid, caplog):
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
     caplog.set_level(logging.ERROR)
 
@@ -27,7 +27,8 @@ def test_init_no_base_url(opsdroid, caplog):
     assert "Breaking changes introduced" in caplog.text
 
 
-def test_init(opsdroid):
+@pytest.mark.anyio
+async def test_init(opsdroid):
     config = {
         "token": "test:token",
         "whitelisted-users": ["bob", 1234],
@@ -45,7 +46,8 @@ def test_init(opsdroid):
     assert connector.webhook_secret is not None
 
 
-def test_get_user_from_channel_with_signature(opsdroid):
+@pytest.mark.anyio
+async def test_get_user_from_channel_with_signature(opsdroid):
     response = {
         "update_id": 639974076,
         "channel_post": {
@@ -65,7 +67,8 @@ def test_get_user_from_channel_with_signature(opsdroid):
     assert user_id == 15
 
 
-def test_get_user_from_channel_without_signature(opsdroid):
+@pytest.mark.anyio
+async def test_get_user_from_channel_without_signature(opsdroid):
     response = {
         "update_id": 639974076,
         "channel_post": {
@@ -84,7 +87,8 @@ def test_get_user_from_channel_without_signature(opsdroid):
     assert user_id == 16
 
 
-def test_get_user_from_forwarded_message(opsdroid):
+@pytest.mark.anyio
+async def test_get_user_from_forwarded_message(opsdroid):
     response = {
         "update_id": 639974077,
         "message": {
@@ -116,7 +120,8 @@ def test_get_user_from_forwarded_message(opsdroid):
     assert user_id == 100000
 
 
-def test_get_user_from_first_name(opsdroid):
+@pytest.mark.anyio
+async def test_get_user_from_first_name(opsdroid):
     response = {
         "update_id": 639974077,
         "message": {
@@ -140,7 +145,8 @@ def test_get_user_from_first_name(opsdroid):
     assert user_id == 100000
 
 
-def test_get_user_from_username(opsdroid):
+@pytest.mark.anyio
+async def test_get_user_from_username(opsdroid):
     response = {
         "update_id": 639974077,
         "message": {
@@ -164,7 +170,8 @@ def test_get_user_from_username(opsdroid):
     assert user_id == 100000
 
 
-def test_handle_user_permission(opsdroid):
+@pytest.mark.anyio
+async def test_handle_user_permission(opsdroid):
     response = {
         "update_id": 639974077,
         "message": {
@@ -189,7 +196,8 @@ def test_handle_user_permission(opsdroid):
     assert permission is True
 
 
-def test_handle_user_id_permission(opsdroid):
+@pytest.mark.anyio
+async def test_handle_user_id_permission(opsdroid):
     response = {
         "update_id": 639974077,
         "message": {
@@ -214,7 +222,8 @@ def test_handle_user_id_permission(opsdroid):
     assert permission is True
 
 
-def test_handle_user_no_permission(opsdroid):
+@pytest.mark.anyio
+async def test_handle_user_no_permission(opsdroid):
     response = {
         "update_id": 639974077,
         "message": {
@@ -239,7 +248,8 @@ def test_handle_user_no_permission(opsdroid):
     assert permission is False
 
 
-def test_build_url(opsdroid):
+@pytest.mark.anyio
+async def test_build_url(opsdroid):
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
     url = connector.build_url("getUpdates")
@@ -255,17 +265,14 @@ async def test_connect(opsdroid):
 
     connector.webhook_secret = "test_secret"
 
-    opsdroid.web_server = amock.Mock()
-    response = amock.Mock()
+    opsdroid.web_server = Mock()
+    response = Mock()
     response.status = 200
 
-    with amock.patch(
-        "aiohttp.ClientSession.post", new=amock.CoroutineMock()
-    ) as patched_request, amock.patch.object(
-        connector, "build_url"
-    ) as mocked_build_url:
-        patched_request.return_value = asyncio.Future()
-        patched_request.return_value.set_result(response)
+    with patch(
+        "aiohttp.ClientSession.post", new=AsyncMock()
+    ) as patched_request, patch.object(connector, "build_url") as mocked_build_url:
+        patched_request.return_value = response
 
         await connector.connect()
 
@@ -283,18 +290,15 @@ async def test_connect_failure(opsdroid, caplog):
 
     connector.webhook_secret = "test_secret"
 
-    opsdroid.web_server = amock.Mock()
-    response = amock.Mock()
+    opsdroid.web_server = Mock()
+    response = Mock()
 
     response.status = 404
 
-    with amock.patch(
-        "aiohttp.ClientSession.post", new=amock.CoroutineMock()
-    ) as patched_request, amock.patch.object(
-        connector, "build_url"
-    ) as mocked_build_url:
-        patched_request.return_value = asyncio.Future()
-        patched_request.return_value.set_result(response)
+    with patch(
+        "aiohttp.ClientSession.post", new=AsyncMock()
+    ) as patched_request, patch.object(connector, "build_url") as mocked_build_url:
+        patched_request.return_value = response
 
         await connector.connect()
 
@@ -310,16 +314,13 @@ async def test_respond(opsdroid, caplog):
 
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
-    response = amock.Mock()
+    response = Mock()
     response.status = 200
 
-    with amock.patch(
-        "aiohttp.ClientSession.post", new=amock.CoroutineMock()
-    ) as patched_request, amock.patch.object(
-        connector, "build_url"
-    ) as mocked_build_url:
-        patched_request.return_value = asyncio.Future()
-        patched_request.return_value.set_result(response)
+    with patch(
+        "aiohttp.ClientSession.post", new=AsyncMock()
+    ) as patched_request, patch.object(connector, "build_url") as mocked_build_url:
+        patched_request.return_value = response
 
         assert opsdroid.__class__.instances
 
@@ -330,8 +331,7 @@ async def test_respond(opsdroid, caplog):
             connector=connector,
         )
 
-        patched_request.return_value = asyncio.Future()
-        patched_request.return_value.set_result(response)
+        patched_request.return_value = response
 
         await test_message.respond("Response")
 
@@ -347,16 +347,13 @@ async def test_respond_failure(opsdroid, caplog):
 
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
-    response = amock.Mock()
+    response = Mock()
     response.status = 500
 
-    with amock.patch(
-        "aiohttp.ClientSession.post", new=amock.CoroutineMock()
-    ) as patched_request, amock.patch.object(
-        connector, "build_url"
-    ) as mocked_build_url:
-        patched_request.return_value = asyncio.Future()
-        patched_request.return_value.set_result(response)
+    with patch(
+        "aiohttp.ClientSession.post", new=AsyncMock()
+    ) as patched_request, patch.object(connector, "build_url") as mocked_build_url:
+        patched_request.return_value = response
 
         assert opsdroid.__class__.instances
 
@@ -367,8 +364,7 @@ async def test_respond_failure(opsdroid, caplog):
             connector=connector,
         )
 
-        patched_request.return_value = asyncio.Future()
-        patched_request.return_value.set_result(response)
+        patched_request.return_value = response
 
         await test_message.respond("Response")
 
@@ -384,7 +380,7 @@ async def test_respond_image(opsdroid, caplog):
 
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
-    post_response = amock.Mock()
+    post_response = Mock()
     post_response.status = 200
 
     gif_bytes = (
@@ -394,14 +390,11 @@ async def test_respond_image(opsdroid, caplog):
 
     image = opsdroid_events.Image(file_bytes=gif_bytes, target={"id": "123"})
 
-    with amock.patch(
-        "aiohttp.ClientSession.post", new=amock.CoroutineMock()
-    ) as patched_request, amock.patch.object(
-        connector, "build_url"
-    ) as mocked_build_url:
+    with patch(
+        "aiohttp.ClientSession.post", new=AsyncMock()
+    ) as patched_request, patch.object(connector, "build_url") as mocked_build_url:
 
-        patched_request.return_value = asyncio.Future()
-        patched_request.return_value.set_result(post_response)
+        patched_request.return_value = post_response
 
         await connector.send_image(image)
 
@@ -416,7 +409,7 @@ async def test_respond_image_failure(opsdroid, caplog):
 
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
-    post_response = amock.Mock()
+    post_response = Mock()
     post_response.status = 400
 
     gif_bytes = (
@@ -426,14 +419,11 @@ async def test_respond_image_failure(opsdroid, caplog):
 
     image = opsdroid_events.Image(file_bytes=gif_bytes, target={"id": "123"})
 
-    with amock.patch(
-        "aiohttp.ClientSession.post", new=amock.CoroutineMock()
-    ) as patched_request, amock.patch.object(
-        connector, "build_url"
-    ) as mocked_build_url:
+    with patch(
+        "aiohttp.ClientSession.post", new=AsyncMock()
+    ) as patched_request, patch.object(connector, "build_url") as mocked_build_url:
 
-        patched_request.return_value = asyncio.Future()
-        patched_request.return_value.set_result(post_response)
+        patched_request.return_value = post_response
 
         await connector.send_image(image)
 
@@ -448,21 +438,18 @@ async def test_respond_file(opsdroid, caplog):
 
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
-    post_response = amock.Mock()
+    post_response = Mock()
     post_response.status = 200
 
     file_bytes = b"plain text file example"
 
     file = opsdroid_events.File(file_bytes=file_bytes, target={"id": "123"})
 
-    with amock.patch(
-        "aiohttp.ClientSession.post", new=amock.CoroutineMock()
-    ) as patched_request, amock.patch.object(
-        connector, "build_url"
-    ) as mocked_build_url:
+    with patch(
+        "aiohttp.ClientSession.post", new=AsyncMock()
+    ) as patched_request, patch.object(connector, "build_url") as mocked_build_url:
 
-        patched_request.return_value = asyncio.Future()
-        patched_request.return_value.set_result(post_response)
+        patched_request.return_value = post_response
 
         await connector.send_file(file)
 
@@ -477,21 +464,18 @@ async def test_respond_file_failure(opsdroid, caplog):
 
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
-    post_response = amock.Mock()
+    post_response = Mock()
     post_response.status = 400
 
     file_bytes = b"plain text file example"
 
     file = opsdroid_events.File(file_bytes=file_bytes, target={"id": "123"})
 
-    with amock.patch(
-        "aiohttp.ClientSession.post", new=amock.CoroutineMock()
-    ) as patched_request, amock.patch.object(
-        connector, "build_url"
-    ) as mocked_build_url:
+    with patch(
+        "aiohttp.ClientSession.post", new=AsyncMock()
+    ) as patched_request, patch.object(connector, "build_url") as mocked_build_url:
 
-        patched_request.return_value = asyncio.Future()
-        patched_request.return_value.set_result(post_response)
+        patched_request.return_value = post_response
 
         await connector.send_file(file)
 
@@ -506,17 +490,14 @@ async def test_disconnect_successful(opsdroid, caplog):
 
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
-    response = amock.Mock()
+    response = Mock()
     response.status = 200
 
-    with amock.patch(
-        "aiohttp.ClientSession.get", new=amock.CoroutineMock()
-    ) as patched_request, amock.patch.object(
-        connector, "build_url"
-    ) as mocked_build_url:
+    with patch(
+        "aiohttp.ClientSession.get", new=AsyncMock()
+    ) as patched_request, patch.object(connector, "build_url") as mocked_build_url:
 
-        patched_request.return_value = asyncio.Future()
-        patched_request.return_value.set_result(response)
+        patched_request.return_value = response
 
         await connector.disconnect()
 
@@ -532,17 +513,14 @@ async def test_disconnect_failure(opsdroid, caplog):
 
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
-    response = amock.Mock()
+    response = Mock()
     response.status = 400
 
-    with amock.patch(
-        "aiohttp.ClientSession.get", new=amock.CoroutineMock()
-    ) as patched_request, amock.patch.object(
-        connector, "build_url"
-    ) as mocked_build_url:
+    with patch(
+        "aiohttp.ClientSession.get", new=AsyncMock()
+    ) as patched_request, patch.object(connector, "build_url") as mocked_build_url:
 
-        patched_request.return_value = asyncio.Future()
-        patched_request.return_value.set_result(response)
+        patched_request.return_value = response
 
         await connector.disconnect()
 
@@ -556,8 +534,8 @@ async def test_disconnect_failure(opsdroid, caplog):
 async def test_edited_message_event(opsdroid):
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
-    mock_request = amock.CoroutineMock()
-    mock_request.json = amock.CoroutineMock()
+    mock_request = AsyncMock()
+    mock_request.json = AsyncMock()
     mock_request.json.return_value = {
         "update_id": 639974040,
         "edited_message": {
@@ -597,8 +575,8 @@ async def test_edited_message_event(opsdroid):
 async def test_join_group_event(opsdroid):
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
-    mock_request = amock.CoroutineMock()
-    mock_request.json = amock.CoroutineMock()
+    mock_request = AsyncMock()
+    mock_request.json = AsyncMock()
     mock_request.json.return_value = {
         "update_id": 639974040,
         "message": {
@@ -637,8 +615,8 @@ async def test_join_group_event(opsdroid):
 async def test_leave_group_event(opsdroid):
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
-    mock_request = amock.CoroutineMock()
-    mock_request.json = amock.CoroutineMock()
+    mock_request = AsyncMock()
+    mock_request.json = AsyncMock()
     mock_request.json.return_value = {
         "update_id": 639974040,
         "message": {
@@ -677,8 +655,8 @@ async def test_leave_group_event(opsdroid):
 async def test_pinned_message_event(opsdroid):
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
-    mock_request = amock.CoroutineMock()
-    mock_request.json = amock.CoroutineMock()
+    mock_request = AsyncMock()
+    mock_request.json = AsyncMock()
     mock_request.json.return_value = {
         "update_id": 639974040,
         "message": {
@@ -717,8 +695,8 @@ async def test_pinned_message_event(opsdroid):
 async def test_reply_to_message_event(opsdroid):
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
-    mock_request = amock.CoroutineMock()
-    mock_request.json = amock.CoroutineMock()
+    mock_request = AsyncMock()
+    mock_request.json = AsyncMock()
     mock_request.json.return_value = {
         "update_id": 639974084,
         "message": {
@@ -778,8 +756,8 @@ async def test_reply_to_message_event(opsdroid):
 async def test_location_event(opsdroid):
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
-    mock_request = amock.CoroutineMock()
-    mock_request.json = amock.CoroutineMock()
+    mock_request = AsyncMock()
+    mock_request.json = AsyncMock()
     mock_request.json.return_value = {
         "update_id": 639974101,
         "message": {
@@ -816,8 +794,8 @@ async def test_location_event(opsdroid):
 async def test_poll_event(opsdroid):
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
-    mock_request = amock.CoroutineMock()
-    mock_request.json = amock.CoroutineMock()
+    mock_request = AsyncMock()
+    mock_request.json = AsyncMock()
     mock_request.json.return_value = {
         "update_id": 639974103,
         "message": {
@@ -872,8 +850,8 @@ async def test_poll_event(opsdroid):
 async def test_contact_event(opsdroid):
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
-    mock_request = amock.CoroutineMock()
-    mock_request.json = amock.CoroutineMock()
+    mock_request = AsyncMock()
+    mock_request.json = AsyncMock()
     mock_request.json.return_value = {
         "update_id": 1,
         "message": {
@@ -941,8 +919,8 @@ async def test_unparseable_event(opsdroid, caplog):
 async def test_channel_post(opsdroid):
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
-    mock_request = amock.CoroutineMock()
-    mock_request.json = amock.CoroutineMock()
+    mock_request = AsyncMock()
+    mock_request.json = AsyncMock()
     mock_request.json.return_value = {
         "update_id": 639974037,
         "channel_post": {
@@ -961,8 +939,8 @@ async def test_channel_post(opsdroid):
 
 @pytest.mark.anyio
 async def test_parse_user_no_permissions(opsdroid):
-    mock_request = amock.CoroutineMock()
-    mock_request.json = amock.CoroutineMock()
+    mock_request = AsyncMock()
+    mock_request.json = AsyncMock()
     mock_request.json.return_value = {
         "update_id": 639974077,
         "message": {
@@ -983,7 +961,7 @@ async def test_parse_user_no_permissions(opsdroid):
 
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
-    with amock.patch.object(connector, "send_message") as mocked_send_message:
+    with patch.object(connector, "send_message") as mocked_send_message:
 
         await connector.telegram_webhook_handler(mock_request)
 
@@ -992,8 +970,8 @@ async def test_parse_user_no_permissions(opsdroid):
 
 @pytest.mark.anyio
 async def test_parse_user_permissions(opsdroid):
-    mock_request = amock.CoroutineMock()
-    mock_request.json = amock.CoroutineMock()
+    mock_request = AsyncMock()
+    mock_request.json = AsyncMock()
     mock_request.json.return_value = {
         "update_id": 639974077,
         "message": {
@@ -1013,7 +991,7 @@ async def test_parse_user_permissions(opsdroid):
 
     connector = ConnectorTelegram(connector_config, opsdroid=opsdroid)
 
-    with amock.patch.object(connector.opsdroid, "parse") as mocked_parse:
+    with patch.object(connector.opsdroid, "parse") as mocked_parse:
 
         await connector.telegram_webhook_handler(mock_request)
 

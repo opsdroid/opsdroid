@@ -2,9 +2,8 @@
 import json
 
 import pytest
-import unittest.mock as mock
-import asynctest
-import asynctest.mock as amock
+from unittest import TestCase
+from unittest.mock import AsyncMock, MagicMock, Mock
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector.mattermost import ConnectorMattermost
@@ -15,7 +14,7 @@ from opsdroid.events import Message
 pytestmark = pytest.mark.anyio
 
 
-class TestConnectorMattermostAsync(asynctest.TestCase):
+class TestConnectorMattermostAsync(TestCase):
     """Test the async methods of the opsdroid Mattermost connector class."""
 
     async def setUp(self):
@@ -36,9 +35,9 @@ class TestConnectorMattermostAsync(asynctest.TestCase):
             },
             opsdroid=OpsDroid(),
         )
-        opsdroid = amock.CoroutineMock()
+        opsdroid = AsyncMock()
         opsdroid.eventloop = self.loop
-        connector.mm_driver.login = mock.MagicMock()
+        connector.mm_driver.login = MagicMock()
         connector.mm_driver.login.return_value = {"id": "1", "username": "opsdroid_bot"}
         await connector.connect()
         self.assertEqual("1", connector.bot_id)
@@ -56,11 +55,11 @@ class TestConnectorMattermostAsync(asynctest.TestCase):
             },
             opsdroid=OpsDroid(),
         )
-        opsdroid = amock.CoroutineMock()
+        opsdroid = AsyncMock()
         opsdroid.eventloop = self.loop
-        connector.mm_driver.login = mock.MagicMock()
+        connector.mm_driver.login = MagicMock()
         connector.mm_driver.login.return_value = {"id": "1", "username": "opsdroid_bot"}
-        connector.mm_driver.logout = mock.MagicMock()
+        connector.mm_driver.logout = MagicMock()
         await connector.connect()
         await connector.disconnect()
         self.assertTrue(connector.mm_driver.logout.called)
@@ -76,8 +75,8 @@ class TestConnectorMattermostAsync(asynctest.TestCase):
             },
             opsdroid=OpsDroid(),
         )
-        connector.mm_driver.websocket = mock.Mock()
-        connector.mm_driver.websocket.connect = amock.CoroutineMock()
+        connector.mm_driver.websocket = Mock()
+        connector.mm_driver.websocket.connect = AsyncMock()
         await connector.listen()
 
     async def test_process_message(self):
@@ -91,8 +90,8 @@ class TestConnectorMattermostAsync(asynctest.TestCase):
             },
             opsdroid=OpsDroid(),
         )
-        connector.opsdroid = amock.CoroutineMock()
-        connector.opsdroid.parse = amock.CoroutineMock()
+        connector.opsdroid = AsyncMock()
+        connector.opsdroid.parse = AsyncMock()
 
         post = json.dumps(
             {
@@ -151,17 +150,17 @@ class TestConnectorMattermostAsync(asynctest.TestCase):
             },
             opsdroid=OpsDroid(),
         )
-        opsdroid = amock.CoroutineMock()
+        opsdroid = AsyncMock()
         opsdroid.eventloop = self.loop
-        connector.mm_driver.login = mock.MagicMock()
+        connector.mm_driver.login = MagicMock()
         connector.mm_driver.login.return_value = {"id": "1", "username": "opsdroid_bot"}
         await connector.connect()
         self.assertEqual("1", connector.bot_id)
         self.assertEqual("opsdroid_bot", connector.bot_name)
 
-        connector.opsdroid = amock.CoroutineMock()
+        connector.opsdroid = AsyncMock()
         connector.opsdroid.eventloop = self.loop
-        connector.opsdroid.parse = amock.CoroutineMock()
+        connector.opsdroid.parse = AsyncMock()
 
         post = json.dumps(
             {
@@ -219,13 +218,11 @@ class TestConnectorMattermostAsync(asynctest.TestCase):
             },
             opsdroid=OpsDroid(),
         )
-        connector.mm_driver = mock.Mock()
-        connector.mm_driver.channels = mock.Mock()
-        connector.mm_driver.channels.get_channel_by_name_and_team_name = (
-            mock.MagicMock()
-        )
-        connector.mm_driver.posts = mock.Mock()
-        connector.mm_driver.posts.create_post = mock.MagicMock()
+        connector.mm_driver = Mock()
+        connector.mm_driver.channels = Mock()
+        connector.mm_driver.channels.get_channel_by_name_and_team_name = MagicMock()
+        connector.mm_driver.posts = Mock()
+        connector.mm_driver.posts.create_post = MagicMock()
         await connector.send(
             Message(text="test", user="user", target="room", connector=connector)
         )

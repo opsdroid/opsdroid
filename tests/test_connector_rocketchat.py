@@ -1,8 +1,8 @@
 """Tests for the RocketChat class."""
 import asyncio
 import contextlib
-import asynctest
-import asynctest.mock as amock
+from unittest import TestCase
+from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 from opsdroid.core import OpsDroid
 from opsdroid.connector.rocketchat import RocketChat
@@ -10,7 +10,7 @@ from opsdroid.events import Message
 from opsdroid.cli.start import configure_lang
 
 
-class TestConnectorRocketChatAsync(asynctest.TestCase):
+class TestConnectorRocketChatAsync(TestCase):
     """Test the async methods of the opsdroid RocketChat connector class."""
 
     def setUp(self):
@@ -27,7 +27,7 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
 
         self.connector.latest_update = "2018-10-08T12:57:37.126Z"
 
-        with amock.patch("aiohttp.ClientSession") as mocked_session:
+        with patch("aiohttp.ClientSession") as mocked_session:
             self.connector.session = mocked_session
 
     async def test_init(self):
@@ -51,9 +51,9 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
         self.assertLogs("_LOGGER", "error")
 
     async def test_connect(self):
-        connect_response = amock.Mock()
+        connect_response = Mock()
         connect_response.status = 200
-        connect_response.json = amock.CoroutineMock()
+        connect_response.json = AsyncMock()
         connect_response.return_value = {
             "_id": "3vABZrQgDzfcz7LZi",
             "name": "Fábio Rosado",
@@ -69,7 +69,7 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
             "success": True,
         }
 
-        with amock.patch("aiohttp.ClientSession.get") as patched_request:
+        with patch("aiohttp.ClientSession.get") as patched_request:
 
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(connect_response)
@@ -81,10 +81,10 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
             self.assertTrue(patched_request.called)
 
     async def test_connect_failure(self):
-        result = amock.MagicMock()
+        result = MagicMock()
         result.status = 401
 
-        with amock.patch("aiohttp.ClientSession.get") as patched_request:
+        with patch("aiohttp.ClientSession.get") as patched_request:
 
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
@@ -94,9 +94,9 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
 
     async def test_get_message(self):
         self.connector.group = "test"
-        response = amock.Mock()
+        response = Mock()
         response.status = 200
-        response.json = amock.CoroutineMock()
+        response.json = AsyncMock()
         response.return_value = {
             "messages": [
                 {
@@ -123,11 +123,11 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
             ]
         }
 
-        with amock.patch.object(
+        with patch.object(
             self.connector.session, "get"
-        ) as patched_request, amock.patch.object(
+        ) as patched_request, patch.object(
             self.connector, "_parse_message"
-        ) as mocked_parse_message, amock.patch(
+        ) as mocked_parse_message, patch(
             "asyncio.sleep"
         ) as mocked_sleep:
 
@@ -168,7 +168,7 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
             ]
         }
 
-        with amock.patch.object(self.connector, "get_messages_loop"), amock.patch(
+        with patch.object(self.connector, "get_messages_loop"), patch(
             "opsdroid.core.OpsDroid.parse"
         ) as mocked_parse:
             await self.connector._parse_message(response)
@@ -177,11 +177,11 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
             self.assertEqual("2018-05-11T16:05:41.047Z", self.connector.latest_update)
 
     async def test_listen(self):
-        with amock.patch.object(
+        with patch.object(
             self.connector.loop, "create_task"
-        ) as mocked_task, amock.patch.object(
+        ) as mocked_task, patch.object(
             self.connector._closing, "wait"
-        ) as mocked_event, amock.patch.object(
+        ) as mocked_event, patch.object(
             self.connector, "get_messages_loop"
         ):
             mocked_event.return_value = asyncio.Future()
@@ -193,10 +193,10 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
             self.assertTrue(mocked_task.called)
 
     async def test_get_message_failure(self):
-        listen_response = amock.Mock()
+        listen_response = Mock()
         listen_response.status = 401
 
-        with amock.patch.object(self.connector.session, "get") as patched_request:
+        with patch.object(self.connector.session, "get") as patched_request:
 
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(listen_response)
@@ -205,16 +205,16 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
             self.assertEqual(False, self.connector.listening)
 
     async def test_get_messages_loop(self):
-        self.connector._get_messages = amock.CoroutineMock()
+        self.connector._get_messages = AsyncMock()
         self.connector._get_messages.side_effect = Exception()
         with contextlib.suppress(Exception):
             await self.connector.get_messages_loop()
 
     async def test_respond(self):
-        post_response = amock.Mock()
+        post_response = Mock()
         post_response.status = 200
 
-        with OpsDroid() as opsdroid, amock.patch.object(
+        with OpsDroid() as opsdroid, patch.object(
             self.connector.session, "post"
         ) as patched_request:
 
@@ -233,10 +233,10 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
             self.assertLogs("_LOGGER", "debug")
 
     async def test_respond_failure(self):
-        post_response = amock.Mock()
+        post_response = Mock()
         post_response.status = 401
 
-        with OpsDroid() as opsdroid, amock.patch.object(
+        with OpsDroid() as opsdroid, patch.object(
             self.connector.session, "post"
         ) as patched_request:
 
@@ -254,7 +254,7 @@ class TestConnectorRocketChatAsync(asynctest.TestCase):
             self.assertLogs("_LOGGER", "debug")
 
     async def test_disconnect(self):
-        with amock.patch.object(self.connector.session, "close") as mocked_close:
+        with patch.object(self.connector.session, "close") as mocked_close:
             mocked_close.return_value = asyncio.Future()
             mocked_close.return_value.set_result(True)
 
