@@ -16,12 +16,12 @@ def assert_event_properties(event, **kwargs):
 
 
 @pytest.mark.add_response(
-    "/_matrix/client/r0/rooms/!12345:localhost/state/m.room.member/@test:localhost",
+    "/_matrix/client/v3/rooms/!12345:localhost/state/m.room.member/@test:localhost",
     "GET",
     {"displayname": "test"},
 )
 @pytest.mark.add_response(
-    "/_matrix/client/r0/rooms/!12345:localhost/state/m.room.member/@test:localhost",
+    "/_matrix/client/v3/rooms/!12345:localhost/state/m.room.member/@test:localhost",
     "GET",
     {"displayname": "test"},
 )
@@ -82,7 +82,7 @@ async def test_get_nick_error(opsdroid, connector_connected, mock_api, caplog):
 
 
 @pytest.mark.add_response(
-    "/_matrix/client/r0/rooms/!12345:localhost/state/m.room.member/@test:localhost",
+    "/_matrix/client/v3/rooms/!12345:localhost/state/m.room.member/@test:localhost",
     "GET",
     {"displayname": "test"},
 )

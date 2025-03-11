@@ -2,7 +2,7 @@
 import json
 import logging
 
-from aioredis import Redis
+from redis.asyncio import Redis
 from voluptuous import Any
 
 from opsdroid.database import Database

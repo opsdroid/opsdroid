@@ -173,16 +173,16 @@ def single_message_sync_response(mock_api_obj):
     """Return a sync response with a single test message in it."""
     event = message_factory("Test", "m.text", "@stuart:localhost")
     sync = sync_response([event])
-    mock_api_obj.add_response("/_matrix/client/r0/sync", "GET", sync)
+    mock_api_obj.add_response("/_matrix/client/v3/sync", "GET", sync)
 
 
 @pytest.fixture
 def mock_whoami_join(mock_api_obj):
     mock_api_obj.add_response(
-        "/_matrix/client/r0/account/whoami", "GET", {"user_id": "@opsdroid:localhost"}
+        "/_matrix/client/v3/account/whoami", "GET", {"user_id": "@opsdroid:localhost"}
     )
     mock_api_obj.add_response(
-        "/_matrix/client/r0/join/#test:localhost",
+        "/_matrix/client/v3/join/#test:localhost",
         "POST",
         {"room_id": "!12355:localhost"},
     )

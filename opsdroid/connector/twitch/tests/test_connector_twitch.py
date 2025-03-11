@@ -1,9 +1,9 @@
 import os
 import logging
 import contextlib
-import asyncio
 import pytest
-import asynctest.mock as amock
+from unittest.mock import AsyncMock, MagicMock, Mock, patch
+from opsdroid.testing.asynccontextmanager import AsyncContextManager
 
 from aiohttp import web, WSMessage, WSMsgType
 from aiohttp.test_utils import make_mocked_request
@@ -23,7 +23,8 @@ connector_config = {
 }
 
 
-def test_init(opsdroid):
+@pytest.mark.anyio
+async def test_init(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
     assert connector.default_target == "test"
     assert connector.name == "twitch"
@@ -33,7 +34,8 @@ def test_init(opsdroid):
     assert connector.reconnections == 0
 
 
-def test_base_url_twitch_config(opsdroid):
+@pytest.mark.anyio
+async def test_base_url_twitch_config(opsdroid):
     config = {
         "code": "yourcode",
         "channel": "test",
@@ -47,7 +49,8 @@ def test_base_url_twitch_config(opsdroid):
     assert connector.base_url == "http://my-awesome-url"
 
 
-def test_base_url_web_config(opsdroid):
+@pytest.mark.anyio
+async def test_base_url_web_config(opsdroid):
     config = {
         "code": "yourcode",
         "channel": "test",
@@ -65,12 +68,12 @@ def test_base_url_web_config(opsdroid):
 @pytest.mark.anyio
 async def test_validate_request(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
-    request = amock.CoroutineMock()
+    request = AsyncMock()
     request.headers = {
         "x-hub-signature": "sha256=fcfa24b327e3467f1586cc1ace043c016cabfe9c15dabc0020aca45440338be9"
     }
 
-    request.read = amock.CoroutineMock()
+    request.read = AsyncMock()
     request.read.return_value = b'{"test": "test"}'
 
     validation = await connector.validate_request(request, "test")
@@ -81,16 +84,13 @@ async def test_validate_request(opsdroid):
 @pytest.mark.anyio
 async def test_get_user_id(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
-    get_response = amock.Mock()
+    get_response = Mock()
     get_response.status = 200
-    get_response.json = amock.CoroutineMock()
+    get_response.json = AsyncMock()
     get_response.json.return_value = {"data": [{"id": "test-bot"}]}
 
-    with amock.patch(
-        "aiohttp.ClientSession.get", new=amock.CoroutineMock()
-    ) as patched_request:
-        patched_request.return_value = asyncio.Future()
-        patched_request.return_value.set_result(get_response)
+    with patch("aiohttp.ClientSession.get", new=AsyncMock()) as patched_request:
+        patched_request.return_value = get_response
 
         response = await connector.get_user_id("theflyingdev", "token", "client-id")
 
@@ -100,15 +100,12 @@ async def test_get_user_id(opsdroid):
 @pytest.mark.anyio
 async def test_get_user_id_failure(opsdroid, caplog):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
-    get_response = amock.Mock()
+    get_response = Mock()
     get_response.status = 404
-    get_response.json = amock.CoroutineMock()
+    get_response.json = AsyncMock()
 
-    with amock.patch(
-        "aiohttp.ClientSession.get", new=amock.CoroutineMock()
-    ) as patched_request:
-        patched_request.return_value = asyncio.Future()
-        patched_request.return_value.set_result(get_response)
+    with patch("aiohttp.ClientSession.get", new=AsyncMock()) as patched_request:
+        patched_request.return_value = get_response
 
         await connector.get_user_id("theflyingdev", "token", "client-id")
 
@@ -118,21 +115,19 @@ async def test_get_user_id_failure(opsdroid, caplog):
 @pytest.mark.anyio
 async def test_get_user_id_unauthorized(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
-    get_response = amock.Mock()
+    get_response = Mock()
     get_response.status = 401
 
-    with amock.patch(
-        "aiohttp.ClientSession.get", new=amock.CoroutineMock()
-    ) as patched_request:
-        patched_request.return_value = asyncio.Future()
-        patched_request.return_value.set_result(get_response)
+    with patch("aiohttp.ClientSession.get", new=AsyncMock()) as patched_request:
+        patched_request.return_value = get_response
 
         with pytest.raises(ConnectionError) as exception:
             await connector.get_user_id("theflyingdev", "token", "client-id")
             assert "Unauthorized" in exception.message
 
 
-def test_save_authentication_data(opsdroid, tmpdir):
+@pytest.mark.anyio
+async def test_save_authentication_data(opsdroid, tmpdir):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
     connector.auth_file = AUTH_FILE
 
@@ -150,21 +145,18 @@ async def test_request_oauth_token(opsdroid, tmpdir):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
     connector.auth_file = AUTH_FILE
 
-    post_response = amock.Mock()
+    post_response = Mock()
     post_response.status = 200
-    post_response.json = amock.CoroutineMock()
+    post_response.json = AsyncMock()
     post_response.json.return_value = {
         "access_token": "token",
         "refresh_token": "refresh_token",
     }
 
-    with amock.patch(
-        "aiohttp.ClientSession.post", new=amock.CoroutineMock()
-    ) as patched_request:
-        patched_request.return_value = asyncio.Future()
-        patched_request.return_value.set_result(post_response)
+    with patch("aiohttp.ClientSession.post", new=AsyncMock()) as patched_request:
+        patched_request.return_value = post_response
 
-        connector.save_authentication_data = amock.CoroutineMock()
+        connector.save_authentication_data = AsyncMock()
 
         await connector.request_oauth_token()
 
@@ -177,19 +169,16 @@ async def test_request_oauth_token(opsdroid, tmpdir):
 async def test_request_oauth_token_failure(opsdroid, caplog):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
 
-    post_response = amock.Mock()
+    post_response = Mock()
     post_response.status = 400
-    post_response.json = amock.CoroutineMock()
+    post_response.json = AsyncMock()
     post_response.json.return_value = {
         "status": 400,
         "message": "Parameter redirect_uri does not match registered URI",
     }
 
-    with amock.patch(
-        "aiohttp.ClientSession.post", new=amock.CoroutineMock()
-    ) as patched_request:
-        patched_request.return_value = asyncio.Future()
-        patched_request.return_value.set_result(post_response)
+    with patch("aiohttp.ClientSession.post", new=AsyncMock()) as patched_request:
+        patched_request.return_value = post_response
 
         await connector.request_oauth_token()
 
@@ -203,21 +192,18 @@ async def test_refresh_oauth_token(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
     connector.auth_file = AUTH_FILE
 
-    post_response = amock.Mock()
+    post_response = Mock()
     post_response.status = 200
-    post_response.json = amock.CoroutineMock()
+    post_response.json = AsyncMock()
     post_response.json.return_value = {
         "access_token": "token",
         "refresh_token": "refresh_token",
     }
 
-    with amock.patch(
-        "aiohttp.ClientSession.post", new=amock.CoroutineMock()
-    ) as patched_request:
-        patched_request.return_value = asyncio.Future()
-        patched_request.return_value.set_result(post_response)
+    with patch("aiohttp.ClientSession.post", new=AsyncMock()) as patched_request:
+        patched_request.return_value = post_response
 
-        connector.save_authentication_data = amock.CoroutineMock()
+        connector.save_authentication_data = AsyncMock()
 
         await connector.refresh_token()
 
@@ -230,22 +216,19 @@ async def test_refresh_oauth_token(opsdroid):
 async def test_connect(opsdroid, caplog, tmpdir):
     caplog.set_level(logging.INFO)
 
-    get_response = amock.Mock()
+    get_response = Mock()
     get_response.status = 200
-    get_response.json = amock.CoroutineMock()
+    get_response.json = AsyncMock()
     get_response.json.return_value = {"data": [{"id": "test-bot"}]}
 
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
     connector.auth_file = AUTH_FILE
-    connector.webhook = amock.CoroutineMock()
+    connector.webhook = AsyncMock()
 
-    opsdroid.web_server = amock.Mock()
+    opsdroid.web_server = Mock()
 
-    with amock.patch(
-        "aiohttp.ClientSession.get", new=amock.CoroutineMock()
-    ) as patched_request:
-        patched_request.return_value = asyncio.Future()
-        patched_request.return_value.set_result(get_response)
+    with patch("aiohttp.ClientSession.get", new=AsyncMock()) as patched_request:
+        patched_request.return_value = get_response
 
         await connector.connect()
 
@@ -257,25 +240,24 @@ async def test_connect(opsdroid, caplog, tmpdir):
 @pytest.mark.anyio
 async def test_connect_no_auth_data(opsdroid, caplog, tmpdir):
     caplog.set_level(logging.INFO)
-    get_response = amock.Mock()
+    get_response = Mock()
     get_response.status = 200
-    get_response.json = amock.CoroutineMock()
+    get_response.json = AsyncMock()
     get_response.json.return_value = {"data": [{"id": "test-bot"}]}
 
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
     connector.auth_file = AUTH_FILE
-    connector.webhook = amock.CoroutineMock()
-    connector.request_oauth_token = amock.CoroutineMock()
+    connector.webhook = AsyncMock()
+    connector.request_oauth_token = AsyncMock()
 
-    opsdroid.web_server = amock.Mock()
+    opsdroid.web_server = Mock()
 
-    with amock.patch(
-        "aiohttp.ClientSession.get", new=amock.CoroutineMock()
-    ) as patched_request, amock.patch("os.path") as mocked_file:
-        patched_request.return_value = asyncio.Future()
-        patched_request.return_value.set_result(get_response)
+    with patch("aiohttp.ClientSession.get", new=AsyncMock()) as patched_request, patch(
+        "os.path"
+    ) as mocked_file:
+        patched_request.return_value = get_response
 
-        mocked_file.isfile = amock.Mock(return_value=False)
+        mocked_file.isfile = Mock(return_value=False)
 
         await connector.connect()
 
@@ -289,11 +271,11 @@ async def test_connect_no_auth_data(opsdroid, caplog, tmpdir):
 async def test_connect_refresh_token(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
     connector.auth_file = AUTH_FILE
-    connector.webhook = amock.CoroutineMock()
-    connector.get_user_id = amock.CoroutineMock(side_effect=ConnectionError)
-    connector.refresh_token = amock.CoroutineMock()
+    connector.webhook = AsyncMock()
+    connector.get_user_id = AsyncMock(side_effect=ConnectionError)
+    connector.refresh_token = AsyncMock()
 
-    opsdroid.web_server = amock.Mock()
+    opsdroid.web_server = Mock()
 
     with pytest.raises(ConnectionError):
         await connector.connect()
@@ -307,8 +289,8 @@ async def test_connect_refresh_token(opsdroid):
 async def test_send_message(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
 
-    connector.websocket = amock.Mock()
-    connector.websocket.send_str = amock.CoroutineMock()
+    connector.websocket = Mock()
+    connector.websocket.send_str = AsyncMock()
 
     await connector.send_message("Hello")
 
@@ -319,8 +301,8 @@ async def test_send_message(opsdroid):
 async def test_send_handshake(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
 
-    connector.websocket = amock.Mock()
-    connector.websocket.send_str = amock.CoroutineMock()
+    connector.websocket = Mock()
+    connector.websocket.send_str = AsyncMock()
 
     await connector.send_handshake()
 
@@ -332,12 +314,11 @@ async def test_connect_websocket(opsdroid, caplog):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
     caplog.set_level(logging.INFO)
 
-    with amock.patch("aiohttp.ClientSession") as mocked_session:
-
-        mocked_session.ws_connect = amock.CoroutineMock()
-
-        connector.send_handshake = amock.CoroutineMock()
-        connector.get_messages_loop = amock.CoroutineMock()
+    with patch(
+        "aiohttp.ClientSession.ws_connect", new=MagicMock(AsyncContextManager())
+    ):
+        connector.send_handshake = AsyncMock()
+        connector.get_messages_loop = AsyncMock()
 
         await connector.connect_websocket()
 
@@ -351,16 +332,13 @@ async def test_connect_websocket(opsdroid, caplog):
 async def test_webhook_follows(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
 
-    post_response = amock.Mock()
+    post_response = Mock()
     post_response.status = 200
-    post_response.json = amock.CoroutineMock()
+    post_response.json = AsyncMock()
 
-    with amock.patch(
-        "aiohttp.ClientSession.post", new=amock.CoroutineMock()
-    ) as mocked_session:
+    with patch("aiohttp.ClientSession.post", new=AsyncMock()) as mocked_session:
 
-        mocked_session.return_value = asyncio.Future()
-        mocked_session.return_value.set_result(post_response)
+        mocked_session.return_value = post_response
 
         await connector.webhook("follows", "subscribe")
 
@@ -371,16 +349,13 @@ async def test_webhook_follows(opsdroid):
 async def test_webhook_stream_changed(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
 
-    post_response = amock.Mock()
+    post_response = Mock()
     post_response.status = 200
-    post_response.json = amock.CoroutineMock()
+    post_response.json = AsyncMock()
 
-    with amock.patch(
-        "aiohttp.ClientSession.post", new=amock.CoroutineMock()
-    ) as mocked_session:
+    with patch("aiohttp.ClientSession.post", new=AsyncMock()) as mocked_session:
 
-        mocked_session.return_value = asyncio.Future()
-        mocked_session.return_value.set_result(post_response)
+        mocked_session.return_value = post_response
 
         await connector.webhook("stream changed", "subscribe")
 
@@ -391,16 +366,13 @@ async def test_webhook_stream_changed(opsdroid):
 async def test_webhook_subscribers(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
 
-    post_response = amock.Mock()
+    post_response = Mock()
     post_response.status = 200
-    post_response.json = amock.CoroutineMock()
+    post_response.json = AsyncMock()
 
-    with amock.patch(
-        "aiohttp.ClientSession.post", new=amock.CoroutineMock()
-    ) as mocked_session:
+    with patch("aiohttp.ClientSession.post", new=AsyncMock()) as mocked_session:
 
-        mocked_session.return_value = asyncio.Future()
-        mocked_session.return_value.set_result(post_response)
+        mocked_session.return_value = post_response
 
         await connector.webhook("subscribers", "subscribe")
 
@@ -413,16 +385,13 @@ async def test_webhook_failure(opsdroid, caplog):
 
     caplog.set_level(logging.DEBUG)
 
-    post_response = amock.Mock()
+    post_response = Mock()
     post_response.status = 500
-    post_response.json = amock.CoroutineMock()
+    post_response.json = AsyncMock()
 
-    with amock.patch(
-        "aiohttp.ClientSession.post", new=amock.CoroutineMock()
-    ) as mocked_session:
+    with patch("aiohttp.ClientSession.post", new=AsyncMock()) as mocked_session:
 
-        mocked_session.return_value = asyncio.Future()
-        mocked_session.return_value.set_result(post_response)
+        mocked_session.return_value = post_response
 
         await connector.webhook("subscribers", "subscribe")
 
@@ -435,7 +404,7 @@ async def test_ban_user(opsdroid, caplog):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
     ban_event = opsdroid_events.BanUser(user="bot_mc_spam_bot")
 
-    connector.send_message = amock.CoroutineMock()
+    connector.send_message = AsyncMock()
 
     await connector.ban_user(ban_event)
 
@@ -447,31 +416,27 @@ async def test_ban_user(opsdroid, caplog):
 async def test_create_clip(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
-    connector.send_message = amock.CoroutineMock()
+    connector.send_message = AsyncMock()
 
-    post_response = amock.Mock()
+    post_response = Mock()
     post_response.status = 200
-    post_response.json = amock.CoroutineMock()
+    post_response.json = AsyncMock()
     post_response.json.return_value = {"data": [{"id": "clip123"}]}
 
-    get_response = amock.Mock()
+    get_response = Mock()
     get_response.status = 200
-    get_response.json = amock.CoroutineMock()
+    get_response.json = AsyncMock()
     get_response.json.return_value = {
         "data": [{"id": "clip123", "embed_url": "localhost"}]
     }
 
-    with amock.patch(
-        "aiohttp.ClientSession.post", new=amock.CoroutineMock()
-    ) as mocked_post, amock.patch(
-        "aiohttp.ClientSession.get", new=amock.CoroutineMock()
+    with patch("aiohttp.ClientSession.post", new=AsyncMock()) as mocked_post, patch(
+        "aiohttp.ClientSession.get", new=AsyncMock()
     ) as mocked_get:
 
-        mocked_post.return_value = asyncio.Future()
-        mocked_post.return_value.set_result(post_response)
+        mocked_post.return_value = post_response
 
-        mocked_get.return_value = asyncio.Future()
-        mocked_get.return_value.set_result(get_response)
+        mocked_get.return_value = get_response
 
         clip_event = twitch_event.CreateClip(id="broadcaster123")
 
@@ -485,27 +450,23 @@ async def test_create_clip(opsdroid, caplog):
 async def test_create_clip_failure(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
-    connector.send_message = amock.CoroutineMock()
+    connector.send_message = AsyncMock()
 
-    post_response = amock.Mock()
+    post_response = Mock()
     post_response.status = 200
-    post_response.json = amock.CoroutineMock()
+    post_response.json = AsyncMock()
     post_response.json.return_value = {"data": [{"id": "clip123"}]}
 
-    get_response = amock.Mock()
+    get_response = Mock()
     get_response.status = 404
 
-    with amock.patch(
-        "aiohttp.ClientSession.post", new=amock.CoroutineMock()
-    ) as mocked_post, amock.patch(
-        "aiohttp.ClientSession.get", new=amock.CoroutineMock()
+    with patch("aiohttp.ClientSession.post", new=AsyncMock()) as mocked_post, patch(
+        "aiohttp.ClientSession.get", new=AsyncMock()
     ) as mocked_get:
 
-        mocked_post.return_value = asyncio.Future()
-        mocked_post.return_value.set_result(post_response)
+        mocked_post.return_value = post_response
 
-        mocked_get.return_value = asyncio.Future()
-        mocked_get.return_value.set_result(get_response)
+        mocked_get.return_value = get_response
 
         await connector.create_clip()
 
@@ -526,7 +487,7 @@ async def test_remove_message(opsdroid, caplog):
 
     remove_event = opsdroid_events.DeleteMessage(linked_event=message_event)
 
-    connector.send_message = amock.CoroutineMock()
+    connector.send_message = AsyncMock()
 
     await connector.remove_message(remove_event)
 
@@ -540,7 +501,7 @@ async def test_send_message_event(opsdroid, caplog):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
     message_event = opsdroid_events.Message(text="Hello world!")
 
-    connector.send_message = amock.CoroutineMock()
+    connector.send_message = AsyncMock()
 
     await connector._send_message(message_event)
 
@@ -554,16 +515,13 @@ async def test_update_stream_title(opsdroid, caplog):
 
     caplog.set_level(logging.DEBUG)
 
-    post_response = amock.Mock()
+    post_response = Mock()
     post_response.status = 204
-    post_response.json = amock.CoroutineMock()
+    post_response.json = AsyncMock()
 
-    with amock.patch(
-        "aiohttp.ClientSession.patch", new=amock.CoroutineMock()
-    ) as mocked_session:
+    with patch("aiohttp.ClientSession.patch", new=AsyncMock()) as mocked_session:
 
-        mocked_session.return_value = asyncio.Future()
-        mocked_session.return_value.set_result(post_response)
+        mocked_session.return_value = post_response
 
         status_event = twitch_event.UpdateTitle(status="Test title!")
 
@@ -578,16 +536,13 @@ async def test_update_stream_title_failure(opsdroid, caplog):
 
     caplog.set_level(logging.DEBUG)
 
-    post_response = amock.Mock()
+    post_response = Mock()
     post_response.status = 500
     post_response.message = "Internal Server Error"
 
-    with amock.patch(
-        "aiohttp.ClientSession.patch", new=amock.CoroutineMock()
-    ) as mocked_session:
+    with patch("aiohttp.ClientSession.patch", new=AsyncMock()) as mocked_session:
 
-        mocked_session.return_value = asyncio.Future()
-        mocked_session.return_value.set_result(post_response)
+        mocked_session.return_value = post_response
 
         status_event = twitch_event.UpdateTitle(status="Test title!")
 
@@ -627,10 +582,10 @@ async def test_handle_challenge_error(opsdroid, caplog):
 @pytest.mark.anyio
 async def test_invalid_post_request_webhook(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
-    connector.validate_request = amock.CoroutineMock(return_value=False)
+    connector.validate_request = AsyncMock(return_value=False)
 
-    mock_request = amock.CoroutineMock()
-    mock_request.json = amock.CoroutineMock()
+    mock_request = AsyncMock()
+    mock_request.json = AsyncMock()
     mock_request.json.return_value = {"data": [{"test": "test"}]}
 
     resp = await connector.twitch_webhook_handler(mock_request)
@@ -642,14 +597,14 @@ async def test_invalid_post_request_webhook(opsdroid):
 @pytest.mark.anyio
 async def test_stream_ended_event(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
-    connector.validate_request = amock.CoroutineMock(return_value=True)
-    connector.disconnect_websockets = amock.CoroutineMock()
+    connector.validate_request = AsyncMock(return_value=True)
+    connector.disconnect_websockets = AsyncMock()
 
-    mock_request = amock.CoroutineMock()
-    mock_request.json = amock.CoroutineMock()
+    mock_request = AsyncMock()
+    mock_request.json = AsyncMock()
     mock_request.json.return_value = {"data": []}
 
-    twitch_event.StreamEnded = amock.Mock()
+    twitch_event.StreamEnded = Mock()
 
     resp = await connector.twitch_webhook_handler(mock_request)
 
@@ -662,15 +617,15 @@ async def test_stream_ended_event(opsdroid):
 async def test_followed_event(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
-    connector.validate_request = amock.CoroutineMock(return_value=True)
+    connector.validate_request = AsyncMock(return_value=True)
 
-    mock_request = amock.CoroutineMock()
-    mock_request.json = amock.CoroutineMock()
+    mock_request = AsyncMock()
+    mock_request.json = AsyncMock()
     mock_request.json.return_value = {
         "data": [{"from_name": "awesome_follower", "followed_at": "today"}]
     }
     follow_event = twitch_event.UserFollowed("awesome_follower", "today")
-    twitch_event.UserFollowed = amock.Mock()
+    twitch_event.UserFollowed = Mock()
 
     resp = await connector.twitch_webhook_handler(mock_request)
 
@@ -692,10 +647,10 @@ def test_user_subscribed():
 async def test_gift_subscription_event(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
-    connector.validate_request = amock.CoroutineMock(return_value=True)
+    connector.validate_request = AsyncMock(return_value=True)
 
-    mock_request = amock.CoroutineMock()
-    mock_request.json = amock.CoroutineMock()
+    mock_request = AsyncMock()
+    mock_request.json = AsyncMock()
     mock_request.json.return_value = {
         "data": [
             {
@@ -709,7 +664,7 @@ async def test_gift_subscription_event(opsdroid, caplog):
         ]
     }
 
-    twitch_event.UserSubscribed = amock.Mock()
+    twitch_event.UserSubscribed = Mock()
 
     resp = await connector.twitch_webhook_handler(mock_request)
 
@@ -722,10 +677,10 @@ async def test_gift_subscription_event(opsdroid, caplog):
 async def test_subscription_event(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
-    connector.validate_request = amock.CoroutineMock(return_value=True)
+    connector.validate_request = AsyncMock(return_value=True)
 
-    mock_request = amock.CoroutineMock()
-    mock_request.json = amock.CoroutineMock()
+    mock_request = AsyncMock()
+    mock_request.json = AsyncMock()
     mock_request.json.return_value = {
         "data": [
             {
@@ -738,7 +693,7 @@ async def test_subscription_event(opsdroid, caplog):
         ]
     }
 
-    twitch_event.UserSubscribed = amock.Mock()
+    twitch_event.UserSubscribed = Mock()
 
     resp = await connector.twitch_webhook_handler(mock_request)
 
@@ -751,11 +706,11 @@ async def test_subscription_event(opsdroid, caplog):
 async def test_stream_started_event(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
-    connector.validate_request = amock.CoroutineMock(return_value=True)
-    connector.listen = amock.CoroutineMock()
+    connector.validate_request = AsyncMock(return_value=True)
+    connector.listen = AsyncMock()
 
-    mock_request = amock.CoroutineMock()
-    mock_request.json = amock.CoroutineMock()
+    mock_request = AsyncMock()
+    mock_request.json = AsyncMock()
     mock_request.json.return_value = {
         "data": [
             {
@@ -770,7 +725,7 @@ async def test_stream_started_event(opsdroid, caplog):
         "Testing with pytest", 1, "just now"
     )
 
-    twitch_event.StreamStarted = amock.Mock()
+    twitch_event.StreamStarted = Mock()
 
     resp = await connector.twitch_webhook_handler(mock_request)
 
@@ -789,8 +744,8 @@ async def test_disconnect(opsdroid):
     connector_config["always-listening"] = True
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
 
-    connector.disconnect_websockets = amock.CoroutineMock()
-    connector.webhook = amock.CoroutineMock()
+    connector.disconnect_websockets = AsyncMock()
+    connector.webhook = AsyncMock()
 
     await connector.disconnect()
 
@@ -804,16 +759,16 @@ async def test_get_message_loop(opsdroid):
 
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
 
-    connector.websocket = amock.MagicMock()
+    connector.websocket = MagicMock()
     connector.websocket.__aiter__.return_value = [
         WSMessage(WSMsgType.TEXT, "PING", b""),
         WSMessage(WSMsgType.TEXT, ":user@user.twitch.tmi! JOIN #channel", b""),
         WSMessage(WSMsgType.CLOSED, "CLOSE", ""),
     ]
 
-    connector.websocket.send_str = amock.CoroutineMock()
-    connector.websocket.close = amock.CoroutineMock()
-    connector._handle_message = amock.CoroutineMock()
+    connector.websocket.send_str = AsyncMock()
+    connector.websocket.close = AsyncMock()
+    connector._handle_message = AsyncMock()
 
     with pytest.raises(ConnectionError):
         await connector.get_messages_loop()
@@ -831,7 +786,7 @@ async def test_handle_message_chat_message(opsdroid, caplog):
 
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
 
-    opsdroid.parse = amock.CoroutineMock()
+    opsdroid.parse = AsyncMock()
 
     await connector._handle_message(message)
 
@@ -847,7 +802,7 @@ async def test_handle_message_join_event(opsdroid):
 
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
 
-    opsdroid.parse = amock.CoroutineMock()
+    opsdroid.parse = AsyncMock()
 
     await connector._handle_message(message)
 
@@ -863,7 +818,7 @@ async def test_handle_message_left_event(opsdroid):
 
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
 
-    opsdroid.parse = amock.CoroutineMock()
+    opsdroid.parse = AsyncMock()
 
     await connector._handle_message(message)
     assert opsdroid.parse.called
@@ -876,7 +831,7 @@ async def test_handle_message_authentication_failed(opsdroid):
 
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
 
-    connector.refresh_token = amock.CoroutineMock()
+    connector.refresh_token = AsyncMock()
 
     with pytest.raises(ConnectionError):
         await connector._handle_message(message)
@@ -890,8 +845,8 @@ async def test_disconnect_websockets(opsdroid):
 
     connector.websocket = web.WebSocketResponse()
 
-    with amock.patch(
-        "aiohttp.web_ws.WebSocketResponse.close", new=amock.CoroutineMock()
+    with patch(
+        "aiohttp.web_ws.WebSocketResponse.close", new=AsyncMock()
     ) as mocked_response_close:
         mocked_response_close.side_effect = [True]
         resp = await connector.disconnect_websockets()
@@ -905,9 +860,7 @@ async def test_disconnect_websockets(opsdroid):
 async def test_listen(opsdroid):
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
 
-    with amock.patch(
-        "aiohttp.ClientSession.ws_connect", new=amock.CoroutineMock()
-    ) as mocked_websocket:
+    with patch("aiohttp.ClientSession.ws_connect", new=AsyncMock()) as mocked_websocket:
         mocked_websocket.side_effect = Exception()
 
         with contextlib.suppress(Exception):
@@ -918,11 +871,11 @@ async def test_listen(opsdroid):
 async def test_listen_reconnect(opsdroid, caplog):
     caplog.set_level(logging.DEBUG)
     connector = ConnectorTwitch(connector_config, opsdroid=opsdroid)
-    connector.connect_websocket = amock.CoroutineMock(side_effect=ConnectionError)
+    connector.connect_websocket = AsyncMock(side_effect=ConnectionError)
 
-    with amock.patch(
-        "aiohttp.ClientSession.ws_connect", new=amock.CoroutineMock()
-    ) as mocked_websocket, amock.patch("asyncio.sleep") as mocked_sleep:
+    with patch(
+        "aiohttp.ClientSession.ws_connect", new=AsyncMock()
+    ) as mocked_websocket, patch("asyncio.sleep") as mocked_sleep:
         mocked_websocket.side_effect = Exception()
 
         with contextlib.suppress((Exception)):
