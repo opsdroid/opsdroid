@@ -32,7 +32,7 @@ async def test_connect(mocker, caplog):
     caplog.set_level(logging.DEBUG)
     database = RedisDatabase({})
     mocked_connection = mocker.patch(
-        "aioredis.Redis.ping", return_value=return_async_value(True)
+        "redis.asyncio.Redis.ping", return_value=return_async_value(True)
     )
 
     await database.connect()
@@ -45,7 +45,7 @@ async def test_connect(mocker, caplog):
 async def test_connect_failure(mocker, caplog):
     caplog.set_level(logging.DEBUG)
     database = RedisDatabase({})
-    mocked_connection = mocker.patch("aioredis.Redis.ping", side_effect=OSError)
+    mocked_connection = mocker.patch("redis.asyncio.Redis.ping", side_effect=OSError)
 
     with suppress(OSError):
         await database.connect()

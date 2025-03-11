@@ -1,5 +1,5 @@
-import asynctest
-import asynctest.mock as amock
+from unittest import TestCase
+from unittest.mock import AsyncMock, MagicMock
 
 from opsdroid.cli.start import configure_lang
 from opsdroid.core import OpsDroid
@@ -8,7 +8,7 @@ from opsdroid.events import Message
 from opsdroid.parsers.always import parse_always
 
 
-class TestParserAlways(asynctest.TestCase):
+class TestParserAlways(TestCase):
     """Test the opsdroid always parser."""
 
     async def setup(self):
@@ -32,9 +32,9 @@ class TestParserAlways(asynctest.TestCase):
         with OpsDroid() as opsdroid:
             mock_skill = await self.getMockSkill()
             opsdroid.skills.append(match_always()(mock_skill))
-            opsdroid.run_skill = amock.CoroutineMock()
+            opsdroid.run_skill = AsyncMock()
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = AsyncMock()
             message = Message(
                 text="Hello world",
                 user="user",
@@ -50,9 +50,9 @@ class TestParserAlways(asynctest.TestCase):
         with OpsDroid() as opsdroid:
             mock_skill = await self.getMockSkill()
             opsdroid.skills.append(match_always(mock_skill))
-            opsdroid.run_skill = amock.CoroutineMock()
+            opsdroid.run_skill = AsyncMock()
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = AsyncMock()
             message = Message(
                 text="Hello world",
                 user="user",
@@ -71,8 +71,8 @@ class TestParserAlways(asynctest.TestCase):
             opsdroid.skills.append(match_always()(mock_skill))
             self.assertEqual(len(opsdroid.skills), 1)
 
-            mock_connector = amock.MagicMock()
-            mock_connector.send = amock.CoroutineMock()
+            mock_connector = MagicMock()
+            mock_connector.send = AsyncMock()
             message = Message(
                 text="Hello world",
                 user="user",

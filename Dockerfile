@@ -1,4 +1,7 @@
-FROM python:3.9.16-alpine3.16 as builder
+ARG BASE_IMAGE="python:3.13-alpine"
+# only touch the line above after reading docs/maintaining/supported-python-versions.md
+
+FROM $BASE_IMAGE AS builder
 LABEL maintainer="Jacob Tomlinson <jacob@tomlinson.email>"
 
 WORKDIR /usr/src/app
@@ -37,7 +40,7 @@ RUN apk update \
     && count=$(ls -1 ${DEPS_DIR}/*.zip 2>/dev/null | wc -l) && if [ $count != 0 ]; then pip wheel -w ${DEPS_DIR} ${DEPS_DIR}/*.zip ; fi \
     && python -m build --wheel --outdir ${DEPS_DIR}
 
-FROM python:3.9.6-alpine3.14 as runtime
+FROM $BASE_IMAGE AS runtime
 LABEL maintainer="Jacob Tomlinson <jacob@tomlinson.email>"
 LABEL maintainer="Rémy Greinhofer <remy.greinhofer@gmail.com>"
 
@@ -54,6 +57,9 @@ RUN apk add --no-cache \
     git \
     olm \
     libzmq \
+    && pip install --upgrade \
+    pip \
+    setuptools \
     && pip install --no-cache-dir --no-index -f ${DEPS_DIR} \
     $(find ${DEPS_DIR} -type f -name opsdroid-*-any.whl)${EXTRAS} \
     && rm -rf /tmp/* /var/tmp/* ${DEPS_DIR}/* \

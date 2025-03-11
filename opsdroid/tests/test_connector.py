@@ -1,6 +1,6 @@
 import pytest
 
-import asynctest.mock as amock
+from unittest.mock import patch
 import anyio
 
 from opsdroid.connector import Connector, register_event
@@ -79,7 +79,7 @@ class TestConnectorAsync:
     @pytest.mark.anyio
     async def test_dep_respond(self, recwarn):
         connector = Connector({"name": "shell"})
-        with amock.patch("opsdroid.connector.Connector.send") as patched_send:
+        with patch("opsdroid.connector.Connector.send") as patched_send:
             await connector.respond("hello", room="bob")
 
             assert len(recwarn) >= 1
@@ -91,7 +91,7 @@ class TestConnectorAsync:
     async def test_dep_react(self, get_connector, recwarn):
         connector = get_connector({"name": "shell"})
 
-        with amock.patch("opsdroid.events.Message.respond") as patched_respond:
+        with patch("opsdroid.events.Message.respond") as patched_respond:
             await connector.react(Message("ori"), "hello")
 
             assert len(recwarn) >= 1

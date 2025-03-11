@@ -1,6 +1,6 @@
 import asyncio
-import asynctest
-import asynctest.mock as amock
+from unittest import TestCase
+from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 from aiohttp import ClientOSError
 
@@ -12,7 +12,7 @@ from opsdroid.parsers import luisai
 from opsdroid.connector import Connector
 
 
-class TestParserLuisai(asynctest.TestCase):
+class TestParserLuisai(TestCase):
     """Test the opsdroid luis.ai parser."""
 
     async def setup(self):
@@ -33,7 +33,7 @@ class TestParserLuisai(asynctest.TestCase):
         return mockedskill
 
     async def test_call_luisai(self):
-        opsdroid = amock.CoroutineMock()
+        opsdroid = AsyncMock()
         mock_connector = Connector({}, opsdroid=opsdroid)
         message = Message(
             text="schedule meeting",
@@ -42,15 +42,15 @@ class TestParserLuisai(asynctest.TestCase):
             connector=mock_connector,
         )
         config = {"name": "luisai", "appid": "test", "appkey": "test", "verbose": True}
-        result = amock.Mock()
-        result.json = amock.CoroutineMock()
+        result = Mock()
+        result.json = AsyncMock()
         result.json.return_value = {
             "query": "schedule meeting",
             "topScoringIntent": {"intent": "Calendar.Add", "score": 0.900492251},
             "intents": [{"intent": "Calendar.Add", "score": 0.900492251}],
             "entities": [],
         }
-        with amock.patch("aiohttp.ClientSession.get") as patched_request:
+        with patch("aiohttp.ClientSession.get") as patched_request:
             patched_request.return_value = asyncio.Future()
             patched_request.return_value.set_result(result)
             await luisai.call_luisai(message, config)
@@ -65,7 +65,7 @@ class TestParserLuisai(asynctest.TestCase):
             mock_skill.config = {"name": "greetings"}
             opsdroid.skills.append(match_luisai_intent("Calendar.Add")(mock_skill))
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = AsyncMock()
             message = Message(
                 text="schedule meeting",
                 user="user",
@@ -73,7 +73,7 @@ class TestParserLuisai(asynctest.TestCase):
                 connector=mock_connector,
             )
 
-            with amock.patch.object(luisai, "call_luisai") as mocked_call_luisai:
+            with patch.object(luisai, "call_luisai") as mocked_call_luisai:
                 mocked_call_luisai.return_value = {
                     "query": "schedule meeting",
                     "topScoringIntent": {
@@ -97,7 +97,7 @@ class TestParserLuisai(asynctest.TestCase):
             mock_skill.config = {"name": "greetings"}
             opsdroid.skills.append(match_luisai_intent("Calendar.Add")(mock_skill))
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = AsyncMock()
             message = Message(
                 text="schedule meeting",
                 user="user",
@@ -105,7 +105,7 @@ class TestParserLuisai(asynctest.TestCase):
                 connector=mock_connector,
             )
 
-            with amock.patch.object(luisai, "call_luisai") as mocked_call_luisai:
+            with patch.object(luisai, "call_luisai") as mocked_call_luisai:
                 mocked_call_luisai.return_value = {
                     "query": "schedule meeting",
                     "topScoringIntent": {
@@ -128,8 +128,8 @@ class TestParserLuisai(asynctest.TestCase):
             mock_skill.config = {"name": "greetings"}
             opsdroid.skills.append(match_luisai_intent("Calendar.Add")(mock_skill))
 
-            mock_connector = amock.MagicMock()
-            mock_connector.send = amock.CoroutineMock()
+            mock_connector = MagicMock()
+            mock_connector.send = AsyncMock()
             message = Message(
                 text="schedule meeting",
                 user="user",
@@ -137,7 +137,7 @@ class TestParserLuisai(asynctest.TestCase):
                 connector=mock_connector,
             )
 
-            with amock.patch.object(luisai, "call_luisai") as mocked_call_luisai:
+            with patch.object(luisai, "call_luisai") as mocked_call_luisai:
                 mocked_call_luisai.return_value = {
                     "query": "schedule meeting",
                     "topScoringIntent": {
@@ -160,10 +160,10 @@ class TestParserLuisai(asynctest.TestCase):
             opsdroid.config["parsers"] = [
                 {"name": "luisai", "appid": "test", "appkey": "test", "verbose": True}
             ]
-            mock_skill = amock.CoroutineMock()
+            mock_skill = AsyncMock()
             match_luisai_intent("Calendar.Add")(mock_skill)
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = AsyncMock()
             message = Message(
                 text="schedule meeting",
                 user="user",
@@ -171,7 +171,7 @@ class TestParserLuisai(asynctest.TestCase):
                 connector=mock_connector,
             )
 
-            with amock.patch.object(luisai, "call_luisai") as mocked_call_luisai:
+            with patch.object(luisai, "call_luisai") as mocked_call_luisai:
                 mocked_call_luisai.return_value = {"statusCode": 401}
                 skills = await luisai.parse_luisai(
                     opsdroid, opsdroid.skills, message, opsdroid.config["parsers"][0]
@@ -189,10 +189,10 @@ class TestParserLuisai(asynctest.TestCase):
                     "min-score": 0.95,
                 }
             ]
-            mock_skill = amock.CoroutineMock()
+            mock_skill = AsyncMock()
             match_luisai_intent("Calendar.Add")(mock_skill)
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = AsyncMock()
             message = Message(
                 text="schedule meeting",
                 user="user",
@@ -200,7 +200,7 @@ class TestParserLuisai(asynctest.TestCase):
                 connector=mock_connector,
             )
 
-            with amock.patch.object(luisai, "call_luisai") as mocked_call_luisai:
+            with patch.object(luisai, "call_luisai") as mocked_call_luisai:
                 mocked_call_luisai.return_value = {
                     "query": "schedule meeting",
                     "topScoringIntent": {
@@ -227,10 +227,10 @@ class TestParserLuisai(asynctest.TestCase):
                     "min-score": 0.95,
                 }
             ]
-            mock_skill = amock.CoroutineMock()
+            mock_skill = AsyncMock()
             match_luisai_intent("Calendar.Add")(mock_skill)
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = AsyncMock()
             message = Message(
                 text="schedule meeting",
                 user="user",
@@ -238,7 +238,7 @@ class TestParserLuisai(asynctest.TestCase):
                 connector=mock_connector,
             )
 
-            with amock.patch.object(luisai, "call_luisai") as mocked_call:
+            with patch.object(luisai, "call_luisai") as mocked_call:
                 mocked_call.side_effect = ClientOSError()
                 await luisai.parse_luisai(
                     opsdroid, opsdroid.skills, message, opsdroid.config["parsers"][0]
@@ -256,7 +256,7 @@ class TestParserLuisai(asynctest.TestCase):
             mock_skill.config = {"name": "weather"}
             opsdroid.skills.append(match_luisai_intent("weatherLocation")(mock_skill))
 
-            mock_connector = amock.CoroutineMock()
+            mock_connector = AsyncMock()
             message = Message(
                 text="whats the weather in london",
                 user="user",
@@ -264,7 +264,7 @@ class TestParserLuisai(asynctest.TestCase):
                 connector=mock_connector,
             )
 
-            with amock.patch.object(luisai, "call_luisai") as mocked_call_luisai:
+            with patch.object(luisai, "call_luisai") as mocked_call_luisai:
                 mocked_call_luisai.return_value = {
                     "query": "whats the weather in london",
                     "topScoringIntent": {
