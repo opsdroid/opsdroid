@@ -21,7 +21,6 @@ connectors:
     # Optional
     scheme: "http" # default: https
     port: 8065 # default: 8065
-    ssl-verify: false # default: true
     connect-timeout: 30 # default: 30
 ```
 

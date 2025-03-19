@@ -12,7 +12,7 @@ from bitstring import BitArray
 import aiohttp
 import puremagic
 import os
-from get_image_size import get_image_size_from_bytesio
+import imagesize
 from opsdroid.helper import get_opsdroid
 from videoprops import get_video_properties
 
@@ -404,7 +404,7 @@ class Image(File):
     async def get_dimensions(self):
         """Return the image dimensions `(w,h)`."""
         fbytes = await self.get_file_bytes()
-        return get_image_size_from_bytesio(io.BytesIO(fbytes), len(fbytes))
+        return imagesize.get(io.BytesIO(fbytes))
 
 
 class Video(File):

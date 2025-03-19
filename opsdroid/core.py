@@ -58,16 +58,20 @@ class OpsDroid:
         self._running = False
         self.sys_status = 0
         self.connectors = []
-        self.eventloop = asyncio.get_event_loop() if not loopless else None
-        if os.name != "nt" and not loopless:
-            for sig in (signal.SIGINT, signal.SIGTERM):
+        if loopless:
+            self.eventloop = None
+        else:
+            asyncio.set_event_loop(asyncio.new_event_loop())
+            self.eventloop = asyncio.get_event_loop()
+            if os.name != "nt":
+                for sig in (signal.SIGINT, signal.SIGTERM):
+                    self.eventloop.add_signal_handler(
+                        sig, lambda: asyncio.ensure_future(self.handle_stop_signal())
+                    )
                 self.eventloop.add_signal_handler(
-                    sig, lambda: asyncio.ensure_future(self.handle_stop_signal())
+                    signal.SIGHUP, lambda: asyncio.ensure_future(self.reload())
                 )
-            self.eventloop.add_signal_handler(
-                signal.SIGHUP, lambda: asyncio.ensure_future(self.reload())
-            )
-            self.eventloop.set_exception_handler(self.handle_async_exception)
+                self.eventloop.set_exception_handler(self.handle_async_exception)
         self.skills = []
         self.memory = Memory()
         self.modules = {}

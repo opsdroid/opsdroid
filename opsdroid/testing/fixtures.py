@@ -22,7 +22,22 @@ __all__ = [
     "mock_api",
     "anyio_backend",
     "event_loop",
+    "raw_message",
 ]
+
+
+@pytest.fixture
+def raw_message():
+
+    raw_message = {
+        "text": "Hello world",
+        "user": "user",
+        "room": "default",
+        "timestamp": "01/01/2000 19:23:00",
+        "messageId": "101",
+    }
+
+    return raw_message
 
 
 @pytest.fixture
@@ -40,7 +55,7 @@ async def event_loop():
 def get_connector():
     """Pytest fixture which is a factory to generate a connector."""
 
-    def _get_connector(config={}, opsdroid=None):
+    def _get_connector(config={}, opsdroid=OpsDroid()):
         return Connector(config, opsdroid=opsdroid)
 
     return _get_connector

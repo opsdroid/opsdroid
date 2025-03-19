@@ -164,6 +164,7 @@ connectors:
 #    # Required
 #    mxid: "@username:matrix.org"
 #    password: "mypassword"
+#    access_token: "matrix-access-token"
 #    # A dictionary of multiple rooms
 #    # One of these should be named 'main'
 #    rooms:

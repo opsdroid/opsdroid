@@ -13,6 +13,10 @@ from typing import Any, Dict, Union
 
 from aiohttp import web
 from opsdroid.helper import Timeout
+from multidict import (
+    MultiDict,
+    MultiDictProxy,
+)
 
 
 class ExternalAPIMockServer:
@@ -102,12 +106,46 @@ class ExternalAPIMockServer:
         method = request.method
 
         self._calls[(route, method)].append(request)
-        self._payloads[route].append(await request.post())
+
+        post_data = await request.post()  # try and parse form data first
+
+        if post_data == MultiDictProxy(MultiDict()):
+            if request.can_read_body:  # if it's not form data, try and parse as json
+                self._payloads[route].append(await request.json())
+            else:
+                self._payloads[route].append(post_data)
+        else:
+            self._payloads[route].append(post_data)
 
         status, response = self.responses[(route, method)].pop(0)
         if isinstance(response, str):
             return web.Response(text=response, status=status, content_type="text/html")
         return web.json_response(response, status=status)
+
+    async def _websockethandler(self, request: web.Request) -> web.WebSocketResponse:
+        route = request.path
+        method = "WEBSOCKET"
+        ws = web.WebSocketResponse()
+        await ws.prepare(request)
+
+        self._calls[(route, method)].append(request)
+        post_data = await request.post()  # try and parse form data first
+
+        if post_data == MultiDictProxy(MultiDict()):
+            if request.can_read_body:  # if it's not form data, try and parse as json
+                self._payloads[route].append(await request.json())
+            else:
+                self._payloads[route].append(post_data)
+        else:
+            self._payloads[route].append(post_data)
+
+        while len(self.responses[(route, method)]) > 0:
+            _, response = self.responses[(route, method)].pop(0)
+            if isinstance(response, str):
+                await ws.send_str(response)
+            else:
+                await ws.send_json(response)
+        return ws
 
     @property
     def base_url(self) -> str:
@@ -135,6 +173,8 @@ class ExternalAPIMockServer:
                 routes = [web.post(route, self._handler)]
             elif method.upper() == "PUT":
                 routes = [web.put(route, self._handler)]
+            elif method.upper() == "WEBSOCKET":
+                routes = [web.get(route, self._websockethandler)]
             else:
                 raise TypeError(f"Unsupported method {method}")
             self.app.add_routes(routes)
