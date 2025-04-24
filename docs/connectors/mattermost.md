@@ -22,6 +22,9 @@ connectors:
     scheme: "http" # default: https
     port: 8065 # default: 8065
     connect-timeout: 30 # default: 30
+
+    # Mattermost should always respond in a thread:
+    use-threads: True # default: False
 ```
 
 ## Usage

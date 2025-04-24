@@ -14,6 +14,7 @@ CONFIG_SCHEMA = {
     Required("token"): str,
     Required("url"): str,
     Required("team-name"): str,
+    "use-threads": bool,
     "scheme": str,
     "port": int,
     "connect-timeout": int,
@@ -34,6 +35,7 @@ class ConnectorMattermost(Connector):
         self._scheme = config.get("scheme", "https")
         self._port = config.get("port", 8065)
         self._timeout = config.get("connect-timeout", 30)
+        self._use_threads = config.get("use-threads", False)
 
         self._bot_id = None
 
@@ -123,9 +125,24 @@ class ConnectorMattermost(Connector):
             myjson = await response.json()
             channel_id = myjson["id"]
 
-        async with self._mm_driver.posts.create_post(
-            json={"channel_id": channel_id, "message": message.text}
-        ) as response:
+        body = {}
+        if self._use_threads:
+            data = message.linked_event.raw_event["data"]
+            post = json.loads(data["post"])
+
+            # root_id is set if it is already a thread
+            # otherwise use the id to start a new thread from that top level message
+            root_id = ("root_id" in post and post["root_id"]) or post["id"]
+
+            body = {
+                "channel_id": channel_id,
+                "message": message.text,
+                "root_id": root_id,
+            }
+        else:
+            body = {"channel_id": channel_id, "message": message.text}
+
+        async with self._mm_driver.posts.create_post(json=body) as response:
             _LOGGER.debug(
                 _("Mattermost responds with status code '%s' to the new post"),
                 response.status,
