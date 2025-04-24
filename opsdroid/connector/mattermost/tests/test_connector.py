@@ -133,10 +133,92 @@ async def test_api_send_message(connector, mock_api, caplog):
 
 
 @pytest.mark.add_response(*USER_ME_SUCCESS)
+@pytest.mark.add_response(*GET_CHANNEL_ID_FOR_CHANNEL_SUCCESS)
+@pytest.mark.add_response(*CREATE_POST_SUCCESS)
+async def test_api_send_message_threaded_new(connector, mock_api, caplog):
+    """Test that Mattermost correctly creates a new thread if configured appropriately."""
+    connector._use_threads = True
+
+    with caplog.at_level("DEBUG"):
+        await connector.connect()
+        await connector.send_message(
+            Message(
+                text="Unit Test Message",
+                target="unit_test_channel",
+                linked_event=Message(
+                    "Original Message",
+                    raw_event={"data": {"post": '{"id": "top-level-id"}'}},
+                ),
+            )
+        )
+
+    assert (
+        "Querying channel for team 'opsdroid' and name 'unit_test_channel'"
+        in caplog.text
+    )
+    assert (
+        "Responding with: 'Unit Test Message' in room  unit_test_channel" in caplog.text
+    )
+
+    post_call = mock_api.get_payload("/api/v4/posts", 0)
+
+    assert post_call["channel_id"] == "channel_id_for_name"
+    assert post_call["message"] == "Unit Test Message"
+
+    assert (
+        "Sending post with payload '{'channel_id': 'channel_id_for_name', 'message': 'Unit Test Message', 'root_id': 'top-level-id'}'"
+        in caplog.text
+    )
+
+
+@pytest.mark.add_response(*USER_ME_SUCCESS)
+@pytest.mark.add_response(*GET_CHANNEL_ID_FOR_CHANNEL_SUCCESS)
+@pytest.mark.add_response(*CREATE_POST_SUCCESS)
+async def test_api_send_message_threaded_existing(connector, mock_api, caplog):
+    """Test that Mattermost correctly creates a new thread if configured appropriately."""
+    connector._use_threads = True
+
+    with caplog.at_level("DEBUG"):
+        await connector.connect()
+        await connector.send_message(
+            Message(
+                text="Unit Test Message",
+                target="unit_test_channel",
+                linked_event=Message(
+                    "Original Message",
+                    raw_event={
+                        "data": {
+                            "post": '{"id": "inside-thread-id", "root_id": "top-level-id"}'
+                        }
+                    },
+                ),
+            )
+        )
+
+    assert (
+        "Querying channel for team 'opsdroid' and name 'unit_test_channel'"
+        in caplog.text
+    )
+    assert (
+        "Responding with: 'Unit Test Message' in room  unit_test_channel" in caplog.text
+    )
+
+    post_call = mock_api.get_payload("/api/v4/posts", 0)
+
+    assert post_call["channel_id"] == "channel_id_for_name"
+    assert post_call["message"] == "Unit Test Message"
+
+    assert (
+        "Sending post with payload '{'channel_id': 'channel_id_for_name', 'message': 'Unit Test Message', 'root_id': 'top-level-id'}'"
+        in caplog.text
+    )
+
+
+@pytest.mark.add_response(*USER_ME_SUCCESS)
 @pytest.mark.add_response(*WEBSOCKET_MESSAGE)
 @pytest.mark.add_response(*WEBSOCKET_HELLO)
 async def test_websocket_message(connector, mock_api, caplog):
-    """Tests that messages over the websocket are propery processed by opsdroid."""
+    """Tests that messages over the websocket are properly processed by opsdroid."""
     caplog.set_level(
         "DEBUG"
     )  # cannot use 'with caplog.at_level' because it wouldn't apply to the websocket loop
