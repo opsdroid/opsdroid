@@ -3,3 +3,7 @@ coverage:
     project:
       default:
         threshold: 0.2%
+logging:
+  level: debug
+  path: /var/log/opsdroid/output.log  # Adjust path as needed
+  console: true
