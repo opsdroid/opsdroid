@@ -90,13 +90,44 @@ class ConnectorSlack(Connector):
         self._event_queue = asyncio.Queue()
         self._event_queue_task = None
 
+    # Add debug to the _queue_worker method
+    @debug_timing
     async def _queue_worker(self):
+        """Process the event queue with timing information."""
         while True:
+            queue_size = self._event_queue.qsize()
+            if queue_size > 5:
+                _LOGGER.warning(f"DEBUG: Event queue size is large: {queue_size} items")
+                
             payload = await self._event_queue.get()
+            
+            # Determine if this is from a multi-workspace channel
+            is_multi_workspace = False
+            channel_id = None
+            
+            if payload.get("type") == "event_callback" and payload.get("event", {}).get("type") == "message":
+                channel_id = payload.get("event", {}).get("channel")
+                channel_type = await self.get_channel_type(channel_id)
+                is_multi_workspace = (channel_type == "multi_workspace")
+                
+                if is_multi_workspace:
+                    _LOGGER.debug(f"DEBUG: Processing queue item from Multi-Workspace channel: {channel_id}")
+            
+            start_processing = py_time.time()
             try:
                 await self.event_handler(payload)
+            except Exception as e:
+                _LOGGER.error(f"Error processing event: {e}")
             finally:
+                processing_time = py_time.time() - start_processing
                 self._event_queue.task_done()
+                
+                # Log slow processing
+                if processing_time > 2.0:
+                    _LOGGER.warning(
+                        f"SLOW PROCESSING: Event took {processing_time:.4f}s to process" + 
+                        (f" (Multi-Workspace: {channel_id})" if is_multi_workspace else "")
+                    )
 
     async def connect(self):
         """Connect to the chat service."""
@@ -195,34 +226,132 @@ class ConnectorSlack(Connector):
                 data["thread_ts"] = event.linked_event.event_id
 
         return data
+    
+    
+    # Add a debug decorator to track execution time of async functions
+    def debug_timing(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            start_time = py_time.time()
+            function_name = func.__name__
+            _LOGGER.debug(f"DEBUG: Starting {function_name}")
+            
+            result = await func(*args, **kwargs)
+            
+            end_time = py_time.time()
+            execution_time = end_time - start_time
+            _LOGGER.debug(f"DEBUG: {function_name} took {execution_time:.4f} seconds to execute")
+            
+            # Log extra info if it took longer than 1 second
+            if execution_time > 1.0:
+                _LOGGER.warning(f"SLOW OPERATION: {function_name} took {execution_time:.4f} seconds")
+                
+            return result
+        return wrapper
 
+    # Add a channel_type method to identify channel types
+    async def get_channel_type(self, channel_id):
+        """Identify if a channel is a shared/multi-workspace channel"""
+        for channel in self.known_channels.values():
+            if channel.get("id") == channel_id:
+                if channel.get("is_ext_shared", False) or channel.get("is_shared", False):
+                    return "multi_workspace"
+                elif channel.get("is_im", False):
+                    return "direct_message"
+                elif channel.get("is_private", False):
+                    return "private_channel"
+                else:
+                    return "public_channel"
+        
+        # If not found in cache, try to get it from API
+        try:
+            _LOGGER.debug(f"DEBUG: Channel {channel_id} not in cache, fetching from API")
+            channel_info = await self.slack_web_client.conversations_info(channel=channel_id)
+            channel = channel_info.get("channel", {})
+            
+            # Update cache with this information
+            if "name" in channel:
+                self.known_channels[channel["name"]] = channel
+                
+            if channel.get("is_ext_shared", False) or channel.get("is_shared", False):
+                return "multi_workspace"
+            elif channel.get("is_im", False):
+                return "direct_message"
+            elif channel.get("is_private", False):
+                return "private_channel"
+            else:
+                return "public_channel"
+        except Exception as e:
+            _LOGGER.error(f"Error determining channel type: {e}")
+            return "unknown"
+
+    # Add the method to ConnectorSlack class
+    ConnectorSlack.get_channel_type = get_channel_type
+
+    # Modified _get_channels method with debugging
+    @debug_timing
     async def _get_channels(self):
         """Grab all the channels from the Slack API. This method runs while opsdroid
         is running at every refresh_interval.
         """
-        # By default, slack api asks us to wait 30 seconds if we hit the rate limit.
-        # We will retry 5 (2.5 mins) times before giving up.
         max_retries = 5
         while self.opsdroid.eventloop.is_running():
-            _LOGGER.info(_("Updating Channels from Slack API at %s."), time.asctime())
-
+            _LOGGER.info(_("Updating Channels from Slack API at %s."), py_time.asctime())
             cursor = None
+            
+            # Stats for debugging
+            channel_stats = {
+                "public_channels": 0,
+                "private_channels": 0,
+                "multi_workspace": 0,
+                "direct_messages": 0
+            }
 
             while max_retries:
                 try:
+                    _LOGGER.debug("DEBUG: Fetching channels from Slack API")
+                    start_time = py_time.time()
+                    
+                    # Include all channel types including shared channels
                     channels = await self.slack_web_client.conversations_list(
-                        cursor=cursor, limit=self.channel_limit
+                        cursor=cursor, 
+                        limit=self.channel_limit,
+                        types="public_channel,private_channel,mpim,im"
                     )
-                    self.known_channels.update(
-                        {c["name"]: c for c in channels["channels"]}
-                    )
+                    
+                    api_time = py_time.time() - start_time
+                    _LOGGER.debug(f"DEBUG: Slack API call took {api_time:.4f} seconds")
+                    
+                    # Update the channels cache and collect stats
+                    for c in channels["channels"]:
+                        # Add flags for different channel types
+                        is_shared = c.get("is_ext_shared", False) or c.get("is_shared", False)
+                        c["is_multi_workspace"] = is_shared
+                        
+                        # Update stats
+                        if is_shared:
+                            channel_stats["multi_workspace"] += 1
+                        elif c.get("is_im", False):
+                            channel_stats["direct_messages"] += 1
+                        elif c.get("is_private", False):
+                            channel_stats["private_channels"] += 1
+                        else:
+                            channel_stats["public_channels"] += 1
+                        
+                        self.known_channels[c["name"]] = c
+                    
                     cursor = channels.get("response_metadata", {}).get("next_cursor")
                     if not cursor:
                         break
+                        
                     channel_count = len(self.known_channels.keys())
                     _LOGGER.info(
                         "Grabbed a total of %s channels from Slack", channel_count
                     )
+                    
+                    # Log channel stats
+                    _LOGGER.debug(f"Channel statistics: {channel_stats}")
+                    
                     await asyncio.sleep(
                         self.refresh_interval - arrow.now().time().second
                     )
@@ -238,36 +367,75 @@ class ConnectorSlack(Connector):
                         max_retries -= 1
                         continue
                     else:
+                        _LOGGER.error(f"SlackApiError: {error}")
                         raise
-            # If we reach here, let's break from the loop
-            # (works for both cases: cursor is None or max_retries is 0)
             break
 
-    async def event_handler(self, payload):
-        """Handle different payload types and parse the resulting events"""
+# Replace the original method with our debug version
+    ConnectorSlack._get_channels = _get_channels
 
+# Add debug to the event handler
+    @debug_timing
+    async def event_handler(self, payload):
+        """Handle different payload types and parse the resulting events with debug timing"""
+        
+        # Add timing for different parts of event handling
+        event_type = payload.get("type", "unknown")
+        _LOGGER.debug(f"DEBUG: Processing event of type: {event_type}")
+        
+        # For message events, check the channel type
+        if event_type == "event_callback" and payload.get("event", {}).get("type") == "message":
+            event_data = payload.get("event", {})
+            channel_id = event_data.get("channel")
+            
+            # Get channel type and log it
+            channel_type_start = py_time.time()
+            channel_type = await self.get_channel_type(channel_id)
+            channel_type_time = py_time.time() - channel_type_start
+            
+            _LOGGER.debug(f"DEBUG: Message from channel type: {channel_type} (lookup took {channel_type_time:.4f}s)")
+            
+            # If multi-workspace, log additional info
+            if channel_type == "multi_workspace":
+                _LOGGER.debug(f"DEBUG: Processing Multi-Workspace channel message: {channel_id}")
+
+        # Original event handling code
         if "command" in payload:
             payload["type"] = "command"
 
+        event = None
         if "type" in payload:
+            create_event_start = py_time.time()
+            
             if payload["type"] == "event_callback":
                 event = await self._event_creator.create_event(payload["event"], None)
             else:
                 event = await self._event_creator.create_event(payload, None)
+                
+            create_event_time = py_time.time() - create_event_start
+            _LOGGER.debug(f"DEBUG: Event creation took {create_event_time:.4f}s")
 
         if event:
+            parse_start = py_time.time()
+            
             if isinstance(event, list):
                 for e in event:
-                    _LOGGER.debug(f"Got slack event: {e}")
+                    _LOGGER.debug(f"DEBUG: Parsing event: {type(e).__name__}")
                     await self.opsdroid.parse(e)
 
             if isinstance(event, opsdroid.events.Event):
-                _LOGGER.debug(f"Got slack event: {event}")
+                _LOGGER.debug(f"DEBUG: Parsing event: {type(event).__name__}")
                 await self.opsdroid.parse(event)
+                
+            parse_time = py_time.time() - parse_start
+            _LOGGER.debug(f"DEBUG: Event parsing took {parse_time:.4f}s")
         else:
             _LOGGER.debug(
                 "Event returned empty for payload: %s. Event was not parsed", payload
             )
+
+    # Replace the original method with our debug version
+        ConnectorSlack.event_handler = event_handler
 
     async def socket_event_handler(
         self, client: SocketModeClient, req: SocketModeRequest
@@ -414,18 +582,31 @@ class ConnectorSlack(Connector):
 
         return messages
 
+    # Add debug to the lookup_username method
+    @debug_timing
     async def lookup_username(self, userid, is_bot=False):
-        """Lookup a username and cache it."""
+        """Lookup a username and cache it with timing."""
+        _LOGGER.debug(f"DEBUG: Looking up user: {userid}, is_bot: {is_bot}")
+        
         if userid in self.known_users:
+            _LOGGER.debug(f"DEBUG: Found user {userid} in cache")
             return self.known_users[userid]
         elif userid in self.known_bots:
+            _LOGGER.debug(f"DEBUG: Found bot {userid} in cache")
             return self.known_bots[userid]
         else:
+            _LOGGER.debug(f"DEBUG: User/bot {userid} not in cache, fetching from API")
+            start_time = py_time.time()
+            
             response = (
                 await self.slack_web_client.users_info(user=userid)
                 if not is_bot
                 else await self.slack_web_client.bots_info(bot=userid)
             )
+            
+            api_time = py_time.time() - start_time
+            _LOGGER.debug(f"DEBUG: User lookup API call took {api_time:.4f}s")
+            
             if "user" in response.data:
                 user_info = response.data["user"]
                 if isinstance(user_info, dict):
@@ -436,6 +617,9 @@ class ConnectorSlack(Connector):
                 if isinstance(bot_info, dict):
                     self.known_bots[userid] = bot_info
                 return bot_info
+
+    # Replace the original method with our debug version
+    ConnectorSlack.lookup_username = lookup_username
 
     async def replace_usernames(self, message):
         """Replace User ID with username in message text."""
@@ -650,5 +834,4 @@ class ConnectorSlack(Connector):
             channel=file_event.target,
             content=await file_event.get_file_bytes(),
             filename=file_event.name,
-            thread_ts=thread_ts,
-        )
+            thread_ts=thread_ts,)
