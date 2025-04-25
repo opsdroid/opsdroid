@@ -14,5 +14,10 @@ class Channels(Base):
         )
 
         return self.get(
-            Teams.endpoint + "/name/" + team_name + "/channels/name/" + channel_name
+            f"{Teams.endpoint}/name/{team_name}/channels/name/{channel_name}"
         )
+
+    def get_channel_by_id(self, channel_id):
+        _LOGGER.debug("Querying channel for ID '%s'", channel_id)
+
+        return self.get(f"{self.endpoint}/{channel_id}")
