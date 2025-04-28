@@ -8,8 +8,21 @@ from .conftest import get_path
 
 pytestmark = pytest.mark.anyio
 
-USER_ME_SUCCESS = ("/api/v4/users/me", "GET", get_path("users.me.success.json"), 200)
-USER_ME_ERROR = ("/api/v4/users/me", "GET", None, 401)
+GET_USER_ME_SUCCESS = (
+    "/api/v4/users/me",
+    "GET",
+    get_path("users.me.success.json"),
+    200,
+)
+GET_USER_ME_ERROR = ("/api/v4/users/me", "GET", None, 401)
+
+GET_USER_123_SUCCESS = (
+    "/api/v4/users/123",
+    "GET",
+    get_path("users.123.success.json"),
+    200,
+)
+
 WEBSOCKET_HELLO = (
     "/api/v4/websocket",
     "WEBSOCKET",
@@ -22,6 +35,13 @@ WEBSOCKET_MESSAGE = (
     get_path("websocket.message.success.json"),
     200,
 )
+WEBSOCKET_REACTION = (
+    "/api/v4/websocket",
+    "WEBSOCKET",
+    get_path("websocket.reaction.success.json"),
+    200,
+)
+
 GET_CHANNEL_ID_FOR_CHANNEL_SUCCESS = (
     "/api/v4/teams/name/opsdroid/channels/name/unit_test_channel",
     "GET",
@@ -29,6 +49,18 @@ GET_CHANNEL_ID_FOR_CHANNEL_SUCCESS = (
     200,
 )
 CREATE_POST_SUCCESS = ("/api/v4/posts", "POST", None, 200)
+GET_POST_456_SUCCESS = (
+    "/api/v4/posts/456",
+    "GET",
+    get_path("posts.456.success.json"),
+    200,
+)
+GET_CHANNEL_789_SUCCESS = (
+    "/api/v4/channels/789",
+    "GET",
+    get_path("channels.789.success.json"),
+    200,
+)
 
 
 @pytest.fixture
@@ -59,7 +91,7 @@ async def assert_websocket(func):
             continue
 
 
-@pytest.mark.add_response(*USER_ME_SUCCESS)
+@pytest.mark.add_response(*GET_USER_ME_SUCCESS)
 @pytest.mark.add_response(*WEBSOCKET_HELLO)
 async def test_api_key_success(connector, mock_api, caplog):
     """Test that creating without an API key raises an error."""
@@ -83,7 +115,7 @@ async def test_api_key_success(connector, mock_api, caplog):
     )
 
 
-@pytest.mark.add_response(*USER_ME_ERROR)
+@pytest.mark.add_response(*GET_USER_ME_ERROR)
 async def test_api_key_failure(connector, mock_api, caplog):
     """Test that using an API key that Mattermost declares as Unauthorized, raises an error."""
     try:
@@ -102,7 +134,7 @@ async def test_api_key_failure(connector, mock_api, caplog):
     assert "Failed connecting to Mattermost" in caplog.text
 
 
-@pytest.mark.add_response(*USER_ME_SUCCESS)
+@pytest.mark.add_response(*GET_USER_ME_SUCCESS)
 @pytest.mark.add_response(*GET_CHANNEL_ID_FOR_CHANNEL_SUCCESS)
 @pytest.mark.add_response(*CREATE_POST_SUCCESS)
 async def test_api_send_message(connector, mock_api, caplog):
@@ -132,7 +164,7 @@ async def test_api_send_message(connector, mock_api, caplog):
     )
 
 
-@pytest.mark.add_response(*USER_ME_SUCCESS)
+@pytest.mark.add_response(*GET_USER_ME_SUCCESS)
 @pytest.mark.add_response(*GET_CHANNEL_ID_FOR_CHANNEL_SUCCESS)
 @pytest.mark.add_response(*CREATE_POST_SUCCESS)
 async def test_api_send_message_threaded_new(connector, mock_api, caplog):
@@ -171,7 +203,7 @@ async def test_api_send_message_threaded_new(connector, mock_api, caplog):
     )
 
 
-@pytest.mark.add_response(*USER_ME_SUCCESS)
+@pytest.mark.add_response(*GET_USER_ME_SUCCESS)
 @pytest.mark.add_response(*GET_CHANNEL_ID_FOR_CHANNEL_SUCCESS)
 @pytest.mark.add_response(*CREATE_POST_SUCCESS)
 async def test_api_send_message_threaded_existing(connector, mock_api, caplog):
@@ -214,7 +246,7 @@ async def test_api_send_message_threaded_existing(connector, mock_api, caplog):
     )
 
 
-@pytest.mark.add_response(*USER_ME_SUCCESS)
+@pytest.mark.add_response(*GET_USER_ME_SUCCESS)
 @pytest.mark.add_response(*WEBSOCKET_MESSAGE)
 @pytest.mark.add_response(*WEBSOCKET_HELLO)
 async def test_websocket_message(connector, mock_api, caplog):
@@ -239,6 +271,46 @@ async def test_websocket_message(connector, mock_api, caplog):
         lambda: "Mattermost Websocket authentification OK" in caplog.text
     )
     await assert_websocket(lambda: "Processing raw Mattermost message" in caplog.text)
+
+    print("caplog.text", caplog.text)
+
+    await assert_websocket(
+        lambda: "Message arrived in Unit Test skill: 'Unit Test Message'" in caplog.text
+    )
+
+
+@pytest.mark.add_response(*GET_CHANNEL_789_SUCCESS)
+@pytest.mark.add_response(*GET_POST_456_SUCCESS)
+@pytest.mark.add_response(*GET_USER_123_SUCCESS)
+@pytest.mark.add_response(*GET_USER_ME_SUCCESS)
+@pytest.mark.add_response(*WEBSOCKET_REACTION)
+@pytest.mark.add_response(*WEBSOCKET_HELLO)
+async def test_websocket_reaction(connector, mock_api, caplog):
+    """Tests that messages over the websocket are propery processed by opsdroid."""
+
+    connector._emoji_trigger = "emoji_test"
+
+    caplog.set_level(
+        "DEBUG"
+    )  # cannot use 'with caplog.at_level' because it wouldn't apply to the websocket loop
+    await connector.connect()
+    asyncio.get_event_loop().create_task(
+        connector.listen(), name="Unit Test Websocket task"
+    )
+
+    assert connector._bot_id == "test1234"
+
+    whoami_call = mock_api.get_request("/api/v4/users/me", "GET", 0)
+    assert "Authorization" in whoami_call.headers
+    assert whoami_call.headers["Authorization"] == "Bearer unittest_token"
+
+    assert "Connected as Some Test Account" in caplog.text
+
+    await assert_websocket(
+        lambda: "Mattermost Websocket authentification OK" in caplog.text
+    )
+    await assert_websocket(lambda: "Processing raw Mattermost message" in caplog.text)
+
     await assert_websocket(
         lambda: "Message arrived in Unit Test skill: 'Unit Test Message'" in caplog.text
     )

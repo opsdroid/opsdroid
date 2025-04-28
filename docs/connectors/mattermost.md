@@ -23,8 +23,11 @@ connectors:
     port: 8065 # default: 8065
     connect-timeout: 30 # default: 30
 
-    # Mattermost should always respond in a thread:
+    # OpsDroid should always respond in a thread:
     use-threads: True # default: False
+
+    # OpsDroid should parse messages that have received this emoji
+    emoji-trigger: "opsdroid-emoji" # default: None
 ```
 
 ## Usage

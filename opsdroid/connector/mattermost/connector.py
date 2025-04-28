@@ -9,6 +9,8 @@ from opsdroid.events import Message
 
 from .driver import Driver
 
+import asyncio
+
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = {
     Required("token"): str,
@@ -18,6 +20,7 @@ CONFIG_SCHEMA = {
     "scheme": str,
     "port": int,
     "connect-timeout": int,
+    "emoji-trigger": str,
 }
 
 
@@ -36,6 +39,7 @@ class ConnectorMattermost(Connector):
         self._port = config.get("port", 8065)
         self._timeout = config.get("connect-timeout", 30)
         self._use_threads = config.get("use-threads", False)
+        self._emoji_trigger = config.get("emoji-trigger", None)
 
         self._bot_id = None
 
@@ -99,18 +103,88 @@ class ConnectorMattermost(Connector):
         if "event" in raw_json_message and raw_json_message["event"] == "posted":
             data = raw_json_message["data"]
             post = json.loads(data["post"])
-            # if connected to Mattermost, don't parse our own messages
-            # (https://github.com/opsdroid/opsdroid/issues/1775)
-            if self._bot_id != post["user_id"]:
-                await self.opsdroid.parse(
-                    Message(
-                        text=post["message"],
-                        user=data["sender_name"],
-                        target=data["channel_name"],
-                        connector=self,
-                        raw_event=raw_json_message,
-                    )
+
+            await self.process_mattermost_post(
+                message=post["message"],
+                user_name=data["sender_name"],
+                user_id=post["user_id"],
+                channel_name=data["channel_name"],
+                raw_json_message=raw_json_message,
+            )
+        elif (
+            self._emoji_trigger
+            and "event" in raw_json_message
+            and raw_json_message["event"] == "reaction_added"
+        ):
+            data = raw_json_message["data"]
+            reaction = json.loads(data["reaction"])
+            if reaction["emoji_name"] == self._emoji_trigger:
+                # This is the emoji we've been waiting for
+                # retrieve the post ID
+                post_id = reaction["post_id"]
+                post_future = self._mm_driver.posts.create_future(
+                    self._mm_driver.posts.get_post(post_id)
                 )
+
+                user_id = reaction["user_id"]
+                user_future = self._mm_driver.users.create_future(
+                    self._mm_driver.users.get_user(user_id)
+                )
+
+                channel_id = reaction["channel_id"]
+                channel_future = self._mm_driver.channels.create_future(
+                    self._mm_driver.channels.get_channel_by_id(channel_id)
+                )
+
+                # wait for all futures to complete
+                await asyncio.gather(post_future, user_future, channel_future)
+
+                # We need the raw post as well as the JSON
+                raw_post = await post_future.result().text()
+                post = json.loads(raw_post)
+
+                channel = await channel_future.result().json()
+                channel_name = channel["name"]
+
+                user = await user_future.result().json()
+                user_name = user["username"]
+
+                message = post["message"]
+
+                # The emoji reaction does not contain all the information about the post that we need later on
+                # so we must create a new raw message with the post data
+                raw_message = raw_json_message.copy()
+                raw_message["data"]["post"] = raw_post
+
+                await self.process_mattermost_post(
+                    message=message,
+                    user_name=user_name,
+                    user_id=user_id,
+                    channel_name=channel_name,
+                    raw_json_message=raw_message,
+                )
+
+    async def process_mattermost_post(
+        self,
+        message: str,
+        user_name: str,
+        user_id: str,
+        channel_name: str,
+        raw_json_message: dict,
+    ):
+        """Process a Mattermost post."""
+        # if connected to Mattermost, don't parse our own messages
+        # (https://github.com/opsdroid/opsdroid/issues/1775)
+        if self._bot_id != user_id:
+            await self.opsdroid.parse(
+                Message(
+                    text=message,
+                    user=user_name,
+                    target=channel_name,
+                    connector=self,
+                    raw_event=raw_json_message,
+                )
+            )
 
     @register_event(Message)
     async def send_message(self, message):
