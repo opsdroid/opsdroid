@@ -1,0 +1,17 @@
+{
+    "message": "Unit Test Message",
+    "metadata" : {
+        "reactions" : [
+            {
+                "emoji_name" : "emoji_test",
+                "user_id" : "user1",
+                "post_id" : "post1"
+            },
+            {
+                "emoji_name" : "thumbsdown",
+                "user_id" : "user2",
+                "post_id" : "post2"
+            }
+        ]
+    }
+}

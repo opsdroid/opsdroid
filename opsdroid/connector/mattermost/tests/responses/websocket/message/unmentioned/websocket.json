@@ -4,6 +4,7 @@
     "data": {
         "post": "{\"user_id\": \"123\", \"message\": \"Unit Test Message\"}",
         "sender_name": "Unit Test Sender",
-        "channel_name": "Unit Test Channel"
+        "channel_name": "Unit Test Channel",
+        "channel_type": "O"
     }
 }

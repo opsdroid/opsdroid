@@ -1,0 +1,10 @@
+{
+    "seq": 1,
+    "event": "posted",
+    "data": {
+        "post": "{\"user_id\": \"123\", \"message\": \"@test_1234_account Unit Test Message\"}",
+        "sender_name": "Unit Test Sender",
+        "channel_name": "Unit Test Channel",
+        "channel_type": "O"
+    }
+}
