@@ -425,6 +425,16 @@ class Timeout:
                 raise self.exception
         return True
 
+    def get_elapsed_seconds(self):
+        """Get the elapsed seconds since the timeout started.
+
+        Returns:
+            float: The elapsed seconds since the timeout started.
+        """
+        if self.start is None:
+            return 0
+        return (datetime.datetime.now() - self.start).total_seconds()
+
     def set_exception(self, e):
         """Modify the default timeout exception.
 

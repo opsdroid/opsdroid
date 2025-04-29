@@ -8,6 +8,8 @@ connector/gitter:
   - opsdroid/connector/gitter/**/*
 connector/matrix:
   - opsdroid/connector/matrix/**/*
+connector/mattermost:
+  - opsdroid/connector/mattermost/**/*
 connector/rocketchat:
   - opsdroid/connector/rocketchat/**/*
 connector/slack:
