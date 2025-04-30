@@ -28,6 +28,9 @@ connectors:
 
     # OpsDroid should parse messages that have received this emoji
     emoji-trigger: "opsdroid-emoji" # default: None
+
+    # OpsDroid should only parse messages in channels if the bot is being tagged directly; direct messages between you and the bot always ignore this and OpsDroid will always respond
+    trigger-on-mention: True # default: True
 ```
 
 ## Usage

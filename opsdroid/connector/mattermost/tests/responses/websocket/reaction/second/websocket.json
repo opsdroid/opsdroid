@@ -1,0 +1,9 @@
+{
+    "seq": 1,
+    "event": "reaction_added",
+    "data": {
+        "reaction": "{\"user_id\": \"123\", \"message\": \"Unit Test Message\", \"emoji_name\": \"emoji_test\", \"post_id\": \"456\", \"channel_id\": \"789\"}",
+        "sender_name": "Not the sender we want!",
+        "channel_name": "Unit Test Channel"
+    }
+}

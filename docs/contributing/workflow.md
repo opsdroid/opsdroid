@@ -120,3 +120,9 @@ congratulations :)
 ```
 
 This tells you that your linting is good and you can push these changes to Github.
+
+## Manual tests
+
+Make sure to test the changes not just in unit tests but also in a running application. To help with using an objective baseline for the test, you can enable deployments for your local fork and test with the docker images created from your `main` branch and deployed directly to the GitHub Container Registry (ghcr.io). These images receive the tag `dev`.
+
+In order to activate deployments, add a variable to your fork under Settings 🠊 Secrets and variables 🠊 Actions 🠊 Variables 🠊 New repository variable 🠊 `ALLOW_DEPLOYMENTS = true`

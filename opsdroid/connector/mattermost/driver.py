@@ -149,6 +149,9 @@ class Driver:
         return self
 
     async def __aexit__(self, *exc_info):
+        _LOGGER.debug(
+            _("Mattermost: driver teardown initiated"),
+        )
         return await self._client.__aexit__(*exc_info)
 
     async def init_websocket(
@@ -185,6 +188,8 @@ class Driver:
                 aiohttp.WebSocketError,
                 aiohttp.ClientResponseError,
                 aiohttp.ClientConnectionError,
+                # when the aiohttp-connection is closed because of teardown, this error is sometimes raised instead of a more meaningful one
+                AttributeError,
             ) as ex:
                 _LOGGER.info(
                     _("Mattermost: An exception occured in the Websocket: '%s'"),
@@ -195,7 +200,7 @@ class Driver:
                     _(
                         "Mattermost: An unexpected exception occured in the Websocket: '%s'"
                     ),
-                    ex,
+                    repr(ex),
                 )
                 raise ex
 
@@ -207,6 +212,9 @@ class Driver:
         Exceptions are allowed to be raised in here, as the calling function contains
         the (semi-)infinite loop that only breaks if the driver object is closed.
         """
+        _LOGGER.debug(
+            _("Mattermost: started inner websocket loop"),
+        )
         if self._options["scheme"] == "https":
             scheme = "wss"
         elif self._options["scheme"] == "http":
@@ -254,4 +262,4 @@ class Driver:
                 elif received.type in [WSMsgType.CLOSE, WSMsgType.ERROR]:
                     break  # this happens if Mattermost is restarted or the network connection is lost, etc.
 
-        return await asyncio.sleep(0)  # allow for graceful websocket removal
+        return await asyncio.sleep(1)  # allow for graceful websocket removal

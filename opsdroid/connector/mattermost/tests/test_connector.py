@@ -16,29 +16,10 @@ GET_USER_ME_SUCCESS = (
 )
 GET_USER_ME_ERROR = ("/api/v4/users/me", "GET", None, 401)
 
-GET_USER_123_SUCCESS = (
-    "/api/v4/users/123",
-    "GET",
-    get_path("users.123.success.json"),
-    200,
-)
-
 WEBSOCKET_HELLO = (
     "/api/v4/websocket",
     "WEBSOCKET",
-    get_path("websocket.success.json"),
-    200,
-)
-WEBSOCKET_MESSAGE = (
-    "/api/v4/websocket",
-    "WEBSOCKET",
-    get_path("websocket.message.success.json"),
-    200,
-)
-WEBSOCKET_REACTION = (
-    "/api/v4/websocket",
-    "WEBSOCKET",
-    get_path("websocket.reaction.success.json"),
+    get_path("websocket/websocket.success.json"),
     200,
 )
 
@@ -49,18 +30,6 @@ GET_CHANNEL_ID_FOR_CHANNEL_SUCCESS = (
     200,
 )
 CREATE_POST_SUCCESS = ("/api/v4/posts", "POST", None, 200)
-GET_POST_456_SUCCESS = (
-    "/api/v4/posts/456",
-    "GET",
-    get_path("posts.456.success.json"),
-    200,
-)
-GET_CHANNEL_789_SUCCESS = (
-    "/api/v4/channels/789",
-    "GET",
-    get_path("channels.789.success.json"),
-    200,
-)
 
 
 @pytest.fixture
@@ -81,7 +50,7 @@ async def assert_websocket(func):
     retries = 10
     for i in range(retries):
         await asyncio.sleep(
-            0
+            0.01
         )  # wait for the websocket event loop to catch up before checking its log outputs
         try:
             assert func()
@@ -104,12 +73,13 @@ async def test_api_key_success(connector, mock_api, caplog):
     )
 
     assert connector._bot_id == "test1234"
+    assert connector._bot_name == "test_1234_account"
 
     whoami_call = mock_api.get_request("/api/v4/users/me", "GET", 0)
     assert "Authorization" in whoami_call.headers
     assert whoami_call.headers["Authorization"] == "Bearer unittest_token"
 
-    assert "Connected as Some Test Account" in caplog.text
+    assert "Connected as test_1234_account" in caplog.text
     await assert_websocket(
         lambda: "Mattermost Websocket authentification OK" in caplog.text
     )
@@ -247,9 +217,14 @@ async def test_api_send_message_threaded_existing(connector, mock_api, caplog):
 
 
 @pytest.mark.add_response(*GET_USER_ME_SUCCESS)
-@pytest.mark.add_response(*WEBSOCKET_MESSAGE)
+@pytest.mark.add_response(
+    "/api/v4/websocket",
+    "WEBSOCKET",
+    get_path("websocket/message/mentioned/websocket.json"),
+    200,
+)
 @pytest.mark.add_response(*WEBSOCKET_HELLO)
-async def test_websocket_message(connector, mock_api, caplog):
+async def test_websocket_message_mentioned(connector, mock_api, caplog):
     """Tests that messages over the websocket are properly processed by opsdroid."""
     caplog.set_level(
         "DEBUG"
@@ -259,33 +234,117 @@ async def test_websocket_message(connector, mock_api, caplog):
         connector.listen(), name="Unit Test Websocket task"
     )
 
-    assert connector._bot_id == "test1234"
-
-    whoami_call = mock_api.get_request("/api/v4/users/me", "GET", 0)
-    assert "Authorization" in whoami_call.headers
-    assert whoami_call.headers["Authorization"] == "Bearer unittest_token"
-
-    assert "Connected as Some Test Account" in caplog.text
-
-    await assert_websocket(
-        lambda: "Mattermost Websocket authentification OK" in caplog.text
-    )
     await assert_websocket(lambda: "Processing raw Mattermost message" in caplog.text)
 
-    print("caplog.text", caplog.text)
+    await assert_websocket(
+        lambda: "Message arrived in Unit Test skill: '@test_1234_account Unit Test Message'"
+        in caplog.text
+    )
+
+
+@pytest.mark.add_response(*GET_USER_ME_SUCCESS)
+@pytest.mark.add_response(
+    "/api/v4/websocket",
+    "WEBSOCKET",
+    get_path("websocket/message/direct/websocket.json"),
+    200,
+)
+@pytest.mark.add_response(*WEBSOCKET_HELLO)
+async def test_websocket_message_direct(connector, mock_api, caplog):
+    """Tests that messages over the websocket are properly processed by opsdroid."""
+    caplog.set_level(
+        "DEBUG"
+    )  # cannot use 'with caplog.at_level' because it wouldn't apply to the websocket loop
+    await connector.connect()
+    asyncio.get_event_loop().create_task(
+        connector.listen(), name="Unit Test Websocket task"
+    )
+
+    await assert_websocket(lambda: "Processing raw Mattermost message" in caplog.text)
 
     await assert_websocket(
         lambda: "Message arrived in Unit Test skill: 'Unit Test Message'" in caplog.text
     )
 
 
-@pytest.mark.add_response(*GET_CHANNEL_789_SUCCESS)
-@pytest.mark.add_response(*GET_POST_456_SUCCESS)
-@pytest.mark.add_response(*GET_USER_123_SUCCESS)
 @pytest.mark.add_response(*GET_USER_ME_SUCCESS)
-@pytest.mark.add_response(*WEBSOCKET_REACTION)
+@pytest.mark.add_response(
+    "/api/v4/websocket",
+    "WEBSOCKET",
+    get_path("websocket/message/unmentioned/websocket.json"),
+    200,
+)
 @pytest.mark.add_response(*WEBSOCKET_HELLO)
-async def test_websocket_reaction(connector, mock_api, caplog):
+async def test_websocket_message_unmentioned(connector, mock_api, caplog):
+    """Tests that messages over the websocket are ignored if the bot was not mentioned in a proper channel."""
+    caplog.set_level(
+        "DEBUG"
+    )  # cannot use 'with caplog.at_level' because it wouldn't apply to the websocket loop
+    await connector.connect()
+    asyncio.get_event_loop().create_task(
+        connector.listen(), name="Unit Test Websocket task"
+    )
+
+    await assert_websocket(lambda: "Processing raw Mattermost message" in caplog.text)
+
+    await assert_websocket(
+        lambda: "Not a direct message and I am not mentioned: ignoring message"
+        in caplog.text
+    )
+
+    await assert_websocket(
+        lambda: "Message arrived in Unit Test skill" not in caplog.text
+    )
+
+
+@pytest.mark.add_response(*GET_USER_ME_SUCCESS)
+@pytest.mark.add_response(
+    "/api/v4/websocket",
+    "WEBSOCKET",
+    get_path("websocket/message/self/websocket.json"),
+    200,
+)
+@pytest.mark.add_response(*WEBSOCKET_HELLO)
+async def test_websocket_message_self(connector, mock_api, caplog):
+    """Tests that messages over the websocket are ignored if the bot was not mentioned in a proper channel."""
+    caplog.set_level(
+        "DEBUG"
+    )  # cannot use 'with caplog.at_level' because it wouldn't apply to the websocket loop
+    await connector.connect()
+    asyncio.get_event_loop().create_task(
+        connector.listen(), name="Unit Test Websocket task"
+    )
+
+    await assert_websocket(lambda: "Processing raw Mattermost message" in caplog.text)
+
+    await assert_websocket(lambda: "I am the author: ignoring message" in caplog.text)
+
+    await assert_websocket(
+        lambda: "Message arrived in Unit Test skill" not in caplog.text
+    )
+
+
+@pytest.mark.add_response(
+    "/api/v4/channels/789",
+    "GET",
+    get_path("websocket/reaction/first/channels.789.json"),
+    200,
+)
+@pytest.mark.add_response(
+    "/api/v4/posts/456", "GET", get_path("websocket/reaction/first/posts.456.json"), 200
+)
+@pytest.mark.add_response(
+    "/api/v4/users/123", "GET", get_path("websocket/users.123.json"), 200
+)
+@pytest.mark.add_response(*GET_USER_ME_SUCCESS)
+@pytest.mark.add_response(
+    "/api/v4/websocket",
+    "WEBSOCKET",
+    get_path("websocket/reaction/first/websocket.json"),
+    200,
+)
+@pytest.mark.add_response(*WEBSOCKET_HELLO)
+async def test_websocket_reaction_first(connector, mock_api, caplog):
     """Tests that messages over the websocket are propery processed by opsdroid."""
 
     connector._emoji_trigger = "emoji_test"
@@ -297,20 +356,54 @@ async def test_websocket_reaction(connector, mock_api, caplog):
     asyncio.get_event_loop().create_task(
         connector.listen(), name="Unit Test Websocket task"
     )
+    await assert_websocket(lambda: "Processing raw Mattermost message" in caplog.text)
 
-    assert connector._bot_id == "test1234"
+    print("CAPLOG TEXT: ", caplog.text)
 
-    whoami_call = mock_api.get_request("/api/v4/users/me", "GET", 0)
-    assert "Authorization" in whoami_call.headers
-    assert whoami_call.headers["Authorization"] == "Bearer unittest_token"
+    await assert_websocket(lambda: "Message arrived in Unit Test skill" in caplog.text)
 
-    assert "Connected as Some Test Account" in caplog.text
 
-    await assert_websocket(
-        lambda: "Mattermost Websocket authentification OK" in caplog.text
+@pytest.mark.add_response(
+    "/api/v4/channels/789",
+    "GET",
+    get_path("websocket/reaction/second/channels.789.json"),
+    200,
+)
+@pytest.mark.add_response(
+    "/api/v4/posts/456",
+    "GET",
+    get_path("websocket/reaction/second/posts.456.json"),
+    200,
+)
+@pytest.mark.add_response(
+    "/api/v4/users/123", "GET", get_path("websocket/users.123.json"), 200
+)
+@pytest.mark.add_response(*GET_USER_ME_SUCCESS)
+@pytest.mark.add_response(
+    "/api/v4/websocket",
+    "WEBSOCKET",
+    get_path("websocket/reaction/second/websocket.json"),
+    200,
+)
+@pytest.mark.add_response(*WEBSOCKET_HELLO)
+async def test_websocket_reaction_second(connector, mock_api, caplog):
+    """Tests that messages over the websocket are propery processed by opsdroid."""
+
+    connector._emoji_trigger = "emoji_test"
+
+    caplog.set_level(
+        "DEBUG"
+    )  # cannot use 'with caplog.at_level' because it wouldn't apply to the websocket loop
+    await connector.connect()
+    asyncio.get_event_loop().create_task(
+        connector.listen(), name="Unit Test Websocket task"
     )
     await assert_websocket(lambda: "Processing raw Mattermost message" in caplog.text)
 
     await assert_websocket(
-        lambda: "Message arrived in Unit Test skill: 'Unit Test Message'" in caplog.text
+        lambda: "Reaction is not the first of its kind: ignoring message" in caplog.text
+    )
+
+    await assert_websocket(
+        lambda: "Message arrived in Unit Test skill" not in caplog.text
     )

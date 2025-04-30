@@ -230,6 +230,11 @@ class Web:
                 await self.site.start()
                 break
             except OSError as e:
+                _LOGGER.debug(
+                    _(
+                        f"Error starting the web server; retry for a total of {self.start_timeout} seconds; already consumed {timeout.get_elapsed_seconds()}: {repr(e)}"
+                    )
+                )
                 await asyncio.sleep(0.1)
                 timeout.set_exception(e)
                 await self.site.stop()

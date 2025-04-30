@@ -11,6 +11,8 @@ from .driver import Driver
 
 import asyncio
 
+from enum import Enum
+
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = {
     Required("token"): str,
@@ -21,7 +23,15 @@ CONFIG_SCHEMA = {
     "port": int,
     "connect-timeout": int,
     "emoji-trigger": str,
+    "trigger-on-mention": bool,
 }
+
+DIRECT_MESSAGE_TYPE = "D"
+
+
+class EventType(Enum):
+    MESSAGE = 1
+    REACTION = 2
 
 
 class ConnectorMattermost(Connector):
@@ -40,8 +50,10 @@ class ConnectorMattermost(Connector):
         self._timeout = config.get("connect-timeout", 30)
         self._use_threads = config.get("use-threads", False)
         self._emoji_trigger = config.get("emoji-trigger", None)
+        self._trigger_on_mention = config.get("trigger-on-mention", True)
 
         self._bot_id = None
+        self._bot_name = None
 
         self._mm_driver = Driver(
             {
@@ -76,9 +88,10 @@ class ConnectorMattermost(Connector):
                 "Mattermost response must contain our own client ID. Otherwise OpsDroid would respond to itself indefinitely."
             )
         self._bot_id = body["id"]
+        self._bot_name = body["username"]
 
         if "username" in body:
-            _LOGGER.info(_("Connected as %s"), body["username"])
+            _LOGGER.info(_("Connected as %s"), self._bot_name)
 
         _LOGGER.info(_("Connected successfully"))
 
@@ -105,10 +118,13 @@ class ConnectorMattermost(Connector):
             post = json.loads(data["post"])
 
             await self.process_mattermost_post(
+                event_type=EventType.MESSAGE,
                 message=post["message"],
                 user_name=data["sender_name"],
                 user_id=post["user_id"],
                 channel_name=data["channel_name"],
+                channel_type=data["channel_type"],
+                reactions=[],  # message was just now created, no reactions yet
                 raw_json_message=raw_json_message,
             )
         elif (
@@ -157,34 +173,67 @@ class ConnectorMattermost(Connector):
                 raw_message["data"]["post"] = raw_post
 
                 await self.process_mattermost_post(
+                    event_type=EventType.REACTION,
                     message=message,
                     user_name=user_name,
                     user_id=user_id,
                     channel_name=channel_name,
+                    channel_type=channel["type"],
+                    reactions=post["metadata"]["reactions"],
                     raw_json_message=raw_message,
                 )
 
     async def process_mattermost_post(
         self,
+        event_type: EventType,
         message: str,
         user_name: str,
         user_id: str,
         channel_name: str,
+        channel_type: str,
+        reactions: list,
         raw_json_message: dict,
     ):
         """Process a Mattermost post."""
         # if connected to Mattermost, don't parse our own messages
-        # (https://github.com/opsdroid/opsdroid/issues/1775)
-        if self._bot_id != user_id:
-            await self.opsdroid.parse(
-                Message(
-                    text=message,
-                    user=user_name,
-                    target=channel_name,
-                    connector=self,
-                    raw_event=raw_json_message,
-                )
+        if self._bot_id == user_id:
+            _LOGGER.debug(_("I am the author: ignoring message"))
+            return
+
+        # if a message is not direct message, check if the bot has been mentioned
+        if (
+            event_type == EventType.MESSAGE
+            and self._trigger_on_mention
+            and channel_type != DIRECT_MESSAGE_TYPE
+            and self._bot_name not in message
+        ):
+            _LOGGER.debug(
+                _("Not a direct message and I am not mentioned: ignoring message")
             )
+            return
+
+        # if the emoji is not the first of its kind, ignore it
+        if event_type == EventType.REACTION and self._emoji_trigger:
+            # check if the emoji is the first of its kind
+            reaction_count = 0
+            for reaction in reactions:
+                if reaction["emoji_name"] == self._emoji_trigger:
+                    reaction_count += 1
+            if reaction_count > 1:
+                _LOGGER.debug(
+                    _("Reaction is not the first of its kind: ignoring message")
+                )
+                return
+
+        await self.opsdroid.parse(
+            Message(
+                text=message,
+                user=user_name,
+                target=channel_name,
+                connector=self,
+                raw_event=raw_json_message,
+            )
+        )
 
     @register_event(Message)
     async def send_message(self, message):
