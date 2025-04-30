@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy_ghcr_only:
-    if: github.repository!='opsdroid/opsdroid' # only run on forks; no need for docker hub there
+    if: github.repository!='opsdroid/opsdroid' && vars.ALLOW_DEPLOYMENTS=='true' # only run on forks with the opt-in variable; no need for docker hub there
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Repos
