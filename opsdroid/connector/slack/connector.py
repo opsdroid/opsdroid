@@ -137,7 +137,10 @@ class ConnectorSlack(Connector):
             else:
                 # Create a task for background processing events received by
                 # the web event handler.
-                self._event_queue_task = asyncio.create_task(self._queue_worker())
+                self._event_queue_task = asyncio.gather(
+                    *[asyncio.create_task(self._queue_worker()) for _ in range(3)]
+                )
+
 
                 self.opsdroid.web_server.web_app.router.add_post(
                     f"/connector/{self.name}",
@@ -156,8 +159,11 @@ class ConnectorSlack(Connector):
         socket_mode_client if socket mode was enabled."""
 
         if self._event_queue_task:
-            self._event_queue_task.cancel()
-            await asyncio.gather(self._event_queue_task, return_exceptions=True)
+            tasks = self._event_queue_task.children if hasattr(self._event_queue_task, 'children') else []
+            for task in tasks:
+                task.cancel()
+            await asyncio.gather(*tasks, return_exceptions=True)
+
 
         if self.socket_mode_client:
             await self.socket_mode_client.disconnect()
@@ -257,9 +263,11 @@ class ConnectorSlack(Connector):
 
         if event:
             if isinstance(event, list):
-                for e in event:
-                    _LOGGER.debug(f"Got slack event: {e}")
-                    await self.opsdroid.parse(e)
+                _LOGGER.debug(f"Got list of {len(event)} Slack events.")
+                start = time.time()
+                await asyncio.gather(*(self.opsdroid.parse(e) for e in event))
+                _LOGGER.debug(f"Parsed all Slack events in {time.time() - start:.2f} seconds")
+
 
             if isinstance(event, opsdroid.events.Event):
                 _LOGGER.debug(f"Got slack event: {event}")
