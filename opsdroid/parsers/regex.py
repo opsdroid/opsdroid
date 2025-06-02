@@ -25,6 +25,10 @@ async def match_regex(text, opts):
         matched_regex = regex.search(opts["expression"], text, is_case_sensitive())
     elif opts["matching_condition"].lower() == "fullmatch":
         matched_regex = regex.fullmatch(opts["expression"], text, is_case_sensitive())
+    elif opts["matching_condition"].lower() == "findall":
+        matched_regex = list(
+            regex.finditer(opts["expression"], text, is_case_sensitive())
+        )
     else:
         matched_regex = regex.match(opts["expression"], text, is_case_sensitive())
     return matched_regex
@@ -40,8 +44,13 @@ async def parse_regex(opsdroid, skills, message):
                 matched_regex = await match_regex(message.text, opts)
                 if matched_regex:
                     message.regex = matched_regex
-                    for regroup, value in matched_regex.groupdict().items():
-                        message.update_entity(regroup, value, None)
+                    # If we have used findall then we have an iterable
+                    # if we haven't make it one so we can use the same codepath
+                    if opts["matching_condition"] != "findall":
+                        matched_regex = [matched_regex]
+                    for match in matched_regex:
+                        for regroup, value in match.groupdict().items():
+                            message.update_entity(regroup, value, None, append=True)
                     matched_skills.append(
                         {
                             "score": await calculate_score(
