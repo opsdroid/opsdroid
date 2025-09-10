@@ -10,15 +10,15 @@ from opsdroid.events import Message
 
 
 @pytest.mark.anyio
-async def test_init():
-    connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
+async def test_init(opsdroid):
+    connector = ConnectorWebsocket({}, opsdroid=opsdroid)
     assert connector.default_target is None
     assert connector.name == "websocket"
 
 
 @pytest.mark.anyio
-async def test_property():
-    connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
+async def test_property(opsdroid):
+    connector = ConnectorWebsocket({}, opsdroid=opsdroid)
     assert connector.name == "websocket"
 
 
@@ -40,9 +40,9 @@ async def test_connect():
 
 
 @pytest.mark.anyio
-async def test_disconnect():
+async def test_disconnect(opsdroid):
     """Test the disconnect method closes all sockets."""
-    connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
+    connector = ConnectorWebsocket({}, opsdroid=opsdroid)
 
     connector.active_connections = {
         "connection1": AsyncMock(),
@@ -60,11 +60,11 @@ async def test_disconnect():
 
 
 @pytest.mark.anyio
-async def test_new_websocket_handler():
+async def test_new_websocket_handler(opsdroid):
     """Test the new websocket handler."""
     import aiohttp.web
 
-    connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
+    connector = ConnectorWebsocket({}, opsdroid=opsdroid)
     connector.max_connections = 1
     assert len(connector.available_connections) == 0
 
@@ -81,16 +81,16 @@ async def test_new_websocket_handler():
 
 
 @pytest.mark.anyio
-async def test_lookup_username():
+async def test_lookup_username(opsdroid):
     """Test lookup up the username."""
-    connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
+    connector = ConnectorWebsocket({}, opsdroid=opsdroid)
     assert connector.name == "websocket"
 
 
 @pytest.mark.anyio
-async def test_listen():
+async def test_listen(opsdroid):
     """Test that listen does nothing."""
-    connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
+    connector = ConnectorWebsocket({}, opsdroid=opsdroid)
     await connector.listen()
 
 
@@ -125,7 +125,7 @@ async def test_websocket_handler(opsdroid):
 
     import aiohttp
 
-    connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
+    connector = ConnectorWebsocket({}, opsdroid=opsdroid)
     room = "a146f52c-548a-11e8-a7d1-28cfe949e12d"
     mock_request = Mock()
     mock_request.match_info = Mock()
@@ -185,9 +185,9 @@ def test_ConnectorMessage_dataclass():
 
 
 @pytest.mark.anyio
-async def test_validate_request():
+async def test_validate_request(opsdroid):
     config = {"token": "secret"}
-    connector = ConnectorWebsocket(config, opsdroid=OpsDroid())
+    connector = ConnectorWebsocket(config, opsdroid=opsdroid)
 
     request = AsyncMock()
     request.headers = {"Authorization": "secret"}
@@ -202,9 +202,9 @@ async def test_validate_request():
 
 
 @pytest.mark.anyio
-async def test_new_websocket_handler_no_token():
+async def test_new_websocket_handler_no_token(opsdroid):
     config = {"token": "secret"}
-    connector = ConnectorWebsocket(config, opsdroid=OpsDroid())
+    connector = ConnectorWebsocket(config, opsdroid=opsdroid)
 
     with pytest.raises(HTTPUnauthorized):
         request = AsyncMock()
