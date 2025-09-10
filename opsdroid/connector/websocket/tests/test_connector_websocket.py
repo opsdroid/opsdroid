@@ -1,26 +1,25 @@
 import json
-from unittest.mock import AsyncMock,MagicMock, Mock, patch
+from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
-import anyio
 import pytest
 from aiohttp.web_exceptions import HTTPUnauthorized
 
-from opsdroid.cli.utils import configure_lang
 from opsdroid.connector.websocket import ConnectorWebsocket, WebsocketMessage
 from opsdroid.core import OpsDroid
 from opsdroid.events import Message
+
 
 @pytest.mark.anyio
 async def test_init():
     connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
     assert connector.default_target is None
-    assert connector.name == 'websocket'
+    assert connector.name == "websocket"
 
 
 @pytest.mark.anyio
 async def test_property():
     connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
-    assert connector.name == 'websocket'
+    assert connector.name == "websocket"
 
 
 @pytest.mark.anyio
@@ -55,8 +54,8 @@ async def test_disconnect():
 
     await connector.disconnect()
 
-    assert connector.active_connections['connection1'].close.called
-    assert connector.active_connections['connection2'].close.called
+    assert connector.active_connections["connection1"].close.called
+    assert connector.active_connections["connection2"].close.called
     assert not connector.accepting_connections
 
 
@@ -85,7 +84,8 @@ async def test_new_websocket_handler():
 async def test_lookup_username():
     """Test lookup up the username."""
     connector = ConnectorWebsocket({}, opsdroid=OpsDroid())
-    assert connector.name == 'websocket'
+    assert connector.name == "websocket"
+
 
 @pytest.mark.anyio
 async def test_listen():
@@ -119,7 +119,7 @@ async def test_respond(opsdroid):
 
 
 @pytest.mark.anyio
-async def test_websocket_handler():
+async def test_websocket_handler(opsdroid):
     """Test the websocket handler."""
     from datetime import datetime, timedelta
 
@@ -133,7 +133,7 @@ async def test_websocket_handler():
     mock_request.match_info.get.return_value = room
     connector.available_connections = [{"id": room, "date": datetime.now()}]
 
-    with OpsDroid() as opsdroid, patch(
+    with patch(
         "aiohttp.web.WebSocketResponse", new=MagicMock()
     ) as mock_WebSocketResponse:
         connector.opsdroid = opsdroid
@@ -158,14 +158,14 @@ async def test_websocket_handler():
         assert not connector.active_connections
 
         response = await connector.websocket_handler(mock_request)
-        assert type(response) == aiohttp.web.Response
+        assert isinstance(response, aiohttp.web.Response)
         assert response.status == 400
 
         connector.available_connections = [
             {"id": room, "date": datetime.now() - timedelta(seconds=120)}
         ]
         response = await connector.websocket_handler(mock_request)
-        assert type(response) == aiohttp.web.Response
+        assert isinstance(response, aiohttp.web.Response)
         assert response.status == 408
         assert not connector.available_connections
 
@@ -210,7 +210,3 @@ async def test_new_websocket_handler_no_token():
         request = AsyncMock()
         request.headers = {}
         await connector.new_websocket_handler(request)
-
-
-
-
