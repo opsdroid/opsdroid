@@ -5,7 +5,6 @@ import pytest
 from aiohttp.web_exceptions import HTTPUnauthorized
 
 from opsdroid.connector.websocket import ConnectorWebsocket, WebsocketMessage
-from opsdroid.core import OpsDroid
 from opsdroid.events import Message
 
 
