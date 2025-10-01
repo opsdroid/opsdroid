@@ -15,3 +15,5 @@ flip-a-coin
 stocks-portfolio
 contact-manager
 ```
+
+- [Bye Skill](bye-skill.md)
