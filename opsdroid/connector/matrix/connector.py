@@ -313,7 +313,7 @@ class ConnectorMatrix(Connector):
                         if isinstance(event, nio.MegolmEvent):
                             try:  # pragma: no cover
                                 event = self.connection.decrypt_event(event)
-                            except nio.exceptions.EncryptionError:  # pragma: no cover
+                            except (nio.exceptions.EncryptionError, nio.exceptions.LocalProtocolError):  # pragma: no cover
                                 _LOGGER.exception(f"Failed to decrypt event {event}")
                         yield await self._event_creator.create_event(
                             event.source, roomid
