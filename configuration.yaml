@@ -1,0 +1,7 @@
+
+connectors:
+  - name: websocket
+
+skills:
+  - name: password
+    path: password_skill
