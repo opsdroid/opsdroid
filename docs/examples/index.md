@@ -14,4 +14,5 @@ weather
 flip-a-coin
 stocks-portfolio
 contact-manager
+github-issue-helper
 ```
