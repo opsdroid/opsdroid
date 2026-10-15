@@ -5,9 +5,9 @@ import tempfile
 import contextlib
 import unittest
 import unittest.mock as mock
+from importlib.metadata import EntryPoint
 from types import ModuleType
 
-import pkg_resources
 from opsdroid.core import OpsDroid
 from opsdroid.cli.start import configure_lang
 from opsdroid.configuration import load_config_file
@@ -242,16 +242,15 @@ class TestLoader(unittest.TestCase):
         config["type"] = ""
         config["module"] = ""
 
-        distro = pkg_resources.Distribution()
-        ep = pkg_resources.EntryPoint("myep", "os.path", dist=distro)
+        ep = EntryPoint("myep", "os.path", "opsdroid_databases")
         config["entrypoint"] = ep
 
         opsdroid, loader = self.setup()
         loader.modules_directory = "."
         modules = {"myep": {}}
 
-        with mock.patch("opsdroid.loader.iter_entry_points") as mock_iter_entry_points:
-            mock_iter_entry_points.return_value = (ep,)
+        with mock.patch("opsdroid.loader.entry_points") as mock_entry_points:
+            mock_entry_points.return_value = (ep,)
             loaded = loader._load_modules("database", modules)
             self.assertEqual(loaded[0]["config"]["name"], "myep")
 
