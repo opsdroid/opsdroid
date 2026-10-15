@@ -1,0 +1,84 @@
+{
+    "action": "reopened",
+    "alert": {
+        "number": 4,
+        "created_at": "2020-06-19T19:04:19Z",
+        "updated_at": "2020-06-19T19:04:19Z",
+        "url": "https://api.github.com/repos/octocat/Hello-World/code-scanning/alerts/4",
+        "html_url": "https://github.com/octocat/Hello-World/code-scanning/4",
+        "state": "open",
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "rule": {
+            "id": "js/unsafe-html-injection",
+            "severity": "error",
+            "description": "Unsafe HTML injection",
+            "name": "Unsafe HTML injection",
+            "tags": [
+                "security",
+                "external/cwe/cwe-079",
+                "external/cwe/cwe-116"
+            ]
+        },
+        "tool": {
+            "name": "CodeQL",
+            "guid": null,
+            "version": "2.4.0"
+        },
+        "most_recent_instance": {
+            "ref": "refs/heads/main",
+            "analysis_key": ".github/workflows/codeql-analysis.yml:analyze",
+            "environment": "{}",
+            "state": "open",
+            "commit_sha": "20acc0ca8b5a9e80334a68a9c7c3d7e0dd5b0a2c",
+            "message": {
+                "text": "Unsafe HTML injection"
+            },
+            "location": {
+                "path": "app.js",
+                "start_line": 12,
+                "end_line": 12,
+                "start_column": 7,
+                "end_column": 24
+            },
+            "classifications": [
+                "source"
+            ]
+        },
+        "instances_url": "https://api.github.com/repos/octocat/Hello-World/code-scanning/alerts/4/instances"
+    },
+    "ref": "refs/heads/main",
+    "commit_oid": "20acc0ca8b5a9e80334a68a9c7c3d7e0dd5b0a2c",
+    "repository": {
+        "id": 1296269,
+        "name": "Hello-World",
+        "full_name": "octocat/Hello-World",
+        "private": false,
+        "owner": {
+            "login": "octocat",
+            "id": 1,
+            "node_id": "MDQ6VXNlcjE=",
+            "url": "https://api.github.com/users/octocat",
+            "html_url": "https://github.com/octocat",
+            "type": "User",
+            "site_admin": false
+        },
+        "html_url": "https://github.com/octocat/Hello-World",
+        "url": "https://api.github.com/repos/octocat/Hello-World",
+        "default_branch": "main"
+    },
+    "sender": {
+        "login": "octocat",
+        "id": 1,
+        "node_id": "MDQ6VXNlcjE=",
+        "url": "https://api.github.com/users/octocat",
+        "html_url": "https://github.com/octocat",
+        "type": "User",
+        "site_admin": false
+    },
+    "installation": {
+        "id": 1,
+        "node_id": "MDQ6VXNlcjE="
+    }
+}

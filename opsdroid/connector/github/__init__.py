@@ -344,6 +344,40 @@ class ConnectorGitHub(Connector):
         )
         return event
 
+    async def handle_code_scanning_alert_event(
+        self, payload: dict, user: str
+    ) -> github_events:
+        """Handle code scanning alert events.
+
+        Code scanning alerts are dispatched to different events depending on
+        the action of the payload, so that skills can react to a specific
+        change, like a new alert being created or an alert being fixed.
+
+        """
+        alert = payload["alert"]
+        attributes = {
+            "action": payload["action"],
+            "number": alert["number"],
+            "state": alert["state"],
+            "url": alert["html_url"],
+            "tool": alert["tool"]["name"],
+            "rule": alert["rule"]["id"],
+            "repository": payload["repository"]["name"],
+            "sender": user,
+            "connector": self,
+            "raw_event": payload,
+        }
+        events_by_action = {
+            "created": github_events.CodeScanningAlertCreated,
+            "reopened": github_events.CodeScanningAlertReopened,
+            "reopened_by_user": github_events.CodeScanningAlertReopenedByUser,
+            "fixed": github_events.CodeScanningAlertFixed,
+            "dismissed": github_events.CodeScanningAlertDismissed,
+            "closed_by_user": github_events.CodeScanningAlertClosedByUser,
+        }
+        event = events_by_action[payload["action"]](**attributes)
+        return event
+
     async def github_message_handler(self, request):
         """Handle event from GitHub."""
         try:
@@ -385,6 +419,10 @@ class ConnectorGitHub(Connector):
                     event = await self.handle_pr_event(payload, repo, user)
                 elif payload.get("check_run"):
                     event = await self.handle_check_event(payload, user)
+                elif payload.get("alert") and payload.get("commit_oid"):
+                    # code scanning alerts always include the alert and the
+                    # commit that the alert was found in
+                    event = await self.handle_code_scanning_alert_event(payload, user)
                 else:
                     _LOGGER.debug(
                         _("No message to respond to. Got payload: \n %s"), payload

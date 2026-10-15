@@ -700,6 +700,186 @@ async def test_check_completed(opsdroid, connector, mock_api, caplog):
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
 @pytest.mark.anyio
+async def test_code_scanning_alert_created(opsdroid, connector, mock_api, caplog):
+    """Test a code scanning alert created event creates an event and parses it."""
+    caplog.set_level(logging.INFO)
+
+    @match_event(github_event.CodeScanningAlertCreated)
+    async def test_skill(opsdroid, config, event):
+        assert event.action == "created"
+        assert event.number == 4
+        assert event.state == "open"
+        assert event.tool == "CodeQL"
+        assert event.rule == "js/unsafe-html-injection"
+        assert event.repository == "Hello-World"
+        assert event.sender == "octocat"
+        logging.getLogger(__name__).info("Test skill complete")
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/github",
+            "POST",
+            data=get_webhook_payload("code_scanning_alert_created.json"),
+        )
+        assert resp.status == 201
+        assert "Test skill complete" in caplog.text
+        assert "Exception when running skill" not in caplog.text
+
+
+@pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
+@pytest.mark.anyio
+async def test_code_scanning_alert_reopened(opsdroid, connector, mock_api, caplog):
+    """Test a code scanning alert reopened event creates an event and parses it."""
+    caplog.set_level(logging.INFO)
+
+    @match_event(github_event.CodeScanningAlertReopened)
+    async def test_skill(opsdroid, config, event):
+        assert event.action == "reopened"
+        assert event.number == 4
+        assert event.state == "open"
+        assert event.repository == "Hello-World"
+        assert event.sender == "octocat"
+        logging.getLogger(__name__).info("Test skill complete")
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/github",
+            "POST",
+            data=get_webhook_payload("code_scanning_alert_reopened.json"),
+        )
+        assert resp.status == 201
+        assert "Test skill complete" in caplog.text
+        assert "Exception when running skill" not in caplog.text
+
+
+@pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
+@pytest.mark.anyio
+async def test_code_scanning_alert_reopened_by_user(
+    opsdroid, connector, mock_api, caplog
+):
+    """Test a code scanning alert reopened by user event creates an event and parses it."""
+    caplog.set_level(logging.INFO)
+
+    @match_event(github_event.CodeScanningAlertReopenedByUser)
+    async def test_skill(opsdroid, config, event):
+        assert event.action == "reopened_by_user"
+        assert event.number == 4
+        assert event.state == "open"
+        assert event.repository == "Hello-World"
+        assert event.sender == "octocat"
+        logging.getLogger(__name__).info("Test skill complete")
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/github",
+            "POST",
+            data=get_webhook_payload("code_scanning_alert_reopened_by_user.json"),
+        )
+        assert resp.status == 201
+        assert "Test skill complete" in caplog.text
+        assert "Exception when running skill" not in caplog.text
+
+
+@pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
+@pytest.mark.anyio
+async def test_code_scanning_alert_fixed(opsdroid, connector, mock_api, caplog):
+    """Test a code scanning alert fixed event creates an event and parses it."""
+    caplog.set_level(logging.INFO)
+
+    @match_event(github_event.CodeScanningAlertFixed)
+    async def test_skill(opsdroid, config, event):
+        assert event.action == "fixed"
+        assert event.number == 4
+        assert event.state == "fixed"
+        assert event.repository == "Hello-World"
+        assert event.sender == "octocat"
+        logging.getLogger(__name__).info("Test skill complete")
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/github",
+            "POST",
+            data=get_webhook_payload("code_scanning_alert_fixed.json"),
+        )
+        assert resp.status == 201
+        assert "Test skill complete" in caplog.text
+        assert "Exception when running skill" not in caplog.text
+
+
+@pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
+@pytest.mark.anyio
+async def test_code_scanning_alert_dismissed(opsdroid, connector, mock_api, caplog):
+    """Test a code scanning alert dismissed event creates an event and parses it."""
+    caplog.set_level(logging.INFO)
+
+    @match_event(github_event.CodeScanningAlertDismissed)
+    async def test_skill(opsdroid, config, event):
+        assert event.action == "dismissed"
+        assert event.number == 4
+        assert event.state == "dismissed"
+        assert event.repository == "Hello-World"
+        assert event.sender == "octocat"
+        logging.getLogger(__name__).info("Test skill complete")
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/github",
+            "POST",
+            data=get_webhook_payload("code_scanning_alert_dismissed.json"),
+        )
+        assert resp.status == 201
+        assert "Test skill complete" in caplog.text
+        assert "Exception when running skill" not in caplog.text
+
+
+@pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
+@pytest.mark.anyio
+async def test_code_scanning_alert_closed_by_user(
+    opsdroid, connector, mock_api, caplog
+):
+    """Test a code scanning alert closed by user event creates an event and parses it."""
+    caplog.set_level(logging.INFO)
+
+    @match_event(github_event.CodeScanningAlertClosedByUser)
+    async def test_skill(opsdroid, config, event):
+        assert event.action == "closed_by_user"
+        assert event.number == 4
+        assert event.state == "dismissed"
+        assert event.repository == "Hello-World"
+        assert event.sender == "octocat"
+        logging.getLogger(__name__).info("Test skill complete")
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/github",
+            "POST",
+            data=get_webhook_payload("code_scanning_alert_closed_by_user.json"),
+        )
+        assert resp.status == 201
+        assert "Test skill complete" in caplog.text
+        assert "Exception when running skill" not in caplog.text
+
+
+@pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
+@pytest.mark.anyio
 async def test_receive_issue(opsdroid, connector, mock_api, caplog):
     """Test a issue create event creates a message and parses it."""
     caplog.set_level(logging.INFO)

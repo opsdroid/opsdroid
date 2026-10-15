@@ -16,11 +16,13 @@ There are 2 ways to connect opsdroid to Github. You can create a Github App and 
 - Specify the Webhook URL pointing to your opsdroid url.
 - Select which permissions you would like to ask the user for. Currently supported are:
   - "Checks"
+  - "Code scanning alerts"
   - "Contents"
   - "Issues"
   - "Pull requests"
 - Based on your selection, you can check which events you would like Github to send to your opsdroid. Currently supported are:
   - "Check runs"
+  - "Code scanning alert"
   - "Issues"
   - "Issue comment"
   - "Pull request"
@@ -43,6 +45,7 @@ _*Note:* You should add a secure secret when setting up your webhook, this will 
 - Create a webhook pointing to your opsdroid url
 - Select what kind of events should be sent to the bot, you can select "Let me select individual events" and check:
   - "Check runs"
+  - "Code scanning alert"
   - "Issues"
   - "Issue comment"
   - "Pull request"
@@ -163,5 +166,29 @@ connectors:
 ```
 
 ```{autoclass} opsdroid.connector.github.events.CheckFailed
+:members:
+```
+
+```{autoclass} opsdroid.connector.github.events.CodeScanningAlertCreated
+:members:
+```
+
+```{autoclass} opsdroid.connector.github.events.CodeScanningAlertReopened
+:members:
+```
+
+```{autoclass} opsdroid.connector.github.events.CodeScanningAlertReopenedByUser
+:members:
+```
+
+```{autoclass} opsdroid.connector.github.events.CodeScanningAlertFixed
+:members:
+```
+
+```{autoclass} opsdroid.connector.github.events.CodeScanningAlertDismissed
+:members:
+```
+
+```{autoclass} opsdroid.connector.github.events.CodeScanningAlertClosedByUser
 :members:
 ```
