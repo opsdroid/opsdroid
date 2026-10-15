@@ -14,8 +14,7 @@ import sys
 import tempfile
 import urllib.request
 from collections.abc import Mapping
-
-from pkg_resources import iter_entry_points
+from importlib.metadata import entry_points
 
 from opsdroid.configuration import validate_configuration
 from opsdroid.const import (
@@ -453,15 +452,15 @@ class Loader:
         # entry point group naming scheme: opsdroid_ + module type plural,
         # eg. "opsdroid_databases"
         epname = "opsdroid_{}s".format(modules_type)
-        entry_points = {ep.name: ep for ep in iter_entry_points(group=epname)}
-        for epname in entry_points:
+        available_entry_points = {ep.name: ep for ep in entry_points(group=epname)}
+        for epname in available_entry_points:
             _LOGGER.debug(
                 _("Found installed package for %s '%s' support."), modules_type, epname
             )
 
         for module in modules:
             config = self.setup_module_config(
-                modules, module, modules_type, entry_points
+                modules, module, modules_type, available_entry_points
             )
 
             # If the module isn't builtin, or isn't already on the
