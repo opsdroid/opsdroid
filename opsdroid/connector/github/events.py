@@ -423,3 +423,237 @@ class CheckFailed(events.Event):
         self.conclusion = conclusion
         self.repository = repository
         self.sender = sender
+
+
+class CodeScanningAlertCreated(events.Event):
+    """Event that is triggered when a code scanning alert is created."""
+
+    def __init__(
+        self,
+        action,
+        number,
+        state,
+        url,
+        tool,
+        rule,
+        repository,
+        sender,
+        *args,
+        **kwargs,
+    ):
+        """Event that is triggered when a code scanning alert is created.
+
+        * ``action`` - The action performed, in this case it will be ``created``.
+        * ``number`` - The number of the alert.
+        * ``state`` - The state of the alert, in this case it will be ``open``.
+        * ``url`` - The URL of the alert on GitHub.
+        * ``tool`` - The name of the tool that found the alert.
+        * ``rule`` - The id of the rule that triggered the alert.
+        * ``repository`` - Which repository the alert belongs to.
+        * ``sender`` - The user that triggered the event.
+
+        """
+        super().__init__(*args, **kwargs)
+        self.action = action
+        self.number = number
+        self.state = state
+        self.url = url
+        self.tool = tool
+        self.rule = rule
+        self.repository = repository
+        self.sender = sender
+
+
+class CodeScanningAlertReopened(events.Event):
+    """Event that is triggered when a code scanning alert is reopened."""
+
+    def __init__(
+        self,
+        action,
+        number,
+        state,
+        url,
+        tool,
+        rule,
+        repository,
+        sender,
+        *args,
+        **kwargs,
+    ):
+        """Event that is triggered when a code scanning alert is reopened.
+
+        * ``action`` - The action performed, in this case it will be ``reopened``.
+        * ``number`` - The number of the alert.
+        * ``state`` - The state of the alert, in this case it will be ``open``.
+        * ``url`` - The URL of the alert on GitHub.
+        * ``tool`` - The name of the tool that found the alert.
+        * ``rule`` - The id of the rule that triggered the alert.
+        * ``repository`` - Which repository the alert belongs to.
+        * ``sender`` - The user that triggered the event.
+
+        """
+        super().__init__(*args, **kwargs)
+        self.action = action
+        self.number = number
+        self.state = state
+        self.url = url
+        self.tool = tool
+        self.rule = rule
+        self.repository = repository
+        self.sender = sender
+
+
+class CodeScanningAlertReopenedByUser(events.Event):
+    """Event that is triggered when a code scanning alert is reopened by a user."""
+
+    def __init__(
+        self,
+        action,
+        number,
+        state,
+        url,
+        tool,
+        rule,
+        repository,
+        sender,
+        *args,
+        **kwargs,
+    ):
+        """Event that is triggered when a code scanning alert is reopened by a user.
+
+        * ``action`` - The action performed, in this case it will be ``reopened_by_user``.
+        * ``number`` - The number of the alert.
+        * ``state`` - The state of the alert, in this case it will be ``open``.
+        * ``url`` - The URL of the alert on GitHub.
+        * ``tool`` - The name of the tool that found the alert.
+        * ``rule`` - The id of the rule that triggered the alert.
+        * ``repository`` - Which repository the alert belongs to.
+        * ``sender`` - The user that triggered the event.
+
+        """
+        super().__init__(*args, **kwargs)
+        self.action = action
+        self.number = number
+        self.state = state
+        self.url = url
+        self.tool = tool
+        self.rule = rule
+        self.repository = repository
+        self.sender = sender
+
+
+class CodeScanningAlertFixed(events.Event):
+    """Event that is triggered when a code scanning alert is fixed."""
+
+    def __init__(
+        self,
+        action,
+        number,
+        state,
+        url,
+        tool,
+        rule,
+        repository,
+        sender,
+        *args,
+        **kwargs,
+    ):
+        """Event that is triggered when a code scanning alert is fixed.
+
+        * ``action`` - The action performed, in this case it will be ``fixed``.
+        * ``number`` - The number of the alert.
+        * ``state`` - The state of the alert, in this case it will be ``fixed``.
+        * ``url`` - The URL of the alert on GitHub.
+        * ``tool`` - The name of the tool that found the alert.
+        * ``rule`` - The id of the rule that triggered the alert.
+        * ``repository`` - Which repository the alert belongs to.
+        * ``sender`` - The user that triggered the event.
+
+        """
+        super().__init__(*args, **kwargs)
+        self.action = action
+        self.number = number
+        self.state = state
+        self.url = url
+        self.tool = tool
+        self.rule = rule
+        self.repository = repository
+        self.sender = sender
+
+
+class CodeScanningAlertDismissed(events.Event):
+    """Event that is triggered when a code scanning alert is dismissed."""
+
+    def __init__(
+        self,
+        action,
+        number,
+        state,
+        url,
+        tool,
+        rule,
+        repository,
+        sender,
+        *args,
+        **kwargs,
+    ):
+        """Event that is triggered when a code scanning alert is dismissed.
+
+        * ``action`` - The action performed, in this case it will be ``dismissed``.
+        * ``number`` - The number of the alert.
+        * ``state`` - The state of the alert, in this case it will be ``dismissed``.
+        * ``url`` - The URL of the alert on GitHub.
+        * ``tool`` - The name of the tool that found the alert.
+        * ``rule`` - The id of the rule that triggered the alert.
+        * ``repository`` - Which repository the alert belongs to.
+        * ``sender`` - The user that triggered the event.
+
+        """
+        super().__init__(*args, **kwargs)
+        self.action = action
+        self.number = number
+        self.state = state
+        self.url = url
+        self.tool = tool
+        self.rule = rule
+        self.repository = repository
+        self.sender = sender
+
+
+class CodeScanningAlertClosedByUser(events.Event):
+    """Event that is triggered when a code scanning alert is closed by a user."""
+
+    def __init__(
+        self,
+        action,
+        number,
+        state,
+        url,
+        tool,
+        rule,
+        repository,
+        sender,
+        *args,
+        **kwargs,
+    ):
+        """Event that is triggered when a code scanning alert is closed by a user.
+
+        * ``action`` - The action performed, in this case it will be ``closed_by_user``.
+        * ``number`` - The number of the alert.
+        * ``state`` - The state of the alert, in this case it will be ``dismissed``.
+        * ``url`` - The URL of the alert on GitHub.
+        * ``tool`` - The name of the tool that found the alert.
+        * ``rule`` - The id of the rule that triggered the alert.
+        * ``repository`` - Which repository the alert belongs to.
+        * ``sender`` - The user that triggered the event.
+
+        """
+        super().__init__(*args, **kwargs)
+        self.action = action
+        self.number = number
+        self.state = state
+        self.url = url
+        self.tool = tool
+        self.rule = rule
+        self.repository = repository
+        self.sender = sender
