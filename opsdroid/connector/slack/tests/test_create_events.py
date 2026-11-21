@@ -3,9 +3,11 @@ Depending on payload different methods from create_events module will be tested
 """
 
 import json
+from unittest.mock import AsyncMock
 
 import pytest
 from opsdroid.connector.slack.create_events import SlackEventCreator
+from opsdroid.events import EditedMessage, Message
 from opsdroid.testing import MINIMAL_CONFIG, call_endpoint, run_unit_test
 
 from .conftest import get_path
@@ -125,3 +127,192 @@ async def test_edit_message_user_name_not_found(connector, mock_api):
     event_creator = SlackEventCreator(connector=connector)
     message = await event_creator.edit_message({"message": {}}, None)
     assert not message
+
+
+# --- Regression tests for issue #2000 -------------------------------------
+# Opsdroid must not react to Slack messages that are only visible to a
+# single user (ephemeral / hidden messages) or to system message subtypes,
+# while normal messages must still be parsed.
+
+
+def _wrap_event(event):
+    """Wrap a raw slack event in an event_callback payload."""
+    return {"type": "event_callback", "event": event}
+
+
+@pytest.mark.anyio
+async def test_event_handler_normal_message(connector, mock_api):
+    """A normal channel message should be parsed into a Message event."""
+    connector.known_users = {"U01NK1K9L68": {"name": "Test User"}}
+    connector.opsdroid.parse = AsyncMock()
+
+    await connector.event_handler(
+        _wrap_event(
+            {
+                "type": "message",
+                "text": "hello opsdroid",
+                "user": "U01NK1K9L68",
+                "channel": "C01N9PM1D53",
+                "ts": "1613632675.006300",
+            }
+        )
+    )
+
+    connector.opsdroid.parse.assert_called_once()
+    event = connector.opsdroid.parse.call_args[0][0]
+    assert isinstance(event, Message)
+    assert event.text == "hello opsdroid"
+
+
+@pytest.mark.anyio
+async def test_event_handler_skips_hidden_ephemeral_message(connector, mock_api):
+    """Messages only visible to one user (hidden/ephemeral) must be skipped."""
+    connector.known_users = {"U01NK1K9L68": {"name": "Test User"}}
+    connector.opsdroid.parse = AsyncMock()
+
+    await connector.event_handler(
+        _wrap_event(
+            {
+                "type": "message",
+                "hidden": True,
+                "text": "only visible to me",
+                "user": "U01NK1K9L68",
+                "channel": "C01N9PM1D53",
+                "ts": "1613632675.006300",
+            }
+        )
+    )
+
+    connector.opsdroid.parse.assert_not_called()
+
+
+@pytest.mark.anyio
+async def test_event_handler_skips_ephemeral_subtype(connector, mock_api):
+    """Messages with an ephemeral subtype must be skipped."""
+    connector.known_users = {"U01NK1K9L68": {"name": "Test User"}}
+    connector.opsdroid.parse = AsyncMock()
+
+    await connector.event_handler(
+        _wrap_event(
+            {
+                "type": "message",
+                "subtype": "ephemeral",
+                "text": "only visible to me",
+                "user": "U01NK1K9L68",
+                "channel": "C01N9PM1D53",
+                "ts": "1613632675.006300",
+            }
+        )
+    )
+
+    connector.opsdroid.parse.assert_not_called()
+
+
+@pytest.mark.anyio
+@pytest.mark.parametrize(
+    "subtype",
+    ["message_deleted", "message_replied", "channel_leave", "file_comment"],
+)
+async def test_event_handler_skips_system_message_subtypes(
+    connector, mock_api, subtype
+):
+    """System message subtypes must be skipped instead of crashing/parsing."""
+    connector.known_users = {"U01NK1K9L68": {"name": "Test User"}}
+    connector.opsdroid.parse = AsyncMock()
+
+    await connector.event_handler(
+        _wrap_event(
+            {
+                "type": "message",
+                "subtype": subtype,
+                "text": "system message",
+                "user": "U01NK1K9L68",
+                "channel": "C01N9PM1D53",
+                "ts": "1613632675.006300",
+                "previous_message": {"text": "old"},
+            }
+        )
+    )
+
+    connector.opsdroid.parse.assert_not_called()
+
+
+@pytest.mark.anyio
+async def test_event_handler_skips_own_bot_message(connector, mock_api):
+    """Messages posted by opsdroid itself must be skipped."""
+    connector.bot_id = "B01MY4ZRP5M"
+    connector.known_bots = {"B01MY4ZRP5M": {"id": "B01MY4ZRP5M"}}
+    connector.opsdroid.parse = AsyncMock()
+
+    await connector.event_handler(
+        _wrap_event(
+            {
+                "type": "message",
+                "subtype": "bot_message",
+                "text": "Hi opsdroid",
+                "bot_id": "B01MY4ZRP5M",
+                "channel": "C01N9PM1D53",
+                "ts": "1614540108.001500",
+            }
+        )
+    )
+
+    connector.opsdroid.parse.assert_not_called()
+
+
+@pytest.mark.anyio
+async def test_event_handler_skips_own_message_changed(connector, mock_api):
+    """message_changed events caused by opsdroid's own edits must be skipped."""
+    connector.bot_id = "B061F7JD2"
+    connector.known_bots = {"B061F7JD2": {"id": "B061F7JD2"}}
+    connector.opsdroid.parse = AsyncMock()
+
+    await connector.event_handler(
+        _wrap_event(
+            {
+                "type": "message",
+                "subtype": "message_changed",
+                "hidden": True,
+                "message": {
+                    "type": "message",
+                    "text": "edited by the bot",
+                    "bot_id": "B061F7JD2",
+                    "ts": "1613632675.006300",
+                },
+                "channel": "C01N9PM1D53",
+                "ts": "1613632704.006400",
+            }
+        )
+    )
+
+    connector.opsdroid.parse.assert_not_called()
+
+
+@pytest.mark.anyio
+async def test_event_handler_user_message_changed(connector, mock_api):
+    """message_changed events from users should still create EditedMessage."""
+    connector.known_users = {"U01NK1K9L68": {"name": "Test User"}}
+    connector.opsdroid.parse = AsyncMock()
+
+    await connector.event_handler(
+        _wrap_event(
+            {
+                "type": "message",
+                "subtype": "message_changed",
+                "hidden": True,
+                "message": {
+                    "type": "message",
+                    "text": "this is an edited message",
+                    "user": "U01NK1K9L68",
+                    "ts": "1613632675.006300",
+                },
+                "channel": "C01N9PM1D53",
+                "ts": "1613632704.006400",
+            }
+        )
+    )
+
+    connector.opsdroid.parse.assert_called_once()
+    event = connector.opsdroid.parse.call_args[0][0]
+    assert isinstance(event, EditedMessage)
+    assert event.text == "this is an edited message"

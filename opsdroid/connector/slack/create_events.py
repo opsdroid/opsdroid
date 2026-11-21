@@ -8,6 +8,27 @@ from opsdroid.connector.slack import events as slack_events
 
 _LOGGER = logging.getLogger(__name__)
 
+# Message subtypes that opsdroid must never react to. These are system
+# events or messages that are only visible to a single user (ephemeral
+# messages), so they should not trigger any skill.
+IGNORED_MESSAGE_SUBTYPES = frozenset(
+    {
+        "ephemeral",
+        "message_deleted",
+        "message_replied",
+        "message_broadcast",
+        "channel_leave",
+        "channel_topic",
+        "channel_purpose",
+        "channel_name",
+        "group_join",
+        "group_leave",
+        "file_comment",
+        "pinned_item",
+        "unpinned_item",
+    }
+)
+
 
 class SlackEventCreator(events.EventCreator):
     """Create opsdroid events from Slack ones."""
@@ -30,6 +51,13 @@ class SlackEventCreator(events.EventCreator):
         self.event_types["view_closed"] = self.view_closed_triggered
         self.event_types["command"] = self.slash_command
 
+        self.ignored_message_subtypes = IGNORED_MESSAGE_SUBTYPES
+        # Subtypes with a dedicated handler. Hidden events of any other
+        # subtype (e.g. ephemeral messages, only visible to one user) are
+        # skipped. Anything else falls back to a regular message.
+        self.handled_message_subtypes = frozenset(
+            {"bot_message", "message_changed", "channel_join"}
+        )
         self.message_subtypes = defaultdict(lambda: self.create_message)
         self.message_subtypes.update(
             {
@@ -44,6 +72,18 @@ class SlackEventCreator(events.EventCreator):
         """Dispatch a message event of arbitrary subtype."""
         channel = event["channel"]
         msgtype = event["subtype"] if "subtype" in event.keys() else "message"
+
+        if msgtype in self.ignored_message_subtypes:
+            _LOGGER.debug(
+                "Ignoring message event with subtype '%s' in %s.", msgtype, channel
+            )
+            return None
+
+        if event.get("hidden") and msgtype not in self.handled_message_subtypes:
+            # Hidden messages (e.g. ephemeral ones) are only visible to a
+            # single user, so opsdroid should not react to them.
+            _LOGGER.debug("Ignoring hidden message event in %s.", channel)
+            return None
 
         return await self.message_subtypes[msgtype](event, channel)
 
@@ -65,7 +105,7 @@ class SlackEventCreator(events.EventCreator):
     async def handle_bot_message(self, event, channel):
         """Check that a bot message is opsdroid if not create the message"""
 
-        if event["bot_id"] != self.connector.bot_id:
+        if event.get("bot_id") != self.connector.bot_id:
             return await self.create_message(event, channel)
 
     async def create_message(self, event, channel, isbot=False):
@@ -90,22 +130,30 @@ class SlackEventCreator(events.EventCreator):
 
     async def edit_message(self, event, channel):
         """Send an EditedMessage event."""
-        user_name = await self._get_user_name(event["message"])
+        message = event["message"]
+
+        if self.connector.bot_id and message.get("bot_id") == self.connector.bot_id:
+            # The message was edited by opsdroid itself, ignore it so we
+            # don't react to our own edits.
+            _LOGGER.debug("Ignoring message_changed event for our own message.")
+            return None
+
+        user_name = await self._get_user_name(message)
 
         if user_name is None:
             return
 
         _LOGGER.debug("Replacing userids in message with usernames")
-        text = await self.connector.replace_usernames(event["message"]["text"])
+        text = await self.connector.replace_usernames(message["text"])
 
         return events.EditedMessage(
             text,
             user=user_name,
-            user_id=event["message"].get("user", event["message"]["username"]),
+            user_id=message.get("user") or message.get("username"),
             target=event["channel"],
             connector=self.connector,
             event_id=event["ts"],
-            linked_event=event["message"]["ts"],
+            linked_event=message["ts"],
             raw_event=event,
         )
 
