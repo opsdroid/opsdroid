@@ -48,7 +48,13 @@ CONFIG_SCHEMA = {
     "start-thread": bool,
     "refresh-interval": int,
     "channel-limit": int,
+    "response-type": str,
 }
+
+# Valid values for the "response-type" configuration. "ephemeral" makes
+# opsdroid reply with messages that are only visible to the user that
+# triggered the event, "in_channel" posts the reply to the whole channel.
+_RESPONSE_TYPES = ("in_channel", "ephemeral")
 
 
 class ConnectorSlack(Connector):
@@ -64,6 +70,9 @@ class ConnectorSlack(Connector):
         self.default_target = config.get("default-room", "#general")
         self.icon_emoji = config.get("icon-emoji", ":robot_face:")
         self.start_thread = config.get("start-thread", False)
+        self.response_type = self._parse_response_type(
+            config.get("response-type", "in_channel")
+        )
         self.socket_mode = config.get("socket-mode", True)
         self.app_token = config.get("app-token")
         self.channel_limit = config.get("channel-limit", 100)
@@ -97,6 +106,24 @@ class ConnectorSlack(Connector):
                 await self.event_handler(payload)
             finally:
                 self._event_queue.task_done()
+
+    @staticmethod
+    def _parse_response_type(response_type):
+        """Normalize and validate the "response-type" configuration value."""
+        if not response_type:
+            return "in_channel"
+        response_type = response_type.replace("-", "_").lower()
+        if response_type not in _RESPONSE_TYPES:
+            _LOGGER.warning(
+                _(
+                    "Invalid 'response-type' %s, falling back to 'in_channel'. "
+                    "Valid values are: %s."
+                ),
+                response_type,
+                ", ".join(_RESPONSE_TYPES),
+            )
+            return "in_channel"
+        return response_type
 
     async def connect(self):
         """Connect to the chat service."""
@@ -245,6 +272,8 @@ class ConnectorSlack(Connector):
 
     async def event_handler(self, payload):
         """Handle different payload types and parse the resulting events"""
+
+        event = None
 
         if "command" in payload:
             payload["type"] = "command"
@@ -459,6 +488,15 @@ class ConnectorSlack(Connector):
 
         data = self._generate_base_data(message)
         data["text"] = message.text
+
+        if self.response_type == "ephemeral" and message.user_id:
+            # Reply with a message only visible to the user that triggered
+            # the event instead of posting it to the whole channel.
+            data["user"] = message.user_id
+            return await self.slack_web_client.api_call(
+                "chat.postEphemeral",
+                data=data,
+            )
 
         return await self.slack_web_client.api_call(
             "chat.postMessage",

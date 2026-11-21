@@ -68,8 +68,27 @@ class InteractiveAction(events.Event):
         self.payload = payload
         self.ssl_context = ssl.create_default_context(cafile=certifi.where())
 
-    async def respond(self, response_event):
-        """Respond to this message using the response_url field in the payload."""
+    def _response_type(self, response_type=None):
+        """Return the visibility of the response.
+
+        Can be "in_channel" (visible to everyone) or "ephemeral" (only
+        visible to the user that triggered the action). Defaults to the
+        connector level "response-type" configuration, or "in_channel".
+        """
+        if response_type:
+            return response_type
+        return getattr(self.connector, "response_type", None) or "in_channel"
+
+    async def respond(self, response_event, response_type=None, **kwargs):
+        """Respond to this message using the response_url field in the payload.
+
+        Args:
+            response_event: The text or event to respond with.
+            response_type (string, optional): "in_channel" to post the reply
+                to the channel or "ephemeral" to send a reply that is only
+                visible to the user that triggered this action. If not set,
+                the connector level "response-type" configuration is used.
+        """
 
         if isinstance(response_event, str):
             if "response_url" in self.payload:
@@ -79,7 +98,7 @@ class InteractiveAction(events.Event):
                         "text": response_event,
                         "replace_original": False,
                         "delete_original": False,
-                        "response_type": "in_channel",
+                        "response_type": self._response_type(response_type),
                     }
                     if "message" in self.payload and self.connector.start_thread:
                         if "thread_ts" in self.payload["message"]:
@@ -244,6 +263,12 @@ class SlashCommand(InteractiveAction):
                 arguments = event.payload["text"]
 
                 await message.respond(f"{cmd} {arguments}")
+
+    By default the response is posted to the channel ("in_channel"). Pass
+    ``response_type="ephemeral"`` to ``respond`` to reply with a message
+    that is only visible to the user who triggered the command, or set
+    ``response-type: ephemeral`` in the connector configuration to make
+    all responses ephemeral.
     """
 
 

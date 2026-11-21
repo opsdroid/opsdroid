@@ -16,6 +16,7 @@ from opsdroid.connector.slack.events import (
     ModalUpdate,
 )
 from slack_sdk.socket_mode.request import SocketModeRequest
+from opsdroid.connector.slack.connector import ConnectorSlack
 
 from .conftest import get_path
 
@@ -593,3 +594,70 @@ async def test_send_pin_removed(send_event, connector):
     payload, response = await send_event(PINS_REMOVE, event)
     assert payload == {"channel": "room", "timestamp": "1582838099.000600"}
     assert response["ok"]
+
+
+CHAT_POST_EPHEMERAL = ("/chat.postEphemeral", "POST", {"ok": True}, 200)
+
+
+@pytest.mark.anyio
+@pytest.mark.add_response(*CHAT_POST_EPHEMERAL)
+async def test_send_ephemeral_message(send_event, connector):
+    connector.response_type = "ephemeral"
+    event = events.Message(
+        text="Hey TEST USER",
+        user="Test User",
+        user_id="U01NK1K9L68",
+        target="room",
+        connector=connector,
+    )
+    payload, response = await send_event(CHAT_POST_EPHEMERAL, event)
+    assert payload == {
+        "channel": "room",
+        "text": "Hey TEST USER",
+        "username": "opsdroid",
+        "user": "U01NK1K9L68",
+        "icon_emoji": ":robot_face:",
+    }
+    assert response["ok"]
+
+
+@pytest.mark.anyio
+@pytest.mark.add_response(*CHAT_POST_MESSAGE)
+async def test_send_message_falls_back_to_channel_without_user_id(
+    send_event, connector
+):
+    connector.response_type = "ephemeral"
+    event = events.Message(text="test", user="user", target="room", connector=connector)
+    payload, response = await send_event(CHAT_POST_MESSAGE, event)
+    assert payload == {
+        "channel": "room",
+        "text": "test",
+        "username": "opsdroid",
+        "icon_emoji": ":robot_face:",
+    }
+    assert response["ok"]
+
+
+@pytest.mark.anyio
+async def test_parse_response_type():
+    assert ConnectorSlack._parse_response_type(None) == "in_channel"
+    assert ConnectorSlack._parse_response_type("") == "in_channel"
+    assert ConnectorSlack._parse_response_type("in_channel") == "in_channel"
+    assert ConnectorSlack._parse_response_type("in-channel") == "in_channel"
+    assert ConnectorSlack._parse_response_type("ephemeral") == "ephemeral"
+    assert ConnectorSlack._parse_response_type("Ephemeral") == "ephemeral"
+    assert ConnectorSlack._parse_response_type("bogus") == "in_channel"
+
+
+@pytest.mark.anyio
+async def test_connector_response_type_config(opsdroid, mock_api_obj, mock_api):
+    opsdroid.config["connectors"] = {
+        "slack": {
+            "bot-token": "abc123",
+            "socket-mode": False,
+            "response-type": "ephemeral",
+        }
+    }
+    await opsdroid.load()
+    connector = opsdroid.get_connector("slack")
+    assert connector.response_type == "ephemeral"
