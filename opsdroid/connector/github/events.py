@@ -423,3 +423,72 @@ class CheckFailed(events.Event):
         self.conclusion = conclusion
         self.repository = repository
         self.sender = sender
+
+
+class CodeScanningAlert(events.Event):
+    """Event that is triggered when a GitHub code scanning alert changes.
+
+    This class holds the attributes shared by the code scanning alert events
+    below. Opsdroid matches events by their exact type, so skills should match
+    one of the action specific subclasses rather than this class.
+
+    """
+
+    def __init__(
+        self,
+        action,
+        number,
+        state,
+        url,
+        tool,
+        rule,
+        repository,
+        sender,
+        *args,
+        **kwargs,
+    ):
+        """Event that is triggered when a code scanning alert changes.
+
+        * ``action`` - The action performed, e.g. ``created`` or ``fixed``.
+        * ``number`` - The number of the alert.
+        * ``state`` - The state of the alert, e.g. ``open`` or ``dismissed``.
+        * ``url`` - The URL of the alert on GitHub.
+        * ``tool`` - The name of the tool that found the alert.
+        * ``rule`` - The id of the rule that triggered the alert.
+        * ``repository`` - Which repository the alert belongs to.
+        * ``sender`` - The user that triggered the event.
+
+        """
+        super().__init__(*args, **kwargs)
+        self.action = action
+        self.number = number
+        self.state = state
+        self.url = url
+        self.tool = tool
+        self.rule = rule
+        self.repository = repository
+        self.sender = sender
+
+
+class CodeScanningAlertAppearedInBranch(CodeScanningAlert):
+    """Event that is triggered when a code scanning alert appears in a branch."""
+
+
+class CodeScanningAlertCreated(CodeScanningAlert):
+    """Event that is triggered when a code scanning alert is created."""
+
+
+class CodeScanningAlertReopened(CodeScanningAlert):
+    """Event that is triggered when a code scanning alert is reopened."""
+
+
+class CodeScanningAlertReopenedByUser(CodeScanningAlert):
+    """Event that is triggered when a code scanning alert is reopened by a user."""
+
+
+class CodeScanningAlertFixed(CodeScanningAlert):
+    """Event that is triggered when a code scanning alert is fixed."""
+
+
+class CodeScanningAlertClosedByUser(CodeScanningAlert):
+    """Event that is triggered when a code scanning alert is closed by a user."""

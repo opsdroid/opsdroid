@@ -5,6 +5,7 @@ import json
 import jwt
 import logging
 import time
+from typing import Optional
 
 import aiohttp
 from opsdroid.connector import Connector, register_event
@@ -344,6 +345,46 @@ class ConnectorGitHub(Connector):
         )
         return event
 
+    async def handle_code_scanning_alert_event(
+        self, payload: dict, user: str
+    ) -> Optional[github_events.CodeScanningAlert]:
+        """Handle code scanning alert events.
+
+        Code scanning alerts are dispatched to different events depending on
+        the action of the payload, so that skills can react to a specific
+        change, like a new alert being created or an alert being fixed.
+
+        """
+        alert = payload["alert"]
+        attributes = {
+            "action": payload["action"],
+            "number": alert["number"],
+            "state": alert["state"],
+            "url": alert["html_url"],
+            "tool": alert["tool"]["name"],
+            "rule": alert["rule"]["id"],
+            "repository": payload["repository"]["name"],
+            "sender": user,
+            "connector": self,
+            "raw_event": payload,
+        }
+        events_by_action = {
+            "appeared_in_branch": github_events.CodeScanningAlertAppearedInBranch,
+            "closed_by_user": github_events.CodeScanningAlertClosedByUser,
+            "created": github_events.CodeScanningAlertCreated,
+            "fixed": github_events.CodeScanningAlertFixed,
+            "reopened": github_events.CodeScanningAlertReopened,
+            "reopened_by_user": github_events.CodeScanningAlertReopenedByUser,
+        }
+        event_class = events_by_action.get(payload["action"])
+        if event_class is None:
+            _LOGGER.debug(
+                _("No code scanning alert event for action '%s'."),
+                payload["action"],
+            )
+            return None
+        return event_class(**attributes)
+
     async def github_message_handler(self, request):
         """Handle event from GitHub."""
         try:
@@ -385,6 +426,16 @@ class ConnectorGitHub(Connector):
                     event = await self.handle_pr_event(payload, repo, user)
                 elif payload.get("check_run"):
                     event = await self.handle_check_event(payload, user)
+                elif "alert" in payload and "commit_oid" in payload:
+                    # code scanning alerts include the alert and the commit it
+                    # was found in, though commit_oid is empty for alerts that
+                    # were closed or reopened by a user
+                    event = await self.handle_code_scanning_alert_event(payload, user)
+                    if event is None:
+                        return aiohttp.web.Response(
+                            text=json.dumps("No message to respond to."),
+                            status=200,
+                        )
                 else:
                     _LOGGER.debug(
                         _("No message to respond to. Got payload: \n %s"), payload
