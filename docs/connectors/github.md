@@ -189,7 +189,7 @@ connectors:
 :members:
 ```
 
-```{autoclass} opsdroid.connector.github.events.CodeScanningAlertDismissed
+```{autoclass} opsdroid.connector.github.events.CodeScanningAlertAppearedInBranch
 :members:
 ```
 

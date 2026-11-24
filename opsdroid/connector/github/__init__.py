@@ -369,12 +369,12 @@ class ConnectorGitHub(Connector):
             "raw_event": payload,
         }
         events_by_action = {
+            "appeared_in_branch": github_events.CodeScanningAlertAppearedInBranch,
+            "closed_by_user": github_events.CodeScanningAlertClosedByUser,
             "created": github_events.CodeScanningAlertCreated,
+            "fixed": github_events.CodeScanningAlertFixed,
             "reopened": github_events.CodeScanningAlertReopened,
             "reopened_by_user": github_events.CodeScanningAlertReopenedByUser,
-            "fixed": github_events.CodeScanningAlertFixed,
-            "dismissed": github_events.CodeScanningAlertDismissed,
-            "closed_by_user": github_events.CodeScanningAlertClosedByUser,
         }
         event_class = events_by_action.get(payload["action"])
         if event_class is None:

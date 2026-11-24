@@ -470,6 +470,10 @@ class CodeScanningAlert(events.Event):
         self.sender = sender
 
 
+class CodeScanningAlertAppearedInBranch(CodeScanningAlert):
+    """Event that is triggered when a code scanning alert appears in a branch."""
+
+
 class CodeScanningAlertCreated(CodeScanningAlert):
     """Event that is triggered when a code scanning alert is created."""
 
@@ -484,10 +488,6 @@ class CodeScanningAlertReopenedByUser(CodeScanningAlert):
 
 class CodeScanningAlertFixed(CodeScanningAlert):
     """Event that is triggered when a code scanning alert is fixed."""
-
-
-class CodeScanningAlertDismissed(CodeScanningAlert):
-    """Event that is triggered when a code scanning alert is dismissed."""
 
 
 class CodeScanningAlertClosedByUser(CodeScanningAlert):

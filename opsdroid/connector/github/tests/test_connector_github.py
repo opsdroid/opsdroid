@@ -821,15 +821,17 @@ async def test_code_scanning_alert_fixed(opsdroid, connector, mock_api, caplog):
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
 @pytest.mark.anyio
-async def test_code_scanning_alert_dismissed(opsdroid, connector, mock_api, caplog):
-    """Test a code scanning alert dismissed event creates an event and parses it."""
+async def test_code_scanning_alert_appeared_in_branch(
+    opsdroid, connector, mock_api, caplog
+):
+    """Test an alert appearing in a branch creates an event and parses it."""
     caplog.set_level(logging.INFO)
 
-    @match_event(github_event.CodeScanningAlertDismissed)
+    @match_event(github_event.CodeScanningAlertAppearedInBranch)
     async def test_skill(opsdroid, config, event):
-        assert event.action == "dismissed"
+        assert event.action == "appeared_in_branch"
         assert event.number == 4
-        assert event.state == "dismissed"
+        assert event.state == "open"
         assert event.repository == "Hello-World"
         assert event.sender == "octocat"
         logging.getLogger(__name__).info("Test skill complete")
@@ -841,7 +843,7 @@ async def test_code_scanning_alert_dismissed(opsdroid, connector, mock_api, capl
             opsdroid,
             "/connector/github",
             "POST",
-            data=get_webhook_payload("code_scanning_alert_dismissed.json"),
+            data=get_webhook_payload("code_scanning_alert_appeared_in_branch.json"),
         )
         assert resp.status == 201
         assert "Test skill complete" in caplog.text
@@ -1107,7 +1109,7 @@ async def test_code_scanning_alert_unknown_action(
     payload = json.loads(
         get_webhook_payload("code_scanning_alert_created.json")["payload"]
     )
-    payload["action"] = "appeared_in_branch"
+    payload["action"] = "updated"
 
     async with running_opsdroid(opsdroid):
         resp = await call_endpoint(
