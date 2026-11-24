@@ -58,7 +58,7 @@
         "instances_url": "https://api.github.com/repos/octocat/Hello-World/code-scanning/alerts/4/instances"
     },
     "ref": "refs/heads/main",
-    "commit_oid": "20acc0ca8b5a9e80334a68a9c7c3d7e0dd5b0a2c",
+    "commit_oid": "",
     "repository": {
         "id": 1296269,
         "name": "Hello-World",

@@ -1,4 +1,5 @@
 """Tests for the GitHub class."""
+import json
 import logging
 from pathlib import Path
 
@@ -1087,6 +1088,37 @@ async def connector_with_validation(opsdroid, mock_api_obj):
     }
     await opsdroid.load()
     return opsdroid.get_connector("github")
+
+
+@pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)
+@pytest.mark.anyio
+async def test_code_scanning_alert_unknown_action(
+    opsdroid, connector, mock_api, caplog
+):
+    """Test an unsupported code scanning action is skipped without raising."""
+    caplog.set_level(logging.INFO)
+
+    @match_event(github_event.CodeScanningAlertCreated)
+    async def test_skill(opsdroid, config, event):
+        logging.getLogger(__name__).info("Test skill complete")
+
+    opsdroid.register_skill(test_skill, config={"name": "test"})
+
+    payload = json.loads(
+        get_webhook_payload("code_scanning_alert_created.json")["payload"]
+    )
+    payload["action"] = "appeared_in_branch"
+
+    async with running_opsdroid(opsdroid):
+        resp = await call_endpoint(
+            opsdroid,
+            "/connector/github",
+            "POST",
+            data={"payload": json.dumps(payload)},
+        )
+        assert resp.status == 200
+        assert "Test skill complete" not in caplog.text
+        assert "Exception when running skill" not in caplog.text
 
 
 @pytest.mark.add_response("/user", "GET", get_response_path("user.json"), status=200)

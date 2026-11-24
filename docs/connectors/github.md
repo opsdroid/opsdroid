@@ -169,6 +169,10 @@ connectors:
 :members:
 ```
 
+```{autoclass} opsdroid.connector.github.events.CodeScanningAlert
+:members:
+```
+
 ```{autoclass} opsdroid.connector.github.events.CodeScanningAlertCreated
 :members:
 ```

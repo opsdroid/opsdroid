@@ -5,6 +5,7 @@ import json
 import jwt
 import logging
 import time
+from typing import Optional
 
 import aiohttp
 from opsdroid.connector import Connector, register_event
@@ -346,7 +347,7 @@ class ConnectorGitHub(Connector):
 
     async def handle_code_scanning_alert_event(
         self, payload: dict, user: str
-    ) -> github_events:
+    ) -> Optional[github_events.CodeScanningAlert]:
         """Handle code scanning alert events.
 
         Code scanning alerts are dispatched to different events depending on
@@ -375,8 +376,14 @@ class ConnectorGitHub(Connector):
             "dismissed": github_events.CodeScanningAlertDismissed,
             "closed_by_user": github_events.CodeScanningAlertClosedByUser,
         }
-        event = events_by_action[payload["action"]](**attributes)
-        return event
+        event_class = events_by_action.get(payload["action"])
+        if event_class is None:
+            _LOGGER.debug(
+                _("No code scanning alert event for action '%s'."),
+                payload["action"],
+            )
+            return None
+        return event_class(**attributes)
 
     async def github_message_handler(self, request):
         """Handle event from GitHub."""
@@ -419,10 +426,16 @@ class ConnectorGitHub(Connector):
                     event = await self.handle_pr_event(payload, repo, user)
                 elif payload.get("check_run"):
                     event = await self.handle_check_event(payload, user)
-                elif payload.get("alert") and payload.get("commit_oid"):
-                    # code scanning alerts always include the alert and the
-                    # commit that the alert was found in
+                elif "alert" in payload and "commit_oid" in payload:
+                    # code scanning alerts include the alert and the commit it
+                    # was found in, though commit_oid is empty for alerts that
+                    # were closed or reopened by a user
                     event = await self.handle_code_scanning_alert_event(payload, user)
+                    if event is None:
+                        return aiohttp.web.Response(
+                            text=json.dumps("No message to respond to."),
+                            status=200,
+                        )
                 else:
                     _LOGGER.debug(
                         _("No message to respond to. Got payload: \n %s"), payload
